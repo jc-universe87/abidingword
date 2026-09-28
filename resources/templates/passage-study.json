@@ -1,0 +1,52 @@
+{
+  "key": "passage-study",
+  "name": "Passage study",
+  "description": "A careful study of one passage, moving from the text itself to teaching it.",
+  "sections": [
+    {
+      "key": "text",
+      "title": "Text",
+      "guidance": "The passage being studied, and any translation notes."
+    },
+    {
+      "key": "context",
+      "title": "Context",
+      "guidance": "Where the passage sits: the book, the surrounding argument, the historical setting."
+    },
+    {
+      "key": "observations",
+      "title": "Observations",
+      "guidance": "What does the text say? Repeated words, connectors, contrasts, commands, questions."
+    },
+    {
+      "key": "structure",
+      "title": "Structure",
+      "guidance": "How the passage is built: its movements, main clauses and turning points."
+    },
+    {
+      "key": "exegesis",
+      "title": "Exegesis",
+      "guidance": "What did the text mean for its first readers? Key words, grammar, difficult phrases."
+    },
+    {
+      "key": "theology",
+      "title": "Theology",
+      "guidance": "What the passage teaches about God, Christ, salvation and the life of faith."
+    },
+    {
+      "key": "application",
+      "title": "Application",
+      "guidance": "How the truth of the passage bears on belief, worship and life today."
+    },
+    {
+      "key": "audience",
+      "title": "Audience",
+      "guidance": "Who will hear this teaching, what they need, and what may hinder them."
+    },
+    {
+      "key": "teaching",
+      "title": "Teaching",
+      "guidance": "Main idea, outline, illustrations and how to communicate it with love."
+    }
+  ]
+}

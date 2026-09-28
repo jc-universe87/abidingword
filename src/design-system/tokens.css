@@ -1,0 +1,85 @@
+/*
+ * Abiding Word design tokens.
+ *
+ * Source: brand package v2.0, tokens/abiding-word-tokens.css. Differences:
+ *  - The brand file declares --aw-text-muted twice (palette hex, then
+ *    semantic var(--aw-text-muted)); the second is self-referential and
+ *    invalid in CSS. Here the palette value is kept as --aw-muted-ink.
+ *  - Added for the app (not in the logo): danger, mark colours, and the
+ *    remaining dark-theme overrides (accent-study, focus ring) so no
+ *    Burgundy-on-Forest pairing can occur (brand guide §7).
+ */
+:root {
+  --aw-forest: #1f352a;
+  --aw-burgundy: #762e32;
+  --aw-brass: #b48135;
+  --aw-ivory: #f6f1e6;
+  --aw-stone: #d9d0c2;
+  --aw-charcoal: #2b2b2b;
+  --aw-forest-deep: #16271f;
+  --aw-forest-soft: #2f4a3c;
+  --aw-ivory-deep: #ede6d8;
+  --aw-stone-light: #e8e1d4;
+  --aw-burgundy-tint: #f1e3e3;
+  --aw-brass-tint: #f3e8d3;
+  --aw-muted-ink: #5f5c56;
+  --aw-text-on-dark: #eae4d8;
+
+  /* semantic — light */
+  --aw-bg: var(--aw-ivory);
+  --aw-bg-secondary: var(--aw-ivory-deep);
+  --aw-surface: var(--aw-ivory);
+  --aw-border: var(--aw-stone);
+  --aw-border-subtle: var(--aw-stone-light);
+  --aw-text: var(--aw-charcoal);
+  --aw-text-strong: var(--aw-forest);
+  --aw-text-muted: var(--aw-muted-ink);
+  --aw-link: var(--aw-burgundy);
+  --aw-accent: var(--aw-brass);
+  --aw-accent-study: var(--aw-burgundy);
+  --aw-accent-teach: var(--aw-brass);
+  --aw-selection: var(--aw-burgundy-tint);
+  --aw-note: var(--aw-brass-tint);
+  --aw-focus-ring: var(--aw-brass);
+  --aw-primary: var(--aw-forest);
+  --aw-primary-hover: var(--aw-forest-soft);
+  --aw-on-primary: var(--aw-ivory);
+  --aw-danger: var(--aw-burgundy);
+  --aw-mark-page: var(--aw-forest);
+  --aw-mark-colon: var(--aw-burgundy);
+  --aw-mark-chevron: var(--aw-brass);
+
+  --aw-font-display: "Noto Serif Display", Georgia, "Times New Roman", serif;
+  --aw-font-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --aw-font-reading: "Noto Serif", "Literata", Georgia, serif;
+  --aw-tracking-caps: 0.18em;
+  --aw-radius: 6px;
+  --aw-radius-lg: 12px;
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --aw-bg: var(--aw-forest-deep);
+  --aw-bg-secondary: var(--aw-forest);
+  --aw-surface: var(--aw-forest);
+  --aw-border: var(--aw-forest-soft);
+  --aw-border-subtle: #274035;
+  --aw-text: var(--aw-text-on-dark);
+  --aw-text-strong: var(--aw-ivory);
+  --aw-text-muted: #b8b0a2;
+  --aw-link: #d9a55b;
+  --aw-accent-study: #d9a55b;
+  --aw-selection: #3a2a2c;
+  --aw-note: #3b3325;
+  --aw-focus-ring: #d9a55b;
+  --aw-primary: var(--aw-ivory);
+  --aw-primary-hover: #ffffff;
+  --aw-on-primary: var(--aw-forest);
+  --aw-danger: #e3a3a6;
+  --aw-mark-page: var(--aw-ivory);
+  --aw-mark-colon: var(--aw-ivory);
+  --aw-mark-chevron: var(--aw-brass);
+
+  color-scheme: dark;
+}

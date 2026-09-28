@@ -1,0 +1,85 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+/* Tailwind utilities read the semantic tokens, so every class follows the
+   active theme automatically (bg-bg, text-text-muted, border-border, ...). */
+@theme inline {
+  --color-bg: var(--aw-bg);
+  --color-bg-secondary: var(--aw-bg-secondary);
+  --color-surface: var(--aw-surface);
+  --color-border: var(--aw-border);
+  --color-border-subtle: var(--aw-border-subtle);
+  --color-text: var(--aw-text);
+  --color-text-strong: var(--aw-text-strong);
+  --color-text-muted: var(--aw-text-muted);
+  --color-link: var(--aw-link);
+  --color-accent: var(--aw-accent);
+  --color-accent-study: var(--aw-accent-study);
+  --color-selection: var(--aw-selection);
+  --color-note: var(--aw-note);
+  --color-focus: var(--aw-focus-ring);
+  --color-primary: var(--aw-primary);
+  --color-primary-hover: var(--aw-primary-hover);
+  --color-on-primary: var(--aw-on-primary);
+  --color-danger: var(--aw-danger);
+
+  --font-display: var(--aw-font-display);
+  --font-ui: var(--aw-font-ui);
+  --font-reading: var(--aw-font-reading);
+
+  --tracking-caps: var(--aw-tracking-caps);
+  --radius-aw: var(--aw-radius);
+}
+
+@layer base {
+  html {
+    font-size: 16px;
+  }
+
+  body {
+    margin: 0;
+    background: var(--aw-bg);
+    color: var(--aw-text);
+    font-family: var(--aw-font-ui);
+    font-size: 1rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--aw-selection);
+  }
+
+  /* One visible, consistent focus indicator for keyboard users. */
+  :focus-visible {
+    outline: 2px solid var(--aw-focus-ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Pane and section labels: Inter caps, per the brand type scale. */
+  .caps-label {
+    font-family: var(--aw-font-ui);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: var(--aw-tracking-caps);
+    text-transform: uppercase;
+    color: var(--aw-text-strong);
+  }
+
+  /* Long-form reading and writing: serif, 18px, comfortable measure. */
+  .reading {
+    font-family: var(--aw-font-reading);
+    font-size: 1.125rem;
+    line-height: 1.65;
+  }
+}

@@ -1,0 +1,91 @@
+//! SQLite access.
+//!
+//! The frontend never sends SQL. Each table group has a small repository
+//! module of plain functions that take a `&Connection`; commands call those
+//! through [`Database::with_conn`].
+
+pub mod blocks;
+pub mod migrations;
+pub mod projects;
+pub mod sections;
+pub mod settings;
+pub mod studies;
+pub mod templates;
+pub mod workspaces;
+
+use std::path::{Path, PathBuf};
+use std::sync::Mutex;
+use std::time::Duration;
+
+use rusqlite::Connection;
+
+use crate::error::{AppError, AppResult};
+
+pub struct Database {
+    conn: Mutex<Connection>,
+    path: Option<PathBuf>,
+}
+
+impl Database {
+    /// Opens (creating if needed) the database file, applies pending
+    /// migrations and installs the default records. Safe on every launch.
+    pub fn open(path: &Path) -> AppResult<Self> {
+        let conn = Connection::open(path)?;
+        Self::initialise(conn, Some(path.to_path_buf()))
+    }
+
+    /// A private in-memory database, fully migrated. Used by tests.
+    pub fn open_in_memory() -> AppResult<Self> {
+        Self::initialise(Connection::open_in_memory()?, None)
+    }
+
+    fn initialise(mut conn: Connection, path: Option<PathBuf>) -> AppResult<Self> {
+        configure(&conn)?;
+        let report = migrations::run(&mut conn)?;
+        log::info!(
+            "database schema at version {} ({} migration(s) applied now)",
+            report.to_version,
+            report.applied.len()
+        );
+        workspaces::ensure_default(&conn)?;
+        templates::ensure_builtin(&conn)?;
+        Ok(Self {
+            conn: Mutex::new(conn),
+            path,
+        })
+    }
+
+    pub fn path(&self) -> Option<&Path> {
+        self.path.as_deref()
+    }
+
+    /// Runs `f` with exclusive access to the connection.
+    pub fn with_conn<T>(&self, f: impl FnOnce(&Connection) -> AppResult<T>) -> AppResult<T> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| AppError::Unexpected("database connection lock poisoned".into()))?;
+        f(&conn)
+    }
+}
+
+fn configure(conn: &Connection) -> AppResult<()> {
+    // WAL keeps the file consistent if the app or computer stops mid-write.
+    // It returns a row, so it cannot go through execute_batch.
+    let _mode: String = conn.query_row("PRAGMA journal_mode = WAL", [], |row| row.get(0))?;
+    conn.execute_batch(
+        "PRAGMA foreign_keys = ON;
+         PRAGMA synchronous = NORMAL;",
+    )?;
+    conn.busy_timeout(Duration::from_secs(5))?;
+    Ok(())
+}
+
+/// Current UTC time as stored in every timestamp column.
+pub fn now() -> String {
+    chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
+}
+
+pub fn new_id() -> String {
+    uuid::Uuid::new_v4().to_string()
+}
