@@ -76,6 +76,8 @@ export type ErrorKind =
   | "invalidInput"
   | "notFound"
   | "migration"
+  | "integrity"
+  | "backup"
   | "unexpected";
 
 export interface ErrorPayload {

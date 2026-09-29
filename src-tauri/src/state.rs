@@ -28,7 +28,7 @@ impl AppState {
         let core = dirs.and_then(|dirs| {
             let path = dirs.database_file();
             log::info!("database file: {}", path.display());
-            let db = Database::open(&path)?;
+            let db = Database::open(&path, &dirs.pre_migration_backups())?;
             Ok(Core { dirs, db })
         });
         match &core {

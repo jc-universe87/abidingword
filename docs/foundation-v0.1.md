@@ -125,6 +125,28 @@ app at a different folder (for development and testing).
 3. A database from a newer app version is refused.
 4. Released migrations are never edited.
 
+### Integrity check and pre-migration backup (Foundation hardening)
+
+Every startup, before anything writes to the file, the app runs
+`PRAGMA quick_check` (`db/integrity.rs`). A failure — including SQLite's
+own "malformed" and "not a database" errors — stops startup with a plain
+message; the file is never modified and no automatic repair is attempted.
+
+If an existing database (schema version ≥ 1) has pending migrations, the
+app then writes a backup with SQLite's `VACUUM INTO` (`db/backup.rs`) to
+
+```text
+backups/pre-migration/abiding-word-v<old version>-<UTC time>.db
+```
+
+(for example `abiding-word-v1-2026-09-29T21-31-49.123Z.db`; no colons, so
+the name is valid on Windows), reopens the copy read-only, integrity-checks
+it and confirms its schema version. Only then do migrations run. If the
+backup cannot be written or verified, nothing is migrated. A new database
+and an already-current database get no backup, so normal startups create
+no files. Backups are never deleted automatically; a backup management
+screen is a later milestone.
+
 ### Templates
 
 Built-in study templates are JSON files in `resources/templates/`, compiled

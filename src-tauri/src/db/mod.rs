@@ -4,7 +4,9 @@
 //! module of plain functions that take a `&Connection`; commands call those
 //! through [`Database::with_conn`].
 
+pub mod backup;
 pub mod blocks;
+pub mod integrity;
 pub mod migrations;
 pub mod projects;
 pub mod sections;
@@ -27,25 +29,32 @@ pub struct Database {
 }
 
 impl Database {
-    /// Opens (creating if needed) the database file, applies pending
-    /// migrations and installs the default records. Safe on every launch.
-    pub fn open(path: &Path) -> AppResult<Self> {
-        let conn = Connection::open(path)?;
-        Self::initialise(conn, Some(path.to_path_buf()))
+    /// Opens (creating if needed) the database file, checks its integrity,
+    /// backs it up into `backup_dir` if migrations are pending, applies them
+    /// and installs the default records. Safe on every launch.
+    pub fn open(path: &Path, backup_dir: &Path) -> AppResult<Self> {
+        let conn = Connection::open(path).map_err(integrity::from_sqlite)?;
+        Self::initialise(conn, Some(path.to_path_buf()), Some(backup_dir))
     }
 
     /// A private in-memory database, fully migrated. Used by tests.
     pub fn open_in_memory() -> AppResult<Self> {
-        Self::initialise(Connection::open_in_memory()?, None)
+        Self::initialise(Connection::open_in_memory()?, None, None)
     }
 
-    fn initialise(mut conn: Connection, path: Option<PathBuf>) -> AppResult<Self> {
+    fn initialise(
+        mut conn: Connection,
+        path: Option<PathBuf>,
+        backup_dir: Option<&Path>,
+    ) -> AppResult<Self> {
+        // Integrity first: even setting the journal mode writes to the file.
+        integrity::check(&conn)?;
         configure(&conn)?;
-        let report = migrations::run(&mut conn)?;
+        let report = migrations::upgrade(&mut conn, migrations::MIGRATIONS, backup_dir)?;
         log::info!(
             "database schema at version {} ({} migration(s) applied now)",
-            report.to_version,
-            report.applied.len()
+            report.migrations.to_version,
+            report.migrations.applied.len()
         );
         workspaces::ensure_default(&conn)?;
         templates::ensure_builtin(&conn)?;
@@ -72,7 +81,9 @@ impl Database {
 fn configure(conn: &Connection) -> AppResult<()> {
     // WAL keeps the file consistent if the app or computer stops mid-write.
     // It returns a row, so it cannot go through execute_batch.
-    let _mode: String = conn.query_row("PRAGMA journal_mode = WAL", [], |row| row.get(0))?;
+    let _mode: String = conn
+        .query_row("PRAGMA journal_mode = WAL", [], |row| row.get(0))
+        .map_err(integrity::from_sqlite)?;
     conn.execute_batch(
         "PRAGMA foreign_keys = ON;
          PRAGMA synchronous = NORMAL;",

@@ -124,6 +124,11 @@ it is rolled back, logged and reported on screen, and the app does not open
 the half-updated database. A database made by a newer version is refused.
 Released migration files are never edited; changes always go in a new file.
 
+Before migrating, the app runs SQLite's integrity check and refuses to touch
+a damaged database. When an existing database needs an upgrade, it first
+writes a verified copy to `backups/pre-migration/`; if that fails, nothing
+is changed.
+
 ## Brand assets
 
 The Abiding Word name, logomark and brand assets are not covered by any

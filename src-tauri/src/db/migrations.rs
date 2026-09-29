@@ -7,11 +7,16 @@
 //!   rolls that migration back completely and stops startup.
 //! * A database written by a newer version of the app is refused rather than
 //!   risked.
+//! * [`upgrade`] is the startup entry point: it checks integrity first and,
+//!   when an existing database has pending migrations, makes a verified
+//!   backup before changing anything.
 //! * Released migrations are never edited; changes always go in a new file.
+
+use std::path::Path;
 
 use rusqlite::{params, Connection};
 
-use crate::db::now;
+use crate::db::{backup, integrity, now};
 use crate::error::{AppError, AppResult};
 
 pub struct Migration {
@@ -33,6 +38,61 @@ pub struct MigrationReport {
     pub applied: Vec<i64>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UpgradeReport {
+    pub migrations: MigrationReport,
+    /// Set when a pre-migration backup was made.
+    pub backup: Option<std::path::PathBuf>,
+}
+
+/// Brings a database up to date safely:
+///
+/// 1. integrity check — a damaged file is never migrated;
+/// 2. if migrations are pending on a database that already has a schema,
+///    a verified backup into `backup_dir` — no backup, no migration;
+/// 3. the migrations themselves.
+///
+/// A new, empty database has nothing to lose, so it gets no backup; nor does
+/// a database that is already current.
+pub fn upgrade(
+    conn: &mut Connection,
+    migrations: &[Migration],
+    backup_dir: Option<&Path>,
+) -> AppResult<UpgradeReport> {
+    integrity::check(conn)?;
+    ensure_versions_table(conn)?;
+    let from_version = current_version(conn)?;
+    let pending = migrations
+        .iter()
+        .filter(|m| m.version > from_version)
+        .count();
+
+    let backup = match backup_dir {
+        Some(dir) if pending > 0 && from_version > 0 => {
+            let path = backup::pre_migration(conn, dir, from_version)?;
+            log::info!("pre-migration backup written: {}", path.display());
+            Some(path)
+        }
+        _ => None,
+    };
+
+    Ok(UpgradeReport {
+        migrations: run_with(conn, migrations)?,
+        backup,
+    })
+}
+
+fn ensure_versions_table(conn: &Connection) -> AppResult<()> {
+    conn.execute_batch(
+        "CREATE TABLE IF NOT EXISTS schema_versions (
+             version     INTEGER PRIMARY KEY NOT NULL,
+             name        TEXT NOT NULL,
+             applied_at  TEXT NOT NULL
+         );",
+    )?;
+    Ok(())
+}
+
 pub fn run(conn: &mut Connection) -> AppResult<MigrationReport> {
     run_with(conn, MIGRATIONS)
 }
@@ -41,13 +101,7 @@ pub fn run(conn: &mut Connection) -> AppResult<MigrationReport> {
 /// their own migrations.
 pub fn run_with(conn: &mut Connection, migrations: &[Migration]) -> AppResult<MigrationReport> {
     check_order(migrations)?;
-    conn.execute_batch(
-        "CREATE TABLE IF NOT EXISTS schema_versions (
-             version     INTEGER PRIMARY KEY NOT NULL,
-             name        TEXT NOT NULL,
-             applied_at  TEXT NOT NULL
-         );",
-    )?;
+    ensure_versions_table(conn)?;
 
     let from_version = current_version(conn)?;
     let latest_known = migrations.last().map_or(0, |m| m.version);

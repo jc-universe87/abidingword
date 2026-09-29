@@ -7,6 +7,10 @@ use abiding_word_lib::error::AppError;
 use abiding_word_lib::filesystem::DataDirs;
 use rusqlite::Connection;
 
+fn backups(temp: &tempfile::TempDir) -> std::path::PathBuf {
+    temp.path().join("backups")
+}
+
 const EXPECTED_TABLES: &[&str] = &[
     "annotations",
     "findings",
@@ -41,7 +45,7 @@ fn database_file_is_created_inside_the_data_directory() {
     let path = dirs.database_file();
     assert!(!path.exists());
 
-    let db = Database::open(&path).unwrap();
+    let db = Database::open(&path, &backups(&temp)).unwrap();
 
     assert!(path.is_file());
     assert_eq!(db.path(), Some(path.as_path()));
@@ -64,11 +68,11 @@ fn reopening_is_idempotent_and_keeps_one_default_workspace() {
     let temp = tempfile::tempdir().unwrap();
     let path = temp.path().join("test.db");
 
-    let first = Database::open(&path)
+    let first = Database::open(&path, &backups(&temp))
         .unwrap()
         .with_conn(workspaces::get_default)
         .unwrap();
-    let db = Database::open(&path).unwrap();
+    let db = Database::open(&path, &backups(&temp)).unwrap();
     let second = db.with_conn(workspaces::get_default).unwrap();
 
     assert_eq!(first.id, second.id);
@@ -88,7 +92,7 @@ fn project_study_and_section_survive_a_restart() {
     let path = temp.path().join("test.db");
 
     let (project_id, study_id, section_id) = {
-        let db = Database::open(&path).unwrap();
+        let db = Database::open(&path, &backups(&temp)).unwrap();
         db.with_conn(|conn| {
             let workspace = workspaces::get_default(conn)?;
             let project = projects::create(
@@ -121,7 +125,7 @@ fn project_study_and_section_survive_a_restart() {
         // `db` is dropped here, closing the file like quitting the app.
     };
 
-    let db = Database::open(&path).unwrap();
+    let db = Database::open(&path, &backups(&temp)).unwrap();
     db.with_conn(|conn| {
         assert_eq!(
             projects::get(conn, &project_id)?.title,

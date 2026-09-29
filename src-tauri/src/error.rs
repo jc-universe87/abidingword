@@ -35,6 +35,14 @@ pub enum AppError {
         message: String,
     },
 
+    /// The database file failed SQLite's integrity check or is not a
+    /// database at all.
+    #[error("database integrity check failed: {0}")]
+    Integrity(String),
+
+    #[error("pre-migration backup to {path} failed: {message}")]
+    Backup { path: PathBuf, message: String },
+
     #[error("unexpected error: {0}")]
     Unexpected(String),
 }
@@ -47,6 +55,8 @@ pub enum ErrorKind {
     InvalidInput,
     NotFound,
     Migration,
+    Integrity,
+    Backup,
     Unexpected,
 }
 
@@ -72,6 +82,8 @@ impl AppError {
             Self::InvalidInput(_) => ErrorKind::InvalidInput,
             Self::NotFound { .. } => ErrorKind::NotFound,
             Self::Migration { .. } => ErrorKind::Migration,
+            Self::Integrity(_) => ErrorKind::Integrity,
+            Self::Backup { .. } => ErrorKind::Backup,
             Self::Unexpected(_) => ErrorKind::Unexpected,
         }
     }
@@ -91,6 +103,13 @@ impl AppError {
             }
             Self::Migration { .. } => "Abiding Word could not update its database to this \
                 version. Your data has not been changed. Details are in the log file."
+                .into(),
+            Self::Integrity(_) => "Your study database appears to be damaged, so Abiding Word \
+                stopped before changing it. The file has not been modified. \
+                Details are in the log file."
+                .into(),
+            Self::Backup { .. } => "Abiding Word could not make a safety backup before updating \
+                its database, so nothing was changed. Check that the disk is not full."
                 .into(),
             Self::Unexpected(_) => {
                 "Something unexpected went wrong. Details are in the log file.".into()
