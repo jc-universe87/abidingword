@@ -36,8 +36,10 @@ panes show placeholders until then.
 - The interface talks to the core only through typed Tauri commands
   (`project_create`, `study_get`, …). No SQL crosses that boundary.
 
-Details: [`docs/architecture.md`](docs/architecture.md). Product direction:
-[`docs/concept.md`](docs/concept.md).
+The authoritative baseline is the frozen
+[`docs/concept.md`](docs/concept.md) and
+[`docs/architecture.md`](docs/architecture.md). How this release implements
+it: [`docs/foundation-v0.1.md`](docs/foundation-v0.1.md).
 
 ## Development prerequisites
 

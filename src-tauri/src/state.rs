@@ -59,6 +59,6 @@ impl AppState {
     }
 
     pub fn schema_version(&self) -> Option<i64> {
-        self.db(|conn| migrations::current_version(conn)).ok()
+        self.db(migrations::current_version).ok()
     }
 }

@@ -1,15 +1,12 @@
 /*
  * Abiding Word design tokens.
  *
- * Source: brand package v2.0, tokens/abiding-word-tokens.css. Differences:
- *  - The brand file declares --aw-text-muted twice (palette hex, then
- *    semantic var(--aw-text-muted)); the second is self-referential and
- *    invalid in CSS. Here the palette value is kept as --aw-muted-ink.
- *  - Added for the app (not in the logo): danger, mark colours, and the
- *    remaining dark-theme overrides (accent-study, focus ring) so no
- *    Burgundy-on-Forest pairing can occur (brand guide §7).
+ * The first two blocks reproduce tokens/abiding-word-tokens.css from the
+ * brand package (v2.0, refined) value for value. Keep them identical to the
+ * package; change the package first, then copy.
  */
 :root {
+  /* primitives */
   --aw-forest: #1f352a;
   --aw-burgundy: #762e32;
   --aw-brass: #b48135;
@@ -22,10 +19,10 @@
   --aw-stone-light: #e8e1d4;
   --aw-burgundy-tint: #f1e3e3;
   --aw-brass-tint: #f3e8d3;
-  --aw-muted-ink: #5f5c56;
-  --aw-text-on-dark: #eae4d8;
+  --aw-grey-muted: #5f5c56;
+  --aw-ivory-soft: #eae4d8;
 
-  /* semantic — light */
+  /* semantic */
   --aw-bg: var(--aw-ivory);
   --aw-bg-secondary: var(--aw-ivory-deep);
   --aw-surface: var(--aw-ivory);
@@ -33,7 +30,7 @@
   --aw-border-subtle: var(--aw-stone-light);
   --aw-text: var(--aw-charcoal);
   --aw-text-strong: var(--aw-forest);
-  --aw-text-muted: var(--aw-muted-ink);
+  --aw-text-muted: var(--aw-grey-muted);
   --aw-link: var(--aw-burgundy);
   --aw-accent: var(--aw-brass);
   --aw-accent-study: var(--aw-burgundy);
@@ -44,10 +41,6 @@
   --aw-primary: var(--aw-forest);
   --aw-primary-hover: var(--aw-forest-soft);
   --aw-on-primary: var(--aw-ivory);
-  --aw-danger: var(--aw-burgundy);
-  --aw-mark-page: var(--aw-forest);
-  --aw-mark-colon: var(--aw-burgundy);
-  --aw-mark-chevron: var(--aw-brass);
 
   --aw-font-display: "Noto Serif Display", Georgia, "Times New Roman", serif;
   --aw-font-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -55,8 +48,6 @@
   --aw-tracking-caps: 0.18em;
   --aw-radius: 6px;
   --aw-radius-lg: 12px;
-
-  color-scheme: light;
 }
 
 [data-theme="dark"] {
@@ -65,21 +56,37 @@
   --aw-surface: var(--aw-forest);
   --aw-border: var(--aw-forest-soft);
   --aw-border-subtle: #274035;
-  --aw-text: var(--aw-text-on-dark);
+  --aw-text: var(--aw-ivory-soft);
   --aw-text-strong: var(--aw-ivory);
   --aw-text-muted: #b8b0a2;
   --aw-link: #d9a55b;
-  --aw-accent-study: #d9a55b;
   --aw-selection: #3a2a2c;
   --aw-note: #3b3325;
-  --aw-focus-ring: #d9a55b;
   --aw-primary: var(--aw-ivory);
   --aw-primary-hover: #ffffff;
   --aw-on-primary: var(--aw-forest);
+}
+
+/*
+ * Application additions (not part of the brand package):
+ *  - danger: error text; Burgundy on light, a light rose on dark so it keeps
+ *    contrast on Forest.
+ *  - mark-*: logomark colours per theme, following the package's `color`
+ *    and `color-on-dark` versions (brand guide §4).
+ *  - color-scheme: tells the webview to draw native controls to match.
+ */
+:root {
+  --aw-danger: var(--aw-burgundy);
+  --aw-mark-page: var(--aw-forest);
+  --aw-mark-colon: var(--aw-burgundy);
+  --aw-mark-chevron: var(--aw-brass);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
   --aw-danger: #e3a3a6;
   --aw-mark-page: var(--aw-ivory);
   --aw-mark-colon: var(--aw-ivory);
   --aw-mark-chevron: var(--aw-brass);
-
   color-scheme: dark;
 }

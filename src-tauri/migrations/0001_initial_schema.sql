@@ -1,6 +1,6 @@
 -- Abiding Word — migration 0001: initial schema (Foundation v0.1)
 --
--- Conventions (see docs/architecture.md, "Database"):
+-- Conventions (see docs/foundation-v0.1.md, "Database"):
 --   * Primary keys are UUID v4 strings.
 --   * Timestamps are UTC ISO-8601 strings with millisecond precision,
 --     written by the application, e.g. 2026-09-29T08:15:02.123Z.
@@ -129,7 +129,9 @@ CREATE TABLE findings (
 
 CREATE INDEX findings_study ON findings (study_id);
 
--- A reference to a Scripture range. Book codes follow OSIS (e.g. "Rom").
+-- A reference to a Scripture range. `book` is the canonical three-letter
+-- book code used in canonical IDs such as ROM.8.1 and JHN.15.7
+-- (docs/architecture.md §6), independent of any translation.
 -- Each reference belongs to exactly one owner: a study, a block or a finding.
 CREATE TABLE passage_references (
     id             TEXT PRIMARY KEY NOT NULL,

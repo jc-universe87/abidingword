@@ -10,7 +10,7 @@ describe("application shell", () => {
     await renderApp();
 
     const banner = screen.getByRole("banner");
-    expect(within(banner).getByText("Abiding Word")).toBeInTheDocument();
+    expect(within(banner).getByRole("img", { name: "Abiding Word" })).toBeInTheDocument();
     expect(within(banner).getByRole("button", { name: "Settings" })).toBeInTheDocument();
 
     const scripture = screen.getByRole("complementary", { name: "Scripture" });

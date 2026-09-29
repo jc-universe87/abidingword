@@ -1,5 +1,5 @@
 import { PanelLeft, PanelRight, Search, Settings } from "lucide-react";
-import { Logomark } from "@/design-system/Logomark";
+import { BrandLockup } from "@/design-system/BrandLockup";
 
 interface AppBarProps {
   view: "workspace" | "settings";
@@ -18,9 +18,9 @@ export function AppBar(props: AppBarProps) {
   const inWorkspace = props.view === "workspace";
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-bg px-4">
-      <div className="flex items-center gap-3">
-        <Logomark height={22} />
-        <span className="font-display text-[1.3125rem] font-semibold text-text-strong">Abiding Word</span>
+      {/* The lockup's own clearspace provides the left margin. */}
+      <div className="-ml-4 flex items-center">
+        <BrandLockup height={44} />
       </div>
 
       <div className="ml-auto flex items-center gap-1">

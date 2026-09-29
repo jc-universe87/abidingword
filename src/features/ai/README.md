@@ -5,4 +5,4 @@ every feature of Abiding Word has to work fully without it.
 
 When it arrives, UI for AI features lives here, and provider access goes
 through the native core (`src-tauri/src/integrations/`), never directly from
-the frontend. See `docs/architecture.md`, "Extension points".
+the frontend. See `docs/architecture.md` §23–26 and §52.

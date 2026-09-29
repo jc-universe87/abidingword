@@ -14,7 +14,6 @@
   --color-text-muted: var(--aw-text-muted);
   --color-link: var(--aw-link);
   --color-accent: var(--aw-accent);
-  --color-accent-study: var(--aw-accent-study);
   --color-selection: var(--aw-selection);
   --color-note: var(--aw-note);
   --color-focus: var(--aw-focus-ring);
@@ -63,6 +62,13 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+/* Show the brand asset version that matches the active theme. Deliberately
+   outside any @layer, so no utility class (e.g. `block`) can override it. */
+[data-theme="dark"] .aw-on-light,
+:root:not([data-theme="dark"]) .aw-on-dark {
+  display: none;
 }
 
 @layer components {
