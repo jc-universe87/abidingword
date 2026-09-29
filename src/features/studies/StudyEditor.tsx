@@ -54,7 +54,12 @@ export function StudyEditor({ studyId, onMissing, onRevealScripture }: StudyEdit
       </header>
 
       {sections.map((section) => (
-        <SectionEditor key={section.id} section={section} onChange={updateSection} />
+        <SectionEditor
+          key={section.id}
+          section={section}
+          onChange={updateSection}
+          onRevealScripture={onRevealScripture}
+        />
       ))}
     </article>
   );

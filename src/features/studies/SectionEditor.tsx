@@ -10,9 +10,10 @@ import { BLOCK_LABELS, BlockEditor } from "./BlockEditor";
 interface SectionEditorProps {
   section: StudySection;
   onChange: (section: StudySection) => void;
+  onRevealScripture: () => void;
 }
 
-export function SectionEditor({ section, onChange }: SectionEditorProps) {
+export function SectionEditor({ section, onChange, onRevealScripture }: SectionEditorProps) {
   const api = useApi();
   const { track } = useSaveTracker();
   const [renaming, setRenaming] = useState(false);
@@ -75,6 +76,7 @@ export function SectionEditor({ section, onChange }: SectionEditorProps) {
             sectionTitle={section.title}
             placeholder={index === 0 ? "Write here…" : ""}
             onDeleted={removeBlock}
+            onRevealScripture={onRevealScripture}
           />
         ))}
       </div>

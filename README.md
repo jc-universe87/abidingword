@@ -8,9 +8,10 @@ connection needed. Your studies are stored in one folder that you own.
 
 The workflow it is built around: **Word → Understanding → Teaching**.
 
-## Status: Foundation v0.1
+## Status: Scripture v0.2 (on the frozen Foundation v0.1)
 
-This is the foundation release. It provides:
+Foundation v0.1 (with its hardening: integrity check and pre-migration
+backup) provides:
 
 - a three-pane workspace: **Scripture | Study | Sources**
 - projects that group studies (e.g. *Romans Sermon Series*)
@@ -21,10 +22,25 @@ This is the foundation release. It provides:
 - a local SQLite database with versioned migrations
 - settings showing the version and data folder, and a light/dark theme
 
-**Not in this release, planned for later phases:** the Scripture engine,
-source import and the personal library, concordance and original-language
-tools, AI assistance, sync, integrations and MCP. The Scripture and Sources
-panes show placeholders until then.
+Scripture v0.2 adds a real, offline Scripture engine:
+
+- canonical references (`JHN.15.7`, `ROM.8`) independent of any translation
+- a passage reader with book/chapter navigation, typed references
+  (“Rom 8:1-17”) and translation switching that keeps your place
+- the World English Bible (public domain) included, added by the user
+- importing your own Bibles in USFM (a .zip or .usfm files) through a
+  plain-language verification screen
+- notes, highlights and bookmarks on verses that survive translation changes
+- studies linked to their passages; passages mentioned in study text
+  become links
+- Scripture search (words and exact phrases)
+- Settings → Bible Texts to review and remove Bibles
+
+Details: [`docs/scripture-v0.2.md`](docs/scripture-v0.2.md).
+
+**Not yet, planned for later phases:** source import and the personal
+library (the Sources pane is still a placeholder), concordance and
+original-language tools, AI assistance, sync, integrations and MCP.
 
 ## Architecture in brief
 
@@ -39,7 +55,8 @@ panes show placeholders until then.
 The authoritative baseline is the frozen
 [`docs/concept.md`](docs/concept.md) and
 [`docs/architecture.md`](docs/architecture.md). How this release implements
-it: [`docs/foundation-v0.1.md`](docs/foundation-v0.1.md).
+it: [`docs/foundation-v0.1.md`](docs/foundation-v0.1.md) and
+[`docs/scripture-v0.2.md`](docs/scripture-v0.2.md).
 
 ## Development prerequisites
 
@@ -95,7 +112,7 @@ src-tauri/            Rust native core
   icons/              platform icons generated from the brand app icon
 resources/
   templates/          study templates (JSON)
-  scripture/          Bible texts (empty until the Scripture engine)
+  scripture/          included Bible texts, each with SOURCE.md (licence)
   icons/              brand source icons
 docs/                 concept and architecture
 tests/                interface tests and test support

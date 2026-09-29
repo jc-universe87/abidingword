@@ -3,6 +3,7 @@ import { Trash2 } from "lucide-react";
 import { useAutosave } from "@/hooks/useAutosave";
 import { useApi } from "@/lib/ApiContext";
 import type { BlockType, StudyBlock } from "@/types/domain";
+import { DetectedReferences } from "./DetectedReferences";
 
 export const BLOCK_LABELS: Record<BlockType, string> = {
   paragraph: "Paragraph",
@@ -21,13 +22,14 @@ interface BlockEditorProps {
   sectionTitle: string;
   placeholder: string;
   onDeleted: (blockId: string) => void;
+  onRevealScripture: () => void;
 }
 
 /**
  * One editable block: a plain text area that grows with its content and
  * saves itself. Deliberately not a rich-text editor in v0.1.
  */
-export function BlockEditor({ block, sectionTitle, placeholder, onDeleted }: BlockEditorProps) {
+export function BlockEditor({ block, sectionTitle, placeholder, onDeleted, onRevealScripture }: BlockEditorProps) {
   const api = useApi();
   const [text, setText] = useState(block.content);
   const [confirming, setConfirming] = useState(false);
@@ -111,6 +113,7 @@ export function BlockEditor({ block, sectionTitle, placeholder, onDeleted }: Blo
           </button>
         )}
       </div>
+      <DetectedReferences text={text} onOpen={onRevealScripture} />
       {deleteError && (
         <p role="alert" className="m-0 px-3 text-[0.9375rem] text-danger">
           {deleteError}

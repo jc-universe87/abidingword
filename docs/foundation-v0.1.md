@@ -1,5 +1,9 @@
 # Abiding Word — Foundation v0.1 implementation notes
 
+> Foundation is frozen as of the hardening commit (integrity check and
+> pre-migration backup). Later milestones build on it without changing it;
+> Scripture is described in [`scripture-v0.2.md`](scripture-v0.2.md).
+
 This file describes how Foundation v0.1 (Phase 1 in
 [`architecture.md`](architecture.md) §58) is actually built. The frozen
 [`architecture.md`](architecture.md) and [`concept.md`](concept.md) are the
@@ -34,7 +38,7 @@ file paths it could write to; it can only call the typed commands.
 |---|---|
 | `app/` | Startup (`App.tsx`), the shell, startup and crash screens |
 | `layouts/` | App bar and the three-pane workspace layout |
-| `features/scripture/` | Scripture pane (placeholder in v0.1) |
+| `features/scripture/` | Scripture pane (placeholder in v0.1; the reader since Scripture v0.2) |
 | `features/studies/` | Projects, studies, sections and block editing |
 | `features/library/` | Sources pane (placeholder in v0.1) |
 | `features/settings/` | Settings view and theme |
@@ -177,7 +181,7 @@ WAI-ARIA window-splitter pattern; body text is 16–18 px.
 
 | Later feature | Where it plugs in |
 |---|---|
-| Scripture engine | `features/scripture/`, texts in `resources/scripture/`, `passage_references` |
+| Scripture engine | built in Scripture v0.2 — see [`scripture-v0.2.md`](scripture-v0.2.md) |
 | Source library | `features/library/`, `sources*` tables, `sources/` folder |
 | New block types | `BlockType` in Rust and TypeScript plus an editor component |
 | Templates | JSON in `resources/templates/` |

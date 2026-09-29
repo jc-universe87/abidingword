@@ -351,7 +351,17 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       return { hits, truncated: false };
     },
     referenceParse: async (text) => parseForTests(text),
-    referenceDetect: async () => [],
+    referenceDetect: async (text) => {
+      const found = [];
+      for (const match of text.matchAll(/\b(?:John|Romans|Rom|Psalm|Ps) \d+(?::\d+(?:-\d+)?)?/g)) {
+        try {
+          found.push({ text: match[0], start: match.index, end: match.index + match[0].length, reference: parseForTests(match[0]) });
+        } catch {
+          // Not a passage; skip, as the native detector does.
+        }
+      }
+      return found;
+    },
 
     bibleList: async () => [...state.bibles].sort((a, b) => a.name.localeCompare(b.name)),
     bibleBundledList: async () => [

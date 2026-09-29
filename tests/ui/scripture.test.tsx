@@ -123,3 +123,20 @@ describe("Scripture pane", () => {
     expect(within(pane()).getByText(/showing John 15:1–11/)).toBeInTheDocument();
   });
 });
+
+describe("references in study text", () => {
+  it("turns a passage mentioned in study text into a link to it", async () => {
+    const api = withBible("PSA.23");
+    const project = await api.projectCreate({ workspaceId: api.state.workspace.id, title: "Romans" });
+    await api.studyCreate({ projectId: project.id, title: "Adoption" });
+    const { user } = await renderApp(api);
+    await heading();
+    await user.click(await screen.findByRole("button", { name: /Romans/ }));
+    await user.click(await screen.findByRole("button", { name: /Adoption/ }));
+
+    await user.type(await screen.findByRole("textbox", { name: "Observations: paragraph" }), "Compare Rom 8:1-2 here.");
+    const link = await screen.findByRole("button", { name: "Romans 8:1–2" });
+    await user.click(link);
+    expect(await heading()).toHaveTextContent("Romans 8");
+  });
+});
