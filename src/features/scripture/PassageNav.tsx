@@ -66,35 +66,31 @@ export function PassageNav() {
         )}
       </form>
 
-      <div className="flex items-end gap-2">
+      <label className="flex flex-col gap-1">
+        <span className="sr-only">Book</span>
+        <select value={location.book} onChange={(e) => goToChapter(e.target.value, 1)} className={field}>
+          <optgroup label="Old Testament">
+            {books.filter((b) => b.testament === "OT").map((b) => (
+              <option key={b.code} value={b.code}>{b.name}</option>
+            ))}
+          </optgroup>
+          <optgroup label="New Testament">
+            {books.filter((b) => b.testament === "NT").map((b) => (
+              <option key={b.code} value={b.code}>{b.name}</option>
+            ))}
+          </optgroup>
+        </select>
+      </label>
+      <div className="flex items-center gap-2">
         <button type="button" className={iconButton} onClick={() => step(-1)} disabled={atStart} aria-label="Previous chapter" title="Previous chapter">
           <ChevronLeft className="size-5" aria-hidden="true" />
         </button>
-        <label className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="sr-only">Book</span>
-          <select
-            value={location.book}
-            onChange={(e) => goToChapter(e.target.value, 1)}
-            className={field}
-          >
-            <optgroup label="Old Testament">
-              {books.filter((b) => b.testament === "OT").map((b) => (
-                <option key={b.code} value={b.code}>{b.name}</option>
-              ))}
-            </optgroup>
-            <optgroup label="New Testament">
-              {books.filter((b) => b.testament === "NT").map((b) => (
-                <option key={b.code} value={b.code}>{b.name}</option>
-              ))}
-            </optgroup>
-          </select>
-        </label>
-        <label className="flex w-20 shrink-0 flex-col gap-1">
-          <span className="sr-only">Chapter</span>
+        <label className="flex min-w-0 flex-1 items-center gap-2">
+          <span className="text-[0.9375rem] text-text-muted">Chapter</span>
           <select
             value={location.chapter}
             onChange={(e) => goToChapter(location.book, Number(e.target.value))}
-            className={field}
+            className={`${field} flex-1`}
           >
             {Array.from({ length: chapterCount }, (_, i) => (
               <option key={i + 1} value={i + 1}>{i + 1}</option>

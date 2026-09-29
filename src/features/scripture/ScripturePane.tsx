@@ -27,7 +27,7 @@ export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
           </label>
         )}
       </PaneHeader>
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div data-scroll-root className="min-h-0 flex-1 overflow-y-auto">
         <div className="flex flex-col gap-5 px-5 py-5">
           {!translation ? (
             <div className="flex flex-col gap-4">

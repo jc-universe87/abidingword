@@ -23,13 +23,14 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
   const [selected, setSelected] = useState<number | null>(null);
   const container = useRef<HTMLDivElement>(null);
 
-  // Bring the navigated passage into view once its chapter has loaded.
+  // After navigating: show the marked passage if it is out of view,
+  // otherwise return to the top so the navigation stays in sight.
   const loaded = text.data?.book === book && text.data?.chapter === chapter;
   useEffect(() => {
     if (!loaded) return;
     const first = container.current?.querySelector<HTMLElement>("[data-current='true']");
-    if (first) first.scrollIntoView?.({ block: "start" });
-    else container.current?.scrollIntoView?.({ block: "start" });
+    if (first) first.scrollIntoView?.({ block: "nearest" });
+    else container.current?.closest("[data-scroll-root]")?.scrollTo?.({ top: 0 });
   }, [loaded, navigationId]);
 
   if (text.error) return <Notice tone="error">{text.error.message}</Notice>;
@@ -92,7 +93,7 @@ function Verse({ verse, annotations, current, selected, onSelect, onChanged }: V
   return (
     <div
       data-current={current || undefined}
-      className={`scroll-mt-2 rounded-aw border-l-[3px] px-2 py-0.5 ${current ? "border-accent" : "border-transparent"} ${tone}`}
+      className={`scroll-my-3 border-l-[3px] px-2 py-0.5 ${current ? "border-accent" : "border-transparent"} ${tone}`}
     >
       <p className="m-0">
         <button
