@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
 import type { AppInfo, Theme } from "@/types/domain";
+import { BibleTexts } from "./BibleTexts";
 import { useTheme } from "./ThemeContext";
 
 const THEMES: { value: Theme; label: string; hint: string }[] = [
@@ -12,13 +13,12 @@ const THEMES: { value: Theme; label: string; hint: string }[] = [
 ];
 
 const PLANNED: { title: string; text: string }[] = [
-  { title: "Bible texts", text: "Choose and install Bible translations for offline reading." },
   { title: "AI assistance", text: "Optional help with study. Abiding Word will always work fully without it." },
   { title: "Sync", text: "Keep your studies in step across your own devices, under your control." },
   { title: "Integrations", text: "Connect other tools you already use." },
 ];
 
-export function SettingsView({ info, onClose }: { info: AppInfo; onClose: () => void }) {
+export function SettingsView({ info, onClose, onAddBible }: { info: AppInfo; onClose: () => void; onAddBible: () => void }) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), []);
 
@@ -45,6 +45,10 @@ export function SettingsView({ info, onClose }: { info: AppInfo; onClose: () => 
 
         <Section title="Appearance">
           <ThemeChoice />
+        </Section>
+
+        <Section title="Bible Texts">
+          <BibleTexts onAddBible={onAddBible} />
         </Section>
 
         <Section title="About this installation">

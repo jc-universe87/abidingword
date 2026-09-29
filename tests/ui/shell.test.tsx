@@ -17,7 +17,7 @@ describe("application shell", () => {
     const study = screen.getByRole("main", { name: "Study" });
     const sources = screen.getByRole("complementary", { name: "Sources" });
 
-    expect(within(scripture).getByText(/Scripture engine will be added in the next phase/)).toBeInTheDocument();
+    expect(within(scripture).getByText("No Bible has been added yet.")).toBeInTheDocument();
     expect(within(study).getByRole("heading", { level: 1, name: "Projects" })).toBeInTheDocument();
     expect(within(sources).getByText(/Personal source import will arrive/)).toBeInTheDocument();
   });
@@ -37,6 +37,14 @@ describe("application shell", () => {
     const { user } = await renderApp();
     await user.click(screen.getByRole("button", { name: "Show Sources pane" }));
     expect(screen.queryByRole("complementary", { name: "Sources" })).not.toBeInTheDocument();
+  });
+
+  it("starts with the Sources pane hidden on a narrow window, and it can be shown", async () => {
+    const { user } = await renderApp(undefined, { width: 864 });
+    expect(screen.getByRole("complementary", { name: "Scripture" })).toBeInTheDocument();
+    expect(screen.queryByRole("complementary", { name: "Sources" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Show Sources pane" }));
+    expect(screen.getByRole("complementary", { name: "Sources" })).toBeInTheDocument();
   });
 
   it("explains a failed startup instead of showing the workspace", async () => {

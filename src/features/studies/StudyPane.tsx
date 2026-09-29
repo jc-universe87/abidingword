@@ -22,7 +22,7 @@ const LOCATION_KEY = "studyPane.location";
  * The centre pane: browse projects, open a project's studies, edit a study.
  * The last place is remembered, so reopening the app returns to it.
  */
-export function StudyPane({ workspace }: { workspace: Workspace }) {
+export function StudyPane({ workspace, onRevealScripture }: { workspace: Workspace; onRevealScripture: () => void }) {
   const [location, setLocation] = useState<StudyLocation>(() =>
     readLocal<StudyLocation>(LOCATION_KEY, { kind: "projects" }),
   );
@@ -48,6 +48,7 @@ export function StudyPane({ workspace }: { workspace: Workspace }) {
                 location={location}
                 setLocation={setLocation}
                 onMissing={goToProjects}
+                onRevealScripture={onRevealScripture}
               />
             )}
           </div>
@@ -62,9 +63,10 @@ interface ProjectScopeProps {
   location: StudyLocation;
   setLocation: (location: StudyLocation) => void;
   onMissing: () => void;
+  onRevealScripture: () => void;
 }
 
-function ProjectScope({ projectId, location, setLocation, onMissing }: ProjectScopeProps) {
+function ProjectScope({ projectId, location, setLocation, onMissing, onRevealScripture }: ProjectScopeProps) {
   const api = useApi();
   const project = useLoad(useCallback(() => api.projectGet(projectId), [api, projectId]));
   const missing = project.error?.kind === "notFound";
@@ -88,7 +90,12 @@ function ProjectScope({ projectId, location, setLocation, onMissing }: ProjectSc
         onProject={openProject}
       />
       {location.kind === "study" ? (
-        <StudyEditor key={location.studyId} studyId={location.studyId} onMissing={openProject} />
+        <StudyEditor
+          key={location.studyId}
+          studyId={location.studyId}
+          onMissing={openProject}
+          onRevealScripture={onRevealScripture}
+        />
       ) : (
         <ProjectView
           project={project.data}

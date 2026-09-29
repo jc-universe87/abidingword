@@ -11,14 +11,15 @@ describe("settings", () => {
     expect(await screen.findByRole("heading", { level: 1, name: "Settings" })).toHaveFocus();
     expect(screen.getByText("Abiding Word 0.1.0 (Foundation)")).toBeInTheDocument();
     expect(screen.getByText("/home/test/.local/share/Abiding Word")).toBeInTheDocument();
-    for (const planned of ["Bible texts", "AI assistance", "Sync", "Integrations"]) {
+    expect(screen.getByRole("heading", { level: 2, name: "Bible Texts" })).toBeInTheDocument();
+    for (const planned of ["AI assistance", "Sync", "Integrations"]) {
       expect(screen.getByText(planned)).toBeInTheDocument();
     }
   });
 
   it("applies and saves the theme choice", async () => {
     const { api, user } = await renderApp();
-    expect(document.documentElement.dataset.theme).toBe("light");
+    await waitFor(() => expect(document.documentElement.dataset.theme).toBe("light"));
 
     await user.click(screen.getByRole("button", { name: "Settings" }));
     await user.click(await screen.findByRole("radio", { name: /Dark/ }));

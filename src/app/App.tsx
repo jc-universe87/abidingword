@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import type { Api } from "@/lib/api";
 import { ApiProvider, useApi } from "@/lib/ApiContext";
 import { useLoad } from "@/hooks/useLoad";
+import { ScriptureProvider } from "@/features/scripture/ScriptureContext";
 import { ThemeProvider } from "@/features/settings/ThemeContext";
 import type { AppInfo } from "@/types/domain";
 import { ErrorBoundary } from "./ErrorBoundary";
@@ -40,8 +41,13 @@ function Workspace({ info }: { info: AppInfo }) {
   const api = useApi();
   const loaded = useLoad(
     useCallback(async () => {
-      const [workspace, settings] = await Promise.all([api.workspaceGetDefault(), api.settingsGet()]);
-      return { workspace, settings };
+      const [workspace, settings, books, translations] = await Promise.all([
+        api.workspaceGetDefault(),
+        api.settingsGet(),
+        api.scriptureBooks(),
+        api.bibleList(),
+      ]);
+      return { workspace, settings, books, translations };
     }, [api]),
   );
 
@@ -49,7 +55,13 @@ function Workspace({ info }: { info: AppInfo }) {
   if (!loaded.data) return <StartupScreen />;
   return (
     <ThemeProvider initial={loaded.data.settings.theme}>
-      <Shell info={info} workspace={loaded.data.workspace} />
+      <ScriptureProvider
+        settings={loaded.data.settings}
+        books={loaded.data.books}
+        translations={loaded.data.translations}
+      >
+        <Shell info={info} workspace={loaded.data.workspace} />
+      </ScriptureProvider>
     </ThemeProvider>
   );
 }

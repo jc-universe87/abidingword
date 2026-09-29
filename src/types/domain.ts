@@ -68,6 +68,10 @@ export type Theme = "light" | "dark" | "system";
 
 export interface AppSettings {
   theme: Theme;
+  /** The translation the Scripture pane shows. */
+  scriptureTranslationId: string | null;
+  /** The active passage as a canonical reference, e.g. "JHN.15.1-JHN.15.11". */
+  scripturePassage: string | null;
 }
 
 export type ErrorKind =
@@ -76,6 +80,10 @@ export type ErrorKind =
   | "invalidInput"
   | "notFound"
   | "migration"
+  | "invalidReference"
+  | "importFailed"
+  | "unsupportedFormat"
+  | "duplicateTranslation"
   | "integrity"
   | "backup"
   | "unexpected";
@@ -138,4 +146,8 @@ export interface UpdateStudyBlock {
 
 export interface UpdateSettings {
   theme?: Theme;
+  /** An empty string clears it. */
+  scriptureTranslationId?: string;
+  /** A canonical reference; an empty string clears it. */
+  scripturePassage?: string;
 }

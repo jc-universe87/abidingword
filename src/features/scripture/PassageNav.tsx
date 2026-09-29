@@ -1,0 +1,110 @@
+import { useId, useState, type FormEvent } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { toApiError } from "@/lib/api";
+import { useScripture } from "./ScriptureContext";
+
+const field =
+  "h-10 min-w-0 rounded-aw border border-border bg-bg px-2 text-[0.9375rem] text-text";
+const iconButton =
+  "inline-flex size-10 shrink-0 items-center justify-center rounded-aw border border-border text-text-strong " +
+  "hover:bg-bg disabled:cursor-not-allowed disabled:opacity-50";
+
+/** Book and chapter pickers, previous/next, and a typed-reference box. */
+export function PassageNav() {
+  const { books, bookByCode, location, goToChapter, navigateText } = useScripture();
+  const id = useId();
+  const [text, setText] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const book = bookByCode.get(location.book);
+  const chapterCount = book?.chapterCount ?? 1;
+
+  const step = (delta: -1 | 1) => {
+    if (!book) return;
+    const next = location.chapter + delta;
+    if (next >= 1 && next <= chapterCount) return goToChapter(book.code, next);
+    const neighbour = books[book.ordinal - 1 + delta];
+    if (neighbour) goToChapter(neighbour.code, delta === 1 ? 1 : neighbour.chapterCount);
+  };
+  const atStart = book?.ordinal === 1 && location.chapter === 1;
+  const atEnd = book?.ordinal === books.length && location.chapter === chapterCount;
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setError(null);
+    try {
+      await navigateText(text);
+      setText("");
+    } catch (e) {
+      setError(toApiError(e).message);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      <form onSubmit={submit} className="flex flex-col gap-1" noValidate>
+        <label htmlFor={`${id}-go`} className="text-[0.9375rem] font-medium text-text-strong">
+          Go to passage
+        </label>
+        <div className="flex gap-2">
+          <input
+            id={`${id}-go`}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="e.g. John 15 or Rom 8:1-17"
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? `${id}-error` : undefined}
+            className={`${field} flex-1 px-3 placeholder:text-text-muted`}
+          />
+          <button type="submit" className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-bg">
+            Go
+          </button>
+        </div>
+        {error && (
+          <p id={`${id}-error`} role="alert" className="m-0 text-[0.9375rem] text-danger">
+            {error}
+          </p>
+        )}
+      </form>
+
+      <div className="flex items-end gap-2">
+        <button type="button" className={iconButton} onClick={() => step(-1)} disabled={atStart} aria-label="Previous chapter" title="Previous chapter">
+          <ChevronLeft className="size-5" aria-hidden="true" />
+        </button>
+        <label className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="sr-only">Book</span>
+          <select
+            value={location.book}
+            onChange={(e) => goToChapter(e.target.value, 1)}
+            className={field}
+          >
+            <optgroup label="Old Testament">
+              {books.filter((b) => b.testament === "OT").map((b) => (
+                <option key={b.code} value={b.code}>{b.name}</option>
+              ))}
+            </optgroup>
+            <optgroup label="New Testament">
+              {books.filter((b) => b.testament === "NT").map((b) => (
+                <option key={b.code} value={b.code}>{b.name}</option>
+              ))}
+            </optgroup>
+          </select>
+        </label>
+        <label className="flex w-20 shrink-0 flex-col gap-1">
+          <span className="sr-only">Chapter</span>
+          <select
+            value={location.chapter}
+            onChange={(e) => goToChapter(location.book, Number(e.target.value))}
+            className={field}
+          >
+            {Array.from({ length: chapterCount }, (_, i) => (
+              <option key={i + 1} value={i + 1}>{i + 1}</option>
+            ))}
+          </select>
+        </label>
+        <button type="button" className={iconButton} onClick={() => step(1)} disabled={atEnd} aria-label="Next chapter" title="Next chapter">
+          <ChevronRight className="size-5" aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+  );
+}

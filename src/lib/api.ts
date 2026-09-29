@@ -2,6 +2,7 @@
 // interface through `useApi()`, never `invoke` directly, so tests can supply
 // an in-memory implementation.
 import { invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-dialog";
 import type {
   AppInfo,
   AppSettings,
@@ -21,6 +22,23 @@ import type {
   UpdateStudySection,
   Workspace,
 } from "@/types/domain";
+import type {
+  Annotation,
+  BibleTranslation,
+  BookInfo,
+  BundledBibleInfo,
+  ChapterText,
+  CommitImport,
+  CreateAnnotation,
+  DetectedReference,
+  ImportPreview,
+  ImportRequest,
+  PassageText,
+  ScriptureRef,
+  SearchResults,
+  SearchScripture,
+  StudyPassage,
+} from "@/types/scripture";
 
 export interface Api {
   appInfo(): Promise<AppInfo>;
@@ -41,6 +59,31 @@ export interface Api {
   studyBlockDelete(id: string): Promise<void>;
   settingsGet(): Promise<AppSettings>;
   settingsUpdate(input: UpdateSettings): Promise<AppSettings>;
+
+  scriptureBooks(): Promise<BookInfo[]>;
+  scriptureGetChapter(input: { translationId: string; book: string; chapter: number }): Promise<ChapterText>;
+  scriptureGetPassage(input: { translationId: string; reference: string }): Promise<PassageText>;
+  scriptureSearch(input: SearchScripture): Promise<SearchResults>;
+  referenceParse(text: string): Promise<ScriptureRef>;
+  referenceDetect(text: string): Promise<DetectedReference[]>;
+
+  bibleList(): Promise<BibleTranslation[]>;
+  bibleBundledList(): Promise<BundledBibleInfo[]>;
+  /** Opens the system file dialog; null when the user cancels. */
+  chooseBibleFiles(): Promise<string[] | null>;
+  bibleImportPreview(input: ImportRequest): Promise<ImportPreview>;
+  bibleImportCommit(input: CommitImport): Promise<BibleTranslation>;
+  bibleImportCancel(previewId: string): Promise<void>;
+  bibleRemove(id: string): Promise<void>;
+
+  annotationList(reference: string): Promise<Annotation[]>;
+  annotationCreate(input: CreateAnnotation): Promise<Annotation>;
+  annotationUpdate(input: { id: string; content: string }): Promise<Annotation>;
+  annotationDelete(id: string): Promise<void>;
+
+  studyPassageList(studyId: string): Promise<StudyPassage[]>;
+  studyPassageAdd(input: { studyId: string; reference: string }): Promise<StudyPassage>;
+  studyPassageRemove(id: string): Promise<void>;
 }
 
 /** An error with a message that is safe to show to the user. */
@@ -97,4 +140,40 @@ export const tauriApi: Api = {
   studyBlockDelete: (id) => call("study_block_delete", { id }),
   settingsGet: () => call("settings_get"),
   settingsUpdate: (input) => call("settings_update", { input }),
+
+  scriptureBooks: () => call("scripture_books"),
+  scriptureGetChapter: (input) => call("scripture_get_chapter", { input }),
+  scriptureGetPassage: (input) => call("scripture_get_passage", { input }),
+  scriptureSearch: (input) => call("scripture_search", { input }),
+  referenceParse: (text) => call("scripture_reference_parse", { text }),
+  referenceDetect: (text) => call("scripture_reference_detect", { text }),
+
+  bibleList: () => call("bible_list"),
+  bibleBundledList: () => call("bible_bundled_list"),
+  chooseBibleFiles: async () => {
+    const chosen = await open({
+      multiple: true,
+      directory: false,
+      title: "Choose a Bible to add",
+      filters: [
+        { name: "Bible files (USFM or .zip)", extensions: ["zip", "usfm", "sfm", "ptx", "txt"] },
+        { name: "All files", extensions: ["*"] },
+      ],
+    });
+    if (chosen === null) return null;
+    return Array.isArray(chosen) ? chosen : [chosen];
+  },
+  bibleImportPreview: (input) => call("bible_import_preview", { input }),
+  bibleImportCommit: (input) => call("bible_import_commit", { input }),
+  bibleImportCancel: (previewId) => call("bible_import_cancel", { previewId }),
+  bibleRemove: (id) => call("bible_remove", { id }),
+
+  annotationList: (reference) => call("annotation_list", { reference }),
+  annotationCreate: (input) => call("annotation_create", { input }),
+  annotationUpdate: (input) => call("annotation_update", { input }),
+  annotationDelete: (id) => call("annotation_delete", { id }),
+
+  studyPassageList: (studyId) => call("study_passage_list", { studyId }),
+  studyPassageAdd: (input) => call("study_passage_add", { input }),
+  studyPassageRemove: (id) => call("study_passage_remove", { id }),
 };

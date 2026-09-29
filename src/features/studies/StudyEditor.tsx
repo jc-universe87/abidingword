@@ -6,13 +6,15 @@ import { useApi } from "@/lib/ApiContext";
 import type { StudySection } from "@/types/domain";
 import { EditableTitle } from "./EditableTitle";
 import { SectionEditor } from "./SectionEditor";
+import { StudyPassages } from "./StudyPassages";
 
 interface StudyEditorProps {
   studyId: string;
   onMissing: () => void;
+  onRevealScripture: () => void;
 }
 
-export function StudyEditor({ studyId, onMissing }: StudyEditorProps) {
+export function StudyEditor({ studyId, onMissing, onRevealScripture }: StudyEditorProps) {
   const api = useApi();
   const detail = useLoad(useCallback(() => api.studyGet(studyId), [api, studyId]));
   const rename = useCallback((title: string) => api.studyUpdate({ id: studyId, title }), [api, studyId]);
@@ -36,6 +38,7 @@ export function StudyEditor({ studyId, onMissing }: StudyEditorProps) {
       <header className="flex flex-col gap-3">
         <p className="caps-label m-0">Study</p>
         <EditableTitle key={study.id} label="Study title" value={study.title} onSave={rename} />
+        <StudyPassages studyId={study.id} onReveal={onRevealScripture} />
         <SaveStatusLine />
         <nav aria-label="Sections">
           <ul className="m-0 flex list-none flex-wrap gap-x-4 gap-y-1 p-0 text-[0.9375rem]">

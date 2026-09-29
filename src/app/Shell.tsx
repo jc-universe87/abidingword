@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { SourcesPane } from "@/features/library/SourcesPane";
+import { AddBibleView } from "@/features/scripture/AddBibleView";
 import { ScripturePane } from "@/features/scripture/ScripturePane";
+import { SourcesPane } from "@/features/library/SourcesPane";
 import { SettingsView } from "@/features/settings/SettingsView";
 import { StudyPane } from "@/features/studies/StudyPane";
 import { AppBar } from "@/layouts/AppBar";
@@ -8,14 +9,29 @@ import { WorkspaceLayout } from "@/layouts/WorkspaceLayout";
 import { readLocal, writeLocal } from "@/lib/storage";
 import type { AppInfo, Workspace } from "@/types/domain";
 
-export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace }) {
-  const [view, setView] = useState<"workspace" | "settings">("workspace");
-  const [scriptureOpen, setScriptureOpen] = useState(() => readLocal("layout.scriptureOpen", true));
-  const [sourcesOpen, setSourcesOpen] = useState(() => readLocal("layout.sourcesOpen", true));
+type View = "workspace" | "settings" | "addBible";
 
-  const toggle = (key: string, value: boolean, set: (v: boolean) => void) => {
-    set(!value);
-    writeLocal(key, !value);
+/** Below this window width the Sources pane starts hidden (it can be shown). */
+const NARROW_WIDTH = 1100;
+
+export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace }) {
+  const [view, setView] = useState<View>("workspace");
+  const [returnTo, setReturnTo] = useState<View>("workspace");
+  const [scriptureOpen, setScriptureOpen] = useState(() => readLocal("layout.scriptureOpen", true));
+  const [sourcesOpen, setSourcesOpen] = useState(() =>
+    readLocal("layout.sourcesOpen", window.innerWidth >= NARROW_WIDTH),
+  );
+
+  const setOpen = (key: string, value: boolean, set: (v: boolean) => void) => {
+    set(value);
+    writeLocal(key, value);
+  };
+  const addBible = () => {
+    setReturnTo(view);
+    setView("addBible");
+  };
+  const revealScripture = () => {
+    if (!scriptureOpen) setOpen("layout.scriptureOpen", true, setScriptureOpen);
   };
 
   return (
@@ -27,21 +43,24 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
         Skip to study
       </a>
       <AppBar
-        view={view}
+        view={view === "addBible" ? "settings" : view}
         scriptureOpen={scriptureOpen}
         sourcesOpen={sourcesOpen}
-        onToggleScripture={() => toggle("layout.scriptureOpen", scriptureOpen, setScriptureOpen)}
-        onToggleSources={() => toggle("layout.sourcesOpen", sourcesOpen, setSourcesOpen)}
-        onOpenSettings={() => setView(view === "settings" ? "workspace" : "settings")}
+        onToggleScripture={() => setOpen("layout.scriptureOpen", !scriptureOpen, setScriptureOpen)}
+        onToggleSources={() => setOpen("layout.sourcesOpen", !sourcesOpen, setSourcesOpen)}
+        onOpenSettings={() => setView(view === "workspace" ? "settings" : "workspace")}
+        onSearch={revealScripture}
       />
-      {view === "settings" ? (
-        <SettingsView info={info} onClose={() => setView("workspace")} />
-      ) : (
+      {view === "settings" && (
+        <SettingsView info={info} onClose={() => setView("workspace")} onAddBible={addBible} />
+      )}
+      {view === "addBible" && <AddBibleView onClose={() => setView(returnTo)} />}
+      {view === "workspace" && (
         <WorkspaceLayout
           scriptureOpen={scriptureOpen}
           sourcesOpen={sourcesOpen}
-          scripture={<ScripturePane />}
-          study={<StudyPane workspace={workspace} />}
+          scripture={<ScripturePane onAddBible={addBible} />}
+          study={<StudyPane workspace={workspace} onRevealScripture={revealScripture} />}
           sources={<SourcesPane />}
         />
       )}

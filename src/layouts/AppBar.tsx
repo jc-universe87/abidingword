@@ -1,5 +1,7 @@
+import { useState, type FormEvent } from "react";
 import { PanelLeft, PanelRight, Search, Settings } from "lucide-react";
 import { BrandLockup } from "@/design-system/BrandLockup";
+import { useScripture } from "@/features/scripture/ScriptureContext";
 
 interface AppBarProps {
   view: "workspace" | "settings";
@@ -8,6 +10,8 @@ interface AppBarProps {
   onToggleScripture: () => void;
   onToggleSources: () => void;
   onOpenSettings: () => void;
+  /** Called when a search starts, so the Scripture pane can be shown. */
+  onSearch: () => void;
 }
 
 const iconButton =
@@ -16,6 +20,16 @@ const iconButton =
 
 export function AppBar(props: AppBarProps) {
   const inWorkspace = props.view === "workspace";
+  const { translation, runSearch } = useScripture();
+  const [query, setQuery] = useState("");
+  const canSearch = inWorkspace && !!translation;
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    if (!query.trim()) return;
+    props.onSearch();
+    void runSearch({ query, currentOnly: true, book: "" });
+  };
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-bg px-4">
       {/* The lockup's own clearspace provides the left margin. */}
@@ -24,16 +38,19 @@ export function AppBar(props: AppBarProps) {
       </div>
 
       <div className="ml-auto flex items-center gap-1">
-        <label className="relative mr-2 hidden items-center md:flex">
-          <span className="sr-only">Search (available in a later version)</span>
+        <form role="search" onSubmit={submit} className="relative mr-2 hidden items-center md:flex">
+          <label htmlFor="app-search" className="sr-only">Search Scripture</label>
           <Search className="pointer-events-none absolute left-3 size-4 text-text-muted" aria-hidden="true" />
           <input
+            id="app-search"
             type="search"
-            disabled
-            placeholder="Search arrives in a later version"
-            className="h-10 w-72 rounded-aw border border-border-subtle bg-bg-secondary pl-9 pr-3 text-[0.9375rem] text-text placeholder:text-text-muted disabled:cursor-not-allowed"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            disabled={!canSearch}
+            placeholder={translation ? "Search Scripture" : "Search needs a Bible added"}
+            className="h-10 w-72 rounded-aw border border-border bg-bg-secondary pl-9 pr-3 text-[0.9375rem] text-text placeholder:text-text-muted disabled:cursor-not-allowed disabled:border-border-subtle"
           />
-        </label>
+        </form>
         <button
           type="button"
           className={iconButton}
