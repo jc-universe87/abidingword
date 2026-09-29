@@ -4,7 +4,9 @@
 //! module of plain functions that take a `&Connection`; commands call those
 //! through [`Database::with_conn`].
 
+pub mod annotations;
 pub mod backup;
+pub mod bibles;
 pub mod blocks;
 pub mod integrity;
 pub mod migrations;
@@ -12,6 +14,7 @@ pub mod projects;
 pub mod sections;
 pub mod settings;
 pub mod studies;
+pub mod study_passages;
 pub mod templates;
 pub mod workspaces;
 

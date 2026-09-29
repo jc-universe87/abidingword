@@ -1,0 +1,20 @@
+\id JHN Fixture beta (test only)
+\h John
+\mt1 John
+\c 14
+\p
+\v 1 Fixture beta fourteen one about peace.
+\v 2 Fixture beta fourteen two.
+\c 15
+\s1 A heading that is not verse text
+\p
+\v 1 \wj Fixture beta fifteen one about the \+w vine|strong="G1"\+w*.\wj*
+\v 2 Fixture beta fifteen two about fruit.\f + \fr 15:2 \ft A footnote.\f*
+\v 3 Fixture beta fifteen three.
+\v 4 Fixture beta fifteen four about remaining.
+\v 5 Fixture beta fifteen five.
+\v 6 Fixture beta fifteen six.
+\v 7 Fixture beta fifteen seven about asking.
+\c 16
+\p
+\v 1 Fixture beta sixteen one.

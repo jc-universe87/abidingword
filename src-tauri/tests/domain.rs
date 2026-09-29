@@ -218,6 +218,7 @@ fn theme_setting_defaults_to_light_and_persists() {
             conn,
             &UpdateSettings {
                 theme: Some(Theme::Dark),
+                ..Default::default()
             },
         )?;
         assert_eq!(settings::get(conn)?.theme, Theme::Dark);

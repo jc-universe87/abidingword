@@ -25,11 +25,18 @@ pub struct Migration {
     pub sql: &'static str,
 }
 
-pub const MIGRATIONS: &[Migration] = &[Migration {
-    version: 1,
-    name: "initial_schema",
-    sql: include_str!("../../migrations/0001_initial_schema.sql"),
-}];
+pub const MIGRATIONS: &[Migration] = &[
+    Migration {
+        version: 1,
+        name: "initial_schema",
+        sql: include_str!("../../migrations/0001_initial_schema.sql"),
+    },
+    Migration {
+        version: 2,
+        name: "scripture",
+        sql: include_str!("../../migrations/0002_scripture.sql"),
+    },
+];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MigrationReport {

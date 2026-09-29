@@ -12,6 +12,7 @@ pub mod domain;
 pub mod error;
 pub mod filesystem;
 pub mod integrations;
+pub mod scripture;
 pub mod state;
 
 use std::path::PathBuf;
@@ -27,6 +28,7 @@ const LOG_FILE_NAME: &str = "abiding-word";
 
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let state = start(app.handle());
             app.manage(state);
@@ -51,6 +53,26 @@ pub fn run() {
             commands::blocks::study_block_delete,
             commands::settings::settings_get,
             commands::settings::settings_update,
+            commands::scripture::scripture_books,
+            commands::scripture::scripture_get_chapter,
+            commands::scripture::scripture_get_passage,
+            commands::scripture::scripture_search,
+            commands::scripture::scripture_reference_parse,
+            commands::scripture::scripture_reference_detect,
+            commands::bibles::bible_list,
+            commands::bibles::bible_get,
+            commands::bibles::bible_bundled_list,
+            commands::bibles::bible_import_preview,
+            commands::bibles::bible_import_commit,
+            commands::bibles::bible_import_cancel,
+            commands::bibles::bible_remove,
+            commands::annotations::annotation_list,
+            commands::annotations::annotation_create,
+            commands::annotations::annotation_update,
+            commands::annotations::annotation_delete,
+            commands::study_passages::study_passage_list,
+            commands::study_passages::study_passage_add,
+            commands::study_passages::study_passage_remove,
         ])
         .run(tauri::generate_context!())
         .expect("Abiding Word could not start its window");
@@ -86,7 +108,7 @@ fn start(app: &AppHandle) -> AppState {
         Ok(dirs) => log::info!("data directory: {}", dirs.root().display()),
         Err(e) => log::error!("data directory unavailable: {e}"),
     }
-    AppState::start(dirs, log_dir)
+    AppState::start(dirs, log_dir, app.path().resource_dir().ok())
 }
 
 fn resolve_data_root(app: &AppHandle) -> AppResult<PathBuf> {

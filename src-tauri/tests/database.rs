@@ -13,6 +13,18 @@ fn backups(temp: &tempfile::TempDir) -> std::path::PathBuf {
 
 const EXPECTED_TABLES: &[&str] = &[
     "annotations",
+    "bible_books",
+    "bible_chapters",
+    "bible_superscriptions",
+    "bible_translations",
+    // Full-text search table and the shadow tables SQLite keeps for it.
+    "bible_verse_search",
+    "bible_verse_search_config",
+    "bible_verse_search_data",
+    "bible_verse_search_docsize",
+    "bible_verse_search_idx",
+    "bible_verse_texts",
+    "bible_verses",
     "findings",
     "passage_references",
     "projects",

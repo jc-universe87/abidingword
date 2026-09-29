@@ -35,6 +35,22 @@ pub enum AppError {
         message: String,
     },
 
+    /// A Scripture reference that is not a real passage. The message is
+    /// shown to the user as written.
+    #[error("invalid Scripture reference: {0}")]
+    InvalidReference(String),
+
+    /// A Bible import could not be read or checked. User-facing message.
+    #[error("Bible import failed: {0}")]
+    Import(String),
+
+    /// A file in a format that cannot be imported. User-facing message.
+    #[error("unsupported import format: {0}")]
+    UnsupportedFormat(String),
+
+    #[error("a Bible with the short name {0} is already installed")]
+    DuplicateTranslation(String),
+
     /// The database file failed SQLite's integrity check or is not a
     /// database at all.
     #[error("database integrity check failed: {0}")]
@@ -55,6 +71,10 @@ pub enum ErrorKind {
     InvalidInput,
     NotFound,
     Migration,
+    InvalidReference,
+    ImportFailed,
+    UnsupportedFormat,
+    DuplicateTranslation,
     Integrity,
     Backup,
     Unexpected,
@@ -82,6 +102,10 @@ impl AppError {
             Self::InvalidInput(_) => ErrorKind::InvalidInput,
             Self::NotFound { .. } => ErrorKind::NotFound,
             Self::Migration { .. } => ErrorKind::Migration,
+            Self::InvalidReference(_) => ErrorKind::InvalidReference,
+            Self::Import(_) => ErrorKind::ImportFailed,
+            Self::UnsupportedFormat(_) => ErrorKind::UnsupportedFormat,
+            Self::DuplicateTranslation(_) => ErrorKind::DuplicateTranslation,
             Self::Integrity(_) => ErrorKind::Integrity,
             Self::Backup { .. } => ErrorKind::Backup,
             Self::Unexpected(_) => ErrorKind::Unexpected,
@@ -97,7 +121,14 @@ impl AppError {
             Self::Filesystem { .. } => "Abiding Word could not use its data folder. \
                 Check that the folder exists and that you have permission to write to it."
                 .into(),
-            Self::InvalidInput(message) => message.clone(),
+            Self::InvalidInput(message)
+            | Self::InvalidReference(message)
+            | Self::Import(message)
+            | Self::UnsupportedFormat(message) => message.clone(),
+            Self::DuplicateTranslation(short_name) => format!(
+                "A Bible called “{short_name}” is already installed. \
+                 Choose a different short name."
+            ),
             Self::NotFound { entity, .. } => {
                 format!("This {entity} could not be found. It may have been deleted.")
             }
@@ -133,7 +164,11 @@ impl From<AppError> for ErrorPayload {
         // Expected, user-caused errors are warnings; everything else is an
         // error worth investigating.
         match error.kind() {
-            ErrorKind::InvalidInput | ErrorKind::NotFound => log::warn!("{error}"),
+            ErrorKind::InvalidInput
+            | ErrorKind::NotFound
+            | ErrorKind::InvalidReference
+            | ErrorKind::UnsupportedFormat
+            | ErrorKind::DuplicateTranslation => log::warn!("{error}"),
             _ => log::error!("{error}"),
         }
         Self {

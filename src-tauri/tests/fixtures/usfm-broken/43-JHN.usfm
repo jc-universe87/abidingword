@@ -1,0 +1,9 @@
+\id JHN Broken fixture (test only)
+\c 15
+\p
+\v 1 One.
+\v 1 One again.
+\v x Unreadable number.
+\v 3 Three, after a gap.
+\c 99
+\v 1 A chapter John does not have.

@@ -5,12 +5,14 @@
 //! frontend shows the user a clear message instead of a crash.
 
 use std::path::PathBuf;
+use std::sync::{Mutex, MutexGuard};
 
 use rusqlite::Connection;
 
 use crate::db::{migrations, Database};
-use crate::error::{AppResult, ErrorPayload};
+use crate::error::{AppError, AppResult, ErrorPayload};
 use crate::filesystem::DataDirs;
+use crate::scripture::import::StagedImport;
 
 pub struct Core {
     pub dirs: DataDirs,
@@ -20,11 +22,20 @@ pub struct Core {
 pub struct AppState {
     startup: Result<Core, ErrorPayload>,
     log_dir: Option<PathBuf>,
+    /// Where bundled resources (e.g. included Bibles) are installed.
+    resource_dir: Option<PathBuf>,
+    /// The Bible import waiting on the verification screen, if any. Only
+    /// one at a time; starting another replaces it.
+    pending_import: Mutex<Option<StagedImport>>,
 }
 
 impl AppState {
     /// Opens the database inside already-prepared data directories.
-    pub fn start(dirs: AppResult<DataDirs>, log_dir: Option<PathBuf>) -> Self {
+    pub fn start(
+        dirs: AppResult<DataDirs>,
+        log_dir: Option<PathBuf>,
+        resource_dir: Option<PathBuf>,
+    ) -> Self {
         let core = dirs.and_then(|dirs| {
             let path = dirs.database_file();
             log::info!("database file: {}", path.display());
@@ -38,6 +49,8 @@ impl AppState {
         Self {
             startup: core.map_err(ErrorPayload::from),
             log_dir,
+            resource_dir,
+            pending_import: Mutex::new(None),
         }
     }
 
@@ -56,6 +69,16 @@ impl AppState {
     /// Runs a database operation, converting (and logging) any error.
     pub fn db<T>(&self, f: impl FnOnce(&Connection) -> AppResult<T>) -> Result<T, ErrorPayload> {
         Ok(self.core()?.db.with_conn(f)?)
+    }
+
+    pub fn resource_dir(&self) -> Option<&PathBuf> {
+        self.resource_dir.as_ref()
+    }
+
+    pub fn pending_import(&self) -> Result<MutexGuard<'_, Option<StagedImport>>, ErrorPayload> {
+        self.pending_import
+            .lock()
+            .map_err(|_| AppError::Unexpected("import staging lock poisoned".into()).into())
     }
 
     pub fn schema_version(&self) -> Option<i64> {

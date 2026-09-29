@@ -8,13 +8,19 @@ use serde::Serialize;
 use crate::db::now;
 use crate::domain::{AppSettings, UpdateSettings};
 use crate::error::{AppError, AppResult};
+use crate::scripture::reference::ScriptureRef;
 
 const THEME: &str = "appearance.theme";
+const SCRIPTURE_TRANSLATION: &str = "scripture.translation";
+const SCRIPTURE_PASSAGE: &str = "scripture.passage";
 
 pub fn get(conn: &Connection) -> AppResult<AppSettings> {
     let defaults = AppSettings::default();
     Ok(AppSettings {
         theme: read(conn, THEME)?.unwrap_or(defaults.theme),
+        scripture_translation_id: read(conn, SCRIPTURE_TRANSLATION)?,
+        scripture_passage: read::<String>(conn, SCRIPTURE_PASSAGE)?
+            .filter(|p| ScriptureRef::from_canonical(p).is_ok()),
     })
 }
 
@@ -22,7 +28,28 @@ pub fn update(conn: &Connection, input: &UpdateSettings) -> AppResult<AppSetting
     if let Some(theme) = input.theme {
         write(conn, THEME, &theme)?;
     }
+    match input.scripture_translation_id.as_deref() {
+        Some("") => clear(conn, SCRIPTURE_TRANSLATION)?,
+        Some(id) => {
+            crate::db::bibles::get(conn, id)?;
+            write(conn, SCRIPTURE_TRANSLATION, &id)?;
+        }
+        None => {}
+    }
+    match input.scripture_passage.as_deref() {
+        Some("") => clear(conn, SCRIPTURE_PASSAGE)?,
+        Some(passage) => {
+            let reference = ScriptureRef::from_canonical(passage)?;
+            write(conn, SCRIPTURE_PASSAGE, &reference.canonical())?;
+        }
+        None => {}
+    }
     get(conn)
+}
+
+fn clear(conn: &Connection, key: &str) -> AppResult<()> {
+    conn.execute("DELETE FROM settings WHERE key = ?1", [key])?;
+    Ok(())
 }
 
 fn read<T: DeserializeOwned>(conn: &Connection, key: &str) -> AppResult<Option<T>> {

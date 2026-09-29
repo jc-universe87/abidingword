@@ -60,12 +60,54 @@ impl DataDirs {
         self.root.join("database").join(DATABASE_FILE_NAME)
     }
 
+    /// Abiding Word's own copy of an imported Bible's source files.
+    pub fn bible_sources(&self, translation_id: &str) -> PathBuf {
+        self.root
+            .join("sources")
+            .join("bibles")
+            .join(translation_id)
+    }
+
     pub fn pre_migration_backups(&self) -> PathBuf {
         self.root.join("backups").join("pre-migration")
     }
 
     pub fn logs(&self) -> PathBuf {
         self.root.join("logs")
+    }
+}
+
+/// Copies files into `dir` (created if needed). Names that clash get a
+/// numeric prefix. On failure the partial copy is removed.
+pub fn copy_into(files: &[PathBuf], dir: &Path) -> AppResult<()> {
+    let result = (|| {
+        fs::create_dir_all(dir).map_err(|e| AppError::filesystem(dir, e))?;
+        for (index, source) in files.iter().enumerate() {
+            let name = source
+                .file_name()
+                .map(|n| n.to_string_lossy().into_owned())
+                .unwrap_or_else(|| format!("source-{index}"));
+            let mut target = dir.join(&name);
+            if target.exists() {
+                target = dir.join(format!("{index}-{name}"));
+            }
+            fs::copy(source, &target).map_err(|e| AppError::filesystem(source, e))?;
+        }
+        Ok(())
+    })();
+    if result.is_err() {
+        remove_managed(dir);
+    }
+    result
+}
+
+/// Deletes a folder Abiding Word created inside its own data directory.
+/// Failures are logged, not raised: the database is already consistent.
+pub fn remove_managed(dir: &Path) {
+    if dir.exists() {
+        if let Err(e) = fs::remove_dir_all(dir) {
+            log::warn!("could not remove {}: {e}", dir.display());
+        }
     }
 }
 
@@ -88,6 +130,25 @@ mod tests {
             dirs.database_file(),
             root.join("database").join(DATABASE_FILE_NAME)
         );
+    }
+
+    #[test]
+    fn copies_sources_without_touching_the_originals() {
+        let temp = tempfile::tempdir().unwrap();
+        let original = temp.path().join("john.usfm");
+        fs::write(&original, b"\\id JHN").unwrap();
+        let other = temp.path().join("other");
+        fs::create_dir(&other).unwrap();
+        let same_name = other.join("john.usfm");
+        fs::write(&same_name, b"\\id 1JN").unwrap();
+        let managed = temp.path().join("managed");
+
+        copy_into(&[original.clone(), same_name], &managed).unwrap();
+        assert_eq!(fs::read_dir(&managed).unwrap().count(), 2);
+
+        remove_managed(&managed);
+        assert!(!managed.exists());
+        assert!(original.exists(), "the user's file must stay");
     }
 
     #[test]

@@ -180,6 +180,10 @@ pub enum Theme {
 #[serde(rename_all = "camelCase")]
 pub struct AppSettings {
     pub theme: Theme,
+    /// The translation the Scripture pane shows.
+    pub scripture_translation_id: Option<String>,
+    /// The active passage, as a canonical reference (e.g. `JHN.15.1-JHN.15.11`).
+    pub scripture_passage: Option<String>,
 }
 
 // ---------------------------------------------------------------------------
@@ -249,9 +253,15 @@ pub struct UpdateStudyBlock {
     pub content: Option<String>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateSettings {
     #[serde(default)]
     pub theme: Option<Theme>,
+    /// An empty string clears the setting.
+    #[serde(default)]
+    pub scripture_translation_id: Option<String>,
+    /// A canonical reference; an empty string clears the setting.
+    #[serde(default)]
+    pub scripture_passage: Option<String>,
 }

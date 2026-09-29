@@ -1,0 +1,20 @@
+\id JHN Fixture alpha (test only)
+\h John
+\mt1 John
+\c 14
+\p
+\v 1 Fixture alpha fourteen one about peace.
+\v 2 Fixture alpha fourteen two.
+\c 15
+\s1 A heading that is not verse text
+\p
+\v 1 \wj Fixture alpha fifteen one about the \+w vine|strong="G1"\+w*.\wj*
+\v 2 Fixture alpha fifteen two about fruit.\f + \fr 15:2 \ft A footnote.\f*
+\v 3 Fixture alpha fifteen three.
+\v 4 Fixture alpha fifteen four about remaining.
+\v 5 Fixture alpha fifteen five.
+\v 6 Fixture alpha fifteen six.
+\v 7 Fixture alpha fifteen seven about asking.
+\c 16
+\p
+\v 1 Fixture alpha sixteen one.
