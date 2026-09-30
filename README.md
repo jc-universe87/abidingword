@@ -8,7 +8,7 @@ connection needed. Your studies are stored in one folder that you own.
 
 The workflow it is built around: **Word → Understanding → Teaching**.
 
-## Status: Studies v0.3 (on Scripture v0.2 and the frozen Foundation v0.1)
+## Status: Library v0.4 in development (on Studies v0.3, Scripture v0.2 and the frozen Foundation v0.1)
 
 Foundation v0.1 (with its hardening: integrity check and pre-migration
 backup) provides:
@@ -54,9 +54,28 @@ Studies v0.3 makes the study the centre of work:
 
 Details: [`docs/studies-v0.3.md`](docs/studies-v0.3.md).
 
-**Not yet, planned for later phases:** the personal source library (Library
-v0.4, in development), concordance and original-language tools, AI
-assistance, sync, integrations and MCP.
+Library v0.4 (branch `feature/library-v0.4`, not yet merged) adds a
+personal source library:
+
+- add PDF (with a text layer), EPUB, Markdown and text files; Abiding Word
+  keeps its own copy and never changes the original
+- a preview before adding: what was found, Bible references detected,
+  scanned PDFs and duplicates explained in plain words
+- exact provenance for every paragraph: page (PDF) or chapter and heading
+  (EPUB, Markdown)
+- library search with provenance, as a third search scope beside
+  Scripture and Studies
+- "Sources mentioning this passage" in the Sources pane, found from the
+  Bible references in each source
+- findings can cite a library passage; citations survive removal of the
+  source as a record
+- a licence status per source (by default: my own copy, not to be shared)
+
+No OCR, AI or network access. Details:
+[`docs/library-v0.4.md`](docs/library-v0.4.md).
+
+**Not yet, planned for later phases:** OCR and transcription, concordance
+and original-language tools, AI assistance, sync, integrations and MCP.
 
 ## Architecture in brief
 
@@ -72,8 +91,9 @@ The authoritative baseline is the frozen
 [`docs/concept.md`](docs/concept.md) and
 [`docs/architecture.md`](docs/architecture.md). How this release implements
 it: [`docs/foundation-v0.1.md`](docs/foundation-v0.1.md),
-[`docs/scripture-v0.2.md`](docs/scripture-v0.2.md) and
-[`docs/studies-v0.3.md`](docs/studies-v0.3.md).
+[`docs/scripture-v0.2.md`](docs/scripture-v0.2.md),
+[`docs/studies-v0.3.md`](docs/studies-v0.3.md) and
+[`docs/library-v0.4.md`](docs/library-v0.4.md).
 
 ## Milestones
 
@@ -82,7 +102,7 @@ it: [`docs/foundation-v0.1.md`](docs/foundation-v0.1.md),
 | Foundation v0.1 | complete, frozen | shell, data folder, migrations, integrity check, pre-migration backup |
 | Scripture v0.2 | complete | canon, references, reader, Bible import, annotations, search |
 | Studies v0.3 | complete (tag `studies-v0.3`) | study types, findings, templates, relations, study search |
-| Library v0.4 | in development (`feature/library-v0.4`) | personal source library |
+| Library v0.4 | in development (`feature/library-v0.4`) | PDF/EPUB/Markdown/text import, provenance, library search, passage mentions, finding citations |
 
 ## Supported platforms
 
@@ -203,9 +223,11 @@ tests/                interface tests and test support
 | macOS | `~/Library/Application Support/Abiding Word/` |
 | Windows | `%APPDATA%\Abiding Word\` |
 
-Inside: `database/abiding-word.db` (all studies), `logs/`, and folders
-reserved for later phases (`sources/`, `indexes/`, `cache/`, `sync/`,
-`backups/`, `exports/`). The exact path is shown in **Settings**.
+Inside: `database/abiding-word.db` (all studies and the library's text),
+`sources/` (Abiding Word's copies of the files added to the library),
+`backups/` (automatic copies made before a database upgrade), `logs/`, and
+folders reserved for later phases (`indexes/`, `cache/`, `sync/`,
+`exports/`). The exact path is shown in **Settings**.
 To back up everything, copy this folder while the app is closed.
 
 ## How migrations work

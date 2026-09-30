@@ -64,7 +64,8 @@ belongs to the whole study), type (column `kind`, from 0001), `content`,
 - **Tags** — `finding_tags`, lower case, trimmed, up to 20 per finding.
 - **Sources** — `finding_sources` (finding ↔ source, optional segment and
   locator such as a page). **Data model only**; the Library phase fills it.
-  No source records are created in normal use.
+  No source records are created in normal use. (Filled in Library v0.4:
+  see [`library-v0.4.md`](library-v0.4.md), "Finding citations".)
 
 Interface: quick capture (Observation, Question, Interpretation,
 Application, Conclusion as buttons; all ten types available), optional
