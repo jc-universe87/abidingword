@@ -54,9 +54,9 @@ Studies v0.3 makes the study the centre of work:
 
 Details: [`docs/studies-v0.3.md`](docs/studies-v0.3.md).
 
-**Not yet, planned for later phases:** source import and the personal
-library (the Sources pane is still a placeholder), concordance and
-original-language tools, AI assistance, sync, integrations and MCP.
+**Not yet, planned for later phases:** the personal source library (Library
+v0.4, in development), concordance and original-language tools, AI
+assistance, sync, integrations and MCP.
 
 ## Architecture in brief
 
@@ -75,28 +75,68 @@ it: [`docs/foundation-v0.1.md`](docs/foundation-v0.1.md),
 [`docs/scripture-v0.2.md`](docs/scripture-v0.2.md) and
 [`docs/studies-v0.3.md`](docs/studies-v0.3.md).
 
-## Development prerequisites
+## Milestones
 
-- **Node.js 20.19+** with **npm 10+**. (Debian's packaged npm 9.2 fails to
-  install these dependencies; run `npx -y npm@10 install` instead, or use a
-  newer Node.js.)
-- **Rust** (stable, 1.82+) via [rustup](https://rustup.rs).
-- Platform libraries for Tauri — see
-  [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/). On
-  Debian/Ubuntu:
+| Milestone | State | Notes |
+|---|---|---|
+| Foundation v0.1 | complete, frozen | shell, data folder, migrations, integrity check, pre-migration backup |
+| Scripture v0.2 | complete | canon, references, reader, Bible import, annotations, search |
+| Studies v0.3 | complete (tag `studies-v0.3`) | study types, findings, templates, relations, study search |
+| Library v0.4 | in development (`feature/library-v0.4`) | personal source library |
+
+## Supported platforms
+
+Desktop first: **Linux**, **Windows** and **macOS** (Tauri 2). Development
+and the release builds so far have been done on Debian-family Linux; the
+code has no Linux-only parts, but Windows and macOS builds have not been
+verified yet. A Chromebook works through its Linux development environment,
+which is Debian-based, so the Linux instructions below apply there too.
+
+## Getting started
+
+### Prerequisites
+
+- **Node.js 20.19 or newer** with **npm 10 or newer**. Debian's packaged
+  npm 9.2 cannot install these dependencies; use a Node.js release that
+  ships npm 10, or run `npx -y npm@10 ci` in place of `npm ci`.
+- **Rust** (stable, 1.82 or newer) via [rustup](https://rustup.rs):
 
   ```sh
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  ```
+
+- **Platform libraries for Tauri.** On Debian, Ubuntu, Parrot and a
+  Chromebook's Linux environment:
+
+  ```sh
+  sudo apt update
   sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file \
     libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
   ```
 
-## Commands
+  For other systems (Fedora, Arch, macOS, Windows) follow the official
+  [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/).
+
+### Clone, install, run
+
+```sh
+git clone https://github.com/<you>/abiding-word.git
+cd abiding-word
+npm ci                                   # exact versions from package-lock.json
+ABIDING_WORD_DATA_DIR="$PWD/.aw-data" npm run tauri dev
+```
+
+The first Rust build downloads and compiles Tauri and takes a while; later
+builds are incremental. On a machine with little memory, limit parallel
+compilation: `CARGO_BUILD_JOBS=2 npm run tauri dev`.
+
+### Commands
 
 | Task | Command |
 |---|---|
-| Install dependencies | `npm install` |
+| Install dependencies (from the lockfile) | `npm ci` |
 | Run the desktop app in development | `npm run tauri dev` |
-| Build installers for this platform | `npm run tauri build` |
+| Build installers for this platform | `npm run tauri build` (Linux `.deb` only: `npm run tauri build -- --bundles deb`) |
 | Interface tests | `npm test` |
 | Native (Rust) tests | `npm run test:rust` |
 | Type check | `npm run typecheck` |
@@ -106,12 +146,32 @@ it: [`docs/foundation-v0.1.md`](docs/foundation-v0.1.md),
 
 Build output lands in `src-tauri/target/release/bundle/`.
 
-To develop without touching your real studies, point the app at a scratch
-folder:
+### Keeping development data separate
+
+`ABIDING_WORD_DATA_DIR` points the app at a different data folder, so
+development and testing never touch your real studies. Use a folder outside
+the repository, or `.aw-data/` inside it (ignored by Git):
 
 ```sh
-ABIDING_WORD_DATA_DIR=/tmp/aw-dev npm run tauri dev
+ABIDING_WORD_DATA_DIR="$PWD/.aw-data" npm run tauri dev
 ```
+
+The webview (the embedded browser that draws the window) keeps a few
+interface preferences — pane widths, the last place in the Study pane — in
+its own per-user folder (Linux: `~/.local/share/app.abidingword.desktop/`),
+which `ABIDING_WORD_DATA_DIR` does not change. It holds no study data.
+
+### Never commit private or imported material
+
+Abiding Word is built for the user's own library: Bibles they own,
+commentaries, books, notes. None of that belongs in this repository.
+Do not commit databases, data folders, imported Bibles or books, PDFs,
+EPUBs, personal notes or studies. The only Bible text in the repository is
+the public-domain World English Bible in `resources/scripture/`, with its
+licence and checksum in `SOURCE.md`. Test fixtures are invented text or are
+generated by the tests; any new fixture must say where it came from.
+`.gitignore` blocks the common cases (`*.db`, `.aw-data/`, logs), but it
+cannot know what is private: check `git status` before committing.
 
 ## Repository layout
 
@@ -131,7 +191,7 @@ resources/
   templates/          the six built-in study templates (JSON)
   scripture/          included Bible texts, each with SOURCE.md (licence)
   icons/              brand source icons
-docs/                 concept and architecture
+docs/                 concept, architecture and per-milestone notes
 tests/                interface tests and test support
 ```
 

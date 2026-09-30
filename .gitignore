@@ -7,8 +7,28 @@ src-tauri/gen/
 # Tooling
 coverage/
 *.log
+logs/
 .vite/
 .eslintcache
+
+# Local data: databases and SQLite side files never belong in Git.
+# Test fixtures are plain text (USFM, Markdown…) or generated in tests.
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Local development data folders and scratch space. Point
+# ABIDING_WORD_DATA_DIR at .aw-data/ (or anywhere outside the repository)
+# so a development run can never add real or imported data to a commit.
+/.aw-data/
+/scratch/
+/tmp/
+*.tmp
+*.swp
+*~
 
 # Editors and OS
 .vscode/*
@@ -17,6 +37,7 @@ coverage/
 .DS_Store
 Thumbs.db
 
-# Local environment
+# Local environment (a deliberate example file may be committed)
 .env
 .env.*
+!.env.example
