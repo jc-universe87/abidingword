@@ -250,6 +250,15 @@ chose in the system file dialog.
   resolve partial references ("v. 4", "ch. 3") from context.
 - Full-text search does not include titles or authors.
 - Metadata can be edited only when adding a source.
+- Language codes in a file's metadata are suggested as names for about
+  twenty common languages ("en-GB" → "English"); other codes are shown as
+  written and can be corrected before adding.
+- Markdown locators include the file's top heading, which is usually also
+  its title, so a citation can repeat it ("Sermon Notes, Sermon Notes ›
+  Context"). Accurate, but wordy.
+- At narrow window widths with all three panes open, the Study pane
+  becomes cramped; the Sources pane starts hidden below 1,100 pixels for
+  this reason.
 - One file per source; a second edition is a second source.
 - A citation is chosen by searching; the reader has no "cite this
   paragraph" button yet.
