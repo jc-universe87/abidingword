@@ -11,6 +11,7 @@ pub mod blocks;
 pub mod findings;
 pub mod fts;
 pub mod integrity;
+pub mod library;
 pub mod migrations;
 pub mod projects;
 pub mod relations;

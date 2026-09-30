@@ -26,6 +26,12 @@ chrono = { version = "0.4", default-features = false, features = ["clock", "std"
 thiserror = "2"
 log = "0.4"
 regex = "1"
+# Library v0.4 importers (pure Rust, offline).
+pdf-extract = "0.12"
+lopdf = "0.42"
+pulldown-cmark = { version = "0.13", default-features = false }
+quick-xml = "0.42"
+sha2 = "0.10"
 # Reads .zip Bible downloads; only standard (deflate) compression is needed.
 zip = { version = "2", default-features = false, features = ["deflate"] }
 

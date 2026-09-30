@@ -14,6 +14,7 @@ use crate::domain::{
     SetFindingTags, UpdateFinding,
 };
 use crate::error::{AppError, AppResult};
+use crate::library::{AddFindingSource, FindingCitation};
 use crate::scripture::reference::ScriptureRef;
 
 const CONTENT_MAX_CHARS: usize = 50_000;
@@ -37,6 +38,7 @@ fn from_row(row: &Row) -> rusqlite::Result<Finding> {
         parent_id: row.get(6)?,
         passages: Vec::new(),
         tags: Vec::new(),
+        sources: Vec::new(),
         created_at: row.get(7)?,
         updated_at: row.get(8)?,
         revision: row.get(9)?,
@@ -79,6 +81,85 @@ fn tags_for(conn: &Connection, finding_id: &str) -> AppResult<Vec<String>> {
 fn complete(conn: &Connection, mut finding: Finding) -> AppResult<Finding> {
     finding.passages = passages_for(conn, &finding.id)?;
     finding.tags = tags_for(conn, &finding.id)?;
+    finding.sources = citations_for(conn, &finding.id)?;
+    Ok(finding)
+}
+
+fn citations_for(conn: &Connection, finding_id: &str) -> AppResult<Vec<FindingCitation>> {
+    let mut stmt = conn.prepare(
+        "SELECT c.id, c.finding_id, c.source_id, c.source_segment_id,
+                COALESCE(s.title, c.cited_title, 'Removed source'), COALESCE(s.author, c.cited_author),
+                c.locator, s.id IS NULL OR s.deleted_at IS NOT NULL
+         FROM finding_sources c LEFT JOIN sources s ON s.id = c.source_id
+         WHERE c.finding_id = ?1 AND c.deleted_at IS NULL
+         ORDER BY c.created_at, c.rowid",
+    )?;
+    let rows = stmt.query_map([finding_id], |r| {
+        Ok(FindingCitation {
+            id: r.get(0)?,
+            finding_id: r.get(1)?,
+            source_id: r.get(2)?,
+            segment_id: r.get(3)?,
+            title: r.get(4)?,
+            author: r.get(5)?,
+            locator: r.get(6)?,
+            removed: r.get(7)?,
+        })
+    })?;
+    Ok(rows.collect::<Result<_, _>>()?)
+}
+
+/// Cites a library segment from a finding. Stores the source, the segment
+/// and a snapshot of title, author and location — never the text itself.
+/// Citing the same segment twice returns the finding unchanged.
+pub fn add_source(conn: &Connection, input: &AddFindingSource) -> AppResult<Finding> {
+    let finding = get(conn, &input.finding_id)?;
+    let (source_id, segment) = crate::db::library::segment(conn, &input.segment_id)?;
+    let source = crate::db::library::get(conn, &source_id)?;
+    if finding
+        .sources
+        .iter()
+        .any(|c| c.segment_id.as_deref() == Some(input.segment_id.as_str()))
+    {
+        return Ok(finding);
+    }
+    let now = now();
+    conn.execute(
+        "INSERT INTO finding_sources (id, finding_id, source_id, source_segment_id, locator,
+             cited_title, cited_author, created_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?8)",
+        params![
+            new_id(),
+            finding.id,
+            source.id,
+            segment.id,
+            segment.locator,
+            source.title,
+            source.author,
+            now
+        ],
+    )?;
+    studies::touch(conn, &finding.study_id, &now)?;
+    get(conn, &finding.id)
+}
+
+/// Removes a citation (soft delete).
+pub fn remove_source(conn: &Connection, citation_id: &str) -> AppResult<Finding> {
+    let finding_id: String = conn
+        .query_row(
+            "SELECT finding_id FROM finding_sources WHERE id = ?1 AND deleted_at IS NULL",
+            [citation_id],
+            |r| r.get(0),
+        )
+        .optional()?
+        .ok_or_else(|| AppError::not_found("citation", citation_id))?;
+    let now = now();
+    conn.execute(
+        "UPDATE finding_sources SET deleted_at = ?2, updated_at = ?2, revision = revision + 1 WHERE id = ?1",
+        params![citation_id, now],
+    )?;
+    let finding = get(conn, &finding_id)?;
+    studies::touch(conn, &finding.study_id, &now)?;
     Ok(finding)
 }
 
@@ -382,6 +463,23 @@ pub(crate) fn copy_all(
             conn.execute(
                 "INSERT INTO finding_tags (finding_id, tag, created_at) VALUES (?1, ?2, ?3)",
                 params![id, tag, now],
+            )?;
+        }
+        for citation in &finding.sources {
+            conn.execute(
+                "INSERT INTO finding_sources (id, finding_id, source_id, source_segment_id, locator,
+                     cited_title, cited_author, created_at, updated_at)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?8)",
+                params![
+                    new_id(),
+                    id,
+                    citation.source_id,
+                    citation.segment_id,
+                    citation.locator,
+                    citation.title,
+                    citation.author,
+                    now
+                ],
             )?;
         }
     }

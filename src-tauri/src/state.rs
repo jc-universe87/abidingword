@@ -12,6 +12,7 @@ use rusqlite::Connection;
 use crate::db::{migrations, Database};
 use crate::error::{AppError, AppResult, ErrorPayload};
 use crate::filesystem::DataDirs;
+use crate::library::import::StagedSource;
 use crate::scripture::import::StagedImport;
 
 pub struct Core {
@@ -27,6 +28,8 @@ pub struct AppState {
     /// The Bible import waiting on the verification screen, if any. Only
     /// one at a time; starting another replaces it.
     pending_import: Mutex<Option<StagedImport>>,
+    /// The library import waiting on its preview screen, if any.
+    pending_source: Mutex<Option<StagedSource>>,
 }
 
 impl AppState {
@@ -51,6 +54,7 @@ impl AppState {
             log_dir,
             resource_dir,
             pending_import: Mutex::new(None),
+            pending_source: Mutex::new(None),
         }
     }
 
@@ -79,6 +83,12 @@ impl AppState {
         self.pending_import
             .lock()
             .map_err(|_| AppError::Unexpected("import staging lock poisoned".into()).into())
+    }
+
+    pub fn pending_source(&self) -> Result<MutexGuard<'_, Option<StagedSource>>, ErrorPayload> {
+        self.pending_source
+            .lock()
+            .map_err(|_| AppError::Unexpected("library staging lock poisoned".into()).into())
     }
 
     pub fn schema_version(&self) -> Option<i64> {

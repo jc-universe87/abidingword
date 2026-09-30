@@ -41,6 +41,11 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "studies",
         sql: include_str!("../../migrations/0003_studies.sql"),
     },
+    Migration {
+        version: 4,
+        name: "library",
+        sql: include_str!("../../migrations/0004_library.sql"),
+    },
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]

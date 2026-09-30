@@ -12,6 +12,7 @@ pub mod domain;
 pub mod error;
 pub mod filesystem;
 pub mod integrations;
+pub mod library;
 pub mod scripture;
 pub mod state;
 
@@ -74,6 +75,21 @@ pub fn run() {
             commands::templates::template_update,
             commands::templates::template_duplicate,
             commands::templates::template_delete,
+            commands::library::library_list,
+            commands::library::library_languages,
+            commands::library::library_get_source,
+            commands::library::library_import_preview,
+            commands::library::library_import_commit,
+            commands::library::library_import_cancel,
+            commands::library::library_remove_source,
+            commands::library::library_search,
+            commands::library::library_open_segment,
+            commands::library::source_get_segments,
+            commands::library::source_get_passages,
+            commands::library::library_sources_for_passage,
+            commands::library::finding_source_add,
+            commands::library::finding_source_remove,
+            commands::library::finding_source_list,
             commands::settings::settings_get,
             commands::settings::settings_update,
             commands::scripture::scripture_books,

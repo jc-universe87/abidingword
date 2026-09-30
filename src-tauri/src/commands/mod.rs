@@ -13,6 +13,7 @@ pub mod app;
 pub mod bibles;
 pub mod blocks;
 pub mod findings;
+pub mod library;
 pub mod projects;
 pub mod relations;
 pub mod scripture;

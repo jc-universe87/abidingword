@@ -188,6 +188,8 @@ pub struct Finding {
     pub parent_id: Option<String>,
     pub passages: Vec<FindingPassage>,
     pub tags: Vec<String>,
+    /// Library sources this finding cites (with provenance snapshots).
+    pub sources: Vec<crate::library::FindingCitation>,
     pub created_at: String,
     pub updated_at: String,
     pub revision: i64,

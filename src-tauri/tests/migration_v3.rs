@@ -72,7 +72,10 @@ fn a_scripture_database_upgrades_to_studies_with_a_backup() {
     assert_eq!(migrations::current_version(&copy).unwrap(), 2);
 
     db.with_conn(|conn| {
-        assert_eq!(migrations::current_version(conn)?, 3);
+        assert_eq!(
+            migrations::current_version(conn)?,
+            MIGRATIONS.last().unwrap().version
+        );
         assert_eq!(workspaces::get_default(conn)?.id, WORKSPACE);
         assert_eq!(projects::get(conn, PROJECT)?.title, "John Sermon Series");
         let study = studies::get(conn, STUDY)?;

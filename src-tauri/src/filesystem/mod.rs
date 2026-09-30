@@ -68,6 +68,11 @@ impl DataDirs {
             .join(translation_id)
     }
 
+    /// The library's managed files (`sources/`).
+    pub fn sources(&self) -> PathBuf {
+        self.root.join("sources")
+    }
+
     pub fn pre_migration_backups(&self) -> PathBuf {
         self.root.join("backups").join("pre-migration")
     }
