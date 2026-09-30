@@ -188,9 +188,58 @@ pub fn split_long(paragraph: &str, max: usize) -> Vec<String> {
     parts
 }
 
+/// The language name to suggest for a language tag found in a file's
+/// metadata ("en-GB" → "English"), so the library's language filter does
+/// not list "en", "en-GB" and "English" as three languages. Names are in
+/// the language itself, as the user would type them. Unknown tags are kept.
+pub fn language_name(tag: &str) -> String {
+    let primary = tag
+        .trim()
+        .split(['-', '_'])
+        .next()
+        .unwrap_or("")
+        .to_ascii_lowercase();
+    let name = match primary.as_str() {
+        "en" | "eng" => "English",
+        "de" | "deu" | "ger" => "Deutsch",
+        "fr" | "fra" | "fre" => "Français",
+        "es" | "spa" => "Español",
+        "it" | "ita" => "Italiano",
+        "nl" | "nld" | "dut" => "Nederlands",
+        "pt" | "por" => "Português",
+        "sv" | "swe" => "Svenska",
+        "no" | "nb" | "nn" | "nor" => "Norsk",
+        "da" | "dan" => "Dansk",
+        "fi" | "fin" => "Suomi",
+        "pl" | "pol" => "Polski",
+        "ru" | "rus" => "Русский",
+        "el" | "ell" | "gre" => "Ελληνικά",
+        "he" | "heb" => "עברית",
+        "la" | "lat" => "Latina",
+        "af" | "afr" => "Afrikaans",
+        "sw" | "swa" => "Kiswahili",
+        "ko" | "kor" => "한국어",
+        "zh" | "zho" | "chi" => "中文",
+        _ => return tag.trim().to_string(),
+    };
+    name.to_string()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn language_tags_become_names() {
+        assert_eq!(language_name("en"), "English");
+        assert_eq!(language_name("en-GB"), "English");
+        assert_eq!(language_name("EN_us"), "English");
+        assert_eq!(language_name("de-CH"), "Deutsch");
+        assert_eq!(language_name("ger"), "Deutsch");
+        // Already a name, or unknown: kept as it is.
+        assert_eq!(language_name("English"), "English");
+        assert_eq!(language_name("tlh"), "tlh");
+    }
 
     #[test]
     fn paragraphs_join_lines_and_hyphenation() {

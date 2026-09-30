@@ -834,7 +834,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         previewId: id(), fileName: path.split("/").pop() ?? path, format: fixture.format ?? "pdf",
         suggestedTitle: fixture.title, suggestedAuthor: fixture.author ?? null, suggestedLanguage: fixture.language ?? null,
         suggestedPublisher: null, suggestedIsbn: null, suggestedType: "book",
-        pageCount: fixture.format === "pdf" ? (scanned ? 12 : 3) : null, chapterCount: fixture.format === "epub" ? 2 : null,
+        pageCount: fixture.format === "pdf" ? (scanned ? 12 : 3) : null, chapterCount: fixture.format === "epub" ? 2 : fixture.format === "markdown" ? 1 : null,
         segmentCount: fixture.segments.length, referenceCount: fixture.mentions?.length ?? 0,
         extractionStatus: scanned ? "ocr_required" : "extracted_text",
         problem: scanned ? "This PDF appears to contain scanned pages. OCR support is not available yet." : null,

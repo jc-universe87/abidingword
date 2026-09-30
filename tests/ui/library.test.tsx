@@ -87,7 +87,7 @@ describe("Library", () => {
 
     await user.click(await within(sourcesPane()).findByRole("button", { name: "Add to library…" }));
     await chooseFile(user, api, "/home/test/sermon-notes.md");
-    expect(await screen.findByText("Markdown · 3 paragraphs")).toBeInTheDocument();
+    expect(await screen.findByText("Markdown · 1 section")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Add to library" }));
     expect(await screen.findByRole("heading", { level: 1, name: "sermon notes" })).toBeInTheDocument();
     // Markdown and EPUB show section headings, not pages.

@@ -110,7 +110,8 @@ function Review({ preview, onCancel, onAdded, onError }: { preview: SourceImport
     preview.pageCount !== null
       ? `${preview.pageCount} page${preview.pageCount === 1 ? "" : "s"}`
       : preview.chapterCount
-        ? `${preview.chapterCount} chapter${preview.chapterCount === 1 ? "" : "s"}`
+        ? // EPUB counts chapters; Markdown counts its main headings.
+          `${preview.chapterCount} ${preview.format === "epub" ? "chapter" : "section"}${preview.chapterCount === 1 ? "" : "s"}`
         : `${preview.segmentCount} paragraph${preview.segmentCount === 1 ? "" : "s"}`;
   const field = "h-10 rounded-aw border border-border bg-bg px-3 text-base";
 

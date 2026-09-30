@@ -15,7 +15,7 @@ use crate::db::{findings, library};
 use crate::domain::Finding;
 use crate::error::{AppError, ErrorPayload};
 use crate::filesystem;
-use crate::library::import;
+use crate::library::{adapters, import};
 use crate::library::{
     AddFindingSource, CommitSourceImport, FindingCitation, GetSegments, LibraryResults,
     ListSources, PassageMention, SearchLibrary, SegmentWindow, Source, SourceImportPreview,
@@ -72,7 +72,11 @@ pub fn library_import_preview(
         format: doc.format,
         suggested_title: doc.metadata.title.clone().unwrap_or(stem),
         suggested_author: doc.metadata.author.clone(),
-        suggested_language: doc.metadata.language.clone(),
+        suggested_language: doc
+            .metadata
+            .language
+            .as_deref()
+            .map(adapters::language_name),
         suggested_publisher: doc.metadata.publisher.clone(),
         suggested_isbn: doc.metadata.isbn.clone(),
         suggested_type: SourceType::default_for(doc.format),
