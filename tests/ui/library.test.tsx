@@ -200,3 +200,79 @@ describe("Library", () => {
   });
 });
 
+describe("finding citations", () => {
+  async function inStudyWithFinding(findingType: "observation" | "quotation", content = "") {
+    const api = withLibrary(VINE_NOTES);
+    const project = await api.projectCreate({ workspaceId: api.state.workspace.id, title: "John Series" });
+    const study = await api.studyCreate({ projectId: project.id, title: "The True Vine" });
+    await api.findingCreate({ studyId: study.study.id, findingType, content });
+    const { user } = await renderApp(api);
+    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /John Series/ }));
+    await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /The True Vine/ }));
+    const findings = await screen.findByRole("list", { name: "Findings" });
+    return { api, user, findings };
+  }
+
+  async function cite(user: Awaited<ReturnType<typeof renderApp>>["user"], findings: HTMLElement, query: string) {
+    await user.click(within(findings).getByRole("button", { name: "+ Add source" }));
+    await user.type(screen.getByLabelText("Search your library for the passage to cite"), `${query}{Enter}`);
+    const choices = await screen.findByRole("list", { name: "Passages to cite" });
+    return choices;
+  }
+
+  it("cites a library passage in a finding and opens it from there", async () => {
+    const { api, user, findings } = await inStudyWithFinding("observation", "Abiding comes before fruit.");
+    const choices = await cite(user, findings, "abiding");
+    await user.click(within(choices).getByRole("button", { name: /Cite J\. Example, Notes on the Vine, p\. 2/ }));
+
+    const chip = await within(findings).findByRole("button", { name: "J. Example, Notes on the Vine, p. 2" });
+    expect(api.state.findings[0]?.sources).toHaveLength(1);
+    // Citing never changes the finding's own text.
+    expect(api.state.findings[0]?.content).toBe("Abiding comes before fruit.");
+
+    await user.click(chip);
+    expect(await screen.findByRole("heading", { level: 1, name: "Notes on the Vine" })).toBeInTheDocument();
+    await waitFor(() => expect(document.querySelector("[data-target]")).toHaveTextContent("Abiding is the heart"));
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    const back = await screen.findByRole("list", { name: "Findings" });
+    await user.click(within(back).getByRole("button", { name: "Remove citation J. Example, Notes on the Vine, p. 2" }));
+    await waitFor(() => expect(api.state.findings[0]?.sources).toHaveLength(0));
+  });
+
+  it("uses the cited text as a quotation only when asked", async () => {
+    const { api, user, findings } = await inStudyWithFinding("quotation");
+    const choices = await cite(user, findings, "pruning");
+    expect(screen.getByLabelText("Also use the cited passage as this quotation’s text")).not.toBeChecked();
+    await user.click(screen.getByLabelText("Also use the cited passage as this quotation’s text"));
+    await user.click(within(choices).getByRole("button", { name: /Cite .* p\. 3/ }));
+    await waitFor(() => expect(api.state.findings[0]?.content).toBe("Pruning is painful but good."));
+    expect(within(findings).getByRole("textbox", { name: "Quotation text" })).toHaveValue("Pruning is painful but good.");
+  });
+
+  it("removes a source after confirmation and keeps the citation as a record", async () => {
+    const { api, user, findings } = await inStudyWithFinding("observation", "Remain.");
+    const studyId = api.state.studies[0]!.id;
+    const choices = await cite(user, findings, "abiding");
+    await user.click(within(choices).getAllByRole("button")[0]!);
+    await within(findings).findByRole("button", { name: "J. Example, Notes on the Vine, p. 2" });
+
+    await openLibrary(user);
+    await user.click(await screen.findByRole("button", { name: "Remove Notes on the Vine" }));
+    const confirm = screen.getByRole("alertdialog", { name: "Remove Notes on the Vine?" });
+    expect(confirm).toHaveTextContent("Findings that cite it keep a record of the citation.");
+    expect(confirm).toHaveTextContent("your original file is not touched");
+    await user.click(within(confirm).getByRole("button", { name: "Keep it" }));
+    expect(api.state.library.sources[0]?.deleted).toBe(false);
+
+    await user.click(screen.getByRole("button", { name: "Remove Notes on the Vine" }));
+    await user.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Remove from library" }));
+    expect(await screen.findByText(/Nothing in your library yet/)).toBeInTheDocument();
+
+    // The finding still says what it cited, marked as removed, not as a link.
+    await user.click(screen.getByRole("button", { name: "Back to workspace" }));
+    const after = await screen.findByRole("list", { name: "Findings" });
+    expect(await within(after).findByText("(removed from library)")).toBeInTheDocument();
+    expect(within(after).queryByRole("button", { name: "J. Example, Notes on the Vine, p. 2" })).not.toBeInTheDocument();
+    expect(api.state.findings.find((f) => f.studyId === studyId)?.sources[0]).toMatchObject({ removed: true, segmentId: null });
+  });
+});

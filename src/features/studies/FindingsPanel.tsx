@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useId, useImperativeHandle, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/design-system/Button";
+import { FindingSources } from "@/features/library/FindingSources";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 import { useAutosave } from "@/hooks/useAutosave";
 import { toApiError } from "@/lib/api";
@@ -407,6 +408,19 @@ function FindingItem({ finding, sections, order, canMove, onChanged, onRevealScr
             />
           </label>
         </div>
+
+        <FindingSources
+          finding={finding}
+          onChanged={onChanged}
+          onQuote={
+            finding.findingType === "quotation"
+              ? (quotation) => {
+                  setText(quotation);
+                  schedule(quotation);
+                }
+              : undefined
+          }
+        />
 
         {confirming && (
           <div role="alertdialog" aria-label={`Delete this ${label.toLowerCase()}?`} className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
