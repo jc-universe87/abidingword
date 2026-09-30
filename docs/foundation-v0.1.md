@@ -2,7 +2,8 @@
 
 > Foundation is frozen as of the hardening commit (integrity check and
 > pre-migration backup). Later milestones build on it without changing it;
-> Scripture is described in [`scripture-v0.2.md`](scripture-v0.2.md).
+> Scripture is described in [`scripture-v0.2.md`](scripture-v0.2.md),
+> Studies in [`studies-v0.3.md`](studies-v0.3.md).
 
 This file describes how Foundation v0.1 (Phase 1 in
 [`architecture.md`](architecture.md) §58) is actually built. The frozen

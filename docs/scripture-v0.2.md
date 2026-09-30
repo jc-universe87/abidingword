@@ -1,5 +1,8 @@
 # Abiding Word — Scripture v0.2 implementation notes
 
+> Studies v0.3 extends study passages with primary/related roles and adds
+> passage-linked findings; see [`studies-v0.3.md`](studies-v0.3.md).
+
 How the first Scripture engine is built (Phase 2 in
 [`architecture.md`](architecture.md) §58). The frozen
 [`architecture.md`](architecture.md) and [`concept.md`](concept.md) remain

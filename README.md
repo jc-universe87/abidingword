@@ -8,7 +8,7 @@ connection needed. Your studies are stored in one folder that you own.
 
 The workflow it is built around: **Word → Understanding → Teaching**.
 
-## Status: Scripture v0.2 (on the frozen Foundation v0.1)
+## Status: Studies v0.3 (on Scripture v0.2 and the frozen Foundation v0.1)
 
 Foundation v0.1 (with its hardening: integrity check and pre-migration
 backup) provides:
@@ -38,6 +38,22 @@ Scripture v0.2 adds a real, offline Scripture engine:
 
 Details: [`docs/scripture-v0.2.md`](docs/scripture-v0.2.md).
 
+Studies v0.3 makes the study the centre of work:
+
+- study types: passage, word, topical, biblical theology, systematic
+  theology, teaching/sermon, custom — each with a built-in template
+- structured findings (observations, questions, interpretations,
+  applications, conclusions and more) linked to Scripture, filterable and
+  searchable
+- primary and related passages; opening a study shows its passage
+- your own study templates (duplicate and customise the built-in ones)
+- editable, reorderable sections; quotation and question blocks
+- links between related studies, study status, duplication
+- search across your studies, separate from Scripture search
+- keyboard shortcuts for quick capture
+
+Details: [`docs/studies-v0.3.md`](docs/studies-v0.3.md).
+
 **Not yet, planned for later phases:** source import and the personal
 library (the Sources pane is still a placeholder), concordance and
 original-language tools, AI assistance, sync, integrations and MCP.
@@ -55,8 +71,9 @@ original-language tools, AI assistance, sync, integrations and MCP.
 The authoritative baseline is the frozen
 [`docs/concept.md`](docs/concept.md) and
 [`docs/architecture.md`](docs/architecture.md). How this release implements
-it: [`docs/foundation-v0.1.md`](docs/foundation-v0.1.md) and
-[`docs/scripture-v0.2.md`](docs/scripture-v0.2.md).
+it: [`docs/foundation-v0.1.md`](docs/foundation-v0.1.md),
+[`docs/scripture-v0.2.md`](docs/scripture-v0.2.md) and
+[`docs/studies-v0.3.md`](docs/studies-v0.3.md).
 
 ## Development prerequisites
 
@@ -111,7 +128,7 @@ src-tauri/            Rust native core
   tests/              database and domain tests
   icons/              platform icons generated from the brand app icon
 resources/
-  templates/          study templates (JSON)
+  templates/          the six built-in study templates (JSON)
   scripture/          included Bible texts, each with SOURCE.md (licence)
   icons/              brand source icons
 docs/                 concept and architecture
