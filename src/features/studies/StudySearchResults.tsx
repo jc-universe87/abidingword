@@ -1,19 +1,9 @@
-import { useCallback, type ReactNode } from "react";
+import { useCallback } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
 import { useApi } from "@/lib/ApiContext";
-
-/** Turns U+0002 … U+0003 markers from the search index into <mark>. */
-function highlighted(snippet: string): ReactNode[] {
-  const parts: ReactNode[] = [];
-  snippet.split("\u0002").forEach((chunk, i) => {
-    if (i === 0) return parts.push(chunk);
-    const [match, rest] = chunk.split("\u0003");
-    parts.push(<mark key={i} className="bg-note font-semibold text-text">{match}</mark>, rest ?? "");
-  });
-  return parts;
-}
+import { highlighted } from "@/lib/highlight";
 
 interface Props {
   query: string;

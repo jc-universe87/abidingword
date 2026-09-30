@@ -19,7 +19,8 @@ describe("application shell", () => {
 
     expect(within(scripture).getByText("No Bible has been added yet.")).toBeInTheDocument();
     expect(within(study).getByRole("heading", { level: 1, name: "Projects" })).toBeInTheDocument();
-    expect(within(sources).getByText(/Personal source import will arrive/)).toBeInTheDocument();
+    expect(await within(sources).findByText(/No sources yet/)).toBeInTheDocument();
+    expect(within(sources).getByRole("button", { name: "Add to library…" })).toBeEnabled();
   });
 
   it("offers keyboard-operable pane dividers", async () => {

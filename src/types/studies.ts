@@ -1,5 +1,6 @@
 // TypeScript mirror of the Studies v0.3 native types
 // (src-tauri/src/domain/studies.rs). Keep both sides in step.
+import type { FindingCitation } from "./library";
 import type { ScriptureRef } from "./scripture";
 
 export const STUDY_TYPES = [
@@ -77,6 +78,8 @@ export interface Finding {
   parentId: string | null;
   passages: FindingPassage[];
   tags: string[];
+  /** Library sources this finding cites. */
+  sources: FindingCitation[];
   createdAt: string;
   updatedAt: string;
   revision: number;

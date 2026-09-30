@@ -4,7 +4,7 @@ import { BrandLockup } from "@/design-system/BrandLockup";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 
 interface AppBarProps {
-  view: "workspace" | "settings";
+  view: "workspace" | "library" | "settings";
   scriptureOpen: boolean;
   sourcesOpen: boolean;
   onToggleScripture: () => void;
@@ -13,23 +13,36 @@ interface AppBarProps {
   /** Called when a Scripture search starts, so the Scripture pane can be shown. */
   onSearch: () => void;
   onSearchStudies: (query: string) => void;
+  onSearchLibrary: (query: string) => void;
 }
+
+const SEARCH_LABELS: Record<"scripture" | "studies" | "library", string> = {
+  scripture: "Search Scripture",
+  studies: "Search studies",
+  library: "Search the library",
+};
 
 const iconButton =
   "inline-flex size-10 items-center justify-center rounded-aw text-text-strong hover:bg-bg-secondary " +
   "aria-pressed:bg-bg-secondary disabled:opacity-50";
 
+type Scope = "scripture" | "studies" | "library";
+
 export function AppBar(props: AppBarProps) {
   const inWorkspace = props.view === "workspace";
   const { translation, runSearch } = useScripture();
   const [query, setQuery] = useState("");
-  const [scope, setScope] = useState<"scripture" | "studies">("scripture");
-  const canSearch = inWorkspace && (scope === "studies" || !!translation);
+  const [scope, setScope] = useState<Scope>("scripture");
+  // Library search also works from the Library screen itself.
+  const scopeEnabled = inWorkspace || props.view === "library";
+  const canSearch =
+    scope === "library" ? scopeEnabled : inWorkspace && (scope === "studies" || !!translation);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (!query.trim()) return;
     if (scope === "studies") return props.onSearchStudies(query.trim());
+    if (scope === "library") return props.onSearchLibrary(query.trim());
     props.onSearch();
     void runSearch({ query, currentOnly: true, book: "" });
   };
@@ -46,15 +59,16 @@ export function AppBar(props: AppBarProps) {
           <select
             id="app-search-scope"
             value={scope}
-            onChange={(e) => setScope(e.target.value as "scripture" | "studies")}
-            disabled={!inWorkspace}
+            onChange={(e) => setScope(e.target.value as Scope)}
+            disabled={!scopeEnabled}
             className="h-10 rounded-aw border border-border bg-bg-secondary px-2 text-[0.9375rem] text-text-strong"
           >
             <option value="scripture">Scripture</option>
             <option value="studies">Studies</option>
+            <option value="library">Library</option>
           </select>
           <span className="relative flex items-center">
-            <label htmlFor="app-search" className="sr-only">{scope === "studies" ? "Search studies" : "Search Scripture"}</label>
+            <label htmlFor="app-search" className="sr-only">{SEARCH_LABELS[scope]}</label>
             <Search className="pointer-events-none absolute left-3 size-4 text-text-muted" aria-hidden="true" />
             <input
               id="app-search"
@@ -63,7 +77,13 @@ export function AppBar(props: AppBarProps) {
               onChange={(e) => setQuery(e.target.value)}
               disabled={!canSearch}
               placeholder={
-                scope === "studies" ? "Search your studies" : translation ? "Search Scripture" : "Add a Bible first"
+                scope === "studies"
+                  ? "Search your studies"
+                  : scope === "library"
+                    ? "Search your library"
+                    : translation
+                      ? "Search Scripture"
+                      : "Add a Bible first"
               }
               className="h-10 w-60 rounded-aw border border-border bg-bg-secondary pl-9 pr-3 text-[0.9375rem] text-text placeholder:text-text-muted disabled:cursor-not-allowed disabled:border-border-subtle"
             />
@@ -94,7 +114,7 @@ export function AppBar(props: AppBarProps) {
         <button
           type="button"
           className={iconButton}
-          aria-pressed={!inWorkspace}
+          aria-pressed={props.view === "settings"}
           aria-label="Settings"
           title="Settings"
           onClick={props.onOpenSettings}

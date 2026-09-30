@@ -53,6 +53,16 @@ import type {
   TemplateInput,
   UpdateFinding,
 } from "@/types/studies";
+import type {
+  CommitSourceImport,
+  LibraryResults,
+  PassageMention,
+  SegmentWindow,
+  Source,
+  SourceImportPreview,
+  SourceSummary,
+  SourceType,
+} from "@/types/library";
 
 export interface Api {
   appInfo(): Promise<AppInfo>;
@@ -93,6 +103,23 @@ export interface Api {
   templateUpdate(input: TemplateInput & { id: string }): Promise<StudyTemplate>;
   templateDuplicate(id: string): Promise<StudyTemplate>;
   templateDelete(id: string): Promise<void>;
+
+  libraryList(filter: { sourceType?: SourceType; language?: string }): Promise<SourceSummary[]>;
+  libraryLanguages(): Promise<string[]>;
+  libraryGetSource(id: string): Promise<Source>;
+  /** Opens the system file dialog for one library file; null when cancelled. */
+  chooseSourceFile(): Promise<string | null>;
+  libraryImportPreview(path: string): Promise<SourceImportPreview>;
+  libraryImportCommit(input: CommitSourceImport): Promise<Source>;
+  libraryImportCancel(previewId: string): Promise<void>;
+  libraryRemoveSource(id: string): Promise<void>;
+  librarySearch(input: { query: string; offset?: number }): Promise<LibraryResults>;
+  libraryOpenSegment(segmentId: string): Promise<SegmentWindow>;
+  sourceGetSegments(input: { sourceId: string; offset?: number; limit?: number }): Promise<SegmentWindow>;
+  sourceGetPassages(sourceId: string): Promise<PassageMention[]>;
+  librarySourcesForPassage(reference: string): Promise<PassageMention[]>;
+  findingSourceAdd(input: { findingId: string; segmentId: string }): Promise<Finding>;
+  findingSourceRemove(citationId: string): Promise<Finding>;
   studyBlockCreate(input: CreateStudyBlock): Promise<StudyBlock>;
   studyBlockUpdate(input: UpdateStudyBlock): Promise<StudyBlock>;
   studyBlockDelete(id: string): Promise<void>;
@@ -200,6 +227,32 @@ export const tauriApi: Api = {
   templateUpdate: (input) => call("template_update", { input }),
   templateDuplicate: (id) => call("template_duplicate", { id }),
   templateDelete: (id) => call("template_delete", { id }),
+
+  libraryList: (input) => call("library_list", { input }),
+  libraryLanguages: () => call("library_languages"),
+  libraryGetSource: (id) => call("library_get_source", { id }),
+  chooseSourceFile: async () => {
+    const chosen = await open({
+      multiple: false,
+      directory: false,
+      title: "Choose a file to add to your library",
+      filters: [
+        { name: "Books and notes (PDF, EPUB, Markdown, text)", extensions: ["pdf", "epub", "md", "markdown", "txt"] },
+      ],
+    });
+    return typeof chosen === "string" ? chosen : null;
+  },
+  libraryImportPreview: (path) => call("library_import_preview", { path }),
+  libraryImportCommit: (input) => call("library_import_commit", { input }),
+  libraryImportCancel: (previewId) => call("library_import_cancel", { previewId }),
+  libraryRemoveSource: (id) => call("library_remove_source", { id }),
+  librarySearch: (input) => call("library_search", { input }),
+  libraryOpenSegment: (segmentId) => call("library_open_segment", { segmentId }),
+  sourceGetSegments: (input) => call("source_get_segments", { input }),
+  sourceGetPassages: (sourceId) => call("source_get_passages", { sourceId }),
+  librarySourcesForPassage: (reference) => call("library_sources_for_passage", { reference }),
+  findingSourceAdd: (input) => call("finding_source_add", { input }),
+  findingSourceRemove: (citationId) => call("finding_source_remove", { citationId }),
   studyBlockCreate: (input) => call("study_block_create", { input }),
   studyBlockUpdate: (input) => call("study_block_update", { input }),
   studyBlockDelete: (id) => call("study_block_delete", { id }),

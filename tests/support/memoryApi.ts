@@ -27,6 +27,15 @@ import type {
 } from "@/types/scripture";
 import { contains, refFromCanonical } from "@/lib/scripture";
 import type {
+  FindingCitation,
+  LibraryHit,
+  PassageMention,
+  Source,
+  SourceImportPreview,
+  SourceSegment,
+  SourceSummary,
+} from "@/types/library";
+import type {
   Finding,
   StudyRelation,
   StudySearchHit,
@@ -69,9 +78,57 @@ export interface MemoryApi extends Api {
     relations: { id: string; from: string; to: string; relationType: StudyRelation["relationType"]; createdAt: string }[];
     templates: StudyTemplate[];
     pendingPreview: { id: string; bundled: boolean } | null;
+    library: {
+      /** Removed sources stay (deleted: true) as citation tombstones. */
+      sources: (Source & { deleted: boolean })[];
+      segments: (SourceSegment & { sourceId: string })[];
+      mentions: { sourceId: string; segmentId: string; reference: ScriptureRef; matchedText: string }[];
+      /** What the next "choose a file" dialog returns (null = cancelled). */
+      nextChosenFile: string | null;
+      pending: { preview: SourceImportPreview; fixture: SourceFixture } | null;
+    };
   };
   /** Installs a fixture Bible directly (test setup). */
   installFixtureBible(shortName: string, wording: string): BibleTranslation;
+  /** Adds a source to the library directly (test setup). */
+  installFixtureSource(fixture: SourceFixture): Source;
+}
+
+/** Invented library content for tests. */
+export interface SourceFixture {
+  title: string;
+  author?: string;
+  format?: Source["format"];
+  sourceType?: Source["sourceType"];
+  language?: string;
+  segments: { text: string; pageNumber?: number; sectionPath?: string }[];
+  /** Scripture mentions: segment index, canonical reference, text as written. */
+  mentions?: { segment: number; reference: string; matchedText: string }[];
+}
+
+/**
+ * What a library file "contains" in tests, by path: "scanned" → a PDF with
+ * no text layer; ".docx" → unsupported; anything else → a small PDF.
+ */
+function fixtureForPath(path: string): SourceFixture {
+  const name = path.split("/").pop() ?? path;
+  const format = path.endsWith(".epub") ? "epub" : path.endsWith(".md") ? "markdown" : path.endsWith(".txt") ? "text" : "pdf";
+  // PDFs have pages; EPUB and Markdown have chapters or headings.
+  const where = (n: number) => (format === "pdf" ? { pageNumber: n } : { sectionPath: `Chapter ${n === 3 ? 2 : 1}` });
+  return {
+    title: name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " "),
+    author: "A. Writer",
+    format,
+    language: "English",
+    segments: path.includes("scanned")
+      ? []
+      : [
+          { text: "The vine and the branches belong together.", ...where(1) },
+          { text: "Abide in me, as John 15:4 says, and bear fruit.", ...where(2) },
+          { text: "Grace is the root of all fruitfulness.", ...where(3) },
+        ],
+    mentions: path.includes("scanned") ? [] : [{ segment: 1, reference: "JHN.15.4", matchedText: "John 15:4" }],
+  };
 }
 
 const bookByCode = new Map(BOOKS.map((b) => [b.code, b]));
@@ -138,6 +195,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     passages: [],
     nextChosenFiles: null,
     pendingPreview: null,
+    library: { sources: [], segments: [], mentions: [], nextChosenFile: null, pending: null },
     findings: [],
     relations: [],
     templates: BUILTIN_TEMPLATES.map((t) => ({
@@ -255,6 +313,65 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       .sort((a, b) => a.position - b.position)
       .map((s) => ({ ...s, blocks: state.blocks.filter((b) => b.sectionId === s.id) }));
   const detail = (studyId: string) => ({ study: find(state.studies, studyId, "study"), sections: sectionsOf(studyId) });
+
+  const library = state.library;
+  const liveSource = (sourceId: string) => {
+    const source = library.sources.find((s) => s.id === sourceId && !s.deleted);
+    if (!source) throw new ApiError("notFound", "This source could not be found. It may have been removed.");
+    return source;
+  };
+  const locator = (s: { pageNumber: number | null; sectionPath: string | null; paragraphIndex: number | null }) =>
+    s.pageNumber !== null ? `p. ${s.pageNumber}` : (s.sectionPath ?? `¶ ${(s.paragraphIndex ?? 0) + 1}`);
+  const addSource = (fixture: SourceFixture, extra: Partial<Source> = {}): Source => {
+    const t = now();
+    const sourceId = id();
+    const format = fixture.format ?? "pdf";
+    const segmentIds = fixture.segments.map((seg, position) => {
+      const segment = {
+        id: id(), sourceId, position, text: seg.text, pageNumber: seg.pageNumber ?? null, pageLabel: null,
+        chapter: null, heading: null, sectionPath: seg.sectionPath ?? null, paragraphIndex: 0, locator: "",
+      };
+      segment.locator = locator(segment);
+      library.segments.push(segment);
+      return segment.id;
+    });
+    for (const m of fixture.mentions ?? []) {
+      const reference = refFromCanonical(m.reference, bookByCode);
+      const segmentId = segmentIds[m.segment];
+      if (reference && segmentId) library.mentions.push({ sourceId, segmentId, reference, matchedText: m.matchedText });
+    }
+    const pages = fixture.segments.map((x) => x.pageNumber ?? 0);
+    const source: Source & { deleted: boolean } = {
+      id: sourceId, title: fixture.title, subtitle: null, author: fixture.author ?? null, publisher: null, edition: null,
+      publicationYear: null, isbn: null, doi: null, language: fixture.language ?? null,
+      sourceType: fixture.sourceType ?? (format === "pdf" || format === "epub" ? "book" : "notes"),
+      licenceStatus: "private", licence: null, notes: null, format, originalFilename: `${fixture.title}.${format}`,
+      extractionStatus: format === "pdf" ? "extracted_text" : "digital_text",
+      pageCount: format === "pdf" ? Math.max(0, ...pages) : null, segmentCount: fixture.segments.length,
+      passageCount: fixture.mentions?.length ?? 0, contentHash: `hash-${fixture.title}`, createdAt: t, updatedAt: t,
+      deleted: false, ...extra,
+    };
+    library.sources.push(source);
+    return source;
+  };
+  const toSummary = (s: Source): SourceSummary => ({
+    id: s.id, title: s.title, author: s.author, sourceType: s.sourceType, format: s.format, language: s.language, createdAt: s.createdAt,
+  });
+  const segmentsOf = (sourceId: string) => library.segments.filter((x) => x.sourceId === sourceId).sort((a, b) => a.position - b.position);
+  const window = (sourceId: string, offset: number, limit: number, target: string | null) => {
+    const all = segmentsOf(sourceId);
+    return { sourceId, total: all.length, offset, segments: all.slice(offset, offset + limit), targetSegmentId: target };
+  };
+  const mention = (m: (typeof library.mentions)[number]): PassageMention => {
+    const source = liveSource(m.sourceId);
+    const segment = find(library.segments, m.segmentId, "segment");
+    return { sourceId: source.id, sourceTitle: source.title, author: source.author, segmentId: m.segmentId, locator: segment.locator, matchedText: m.matchedText, reference: m.reference };
+  };
+  const citationFor = (findingId: string, segmentId: string): FindingCitation => {
+    const segment = find(library.segments, segmentId, "passage");
+    const source = liveSource(segment.sourceId);
+    return { id: id(), findingId, sourceId: source.id, segmentId, title: source.title, author: source.author, locator: segment.locator, removed: false };
+  };
 
   const api: MemoryApi = {
     state,
@@ -406,7 +523,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const finding: Finding = {
         id: id(), studyId: input.studyId, sectionId: input.sectionId ?? null, findingType: input.findingType,
         content: input.content ?? "", sortOrder: state.findings.filter((f) => f.studyId === input.studyId).length,
-        parentId: null, passages: passage ? [{ id: id(), reference: passage }] : [], tags: [],
+        parentId: null, passages: passage ? [{ id: id(), reference: passage }] : [], tags: [], sources: [],
         createdAt: t, updatedAt: t, revision: 1,
       };
       state.findings.push(finding);
@@ -694,6 +811,102 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       state.passages = state.passages.filter((p) => p.id !== passageId);
     },
     installFixtureBible: (shortName, wording) => addBible({ name: `Fixture ${shortName}`, shortName }, wording),
+    installFixtureSource: (fixture) => addSource(fixture),
+
+    libraryList: async ({ sourceType, language }) =>
+      library.sources
+        .filter((s) => !s.deleted && (!sourceType || s.sourceType === sourceType) && (!language || s.language === language))
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id))
+        .map(toSummary),
+    libraryLanguages: async () =>
+      [...new Set(library.sources.filter((s) => !s.deleted && s.language).map((s) => s.language as string))].sort(),
+    libraryGetSource: async (sourceId) => ({ ...liveSource(sourceId) }),
+    chooseSourceFile: async () => library.nextChosenFile,
+    libraryImportPreview: async (path) => {
+      if (!/\.(pdf|epub|md|markdown|txt)$/i.test(path)) {
+        throw new ApiError("unsupportedFormat", "This kind of file can’t be added to the library. Supported: PDF, EPUB, Markdown (.md) and text (.txt).");
+      }
+      const fixture = fixtureForPath(path);
+      const scanned = fixture.segments.length === 0;
+      const hash = `hash-${fixture.title}`;
+      const duplicate = library.sources.find((s) => !s.deleted && s.contentHash === hash);
+      const preview: SourceImportPreview = {
+        previewId: id(), fileName: path.split("/").pop() ?? path, format: fixture.format ?? "pdf",
+        suggestedTitle: fixture.title, suggestedAuthor: fixture.author ?? null, suggestedLanguage: fixture.language ?? null,
+        suggestedPublisher: null, suggestedIsbn: null, suggestedType: "book",
+        pageCount: fixture.format === "pdf" ? (scanned ? 12 : 3) : null, chapterCount: fixture.format === "epub" ? 2 : null,
+        segmentCount: fixture.segments.length, referenceCount: fixture.mentions?.length ?? 0,
+        extractionStatus: scanned ? "ocr_required" : "extracted_text",
+        problem: scanned ? "This PDF appears to contain scanned pages. OCR support is not available yet." : null,
+        duplicateOf: duplicate ? { id: duplicate.id, title: duplicate.title } : null,
+        canImport: !scanned,
+      };
+      library.pending = { preview, fixture };
+      return preview;
+    },
+    libraryImportCommit: async (input) => {
+      const pending = library.pending;
+      if (pending?.preview.previewId !== input.previewId) throw new ApiError("invalidInput", "This import has expired. Please choose the file again.");
+      if (pending.preview.duplicateOf && !input.allowDuplicate) {
+        throw new ApiError("conflict", `This file is already in your library as “${pending.preview.duplicateOf.title}”.`);
+      }
+      const title = requireTitle(input.title, "source");
+      const source = addSource(
+        { ...pending.fixture, title, author: input.author, language: input.language, sourceType: input.sourceType },
+        { licenceStatus: input.licenceStatus ?? "private", originalFilename: pending.preview.fileName, contentHash: `hash-${pending.fixture.title}` },
+      );
+      library.pending = null;
+      return source;
+    },
+    libraryImportCancel: async () => {
+      library.pending = null;
+    },
+    libraryRemoveSource: async (sourceId) => {
+      const source = liveSource(sourceId);
+      source.deleted = true;
+      library.segments = library.segments.filter((x) => x.sourceId !== sourceId);
+      library.mentions = library.mentions.filter((m) => m.sourceId !== sourceId);
+      for (const f of state.findings) {
+        for (const c of f.sources) if (c.sourceId === sourceId) Object.assign(c, { removed: true, segmentId: null });
+      }
+    },
+    librarySearch: async ({ query, offset = 0 }) => {
+      const words = query.toLowerCase().replace(/["“”]/g, "").split(/\s+/).filter(Boolean);
+      const matches = library.segments.filter((x) => words.every((w) => x.text.toLowerCase().includes(w)));
+      const hits: LibraryHit[] = matches.slice(offset, offset + 50).map((x) => {
+        const source = liveSource(x.sourceId);
+        let snippet = x.text;
+        for (const w of words) snippet = snippet.replace(new RegExp(`(${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "i"), "\u0002$1\u0003");
+        return { sourceId: source.id, sourceTitle: source.title, author: source.author, segmentId: x.id, position: x.position, pageNumber: x.pageNumber, locator: x.locator, snippet };
+      });
+      return { hits, offset, hasMore: matches.length > offset + 50 };
+    },
+    libraryOpenSegment: async (segmentId) => {
+      const segment = find(library.segments, segmentId, "passage");
+      const limit = 150;
+      const offset = Math.max(0, segment.position - Math.floor(limit / 3));
+      return window(segment.sourceId, offset, limit, segmentId);
+    },
+    sourceGetSegments: async ({ sourceId, offset = 0, limit = 150 }) => {
+      liveSource(sourceId);
+      return window(sourceId, offset, limit, null);
+    },
+    sourceGetPassages: async (sourceId) => library.mentions.filter((m) => m.sourceId === sourceId).map(mention),
+    librarySourcesForPassage: async (reference) => {
+      const range = refFromCanonical(reference, bookByCode);
+      return range ? library.mentions.filter((m) => overlaps(m.reference, range)).map(mention) : [];
+    },
+    findingSourceAdd: async ({ findingId, segmentId }) => {
+      const finding = find(state.findings, findingId, "finding");
+      if (!finding.sources.some((c) => c.segmentId === segmentId)) finding.sources.push(citationFor(findingId, segmentId));
+      return { ...finding };
+    },
+    findingSourceRemove: async (citationId) => {
+      const finding = state.findings.find((f) => f.sources.some((c) => c.id === citationId));
+      if (!finding) throw new ApiError("notFound", "This citation could not be found.");
+      finding.sources = finding.sources.filter((c) => c.id !== citationId);
+      return { ...finding };
+    },
   };
   return api;
 }
