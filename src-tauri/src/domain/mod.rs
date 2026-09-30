@@ -3,7 +3,10 @@
 //! Everything here is serialised to the frontend with camelCase field names.
 //! The TypeScript mirror lives in `src/types/domain.ts`; keep the two in step.
 
+pub mod studies;
 pub mod validate;
+
+pub use studies::*;
 
 use std::fmt;
 use std::str::FromStr;
@@ -47,6 +50,11 @@ pub struct Study {
     pub project_id: String,
     pub template_id: Option<String>,
     pub title: String,
+    pub study_type: StudyType,
+    pub status: StudyStatus,
+    /// The study's purpose, in the user's words.
+    pub description: Option<String>,
+    pub details: StudyDetails,
     pub created_at: String,
     pub updated_at: String,
     pub revision: i64,
@@ -99,6 +107,8 @@ pub enum BlockType {
     Paragraph,
     Note,
     Heading,
+    Quotation,
+    Question,
 }
 
 impl BlockType {
@@ -107,6 +117,8 @@ impl BlockType {
             Self::Paragraph => "paragraph",
             Self::Note => "note",
             Self::Heading => "heading",
+            Self::Quotation => "quotation",
+            Self::Question => "question",
         }
     }
 }
@@ -125,6 +137,8 @@ impl FromStr for BlockType {
             "paragraph" => Ok(Self::Paragraph),
             "note" => Ok(Self::Note),
             "heading" => Ok(Self::Heading),
+            "quotation" => Ok(Self::Quotation),
+            "question" => Ok(Self::Question),
             other => Err(AppError::Unexpected(format!(
                 "unknown block type in database: {other}"
             ))),
@@ -139,8 +153,12 @@ pub struct StudyTemplate {
     pub key: String,
     pub name: String,
     pub description: Option<String>,
+    pub study_type: StudyType,
     pub is_builtin: bool,
     pub sections: Vec<TemplateSection>,
+    pub created_at: String,
+    pub updated_at: String,
+    pub revision: i64,
 }
 
 /// The JSON shape of a template file in `resources/templates/`.
@@ -151,13 +169,17 @@ pub struct TemplateDefinition {
     pub name: String,
     #[serde(default)]
     pub description: Option<String>,
+    pub study_type: StudyType,
     pub sections: Vec<TemplateSection>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct TemplateSection {
-    pub key: String,
+    /// Stable machine key for built-in sections; absent for sections the
+    /// user adds.
+    #[serde(default)]
+    pub key: Option<String>,
     pub title: String,
     #[serde(default)]
     pub guidance: Option<String>,
@@ -210,30 +232,53 @@ pub struct UpdateProject {
     pub description: Option<String>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateStudy {
     pub project_id: String,
     pub title: String,
-    /// Defaults to the built-in passage study.
+    /// Defaults to passage.
+    #[serde(default)]
+    pub study_type: Option<StudyType>,
+    /// A template by id; otherwise by key; otherwise the built-in template
+    /// for the study type.
+    #[serde(default)]
+    pub template_id: Option<String>,
     #[serde(default)]
     pub template_key: Option<String>,
+    /// Canonical reference of the primary passage, if any.
+    #[serde(default)]
+    pub primary_passage: Option<String>,
+    #[serde(default)]
+    pub description: Option<String>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateStudy {
     pub id: String,
     #[serde(default)]
     pub title: Option<String>,
+    #[serde(default)]
+    pub study_type: Option<StudyType>,
+    #[serde(default)]
+    pub status: Option<StudyStatus>,
+    /// An empty string clears it.
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub details: Option<StudyDetails>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateStudySection {
     pub id: String,
     #[serde(default)]
     pub title: Option<String>,
+    /// An empty string clears it.
+    #[serde(default)]
+    pub guidance: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -264,4 +309,23 @@ pub struct UpdateSettings {
     /// A canonical reference; an empty string clears the setting.
     #[serde(default)]
     pub scripture_passage: Option<String>,
+}
+
+/// A user template as edited: everything but identity and timestamps.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TemplateInput {
+    pub name: String,
+    #[serde(default)]
+    pub description: Option<String>,
+    pub study_type: StudyType,
+    pub sections: Vec<TemplateSection>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateTemplate {
+    pub id: String,
+    #[serde(flatten)]
+    pub template: TemplateInput,
 }

@@ -213,12 +213,17 @@ pub struct StudyPassage {
     pub id: String,
     pub study_id: String,
     pub reference: ScriptureRefDto,
+    pub role: crate::domain::PassageRole,
     pub created_at: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AddStudyPassage {
     pub study_id: String,
     pub reference: String,
+    /// Default: primary if the study has no primary passage yet, otherwise
+    /// related. Choosing primary makes any existing primary related.
+    #[serde(default)]
+    pub role: Option<crate::domain::PassageRole>,
 }

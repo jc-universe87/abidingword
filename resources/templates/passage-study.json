@@ -1,7 +1,8 @@
 {
   "key": "passage-study",
-  "name": "Passage study",
+  "name": "Passage Study",
   "description": "A careful study of one passage, moving from the text itself to teaching it.",
+  "studyType": "passage",
   "sections": [
     {
       "key": "text",

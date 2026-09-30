@@ -118,6 +118,25 @@ pub fn delete(conn: &Connection, id: &str) -> AppResult<()> {
     touch_study_of_section(conn, &current.section_id, &now)
 }
 
+/// Puts a section's blocks in the given order. The list must name exactly
+/// the section's live blocks.
+pub fn reorder(conn: &Connection, input: &crate::domain::Reorder) -> AppResult<Vec<StudyBlock>> {
+    let section = sections::get(conn, &input.parent_id)?;
+    let current: Vec<String> = section.blocks.iter().map(|b| b.id.clone()).collect();
+    crate::db::check_same_members(&current, &input.ids, "blocks")?;
+    let now = now();
+    let tx = conn.unchecked_transaction()?;
+    for (index, id) in input.ids.iter().enumerate() {
+        tx.execute(
+            "UPDATE study_blocks SET position = ?2, updated_at = ?3 WHERE id = ?1",
+            params![id, index as i64, now],
+        )?;
+    }
+    studies::touch(&tx, &section.study_id, &now)?;
+    tx.commit()?;
+    list_for_section(conn, &input.parent_id)
+}
+
 fn touch_study_of_section(conn: &Connection, section_id: &str, now: &str) -> AppResult<()> {
     let study_id: String = conn.query_row(
         "SELECT study_id FROM study_sections WHERE id = ?1",

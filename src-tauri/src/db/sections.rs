@@ -3,7 +3,10 @@ use std::collections::HashMap;
 use rusqlite::{params, Connection, OptionalExtension, Row};
 
 use crate::db::{blocks, new_id, now, studies};
-use crate::domain::{validate, StudySection, UpdateStudySection};
+use crate::domain::validate::{self, DESCRIPTION_MAX_CHARS};
+use crate::domain::{
+    BlockType, CreateStudySection, DeleteStudySection, Reorder, StudySection, UpdateStudySection,
+};
 use crate::error::{AppError, AppResult};
 
 const COLUMNS: &str =
@@ -80,17 +83,117 @@ pub(crate) fn insert(
     Ok(id)
 }
 
+/// Adds a section at the end of a study, with one empty paragraph.
+pub fn create(conn: &Connection, input: &CreateStudySection) -> AppResult<StudySection> {
+    studies::get(conn, &input.study_id)?;
+    let title = validate::title(&input.title, "section")?;
+    let guidance =
+        validate::optional_text(input.guidance.as_deref(), DESCRIPTION_MAX_CHARS, "guidance")?;
+    let position: i64 = conn.query_row(
+        "SELECT COALESCE(MAX(position), -1) + 1 FROM study_sections
+         WHERE study_id = ?1 AND deleted_at IS NULL",
+        [&input.study_id],
+        |r| r.get(0),
+    )?;
+    let now = now();
+    let tx = conn.unchecked_transaction()?;
+    let id = insert(
+        &tx,
+        &input.study_id,
+        None,
+        &title,
+        guidance.as_deref(),
+        position,
+        &now,
+    )?;
+    blocks::insert(&tx, &id, BlockType::Paragraph, 0, "", &now)?;
+    studies::touch(&tx, &input.study_id, &now)?;
+    tx.commit()?;
+    get(conn, &id)
+}
+
+/// Whether a section holds anything worth keeping: text in a block, or a
+/// finding assigned to it.
+pub fn has_content(conn: &Connection, id: &str) -> AppResult<bool> {
+    Ok(conn.query_row(
+        "SELECT EXISTS (SELECT 1 FROM study_blocks
+                        WHERE section_id = ?1 AND deleted_at IS NULL AND trim(content) <> '')
+             OR EXISTS (SELECT 1 FROM findings WHERE section_id = ?1 AND deleted_at IS NULL)",
+        [id],
+        |r| r.get(0),
+    )?)
+}
+
+/// Removes a section (soft). One that still has content is only removed
+/// with `force`; its blocks go with it, and its findings stay in the study
+/// as study-level findings.
+pub fn delete(conn: &Connection, input: &DeleteStudySection) -> AppResult<()> {
+    let section = get(conn, &input.id)?;
+    if !input.force && has_content(conn, &input.id)? {
+        return Err(AppError::Conflict(format!(
+            "“{}” still has writing or findings in it.",
+            section.title
+        )));
+    }
+    let now = now();
+    let tx = conn.unchecked_transaction()?;
+    tx.execute(
+        "UPDATE study_blocks SET deleted_at = ?2, updated_at = ?2, revision = revision + 1
+         WHERE section_id = ?1 AND deleted_at IS NULL",
+        params![input.id, now],
+    )?;
+    tx.execute(
+        "UPDATE findings SET section_id = NULL, updated_at = ?2, revision = revision + 1
+         WHERE section_id = ?1 AND deleted_at IS NULL",
+        params![input.id, now],
+    )?;
+    tx.execute(
+        "UPDATE study_sections SET deleted_at = ?2, updated_at = ?2, revision = revision + 1
+         WHERE id = ?1",
+        params![input.id, now],
+    )?;
+    studies::touch(&tx, &section.study_id, &now)?;
+    tx.commit()?;
+    Ok(())
+}
+
+/// Puts a study's sections in the given order. The list must name exactly
+/// the study's live sections.
+pub fn reorder(conn: &Connection, input: &Reorder) -> AppResult<Vec<StudySection>> {
+    studies::get(conn, &input.parent_id)?;
+    let current: Vec<String> = list(conn, &input.parent_id)?
+        .into_iter()
+        .map(|s| s.id)
+        .collect();
+    crate::db::check_same_members(&current, &input.ids, "sections")?;
+    let now = now();
+    let tx = conn.unchecked_transaction()?;
+    for (index, id) in input.ids.iter().enumerate() {
+        tx.execute(
+            "UPDATE study_sections SET position = ?2, updated_at = ?3 WHERE id = ?1",
+            params![id, index as i64, now],
+        )?;
+    }
+    studies::touch(&tx, &input.parent_id, &now)?;
+    tx.commit()?;
+    list(conn, &input.parent_id)
+}
+
 pub fn update(conn: &Connection, input: &UpdateStudySection) -> AppResult<StudySection> {
     let current = get(conn, &input.id)?;
     let title = match &input.title {
         Some(title) => validate::title(title, "section")?,
         None => current.title,
     };
+    let guidance = match &input.guidance {
+        Some(text) => validate::optional_text(Some(text), DESCRIPTION_MAX_CHARS, "guidance")?,
+        None => current.guidance,
+    };
     let now = now();
     conn.execute(
-        "UPDATE study_sections SET title = ?2, updated_at = ?3, revision = revision + 1
+        "UPDATE study_sections SET title = ?2, guidance = ?3, updated_at = ?4, revision = revision + 1
          WHERE id = ?1",
-        params![input.id, title, now],
+        params![input.id, title, guidance, now],
     )?;
     studies::touch(conn, &current.study_id, &now)?;
     get(conn, &input.id)

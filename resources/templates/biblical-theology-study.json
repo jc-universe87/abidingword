@@ -1,0 +1,48 @@
+{
+  "key": "biblical-theology-study",
+  "name": "Biblical Theology Study",
+  "description": "A theme traced along the storyline of Scripture from promise to fulfilment.",
+  "studyType": "biblical_theology",
+  "sections": [
+    {
+      "key": "theme",
+      "title": "Theme",
+      "guidance": "The theme being traced and why it matters."
+    },
+    {
+      "key": "old-testament",
+      "title": "Old Testament",
+      "guidance": "Where the theme begins and how it develops in the Law, Prophets and Writings."
+    },
+    {
+      "key": "gospels",
+      "title": "Gospels",
+      "guidance": "How the theme comes to Christ in the Gospels."
+    },
+    {
+      "key": "epistles",
+      "title": "Epistles",
+      "guidance": "How the apostles take up and apply the theme."
+    },
+    {
+      "key": "canonical-development",
+      "title": "Canonical Development",
+      "guidance": "How the theme grows and changes across the canon."
+    },
+    {
+      "key": "fulfilment",
+      "title": "Fulfilment / Consummation",
+      "guidance": "Its fulfilment in Christ and its final completion."
+    },
+    {
+      "key": "synthesis",
+      "title": "Synthesis",
+      "guidance": "The whole-Bible picture in a few sentences."
+    },
+    {
+      "key": "teaching",
+      "title": "Teaching",
+      "guidance": "How to teach this theme faithfully and clearly."
+    }
+  ]
+}

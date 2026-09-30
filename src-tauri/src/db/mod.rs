@@ -8,13 +8,17 @@ pub mod annotations;
 pub mod backup;
 pub mod bibles;
 pub mod blocks;
+pub mod findings;
+pub mod fts;
 pub mod integrity;
 pub mod migrations;
 pub mod projects;
+pub mod relations;
 pub mod sections;
 pub mod settings;
 pub mod studies;
 pub mod study_passages;
+pub mod study_search;
 pub mod templates;
 pub mod workspaces;
 
@@ -102,4 +106,23 @@ pub fn now() -> String {
 
 pub fn new_id() -> String {
     uuid::Uuid::new_v4().to_string()
+}
+
+/// For reorder requests: the new order must contain exactly the current
+/// items, each once.
+pub(crate) fn check_same_members(
+    current: &[String],
+    requested: &[String],
+    what: &str,
+) -> AppResult<()> {
+    let mut a: Vec<&String> = current.iter().collect();
+    let mut b: Vec<&String> = requested.iter().collect();
+    a.sort();
+    b.sort();
+    if a != b {
+        return Err(AppError::InvalidInput(format!(
+            "The {what} have changed since this page was shown. Please try again."
+        )));
+    }
+    Ok(())
 }

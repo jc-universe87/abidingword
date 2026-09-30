@@ -1,0 +1,58 @@
+{
+  "key": "teaching-study",
+  "name": "Teaching / Sermon Preparation",
+  "description": "From the text to a sermon or lesson prepared for real people.",
+  "studyType": "teaching",
+  "sections": [
+    {
+      "key": "text",
+      "title": "Text",
+      "guidance": "The passage to be taught."
+    },
+    {
+      "key": "main-idea",
+      "title": "Main Idea",
+      "guidance": "The one main thing the text says, in one sentence."
+    },
+    {
+      "key": "exegesis",
+      "title": "Exegesis",
+      "guidance": "What the text meant for its first readers."
+    },
+    {
+      "key": "theology",
+      "title": "Theology",
+      "guidance": "What the text teaches about God and his ways."
+    },
+    {
+      "key": "purpose",
+      "title": "Purpose",
+      "guidance": "What the text aims to do in its hearers."
+    },
+    {
+      "key": "audience",
+      "title": "Audience",
+      "guidance": "Who will hear this, and what they need."
+    },
+    {
+      "key": "structure",
+      "title": "Structure",
+      "guidance": "How the teaching will move from beginning to end."
+    },
+    {
+      "key": "illustrations",
+      "title": "Illustrations",
+      "guidance": "Pictures and examples that serve the text."
+    },
+    {
+      "key": "application",
+      "title": "Application",
+      "guidance": "Concrete, appropriate applications."
+    },
+    {
+      "key": "teaching-outline",
+      "title": "Teaching Outline",
+      "guidance": "The outline you will teach from."
+    }
+  ]
+}

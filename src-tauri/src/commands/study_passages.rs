@@ -2,6 +2,7 @@ use tauri::State;
 
 use super::CommandResult;
 use crate::db::study_passages;
+use crate::domain::PassageRole;
 use crate::scripture::{AddStudyPassage, StudyPassage};
 use crate::state::AppState;
 
@@ -24,4 +25,13 @@ pub fn study_passage_add(
 #[tauri::command(async)]
 pub fn study_passage_remove(state: State<'_, AppState>, id: String) -> CommandResult<()> {
     state.db(|conn| study_passages::remove(conn, &id))
+}
+
+#[tauri::command(async)]
+pub fn study_passage_set_role(
+    state: State<'_, AppState>,
+    id: String,
+    role: PassageRole,
+) -> CommandResult<StudyPassage> {
+    state.db(|conn| study_passages::set_role(conn, &id, role))
 }

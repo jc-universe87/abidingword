@@ -4,8 +4,8 @@ use abiding_word_lib::db::{
     blocks, projects, sections, settings, studies, templates, workspaces, Database,
 };
 use abiding_word_lib::domain::{
-    BlockType, CreateProject, CreateStudy, CreateStudyBlock, Project, Theme, UpdateProject,
-    UpdateSettings, UpdateStudy, UpdateStudyBlock,
+    BlockType, CreateProject, CreateStudy, CreateStudyBlock, ListStudies, Project, Theme,
+    UpdateProject, UpdateSettings, UpdateStudy, UpdateStudyBlock,
 };
 use abiding_word_lib::error::{AppError, AppResult};
 use rusqlite::Connection;
@@ -33,6 +33,7 @@ fn new_study(conn: &Connection, project_id: &str, title: &str) -> AppResult<Stri
             project_id: project_id.into(),
             title: title.into(),
             template_key: None,
+            ..Default::default()
         },
     )?
     .study
@@ -48,10 +49,26 @@ fn studies_belong_to_their_project() {
         new_study(conn, &romans.id, "Romans 8:18–30")?;
         new_study(conn, &genesis.id, "Genesis 1")?;
 
-        let romans_studies = studies::list(conn, &romans.id)?;
+        let romans_studies = studies::list(
+            conn,
+            &ListStudies {
+                project_id: Some(romans.id.clone()),
+                ..Default::default()
+            },
+        )?;
         assert_eq!(romans_studies.len(), 2);
         assert!(romans_studies.iter().all(|s| s.project_id == romans.id));
-        assert_eq!(studies::list(conn, &genesis.id)?.len(), 1);
+        assert_eq!(
+            studies::list(
+                conn,
+                &ListStudies {
+                    project_id: Some(genesis.id.clone()),
+                    ..Default::default()
+                }
+            )?
+            .len(),
+            1
+        );
         assert_eq!(projects::get(conn, &romans.id)?.study_count, 2);
         Ok(())
     });
@@ -140,6 +157,7 @@ fn titles_can_be_updated_and_revisions_increase() {
             &UpdateStudy {
                 id: study_id,
                 title: Some("  Romans 8:1–17 ".into()),
+                ..Default::default()
             },
         )?;
         assert_eq!(study.title, "Romans 8:1–17");
@@ -172,6 +190,7 @@ fn invalid_input_and_missing_records_are_reported_clearly() {
                 project_id: "00000000-0000-4000-8000-000000000000".into(),
                 title: "Orphan".into(),
                 template_key: None,
+                ..Default::default()
             },
         )
         .unwrap_err();
@@ -233,10 +252,13 @@ fn builtin_templates_are_installed_once() {
         templates::ensure_builtin(conn)?;
         let count: i64 =
             conn.query_row("SELECT COUNT(*) FROM study_templates", [], |r| r.get(0))?;
-        assert_eq!(count, 1);
-        let revision: i64 =
-            conn.query_row("SELECT revision FROM study_templates", [], |r| r.get(0))?;
-        assert_eq!(revision, 1, "unchanged template must not be rewritten");
+        assert_eq!(count, 6, "the six built-in templates");
+        let rewritten: i64 = conn.query_row(
+            "SELECT COUNT(*) FROM study_templates WHERE revision <> 1",
+            [],
+            |r| r.get(0),
+        )?;
+        assert_eq!(rewritten, 0, "unchanged templates must not be rewritten");
         Ok(())
     });
 }

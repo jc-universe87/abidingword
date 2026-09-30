@@ -84,6 +84,7 @@ fn new_study(conn: &Connection) -> AppResult<String> {
             project_id: project.id,
             title: "John 15:1–11".into(),
             template_key: None,
+            ..Default::default()
         },
     )?
     .study
@@ -384,6 +385,7 @@ fn removing_a_bible_keeps_studies_passages_and_notes() {
             &AddStudyPassage {
                 study_id: study.clone(),
                 reference: "JHN.15.1-JHN.15.11".into(),
+                ..Default::default()
             },
         )?;
         let general = annotations::create(
@@ -539,6 +541,7 @@ fn annotations_and_study_passages_survive_a_restart() {
                 &AddStudyPassage {
                     study_id: study.clone(),
                     reference: "JHN.15.1-JHN.15.11".into(),
+                    ..Default::default()
                 },
             )?;
             let note = annotations::create(
@@ -581,6 +584,7 @@ fn studies_link_to_passages_optionally() {
             &AddStudyPassage {
                 study_id: study.clone(),
                 reference: "JHN.15.1-JHN.15.11".into(),
+                ..Default::default()
             },
         )?;
         let second = study_passages::add(
@@ -588,6 +592,7 @@ fn studies_link_to_passages_optionally() {
             &AddStudyPassage {
                 study_id: study.clone(),
                 reference: "ROM.8".into(),
+                ..Default::default()
             },
         )?;
         let again = study_passages::add(
@@ -595,6 +600,7 @@ fn studies_link_to_passages_optionally() {
             &AddStudyPassage {
                 study_id: study.clone(),
                 reference: "JHN.15.1-JHN.15.11".into(),
+                ..Default::default()
             },
         )?;
         assert_eq!(first.id, again.id);
@@ -612,7 +618,8 @@ fn studies_link_to_passages_optionally() {
                 conn,
                 &AddStudyPassage {
                     study_id: study,
-                    reference: "not a passage".into()
+                    reference: "not a passage".into(),
+                    ..Default::default()
                 }
             ),
             Err(AppError::InvalidReference(_))

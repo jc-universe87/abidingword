@@ -1,0 +1,48 @@
+{
+  "key": "topical-study",
+  "name": "Topical Study",
+  "description": "A question or topic followed through the whole of Scripture.",
+  "studyType": "topical",
+  "sections": [
+    {
+      "key": "topic",
+      "title": "Question / Topic",
+      "guidance": "The question you are asking, stated as clearly as you can."
+    },
+    {
+      "key": "key-passages",
+      "title": "Key Passages",
+      "guidance": "The passages that speak most directly to it."
+    },
+    {
+      "key": "biblical-context",
+      "title": "Biblical Context",
+      "guidance": "Where and how the topic arises across the Bible."
+    },
+    {
+      "key": "main-themes",
+      "title": "Main Themes",
+      "guidance": "The main lines of teaching that emerge."
+    },
+    {
+      "key": "difficult-passages",
+      "title": "Difficult Passages",
+      "guidance": "Texts that seem to point another way, and how to read them."
+    },
+    {
+      "key": "theology",
+      "title": "Theology",
+      "guidance": "How the passages fit together into coherent teaching."
+    },
+    {
+      "key": "conclusions",
+      "title": "Conclusions",
+      "guidance": "Your conclusions, with the passages that carry them."
+    },
+    {
+      "key": "application",
+      "title": "Application",
+      "guidance": "What this means for belief, worship and life."
+    }
+  ]
+}

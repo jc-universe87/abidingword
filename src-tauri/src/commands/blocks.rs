@@ -2,7 +2,7 @@ use tauri::State;
 
 use super::CommandResult;
 use crate::db::blocks;
-use crate::domain::{CreateStudyBlock, StudyBlock, UpdateStudyBlock};
+use crate::domain::{CreateStudyBlock, Reorder, StudyBlock, UpdateStudyBlock};
 use crate::state::AppState;
 
 #[tauri::command(async)]
@@ -24,4 +24,12 @@ pub fn study_block_update(
 #[tauri::command(async)]
 pub fn study_block_delete(state: State<'_, AppState>, id: String) -> CommandResult<()> {
     state.db(|conn| blocks::delete(conn, &id))
+}
+
+#[tauri::command(async)]
+pub fn study_block_reorder(
+    state: State<'_, AppState>,
+    input: Reorder,
+) -> CommandResult<Vec<StudyBlock>> {
+    state.db(|conn| blocks::reorder(conn, &input))
 }

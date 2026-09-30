@@ -58,7 +58,7 @@ pub fn list(conn: &Connection, reference: &ScriptureRef) -> AppResult<Vec<Annota
         "SELECT {COLUMNS} FROM annotations
          WHERE deleted_at IS NULL AND passage IS NOT NULL
            AND start_key <= ?2 AND end_key >= ?1
-         ORDER BY start_key, created_at"
+         ORDER BY start_key, created_at, rowid"
     ))?;
     let rows = stmt.query_map(
         params![reference.start_key(), reference.end_key()],

@@ -25,6 +25,8 @@ const EXPECTED_TABLES: &[&str] = &[
     "bible_verse_search_idx",
     "bible_verse_texts",
     "bible_verses",
+    "finding_sources",
+    "finding_tags",
     "findings",
     "passage_references",
     "projects",
@@ -35,6 +37,15 @@ const EXPECTED_TABLES: &[&str] = &[
     "sources",
     "studies",
     "study_blocks",
+    "study_relations",
+    // Study search table, its shadow tables, and the stable id map.
+    "study_search",
+    "study_search_config",
+    "study_search_content",
+    "study_search_data",
+    "study_search_docsize",
+    "study_search_idx",
+    "study_search_items",
     "study_sections",
     "study_templates",
     "workspaces",
@@ -121,6 +132,7 @@ fn project_study_and_section_survive_a_restart() {
                     project_id: project.id.clone(),
                     title: "Romans 8:1–17".into(),
                     template_key: None,
+                    ..Default::default()
                 },
             )?;
             let section = &study.sections[2];
@@ -129,6 +141,7 @@ fn project_study_and_section_survive_a_restart() {
                 &UpdateStudySection {
                     id: section.id.clone(),
                     title: Some("What I notice".into()),
+                    ..Default::default()
                 },
             )?;
             Ok((project.id, study.study.id, section.id.clone()))

@@ -12,12 +12,15 @@ pub mod annotations;
 pub mod app;
 pub mod bibles;
 pub mod blocks;
+pub mod findings;
 pub mod projects;
+pub mod relations;
 pub mod scripture;
 pub mod sections;
 pub mod settings;
 pub mod studies;
 pub mod study_passages;
+pub mod templates;
 pub mod workspaces;
 
 use crate::error::ErrorPayload;

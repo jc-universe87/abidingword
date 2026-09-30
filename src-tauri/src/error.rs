@@ -35,6 +35,12 @@ pub enum AppError {
         message: String,
     },
 
+    /// The request conflicts with what is stored: a protected built-in
+    /// template, a relation that already exists, a section that still has
+    /// content. The message is shown to the user as written.
+    #[error("conflict: {0}")]
+    Conflict(String),
+
     /// A Scripture reference that is not a real passage. The message is
     /// shown to the user as written.
     #[error("invalid Scripture reference: {0}")]
@@ -71,6 +77,7 @@ pub enum ErrorKind {
     InvalidInput,
     NotFound,
     Migration,
+    Conflict,
     InvalidReference,
     ImportFailed,
     UnsupportedFormat,
@@ -102,6 +109,7 @@ impl AppError {
             Self::InvalidInput(_) => ErrorKind::InvalidInput,
             Self::NotFound { .. } => ErrorKind::NotFound,
             Self::Migration { .. } => ErrorKind::Migration,
+            Self::Conflict(_) => ErrorKind::Conflict,
             Self::InvalidReference(_) => ErrorKind::InvalidReference,
             Self::Import(_) => ErrorKind::ImportFailed,
             Self::UnsupportedFormat(_) => ErrorKind::UnsupportedFormat,
@@ -122,6 +130,7 @@ impl AppError {
                 Check that the folder exists and that you have permission to write to it."
                 .into(),
             Self::InvalidInput(message)
+            | Self::Conflict(message)
             | Self::InvalidReference(message)
             | Self::Import(message)
             | Self::UnsupportedFormat(message) => message.clone(),
@@ -166,6 +175,7 @@ impl From<AppError> for ErrorPayload {
         match error.kind() {
             ErrorKind::InvalidInput
             | ErrorKind::NotFound
+            | ErrorKind::Conflict
             | ErrorKind::InvalidReference
             | ErrorKind::UnsupportedFormat
             | ErrorKind::DuplicateTranslation => log::warn!("{error}"),
