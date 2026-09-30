@@ -1,5 +1,5 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
 import { useAutosave } from "@/hooks/useAutosave";
 import { useApi } from "@/lib/ApiContext";
 import type { BlockType, StudyBlock } from "@/types/domain";
@@ -9,12 +9,16 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   paragraph: "Paragraph",
   note: "Note",
   heading: "Heading",
+  quotation: "Quotation",
+  question: "Question",
 };
 
 const STYLES: Record<BlockType, string> = {
   paragraph: "reading",
   note: "reading border-l-[3px] border-accent bg-note text-[1rem]",
   heading: "font-display text-[1.375rem] font-semibold leading-snug text-text-strong",
+  quotation: "reading italic border-l-[3px] border-border pl-4",
+  question: "reading border-l-[3px] border-link",
 };
 
 interface BlockEditorProps {
@@ -23,13 +27,17 @@ interface BlockEditorProps {
   placeholder: string;
   onDeleted: (blockId: string) => void;
   onRevealScripture: () => void;
+  isFirst: boolean;
+  isLast: boolean;
+  onMove: (delta: -1 | 1) => void;
 }
 
 /**
  * One editable block: a plain text area that grows with its content and
  * saves itself. Deliberately not a rich-text editor in v0.1.
  */
-export function BlockEditor({ block, sectionTitle, placeholder, onDeleted, onRevealScripture }: BlockEditorProps) {
+export function BlockEditor(props: BlockEditorProps) {
+  const { block, sectionTitle, placeholder, onDeleted, onRevealScripture, isFirst, isLast, onMove } = props;
   const api = useApi();
   const [text, setText] = useState(block.content);
   const [confirming, setConfirming] = useState(false);
@@ -102,6 +110,17 @@ export function BlockEditor({ block, sectionTitle, placeholder, onDeleted, onRev
             </button>
           </span>
         ) : (
+          <>
+          {!(isFirst && isLast) && (
+            <>
+              <button type="button" disabled={isFirst} onClick={() => onMove(-1)} aria-label={`Move ${label.toLowerCase()} up in ${sectionTitle}`} className="inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40">
+                <ArrowUp className="size-4" aria-hidden="true" />
+              </button>
+              <button type="button" disabled={isLast} onClick={() => onMove(1)} aria-label={`Move ${label.toLowerCase()} down in ${sectionTitle}`} className="inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40">
+                <ArrowDown className="size-4" aria-hidden="true" />
+              </button>
+            </>
+          )}
           <button
             type="button"
             onClick={remove}
@@ -111,6 +130,7 @@ export function BlockEditor({ block, sectionTitle, placeholder, onDeleted, onRev
           >
             <Trash2 className="size-4" aria-hidden="true" />
           </button>
+          </>
         )}
       </div>
       <DetectedReferences text={text} onOpen={onRevealScripture} />

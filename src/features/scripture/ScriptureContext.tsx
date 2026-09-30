@@ -33,6 +33,14 @@ interface ScriptureValue {
   location: ScriptureLocation;
   /** The passage last navigated to, when it names verses (highlighted). */
   selection: ScriptureRef | null;
+  /** The verse the user clicked in the reader, if any. */
+  selectedVerse: ScriptureRef | null;
+  selectVerse: (canonical: string | null) => void;
+  /**
+   * What "Link current passage" links: the clicked verse, otherwise the
+   * highlighted passage. Null when nothing specific is chosen.
+   */
+  currentPassage: ScriptureRef | null;
   /** Bumps on every navigation so the reader can scroll to it. */
   navigationId: number;
   search: ScriptureSearch | null;
@@ -70,6 +78,7 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
   );
   const [selection, setSelection] = useState<ScriptureRef | null>(saved && hasVerses(saved) ? saved : null);
   const [navigationId, setNavigationId] = useState(0);
+  const [selectedVerse, setSelectedVerse] = useState<ScriptureRef | null>(null);
   const [search, setSearch] = useState<ScriptureSearch | null>(null);
 
   // Falls back to the first installed Bible if the saved one was removed
@@ -96,6 +105,7 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
     (ref: ScriptureRef) => {
       setLocation({ book: ref.book, chapter: ref.startChapter });
       setSelection(hasVerses(ref) || ref.startChapter !== ref.endChapter ? ref : null);
+      setSelectedVerse(null);
       setNavigationId((n) => n + 1);
       setSearch(null);
       persist({ scripturePassage: ref.canonical });
@@ -147,6 +157,12 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
 
   const closeSearch = useCallback(() => setSearch(null), []);
 
+  const selectVerse = useCallback(
+    (canonical: string | null) => setSelectedVerse(canonical ? refFromCanonical(canonical, bookByCode) : null),
+    [bookByCode],
+  );
+  const currentPassage = selectedVerse ?? selection;
+
   const value = useMemo<ScriptureValue>(
     () => ({
       books,
@@ -155,6 +171,9 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
       translation,
       location,
       selection,
+      selectedVerse,
+      selectVerse,
+      currentPassage,
       navigationId,
       search,
       setTranslation,
@@ -165,7 +184,7 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
       runSearch,
       closeSearch,
     }),
-    [books, bookByCode, translations, translation, location, selection, navigationId, search, setTranslation, goTo, goToChapter, navigateText, reloadTranslations, runSearch, closeSearch],
+    [books, bookByCode, translations, translation, location, selection, selectedVerse, selectVerse, currentPassage, navigationId, search, setTranslation, goTo, goToChapter, navigateText, reloadTranslations, runSearch, closeSearch],
   );
 
   return <ScriptureContext.Provider value={value}>{children}</ScriptureContext.Provider>;

@@ -5,14 +5,16 @@ import { useLoad } from "@/hooks/useLoad";
 import { useApi } from "@/lib/ApiContext";
 import type { Workspace } from "@/types/domain";
 import { CreateForm } from "./CreateForm";
+import { StudyList } from "./StudyList";
 import { studyCountLabel } from "./format";
 
 interface ProjectListProps {
   workspace: Workspace;
   onOpenProject: (projectId: string) => void;
+  onOpenStudy: (study: { id: string; projectId: string }) => void;
 }
 
-export function ProjectList({ workspace, onOpenProject }: ProjectListProps) {
+export function ProjectList({ workspace, onOpenProject, onOpenStudy }: ProjectListProps) {
   const api = useApi();
   const projects = useLoad(useCallback(() => api.projectList(workspace.id), [api, workspace.id]));
 
@@ -64,6 +66,15 @@ export function ProjectList({ workspace, onOpenProject }: ProjectListProps) {
             </li>
           ))}
         </ul>
+      )}
+
+      {projects.data && projects.data.length > 0 && (
+        <section aria-labelledby="all-studies-heading" className="flex flex-col gap-3">
+          <h2 id="all-studies-heading" className="m-0 text-[1.125rem] font-semibold text-text-strong">
+            All studies
+          </h2>
+          <StudyList projects={projects.data} onOpen={onOpenStudy} />
+        </section>
       )}
     </div>
   );

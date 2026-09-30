@@ -1,5 +1,6 @@
 // TypeScript mirror of the native domain types (src-tauri/src/domain/mod.rs).
 // Keep both files in step when a field changes.
+import type { StudyDetails, StudyStatus, StudyType } from "./studies";
 
 export interface Workspace {
   id: string;
@@ -26,6 +27,11 @@ export interface Study {
   projectId: string;
   templateId: string | null;
   title: string;
+  studyType: StudyType;
+  status: StudyStatus;
+  /** The study's purpose, in the user's words. */
+  description: string | null;
+  details: StudyDetails;
   createdAt: string;
   updatedAt: string;
   revision: number;
@@ -50,7 +56,7 @@ export interface StudySection {
 }
 
 /** Block types available in this version. Later: quotation, word_study, ... */
-export const BLOCK_TYPES = ["paragraph", "note", "heading"] as const;
+export const BLOCK_TYPES = ["paragraph", "note", "heading", "quotation", "question"] as const;
 export type BlockType = (typeof BLOCK_TYPES)[number];
 
 export interface StudyBlock {
@@ -80,6 +86,7 @@ export type ErrorKind =
   | "invalidInput"
   | "notFound"
   | "migration"
+  | "conflict"
   | "invalidReference"
   | "importFailed"
   | "unsupportedFormat"
@@ -120,17 +127,29 @@ export interface UpdateProject {
 export interface CreateStudy {
   projectId: string;
   title: string;
+  studyType?: StudyType;
+  templateId?: string;
   templateKey?: string;
+  /** Canonical reference of the primary passage. */
+  primaryPassage?: string;
+  description?: string;
 }
 
 export interface UpdateStudy {
   id: string;
   title?: string;
+  studyType?: StudyType;
+  status?: StudyStatus;
+  /** "" clears it. */
+  description?: string;
+  details?: StudyDetails;
 }
 
 export interface UpdateStudySection {
   id: string;
   title?: string;
+  /** "" clears it. */
+  guidance?: string;
 }
 
 export interface CreateStudyBlock {

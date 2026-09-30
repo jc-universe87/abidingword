@@ -42,12 +42,12 @@ export function PassageNav() {
   return (
     <div className="flex flex-col gap-3">
       <form onSubmit={submit} className="flex flex-col gap-1" noValidate>
-        <label htmlFor={`${id}-go`} className="text-[0.9375rem] font-medium text-text-strong">
+        <label htmlFor="scripture-go-to" className="text-[0.9375rem] font-medium text-text-strong">
           Go to passage
         </label>
         <div className="flex gap-2">
           <input
-            id={`${id}-go`}
+            id="scripture-go-to"
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="e.g. John 15 or Rom 8:1-17"

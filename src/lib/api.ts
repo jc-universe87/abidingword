@@ -39,6 +39,20 @@ import type {
   SearchScripture,
   StudyPassage,
 } from "@/types/scripture";
+import type {
+  CreateFinding,
+  Finding,
+  ListStudies,
+  PassageRole,
+  RelationType,
+  Reorder,
+  StudyRelation,
+  StudySearchHit,
+  StudySummary,
+  StudyTemplate,
+  TemplateInput,
+  UpdateFinding,
+} from "@/types/studies";
 
 export interface Api {
   appInfo(): Promise<AppInfo>;
@@ -48,12 +62,37 @@ export interface Api {
   projectGet(id: string): Promise<Project>;
   projectCreate(input: CreateProject): Promise<Project>;
   projectUpdate(input: UpdateProject): Promise<Project>;
-  studyList(projectId: string): Promise<Study[]>;
+  studyList(filter: ListStudies): Promise<StudySummary[]>;
+  studyDuplicate(input: { studyId: string; includeContent: boolean }): Promise<StudyDetail>;
+  studySearch(query: string): Promise<StudySearchHit[]>;
   studyGet(id: string): Promise<StudyDetail>;
   studyCreate(input: CreateStudy): Promise<StudyDetail>;
   studyUpdate(input: UpdateStudy): Promise<Study>;
   studySectionList(studyId: string): Promise<StudySection[]>;
   studySectionUpdate(input: UpdateStudySection): Promise<StudySection>;
+  studySectionCreate(input: { studyId: string; title: string; guidance?: string }): Promise<StudySection>;
+  studySectionDelete(input: { id: string; force: boolean }): Promise<void>;
+  studySectionReorder(input: Reorder): Promise<StudySection[]>;
+  studyBlockReorder(input: Reorder): Promise<StudyBlock[]>;
+
+  findingList(studyId: string): Promise<Finding[]>;
+  findingCreate(input: CreateFinding): Promise<Finding>;
+  findingUpdate(input: UpdateFinding): Promise<Finding>;
+  findingDelete(id: string): Promise<void>;
+  findingReorder(input: Reorder): Promise<Finding[]>;
+  findingLinkPassage(input: { findingId: string; reference: string }): Promise<Finding>;
+  findingUnlinkPassage(passageId: string): Promise<Finding>;
+  findingSetTags(input: { findingId: string; tags: string[] }): Promise<Finding>;
+
+  studyRelationList(studyId: string): Promise<StudyRelation[]>;
+  studyRelationCreate(input: { fromStudyId: string; toStudyId: string; relationType: RelationType; note?: string }): Promise<StudyRelation>;
+  studyRelationDelete(id: string): Promise<void>;
+
+  templateList(): Promise<StudyTemplate[]>;
+  templateCreate(input: TemplateInput): Promise<StudyTemplate>;
+  templateUpdate(input: TemplateInput & { id: string }): Promise<StudyTemplate>;
+  templateDuplicate(id: string): Promise<StudyTemplate>;
+  templateDelete(id: string): Promise<void>;
   studyBlockCreate(input: CreateStudyBlock): Promise<StudyBlock>;
   studyBlockUpdate(input: UpdateStudyBlock): Promise<StudyBlock>;
   studyBlockDelete(id: string): Promise<void>;
@@ -82,8 +121,9 @@ export interface Api {
   annotationDelete(id: string): Promise<void>;
 
   studyPassageList(studyId: string): Promise<StudyPassage[]>;
-  studyPassageAdd(input: { studyId: string; reference: string }): Promise<StudyPassage>;
+  studyPassageAdd(input: { studyId: string; reference: string; role?: PassageRole }): Promise<StudyPassage>;
   studyPassageRemove(id: string): Promise<void>;
+  studyPassageSetRole(input: { id: string; role: PassageRole }): Promise<StudyPassage>;
 }
 
 /** An error with a message that is safe to show to the user. */
@@ -129,12 +169,37 @@ export const tauriApi: Api = {
   projectGet: (id) => call("project_get", { id }),
   projectCreate: (input) => call("project_create", { input }),
   projectUpdate: (input) => call("project_update", { input }),
-  studyList: (projectId) => call("study_list", { projectId }),
+  studyList: (input) => call("study_list", { input }),
+  studyDuplicate: (input) => call("study_duplicate", { input }),
+  studySearch: (query) => call("study_search", { query }),
   studyGet: (id) => call("study_get", { id }),
   studyCreate: (input) => call("study_create", { input }),
   studyUpdate: (input) => call("study_update", { input }),
   studySectionList: (studyId) => call("study_section_list", { studyId }),
   studySectionUpdate: (input) => call("study_section_update", { input }),
+  studySectionCreate: (input) => call("study_section_create", { input }),
+  studySectionDelete: (input) => call("study_section_delete", { input }),
+  studySectionReorder: (input) => call("study_section_reorder", { input }),
+  studyBlockReorder: (input) => call("study_block_reorder", { input }),
+
+  findingList: (studyId) => call("finding_list", { studyId }),
+  findingCreate: (input) => call("finding_create", { input }),
+  findingUpdate: (input) => call("finding_update", { input }),
+  findingDelete: (id) => call("finding_delete", { id }),
+  findingReorder: (input) => call("finding_reorder", { input }),
+  findingLinkPassage: (input) => call("finding_link_passage", { input }),
+  findingUnlinkPassage: (passageId) => call("finding_unlink_passage", { passageId }),
+  findingSetTags: (input) => call("finding_set_tags", { input }),
+
+  studyRelationList: (studyId) => call("study_relation_list", { studyId }),
+  studyRelationCreate: (input) => call("study_relation_create", { input }),
+  studyRelationDelete: (id) => call("study_relation_delete", { id }),
+
+  templateList: () => call("template_list"),
+  templateCreate: (input) => call("template_create", { input }),
+  templateUpdate: (input) => call("template_update", { input }),
+  templateDuplicate: (id) => call("template_duplicate", { id }),
+  templateDelete: (id) => call("template_delete", { id }),
   studyBlockCreate: (input) => call("study_block_create", { input }),
   studyBlockUpdate: (input) => call("study_block_update", { input }),
   studyBlockDelete: (id) => call("study_block_delete", { id }),
@@ -176,4 +241,5 @@ export const tauriApi: Api = {
   studyPassageList: (studyId) => call("study_passage_list", { studyId }),
   studyPassageAdd: (input) => call("study_passage_add", { input }),
   studyPassageRemove: (id) => call("study_passage_remove", { id }),
+  studyPassageSetRole: ({ id, role }) => call("study_passage_set_role", { id, role }),
 };

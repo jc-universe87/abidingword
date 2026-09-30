@@ -15,12 +15,15 @@ describe("study selection and editing", () => {
   it("opens a project, selects a study and shows its sections", async () => {
     const { user } = await renderApp(await seed());
 
-    await user.click(await screen.findByRole("button", { name: /Romans Sermon Series/ }));
+    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /Romans Sermon Series/ }));
     const studies = await screen.findByRole("list", { name: "Studies" });
     await user.click(within(studies).getByRole("button", { name: /Romans 8:1–17/ }));
 
     expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("Romans 8:1–17");
-    const sectionTitles = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
+    const sectionTitles = screen
+      .getAllByRole("heading", { level: 2 })
+      .map((h) => h.textContent)
+      .filter((t) => t !== "Findings" && t !== "New study");
     expect(sectionTitles).toEqual([
       "Text",
       "Context",
@@ -37,8 +40,8 @@ describe("study selection and editing", () => {
   it("creates a study inside the open project", async () => {
     const { api, user } = await renderApp(await seed());
 
-    await user.click(await screen.findByRole("button", { name: /Romans Sermon Series/ }));
-    await user.type(await screen.findByLabelText("New study"), "Romans 12:1–2");
+    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /Romans Sermon Series/ }));
+    await user.type(await screen.findByLabelText("Title"), "Romans 12:1–2");
     await user.click(screen.getByRole("button", { name: "Create study" }));
 
     expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("Romans 12:1–2");
@@ -49,7 +52,7 @@ describe("study selection and editing", () => {
   it("saves section text and the study title automatically", async () => {
     const api = await seed();
     const { user } = await renderApp(api);
-    await user.click(await screen.findByRole("button", { name: /Romans Sermon Series/ }));
+    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /Romans Sermon Series/ }));
     await user.click(await screen.findByRole("button", { name: /Romans 8:1–17/ }));
 
     const observations = await screen.findByRole("textbox", { name: "Observations: paragraph" });
@@ -69,7 +72,7 @@ describe("study selection and editing", () => {
   it("adds a note to a section", async () => {
     const api = await seed();
     const { user } = await renderApp(api);
-    await user.click(await screen.findByRole("button", { name: /Romans Sermon Series/ }));
+    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /Romans Sermon Series/ }));
     await user.click(await screen.findByRole("button", { name: /Romans 8:1–17/ }));
 
     const context = await screen.findByRole("group", { name: "Add to Context" });

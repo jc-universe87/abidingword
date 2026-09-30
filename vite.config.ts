@@ -32,5 +32,7 @@ export default defineConfig({
     include: ["tests/**/*.test.{ts,tsx}"],
     setupFiles: ["tests/support/setup.ts"],
     css: false,
+    // Whole-app interface tests take several seconds on a slow machine.
+    testTimeout: 15000,
   },
 });

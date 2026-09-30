@@ -183,5 +183,6 @@ export interface StudyPassage {
   id: string;
   studyId: string;
   reference: ScriptureRef;
+  role: "primary" | "related";
   createdAt: string;
 }

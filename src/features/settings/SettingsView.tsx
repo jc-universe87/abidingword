@@ -3,7 +3,9 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
 import type { AppInfo, Theme } from "@/types/domain";
+import { STUDY_SHORTCUTS } from "@/features/studies/useStudyShortcuts";
 import { BibleTexts } from "./BibleTexts";
+import { StudyTemplates } from "./StudyTemplates";
 import { useTheme } from "./ThemeContext";
 
 const THEMES: { value: Theme; label: string; hint: string }[] = [
@@ -18,7 +20,14 @@ const PLANNED: { title: string; text: string }[] = [
   { title: "Integrations", text: "Connect other tools you already use." },
 ];
 
-export function SettingsView({ info, onClose, onAddBible }: { info: AppInfo; onClose: () => void; onAddBible: () => void }) {
+interface SettingsViewProps {
+  info: AppInfo;
+  onClose: () => void;
+  onAddBible: () => void;
+  onEditTemplate: (templateId: string | null) => void;
+}
+
+export function SettingsView({ info, onClose, onAddBible, onEditTemplate }: SettingsViewProps) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), []);
 
@@ -49,6 +58,19 @@ export function SettingsView({ info, onClose, onAddBible }: { info: AppInfo; onC
 
         <Section title="Bible Texts">
           <BibleTexts onAddBible={onAddBible} />
+        </Section>
+
+        <Section title="Study Templates">
+          <StudyTemplates onEdit={onEditTemplate} />
+        </Section>
+
+        <Section title="Keyboard shortcuts">
+          <dl className="m-0 grid grid-cols-[10rem_1fr] gap-x-6 gap-y-2">
+            {STUDY_SHORTCUTS.map((s) => (
+              <Item key={s.keys} term={s.keys}>{s.action}</Item>
+            ))}
+          </dl>
+          <p className="mt-3 mb-0 text-[0.9375rem] text-text-muted">These work while a study is open.</p>
         </Section>
 
         <Section title="About this installation">

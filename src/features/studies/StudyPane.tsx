@@ -10,6 +10,7 @@ import type { Project, Workspace } from "@/types/domain";
 import { ProjectList } from "./ProjectList";
 import { ProjectView } from "./ProjectView";
 import { StudyEditor } from "./StudyEditor";
+import { StudySearchResults } from "./StudySearchResults";
 
 export type StudyLocation =
   | { kind: "projects" }
@@ -18,29 +19,56 @@ export type StudyLocation =
 
 const LOCATION_KEY = "studyPane.location";
 
+interface StudyPaneProps {
+  workspace: Workspace;
+  onRevealScripture: () => void;
+  /** A Study search to show, or null. */
+  search: string | null;
+  onCloseSearch: () => void;
+}
+
 /**
- * The centre pane: browse projects, open a project's studies, edit a study.
- * The last place is remembered, so reopening the app returns to it.
+ * The centre pane: browse projects, open a project's studies, edit a study,
+ * or show Study search results. The last place is remembered, so reopening
+ * the app returns to it.
+ *
+ * Primary passage rule: when the user opens a study (from a list, search or
+ * a related-study link), the Scripture pane moves to its primary passage.
+ * Returning to the last study at app start, and anything done inside a
+ * study, leave Scripture where the user put it.
  */
-export function StudyPane({ workspace, onRevealScripture }: { workspace: Workspace; onRevealScripture: () => void }) {
+export function StudyPane({ workspace, onRevealScripture, search, onCloseSearch }: StudyPaneProps) {
   const [location, setLocation] = useState<StudyLocation>(() =>
     readLocal<StudyLocation>(LOCATION_KEY, { kind: "projects" }),
   );
+  // Set only when the user opens a study; never saved.
+  const [revealFor, setRevealFor] = useState<string | null>(null);
   useEffect(() => writeLocal(LOCATION_KEY, location), [location]);
 
   const goToProjects = useCallback(() => setLocation({ kind: "projects" }), []);
+  const openStudy = useCallback(
+    (study: { id: string; projectId: string }) => {
+      setRevealFor(study.id);
+      setLocation({ kind: "study", projectId: study.projectId, studyId: study.id });
+      onCloseSearch();
+    },
+    [onCloseSearch],
+  );
   const projectId = location.kind === "projects" ? null : location.projectId;
 
   return (
     <>
       <PaneHeader id="pane-study-title" title="Study" />
       <SaveTrackerProvider>
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div data-scroll-root className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-6">
-            {projectId === null ? (
+            {search !== null ? (
+              <StudySearchResults query={search} onOpen={openStudy} onClose={onCloseSearch} />
+            ) : projectId === null ? (
               <ProjectList
                 workspace={workspace}
                 onOpenProject={(id) => setLocation({ kind: "project", projectId: id })}
+                onOpenStudy={openStudy}
               />
             ) : (
               <ProjectScope
@@ -48,6 +76,8 @@ export function StudyPane({ workspace, onRevealScripture }: { workspace: Workspa
                 location={location}
                 setLocation={setLocation}
                 onMissing={goToProjects}
+                onOpenStudy={openStudy}
+                revealFor={revealFor}
                 onRevealScripture={onRevealScripture}
               />
             )}
@@ -63,10 +93,12 @@ interface ProjectScopeProps {
   location: StudyLocation;
   setLocation: (location: StudyLocation) => void;
   onMissing: () => void;
+  onOpenStudy: (study: { id: string; projectId: string }) => void;
+  revealFor: string | null;
   onRevealScripture: () => void;
 }
 
-function ProjectScope({ projectId, location, setLocation, onMissing, onRevealScripture }: ProjectScopeProps) {
+function ProjectScope({ projectId, location, setLocation, onMissing, onOpenStudy, revealFor, onRevealScripture }: ProjectScopeProps) {
   const api = useApi();
   const project = useLoad(useCallback(() => api.projectGet(projectId), [api, projectId]));
   const missing = project.error?.kind === "notFound";
@@ -93,15 +125,13 @@ function ProjectScope({ projectId, location, setLocation, onMissing, onRevealScr
         <StudyEditor
           key={location.studyId}
           studyId={location.studyId}
+          revealPrimary={revealFor === location.studyId}
           onMissing={openProject}
+          onOpenStudy={onOpenStudy}
           onRevealScripture={onRevealScripture}
         />
       ) : (
-        <ProjectView
-          project={project.data}
-          onProjectChanged={project.setData}
-          onOpenStudy={(studyId) => setLocation({ kind: "study", projectId, studyId })}
-        />
+        <ProjectView project={project.data} onProjectChanged={project.setData} onOpenStudy={onOpenStudy} />
       )}
     </>
   );

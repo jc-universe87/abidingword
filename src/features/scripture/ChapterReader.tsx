@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Bookmark, StickyNote } from "lucide-react";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
@@ -11,7 +11,7 @@ import { VerseTools } from "./VerseTools";
 /** One chapter of one translation, with the user's annotations. */
 export function ChapterReader({ translation }: { translation: BibleTranslation }) {
   const api = useApi();
-  const { location, selection, navigationId } = useScripture();
+  const { location, selection, navigationId, selectedVerse, selectVerse } = useScripture();
   const { book, chapter } = location;
   const text = useLoad(
     useCallback(
@@ -20,7 +20,10 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
     ),
   );
   const notes = useLoad(useCallback(() => api.annotationList(`${book}.${chapter}`), [api, book, chapter]));
-  const [selected, setSelected] = useState<number | null>(null);
+  const selected =
+    selectedVerse && selectedVerse.book === book && selectedVerse.startChapter === chapter
+      ? selectedVerse.startVerse
+      : null;
   const container = useRef<HTMLDivElement>(null);
 
   // After navigating: show the marked passage if it is out of view,
@@ -66,7 +69,7 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
               annotations={on(verse.verse)}
               current={!!selection && contains(selection, book, chapter, verse.verse)}
               selected={selected === verse.verse}
-              onSelect={() => setSelected(selected === verse.verse ? null : verse.verse)}
+              onSelect={() => selectVerse(selected === verse.verse ? null : verse.canonical)}
               onChanged={notes.reload}
             />
           ))}
