@@ -3,7 +3,7 @@ import { Bookmark, StickyNote } from "lucide-react";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
 import { useApi } from "@/lib/ApiContext";
-import { contains } from "@/lib/scripture";
+import { bookLabel, contains } from "@/lib/scripture";
 import type { Annotation, BibleTranslation, VerseText } from "@/types/scripture";
 import { useScripture } from "./ScriptureContext";
 import { VerseTools } from "./VerseTools";
@@ -47,7 +47,7 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
     <div ref={container} className="flex flex-col gap-4">
       <header>
         <h2 className="m-0 font-display text-[1.5rem] font-semibold text-text-strong">
-          {data.chapterCount === 1 ? data.bookName : `${data.bookName} ${data.chapter}`}
+          {data.chapterCount === 1 ? data.bookName : `${bookLabel(data.book, data.bookName, true)} ${data.chapter}`}
         </h2>
         <p className="m-0 text-[0.9375rem] text-text-muted">
           {translation.name}
@@ -57,7 +57,7 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
 
       {data.verses.length === 0 ? (
         <p className="text-text-muted">
-          {translation.name} has no text for {data.chapterCount === 1 ? data.bookName : `${data.bookName} ${data.chapter}`}.
+          {translation.name} has no text for {data.chapterCount === 1 ? data.bookName : `${bookLabel(data.book, data.bookName, true)} ${data.chapter}`}.
         </p>
       ) : (
         <div className="reading flex flex-col gap-1">

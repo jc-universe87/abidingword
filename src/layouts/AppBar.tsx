@@ -63,7 +63,7 @@ export function AppBar(props: AppBarProps) {
               onChange={(e) => setQuery(e.target.value)}
               disabled={!canSearch}
               placeholder={
-                scope === "studies" ? "Search your studies" : translation ? "Search Scripture" : "Search needs a Bible added"
+                scope === "studies" ? "Search your studies" : translation ? "Search Scripture" : "Add a Bible first"
               }
               className="h-10 w-60 rounded-aw border border-border bg-bg-secondary pl-9 pr-3 text-[0.9375rem] text-text placeholder:text-text-muted disabled:cursor-not-allowed disabled:border-border-subtle"
             />

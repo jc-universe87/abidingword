@@ -15,6 +15,8 @@ describe("canonical references in the frontend", () => {
     expect(display("1CO.13.4-1CO.13.7")).toBe("1 Corinthians 13:4–7");
     expect(display("JUD.1.3")).toBe("Jude 3");
     expect(display("JUD.1")).toBe("Jude");
+    expect(display("PSA.23")).toBe("Psalm 23");
+    expect(display("PSA.23-PSA.24")).toBe("Psalms 23–24");
   });
 
   it("rejects malformed canonical strings", () => {

@@ -65,6 +65,11 @@ export function chapterRef(book: string, bookName: string, chapter: number, chap
   };
 }
 
+/** One psalm is "Psalm 23"; several are "Psalms 23–24". */
+export function bookLabel(code: string, name: string, singleChapter: boolean): string {
+  return code === "PSA" && singleChapter ? "Psalm" : name;
+}
+
 /**
  * Builds a full reference (with its display form) from a canonical string,
  * using the same display rules as the native core: "John 15:1–11",
@@ -81,14 +86,15 @@ export function refFromCanonical(
   const point = (chapter: number, verse: number | null) =>
     verse === null ? String(chapter) : oneChapter ? String(verse) : `${chapter}:${verse}`;
   const { startChapter: sc, startVerse: sv, endChapter: ec, endVerse: ev } = parsed;
+  const name = bookLabel(parsed.book, book.name, sc === ec);
   let display: string;
   if (oneChapter && sv === null && ev === null) {
-    display = book.name;
+    display = name;
   } else if (sc === ec && sv === ev) {
-    display = `${book.name} ${point(sc, sv)}`;
+    display = `${name} ${point(sc, sv)}`;
   } else {
     const end = sc === ec && sv !== null && ev !== null ? String(ev) : point(ec, ev);
-    display = `${book.name} ${point(sc, sv)}–${end}`;
+    display = `${name} ${point(sc, sv)}–${end}`;
   }
   return { canonical, display, ...parsed };
 }

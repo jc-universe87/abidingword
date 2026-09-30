@@ -159,7 +159,7 @@ describe("findings", () => {
     await waitFor(() => expect(api.state.findings[0]?.passages[0]?.reference.canonical).toBe("JHN.15.2"));
 
     await user.type(within(scripture).getByLabelText("Go to passage"), "Psalm 23{Enter}");
-    await within(scripture).findByRole("heading", { level: 2, name: "Psalms 23" });
+    await within(scripture).findByRole("heading", { level: 2, name: "Psalm 23" });
     await user.click(within(screen.getByRole("list", { name: "Findings" })).getByRole("button", { name: "John 15:2" }));
     expect(await within(scripture).findByRole("heading", { level: 2, name: "John 15" })).toBeInTheDocument();
   });
@@ -278,7 +278,7 @@ describe("related studies and search", () => {
     await api.studyCreate({ projectId: project.id, title: "The True Vine", primaryPassage: "JHN.15.1-JHN.15.11" });
     const { user } = await renderApp(api);
     const scripture = screen.getByRole("complementary", { name: "Scripture" });
-    expect(await within(scripture).findByRole("heading", { level: 2, name: "Psalms 23" })).toBeInTheDocument();
+    expect(await within(scripture).findByRole("heading", { level: 2, name: "Psalm 23" })).toBeInTheDocument();
 
     await openStudy(api, user, "John Sermon Series", "The True Vine");
     expect(await within(scripture).findByRole("heading", { level: 2, name: "John 15" })).toBeInTheDocument();

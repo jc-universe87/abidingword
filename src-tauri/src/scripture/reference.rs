@@ -173,7 +173,12 @@ impl ScriptureRef {
     /// e.g. `John 15:7`, `John 15:1–11`, `John 15:1–16:4`, `Romans 8`,
     /// `John 14–16`, `Jude 3`.
     pub fn display(&self) -> String {
-        let name = self.book.name;
+        // One psalm is "Psalm 23"; several are "Psalms 23–24".
+        let name = if self.book.code == "PSA" && self.start.chapter == self.end.chapter {
+            "Psalm"
+        } else {
+            self.book.name
+        };
         let one_chapter_book = self.book.chapter_count == 1;
         let (s, e) = (self.start, self.end);
         let point = |p: Point| match (p.verse, one_chapter_book) {
@@ -272,6 +277,9 @@ mod tests {
         assert_eq!(r("1CO.13.4-1CO.13.7").display(), "1 Corinthians 13:4–7");
         assert_eq!(r("JUD.1.3").display(), "Jude 3");
         assert_eq!(r("JUD.1").display(), "Jude");
+        assert_eq!(r("PSA.23").display(), "Psalm 23");
+        assert_eq!(r("PSA.23.1-PSA.23.4").display(), "Psalm 23:1–4");
+        assert_eq!(r("PSA.23-PSA.24").display(), "Psalms 23–24");
     }
 
     #[test]
