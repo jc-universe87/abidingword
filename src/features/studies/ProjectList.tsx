@@ -26,7 +26,7 @@ export function ProjectList({ workspace, onOpenProject, onOpenStudy }: ProjectLi
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="m-0 font-display text-[1.875rem] font-semibold text-text-strong">Projects</h1>
+        <h1 className="m-0 font-display text-[1.875rem] font-heading text-text-strong">Projects</h1>
         <p className="mt-2 mb-0 text-text-muted">
           A project gathers related studies: a sermon series, a Bible study course, or a doctrine.
         </p>
@@ -54,7 +54,7 @@ export function ProjectList({ workspace, onOpenProject, onOpenStudy }: ProjectLi
                 className="flex w-full items-center gap-4 px-2 py-4 text-left hover:bg-bg-secondary"
               >
                 <span className="min-w-0 flex-1">
-                  <span className="block font-display text-[1.25rem] font-semibold text-text-strong">
+                  <span className="block font-display text-[1.25rem] font-heading text-text-strong">
                     {project.title}
                   </span>
                   <span className="mt-1 block text-[0.9375rem] text-text-muted">

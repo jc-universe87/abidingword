@@ -41,7 +41,7 @@ export function EditableTitle({ label, value, onSave }: EditableTitleProps) {
             else flush();
           }}
           aria-invalid={blank || undefined}
-          className="w-full rounded-aw border border-transparent bg-transparent px-2 py-1 -mx-2 font-display text-[1.875rem] font-semibold leading-tight text-text-strong hover:border-border-subtle focus:border-border"
+          className="w-full rounded-aw border border-transparent bg-transparent px-2 py-1 -mx-2 font-display text-[1.875rem] font-heading leading-tight text-text-strong hover:border-border-subtle focus:border-border"
         />
       </h1>
       {blank && (

@@ -52,7 +52,7 @@ export const FindingsPanel = forwardRef<FindingsPanelHandle, FindingsPanelProps>
 
   return (
     <section id="study-findings" aria-labelledby={`${id}-title`} className="scroll-mt-4 flex flex-col gap-4 border-t border-border-subtle pt-6">
-      <h2 id={`${id}-title`} className="m-0 font-display text-[1.5rem] font-semibold text-text-strong">
+      <h2 id={`${id}-title`} className="m-0 font-display text-[1.5rem] font-heading text-text-strong">
         Findings
       </h2>
 

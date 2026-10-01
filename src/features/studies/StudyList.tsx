@@ -92,7 +92,7 @@ export function StudyList({ projectId, projects, onOpen, version = 0 }: StudyLis
                 className="flex w-full items-center gap-4 px-2 py-3 text-left hover:bg-bg-secondary"
               >
                 <span className="min-w-0 flex-1">
-                  <span className="block font-display text-[1.25rem] font-semibold text-text-strong">{study.title}</span>
+                  <span className="block font-display text-[1.25rem] font-heading text-text-strong">{study.title}</span>
                   <span className="mt-1 block text-[0.9375rem] text-text-muted">
                     {STUDY_TYPE_LABELS[study.studyType]}
                     {study.primaryPassage && <> · {study.primaryPassage.display}</>}

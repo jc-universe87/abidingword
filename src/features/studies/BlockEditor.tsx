@@ -16,7 +16,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
 const STYLES: Record<BlockType, string> = {
   paragraph: "reading",
   note: "reading border-l-[3px] border-accent bg-note text-[1rem]",
-  heading: "font-display text-[1.375rem] font-semibold leading-snug text-text-strong",
+  heading: "font-display text-[1.375rem] font-heading leading-snug text-text-strong",
   quotation: "reading italic border-l-[3px] border-border pl-4",
   question: "reading border-l-[3px] border-link",
 };

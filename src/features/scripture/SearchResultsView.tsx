@@ -20,7 +20,7 @@ export function SearchResultsView() {
   return (
     <section aria-labelledby={`${id}-title`} className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
-        <h2 id={`${id}-title`} className="m-0 font-display text-[1.5rem] font-semibold text-text-strong">
+        <h2 id={`${id}-title`} className="m-0 font-display text-[1.5rem] font-heading text-text-strong">
           Search
         </h2>
         <button type="button" onClick={closeSearch} className="inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-strong hover:bg-bg">

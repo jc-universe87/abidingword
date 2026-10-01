@@ -45,7 +45,7 @@ export function AddSourceView({ onClose }: { onClose: () => void }) {
           <Button variant="quiet" onClick={cancel} disabled={checking}>
             <ArrowLeft className="size-4" aria-hidden="true" /> Back
           </Button>
-          <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-semibold text-text-strong">
+          <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
             Add to library
           </h1>
         </div>

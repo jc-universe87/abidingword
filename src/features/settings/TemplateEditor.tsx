@@ -67,7 +67,7 @@ function Form({ templateId, initial, onClose }: FormProps) {
           <Button variant="quiet" onClick={onClose}>
             <ArrowLeft className="size-4" aria-hidden="true" /> Back to settings
           </Button>
-          <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-semibold text-text-strong">
+          <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
             {templateId ? "Edit template" : "New template"}
           </h1>
         </div>

@@ -25,6 +25,8 @@
   --font-display: var(--aw-font-display);
   --font-ui: var(--aw-font-ui);
   --font-reading: var(--aw-font-reading);
+  /* Weight of display-serif headings: `font-display font-heading`. */
+  --font-weight-heading: var(--aw-display-weight);
 
   --tracking-caps: var(--aw-tracking-caps);
   --radius-aw: var(--aw-radius);

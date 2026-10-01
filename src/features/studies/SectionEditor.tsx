@@ -93,7 +93,7 @@ export function SectionEditor(props: SectionEditorProps) {
         <RenameForm initial={section.title} onSubmit={rename} onCancel={() => setRenaming(false)} />
       ) : (
         <div className="flex items-baseline gap-2">
-          <h2 id={headingId} tabIndex={-1} className="m-0 font-display text-[1.5rem] font-semibold text-text-strong">
+          <h2 id={headingId} tabIndex={-1} className="m-0 font-display text-[1.5rem] font-heading text-text-strong">
             {section.title}
           </h2>
           <button
@@ -191,7 +191,7 @@ function RenameForm({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={(e) => e.key === "Escape" && onCancel()}
-        className="h-11 min-w-0 flex-1 rounded-aw border border-border bg-bg px-3 font-display text-[1.375rem] font-semibold text-text-strong"
+        className="h-11 min-w-0 flex-1 rounded-aw border border-border bg-bg px-3 font-display text-[1.375rem] font-heading text-text-strong"
       />
       <Button type="submit" variant="primary">
         Save

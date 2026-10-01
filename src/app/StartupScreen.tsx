@@ -11,7 +11,7 @@ export function StartupScreen({ message, logDirectory }: StartupScreenProps) {
   return (
     <main className="flex h-screen flex-col items-center justify-center gap-6 bg-bg px-8 text-center text-text">
       <Logomark height={56} />
-      <p className="m-0 font-display text-[1.875rem] font-semibold text-text-strong">Abiding Word</p>
+      <p className="m-0 font-display text-[1.875rem] font-heading text-text-strong">Abiding Word</p>
       {message ? (
         <div role="alert" className="flex max-w-[36rem] flex-col gap-3">
           <p className="m-0 text-[1.0625rem] text-danger">{message}</p>

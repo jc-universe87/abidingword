@@ -62,7 +62,7 @@ export function AddBibleView({ onClose }: { onClose: () => void }) {
             <ArrowLeft className="size-4" aria-hidden="true" />
             {step.kind === "done" ? "Back" : "Cancel"}
           </Button>
-          <h1 id="add-bible-title" ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-semibold text-text-strong">
+          <h1 id="add-bible-title" ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
             {title}
           </h1>
         </div>

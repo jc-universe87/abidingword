@@ -18,7 +18,7 @@ export function StudySearchResults({ query, onOpen, onClose }: Props) {
   return (
     <section aria-labelledby="study-search-title" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 id="study-search-title" className="m-0 font-display text-[1.875rem] font-semibold text-text-strong">
+        <h1 id="study-search-title" className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
           Studies matching “{query}”
         </h1>
         <button type="button" onClick={onClose} className="inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-strong hover:bg-bg-secondary">
@@ -40,7 +40,7 @@ export function StudySearchResults({ query, onOpen, onClose }: Props) {
                   onClick={() => onOpen({ id: hit.studyId, projectId: hit.projectId })}
                   className="flex w-full flex-col items-start gap-1 px-1 py-3 text-left hover:bg-bg-secondary"
                 >
-                  <span className="font-display text-[1.125rem] font-semibold text-text-strong">{hit.studyTitle}</span>
+                  <span className="font-display text-[1.125rem] font-heading text-text-strong">{hit.studyTitle}</span>
                   <span className="text-[0.875rem] text-text-muted">{hit.location}</span>
                   <span className="reading text-[1rem]">{highlighted(hit.snippet)}</span>
                 </button>
