@@ -42,7 +42,7 @@
   --aw-primary-hover: var(--aw-forest-soft);
   --aw-on-primary: var(--aw-ivory);
 
-  --aw-font-display: "Noto Serif Display", Georgia, "Times New Roman", serif;
+  --aw-font-display: "Noto Serif", Georgia, "Times New Roman", serif;
   --aw-font-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --aw-font-reading: "Noto Serif", "Literata", Georgia, serif;
   --aw-tracking-caps: 0.18em;
@@ -74,13 +74,13 @@
  *  - mark-*: logomark colours per theme, following the package's `color`
  *    and `color-on-dark` versions (brand guide §4).
  *  - color-scheme: tells the webview to draw native controls to match.
- *  - display-weight: Noto Serif Display headings. Its hairline strokes
- *    looked faint on ivory in the Linux webview at 600, so light uses 700;
- *    light-on-dark text already reads heavier, so dark keeps 600.
+ *  - display-weight: interface headings. They use Noto Serif rather than
+ *    the package's Noto Serif Display, whose hairline strokes were barely
+ *    visible in the Linux webview in both themes, even at 700.
  */
 :root {
   --aw-danger: var(--aw-burgundy);
-  --aw-display-weight: 700;
+  --aw-display-weight: 600;
   --aw-mark-page: var(--aw-forest);
   --aw-mark-colon: var(--aw-burgundy);
   --aw-mark-chevron: var(--aw-brass);
@@ -89,7 +89,6 @@
 
 [data-theme="dark"] {
   --aw-danger: #e3a3a6;
-  --aw-display-weight: 600;
   --aw-mark-page: var(--aw-ivory);
   --aw-mark-colon: var(--aw-ivory);
   --aw-mark-chevron: var(--aw-brass);

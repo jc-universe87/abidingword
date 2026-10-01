@@ -248,6 +248,6 @@ is changed.
 ## Brand assets
 
 The Abiding Word name, logomark and brand assets are not covered by any
-software licence in this repository. Fonts (Inter, Noto Serif Display,
-Noto Serif) are SIL Open Font License families, bundled into the built app
-from npm so it works offline.
+software licence in this repository. Fonts (Inter, Noto Serif) are SIL Open
+Font License families, bundled into the built app from npm so it works
+offline.
