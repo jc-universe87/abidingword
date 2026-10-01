@@ -7,6 +7,9 @@ interface AppBarProps {
   view: "workspace" | "library" | "settings";
   scriptureOpen: boolean;
   sourcesOpen: boolean;
+  /** Which side of the Study pane each side pane is on, for the toggle icons. */
+  scriptureSide: "left" | "right";
+  sourcesSide: "left" | "right";
   onToggleScripture: () => void;
   onToggleSources: () => void;
   onOpenSettings: () => void;
@@ -98,7 +101,7 @@ export function AppBar(props: AppBarProps) {
           disabled={!inWorkspace}
           onClick={props.onToggleScripture}
         >
-          <PanelLeft className="size-5" aria-hidden="true" />
+          <SideIcon side={props.scriptureSide} />
         </button>
         <button
           type="button"
@@ -109,7 +112,7 @@ export function AppBar(props: AppBarProps) {
           disabled={!inWorkspace}
           onClick={props.onToggleSources}
         >
-          <PanelRight className="size-5" aria-hidden="true" />
+          <SideIcon side={props.sourcesSide} />
         </button>
         <button
           type="button"
@@ -124,4 +127,9 @@ export function AppBar(props: AppBarProps) {
       </div>
     </header>
   );
+}
+
+function SideIcon({ side }: { side: "left" | "right" }) {
+  const Icon = side === "left" ? PanelLeft : PanelRight;
+  return <Icon className="size-5" aria-hidden="true" />;
 }

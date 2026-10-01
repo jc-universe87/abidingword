@@ -5,19 +5,16 @@ import { AddSourceView } from "@/features/library/AddSourceView";
 import { LibraryNavProvider, type LibraryNav } from "@/features/library/LibraryNav";
 import { LibraryView } from "@/features/library/LibraryView";
 import { SourceReader } from "@/features/library/SourceReader";
-import { SourcesPane } from "@/features/library/SourcesPane";
+import { SourcesPane, type PaneSource } from "@/features/library/SourcesPane";
 import { SettingsView } from "@/features/settings/SettingsView";
 import { TemplateEditor } from "@/features/settings/TemplateEditor";
 import { StudyPane } from "@/features/studies/StudyPane";
 import { AppBar } from "@/layouts/AppBar";
+import { NARROW_WIDTH, useWorkspaceLayout } from "@/layouts/layoutPrefs";
 import { WorkspaceLayout } from "@/layouts/WorkspaceLayout";
-import { readLocal, writeLocal } from "@/lib/storage";
 import type { AppInfo, Workspace } from "@/types/domain";
 
 type View = "workspace" | "settings" | "addBible" | "template" | "library" | "source" | "addSource";
-
-/** Below this window width the Sources pane starts hidden (it can be shown). */
-const NARROW_WIDTH = 1100;
 
 export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace }) {
   const [view, setView] = useState<View>("workspace");
@@ -26,32 +23,41 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
   const [studySearch, setStudySearch] = useState<string | null>(null);
   // Each request to open the library (id) remembers its latest search.
   const [library, setLibrary] = useState<{ id: number; query?: string }>({ id: 0 });
+  // The full-width reader, and where its Back returns to.
   const [reading, setReading] = useState<{ sourceId: string; segmentId?: string; from: View } | null>(null);
-  const [scriptureOpen, setScriptureOpen] = useState(() => readLocal("layout.scriptureOpen", true));
-  const [sourcesOpen, setSourcesOpen] = useState(() =>
-    readLocal("layout.sourcesOpen", window.innerWidth >= NARROW_WIDTH),
-  );
+  // A source read inside the Sources pane. Kept here, not in the pane, so it
+  // is still open after a visit to the full reader, Settings or the Library.
+  const [paneSource, setPaneSource] = useState<PaneSource | null>(null);
+  const layout = useWorkspaceLayout();
+  const { open, setOpen } = layout;
 
-  const setOpen = (key: string, value: boolean, set: (v: boolean) => void) => {
-    set(value);
-    writeLocal(key, value);
-  };
   const addBible = () => {
     setReturnTo(view);
     setView("addBible");
   };
   const revealScripture = () => {
-    if (!scriptureOpen) setOpen("layout.scriptureOpen", true, setScriptureOpen);
+    if (!open.scripture) setOpen("scripture", true);
   };
+  const sideOf = (pane: "scripture" | "sources") =>
+    layout.order.indexOf(pane) < layout.order.indexOf("study") ? "left" : "right";
   const libraryNav = useMemo<LibraryNav>(
     () => ({
       openLibrary: (query) => {
         setLibrary((current) => ({ id: current.id + 1, query }));
         setView("library");
       },
-      // The reader's Back returns to where the source was opened from; after
-      // adding a source it returns to the library.
+      // From the workspace a source opens in the Sources pane, beside
+      // Scripture and the Study. On a narrow window with that pane hidden,
+      // and from every other screen, it opens in the full-width reader,
+      // whose Back returns to where it was opened from (after adding a
+      // source: the library).
       openSource: (sourceId, segmentId) => {
+        if (view === "workspace" && (open.sources || window.innerWidth >= NARROW_WIDTH)) {
+          if (!open.sources) setOpen("sources", true);
+          const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+          setPaneSource((current) => ({ sourceId, segmentId, opener, key: (current?.key ?? 0) + 1 }));
+          return;
+        }
         const from = view === "addSource" ? "library" : view === "source" ? (reading?.from ?? "workspace") : view;
         setReading({ sourceId, segmentId, from });
         setView("source");
@@ -61,7 +67,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
         setView("addSource");
       },
     }),
-    [view, reading?.from],
+    [view, reading?.from, open.sources, setOpen],
   );
 
   return (
@@ -81,10 +87,12 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
               ? "library"
               : "settings"
         }
-        scriptureOpen={scriptureOpen}
-        sourcesOpen={sourcesOpen}
-        onToggleScripture={() => setOpen("layout.scriptureOpen", !scriptureOpen, setScriptureOpen)}
-        onToggleSources={() => setOpen("layout.sourcesOpen", !sourcesOpen, setSourcesOpen)}
+        scriptureOpen={open.scripture}
+        sourcesOpen={open.sources}
+        scriptureSide={sideOf("scripture")}
+        sourcesSide={sideOf("sources")}
+        onToggleScripture={() => setOpen("scripture", !open.scripture)}
+        onToggleSources={() => setOpen("sources", !open.sources)}
         onOpenSettings={() => setView(view === "settings" ? "workspace" : "settings")}
         onSearch={revealScripture}
         onSearchStudies={setStudySearch}
@@ -94,6 +102,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
         <SettingsView
           info={info}
           onClose={() => setView("workspace")}
+          onResetLayout={layout.reset}
           onAddBible={addBible}
           onEditTemplate={(templateId) => {
             setEditingTemplate(templateId);
@@ -107,6 +116,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
           initialQuery={library.query}
           onSearched={(query) => setLibrary((current) => ({ ...current, query }))}
           onClose={() => setView("workspace")}
+          onRemoved={(sourceId) => setPaneSource((current) => (current?.sourceId === sourceId ? null : current))}
         />
       )}
       {view === "addSource" && <AddSourceView onClose={() => setView(returnTo)} />}
@@ -122,8 +132,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
       {view === "template" && <TemplateEditor templateId={editingTemplate} onClose={() => setView("settings")} />}
       {view === "workspace" && (
         <WorkspaceLayout
-          scriptureOpen={scriptureOpen}
-          sourcesOpen={sourcesOpen}
+          layout={layout}
           scripture={<ScripturePane onAddBible={addBible} />}
           study={
             <StudyPane
@@ -133,7 +142,17 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
               onCloseSearch={() => setStudySearch(null)}
             />
           }
-          sources={<SourcesPane />}
+          sources={
+            <SourcesPane
+              reading={paneSource}
+              onCloseReader={() => setPaneSource(null)}
+              onExpandReader={() => {
+                if (!paneSource) return;
+                setReading({ sourceId: paneSource.sourceId, segmentId: paneSource.segmentId, from: "workspace" });
+                setView("source");
+              }}
+            />
+          }
         />
       )}
     </div>

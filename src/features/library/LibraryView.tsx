@@ -12,7 +12,7 @@ import { FORMAT_LABELS, SOURCE_TYPE_LABELS } from "./labels";
 import { useLibraryNav } from "./LibraryNav";
 
 /** The library: every source, filters, full-text search, add and remove. */
-export function LibraryView({ initialQuery, onSearched, onClose }: { initialQuery?: string; onSearched?: (query: string) => void; onClose: () => void }) {
+export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { initialQuery?: string; onSearched?: (query: string) => void; onClose: () => void; onRemoved?: (sourceId: string) => void }) {
   const api = useApi();
   const { openSource, addSource } = useLibraryNav();
   const id = useId();
@@ -64,6 +64,7 @@ export function LibraryView({ initialQuery, onSearched, onClose }: { initialQuer
     try {
       await api.libraryRemoveSource(sourceId);
       setConfirming(null);
+      onRemoved?.(sourceId);
       sources.reload();
       setResults(null);
     } catch (e) {
@@ -80,7 +81,7 @@ export function LibraryView({ initialQuery, onSearched, onClose }: { initialQuer
             <ArrowLeft className="size-4" aria-hidden="true" /> Back to workspace
           </Button>
           <div className="flex w-full flex-wrap items-end justify-between gap-3">
-            <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-semibold text-text-strong">
+            <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
               Library
             </h1>
             <Button variant="primary" onClick={addSource}>
@@ -157,7 +158,7 @@ export function LibraryView({ initialQuery, onSearched, onClose }: { initialQuer
                 <li key={s.id} className="flex flex-col gap-2 border-b border-border-subtle py-3">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <button type="button" onClick={() => openSource(s.id)} className="min-w-0 text-left">
-                      <span className="block font-display text-[1.25rem] font-semibold text-text-strong hover:underline">{s.title}</span>
+                      <span className="block font-display text-[1.25rem] font-heading text-text-strong hover:underline">{s.title}</span>
                       <span className="block text-[0.9375rem] text-text-muted">
                         {[s.author, SOURCE_TYPE_LABELS[s.sourceType], s.format ? FORMAT_LABELS[s.format] : null, s.language].filter(Boolean).join(" · ")}
                         {" · added "}{formatDate(s.createdAt)}

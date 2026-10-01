@@ -22,8 +22,13 @@ export function Splitter({ label, controls, value, min, max, direction, onChange
   const clamp = (v: number) => Math.round(Math.min(max, Math.max(min, v)));
 
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    drag.current = { startX: event.clientX, startValue: value };
-    event.currentTarget.setPointerCapture(event.pointerId);
+    // Start from the width on screen: a narrow window may show the pane
+    // narrower than its saved width, and the drag should follow the pointer.
+    const shown = document.getElementById(controls)?.getBoundingClientRect().width;
+    drag.current = { startX: event.clientX, startValue: shown ? clamp(shown) : value };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    // Keeps the drag from selecting text in the panes beside it.
+    event.preventDefault();
   };
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
     if (!drag.current) return;
@@ -59,6 +64,7 @@ export function Splitter({ label, controls, value, min, max, direction, onChange
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
       onKeyDown={onKeyDown}
       className="group relative w-px shrink-0 cursor-col-resize touch-none bg-border focus-visible:outline-offset-0"
     >

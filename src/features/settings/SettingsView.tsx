@@ -23,11 +23,13 @@ const PLANNED: { title: string; text: string }[] = [
 interface SettingsViewProps {
   info: AppInfo;
   onClose: () => void;
+  /** Restores the default workspace layout (order, widths, visibility). */
+  onResetLayout: () => void;
   onAddBible: () => void;
   onEditTemplate: (templateId: string | null) => void;
 }
 
-export function SettingsView({ info, onClose, onAddBible, onEditTemplate }: SettingsViewProps) {
+export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditTemplate }: SettingsViewProps) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), []);
 
@@ -46,7 +48,7 @@ export function SettingsView({ info, onClose, onAddBible, onEditTemplate }: Sett
             id="settings-title"
             ref={heading}
             tabIndex={-1}
-            className="m-0 font-display text-[1.875rem] font-semibold text-text-strong"
+            className="m-0 font-display text-[1.875rem] font-heading text-text-strong"
           >
             Settings
           </h1>
@@ -54,6 +56,7 @@ export function SettingsView({ info, onClose, onAddBible, onEditTemplate }: Sett
 
         <Section title="Appearance">
           <ThemeChoice />
+          <LayoutReset onReset={onResetLayout} />
         </Section>
 
         <Section title="Bible Texts">
@@ -112,7 +115,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   const id = `settings-${title.toLowerCase().replace(/\W+/g, "-")}`;
   return (
     <section aria-labelledby={id} className="border-t border-border-subtle pt-6">
-      <h2 id={id} className="m-0 mb-4 font-display text-[1.5rem] font-semibold text-text-strong">
+      <h2 id={id} className="m-0 mb-4 font-display text-[1.5rem] font-heading text-text-strong">
         {title}
       </h2>
       {children}
@@ -132,6 +135,33 @@ function Item({ term, children }: { term: string; children: ReactNode }) {
 function Path({ value }: { value: string | null }) {
   if (!value) return <span className="text-text-muted">Not available</span>;
   return <code className="break-all font-mono text-[0.9375rem]">{value}</code>;
+}
+
+function LayoutReset({ onReset }: { onReset: () => void }) {
+  const [done, setDone] = useState(false);
+  return (
+    <div className="mt-6 flex flex-col items-start gap-2">
+      <p className="m-0 font-medium text-text-strong">Workspace layout</p>
+      <p className="m-0 text-[0.9375rem] text-text-muted">
+        Puts the panes back in their usual order (Scripture, Study, Sources) with their usual widths, and shows or
+        hides them as on first start. Only the arrangement on this computer changes; your studies and library are
+        not affected.
+      </p>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          onClick={() => {
+            onReset();
+            setDone(true);
+          }}
+        >
+          Reset layout
+        </Button>
+        <p role="status" className="m-0 text-[0.9375rem] text-text-muted">
+          {done ? "Layout reset." : ""}
+        </p>
+      </div>
+    </div>
+  );
 }
 
 function ThemeChoice() {

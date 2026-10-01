@@ -193,20 +193,66 @@ describe("Library", () => {
     const verse = await within(sourcesPane()).findByRole("list", { name: "Sources mentioning John 15:4" });
     await user.click(within(verse).getByRole("button", { name: /Notes on the Vine/ }));
 
+    // The source opens inside the Sources pane; the workspace stays.
+    const reader = await within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" });
+    expect(within(reader).getByRole("heading", { level: 2, name: "Notes on the Vine" })).toBeInTheDocument();
+    expect(within(reader).getByText("p. 2")).toBeInTheDocument();
+    await waitFor(() => expect(reader.querySelector("[data-target]")).toHaveTextContent("John 15:4"));
+    expect(reader.querySelector("[data-target]")).toHaveFocus();
+    expect(screen.getByRole("main", { name: "Study" })).toBeInTheDocument();
+    expect(screen.getByRole("complementary", { name: "Scripture" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 1, name: "Notes on the Vine" })).not.toBeInTheDocument();
+
+    // Back returns to the overview for the same passage.
+    await user.click(within(reader).getByRole("button", { name: "Back to Sources" }));
+    expect(await within(sourcesPane()).findByRole("list", { name: "Sources mentioning John 15:4" })).toBeInTheDocument();
+    expect(within(sourcesPane()).queryByRole("region", { name: "Notes on the Vine" })).not.toBeInTheDocument();
+    expect(within(sourcesPane()).getByRole("heading", { name: "Sources mentioning John 15:4" })).toHaveFocus();
+  });
+
+  it("opens a recently added source in the pane, and in the full reader on request", async () => {
+    const api = withLibrary(VINE_NOTES);
+    const { user } = await renderApp(api);
+    await user.click(await within(sourcesPane()).findByRole("button", { name: /^Notes on the Vine/ }));
+    const reader = await within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" });
+    // Opened without a place: the title takes focus, the text starts at the top.
+    expect(within(reader).getByRole("heading", { level: 2, name: "Notes on the Vine" })).toHaveFocus();
+    expect(within(reader).getByText("An opening paragraph about gardens.")).toBeInTheDocument();
+
+    await user.click(within(reader).getByRole("button", { name: "Open full reader" }));
     expect(await screen.findByRole("heading", { level: 1, name: "Notes on the Vine" })).toBeInTheDocument();
-    await waitFor(() => expect(document.querySelector("[data-target]")).toHaveTextContent("John 15:4"));
+    expect(screen.queryByRole("main", { name: "Study" })).not.toBeInTheDocument();
+
+    // Back from the full reader restores the workspace, with the source still
+    // open in the Sources pane.
     await user.click(screen.getByRole("button", { name: "Back" }));
     expect(await screen.findByRole("main", { name: "Study" })).toBeInTheDocument();
+    expect(await within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" })).toBeInTheDocument();
+  });
+
+  it("closes the pane reader when its source is removed from the library", async () => {
+    const api = withLibrary(VINE_NOTES);
+    const { user } = await renderApp(api);
+    await user.click(await within(sourcesPane()).findByRole("button", { name: /^Notes on the Vine/ }));
+    await within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" });
+
+    await user.selectOptions(screen.getByLabelText("Search in"), "library");
+    await user.type(screen.getByLabelText("Search the library"), "pruning{Enter}");
+    await user.click(await screen.findByRole("button", { name: "Remove Notes on the Vine" }));
+    await user.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Remove from library" }));
+    await screen.findByText(/Nothing in your library yet/);
+    await user.click(screen.getByRole("button", { name: "Back to workspace" }));
+    expect(await within(sourcesPane()).findByText(/No sources yet/)).toBeInTheDocument();
   });
 });
 
 describe("finding citations", () => {
-  async function inStudyWithFinding(findingType: "observation" | "quotation", content = "") {
+  async function inStudyWithFinding(findingType: "observation" | "quotation", content = "", width = 1440) {
     const api = withLibrary(VINE_NOTES);
     const project = await api.projectCreate({ workspaceId: api.state.workspace.id, title: "John Series" });
     const study = await api.studyCreate({ projectId: project.id, title: "The True Vine" });
     await api.findingCreate({ studyId: study.study.id, findingType, content });
-    const { user } = await renderApp(api);
+    const { user } = await renderApp(api, { width });
     await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /John Series/ }));
     await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /The True Vine/ }));
     const findings = await screen.findByRole("list", { name: "Findings" });
@@ -230,13 +276,32 @@ describe("finding citations", () => {
     // Citing never changes the finding's own text.
     expect(api.state.findings[0]?.content).toBe("Abiding comes before fruit.");
 
+    // The citation opens the source beside the study, at the cited paragraph.
     await user.click(chip);
+    const reader = await within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" });
+    await waitFor(() => expect(reader.querySelector("[data-target]")).toHaveTextContent("Abiding is the heart"));
+    expect(within(findings).getByRole("textbox", { name: "Observation text" })).toHaveValue("Abiding comes before fruit.");
+
+    // Back to Sources: the study is as it was and focus returns to the citation.
+    await user.click(within(reader).getByRole("button", { name: "Back to Sources" }));
+    await waitFor(() => expect(within(findings).getByRole("button", { name: "J. Example, Notes on the Vine, p. 2" })).toHaveFocus());
+    await user.click(within(findings).getByRole("button", { name: "Remove citation J. Example, Notes on the Vine, p. 2" }));
+    await waitFor(() => expect(api.state.findings[0]?.sources).toHaveLength(0));
+  });
+
+  it("on a narrow window with Sources hidden, opens a citation in the full reader", async () => {
+    const { user, findings } = await inStudyWithFinding("observation", "Remain.", 864);
+    expect(screen.queryByRole("complementary", { name: "Sources" })).not.toBeInTheDocument();
+    const choices = await cite(user, findings, "abiding");
+    await user.click(within(choices).getAllByRole("button")[0]!);
+    await user.click(await within(findings).findByRole("button", { name: "J. Example, Notes on the Vine, p. 2" }));
+
     expect(await screen.findByRole("heading", { level: 1, name: "Notes on the Vine" })).toBeInTheDocument();
     await waitFor(() => expect(document.querySelector("[data-target]")).toHaveTextContent("Abiding is the heart"));
+    // The layout choice is left alone: Sources stays hidden.
     await user.click(screen.getByRole("button", { name: "Back" }));
-    const back = await screen.findByRole("list", { name: "Findings" });
-    await user.click(within(back).getByRole("button", { name: "Remove citation J. Example, Notes on the Vine, p. 2" }));
-    await waitFor(() => expect(api.state.findings[0]?.sources).toHaveLength(0));
+    expect(await screen.findByRole("list", { name: "Findings" })).toBeInTheDocument();
+    expect(screen.queryByRole("complementary", { name: "Sources" })).not.toBeInTheDocument();
   });
 
   it("uses the cited text as a quotation only when asked", async () => {
