@@ -89,6 +89,51 @@ mentions and citations all carry the segment id), highlights and focuses
 it, and loads text around it in windows of 150 segments, so a long book is
 never loaded into the interface at once.
 
+## Reading beside Scripture and the Study
+
+A source opened from the workspace (a passage mention or a recently added
+source in the Sources pane, or a citation on a finding) opens **inside the
+Sources pane**, so Scripture and the Study stay in view. The pane reader is
+the same reader as the full-width one (`SourceReader`, `variant="pane"`):
+exact place, highlight, page markers and section headings, title, author,
+provenance and "Show earlier / more text".
+
+- **Back to Sources** returns to the pane's overview for the passage being
+  read. Focus returns to what opened the source (a citation chip, say), or
+  to the overview's heading.
+- **Open full reader** opens the same source at the same place in the
+  full-width reader; its **Back** returns to the workspace, where the
+  source is still open in the Sources pane. Study, Scripture passage and
+  layout are untouched throughout.
+- If the Sources pane is hidden on a wide window, opening a source shows
+  it. On a narrow window (below 1,100 pixels) with the pane hidden, the
+  source opens in the full-width reader instead, and the layout is left as
+  the user set it.
+- The Library screen, its search results and a newly added source still
+  open in the full-width reader, as before.
+- Removing a source from the library closes it in the pane.
+
+## Workspace layout
+
+The workspace is Scripture | Study | Sources by default. Each pane header
+has **Move left** / **Move right** buttons (hidden panes are skipped), and
+the dividers between panes set the widths of the Scripture and Sources
+panes by dragging or with the arrow keys, Home and End; the Study pane
+takes the remaining room and always keeps at least 360 pixels, and a side
+pane cannot be made narrower than 240. A divider resizes the side pane on
+its far side from the Study pane. When the window is too small for the
+saved widths the side panes shrink on screen, but the saved widths are
+kept for when there is room again. Hiding a pane keeps its place and width.
+
+Order, widths and visibility are **device interface preferences**: they
+live in the webview's own storage (`layout.order`, `layout.scriptureWidth`,
+`layout.sourcesWidth`, `layout.scriptureOpen`, `layout.sourcesOpen`), not in
+the database or the data folder, so switching data folders does not change
+them. **Settings → Appearance → Reset layout** forgets exactly these five
+and restores the default order, widths (Scripture 300, Sources 320) and
+visibility (Sources hidden at first on a narrow window). Studies, the
+library and the Study pane's remembered place are not touched.
+
 ## Import adapters
 
 Each format is an adapter behind one trait, `SourceImportAdapter`
@@ -258,7 +303,19 @@ chose in the system file dialog.
   Context"). Accurate, but wordy.
 - At narrow window widths with all three panes open, the Study pane
   becomes cramped; the Sources pane starts hidden below 1,100 pixels for
-  this reason.
+  this reason (until the user shows it).
+- Panes are rearranged with Move left / Move right, not by dragging their
+  headers (Tauri's own drag-and-drop handling makes HTML drag and drop
+  unreliable in the webview, and buttons work from the keyboard too).
+- "Open full reader" opens at the place the source was opened at, not at
+  the point scrolled to in the pane.
+- No "Open original": the managed copy of the file cannot yet be opened in
+  the system's own viewer. That needs a native opener (a new Tauri plugin
+  and permission), a command that resolves a source id to its file without
+  exposing paths, and a check of what each platform does when no viewer is
+  installed (often the case in a Chromebook's Linux environment). The
+  extracted text stays the working representation; access to the original
+  document, here and later for imported Bibles, is a follow-up.
 - One file per source; a second edition is a second source.
 - A citation is chosen by searching; the reader has no "cite this
   paragraph" button yet.
