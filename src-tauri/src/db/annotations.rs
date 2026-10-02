@@ -139,7 +139,11 @@ fn single_verse(canonical: &str) -> AppResult<ScriptureRef> {
     let reference = ScriptureRef::from_canonical(canonical)?;
     if !reference.is_single_verse() {
         return Err(AppError::InvalidReference(
-            format!("“{canonical}” is not a single verse.").into(),
+            UserMessage::new(
+                "annotations.notSingleVerse",
+                format!("“{canonical}” is not a single verse."),
+            )
+            .with("passage", canonical),
         ));
     }
     Ok(reference)
@@ -154,9 +158,10 @@ pub fn resolve_anchor(
     let start = single_verse(&input.start.verse)?;
     let end = single_verse(&input.end.verse)?;
     if start.book.ordinal != end.book.ordinal || start.start.chapter != end.start.chapter {
-        return Err(AppError::InvalidInput(
-            "A marked phrase must stay within one chapter.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "annotations.oneChapter",
+            "A marked phrase must stay within one chapter.",
+        )));
     }
     let reference = ScriptureRef::new(
         start.book,
@@ -186,9 +191,10 @@ pub fn resolve_anchor(
         &translation.short_name,
     )?;
     if anchor.quote != input.quote {
-        return Err(AppError::InvalidInput(
-            "The selected words do not match the text of this translation.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "annotations.wordingMismatch",
+            "The selected words do not match the text of this translation.",
+        )));
     }
     Ok((reference, anchor))
 }
@@ -301,9 +307,10 @@ pub fn create(conn: &Connection, input: &CreateAnnotation) -> AppResult<Annotati
         }
         (None, "highlight") => Some(DEFAULT_HIGHLIGHT_COLOR.to_string()),
         (Some(_), _) => {
-            return Err(AppError::InvalidInput(
-                "Only highlights have a colour.".into(),
-            ))
+            return Err(AppError::InvalidInput(UserMessage::new(
+                "annotations.colorOnlyHighlight",
+                "Only highlights have a colour.",
+            )))
         }
         (None, _) => None,
     };
@@ -312,24 +319,27 @@ pub fn create(conn: &Connection, input: &CreateAnnotation) -> AppResult<Annotati
     let anchor = match &input.anchor {
         None => None,
         Some(_) if kind == "bookmark" => {
-            return Err(AppError::InvalidInput(
-                "A bookmark marks whole verses, not words.".into(),
-            ))
+            return Err(AppError::InvalidInput(UserMessage::new(
+                "annotations.bookmarkWholeVerse",
+                "A bookmark marks whole verses, not words.",
+            )))
         }
         Some(anchor_input) => {
             if translation_id
                 .as_ref()
                 .is_some_and(|t| *t != anchor_input.translation_id)
             {
-                return Err(AppError::InvalidInput(
-                    "The phrase belongs to a different translation.".into(),
-                ));
+                return Err(AppError::InvalidInput(UserMessage::new(
+                    "annotations.otherTranslation",
+                    "The phrase belongs to a different translation.",
+                )));
             }
             let (covered, anchor) = resolve_anchor(conn, anchor_input)?;
             if covered.canonical() != reference.canonical() {
-                return Err(AppError::InvalidInput(
-                    "The selected words are not in this passage.".into(),
-                ));
+                return Err(AppError::InvalidInput(UserMessage::new(
+                    "annotations.notInPassage",
+                    "The selected words are not in this passage.",
+                )));
             }
             translation_id = Some(anchor_input.translation_id.clone());
             Some(anchor)
@@ -398,9 +408,10 @@ pub fn update(conn: &Connection, input: &UpdateAnnotation) -> AppResult<Annotati
     let raw = get_raw(conn, &input.id)?;
     if let Some(color) = &input.color {
         if raw.kind != "highlight" {
-            return Err(AppError::InvalidInput(
-                "Only highlights have a colour.".into(),
-            ));
+            return Err(AppError::InvalidInput(UserMessage::new(
+                "annotations.colorOnlyHighlight",
+                "Only highlights have a colour.",
+            )));
         }
         validate_color(color)?;
     }

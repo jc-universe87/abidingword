@@ -446,3 +446,145 @@ fn verse_highlights_have_colours_and_old_ones_are_amber() {
         Ok(())
     });
 }
+
+/// The stable code and values of a refused request.
+fn refused_with<T: std::fmt::Debug>(result: AppResult<T>) -> (String, Vec<(String, String)>) {
+    let error = result.unwrap_err();
+    let (code, params) = error.user_code();
+    (
+        code.expect("a user-facing annotation error carries a code")
+            .to_string(),
+        params
+            .into_iter()
+            .map(|(k, v)| (k.to_string(), v))
+            .collect(),
+    )
+}
+
+#[test]
+fn refused_annotation_requests_carry_stable_codes() {
+    with_db(|conn| {
+        let a = install(conn, "usfm-a", "FXA")?;
+        let good = words(&a.id, "JHN.15.4", A4, "about remaining");
+        let code = |result| refused_with::<Annotation>(result).0;
+
+        // Bookmarks are whole verses.
+        assert_eq!(
+            code(phrase(conn, "bookmark", "JHN.15.4", good.clone(), None)),
+            "annotations.bookmarkWholeVerse"
+        );
+        // Colours are for highlights only.
+        assert_eq!(
+            code(phrase(conn, "note", "JHN.15.4", good.clone(), Some("rose"))),
+            "annotations.colorOnlyHighlight"
+        );
+        // An unknown colour and an unknown kind.
+        let (c, p) = refused_with(phrase(
+            conn,
+            "highlight",
+            "JHN.15.4",
+            good.clone(),
+            Some("yellow"),
+        ));
+        assert_eq!(c, "invalidChoice");
+        assert_eq!(p, vec![("value".to_string(), "yellow".to_string())]);
+        assert_eq!(
+            code(phrase(conn, "underline", "JHN.15.4", good.clone(), None)),
+            "invalidChoice"
+        );
+        // Words that are not the stored wording.
+        let wrong = AnchorInput {
+            quote: "about remainder".into(),
+            ..good.clone()
+        };
+        assert_eq!(
+            refused_with(annotations::check_anchor(conn, &wrong)).0,
+            "annotations.wordingMismatch"
+        );
+        // Words from another passage than the one named.
+        assert_eq!(
+            code(phrase(conn, "highlight", "JHN.15.5", good.clone(), None)),
+            "annotations.notInPassage"
+        );
+        // A selection across chapters.
+        let across = AnchorInput {
+            end: AnchorEnd {
+                verse: "JHN.16.1".into(),
+                offset: 5,
+            },
+            ..good.clone()
+        };
+        assert_eq!(
+            refused_with(annotations::check_anchor(conn, &across)).0,
+            "annotations.oneChapter"
+        );
+        // A selection that selects nothing.
+        let empty = AnchorInput {
+            end: good.start.clone(),
+            quote: String::new(),
+            ..good.clone()
+        };
+        assert_eq!(
+            refused_with(annotations::check_anchor(conn, &empty)).0,
+            "annotations.nothingSelected"
+        );
+        // A note that is too long.
+        let long = annotations::create(
+            conn,
+            &CreateAnnotation {
+                reference: "JHN.15.4".into(),
+                kind: "note".into(),
+                content: Some("x".repeat(20_001)),
+                ..Default::default()
+            },
+        );
+        assert_eq!(code(long), "annotations.tooLong");
+        // A phrase's end must name a single verse.
+        let chapter = AnchorInput {
+            start: AnchorEnd {
+                verse: "JHN.15".into(),
+                offset: 0,
+            },
+            ..good
+        };
+        let (c, p) = refused_with(annotations::check_anchor(conn, &chapter));
+        assert_eq!(c, "annotations.notSingleVerse");
+        assert_eq!(p, vec![("passage".to_string(), "JHN.15".to_string())]);
+        Ok(())
+    });
+}
+
+#[test]
+fn a_verse_highlight_is_translation_independent() {
+    with_db(|conn| {
+        let a = install(conn, "usfm-a", "FXA")?;
+        let b = install(conn, "usfm-b", "FXB")?;
+        let verse = annotations::create(
+            conn,
+            &CreateAnnotation {
+                reference: "JHN.15.4".into(),
+                kind: "highlight".into(),
+                color: Some("blue".into()),
+                ..Default::default()
+            },
+        )?;
+        assert!(verse.anchor.is_none() && verse.translation_id.is_none());
+        for translation in [&a.id, &b.id] {
+            let listed = annotations::list_for(conn, &r("JHN.15"), Some(translation))?;
+            assert_eq!(listed.len(), 1);
+            assert_eq!(listed[0].color.as_deref(), Some("blue"));
+            assert!(listed[0].anchor.is_none());
+        }
+        // A whole-verse bookmark is likewise independent.
+        let bookmark = annotations::create(
+            conn,
+            &CreateAnnotation {
+                reference: "JHN.15.4".into(),
+                kind: "bookmark".into(),
+                ..Default::default()
+            },
+        )?;
+        assert!(bookmark.color.is_none() && bookmark.anchor.is_none());
+        Ok(())
+    });
+}

@@ -95,6 +95,15 @@
     "tagTooLong": "태그 “{{tag}}”이(가) 너무 깁니다."
   },
   "annotations": {
-    "tooLong": "이 메모는 너무 길어서 저장할 수 없습니다."
+    "tooLong": "이 메모는 너무 길어서 저장할 수 없습니다.",
+    "oneChapter": "선택한 말씀은 한 장 안에 있어야 합니다.",
+    "wordingMismatch": "선택한 말씀이 이 번역본의 본문과 일치하지 않습니다.",
+    "noText": "이 번역본에는 선택한 절의 본문이 없습니다.",
+    "nothingSelected": "선택된 내용이 없습니다.",
+    "colorOnlyHighlight": "강조에만 색이 있습니다.",
+    "bookmarkWholeVerse": "책갈피는 단어가 아니라 절 전체를 표시합니다.",
+    "otherTranslation": "선택한 말씀은 다른 번역본의 것입니다.",
+    "notInPassage": "선택한 말씀은 이 본문에 속하지 않습니다.",
+    "notSingleVerse": "“{{passage}}”은(는) 한 절이 아닙니다."
   }
 }

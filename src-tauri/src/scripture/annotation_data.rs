@@ -158,12 +158,16 @@ pub fn build_anchor(
     translation_short_name: &str,
 ) -> AppResult<StoredAnchor> {
     let mismatch = || {
-        AppError::InvalidInput(
-            "The selected words do not match the text of this translation.".into(),
-        )
+        AppError::InvalidInput(UserMessage::new(
+            "annotations.wordingMismatch",
+            "The selected words do not match the text of this translation.",
+        ))
     };
     if end.verse < start.verse || (end.verse == start.verse && end.offset <= start.offset) {
-        return Err(AppError::InvalidInput("Nothing is selected.".into()));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "annotations.nothingSelected",
+            "Nothing is selected.",
+        )));
     }
     let covered: Vec<&(i64, String)> = texts
         .iter()
@@ -172,9 +176,10 @@ pub fn build_anchor(
     let first = covered.first().ok_or_else(mismatch)?;
     let last = covered.last().ok_or_else(mismatch)?;
     if first.0 != start.verse || last.0 != end.verse {
-        return Err(AppError::InvalidInput(
-            "This translation has no text for the selected verse.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "annotations.noText",
+            "This translation has no text for the selected verse.",
+        )));
     }
     // Each end must select at least one character of its own verse.
     if start.offset >= utf16_len(&first.1) || end.offset == 0 {
@@ -201,7 +206,10 @@ pub fn build_anchor(
     }
     let quote = parts.join(" ");
     if quote.trim().is_empty() {
-        return Err(AppError::InvalidInput("Nothing is selected.".into()));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "annotations.nothingSelected",
+            "Nothing is selected.",
+        )));
     }
     Ok(StoredAnchor {
         start,

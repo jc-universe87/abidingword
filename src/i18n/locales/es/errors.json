@@ -101,6 +101,15 @@
     "tagTooLong": "La etiqueta “{{tag}}” es demasiado larga."
   },
   "annotations": {
-    "tooLong": "Esta nota es demasiado larga para guardarla."
+    "tooLong": "Esta nota es demasiado larga para guardarla.",
+    "oneChapter": "Las palabras seleccionadas deben quedarse dentro de un solo capítulo.",
+    "wordingMismatch": "Las palabras seleccionadas no coinciden con el texto de esta traducción.",
+    "noText": "Esta traducción no tiene texto para el versículo seleccionado.",
+    "nothingSelected": "No hay nada seleccionado.",
+    "colorOnlyHighlight": "Solo los resaltados tienen color.",
+    "bookmarkWholeVerse": "Un marcador señala versículos completos, no palabras.",
+    "otherTranslation": "Las palabras seleccionadas pertenecen a otra traducción.",
+    "notInPassage": "Las palabras seleccionadas no están en este pasaje.",
+    "notSingleVerse": "“{{passage}}” no es un solo versículo."
   }
 }

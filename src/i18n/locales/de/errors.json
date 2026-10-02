@@ -98,6 +98,15 @@
     "tagTooLong": "Das Schlagwort „{{tag}}“ ist zu lang."
   },
   "annotations": {
-    "tooLong": "Diese Notiz ist zu lang zum Speichern."
+    "tooLong": "Diese Notiz ist zu lang zum Speichern.",
+    "oneChapter": "Die ausgewählten Wörter müssen innerhalb eines Kapitels bleiben.",
+    "wordingMismatch": "Die ausgewählten Wörter stimmen nicht mit dem Text dieser Übersetzung überein.",
+    "noText": "Diese Übersetzung enthält keinen Text für den ausgewählten Vers.",
+    "nothingSelected": "Es ist nichts ausgewählt.",
+    "colorOnlyHighlight": "Nur Markierungen haben eine Farbe.",
+    "bookmarkWholeVerse": "Ein Lesezeichen markiert ganze Verse, keine einzelnen Wörter.",
+    "otherTranslation": "Die ausgewählten Wörter gehören zu einer anderen Übersetzung.",
+    "notInPassage": "Die ausgewählten Wörter gehören nicht zu dieser Stelle.",
+    "notSingleVerse": "„{{passage}}“ ist kein einzelner Vers."
   }
 }

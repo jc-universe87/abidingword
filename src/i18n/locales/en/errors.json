@@ -98,6 +98,15 @@
     "tagTooLong": "The tag “{{tag}}” is too long."
   },
   "annotations": {
-    "tooLong": "This note is too long to save."
+    "tooLong": "This note is too long to save.",
+    "oneChapter": "Selected words must stay within one chapter.",
+    "wordingMismatch": "The selected words do not match the text of this translation.",
+    "noText": "This translation has no text for the selected verse.",
+    "nothingSelected": "Nothing is selected.",
+    "colorOnlyHighlight": "Only highlights have a colour.",
+    "bookmarkWholeVerse": "A bookmark marks whole verses, not words.",
+    "otherTranslation": "The selected words belong to a different translation.",
+    "notInPassage": "The selected words are not in this passage.",
+    "notSingleVerse": "“{{passage}}” is not a single verse."
   }
 }
