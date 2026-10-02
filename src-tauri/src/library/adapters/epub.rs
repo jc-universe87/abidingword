@@ -14,7 +14,7 @@ use super::{
     collapse, split_long, ExtractionStatus, FoundMetadata, ImportedDocument, NewSegment,
     SourceImportAdapter,
 };
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 
 pub struct EpubImporter;
 
@@ -32,9 +32,13 @@ impl SourceImportAdapter for EpubImporter {
 
     fn extract(&self, bytes: &[u8], file_name: &str) -> AppResult<ImportedDocument> {
         let bad = |why: &str| {
-            AppError::Import(format!(
-                "“{file_name}” could not be read as an EPUB book ({why})."
-            ))
+            AppError::Import(
+                UserMessage::new(
+                    "library.badEpub",
+                    format!("“{file_name}” could not be read as an EPUB book ({why})."),
+                )
+                .with("fileName", file_name),
+            )
         };
         let mut archive =
             zip::ZipArchive::new(Cursor::new(bytes)).map_err(|_| bad("not a valid archive"))?;

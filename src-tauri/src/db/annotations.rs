@@ -5,7 +5,7 @@
 use rusqlite::{params, Connection, OptionalExtension, Row};
 
 use crate::db::{new_id, now, workspaces};
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 use crate::scripture::reference::ScriptureRef;
 use crate::scripture::{Annotation, CreateAnnotation, UpdateAnnotation, ANNOTATION_KINDS};
 
@@ -83,17 +83,21 @@ pub fn get(conn: &Connection, id: &str) -> AppResult<Annotation> {
 /// exactly this passage is returned instead of duplicated.
 pub fn create(conn: &Connection, input: &CreateAnnotation) -> AppResult<Annotation> {
     if !ANNOTATION_KINDS.contains(&input.kind.as_str()) {
-        return Err(AppError::InvalidInput(format!(
-            "“{}” is not a kind of annotation.",
-            input.kind
-        )));
+        return Err(AppError::InvalidInput(
+            UserMessage::new(
+                "invalidChoice",
+                format!("“{}” is not a kind of annotation.", input.kind),
+            )
+            .with("value", &input.kind),
+        ));
     }
     let reference = ScriptureRef::from_canonical(&input.reference)?;
     let content = input.content.clone().unwrap_or_default();
     if content.chars().count() > CONTENT_MAX_CHARS {
-        return Err(AppError::InvalidInput(
-            "This note is too long to save.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "annotations.tooLong",
+            "This note is too long to save.",
+        )));
     }
     if let Some(translation) = &input.translation_id {
         crate::db::bibles::get(conn, translation)?;
@@ -137,9 +141,10 @@ pub fn create(conn: &Connection, input: &CreateAnnotation) -> AppResult<Annotati
 pub fn update(conn: &Connection, input: &UpdateAnnotation) -> AppResult<Annotation> {
     get(conn, &input.id)?;
     if input.content.chars().count() > CONTENT_MAX_CHARS {
-        return Err(AppError::InvalidInput(
-            "This note is too long to save.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "annotations.tooLong",
+            "This note is too long to save.",
+        )));
     }
     conn.execute(
         "UPDATE annotations SET content = ?2, updated_at = ?3, revision = revision + 1 WHERE id = ?1",

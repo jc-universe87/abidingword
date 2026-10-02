@@ -7,7 +7,7 @@ use rusqlite::{params, Connection, OptionalExtension, Row};
 use crate::db::{new_id, now, studies};
 use crate::domain::validate::{self, DESCRIPTION_MAX_CHARS};
 use crate::domain::{CreateStudyRelation, RelatedStudy, RelationType, StudyRelation, StudyType};
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 
 type RawRelation = (
     String,
@@ -87,9 +87,10 @@ pub fn list(conn: &Connection, study_id: &str) -> AppResult<Vec<StudyRelation>> 
 
 pub fn create(conn: &Connection, input: &CreateStudyRelation) -> AppResult<StudyRelation> {
     if input.from_study_id == input.to_study_id {
-        return Err(AppError::InvalidInput(
-            "A study can’t be linked to itself.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "relations.self",
+            "A study can’t be linked to itself.",
+        )));
     }
     studies::get(conn, &input.from_study_id)?;
     let other = studies::get(conn, &input.to_study_id)?;
@@ -101,10 +102,13 @@ pub fn create(conn: &Connection, input: &CreateStudyRelation) -> AppResult<Study
         |r| r.get(0),
     )?;
     if exists {
-        return Err(AppError::Conflict(format!(
-            "This study is already linked to “{}”.",
-            other.title
-        )));
+        return Err(AppError::Conflict(
+            UserMessage::new(
+                "relations.exists",
+                format!("This study is already linked to “{}”.", other.title),
+            )
+            .with("title", &other.title),
+        ));
     }
     let id = new_id();
     conn.execute(

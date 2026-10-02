@@ -10,7 +10,7 @@ use rusqlite::{params, Connection, OptionalExtension, Row};
 
 use crate::db::{new_id, now, workspaces};
 use crate::domain::validate::{self, DESCRIPTION_MAX_CHARS};
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 use crate::library::files::{category, safe_file_name};
 use crate::library::import::StagedSource;
 use crate::library::{
@@ -157,10 +157,16 @@ pub fn commit_import(
     }
     if !input.allow_duplicate {
         if let Some(existing) = find_duplicate(conn, &staged.hash)? {
-            return Err(AppError::Conflict(format!(
-                "This file is already in your library as “{}”.",
-                existing.title
-            )));
+            return Err(AppError::Conflict(
+                UserMessage::new(
+                    "library.duplicate",
+                    format!(
+                        "This file is already in your library as “{}”.",
+                        existing.title
+                    ),
+                )
+                .with("title", &existing.title),
+            ));
         }
     }
     let title = validate::title(&input.title, "source")?;
@@ -398,9 +404,10 @@ pub fn segment(conn: &Connection, id: &str) -> AppResult<(String, SourceSegment)
 /// Full-text search over segment text, best matches first, paged.
 pub fn search(conn: &Connection, input: &SearchLibrary) -> AppResult<LibraryResults> {
     let Some(query) = crate::db::fts::query(&input.query) else {
-        return Err(AppError::InvalidInput(
-            "Type a word or phrase to search for.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "search.empty",
+            "Type a word or phrase to search for.",
+        )));
     };
     let offset = input.offset.unwrap_or(0).max(0);
     let mut stmt = conn.prepare(

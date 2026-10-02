@@ -109,7 +109,9 @@ export interface SourceImportPreview {
   segmentCount: number;
   referenceCount: number;
   extractionStatus: string;
+  /** English; shown through `problemCode` in the interface language. */
   problem: string | null;
+  problemCode: string | null;
   duplicateOf: { id: string; title: string } | null;
   canImport: boolean;
 }

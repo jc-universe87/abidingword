@@ -149,6 +149,17 @@ fn a_valid_fixture_imports_with_a_clear_preview() {
         .issues
         .iter()
         .any(|i| i.message.contains("3 of 21 chapters")));
+    // The interface translates issues from their code and values.
+    let missing = preview
+        .issues
+        .iter()
+        .find(|i| i.code.as_deref() == Some("bibleImport.missingChapters"))
+        .expect("coded issue");
+    assert_eq!(missing.params["bookCode"], "JHN");
+    assert_eq!(missing.params["found"], "3");
+    assert_eq!(missing.params["count"], "21");
+    assert_eq!(missing.params["more"], "10");
+    assert_eq!(missing.params["numbers"], "1, 2, 3, 4, 5, 6, 7, 8");
 }
 
 #[test]

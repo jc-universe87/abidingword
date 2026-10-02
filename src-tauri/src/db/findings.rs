@@ -13,7 +13,7 @@ use crate::domain::{
     CreateFinding, Finding, FindingPassage, FindingType, LinkFindingPassage, Reorder,
     SetFindingTags, UpdateFinding,
 };
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 use crate::library::{AddFindingSource, FindingCitation};
 use crate::scripture::reference::ScriptureRef;
 
@@ -190,9 +190,10 @@ pub fn list(conn: &Connection, study_id: &str) -> AppResult<Vec<Finding>> {
 
 fn check_content(content: &str) -> AppResult<()> {
     if content.chars().count() > CONTENT_MAX_CHARS {
-        return Err(AppError::InvalidInput(
-            "This finding is too long to save.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "findings.tooLong",
+            "This finding is too long to save.",
+        )));
     }
     Ok(())
 }
@@ -200,9 +201,10 @@ fn check_content(content: &str) -> AppResult<()> {
 fn check_section(conn: &Connection, study_id: &str, section_id: &str) -> AppResult<()> {
     let section = sections::get(conn, section_id)?;
     if section.study_id != study_id {
-        return Err(AppError::InvalidInput(
-            "That section belongs to another study.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "findings.otherStudySection",
+            "That section belongs to another study.",
+        )));
     }
     Ok(())
 }
@@ -397,14 +399,22 @@ pub fn set_tags(conn: &Connection, input: &SetFindingTags) -> AppResult<Finding>
     tags.sort();
     tags.dedup();
     if tags.len() > MAX_TAGS {
-        return Err(AppError::InvalidInput(format!(
-            "A finding can have at most {MAX_TAGS} tags."
-        )));
+        return Err(AppError::InvalidInput(
+            UserMessage::new(
+                "findings.tooManyTags",
+                format!("A finding can have at most {MAX_TAGS} tags."),
+            )
+            .with("max", MAX_TAGS),
+        ));
     }
     if let Some(long) = tags.iter().find(|t| t.chars().count() > TAG_MAX_CHARS) {
-        return Err(AppError::InvalidInput(format!(
-            "The tag “{long}” is too long."
-        )));
+        return Err(AppError::InvalidInput(
+            UserMessage::new(
+                "findings.tagTooLong",
+                format!("The tag “{long}” is too long."),
+            )
+            .with("tag", long),
+        ));
     }
     let now = now();
     let tx = conn.unchecked_transaction()?;
