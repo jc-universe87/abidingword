@@ -1,0 +1,602 @@
+{
+  "shortcuts": {
+    "newFinding": {
+      "keys": "Alt+N",
+      "action": "Nuevo hallazgo"
+    },
+    "newObservation": {
+      "keys": "Alt+O",
+      "action": "Nueva observación"
+    },
+    "newQuestion": {
+      "keys": "Alt+Q",
+      "action": "Nueva pregunta"
+    },
+    "section": {
+      "keys": "Alt+↓ / Alt+↑",
+      "action": "Sección siguiente / anterior"
+    },
+    "goTo": {
+      "keys": "Alt+G",
+      "action": "Ir a un pasaje de la Biblia"
+    },
+    "saveFinding": {
+      "keys": "Ctrl+Intro",
+      "action": "Guardar el hallazgo que estás escribiendo"
+    }
+  },
+  "builtin": {
+    "templates": {
+      "biblical-theology-study": {
+        "name": "Estudio de teología bíblica",
+        "description": "Un tema seguido a lo largo de la historia de la Escritura, de la promesa al cumplimiento.",
+        "sections": {
+          "theme": {
+            "title": "Tema",
+            "guidance": "El tema que se sigue y por qué es importante."
+          },
+          "old-testament": {
+            "title": "Antiguo Testamento",
+            "guidance": "Dónde comienza el tema y cómo se desarrolla en la Ley, los Profetas y los Escritos."
+          },
+          "gospels": {
+            "title": "Evangelios",
+            "guidance": "Cómo el tema llega a Cristo en los Evangelios."
+          },
+          "epistles": {
+            "title": "Epístolas",
+            "guidance": "Cómo los apóstoles retoman y aplican el tema."
+          },
+          "canonical-development": {
+            "title": "Desarrollo canónico",
+            "guidance": "Cómo crece y cambia el tema a lo largo del canon."
+          },
+          "fulfilment": {
+            "title": "Cumplimiento / Consumación",
+            "guidance": "Su cumplimiento en Cristo y su consumación final."
+          },
+          "synthesis": {
+            "title": "Síntesis",
+            "guidance": "El panorama de toda la Biblia en unas pocas frases."
+          },
+          "teaching": {
+            "title": "Enseñanza",
+            "guidance": "Cómo enseñar este tema con fidelidad y claridad."
+          }
+        }
+      },
+      "passage-study": {
+        "name": "Estudio de pasaje",
+        "description": "Un estudio detenido de un pasaje, desde el propio texto hasta su enseñanza.",
+        "sections": {
+          "text": {
+            "title": "Texto",
+            "guidance": "El pasaje que se estudia y cualquier nota sobre la traducción."
+          },
+          "context": {
+            "title": "Contexto",
+            "guidance": "Dónde se sitúa el pasaje: el libro, el argumento que lo rodea, el marco histórico."
+          },
+          "observations": {
+            "title": "Observaciones",
+            "guidance": "¿Qué dice el texto? Palabras repetidas, conectores, contrastes, mandatos, preguntas."
+          },
+          "structure": {
+            "title": "Estructura",
+            "guidance": "Cómo está construido el pasaje: sus movimientos, oraciones principales y puntos de inflexión."
+          },
+          "exegesis": {
+            "title": "Exégesis",
+            "guidance": "¿Qué significó el texto para sus primeros lectores? Palabras clave, gramática, expresiones difíciles."
+          },
+          "theology": {
+            "title": "Teología",
+            "guidance": "Lo que el pasaje enseña sobre Dios, Cristo, la salvación y la vida de fe."
+          },
+          "application": {
+            "title": "Aplicación",
+            "guidance": "Cómo la verdad del pasaje afecta hoy a la fe, la adoración y la vida."
+          },
+          "audience": {
+            "title": "Público",
+            "guidance": "Quiénes escucharán esta enseñanza, qué necesitan y qué puede dificultarles recibirla."
+          },
+          "teaching": {
+            "title": "Enseñanza",
+            "guidance": "Idea principal, bosquejo, ilustraciones y cómo comunicarla con amor."
+          }
+        }
+      },
+      "systematic-theology-study": {
+        "name": "Estudio de teología sistemática",
+        "description": "Una doctrina estudiada a partir de la Escritura, el testimonio de la iglesia y las posturas en debate.",
+        "sections": {
+          "doctrine": {
+            "title": "Doctrina",
+            "guidance": "La doctrina que se estudia, expresada con sencillez."
+          },
+          "key-texts": {
+            "title": "Textos bíblicos clave",
+            "guidance": "Los pasajes en los que se apoya la doctrina."
+          },
+          "biblical-synthesis": {
+            "title": "Síntesis bíblica",
+            "guidance": "Lo que estos textos enseñan en conjunto."
+          },
+          "historical-theology": {
+            "title": "Teología histórica",
+            "guidance": "Cómo ha entendido la iglesia esta doctrina a lo largo de su historia."
+          },
+          "confessional-witness": {
+            "title": "Testimonio confesional",
+            "guidance": "Lo que dicen los credos y las confesiones de fe."
+          },
+          "alternative-positions": {
+            "title": "Posturas alternativas",
+            "guidance": "Otras posturas, expuestas con justicia y con sus razones."
+          },
+          "conclusions": {
+            "title": "Conclusiones",
+            "guidance": "Tus conclusiones y con cuánta firmeza las sostienes."
+          },
+          "application": {
+            "title": "Aplicación",
+            "guidance": "Por qué esta doctrina importa para la fe y la vida."
+          }
+        }
+      },
+      "teaching-study": {
+        "name": "Enseñanza / Preparación de sermón",
+        "description": "Del texto a un sermón o una lección preparados para personas reales.",
+        "sections": {
+          "text": {
+            "title": "Texto",
+            "guidance": "El pasaje que se va a enseñar."
+          },
+          "main-idea": {
+            "title": "Idea principal",
+            "guidance": "Lo principal que dice el texto, en una sola frase."
+          },
+          "exegesis": {
+            "title": "Exégesis",
+            "guidance": "Lo que el texto significó para sus primeros lectores."
+          },
+          "theology": {
+            "title": "Teología",
+            "guidance": "Lo que el texto enseña sobre Dios y sus caminos."
+          },
+          "purpose": {
+            "title": "Propósito",
+            "guidance": "Lo que el texto busca producir en quienes lo escuchan."
+          },
+          "audience": {
+            "title": "Público",
+            "guidance": "Quiénes escucharán esto y qué necesitan."
+          },
+          "structure": {
+            "title": "Estructura",
+            "guidance": "Cómo avanzará la enseñanza de principio a fin."
+          },
+          "illustrations": {
+            "title": "Ilustraciones",
+            "guidance": "Imágenes y ejemplos que sirven al texto."
+          },
+          "application": {
+            "title": "Aplicación",
+            "guidance": "Aplicaciones concretas y adecuadas."
+          },
+          "teaching-outline": {
+            "title": "Bosquejo de enseñanza",
+            "guidance": "El bosquejo desde el que vas a enseñar."
+          }
+        }
+      },
+      "topical-study": {
+        "name": "Estudio temático",
+        "description": "Una pregunta o un tema seguidos a través de toda la Escritura.",
+        "sections": {
+          "topic": {
+            "title": "Pregunta / Tema",
+            "guidance": "La pregunta que te haces, formulada con la mayor claridad posible."
+          },
+          "key-passages": {
+            "title": "Pasajes clave",
+            "guidance": "Los pasajes que hablan de ello más directamente."
+          },
+          "biblical-context": {
+            "title": "Contexto bíblico",
+            "guidance": "Dónde y cómo aparece el tema a lo largo de la Biblia."
+          },
+          "main-themes": {
+            "title": "Temas principales",
+            "guidance": "Las líneas principales de enseñanza que surgen."
+          },
+          "difficult-passages": {
+            "title": "Pasajes difíciles",
+            "guidance": "Textos que parecen apuntar en otra dirección y cómo leerlos."
+          },
+          "theology": {
+            "title": "Teología",
+            "guidance": "Cómo encajan los pasajes en una enseñanza coherente."
+          },
+          "conclusions": {
+            "title": "Conclusiones",
+            "guidance": "Tus conclusiones, con los pasajes que las sostienen."
+          },
+          "application": {
+            "title": "Aplicación",
+            "guidance": "Lo que esto significa para la fe, la adoración y la vida."
+          }
+        }
+      },
+      "word-study": {
+        "name": "Estudio de palabra",
+        "description": "Una palabra seguida a través de la Escritura, desde sus usos hasta su significado y su peso.",
+        "sections": {
+          "word": {
+            "title": "Palabra",
+            "guidance": "La palabra que se estudia, su forma original y cómo la vierten las traducciones."
+          },
+          "occurrences": {
+            "title": "Apariciones",
+            "guidance": "Dónde aparece la palabra. (Las listas automáticas de apariciones llegarán con la concordancia.)"
+          },
+          "immediate-contexts": {
+            "title": "Contextos inmediatos",
+            "guidance": "Cómo cada uso importante está determinado por su oración y su párrafo."
+          },
+          "semantic-range": {
+            "title": "Campo semántico",
+            "guidance": "La gama de significados que tiene la palabra y qué permite decidir entre ellos."
+          },
+          "key-passages": {
+            "title": "Pasajes clave",
+            "guidance": "Los pasajes donde la palabra tiene más importancia."
+          },
+          "theological-significance": {
+            "title": "Importancia teológica",
+            "guidance": "Lo que la palabra aporta a la enseñanza de la Biblia."
+          },
+          "conclusions": {
+            "title": "Conclusiones",
+            "guidance": "Lo que has concluido y lo que sigue abierto."
+          }
+        }
+      }
+    },
+    "defaultSection": "Notas",
+    "copyTitle": "{{title}} (copia)"
+  },
+  "studyType": {
+    "passage": "Estudio de pasaje",
+    "word": "Estudio de palabra",
+    "topical": "Estudio temático",
+    "biblical_theology": "Estudio de teología bíblica",
+    "systematic_theology": "Estudio de teología sistemática",
+    "teaching": "Enseñanza / Sermón",
+    "custom": "Estudio personalizado"
+  },
+  "status": {
+    "active": "Activo",
+    "paused": "En pausa",
+    "completed": "Completado",
+    "archived": "Archivado"
+  },
+  "findingType": {
+    "observation": "Observación",
+    "interpretation": "Interpretación",
+    "question": "Pregunta",
+    "quotation": "Cita",
+    "doctrine": "Doctrina",
+    "application": "Aplicación",
+    "illustration": "Ilustración",
+    "teaching_idea": "Idea para la enseñanza",
+    "unresolved_issue": "Cuestión pendiente",
+    "conclusion": "Conclusión"
+  },
+  "findingTypePlural": {
+    "observation": "Observaciones",
+    "interpretation": "Interpretaciones",
+    "question": "Preguntas",
+    "quotation": "Citas",
+    "doctrine": "Doctrina",
+    "application": "Aplicaciones",
+    "illustration": "Ilustraciones",
+    "teaching_idea": "Ideas para la enseñanza",
+    "unresolved_issue": "Cuestiones pendientes",
+    "conclusion": "Conclusiones"
+  },
+  "findingTypeInline": {
+    "observation": "observación",
+    "interpretation": "interpretación",
+    "question": "pregunta",
+    "quotation": "cita",
+    "doctrine": "doctrina",
+    "application": "aplicación",
+    "illustration": "ilustración",
+    "teaching_idea": "idea para la enseñanza",
+    "unresolved_issue": "cuestión pendiente",
+    "conclusion": "conclusión"
+  },
+  "blockType": {
+    "paragraph": "Párrafo",
+    "note": "Nota",
+    "heading": "Encabezado",
+    "quotation": "Cita",
+    "question": "Pregunta"
+  },
+  "blockTypeInline": {
+    "paragraph": "párrafo",
+    "note": "nota",
+    "heading": "encabezado",
+    "quotation": "cita",
+    "question": "pregunta"
+  },
+  "relation": {
+    "outgoing": {
+      "related": "Relacionado con",
+      "continues": "Continúa",
+      "contrasts": "Contrasta con",
+      "supports": "Respalda",
+      "custom": "Vinculado con"
+    },
+    "incoming": {
+      "related": "Relacionado con",
+      "continues": "Continuado por",
+      "contrasts": "Contrasta con",
+      "supports": "Respaldado por",
+      "custom": "Vinculado desde"
+    },
+    "choice": {
+      "related": "está relacionado con",
+      "continues": "continúa",
+      "contrasts": "contrasta con",
+      "supports": "respalda",
+      "custom": "está vinculado con"
+    }
+  },
+  "keepIt": "Conservarlo",
+  "titleRequired": "Primero escribe un título.",
+  "titleRequiredOnBlur": "El título es obligatorio. Si sales del campo, se conserva el título anterior.",
+  "studyCount_one": "{{count}} estudio",
+  "studyCount_many": "{{count}} estudios",
+  "studyCount_other": "{{count}} estudios",
+  "findingCount_one": "{{count}} hallazgo",
+  "findingCount_many": "{{count}} hallazgos",
+  "findingCount_other": "{{count}} hallazgos",
+  "projects": {
+    "title": "Proyectos",
+    "intro": "Un proyecto reúne estudios relacionados: una serie de sermones, un curso de estudio bíblico o una doctrina.",
+    "newLabel": "Nuevo proyecto",
+    "newPlaceholder": "p. ej. Serie de sermones sobre Romanos",
+    "create": "Crear proyecto",
+    "loading": "Cargando proyectos…",
+    "empty": "Todavía no hay proyectos. Crea tu primer proyecto arriba.",
+    "listLabel": "Proyectos",
+    "allStudies": "Todos los estudios",
+    "project": "Proyecto",
+    "titleLabel": "Título del proyecto",
+    "studies": "Estudios",
+    "opening": "Abriendo el proyecto…",
+    "breadcrumb": "Ruta de navegación"
+  },
+  "newStudy": {
+    "heading": "Nuevo estudio",
+    "title": "Título",
+    "titlePlaceholder": "p. ej. Juan 15:1–11",
+    "type": "Tipo",
+    "template": "Plantilla",
+    "noTemplate": "Sin plantilla (una sección de Notas)",
+    "yourTemplate": "{{name}} (tuya)",
+    "passage": "Pasaje",
+    "optional": "(opcional)",
+    "passagePlaceholder": "p. ej. John 15:1-11",
+    "create": "Crear estudio"
+  },
+  "list": {
+    "filters": "Filtrar estudios",
+    "project": "Proyecto",
+    "allProjects": "Todos los proyectos",
+    "type": "Tipo",
+    "allTypes": "Todos los tipos",
+    "status": "Estado",
+    "anyStatus": "Cualquier estado",
+    "loading": "Cargando estudios…",
+    "noMatch": "Ningún estudio coincide con estos filtros.",
+    "empty": "Todavía no hay estudios aquí.",
+    "listLabel": "Estudios",
+    "changed": "modificado el {{date}}"
+  },
+  "header": {
+    "status": "Estado",
+    "template": "Plantilla: {{name}}",
+    "changed": "Modificado el {{date}}",
+    "duplicate": "Duplicar…",
+    "overview": "Resumen",
+    "noFindings": "Todavía no hay hallazgos",
+    "questionCount_one": "{{count}} pregunta",
+    "questionCount_many": "{{count}} preguntas",
+    "questionCount_other": "{{count}} preguntas",
+    "unresolvedCount_one": "{{count}} cuestión pendiente",
+    "unresolvedCount_many": "{{count}} cuestiones pendientes",
+    "unresolvedCount_other": "{{count}} cuestiones pendientes",
+    "duplicateGroup": "Duplicar este estudio",
+    "duplicatePrompt": "Hacer una copia de “{{title}}” en este proyecto:",
+    "structureOnly": "Solo la estructura",
+    "structureAndContent": "Estructura y contenido",
+    "duplicateHelp": "“Solo la estructura” copia las secciones. Con el contenido, también se copian tus textos, hallazgos y pasajes. Las notas sobre la Biblia nunca se duplican; pertenecen a los versículos.",
+    "purpose": "Propósito",
+    "purposePlaceholder": "¿Qué quieres entender o preparar?",
+    "details": "Detalles: {{type}}",
+    "detail": {
+      "lemma": {
+        "label": "Palabra",
+        "hint": "p. ej. δικαιοσύνη"
+      },
+      "originalLanguage": {
+        "label": "Idioma",
+        "hint": "p. ej. griego"
+      },
+      "audience": {
+        "label": "Público",
+        "hint": "p. ej. congregación del domingo"
+      },
+      "duration": {
+        "label": "Duración",
+        "hint": "p. ej. 30 minutos"
+      },
+      "teachingFormat": {
+        "label": "Formato",
+        "hint": "p. ej. sermón"
+      }
+    }
+  },
+  "editor": {
+    "opening": "Abriendo el estudio…",
+    "titleLabel": "Título del estudio",
+    "contents": "Contenido del estudio",
+    "findingsLink": "Hallazgos",
+    "findingsLinkCount": "Hallazgos ({{count}})",
+    "addSection": "Añadir sección",
+    "newSectionTitle": "Nueva sección",
+    "savedAutomatically": "Los cambios se guardan automáticamente.",
+    "allSaved": "Todos los cambios guardados."
+  },
+  "sections": {
+    "rename": "Cambiar el nombre de la sección {{title}}",
+    "renameTooltip": "Cambiar el nombre de la sección",
+    "moveUp": "Subir la sección {{title}}",
+    "moveDown": "Bajar la sección {{title}}",
+    "delete": "Eliminar la sección {{title}}",
+    "confirmLabel": "¿Eliminar la sección {{title}}?",
+    "confirm": "¿Eliminar “{{title}}” y el texto que contiene?",
+    "confirmWithFindings": "¿Eliminar “{{title}}” y el texto que contiene? Sus hallazgos se quedan en el estudio como hallazgos del estudio completo.",
+    "deleteSection": "Eliminar sección",
+    "addTo": "Añadir a {{title}}",
+    "titleLabel": "Título de la sección"
+  },
+  "blocks": {
+    "fieldLabel": "{{section}}: {{type}}",
+    "confirmDelete": "¿Eliminar este bloque ({{type}})?",
+    "deleteFailed": "No se pudo eliminar este bloque. Inténtalo de nuevo.",
+    "moveUp": "Subir el bloque ({{type}}) en {{section}}",
+    "moveDown": "Bajar el bloque ({{type}}) en {{section}}",
+    "delete": "Eliminar el bloque ({{type}}) en {{section}}",
+    "deleteTooltip": "Eliminar el bloque ({{type}})",
+    "add": "+ {{type}}",
+    "placeholder": "Escribe aquí…",
+    "passagesMentioned": "Pasajes mencionados:"
+  },
+  "findings": {
+    "heading": "Hallazgos",
+    "addGroup": "Añadir un hallazgo",
+    "add": "Añadir:",
+    "otherKind": "Otro tipo de hallazgo",
+    "more": "Más…",
+    "filterGroup": "Mostrar hallazgos",
+    "all": "Todos ({{count}})",
+    "filterType": "{{type}} ({{count}})",
+    "empty": "Todavía no hay hallazgos. Anota observaciones, preguntas y conclusiones mientras estudias; podrás encontrarlas más adelante.",
+    "listLabel": "Hallazgos",
+    "writeFirst": "Primero escribe el hallazgo.",
+    "type": "Tipo",
+    "in": "En",
+    "inLower": "en",
+    "wholeStudy": "Estudio completo",
+    "newLabel": "Nueva {{type}}",
+    "newPlaceholder": "Nueva {{type}}…",
+    "linkCurrent": "Vincular el pasaje actual ({{passage}})",
+    "save": "Guardar hallazgo",
+    "saveHint": "Ctrl+Intro guarda",
+    "itemLabel": "{{type}}: {{excerpt}}",
+    "typeLabel": "Tipo de hallazgo",
+    "section": "Sección",
+    "moveUp": "Subir {{type}}",
+    "moveDown": "Bajar {{type}}",
+    "delete": "Eliminar {{type}}",
+    "text": "Texto ({{type}})",
+    "unlink": "Desvincular {{passage}}",
+    "link": "+ Vincular {{passage}}",
+    "tags": "Etiquetas",
+    "tagsPlaceholder": "p. ej. pacto, sermón",
+    "confirmDelete": "¿Eliminar esta {{type}}?"
+  },
+  "passages": {
+    "label": "Pasajes",
+    "open": "Abrir en el panel de la Biblia",
+    "makePrimary": "Hacer principal",
+    "makePrimaryLabel": "Hacer de {{passage}} el pasaje principal",
+    "remove": "Quitar {{passage}} de este estudio",
+    "primary": "Principal",
+    "related": "Relacionado",
+    "addFirst": "Añade el pasaje del que trata este estudio",
+    "add": "Añadir pasaje",
+    "linkCurrent": "Vincular el pasaje actual ({{passage}})",
+    "inputLabel": "Pasaje que añadir",
+    "placeholder": "p. ej. John 15:1-11"
+  },
+  "relations": {
+    "label": "Estudios relacionados",
+    "remove": "Quitar el vínculo con {{title}}",
+    "add": "+ Vincular un estudio relacionado",
+    "addGroup": "Vincular un estudio relacionado",
+    "thisStudy": "Este estudio",
+    "relation": "Relación",
+    "target": "Estudio que vincular",
+    "choose": "Elige un estudio…",
+    "option": "{{title}} ({{project}})",
+    "link": "Vincular"
+  },
+  "search": {
+    "heading": "Estudios que coinciden con “{{query}}”",
+    "searching": "Buscando en tus estudios…",
+    "none": "No se encontró nada en tus estudios.",
+    "count_one": "{{count}} coincidencia.",
+    "count_many": "{{count}} coincidencias.",
+    "count_other": "{{count}} coincidencias.",
+    "results": "Resultados de la búsqueda en los estudios",
+    "location": {
+      "study": "Título o propósito",
+      "section": "Título de la sección",
+      "studyText": "Texto del estudio",
+      "finding": "Hallazgo",
+      "findingType": "Hallazgo: {{type}}"
+    }
+  },
+  "templates": {
+    "intro": "Una plantilla da a un estudio nuevo sus secciones. Cambiar una plantilla nunca modifica los estudios ya creados a partir de ella.",
+    "listLabel": "Plantillas de estudio",
+    "sectionCount_one": "{{count}} sección",
+    "sectionCount_many": "{{count}} secciones",
+    "sectionCount_other": "{{count}} secciones",
+    "builtIn": "Integrada",
+    "duplicateCustomise": "Duplicar y personalizar",
+    "edit": "Editar {{name}}",
+    "duplicate": "Duplicar {{name}}",
+    "delete": "Eliminar {{name}}",
+    "confirmLabel": "¿Eliminar {{name}}?",
+    "confirm": "¿Eliminar la plantilla “{{name}}”? Los estudios ya creados a partir de ella no se ven afectados.",
+    "deleteTemplate": "Eliminar plantilla",
+    "new": "Nueva plantilla…"
+  },
+  "templateEditor": {
+    "opening": "Abriendo la plantilla…",
+    "back": "Volver a la configuración",
+    "editTitle": "Editar plantilla",
+    "newTitle": "Nueva plantilla",
+    "name": "Nombre",
+    "description": "Descripción",
+    "meantFor": "Pensada para",
+    "sections": "Secciones",
+    "sectionsList": "Secciones de la plantilla",
+    "sectionTitle": "Título de la sección {{number}}",
+    "sectionGuidance": "Orientación de la sección {{number}}",
+    "guidancePlaceholder": "Orientación que se muestra bajo la sección (opcional)",
+    "untitledSection": "sección",
+    "moveUp": "Subir {{title}}",
+    "moveDown": "Bajar {{title}}",
+    "remove": "Quitar {{title}}",
+    "addSection": "Añadir sección",
+    "save": "Guardar plantilla"
+  }
+}

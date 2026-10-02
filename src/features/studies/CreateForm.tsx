@@ -1,4 +1,5 @@
 import { useId, useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
@@ -12,6 +13,7 @@ interface CreateFormProps {
 
 /** A one-field form for creating a titled record (project, study). */
 export function CreateForm({ label, placeholder, submitLabel, onCreate }: CreateFormProps) {
+  const { t } = useTranslation();
   const id = useId();
   const [title, setTitle] = useState("");
   const [busy, setBusy] = useState(false);
@@ -20,7 +22,7 @@ export function CreateForm({ label, placeholder, submitLabel, onCreate }: Create
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!title.trim()) {
-      setError("Please enter a title first.");
+      setError(t("studies.titleRequired"));
       return;
     }
     setBusy(true);

@@ -1,0 +1,590 @@
+{
+  "shortcuts": {
+    "newFinding": {
+      "keys": "Alt+N",
+      "action": "새 발견"
+    },
+    "newObservation": {
+      "keys": "Alt+O",
+      "action": "새 관찰"
+    },
+    "newQuestion": {
+      "keys": "Alt+Q",
+      "action": "새 질문"
+    },
+    "section": {
+      "keys": "Alt+↓ / Alt+↑",
+      "action": "다음 / 이전 섹션"
+    },
+    "goTo": {
+      "keys": "Alt+G",
+      "action": "성경 본문으로 이동"
+    },
+    "saveFinding": {
+      "keys": "Ctrl+Enter",
+      "action": "작성 중인 발견 저장"
+    }
+  },
+  "builtin": {
+    "templates": {
+      "biblical-theology-study": {
+        "name": "성경신학 연구",
+        "description": "하나의 주제를 약속에서 성취까지 성경 전체의 이야기 흐름을 따라 추적합니다.",
+        "sections": {
+          "theme": {
+            "title": "주제",
+            "guidance": "추적하는 주제와 그 주제가 중요한 이유."
+          },
+          "old-testament": {
+            "title": "구약",
+            "guidance": "주제가 어디에서 시작되며 율법서, 선지서, 성문서에서 어떻게 전개되는가."
+          },
+          "gospels": {
+            "title": "복음서",
+            "guidance": "복음서에서 이 주제가 어떻게 그리스도께 이르는가."
+          },
+          "epistles": {
+            "title": "서신서",
+            "guidance": "사도들이 이 주제를 어떻게 이어받아 적용하는가."
+          },
+          "canonical-development": {
+            "title": "정경 안에서의 전개",
+            "guidance": "정경 전체에 걸쳐 이 주제가 어떻게 자라고 변화하는가."
+          },
+          "fulfilment": {
+            "title": "성취 / 완성",
+            "guidance": "그리스도 안에서의 성취와 마지막 완성."
+          },
+          "synthesis": {
+            "title": "종합",
+            "guidance": "성경 전체가 보여 주는 그림을 몇 문장으로 정리합니다."
+          },
+          "teaching": {
+            "title": "가르침",
+            "guidance": "이 주제를 충실하고 분명하게 가르치는 방법."
+          }
+        }
+      },
+      "passage-study": {
+        "name": "본문 연구",
+        "description": "한 본문을 깊이 연구하여 본문 자체에서 가르침까지 나아갑니다.",
+        "sections": {
+          "text": {
+            "title": "본문",
+            "guidance": "연구하는 본문과 번역에 관한 참고 사항."
+          },
+          "context": {
+            "title": "문맥",
+            "guidance": "본문의 자리: 책 전체, 앞뒤의 논지, 역사적 배경."
+          },
+          "observations": {
+            "title": "관찰",
+            "guidance": "본문은 무엇을 말하는가? 반복되는 단어, 접속어, 대조, 명령, 질문."
+          },
+          "structure": {
+            "title": "구조",
+            "guidance": "본문의 짜임새: 흐름, 주요 문장, 전환점."
+          },
+          "exegesis": {
+            "title": "주해",
+            "guidance": "본문은 처음 독자들에게 무엇을 의미했는가? 핵심 단어, 문법, 어려운 표현."
+          },
+          "theology": {
+            "title": "신학",
+            "guidance": "본문이 하나님, 그리스도, 구원, 믿음의 삶에 관해 가르치는 것."
+          },
+          "application": {
+            "title": "적용",
+            "guidance": "본문의 진리가 오늘의 믿음과 예배와 삶에 어떻게 닿는가."
+          },
+          "audience": {
+            "title": "청중",
+            "guidance": "이 가르침을 들을 사람은 누구이며, 무엇이 필요하고, 무엇이 걸림돌이 될 수 있는가."
+          },
+          "teaching": {
+            "title": "가르침",
+            "guidance": "중심 생각, 개요, 예화, 그리고 사랑으로 전하는 방법."
+          }
+        }
+      },
+      "systematic-theology-study": {
+        "name": "조직신학 연구",
+        "description": "하나의 교리를 성경, 교회의 증언, 여러 견해를 통해 연구합니다.",
+        "sections": {
+          "doctrine": {
+            "title": "교리",
+            "guidance": "연구하는 교리를 쉽고 분명하게 진술합니다."
+          },
+          "key-texts": {
+            "title": "핵심 성경 본문",
+            "guidance": "이 교리의 근거가 되는 본문."
+          },
+          "biblical-synthesis": {
+            "title": "성경적 종합",
+            "guidance": "이 본문들이 함께 가르치는 것."
+          },
+          "historical-theology": {
+            "title": "역사신학",
+            "guidance": "교회가 역사 속에서 이 교리를 어떻게 이해해 왔는가."
+          },
+          "confessional-witness": {
+            "title": "신조와 신앙고백",
+            "guidance": "신조와 신앙고백이 말하는 것."
+          },
+          "alternative-positions": {
+            "title": "다른 견해",
+            "guidance": "다른 견해들과 그 근거를 공정하게 정리합니다."
+          },
+          "conclusions": {
+            "title": "결론",
+            "guidance": "나의 결론과 그것을 얼마나 확신하는지."
+          },
+          "application": {
+            "title": "적용",
+            "guidance": "이 교리가 믿음과 삶에 중요한 이유."
+          }
+        }
+      },
+      "teaching-study": {
+        "name": "가르침 / 설교 준비",
+        "description": "본문에서 출발하여 실제 청중을 위한 설교나 강의를 준비합니다.",
+        "sections": {
+          "text": {
+            "title": "본문",
+            "guidance": "가르칠 본문."
+          },
+          "main-idea": {
+            "title": "중심 생각",
+            "guidance": "본문이 말하는 가장 중요한 한 가지를 한 문장으로."
+          },
+          "exegesis": {
+            "title": "주해",
+            "guidance": "본문이 처음 독자들에게 의미했던 것."
+          },
+          "theology": {
+            "title": "신학",
+            "guidance": "본문이 하나님과 그분의 길에 관해 가르치는 것."
+          },
+          "purpose": {
+            "title": "목적",
+            "guidance": "본문이 듣는 이들 안에서 이루고자 하는 것."
+          },
+          "audience": {
+            "title": "청중",
+            "guidance": "누가 듣게 되며, 그들에게 무엇이 필요한가."
+          },
+          "structure": {
+            "title": "구조",
+            "guidance": "가르침이 처음부터 끝까지 어떻게 진행될 것인가."
+          },
+          "illustrations": {
+            "title": "예화",
+            "guidance": "본문을 섬기는 그림과 예."
+          },
+          "application": {
+            "title": "적용",
+            "guidance": "구체적이고 알맞은 적용."
+          },
+          "teaching-outline": {
+            "title": "가르침 개요",
+            "guidance": "실제로 가르칠 때 사용할 개요."
+          }
+        }
+      },
+      "topical-study": {
+        "name": "주제 연구",
+        "description": "하나의 질문이나 주제를 성경 전체에 걸쳐 살펴봅니다.",
+        "sections": {
+          "topic": {
+            "title": "질문 / 주제",
+            "guidance": "묻고자 하는 질문을 가능한 한 분명하게 적습니다."
+          },
+          "key-passages": {
+            "title": "핵심 본문",
+            "guidance": "이 질문에 가장 직접적으로 답하는 본문."
+          },
+          "biblical-context": {
+            "title": "성경적 배경",
+            "guidance": "이 주제가 성경 곳곳에서 어디에, 어떻게 나타나는가."
+          },
+          "main-themes": {
+            "title": "주요 주제",
+            "guidance": "드러나는 가르침의 주요 흐름."
+          },
+          "difficult-passages": {
+            "title": "어려운 본문",
+            "guidance": "다른 방향을 가리키는 것처럼 보이는 본문과 그 본문을 읽는 방법."
+          },
+          "theology": {
+            "title": "신학",
+            "guidance": "본문들이 어떻게 하나의 일관된 가르침으로 모이는가."
+          },
+          "conclusions": {
+            "title": "결론",
+            "guidance": "나의 결론과 그 근거가 되는 본문."
+          },
+          "application": {
+            "title": "적용",
+            "guidance": "이것이 믿음과 예배와 삶에 주는 의미."
+          }
+        }
+      },
+      "word-study": {
+        "name": "단어 연구",
+        "description": "한 단어를 성경 전체에서 추적하여 쓰임새에서 의미와 무게까지 살펴봅니다.",
+        "sections": {
+          "word": {
+            "title": "단어",
+            "guidance": "연구하는 단어, 원어 형태, 그리고 번역본들이 옮긴 방식."
+          },
+          "occurrences": {
+            "title": "용례",
+            "guidance": "단어가 나오는 곳. (용례 목록 자동 생성은 성구 사전 기능과 함께 제공될 예정입니다.)"
+          },
+          "immediate-contexts": {
+            "title": "가까운 문맥",
+            "guidance": "중요한 각 용례가 그 문장과 단락 안에서 어떤 의미를 띠는가."
+          },
+          "semantic-range": {
+            "title": "의미 범위",
+            "guidance": "단어가 지닌 의미의 범위와, 그중 어느 의미인지 결정하는 요인."
+          },
+          "key-passages": {
+            "title": "핵심 본문",
+            "guidance": "이 단어가 가장 중요하게 쓰이는 본문."
+          },
+          "theological-significance": {
+            "title": "신학적 의미",
+            "guidance": "이 단어가 성경의 가르침에 더하는 것."
+          },
+          "conclusions": {
+            "title": "결론",
+            "guidance": "내가 내린 결론과 아직 열려 있는 질문."
+          }
+        }
+      }
+    },
+    "defaultSection": "메모",
+    "copyTitle": "{{title}} (사본)"
+  },
+  "studyType": {
+    "passage": "본문 연구",
+    "word": "단어 연구",
+    "topical": "주제 연구",
+    "biblical_theology": "성경신학 연구",
+    "systematic_theology": "조직신학 연구",
+    "teaching": "가르침 / 설교",
+    "custom": "사용자 지정 연구"
+  },
+  "status": {
+    "active": "진행 중",
+    "paused": "일시 중지",
+    "completed": "완료",
+    "archived": "보관됨"
+  },
+  "findingType": {
+    "observation": "관찰",
+    "interpretation": "해석",
+    "question": "질문",
+    "quotation": "인용",
+    "doctrine": "교리",
+    "application": "적용",
+    "illustration": "예화",
+    "teaching_idea": "가르침 아이디어",
+    "unresolved_issue": "미해결 문제",
+    "conclusion": "결론"
+  },
+  "findingTypePlural": {
+    "observation": "관찰",
+    "interpretation": "해석",
+    "question": "질문",
+    "quotation": "인용",
+    "doctrine": "교리",
+    "application": "적용",
+    "illustration": "예화",
+    "teaching_idea": "가르침 아이디어",
+    "unresolved_issue": "미해결 문제",
+    "conclusion": "결론"
+  },
+  "findingTypeInline": {
+    "observation": "관찰",
+    "interpretation": "해석",
+    "question": "질문",
+    "quotation": "인용",
+    "doctrine": "교리",
+    "application": "적용",
+    "illustration": "예화",
+    "teaching_idea": "가르침 아이디어",
+    "unresolved_issue": "미해결 문제",
+    "conclusion": "결론"
+  },
+  "blockType": {
+    "paragraph": "단락",
+    "note": "메모",
+    "heading": "제목",
+    "quotation": "인용",
+    "question": "질문"
+  },
+  "blockTypeInline": {
+    "paragraph": "단락",
+    "note": "메모",
+    "heading": "제목",
+    "quotation": "인용",
+    "question": "질문"
+  },
+  "relation": {
+    "outgoing": {
+      "related": "관련 연구",
+      "continues": "이전 연구",
+      "contrasts": "대조되는 연구",
+      "supports": "뒷받침하는 대상",
+      "custom": "연결 대상"
+    },
+    "incoming": {
+      "related": "관련 연구",
+      "continues": "후속 연구",
+      "contrasts": "대조되는 연구",
+      "supports": "뒷받침하는 연구",
+      "custom": "연결한 연구"
+    },
+    "choice": {
+      "related": "다음 연구와 관련됨",
+      "continues": "다음 연구를 이어 감",
+      "contrasts": "다음 연구와 대조됨",
+      "supports": "다음 연구를 뒷받침함",
+      "custom": "다음 연구와 연결됨"
+    }
+  },
+  "keepIt": "유지",
+  "titleRequired": "먼저 제목을 입력하세요.",
+  "titleRequiredOnBlur": "제목은 꼭 필요합니다. 입력란을 벗어나면 이전 제목이 유지됩니다.",
+  "studyCount_other": "연구 {{count}}개",
+  "findingCount_other": "발견 {{count}}개",
+  "projects": {
+    "title": "프로젝트",
+    "intro": "프로젝트는 서로 관련된 연구를 한데 모읍니다. 설교 시리즈, 성경 공부 과정, 교리 하나를 묶을 수 있습니다.",
+    "newLabel": "새 프로젝트",
+    "newPlaceholder": "예: 로마서 설교 시리즈",
+    "create": "프로젝트 만들기",
+    "loading": "프로젝트를 불러오는 중…",
+    "empty": "아직 프로젝트가 없습니다. 위에서 첫 프로젝트를 만드세요.",
+    "listLabel": "프로젝트",
+    "allStudies": "모든 연구",
+    "project": "프로젝트",
+    "titleLabel": "프로젝트 제목",
+    "studies": "연구",
+    "opening": "프로젝트를 여는 중…",
+    "breadcrumb": "현재 위치"
+  },
+  "newStudy": {
+    "heading": "새 연구",
+    "title": "제목",
+    "titlePlaceholder": "예: 요한복음 15:1–11",
+    "type": "종류",
+    "template": "템플릿",
+    "noTemplate": "템플릿 없음(메모 섹션 하나)",
+    "yourTemplate": "{{name}} (내 템플릿)",
+    "passage": "본문",
+    "optional": "(선택 사항)",
+    "passagePlaceholder": "예: John 15:1-11",
+    "create": "연구 만들기"
+  },
+  "list": {
+    "filters": "연구 필터",
+    "project": "프로젝트",
+    "allProjects": "모든 프로젝트",
+    "type": "종류",
+    "allTypes": "모든 종류",
+    "status": "상태",
+    "anyStatus": "모든 상태",
+    "loading": "연구를 불러오는 중…",
+    "noMatch": "이 조건에 맞는 연구가 없습니다.",
+    "empty": "아직 연구가 없습니다.",
+    "listLabel": "연구",
+    "changed": "{{date}} 수정"
+  },
+  "header": {
+    "status": "상태",
+    "template": "템플릿: {{name}}",
+    "changed": "{{date}} 수정",
+    "duplicate": "복제…",
+    "overview": "개요",
+    "noFindings": "아직 발견이 없습니다",
+    "questionCount_other": "질문 {{count}}개",
+    "unresolvedCount_other": "미해결 문제 {{count}}개",
+    "duplicateGroup": "이 연구 복제",
+    "duplicatePrompt": "이 프로젝트에 “{{title}}”의 사본을 만듭니다.",
+    "structureOnly": "구조만",
+    "structureAndContent": "구조와 내용",
+    "duplicateHelp": "‘구조만’은 섹션만 복사합니다. ‘구조와 내용’을 선택하면 작성한 글, 발견, 본문도 함께 복사됩니다. 성경 구절에 단 메모는 해당 절에 속하므로 복제되지 않습니다.",
+    "purpose": "목적",
+    "purposePlaceholder": "무엇을 이해하거나 준비하려고 하나요?",
+    "details": "{{type}} 세부 정보",
+    "detail": {
+      "lemma": {
+        "label": "단어",
+        "hint": "예: δικαιοσύνη"
+      },
+      "originalLanguage": {
+        "label": "언어",
+        "hint": "예: 헬라어"
+      },
+      "audience": {
+        "label": "청중",
+        "hint": "예: 주일 예배 회중"
+      },
+      "duration": {
+        "label": "길이",
+        "hint": "예: 30분"
+      },
+      "teachingFormat": {
+        "label": "형식",
+        "hint": "예: 설교"
+      }
+    }
+  },
+  "editor": {
+    "opening": "연구를 여는 중…",
+    "titleLabel": "연구 제목",
+    "contents": "연구 내용",
+    "findingsLink": "발견",
+    "findingsLinkCount": "발견 ({{count}})",
+    "addSection": "섹션 추가",
+    "newSectionTitle": "새 섹션",
+    "savedAutomatically": "변경 사항은 자동으로 저장됩니다.",
+    "allSaved": "모든 변경 사항을 저장했습니다."
+  },
+  "sections": {
+    "rename": "{{title}} 섹션 이름 바꾸기",
+    "renameTooltip": "섹션 이름 바꾸기",
+    "moveUp": "{{title}} 섹션을 위로 이동",
+    "moveDown": "{{title}} 섹션을 아래로 이동",
+    "delete": "{{title}} 섹션 삭제",
+    "confirmLabel": "{{title}} 섹션을 삭제할까요?",
+    "confirm": "“{{title}}” 섹션과 그 안의 글을 삭제할까요?",
+    "confirmWithFindings": "“{{title}}” 섹션과 그 안의 글을 삭제할까요? 이 섹션의 발견은 연구 전체에 대한 발견으로 연구에 남습니다.",
+    "deleteSection": "섹션 삭제",
+    "addTo": "{{title}}에 추가",
+    "titleLabel": "섹션 제목"
+  },
+  "blocks": {
+    "fieldLabel": "{{section}}: {{type}}",
+    "confirmDelete": "이 {{type}} 블록을 삭제할까요?",
+    "deleteFailed": "이 블록을 삭제하지 못했습니다. 다시 시도해 주세요.",
+    "moveUp": "{{section}}에서 {{type}} 블록을 위로 이동",
+    "moveDown": "{{section}}에서 {{type}} 블록을 아래로 이동",
+    "delete": "{{section}}의 {{type}} 블록 삭제",
+    "deleteTooltip": "{{type}} 블록 삭제",
+    "add": "+ {{type}}",
+    "placeholder": "여기에 작성하세요…",
+    "passagesMentioned": "언급된 본문:"
+  },
+  "findings": {
+    "heading": "발견",
+    "addGroup": "발견 추가",
+    "add": "추가:",
+    "otherKind": "다른 종류의 발견",
+    "more": "더 보기…",
+    "filterGroup": "발견 표시",
+    "all": "전체 ({{count}})",
+    "filterType": "{{type}} ({{count}})",
+    "empty": "아직 발견이 없습니다. 연구하면서 관찰, 질문, 결론을 기록해 두면 나중에도 쉽게 찾을 수 있습니다.",
+    "listLabel": "발견",
+    "writeFirst": "먼저 발견 내용을 작성하세요.",
+    "type": "종류",
+    "in": "위치",
+    "inLower": "위치",
+    "wholeStudy": "연구 전체",
+    "newLabel": "새 {{type}}",
+    "newPlaceholder": "새 {{type}}…",
+    "linkCurrent": "현재 본문 연결({{passage}})",
+    "save": "발견 저장",
+    "saveHint": "Ctrl+Enter로 저장",
+    "itemLabel": "{{type}}: {{excerpt}}",
+    "typeLabel": "발견 종류",
+    "section": "섹션",
+    "moveUp": "{{type}} 위로 이동",
+    "moveDown": "{{type}} 아래로 이동",
+    "delete": "{{type}} 삭제",
+    "text": "{{type}} 내용",
+    "unlink": "{{passage}} 연결 해제",
+    "link": "+ {{passage}} 연결",
+    "tags": "태그",
+    "tagsPlaceholder": "예: 언약, 설교",
+    "confirmDelete": "이 {{type}} 항목을 삭제할까요?"
+  },
+  "passages": {
+    "label": "본문",
+    "open": "성경 창에서 열기",
+    "makePrimary": "주 본문으로 지정",
+    "makePrimaryLabel": "{{passage}}을(를) 주 본문으로 지정",
+    "remove": "이 연구에서 {{passage}} 제거",
+    "primary": "주 본문",
+    "related": "관련 본문",
+    "addFirst": "이 연구의 본문을 추가하세요",
+    "add": "본문 추가",
+    "linkCurrent": "현재 본문 연결({{passage}})",
+    "inputLabel": "추가할 본문",
+    "placeholder": "예: John 15:1-11"
+  },
+  "relations": {
+    "label": "관련 연구",
+    "remove": "{{title}}과(와)의 연결 제거",
+    "add": "+ 관련 연구 연결",
+    "addGroup": "관련 연구 연결",
+    "thisStudy": "이 연구는",
+    "relation": "관계",
+    "target": "연결할 연구",
+    "choose": "연구 선택…",
+    "option": "{{title}} ({{project}})",
+    "link": "연결"
+  },
+  "search": {
+    "heading": "“{{query}}”와 일치하는 연구",
+    "searching": "연구를 검색하는 중…",
+    "none": "연구에서 찾은 내용이 없습니다.",
+    "count_other": "{{count}}건 일치",
+    "results": "연구 검색 결과",
+    "location": {
+      "study": "제목 또는 목적",
+      "section": "섹션 제목",
+      "studyText": "연구 본문",
+      "finding": "발견",
+      "findingType": "발견: {{type}}"
+    }
+  },
+  "templates": {
+    "intro": "템플릿은 새 연구에 섹션을 제공합니다. 템플릿을 바꿔도 이미 그 템플릿으로 만든 연구는 바뀌지 않습니다.",
+    "listLabel": "연구 템플릿",
+    "sectionCount_other": "섹션 {{count}}개",
+    "builtIn": "기본 제공",
+    "duplicateCustomise": "복제하여 사용자 지정",
+    "edit": "{{name}} 편집",
+    "duplicate": "{{name}} 복제",
+    "delete": "{{name}} 삭제",
+    "confirmLabel": "{{name}}을(를) 삭제할까요?",
+    "confirm": "“{{name}}” 템플릿을 삭제할까요? 이미 이 템플릿으로 만든 연구에는 영향이 없습니다.",
+    "deleteTemplate": "템플릿 삭제",
+    "new": "새 템플릿…"
+  },
+  "templateEditor": {
+    "opening": "템플릿을 여는 중…",
+    "back": "설정으로 돌아가기",
+    "editTitle": "템플릿 편집",
+    "newTitle": "새 템플릿",
+    "name": "이름",
+    "description": "설명",
+    "meantFor": "용도",
+    "sections": "섹션",
+    "sectionsList": "템플릿 섹션",
+    "sectionTitle": "섹션 {{number}} 제목",
+    "sectionGuidance": "섹션 {{number}} 안내",
+    "guidancePlaceholder": "섹션 아래에 표시할 안내(선택 사항)",
+    "untitledSection": "섹션",
+    "moveUp": "{{title}} 위로 이동",
+    "moveDown": "{{title}} 아래로 이동",
+    "remove": "{{title}} 제거",
+    "addSection": "섹션 추가",
+    "save": "템플릿 저장"
+  }
+}

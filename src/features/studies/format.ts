@@ -1,10 +1,8 @@
-const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
+import type { TFunction } from "i18next";
 
-export function formatDate(iso: string): string {
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime()) ? "" : dateFormat.format(date);
-}
+// Dates follow the interface language; kept here for existing imports.
+export { formatDate } from "@/i18n/format";
 
-export function studyCountLabel(count: number): string {
-  return count === 1 ? "1 study" : `${count} studies`;
+export function studyCountLabel(t: TFunction, count: number): string {
+  return t("studies.studyCount", { count });
 }

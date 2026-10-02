@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
@@ -10,7 +11,8 @@ import { useApi } from "@/lib/ApiContext";
 import type { StudySection } from "@/types/domain";
 import { EditableTitle } from "./EditableTitle";
 import { FindingsPanel, type FindingsPanelHandle } from "./FindingsPanel";
-import { STUDY_TYPE_LABELS } from "./labels";
+import { sectionTitle } from "./builtinText";
+import { studyTypeLabel } from "./labels";
 import { RelatedStudies } from "./RelatedStudies";
 import { SectionEditor } from "./SectionEditor";
 import { StudyHeader } from "./StudyHeader";
@@ -27,6 +29,7 @@ interface StudyEditorProps {
 }
 
 export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, onRevealScripture }: StudyEditorProps) {
+  const { t } = useTranslation();
   const api = useApi();
   const { goTo } = useScripture();
   const detail = useLoad(useCallback(() => api.studyGet(studyId), [api, studyId]));
@@ -83,7 +86,7 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
 
   if (missing) return null;
   if (detail.error) return <Notice tone="error">{detail.error.message}</Notice>;
-  if (!detail.data) return <p className="text-text-muted">Opening study…</p>;
+  if (!detail.data) return <p className="text-text-muted">{t("studies.editor.opening")}</p>;
 
   const { study } = detail.data;
   const current = detail.data;
@@ -108,7 +111,7 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   const addSection = async () => {
     setError(null);
     try {
-      await api.studySectionCreate({ studyId: study.id, title: "New section" });
+      await api.studySectionCreate({ studyId: study.id, title: t("studies.editor.newSectionTitle") });
       detail.reload();
     } catch (e) {
       setError(toApiError(e).message);
@@ -118,8 +121,8 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   return (
     <article className="flex flex-col gap-6">
       <header id="study-overview" className="scroll-mt-4 flex flex-col gap-3">
-        <p className="caps-label m-0">{STUDY_TYPE_LABELS[study.studyType]}</p>
-        <EditableTitle key={study.id} label="Study title" value={study.title} onSave={rename} />
+        <p className="caps-label m-0">{studyTypeLabel(t, study.studyType)}</p>
+        <EditableTitle key={study.id} label={t("studies.editor.titleLabel")} value={study.title} onSave={rename} />
         <StudyHeader
           study={study}
           findings={findings.data ?? []}
@@ -130,17 +133,19 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
         <StudyPassages studyId={study.id} onReveal={onRevealScripture} />
         <RelatedStudies studyId={study.id} onOpen={onOpenStudy} />
         <SaveStatusLine />
-        <nav aria-label="Study contents">
+        <nav aria-label={t("studies.editor.contents")}>
           <ul className="m-0 flex list-none flex-wrap gap-x-4 gap-y-1 p-0 text-[0.9375rem]">
             <li>
               <a href="#study-findings" className="font-medium text-link underline-offset-4 hover:underline">
-                Findings{findings.data && findings.data.length > 0 ? ` (${findings.data.length})` : ""}
+                {findings.data && findings.data.length > 0
+                  ? t("studies.editor.findingsLinkCount", { count: findings.data.length })
+                  : t("studies.editor.findingsLink")}
               </a>
             </li>
             {sections.map((section) => (
               <li key={section.id}>
                 <a href={`#section-anchor-${section.id}`} className="text-link underline-offset-4 hover:underline">
-                  {section.title}
+                  {sectionTitle(section)}
                 </a>
               </li>
             ))}
@@ -177,7 +182,7 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
       <div className="border-t border-border-subtle pt-4">
         <Button onClick={addSection}>
           <Plus className="size-4" aria-hidden="true" />
-          Add section
+          {t("studies.editor.addSection")}
         </Button>
       </div>
       {error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{error}</p>}
@@ -186,11 +191,12 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
 }
 
 function SaveStatusLine() {
+  const { t } = useTranslation();
   const { status } = useSaveTracker();
   const text = {
-    idle: "Changes are saved automatically.",
-    saving: "Saving…",
-    saved: "All changes saved.",
+    idle: t("studies.editor.savedAutomatically"),
+    saving: t("common.saving"),
+    saved: t("studies.editor.allSaved"),
     error: status.state === "error" ? status.message : "",
   }[status.state];
   return (

@@ -1,7 +1,9 @@
 import { useCallback, useId, useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Plus, X } from "lucide-react";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 import { useLoad } from "@/hooks/useLoad";
+import { referenceLabel } from "@/i18n/scripture";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import type { StudyPassage } from "@/types/scripture";
@@ -12,6 +14,7 @@ import type { StudyPassage } from "@/types/scripture";
  * passage opens it in the Scripture pane.
  */
 export function StudyPassages({ studyId, onReveal }: { studyId: string; onReveal: () => void }) {
+  const { t } = useTranslation();
   const api = useApi();
   const { goTo, currentPassage } = useScripture();
   const passages = useLoad(useCallback(() => api.studyPassageList(studyId), [api, studyId]));
@@ -49,7 +52,9 @@ export function StudyPassages({ studyId, onReveal }: { studyId: string; onReveal
   const related = list.filter((p) => p.role === "related");
   const linked = currentPassage && list.some((p) => p.reference.canonical === currentPassage.canonical);
 
-  const chip = (passage: StudyPassage) => (
+  const chip = (passage: StudyPassage) => {
+    const label = referenceLabel(passage.reference);
+    return (
     <span key={passage.id} className="inline-flex items-center rounded-aw border border-border">
       <button
         type="button"
@@ -57,43 +62,44 @@ export function StudyPassages({ studyId, onReveal }: { studyId: string; onReveal
           goTo(passage.reference);
           onReveal();
         }}
-        title="Open in the Scripture pane"
+        title={t("studies.passages.open")}
         className="inline-flex min-h-9 items-center px-3 text-[0.9375rem] font-medium text-link hover:bg-bg-secondary"
       >
-        {passage.reference.display}
+        {label}
       </button>
       {passage.role === "related" && (
         <button
           type="button"
           onClick={() => act(() => api.studyPassageSetRole({ id: passage.id, role: "primary" }))}
           className="min-h-9 border-l border-border px-2 text-[0.8125rem] text-text-muted hover:bg-bg-secondary"
-          aria-label={`Make ${passage.reference.display} the primary passage`}
+          aria-label={t("studies.passages.makePrimaryLabel", { passage: label })}
         >
-          Make primary
+          {t("studies.passages.makePrimary")}
         </button>
       )}
       <button
         type="button"
         onClick={() => act(() => api.studyPassageRemove(passage.id))}
-        aria-label={`Remove ${passage.reference.display} from this study`}
+        aria-label={t("studies.passages.remove", { passage: label })}
         className="inline-flex size-9 items-center justify-center border-l border-border text-text-muted hover:bg-bg-secondary"
       >
         <X className="size-4" aria-hidden="true" />
       </button>
     </span>
-  );
+    );
+  };
 
   return (
-    <section aria-label="Passages" className="flex flex-col gap-2">
+    <section aria-label={t("studies.passages.label")} className="flex flex-col gap-2">
       {primary && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="w-20 text-[0.875rem] font-medium text-text-muted">Primary</span>
+          <span className="w-20 text-[0.875rem] font-medium text-text-muted">{t("studies.passages.primary")}</span>
           {chip(primary)}
         </div>
       )}
       {related.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="w-20 text-[0.875rem] font-medium text-text-muted">Related</span>
+          <span className="w-20 text-[0.875rem] font-medium text-text-muted">{t("studies.passages.related")}</span>
           {related.map(chip)}
         </div>
       )}
@@ -105,7 +111,7 @@ export function StudyPassages({ studyId, onReveal }: { studyId: string; onReveal
             className="inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
           >
             <Plus className="size-4" aria-hidden="true" />
-            {list.length === 0 ? "Add the passage this study is about" : "Add passage"}
+            {list.length === 0 ? t("studies.passages.addFirst") : t("studies.passages.add")}
           </button>
         )}
         {currentPassage && !linked && (
@@ -115,27 +121,27 @@ export function StudyPassages({ studyId, onReveal }: { studyId: string; onReveal
             className="inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
           >
             <Plus className="size-4" aria-hidden="true" />
-            Link current passage ({currentPassage.display})
+            {t("studies.passages.linkCurrent", { passage: referenceLabel(currentPassage) })}
           </button>
         )}
       </div>
       {adding && (
         <form onSubmit={add} className="flex flex-wrap items-center gap-2" noValidate>
-          <label htmlFor={`${id}-passage`} className="sr-only">Passage to add</label>
+          <label htmlFor={`${id}-passage`} className="sr-only">{t("studies.passages.inputLabel")}</label>
           <input
             id={`${id}-passage`}
             autoFocus
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => e.key === "Escape" && setAdding(false)}
-            placeholder="e.g. John 15:1-11"
+            placeholder={t("studies.passages.placeholder")}
             className="h-9 min-w-0 flex-1 basis-48 rounded-aw border border-border bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted"
           />
           <button type="submit" className="h-9 rounded-aw bg-primary px-3 text-[0.9375rem] font-medium text-on-primary hover:bg-primary-hover">
-            Add
+            {t("common.add")}
           </button>
           <button type="button" onClick={() => setAdding(false)} className="h-9 rounded-aw border border-border px-3 text-[0.9375rem]">
-            Cancel
+            {t("common.cancel")}
           </button>
         </form>
       )}
