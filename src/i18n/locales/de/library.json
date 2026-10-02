@@ -1,0 +1,126 @@
+{
+  "addToLibrary": "Zur Bibliothek hinzufügen",
+  "addToLibraryEllipsis": "Zur Bibliothek hinzufügen …",
+  "sourceType": {
+    "book": "Buch",
+    "article": "Artikel",
+    "notes": "Notizen",
+    "sermon": "Predigt",
+    "lecture": "Vortrag",
+    "document": "Dokument"
+  },
+  "format": {
+    "pdf": "PDF",
+    "epub": "EPUB",
+    "markdown": "Markdown",
+    "text": "Reiner Text"
+  },
+  "licence": {
+    "private": "Eigene Kopie – nicht zur Weitergabe",
+    "distributable": "Darf weitergegeben werden",
+    "unknown": "Lizenz unbekannt"
+  },
+  "locator": {
+    "page": "S. {{page}}"
+  },
+  "quoted": "„{{text}}“",
+  "view": {
+    "backToWorkspace": "Zurück zum Arbeitsbereich",
+    "title": "Bibliothek",
+    "intro": "Ihre eigenen Bücher, Notizen und Dokumente, gespeichert auf diesem Computer. Jedes Suchergebnis zeigt genau, woher es stammt.",
+    "addedOn": "hinzugefügt am {{date}}"
+  },
+  "search": {
+    "heading": "Bibliothek durchsuchen",
+    "label": "Bibliothek durchsuchen",
+    "placeholder": "Wörter oder „genauer Wortlaut“",
+    "nothingFound": "In Ihrer Bibliothek wurde nichts gefunden.",
+    "resultCount_one": "{{number}} Fundstelle gefunden.",
+    "resultCount_other": "{{number}} Fundstellen gefunden.",
+    "resultCountMore_one": "{{number}}+ Fundstelle gefunden.",
+    "resultCountMore_other": "{{number}}+ Fundstellen gefunden.",
+    "resultsLabel": "Suchergebnisse in der Bibliothek",
+    "showMore": "Weitere Ergebnisse anzeigen"
+  },
+  "filter": {
+    "heading": "Alle Quellen",
+    "label": "Quellen filtern",
+    "type": "Art",
+    "allTypes": "Alle Arten",
+    "language": "Sprache",
+    "allLanguages": "Alle Sprachen",
+    "noMatch": "Keine Quellen entsprechen diesen Filtern.",
+    "empty": "Ihre Bibliothek ist noch leer. Fügen Sie eine PDF-, EPUB-, Markdown- oder Textdatei hinzu.",
+    "listLabel": "Quellen"
+  },
+  "remove": {
+    "button": "Entfernen …",
+    "label": "{{title}} entfernen",
+    "dialogLabel": "{{title}} entfernen?",
+    "message": "<strong>{{title}}</strong> aus Ihrer Bibliothek entfernen? Der Text und die Kopie der Datei, die Abiding Word angelegt hat, werden gelöscht; Ihre Originaldatei bleibt unberührt. Erkenntnisse, die diese Quelle anführen, behalten einen Vermerk der Quellenangabe.",
+    "confirm": "Aus der Bibliothek entfernen",
+    "keep": "Behalten"
+  },
+  "add": {
+    "title": "Zur Bibliothek hinzufügen",
+    "reading": "Die Datei wird gelesen und ihr Text ermittelt …",
+    "intro": "Wählen Sie eine PDF-, EPUB-, Markdown- (.md) oder Textdatei (.txt). Abiding Word legt eine eigene Kopie in Ihrer Bibliothek an und verändert Ihre Datei nie. Eingescannte PDFs können noch nicht gelesen werden.",
+    "choose": "Datei auswählen …",
+    "whatFound": "Gefundener Inhalt",
+    "extracted": "Text erfolgreich ausgelesen",
+    "references_one": "{{number}} Bibelstellenangabe erkannt",
+    "references_other": "{{number}} Bibelstellenangaben erkannt",
+    "duplicate": "Diese Datei ist bereits als <strong>{{title}}</strong> in Ihrer Bibliothek.",
+    "addCopy": "Trotzdem eine zweite Kopie hinzufügen",
+    "adding": "Wird hinzugefügt …"
+  },
+  "size": {
+    "pages_one": "{{number}} Seite",
+    "pages_other": "{{number}} Seiten",
+    "chapters_one": "{{number}} Kapitel",
+    "chapters_other": "{{number}} Kapitel",
+    "sections_one": "{{number}} Teil",
+    "sections_other": "{{number}} Teile",
+    "paragraphs_one": "{{number}} Absatz",
+    "paragraphs_other": "{{number}} Absätze"
+  },
+  "metadata": {
+    "title": "Titel",
+    "author": "Autor/in",
+    "language": "Sprache",
+    "languagePlaceholder": "z. B. Deutsch, English",
+    "kind": "Art",
+    "sharing": "Weitergabe",
+    "isbn": "ISBN {{isbn}}",
+    "fromFile": "aus „{{fileName}}“"
+  },
+  "reader": {
+    "showEarlier": "Früheren Text anzeigen",
+    "showMore": "Weiteren Text anzeigen",
+    "backToSources": "Zurück zu den Quellen",
+    "openFull": "Im großen Leser öffnen",
+    "openFullTitle": "Diese Quelle in voller Breite lesen",
+    "pageMarker": "Seite {{page}}"
+  },
+  "pane": {
+    "libraryHeading": "Ihre Bibliothek",
+    "empty": "Noch keine Quellen. Fügen Sie Bücher, Artikel und eigene Notizen hinzu (PDF, EPUB, Markdown oder Text); sie bleiben auf diesem Computer.",
+    "mentioning": "Quellen, die {{passage}} erwähnen",
+    "noMentions": "Keine Ihrer Quellen erwähnt diese Bibelstelle.",
+    "recent": "Zuletzt hinzugefügt",
+    "openLibrary": "Bibliothek öffnen"
+  },
+  "citations": {
+    "removed": "(aus der Bibliothek entfernt)",
+    "openTitle": "Diese Quelle an der angegebenen Stelle öffnen",
+    "removeLabel": "Quellenangabe {{citation}} entfernen",
+    "add": "+ Quelle hinzufügen",
+    "pickerLabel": "Quelle hinzufügen",
+    "searchLabel": "In Ihrer Bibliothek nach der anzuführenden Textstelle suchen",
+    "searchPlaceholder": "In Ihrer Bibliothek nach der anzuführenden Textstelle suchen",
+    "replaceQuote": "Auch den Text dieses Zitats durch die angeführte Textstelle ersetzen",
+    "useQuote": "Die angeführte Textstelle auch als Text dieses Zitats verwenden",
+    "listLabel": "Textstellen zum Anführen",
+    "cite": "{{citation}} anführen"
+  }
+}

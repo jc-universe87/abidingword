@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, Maximize2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
+import { formatNumber } from "@/i18n/format";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import type { SegmentWindow, SourceSegment } from "@/types/library";
-import { FORMAT_LABELS, LICENCE_LABELS, SOURCE_TYPE_LABELS } from "./labels";
+import { formatLabel, licenceLabel, locatorLabel, sourceTypeLabel } from "./labels";
 
 interface SourceReaderProps {
   sourceId: string;
@@ -28,6 +30,7 @@ interface SourceReaderProps {
  * Markdown). Opens at an exact segment and loads more around it on demand.
  */
 export function SourceReader({ sourceId, segmentId, onClose, variant = "page", onExpand }: SourceReaderProps) {
+  const { t } = useTranslation();
   const api = useApi();
   const id = useId();
   const source = useLoad(useCallback(() => api.libraryGetSource(sourceId), [api, sourceId]));
@@ -95,14 +98,27 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
           </Title>
           {s.author && <p className="reading m-0">{s.author}</p>}
           <p className="m-0 text-[0.9375rem] text-text-muted">
-            {[SOURCE_TYPE_LABELS[s.sourceType], s.format ? FORMAT_LABELS[s.format] : null, s.pageCount ? `${s.pageCount} pages` : null, s.language, s.publisher, s.isbn ? `ISBN ${s.isbn}` : null].filter(Boolean).join(" · ")}
+            {[
+              sourceTypeLabel(t, s.sourceType),
+              s.format ? formatLabel(t, s.format) : null,
+              s.pageCount ? t("library.size.pages", { count: s.pageCount, number: formatNumber(s.pageCount) }) : null,
+              s.language,
+              s.publisher,
+              s.isbn ? t("library.metadata.isbn", { isbn: s.isbn }) : null,
+            ]
+              .filter(Boolean)
+              .join(t("common.listSeparator"))}
           </p>
-          <p className="m-0 text-[0.9375rem] text-text-muted">{LICENCE_LABELS[s.licenceStatus]}{s.originalFilename ? ` · from “${s.originalFilename}”` : ""}</p>
+          <p className="m-0 text-[0.9375rem] text-text-muted">
+            {[licenceLabel(t, s.licenceStatus), s.originalFilename ? t("library.metadata.fromFile", { fileName: s.originalFilename }) : null]
+              .filter(Boolean)
+              .join(t("common.listSeparator"))}
+          </p>
         </header>
       )}
       {window && (
         <div className="flex flex-col gap-3">
-          {window.offset > 0 && <Button className="self-start" onClick={() => more("earlier")}>Show earlier text</Button>}
+          {window.offset > 0 && <Button className="self-start" onClick={() => more("earlier")}>{t("library.reader.showEarlier")}</Button>}
           <div className="reading flex flex-col gap-3">
             {window.segments.map((segment, index) => (
               <SegmentView
@@ -115,7 +131,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
             ))}
           </div>
           {window.offset + window.segments.length < window.total && (
-            <Button className="self-start" onClick={() => more("later")}>Show more text</Button>
+            <Button className="self-start" onClick={() => more("later")}>{t("library.reader.showMore")}</Button>
           )}
         </div>
       )}
@@ -127,11 +143,11 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       <section aria-labelledby={`${id}-title`} className="flex min-h-0 flex-1 flex-col">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtle px-3 py-2">
           <Button variant="quiet" onClick={onClose}>
-            <ArrowLeft className="size-4" aria-hidden="true" /> Back to Sources
+            <ArrowLeft className="size-4" aria-hidden="true" /> {t("library.reader.backToSources")}
           </Button>
           {onExpand && (
-            <Button variant="quiet" onClick={onExpand} title="Read this source at full width">
-              <Maximize2 className="size-4" aria-hidden="true" /> Open full reader
+            <Button variant="quiet" onClick={onExpand} title={t("library.reader.openFullTitle")}>
+              <Maximize2 className="size-4" aria-hidden="true" /> {t("library.reader.openFull")}
             </Button>
           )}
         </div>
@@ -146,7 +162,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     <main aria-labelledby={`${id}-title`} className="min-h-0 flex-1 overflow-y-auto bg-bg">
       <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-8">
         <Button variant="quiet" className="self-start" onClick={onClose}>
-          <ArrowLeft className="size-4" aria-hidden="true" /> Back
+          <ArrowLeft className="size-4" aria-hidden="true" /> {t("common.back")}
         </Button>
         {body}
       </div>
@@ -155,13 +171,15 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
 }
 
 function SegmentView({ segment, previous, isTarget, targetRef }: { segment: SourceSegment; previous?: SourceSegment; isTarget: boolean; targetRef?: React.MutableRefObject<HTMLElement | null> }) {
+  const { t } = useTranslation();
+  const page = segment.pageLabel ?? segment.pageNumber;
   const newPage = segment.pageNumber !== null && segment.pageNumber !== previous?.pageNumber;
   const newSection = segment.pageNumber === null && segment.sectionPath && segment.sectionPath !== previous?.sectionPath;
   return (
     <>
       {newPage && (
-        <p className="m-0 mt-2 border-t border-border-subtle pt-2 font-ui text-[0.875rem] font-medium text-text-muted" aria-label={`Page ${segment.pageLabel ?? segment.pageNumber}`}>
-          p. {segment.pageLabel ?? segment.pageNumber}
+        <p className="m-0 mt-2 border-t border-border-subtle pt-2 font-ui text-[0.875rem] font-medium text-text-muted" aria-label={t("library.reader.pageMarker", { page: String(page) })}>
+          {locatorLabel(t, segment.locator, page)}
         </p>
       )}
       {newSection && <p className="m-0 mt-3 font-display text-[1.125rem] font-heading text-text-strong">{segment.sectionPath}</p>}

@@ -101,7 +101,7 @@ describe("Library", () => {
     await user.click(await within(sourcesPane()).findByRole("button", { name: "Add to library…" }));
     await chooseFile(user, api, "/home/test/scanned-commentary.pdf");
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "This PDF appears to contain scanned pages. OCR support is not available yet.",
+      "This PDF appears to contain scanned pages. OCR support is not available yet, so its text cannot be added.",
     );
     expect(screen.getByRole("button", { name: "Add to library" })).toBeDisabled();
   });
