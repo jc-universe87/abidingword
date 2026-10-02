@@ -5,6 +5,7 @@ import { useLoad } from "@/hooks/useLoad";
 import { useApi } from "@/lib/ApiContext";
 import { bookLabel, contains } from "@/lib/scripture";
 import type { Annotation, BibleTranslation, VerseText } from "@/types/scripture";
+import { SELECTION_SPIKE, SelectionSpike } from "./SelectionSpike";
 import { useScripture } from "./ScriptureContext";
 import { VerseTools } from "./VerseTools";
 
@@ -19,7 +20,9 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
       [api, translation.id, book, chapter],
     ),
   );
-  const notes = useLoad(useCallback(() => api.annotationList(`${book}.${chapter}`), [api, book, chapter]));
+  const notes = useLoad(
+    useCallback(() => api.annotationList(`${book}.${chapter}`, translation.id), [api, book, chapter, translation.id]),
+  );
   const selected =
     selectedVerse && selectedVerse.book === book && selectedVerse.startChapter === chapter
       ? selectedVerse.startVerse
@@ -75,6 +78,7 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
           ))}
         </div>
       )}
+      {SELECTION_SPIKE && data.verses.length > 0 && <SelectionSpike root={container} translationId={translation.id} />}
     </div>
   );
 }
@@ -104,13 +108,14 @@ function Verse({ verse, annotations, current, selected, onSelect, onChanged }: V
           onClick={onSelect}
           aria-pressed={selected}
           aria-label={`Verse ${verse.verse}${noted.length ? ", has a note" : ""}${bookmarked ? ", bookmarked" : ""}${highlighted ? ", highlighted" : ""}. Show verse tools`}
-          className="mr-1.5 inline-flex min-w-6 items-baseline justify-center rounded px-0.5 align-baseline font-ui text-[0.8125rem] font-semibold text-text-muted hover:text-text-strong"
+          className="mr-1.5 inline-flex min-w-6 select-none items-baseline justify-center rounded px-0.5 align-baseline font-ui text-[0.8125rem] font-semibold text-text-muted hover:text-text-strong"
         >
           {verse.verse}
         </button>
-        {verse.text}
+        {/* Only this element holds Scripture text: selections are measured in it. */}
+        <span data-verse-text={verse.canonical}>{verse.text}</span>
         {(bookmarked || noted.length > 0) && (
-          <span className="ml-1.5 inline-flex gap-1 align-middle text-accent" aria-hidden="true">
+          <span className="ml-1.5 inline-flex select-none gap-1 align-middle text-accent" aria-hidden="true">
             {bookmarked && <Bookmark className="size-3.5" />}
             {noted.length > 0 && <StickyNote className="size-3.5" />}
           </span>
