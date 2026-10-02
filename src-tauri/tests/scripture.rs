@@ -153,7 +153,7 @@ fn a_valid_fixture_imports_with_a_clear_preview() {
     let missing = preview
         .issues
         .iter()
-        .find(|i| i.code.as_deref() == Some("bibleImport.missingChapters"))
+        .find(|i| i.code.as_deref() == Some("bibleImport.missingChapters") && i.book == Some("JHN"))
         .expect("coded issue");
     assert_eq!(missing.params["bookCode"], "JHN");
     assert_eq!(missing.params["found"], "3");
