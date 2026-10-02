@@ -113,6 +113,8 @@ export interface AppInfo {
   databasePath: string | null;
   logDirectory: string | null;
   schemaVersion: number | null;
+  /** True only in builds made by the test-update workflow (docs/updates.md). */
+  updatesEnabled: boolean;
 }
 
 // Command inputs

@@ -7,6 +7,7 @@ import type { AppInfo, Theme } from "@/types/domain";
 import { STUDY_SHORTCUTS } from "@/features/studies/useStudyShortcuts";
 import { BibleTexts } from "./BibleTexts";
 import { StudyTemplates } from "./StudyTemplates";
+import { UpdateSettings } from "@/features/updates/UpdateSettings";
 import { LanguageChoice } from "./LanguageChoice";
 import { useTheme } from "./ThemeContext";
 
@@ -73,6 +74,10 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
             ))}
           </dl>
           <p className="mt-3 mb-0 text-[0.9375rem] text-text-muted">{t("settings.shortcutsHint")}</p>
+        </Section>
+
+        <Section id="updates" title={t("app.updates.title")}>
+          <UpdateSettings />
         </Section>
 
         <Section id="about-this-installation" title={t("settings.sections.about")}>

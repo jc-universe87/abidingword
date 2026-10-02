@@ -14,12 +14,13 @@ import "./i18n";
 
 import { App } from "./app/App";
 import { tauriApi } from "./lib/api";
+import { createTauriUpdater } from "./lib/updater";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Missing #root element");
 
 createRoot(root).render(
   <StrictMode>
-    <App api={tauriApi} />
+    <App api={tauriApi} updater={createTauriUpdater()} />
   </StrictMode>,
 );
