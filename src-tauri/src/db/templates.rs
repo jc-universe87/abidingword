@@ -14,7 +14,7 @@ use crate::domain::validate::{self, DESCRIPTION_MAX_CHARS};
 use crate::domain::{
     StudyTemplate, StudyType, TemplateDefinition, TemplateInput, TemplateSection, UpdateTemplate,
 };
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 
 pub const DEFAULT_TEMPLATE_KEY: &str = "passage-study";
 
@@ -171,14 +171,19 @@ fn validated(input: &TemplateInput) -> AppResult<(String, Option<String>, Vec<Te
         "description",
     )?;
     if input.sections.is_empty() {
-        return Err(AppError::InvalidInput(
-            "A template needs at least one section.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "templates.noSections",
+            "A template needs at least one section.",
+        )));
     }
     if input.sections.len() > MAX_SECTIONS {
-        return Err(AppError::InvalidInput(format!(
-            "A template can have at most {MAX_SECTIONS} sections."
-        )));
+        return Err(AppError::InvalidInput(
+            UserMessage::new(
+                "templates.tooManySections",
+                format!("A template can have at most {MAX_SECTIONS} sections."),
+            )
+            .with("max", MAX_SECTIONS),
+        ));
     }
     let sections = input
         .sections
@@ -221,9 +226,10 @@ pub fn create(conn: &Connection, input: &TemplateInput) -> AppResult<StudyTempla
 fn require_user_template(conn: &Connection, id: &str) -> AppResult<StudyTemplate> {
     let template = get(conn, id)?;
     if template.is_builtin {
-        return Err(AppError::Conflict(
-            "Built-in templates can’t be changed. Duplicate it to make your own version.".into(),
-        ));
+        return Err(AppError::Conflict(UserMessage::new(
+            "templates.builtinReadOnly",
+            "Built-in templates can’t be changed. Duplicate it to make your own version.",
+        )));
     }
     Ok(template)
 }

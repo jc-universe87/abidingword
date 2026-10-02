@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
@@ -6,13 +7,14 @@ import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { highlighted } from "@/lib/highlight";
-import { formatDate } from "@/features/studies/format";
+import { formatDate, formatNumber } from "@/i18n/format";
 import { SOURCE_TYPES, type LibraryResults, type SourceType } from "@/types/library";
-import { FORMAT_LABELS, SOURCE_TYPE_LABELS } from "./labels";
+import { formatLabel, locatorLabel, sourceTypeLabel } from "./labels";
 import { useLibraryNav } from "./LibraryNav";
 
 /** The library: every source, filters, full-text search, add and remove. */
 export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { initialQuery?: string; onSearched?: (query: string) => void; onClose: () => void; onRemoved?: (sourceId: string) => void }) {
+  const { t } = useTranslation();
   const api = useApi();
   const { openSource, addSource } = useLibraryNav();
   const id = useId();
@@ -78,42 +80,45 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
       <div className="mx-auto flex max-w-[52rem] flex-col gap-8 px-8 pb-24 pt-8">
         <div className="flex flex-col items-start gap-4">
           <Button variant="quiet" onClick={onClose}>
-            <ArrowLeft className="size-4" aria-hidden="true" /> Back to workspace
+            <ArrowLeft className="size-4" aria-hidden="true" /> {t("library.view.backToWorkspace")}
           </Button>
           <div className="flex w-full flex-wrap items-end justify-between gap-3">
             <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
-              Library
+              {t("library.view.title")}
             </h1>
             <Button variant="primary" onClick={addSource}>
-              <Plus className="size-4" aria-hidden="true" /> Add to library…
+              <Plus className="size-4" aria-hidden="true" /> {t("library.addToLibraryEllipsis")}
             </Button>
           </div>
-          <p className="m-0 text-text-muted">
-            Your own books, notes and documents, stored on this computer. Every search result shows exactly where it comes from.
-          </p>
+          <p className="m-0 text-text-muted">{t("library.view.intro")}</p>
         </div>
 
         <section aria-labelledby={`${id}-search`} className="flex flex-col gap-3">
-          <h2 id={`${id}-search`} className="m-0 text-[1.125rem] font-semibold text-text-strong">Search the library</h2>
+          <h2 id={`${id}-search`} className="m-0 text-[1.125rem] font-semibold text-text-strong">{t("library.search.heading")}</h2>
           <form onSubmit={submit} className="flex gap-2" noValidate role="search">
-            <label htmlFor={`${id}-q`} className="sr-only">Search the library</label>
-            <input id={`${id}-q`} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Words or “exact phrase”" className="h-10 min-w-0 flex-1 rounded-aw border border-border bg-bg px-3" />
-            <Button type="submit">Search</Button>
+            <label htmlFor={`${id}-q`} className="sr-only">{t("library.search.label")}</label>
+            <input id={`${id}-q`} value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("library.search.placeholder")} className="h-10 min-w-0 flex-1 rounded-aw border border-border bg-bg px-3" />
+            <Button type="submit">{t("common.search")}</Button>
           </form>
           {searchError && <Notice tone="error">{searchError}</Notice>}
           {results && (
             <>
               <p role="status" className="m-0 text-[0.9375rem] text-text-muted">
-                {results.hits.length === 0 ? "Nothing found in your library." : `${results.hits.length}${results.hasMore ? "+" : ""} passage${results.hits.length === 1 ? "" : "s"} found.`}
+                {results.hits.length === 0
+                  ? t("library.search.nothingFound")
+                  : t(results.hasMore ? "library.search.resultCountMore" : "library.search.resultCount", {
+                      count: results.hits.length,
+                      number: formatNumber(results.hits.length),
+                    })}
               </p>
-              <ol aria-label="Library search results" className="m-0 flex list-none flex-col p-0">
+              <ol aria-label={t("library.search.resultsLabel")} className="m-0 flex list-none flex-col p-0">
                 {results.hits.map((hit) => (
                   <li key={hit.segmentId} className="border-t border-border-subtle">
                     <button type="button" onClick={() => openSource(hit.sourceId, hit.segmentId)} className="flex w-full flex-col items-start gap-1 px-1 py-3 text-left hover:bg-bg-secondary">
                       <span className="font-semibold text-text-strong">
                         {hit.author ? `${hit.author}, ` : ""}
                         <cite className="not-italic">{hit.sourceTitle}</cite>
-                        {hit.locator && <span className="font-normal text-text-muted"> · {hit.locator}</span>}
+                        {hit.locator && <span className="font-normal text-text-muted">{t("common.listSeparator")}{locatorLabel(t, hit.locator)}</span>}
                       </span>
                       <span className="reading text-[1rem]">{highlighted(hit.snippet)}</span>
                     </button>
@@ -122,7 +127,7 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
               </ol>
               {results.hasMore && (
                 <div>
-                  <Button onClick={() => search(query, results.hits.length)}>Show more results</Button>
+                  <Button onClick={() => search(query, results.hits.length)}>{t("library.search.showMore")}</Button>
                 </div>
               )}
             </>
@@ -130,19 +135,19 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
         </section>
 
         <section aria-labelledby={`${id}-all`} className="flex flex-col gap-3">
-          <h2 id={`${id}-all`} className="m-0 text-[1.125rem] font-semibold text-text-strong">All sources</h2>
-          <div role="group" aria-label="Filter sources" className="flex flex-wrap gap-x-4 gap-y-2 text-[0.9375rem]">
+          <h2 id={`${id}-all`} className="m-0 text-[1.125rem] font-semibold text-text-strong">{t("library.filter.heading")}</h2>
+          <div role="group" aria-label={t("library.filter.label")} className="flex flex-wrap gap-x-4 gap-y-2 text-[0.9375rem]">
             <label className="flex items-center gap-2">
-              Type
+              {t("library.filter.type")}
               <select value={sourceType} onChange={(e) => setSourceType(e.target.value as SourceType | "")} className={select}>
-                <option value="">All types</option>
-                {SOURCE_TYPES.map((t) => <option key={t} value={t}>{SOURCE_TYPE_LABELS[t]}</option>)}
+                <option value="">{t("library.filter.allTypes")}</option>
+                {SOURCE_TYPES.map((type) => <option key={type} value={type}>{sourceTypeLabel(t, type)}</option>)}
               </select>
             </label>
             <label className="flex items-center gap-2">
-              Language
+              {t("library.filter.language")}
               <select value={language} onChange={(e) => setLanguage(e.target.value)} className={select}>
-                <option value="">All languages</option>
+                <option value="">{t("library.filter.allLanguages")}</option>
                 {(languages.data ?? []).map((l) => <option key={l} value={l}>{l}</option>)}
               </select>
             </label>
@@ -150,31 +155,37 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
           {sources.error && <Notice tone="error">{sources.error.message}</Notice>}
           {error && <Notice tone="error">{error}</Notice>}
           {sources.data?.length === 0 && (
-            <p className="m-0 text-text-muted">{sourceType || language ? "No sources match these filters." : "Nothing in your library yet. Add a PDF, EPUB, Markdown or text file."}</p>
+            <p className="m-0 text-text-muted">{sourceType || language ? t("library.filter.noMatch") : t("library.filter.empty")}</p>
           )}
           {sources.data && sources.data.length > 0 && (
-            <ul aria-label="Sources" className="m-0 list-none border-t border-border-subtle p-0">
+            <ul aria-label={t("library.filter.listLabel")} className="m-0 list-none border-t border-border-subtle p-0">
               {sources.data.map((s) => (
                 <li key={s.id} className="flex flex-col gap-2 border-b border-border-subtle py-3">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <button type="button" onClick={() => openSource(s.id)} className="min-w-0 text-left">
                       <span className="block font-display text-[1.25rem] font-heading text-text-strong hover:underline">{s.title}</span>
                       <span className="block text-[0.9375rem] text-text-muted">
-                        {[s.author, SOURCE_TYPE_LABELS[s.sourceType], s.format ? FORMAT_LABELS[s.format] : null, s.language].filter(Boolean).join(" · ")}
-                        {" · added "}{formatDate(s.createdAt)}
+                        {[
+                          s.author,
+                          sourceTypeLabel(t, s.sourceType),
+                          s.format ? formatLabel(t, s.format) : null,
+                          s.language,
+                          t("library.view.addedOn", { date: formatDate(s.createdAt) }),
+                        ]
+                          .filter(Boolean)
+                          .join(t("common.listSeparator"))}
                       </span>
                     </button>
-                    <Button variant="quiet" onClick={() => setConfirming(s.id)} aria-label={`Remove ${s.title}`}>Remove…</Button>
+                    <Button variant="quiet" onClick={() => setConfirming(s.id)} aria-label={t("library.remove.label", { title: s.title })}>{t("library.remove.button")}</Button>
                   </div>
                   {confirming === s.id && (
-                    <div role="alertdialog" aria-label={`Remove ${s.title}?`} className="flex flex-col gap-3 border-l-[3px] border-danger bg-bg-secondary px-4 py-3">
+                    <div role="alertdialog" aria-label={t("library.remove.dialogLabel", { title: s.title })} className="flex flex-col gap-3 border-l-[3px] border-danger bg-bg-secondary px-4 py-3">
                       <p className="m-0">
-                        Remove <strong>{s.title}</strong> from your library? Its text and Abiding Word’s copy of the file are
-                        deleted; your original file is not touched. Findings that cite it keep a record of the citation.
+                        <Trans i18nKey="library.remove.message" values={{ title: s.title }} components={{ strong: <strong /> }} />
                       </p>
                       <div className="flex gap-2">
-                        <Button variant="primary" onClick={() => remove(s.id)}>Remove from library</Button>
-                        <Button autoFocus onClick={() => setConfirming(null)}>Keep it</Button>
+                        <Button variant="primary" onClick={() => remove(s.id)}>{t("library.remove.confirm")}</Button>
+                        <Button autoFocus onClick={() => setConfirming(null)}>{t("library.remove.keep")}</Button>
                       </div>
                     </div>
                   )}

@@ -182,12 +182,13 @@ development machine.
   workflow artifacts, kept 14 days: `Abiding-Word-Windows-x64` (`.msi`,
   setup `.exe`) and `Abiding-Word-Linux-x64` (`.deb`, `.rpm`, `.AppImage`).
   It runs on pushes to `main`, on tags, and when started by hand:
-  GitHub → Actions → Native builds → Run workflow → choose the branch
-  (tick *selection spike* to include the v0.5 selection-check panel). A
-  push whose commit message contains `[native-build]` also builds that
-  branch. Download the artifact from the finished run's page. Windows
-  SmartScreen warns about these unsigned installers ("More info → Run
-  anyway"). Artifacts are for testing; annotated tags mark releases.
+  GitHub → Actions → Native builds → Run workflow → choose the branch.
+  The optional *selection_spike* input sets `VITE_SELECTION_SPIKE=1` for a
+  development check panel on branches that have one; normal builds never
+  set it. A push whose commit message contains `[native-build]` also
+  builds that branch. Download the artifact from the finished run's page.
+  Windows SmartScreen warns about these unsigned installers ("More info →
+  Run anyway"). Artifacts are for testing; annotated tags mark releases.
 - **Platform testing.** CI does not replace trying the real app. The
   Windows laptop is the main place for native interface testing; the
   Chromebook (Linux, WebKitGTK) for Linux-specific acceptance checks.
@@ -204,15 +205,18 @@ pass; no unreviewed work directly on `main`; no force-pushing or history
 rewriting unless explicitly authorised; no credentials or tokens in the
 repository. Native acceptance still happens on real target systems.
 
-### Interface languages
+### Interface languages (i18n)
 
-Every user-facing or accessibility-facing text (labels, headings,
-messages, placeholders, `aria-label`s, colour names…) must be translatable,
-in English, German, Korean, French, Spanish and Portuguese (`en`, `de`,
-`ko`, `fr`, `es`, `pt`). **Not in place yet:** the interface currently has
-English text written directly in the components and no translation
-framework. An i18n foundation comes before further major interface work;
-new code must not add more hard-coded text than it has to until then.
+The interface is available in English, German, Korean, French, Spanish and
+Portuguese (`en`, `de`, `ko`, `fr`, `es`, `pt`), chosen in Settings →
+Language (by default the system language, else English). **All new
+user-facing text must go through i18n** — visible labels, headings,
+buttons, tooltips, dialogs, notices, empty states, user-visible errors,
+placeholders, `aria-label`s and other accessibility text, and colour names
+shown to users — in all six languages. `npm run i18n:check` (also in CI)
+checks that the languages stay aligned and that components contain no
+hard-coded text. How it works, the terminology guide and how to add a
+string: [`docs/i18n.md`](docs/i18n.md).
 
 ### Keeping development data separate
 

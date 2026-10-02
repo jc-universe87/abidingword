@@ -1,15 +1,19 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { AlertTriangle, ArrowLeft, Check } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
+import { formatNumber } from "@/i18n/format";
+import { localizeMessage } from "@/i18n/messages";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { LICENCE_STATUSES, SOURCE_TYPES, type LicenceStatus, type SourceImportPreview, type SourceType } from "@/types/library";
-import { FORMAT_LABELS, LICENCE_LABELS, SOURCE_TYPE_LABELS } from "./labels";
+import { formatLabel, licenceLabel, sourceTypeLabel } from "./labels";
 import { useLibraryNav } from "./LibraryNav";
 
 /** Add to library: choose a file → check → review → add. */
 export function AddSourceView({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation();
   const api = useApi();
   const { openSource } = useLibraryNav();
   const id = useId();
@@ -43,21 +47,18 @@ export function AddSourceView({ onClose }: { onClose: () => void }) {
       <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-8">
         <div className="flex flex-col items-start gap-4">
           <Button variant="quiet" onClick={cancel} disabled={checking}>
-            <ArrowLeft className="size-4" aria-hidden="true" /> Back
+            <ArrowLeft className="size-4" aria-hidden="true" /> {t("common.back")}
           </Button>
           <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
-            Add to library
+            {t("library.add.title")}
           </h1>
         </div>
         {error && <Notice tone="error">{error}</Notice>}
-        {checking && <p role="status" className="m-0 text-text-muted">Reading the file and finding its text…</p>}
+        {checking && <p role="status" className="m-0 text-text-muted">{t("library.add.reading")}</p>}
         {!preview && !checking && (
           <div className="flex flex-col items-start gap-3">
-            <p className="m-0 text-text-muted">
-              Choose a PDF, EPUB, Markdown (.md) or text (.txt) file. Abiding Word keeps its own copy in your library and never
-              changes your file. Scanned PDFs cannot be read yet.
-            </p>
-            <Button variant="primary" onClick={choose}>Choose a file…</Button>
+            <p className="m-0 text-text-muted">{t("library.add.intro")}</p>
+            <Button variant="primary" onClick={choose}>{t("library.add.choose")}</Button>
           </div>
         )}
         {preview && (
@@ -74,6 +75,7 @@ export function AddSourceView({ onClose }: { onClose: () => void }) {
 }
 
 function Review({ preview, onCancel, onAdded, onError }: { preview: SourceImportPreview; onCancel: () => void; onAdded: (id: string) => void; onError: (m: string | null) => void }) {
+  const { t } = useTranslation();
   const api = useApi();
   const [title, setTitle] = useState(preview.suggestedTitle);
   const [author, setAuthor] = useState(preview.suggestedAuthor ?? "");
@@ -106,54 +108,58 @@ function Review({ preview, onCancel, onAdded, onError }: { preview: SourceImport
     }
   };
 
+  const sized = (key: "pages" | "chapters" | "sections" | "paragraphs", count: number) =>
+    t(`library.size.${key}`, { count, number: formatNumber(count) });
   const size =
     preview.pageCount !== null
-      ? `${preview.pageCount} page${preview.pageCount === 1 ? "" : "s"}`
+      ? sized("pages", preview.pageCount)
       : preview.chapterCount
         ? // EPUB counts chapters; Markdown counts its main headings.
-          `${preview.chapterCount} ${preview.format === "epub" ? "chapter" : "section"}${preview.chapterCount === 1 ? "" : "s"}`
-        : `${preview.segmentCount} paragraph${preview.segmentCount === 1 ? "" : "s"}`;
+          sized(preview.format === "epub" ? "chapters" : "sections", preview.chapterCount)
+        : sized("paragraphs", preview.segmentCount);
   const field = "h-10 rounded-aw border border-border bg-bg px-3 text-base";
 
   return (
     <div className="flex flex-col gap-6">
-      <section aria-label="What was found" className="flex flex-col gap-1">
+      <section aria-label={t("library.add.whatFound")} className="flex flex-col gap-1">
         <p className="reading m-0 text-[1.25rem] font-semibold">{title || preview.fileName}</p>
         {author && <p className="reading m-0">{author}</p>}
-        <p className="m-0 mt-2">{FORMAT_LABELS[preview.format]} · {size}</p>
+        <p className="m-0 mt-2">{[formatLabel(t, preview.format), size].join(t("common.listSeparator"))}</p>
         {preview.canImport ? (
-          <p className="m-0 flex items-center gap-2"><Check className="size-4" aria-hidden="true" /> Text extracted successfully</p>
+          <p className="m-0 flex items-center gap-2"><Check className="size-4" aria-hidden="true" /> {t("library.add.extracted")}</p>
         ) : (
-          <p role="alert" className="m-0 flex items-start gap-2 text-danger"><AlertTriangle className="mt-1 size-4 shrink-0" aria-hidden="true" /> {preview.problem}</p>
+          <p role="alert" className="m-0 flex items-start gap-2 text-danger"><AlertTriangle className="mt-1 size-4 shrink-0" aria-hidden="true" /> {localizeMessage(preview.problemCode, undefined, preview.problem ?? "")}</p>
         )}
         {preview.canImport && (
-          <p className="m-0">{preview.referenceCount} Bible reference{preview.referenceCount === 1 ? "" : "s"} detected</p>
+          <p className="m-0">{t("library.add.references", { count: preview.referenceCount, number: formatNumber(preview.referenceCount) })}</p>
         )}
       </section>
 
       {preview.duplicateOf && (
         <div role="alert" className="flex flex-col gap-2 border-l-[3px] border-accent bg-bg-secondary px-4 py-3">
-          <p className="m-0">This file is already in your library as <strong>{preview.duplicateOf.title}</strong>.</p>
+          <p className="m-0">
+            <Trans i18nKey="library.add.duplicate" values={{ title: preview.duplicateOf.title }} components={{ strong: <strong /> }} />
+          </p>
           <label className="flex items-center gap-2 text-[0.9375rem]">
             <input type="checkbox" checked={allowDuplicate} onChange={(e) => setAllowDuplicate(e.target.checked)} className="size-4 accent-[var(--aw-primary)]" />
-            Add a second copy anyway
+            {t("library.add.addCopy")}
           </label>
         </div>
       )}
 
       {preview.canImport && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <label className="flex flex-col gap-1 sm:col-span-2"><span className="font-medium text-text-strong">Title</span><input value={title} onChange={(e) => setTitle(e.target.value)} className={field} /></label>
-          <label className="flex flex-col gap-1"><span className="font-medium text-text-strong">Author</span><input value={author} onChange={(e) => setAuthor(e.target.value)} className={field} /></label>
-          <label className="flex flex-col gap-1"><span className="font-medium text-text-strong">Language</span><input value={language} onChange={(e) => setLanguage(e.target.value)} placeholder="e.g. English, Deutsch" className={field} /></label>
-          <label className="flex flex-col gap-1"><span className="font-medium text-text-strong">Kind</span>
+          <label className="flex flex-col gap-1 sm:col-span-2"><span className="font-medium text-text-strong">{t("library.metadata.title")}</span><input value={title} onChange={(e) => setTitle(e.target.value)} className={field} /></label>
+          <label className="flex flex-col gap-1"><span className="font-medium text-text-strong">{t("library.metadata.author")}</span><input value={author} onChange={(e) => setAuthor(e.target.value)} className={field} /></label>
+          <label className="flex flex-col gap-1"><span className="font-medium text-text-strong">{t("library.metadata.language")}</span><input value={language} onChange={(e) => setLanguage(e.target.value)} placeholder={t("library.metadata.languagePlaceholder")} className={field} /></label>
+          <label className="flex flex-col gap-1"><span className="font-medium text-text-strong">{t("library.metadata.kind")}</span>
             <select value={sourceType} onChange={(e) => setSourceType(e.target.value as SourceType)} className={field}>
-              {SOURCE_TYPES.map((t) => <option key={t} value={t}>{SOURCE_TYPE_LABELS[t]}</option>)}
+              {SOURCE_TYPES.map((type) => <option key={type} value={type}>{sourceTypeLabel(t, type)}</option>)}
             </select>
           </label>
-          <label className="flex flex-col gap-1"><span className="font-medium text-text-strong">Sharing</span>
+          <label className="flex flex-col gap-1"><span className="font-medium text-text-strong">{t("library.metadata.sharing")}</span>
             <select value={licence} onChange={(e) => setLicence(e.target.value as LicenceStatus)} className={field}>
-              {LICENCE_STATUSES.map((l) => <option key={l} value={l}>{LICENCE_LABELS[l]}</option>)}
+              {LICENCE_STATUSES.map((l) => <option key={l} value={l}>{licenceLabel(t, l)}</option>)}
             </select>
           </label>
         </div>
@@ -161,9 +167,9 @@ function Review({ preview, onCancel, onAdded, onError }: { preview: SourceImport
 
       <div className="flex gap-3 border-t border-border-subtle pt-6">
         <Button variant="primary" onClick={add} disabled={!preview.canImport || busy || !title.trim() || (!!preview.duplicateOf && !allowDuplicate)}>
-          {busy ? "Adding…" : "Add to library"}
+          {busy ? t("library.add.adding") : t("library.addToLibrary")}
         </Button>
-        <Button onClick={onCancel}>Cancel</Button>
+        <Button onClick={onCancel}>{t("common.cancel")}</Button>
       </div>
     </div>
   );

@@ -1,17 +1,11 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
 import { useAutosave } from "@/hooks/useAutosave";
 import { useApi } from "@/lib/ApiContext";
 import type { BlockType, StudyBlock } from "@/types/domain";
 import { DetectedReferences } from "./DetectedReferences";
-
-export const BLOCK_LABELS: Record<BlockType, string> = {
-  paragraph: "Paragraph",
-  note: "Note",
-  heading: "Heading",
-  quotation: "Quotation",
-  question: "Question",
-};
+import { blockInline } from "./labels";
 
 const STYLES: Record<BlockType, string> = {
   paragraph: "reading",
@@ -38,6 +32,7 @@ interface BlockEditorProps {
  */
 export function BlockEditor(props: BlockEditorProps) {
   const { block, sectionTitle, placeholder, onDeleted, onRevealScripture, isFirst, isLast, onMove } = props;
+  const { t } = useTranslation();
   const api = useApi();
   const [text, setText] = useState(block.content);
   const [confirming, setConfirming] = useState(false);
@@ -57,7 +52,7 @@ export function BlockEditor(props: BlockEditorProps) {
     el.style.height = `${el.scrollHeight}px`;
   }, [text]);
 
-  const label = BLOCK_LABELS[block.blockType];
+  const type = blockInline(t, block.blockType);
 
   const remove = async () => {
     if (text.trim() && !confirming) {
@@ -69,7 +64,7 @@ export function BlockEditor(props: BlockEditorProps) {
       onDeleted(block.id);
     } catch {
       setConfirming(false);
-      setDeleteError("This block could not be deleted. Please try again.");
+      setDeleteError(t("studies.blocks.deleteFailed"));
     }
   };
 
@@ -80,7 +75,7 @@ export function BlockEditor(props: BlockEditorProps) {
         rows={block.blockType === "heading" ? 1 : 2}
         value={text}
         placeholder={placeholder}
-        aria-label={`${sectionTitle}: ${label.toLowerCase()}`}
+        aria-label={t("studies.blocks.fieldLabel", { section: sectionTitle, type })}
         onChange={(e) => {
           setText(e.target.value);
           schedule(e.target.value);
@@ -95,9 +90,9 @@ export function BlockEditor(props: BlockEditorProps) {
       >
         {confirming ? (
           <span className="flex items-center gap-1 rounded-aw border border-border bg-bg px-2 py-1 text-[0.875rem]">
-            <span>Delete this {label.toLowerCase()}?</span>
+            <span>{t("studies.blocks.confirmDelete", { type })}</span>
             <button type="button" onClick={remove} className="rounded px-2 py-1 font-medium text-danger hover:bg-bg-secondary">
-              Delete
+              {t("common.delete")}
             </button>
             {/* Focus lands on the safe choice when the question appears. */}
             <button
@@ -106,17 +101,17 @@ export function BlockEditor(props: BlockEditorProps) {
               onClick={() => setConfirming(false)}
               className="rounded px-2 py-1 hover:bg-bg-secondary"
             >
-              Keep
+              {t("common.keep")}
             </button>
           </span>
         ) : (
           <>
           {!(isFirst && isLast) && (
             <>
-              <button type="button" disabled={isFirst} onClick={() => onMove(-1)} aria-label={`Move ${label.toLowerCase()} up in ${sectionTitle}`} className="inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40">
+              <button type="button" disabled={isFirst} onClick={() => onMove(-1)} aria-label={t("studies.blocks.moveUp", { type, section: sectionTitle })} className="inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40">
                 <ArrowUp className="size-4" aria-hidden="true" />
               </button>
-              <button type="button" disabled={isLast} onClick={() => onMove(1)} aria-label={`Move ${label.toLowerCase()} down in ${sectionTitle}`} className="inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40">
+              <button type="button" disabled={isLast} onClick={() => onMove(1)} aria-label={t("studies.blocks.moveDown", { type, section: sectionTitle })} className="inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40">
                 <ArrowDown className="size-4" aria-hidden="true" />
               </button>
             </>
@@ -124,8 +119,8 @@ export function BlockEditor(props: BlockEditorProps) {
           <button
             type="button"
             onClick={remove}
-            aria-label={`Delete ${label.toLowerCase()} in ${sectionTitle}`}
-            title={`Delete ${label.toLowerCase()}`}
+            aria-label={t("studies.blocks.delete", { type, section: sectionTitle })}
+            title={t("studies.blocks.deleteTooltip", { type })}
             className="inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-danger"
           >
             <Trash2 className="size-4" aria-hidden="true" />

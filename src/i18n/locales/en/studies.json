@@ -1,0 +1,596 @@
+{
+  "shortcuts": {
+    "newFinding": {
+      "keys": "Alt+N",
+      "action": "New finding"
+    },
+    "newObservation": {
+      "keys": "Alt+O",
+      "action": "New observation"
+    },
+    "newQuestion": {
+      "keys": "Alt+Q",
+      "action": "New question"
+    },
+    "section": {
+      "keys": "Alt+↓ / Alt+↑",
+      "action": "Next / previous section"
+    },
+    "goTo": {
+      "keys": "Alt+G",
+      "action": "Go to a Scripture passage"
+    },
+    "saveFinding": {
+      "keys": "Ctrl+Enter",
+      "action": "Save the finding being written"
+    }
+  },
+  "builtin": {
+    "templates": {
+      "biblical-theology-study": {
+        "name": "Biblical Theology Study",
+        "description": "A theme traced along the storyline of Scripture from promise to fulfilment.",
+        "sections": {
+          "theme": {
+            "title": "Theme",
+            "guidance": "The theme being traced and why it matters."
+          },
+          "old-testament": {
+            "title": "Old Testament",
+            "guidance": "Where the theme begins and how it develops in the Law, Prophets and Writings."
+          },
+          "gospels": {
+            "title": "Gospels",
+            "guidance": "How the theme comes to Christ in the Gospels."
+          },
+          "epistles": {
+            "title": "Epistles",
+            "guidance": "How the apostles take up and apply the theme."
+          },
+          "canonical-development": {
+            "title": "Canonical Development",
+            "guidance": "How the theme grows and changes across the canon."
+          },
+          "fulfilment": {
+            "title": "Fulfilment / Consummation",
+            "guidance": "Its fulfilment in Christ and its final completion."
+          },
+          "synthesis": {
+            "title": "Synthesis",
+            "guidance": "The whole-Bible picture in a few sentences."
+          },
+          "teaching": {
+            "title": "Teaching",
+            "guidance": "How to teach this theme faithfully and clearly."
+          }
+        }
+      },
+      "passage-study": {
+        "name": "Passage Study",
+        "description": "A careful study of one passage, moving from the text itself to teaching it.",
+        "sections": {
+          "text": {
+            "title": "Text",
+            "guidance": "The passage being studied, and any translation notes."
+          },
+          "context": {
+            "title": "Context",
+            "guidance": "Where the passage sits: the book, the surrounding argument, the historical setting."
+          },
+          "observations": {
+            "title": "Observations",
+            "guidance": "What does the text say? Repeated words, connectors, contrasts, commands, questions."
+          },
+          "structure": {
+            "title": "Structure",
+            "guidance": "How the passage is built: its movements, main clauses and turning points."
+          },
+          "exegesis": {
+            "title": "Exegesis",
+            "guidance": "What did the text mean for its first readers? Key words, grammar, difficult phrases."
+          },
+          "theology": {
+            "title": "Theology",
+            "guidance": "What the passage teaches about God, Christ, salvation and the life of faith."
+          },
+          "application": {
+            "title": "Application",
+            "guidance": "How the truth of the passage bears on belief, worship and life today."
+          },
+          "audience": {
+            "title": "Audience",
+            "guidance": "Who will hear this teaching, what they need, and what may hinder them."
+          },
+          "teaching": {
+            "title": "Teaching",
+            "guidance": "Main idea, outline, illustrations and how to communicate it with love."
+          }
+        }
+      },
+      "systematic-theology-study": {
+        "name": "Systematic Theology Study",
+        "description": "A doctrine studied from Scripture, the church's witness and competing positions.",
+        "sections": {
+          "doctrine": {
+            "title": "Doctrine",
+            "guidance": "The doctrine under study, stated plainly."
+          },
+          "key-texts": {
+            "title": "Key Biblical Texts",
+            "guidance": "The passages on which the doctrine rests."
+          },
+          "biblical-synthesis": {
+            "title": "Biblical Synthesis",
+            "guidance": "What these texts teach together."
+          },
+          "historical-theology": {
+            "title": "Historical Theology",
+            "guidance": "How the church has understood the doctrine through its history."
+          },
+          "confessional-witness": {
+            "title": "Confessional Witness",
+            "guidance": "What the creeds and confessions say."
+          },
+          "alternative-positions": {
+            "title": "Alternative Positions",
+            "guidance": "Other views, fairly stated, with their reasons."
+          },
+          "conclusions": {
+            "title": "Conclusions",
+            "guidance": "Your conclusions and how firmly you hold them."
+          },
+          "application": {
+            "title": "Application",
+            "guidance": "Why this doctrine matters for faith and life."
+          }
+        }
+      },
+      "teaching-study": {
+        "name": "Teaching / Sermon Preparation",
+        "description": "From the text to a sermon or lesson prepared for real people.",
+        "sections": {
+          "text": {
+            "title": "Text",
+            "guidance": "The passage to be taught."
+          },
+          "main-idea": {
+            "title": "Main Idea",
+            "guidance": "The one main thing the text says, in one sentence."
+          },
+          "exegesis": {
+            "title": "Exegesis",
+            "guidance": "What the text meant for its first readers."
+          },
+          "theology": {
+            "title": "Theology",
+            "guidance": "What the text teaches about God and his ways."
+          },
+          "purpose": {
+            "title": "Purpose",
+            "guidance": "What the text aims to do in its hearers."
+          },
+          "audience": {
+            "title": "Audience",
+            "guidance": "Who will hear this, and what they need."
+          },
+          "structure": {
+            "title": "Structure",
+            "guidance": "How the teaching will move from beginning to end."
+          },
+          "illustrations": {
+            "title": "Illustrations",
+            "guidance": "Pictures and examples that serve the text."
+          },
+          "application": {
+            "title": "Application",
+            "guidance": "Concrete, appropriate applications."
+          },
+          "teaching-outline": {
+            "title": "Teaching Outline",
+            "guidance": "The outline you will teach from."
+          }
+        }
+      },
+      "topical-study": {
+        "name": "Topical Study",
+        "description": "A question or topic followed through the whole of Scripture.",
+        "sections": {
+          "topic": {
+            "title": "Question / Topic",
+            "guidance": "The question you are asking, stated as clearly as you can."
+          },
+          "key-passages": {
+            "title": "Key Passages",
+            "guidance": "The passages that speak most directly to it."
+          },
+          "biblical-context": {
+            "title": "Biblical Context",
+            "guidance": "Where and how the topic arises across the Bible."
+          },
+          "main-themes": {
+            "title": "Main Themes",
+            "guidance": "The main lines of teaching that emerge."
+          },
+          "difficult-passages": {
+            "title": "Difficult Passages",
+            "guidance": "Texts that seem to point another way, and how to read them."
+          },
+          "theology": {
+            "title": "Theology",
+            "guidance": "How the passages fit together into coherent teaching."
+          },
+          "conclusions": {
+            "title": "Conclusions",
+            "guidance": "Your conclusions, with the passages that carry them."
+          },
+          "application": {
+            "title": "Application",
+            "guidance": "What this means for belief, worship and life."
+          }
+        }
+      },
+      "word-study": {
+        "name": "Word Study",
+        "description": "One word traced through Scripture, from its uses to its meaning and weight.",
+        "sections": {
+          "word": {
+            "title": "Word",
+            "guidance": "The word being studied, its original form and how translations render it."
+          },
+          "occurrences": {
+            "title": "Occurrences",
+            "guidance": "Where the word appears. (Automatic occurrence lists arrive with the concordance.)"
+          },
+          "immediate-contexts": {
+            "title": "Immediate Contexts",
+            "guidance": "How each important use is shaped by its sentence and paragraph."
+          },
+          "semantic-range": {
+            "title": "Semantic Range",
+            "guidance": "The range of meanings the word carries, and what decides between them."
+          },
+          "key-passages": {
+            "title": "Key Passages",
+            "guidance": "The passages where the word matters most."
+          },
+          "theological-significance": {
+            "title": "Theological Significance",
+            "guidance": "What the word contributes to the Bible's teaching."
+          },
+          "conclusions": {
+            "title": "Conclusions",
+            "guidance": "What you have concluded, and what remains open."
+          }
+        }
+      }
+    },
+    "defaultSection": "Notes",
+    "copyTitle": "{{title}} (copy)"
+  },
+  "studyType": {
+    "passage": "Passage Study",
+    "word": "Word Study",
+    "topical": "Topical Study",
+    "biblical_theology": "Biblical Theology Study",
+    "systematic_theology": "Systematic Theology Study",
+    "teaching": "Teaching / Sermon",
+    "custom": "Custom Study"
+  },
+  "status": {
+    "active": "Active",
+    "paused": "Paused",
+    "completed": "Completed",
+    "archived": "Archived"
+  },
+  "findingType": {
+    "observation": "Observation",
+    "interpretation": "Interpretation",
+    "question": "Question",
+    "quotation": "Quotation",
+    "doctrine": "Doctrine",
+    "application": "Application",
+    "illustration": "Illustration",
+    "teaching_idea": "Teaching idea",
+    "unresolved_issue": "Unresolved issue",
+    "conclusion": "Conclusion"
+  },
+  "findingTypePlural": {
+    "observation": "Observations",
+    "interpretation": "Interpretations",
+    "question": "Questions",
+    "quotation": "Quotations",
+    "doctrine": "Doctrine",
+    "application": "Applications",
+    "illustration": "Illustrations",
+    "teaching_idea": "Teaching ideas",
+    "unresolved_issue": "Unresolved issues",
+    "conclusion": "Conclusions"
+  },
+  "findingTypeInline": {
+    "observation": "observation",
+    "interpretation": "interpretation",
+    "question": "question",
+    "quotation": "quotation",
+    "doctrine": "doctrine",
+    "application": "application",
+    "illustration": "illustration",
+    "teaching_idea": "teaching idea",
+    "unresolved_issue": "unresolved issue",
+    "conclusion": "conclusion"
+  },
+  "blockType": {
+    "paragraph": "Paragraph",
+    "note": "Note",
+    "heading": "Heading",
+    "quotation": "Quotation",
+    "question": "Question"
+  },
+  "blockTypeInline": {
+    "paragraph": "paragraph",
+    "note": "note",
+    "heading": "heading",
+    "quotation": "quotation",
+    "question": "question"
+  },
+  "relation": {
+    "outgoing": {
+      "related": "Related to",
+      "continues": "Continues",
+      "contrasts": "Contrasts with",
+      "supports": "Supports",
+      "custom": "Linked to"
+    },
+    "incoming": {
+      "related": "Related to",
+      "continues": "Continued by",
+      "contrasts": "Contrasts with",
+      "supports": "Supported by",
+      "custom": "Linked from"
+    },
+    "choice": {
+      "related": "is related to",
+      "continues": "continues",
+      "contrasts": "contrasts with",
+      "supports": "supports",
+      "custom": "is linked to"
+    }
+  },
+  "keepIt": "Keep it",
+  "titleRequired": "Please enter a title first.",
+  "titleRequiredOnBlur": "A title is required. Leaving the field keeps the previous title.",
+  "studyCount_one": "{{count}} study",
+  "studyCount_other": "{{count}} studies",
+  "findingCount_one": "{{count}} finding",
+  "findingCount_other": "{{count}} findings",
+  "projects": {
+    "title": "Projects",
+    "intro": "A project gathers related studies: a sermon series, a Bible study course, or a doctrine.",
+    "newLabel": "New project",
+    "newPlaceholder": "e.g. Romans Sermon Series",
+    "create": "Create project",
+    "loading": "Loading projects…",
+    "empty": "No projects yet. Create your first project above.",
+    "listLabel": "Projects",
+    "allStudies": "All studies",
+    "project": "Project",
+    "titleLabel": "Project title",
+    "studies": "Studies",
+    "opening": "Opening project…",
+    "breadcrumb": "Breadcrumb"
+  },
+  "newStudy": {
+    "heading": "New study",
+    "title": "Title",
+    "titlePlaceholder": "e.g. John 15:1–11",
+    "type": "Type",
+    "template": "Template",
+    "noTemplate": "No template (one Notes section)",
+    "yourTemplate": "{{name}} (yours)",
+    "passage": "Passage",
+    "optional": "(optional)",
+    "passagePlaceholder": "e.g. John 15:1-11",
+    "create": "Create study"
+  },
+  "list": {
+    "filters": "Filter studies",
+    "project": "Project",
+    "allProjects": "All projects",
+    "type": "Type",
+    "allTypes": "All types",
+    "status": "Status",
+    "anyStatus": "Any status",
+    "loading": "Loading studies…",
+    "noMatch": "No studies match these filters.",
+    "empty": "No studies here yet.",
+    "listLabel": "Studies",
+    "changed": "changed {{date}}"
+  },
+  "header": {
+    "status": "Status",
+    "template": "Template: {{name}}",
+    "changed": "Changed {{date}}",
+    "duplicate": "Duplicate…",
+    "overview": "Overview",
+    "noFindings": "No findings yet",
+    "questionCount_one": "{{count}} question",
+    "questionCount_other": "{{count}} questions",
+    "unresolvedCount_one": "{{count}} unresolved issue",
+    "unresolvedCount_other": "{{count}} unresolved issues",
+    "duplicateGroup": "Duplicate this study",
+    "duplicatePrompt": "Make a copy of “{{title}}” in this project:",
+    "structureOnly": "Structure only",
+    "structureAndContent": "Structure and content",
+    "duplicateHelp": "Structure only copies the sections. With content, your writing, findings and passages are copied too. Notes on Scripture are never duplicated; they belong to the verses.",
+    "purpose": "Purpose",
+    "purposePlaceholder": "What are you trying to understand or prepare?",
+    "details": "{{type}} details",
+    "detail": {
+      "lemma": {
+        "label": "Word",
+        "hint": "e.g. δικαιοσύνη"
+      },
+      "originalLanguage": {
+        "label": "Language",
+        "hint": "e.g. Greek"
+      },
+      "audience": {
+        "label": "Audience",
+        "hint": "e.g. Sunday congregation"
+      },
+      "duration": {
+        "label": "Length",
+        "hint": "e.g. 30 minutes"
+      },
+      "teachingFormat": {
+        "label": "Format",
+        "hint": "e.g. sermon"
+      }
+    }
+  },
+  "editor": {
+    "opening": "Opening study…",
+    "titleLabel": "Study title",
+    "contents": "Study contents",
+    "findingsLink": "Findings",
+    "findingsLinkCount": "Findings ({{count}})",
+    "addSection": "Add section",
+    "newSectionTitle": "New section",
+    "savedAutomatically": "Changes are saved automatically.",
+    "allSaved": "All changes saved."
+  },
+  "sections": {
+    "rename": "Rename section {{title}}",
+    "renameTooltip": "Rename section",
+    "moveUp": "Move section {{title}} up",
+    "moveDown": "Move section {{title}} down",
+    "delete": "Delete section {{title}}",
+    "confirmLabel": "Delete section {{title}}?",
+    "confirm": "Delete “{{title}}” and the writing in it?",
+    "confirmWithFindings": "Delete “{{title}}” and the writing in it? Its findings stay in the study as findings for the whole study.",
+    "deleteSection": "Delete section",
+    "addTo": "Add to {{title}}",
+    "titleLabel": "Section title"
+  },
+  "blocks": {
+    "fieldLabel": "{{section}}: {{type}}",
+    "confirmDelete": "Delete this {{type}}?",
+    "deleteFailed": "This block could not be deleted. Please try again.",
+    "moveUp": "Move {{type}} up in {{section}}",
+    "moveDown": "Move {{type}} down in {{section}}",
+    "delete": "Delete {{type}} in {{section}}",
+    "deleteTooltip": "Delete {{type}}",
+    "add": "+ {{type}}",
+    "placeholder": "Write here…",
+    "passagesMentioned": "Passages mentioned:"
+  },
+  "findings": {
+    "heading": "Findings",
+    "addGroup": "Add a finding",
+    "add": "Add:",
+    "otherKind": "Other kind of finding",
+    "more": "More…",
+    "filterGroup": "Show findings",
+    "all": "All ({{count}})",
+    "filterType": "{{type}} ({{count}})",
+    "empty": "No findings yet. Record observations, questions and conclusions as you study; they stay findable later.",
+    "listLabel": "Findings",
+    "writeFirst": "Write the finding first.",
+    "type": "Type",
+    "in": "In",
+    "inLower": "in",
+    "wholeStudy": "Whole study",
+    "newLabel": "New {{type}}",
+    "newPlaceholder": "New {{type}}…",
+    "linkCurrent": "Link current passage ({{passage}})",
+    "save": "Save finding",
+    "saveHint": "Ctrl+Enter saves",
+    "itemLabel": "{{type}}: {{excerpt}}",
+    "typeLabel": "Finding type",
+    "section": "Section",
+    "moveUp": "Move {{type}} up",
+    "moveDown": "Move {{type}} down",
+    "delete": "Delete {{type}}",
+    "text": "{{type}} text",
+    "unlink": "Unlink {{passage}}",
+    "link": "+ Link {{passage}}",
+    "tags": "Tags",
+    "tagsPlaceholder": "e.g. covenant, sermon",
+    "confirmDelete": "Delete this {{type}}?"
+  },
+  "passages": {
+    "label": "Passages",
+    "open": "Open in the Scripture pane",
+    "makePrimary": "Make primary",
+    "makePrimaryLabel": "Make {{passage}} the primary passage",
+    "remove": "Remove {{passage}} from this study",
+    "primary": "Primary",
+    "related": "Related",
+    "addFirst": "Add the passage this study is about",
+    "add": "Add passage",
+    "linkCurrent": "Link current passage ({{passage}})",
+    "inputLabel": "Passage to add",
+    "placeholder": "e.g. John 15:1-11"
+  },
+  "relations": {
+    "label": "Related studies",
+    "remove": "Remove link to {{title}}",
+    "add": "+ Link a related study",
+    "addGroup": "Link a related study",
+    "thisStudy": "This study",
+    "relation": "Relation",
+    "target": "Study to link",
+    "choose": "Choose a study…",
+    "option": "{{title}} ({{project}})",
+    "link": "Link"
+  },
+  "search": {
+    "heading": "Studies matching “{{query}}”",
+    "searching": "Searching your studies…",
+    "none": "Nothing found in your studies.",
+    "count_one": "{{count}} match.",
+    "count_other": "{{count}} matches.",
+    "results": "Study search results",
+    "location": {
+      "study": "Title or purpose",
+      "section": "Section title",
+      "studyText": "Study text",
+      "finding": "Finding",
+      "findingType": "Finding: {{type}}"
+    }
+  },
+  "templates": {
+    "intro": "A template gives a new study its sections. Changing a template never changes studies already made from it.",
+    "listLabel": "Study templates",
+    "sectionCount_one": "{{count}} section",
+    "sectionCount_other": "{{count}} sections",
+    "builtIn": "Built-in",
+    "duplicateCustomise": "Duplicate and customise",
+    "edit": "Edit {{name}}",
+    "duplicate": "Duplicate {{name}}",
+    "delete": "Delete {{name}}",
+    "confirmLabel": "Delete {{name}}?",
+    "confirm": "Delete the template “{{name}}”? Studies already made from it are not affected.",
+    "deleteTemplate": "Delete template",
+    "new": "New template…"
+  },
+  "templateEditor": {
+    "opening": "Opening template…",
+    "back": "Back to settings",
+    "editTitle": "Edit template",
+    "newTitle": "New template",
+    "name": "Name",
+    "description": "Description",
+    "meantFor": "Meant for",
+    "sections": "Sections",
+    "sectionsList": "Template sections",
+    "sectionTitle": "Section {{number}} title",
+    "sectionGuidance": "Section {{number}} guidance",
+    "guidancePlaceholder": "Guidance shown under the section (optional)",
+    "untitledSection": "section",
+    "moveUp": "Move {{title}} up",
+    "moveDown": "Move {{title}} down",
+    "remove": "Remove {{title}}",
+    "addSection": "Add section",
+    "save": "Save template"
+  }
+}

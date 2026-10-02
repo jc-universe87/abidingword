@@ -1,0 +1,103 @@
+{
+  "kind": {
+    "database": "Abiding Word could not read or save your data. Your most recent change may not have been saved. Details are in the log file.",
+    "filesystem": "Abiding Word could not use its data folder. Check that the folder exists and that you have permission to write to it.",
+    "notFound": "This item could not be found. It may have been deleted.",
+    "migration": "Abiding Word could not update its database to this version. Your data has not been changed. Details are in the log file.",
+    "integrity": "Your study database appears to be damaged, so Abiding Word stopped before changing it. The file has not been modified. Details are in the log file.",
+    "backup": "Abiding Word could not make a safety backup before updating its database, so nothing was changed. Check that the disk is not full.",
+    "unexpected": "Something unexpected went wrong. Details are in the log file."
+  },
+  "duplicateTranslation": "A Bible called “{{shortName}}” is already installed. Choose a different short name.",
+  "invalidChoice": "“{{value}}” is not one of the available choices.",
+  "changedMeanwhile": "This list has changed since the page was shown. Please try again.",
+  "validation": {
+    "titleRequired": "Please give it a title.",
+    "titleTooLong": "The title is too long. Please keep it under {{max}} characters.",
+    "textTooLong": "This text is too long. Please keep it under {{max}} characters.",
+    "blockTooLong": "This block is too long to save. Please split it into several blocks."
+  },
+  "search": {
+    "empty": "Type a word or phrase to search for."
+  },
+  "import": {
+    "expired": "This import has expired. Please choose the files again.",
+    "expiredFile": "This import has expired. Please choose the file again.",
+    "noFiles": "Choose at least one file."
+  },
+  "reference": {
+    "empty": "Type a passage, for example “John 15” or “Rom 8:1-17”.",
+    "notRecognised": "“{{text}}” is not a passage Abiding Word recognises. Try a form like “John 15” or “Rom 8:1-17”.",
+    "unknownBook": "Unknown book “{{text}}”.",
+    "notABook": "“{{text}}” is not a book of the Bible.",
+    "oneChapter": "{{book}} has only one chapter.",
+    "chapterCount": "{{book}} has {{count}} chapters.",
+    "badVerse": "Verse {{verse}} is not a valid verse number.",
+    "endBeforeStart": "The end of the passage comes before its start.",
+    "invalid": "“{{text}}” is not a valid passage reference.",
+    "oneBook": "A passage must stay within one book."
+  },
+  "bibles": {
+    "hasProblems": "This Bible has problems that must be resolved before it can be added.",
+    "shortNameTooLong": "Please keep the short name under {{max}} characters."
+  },
+  "bibleImport": {
+    "noBookId": "The file “{{fileName}}” does not say which book it contains.",
+    "unknownBook": "The file “{{fileName}}” contains a book Abiding Word does not recognise ({{code}}). It was left out.",
+    "bookTwice": "{{book}} appears in more than one file.",
+    "versesBeforeChapter": "{{book}}: some verses appear before the first chapter.",
+    "badChapterNumber": "{{book}}: the chapter number “{{label}}” could not be read.",
+    "chapterOutOfRange_one": "{{book}} {{chapter}}: {{book}} has {{count}} chapter in the standard numbering.",
+    "chapterOutOfRange_other": "{{book}} {{chapter}}: {{book}} has {{count}} chapters in the standard numbering.",
+    "badVerseNumber": "{{book}} {{chapter}}: the verse number “{{label}}” could not be read.",
+    "bridged": "{{book}} {{chapter}}:{{first}}–{{last}} are combined into one verse in this translation.",
+    "verseTwice": "{{book}} {{chapter}}:{{verse}} appears twice.",
+    "emptyVerse": "{{book}} {{chapter}}:{{verse}} has no text.",
+    "missingChapters": "{{book}}: {{found}} of {{count}} chapters found (missing: {{list}}).",
+    "noVerses": "{{book}} {{chapter}}: no verses were found.",
+    "missingVerses_one": "{{book}} {{chapter}}: verse {{list}} not found. The expected verse structure differs from this text.",
+    "missingVerses_other": "{{book}} {{chapter}}: verses {{list}} not found. The expected verse structure differs from this text.",
+    "listMore_one": "{{numbers}} and {{count}} more",
+    "listMore_other": "{{numbers}} and {{count}} more",
+    "unknownFormat": "These files are not in a Bible format Abiding Word can read yet. It currently reads USFM Bibles (.usfm or .sfm files, or a .zip of them).",
+    "formatNotYet": "{{format}} files can’t be imported as a structured Bible yet. Abiding Word currently reads USFM Bibles (.usfm or .sfm files, or a .zip of them).",
+    "noBooks": "No books of the Bible were found in these files.",
+    "tooLarge": "These files are too large to be a single Bible.",
+    "badZip": "The file “{{fileName}}” is not a readable .zip archive.",
+    "badZipPart": "Part of “{{fileName}}” could not be read.",
+    "zipTooLarge": "This archive is too large to be a single Bible.",
+    "badZipEntry": "“{{fileName}}” inside the archive could not be read."
+  },
+  "library": {
+    "notUtf8": "“{{fileName}}” is not saved as UTF-8 text, so it could not be read.",
+    "badEpub": "“{{fileName}}” could not be read as an EPUB book.",
+    "badPdf": "“{{fileName}}” could not be read as a PDF.",
+    "passwordProtected": "“{{fileName}}” is password-protected. Remove the protection and import it again.",
+    "unsupportedFile": "“{{fileName}}” is not a kind of file the library can read yet. It reads PDF, EPUB, Markdown (.md) and plain text (.txt) files.",
+    "tooLarge": "“{{fileName}}” is too large to import.",
+    "scannedPdf": "This PDF appears to contain scanned pages. OCR support is not available yet, so its text cannot be added.",
+    "noText": "No text was found in this file.",
+    "duplicate": "This file is already in your library as “{{title}}”."
+  },
+  "templates": {
+    "noSections": "A template needs at least one section.",
+    "tooManySections": "A template can have at most {{max}} sections.",
+    "builtinReadOnly": "Built-in templates can’t be changed. Duplicate it to make your own version."
+  },
+  "sections": {
+    "hasContent": "“{{title}}” still has writing or findings in it."
+  },
+  "relations": {
+    "self": "A study can’t be linked to itself.",
+    "exists": "This study is already linked to “{{title}}”."
+  },
+  "findings": {
+    "tooLong": "This finding is too long to save.",
+    "otherStudySection": "That section belongs to another study.",
+    "tooManyTags": "A finding can have at most {{max}} tags.",
+    "tagTooLong": "The tag “{{tag}}” is too long."
+  },
+  "annotations": {
+    "tooLong": "This note is too long to save."
+  }
+}

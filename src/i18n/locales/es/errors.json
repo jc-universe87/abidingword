@@ -1,0 +1,106 @@
+{
+  "kind": {
+    "database": "Abiding Word no pudo leer ni guardar tus datos. Es posible que tu último cambio no se haya guardado. Los detalles están en el archivo de registro.",
+    "filesystem": "Abiding Word no pudo usar su carpeta de datos. Comprueba que la carpeta existe y que tienes permiso para escribir en ella.",
+    "notFound": "No se encontró este elemento. Es posible que se haya eliminado.",
+    "migration": "Abiding Word no pudo actualizar su base de datos a esta versión. Tus datos no se han modificado. Los detalles están en el archivo de registro.",
+    "integrity": "Tu base de datos de estudios parece estar dañada, así que Abiding Word se detuvo antes de modificarla. El archivo no se ha cambiado. Los detalles están en el archivo de registro.",
+    "backup": "Abiding Word no pudo hacer una copia de seguridad antes de actualizar su base de datos, así que no se cambió nada. Comprueba que el disco no esté lleno.",
+    "unexpected": "Algo inesperado falló. Los detalles están en el archivo de registro."
+  },
+  "duplicateTranslation": "Ya hay instalada una Biblia llamada “{{shortName}}”. Elige otro nombre corto.",
+  "invalidChoice": "“{{value}}” no es una de las opciones disponibles.",
+  "changedMeanwhile": "Esta lista ha cambiado desde que se mostró la página. Inténtalo de nuevo.",
+  "validation": {
+    "titleRequired": "Ponle un título.",
+    "titleTooLong": "El título es demasiado largo. Debe tener menos de {{max}} caracteres.",
+    "textTooLong": "Este texto es demasiado largo. Debe tener menos de {{max}} caracteres.",
+    "blockTooLong": "Este bloque es demasiado largo para guardarlo. Divídelo en varios bloques."
+  },
+  "search": {
+    "empty": "Escribe una palabra o frase para buscar."
+  },
+  "import": {
+    "expired": "Esta importación ha caducado. Vuelve a elegir los archivos.",
+    "expiredFile": "Esta importación ha caducado. Vuelve a elegir el archivo.",
+    "noFiles": "Elige al menos un archivo."
+  },
+  "reference": {
+    "empty": "Escribe un pasaje, por ejemplo “John 15” o “Rom 8:1-17”.",
+    "notRecognised": "“{{text}}” no es un pasaje que Abiding Word reconozca. Prueba con una forma como “John 15” o “Rom 8:1-17”.",
+    "unknownBook": "Libro desconocido: “{{text}}”.",
+    "notABook": "“{{text}}” no es un libro de la Biblia.",
+    "oneChapter": "{{book}} tiene un solo capítulo.",
+    "chapterCount": "{{book}} tiene {{count}} capítulos.",
+    "badVerse": "{{verse}} no es un número de versículo válido.",
+    "endBeforeStart": "El final del pasaje está antes de su comienzo.",
+    "invalid": "“{{text}}” no es una referencia de pasaje válida.",
+    "oneBook": "Un pasaje debe estar dentro de un solo libro."
+  },
+  "bibles": {
+    "hasProblems": "Esta Biblia tiene problemas que hay que resolver antes de poder añadirla.",
+    "shortNameTooLong": "El nombre corto debe tener menos de {{max}} caracteres."
+  },
+  "bibleImport": {
+    "noBookId": "El archivo “{{fileName}}” no indica qué libro contiene.",
+    "unknownBook": "El archivo “{{fileName}}” contiene un libro que Abiding Word no reconoce ({{code}}). Se ha omitido.",
+    "bookTwice": "{{book}} aparece en más de un archivo.",
+    "versesBeforeChapter": "{{book}}: algunos versículos aparecen antes del primer capítulo.",
+    "badChapterNumber": "{{book}}: no se pudo leer el número de capítulo “{{label}}”.",
+    "chapterOutOfRange_one": "{{book}} {{chapter}}: {{book}} tiene {{count}} capítulo en la numeración estándar.",
+    "chapterOutOfRange_many": "{{book}} {{chapter}}: {{book}} tiene {{count}} capítulos en la numeración estándar.",
+    "chapterOutOfRange_other": "{{book}} {{chapter}}: {{book}} tiene {{count}} capítulos en la numeración estándar.",
+    "badVerseNumber": "{{book}} {{chapter}}: no se pudo leer el número de versículo “{{label}}”.",
+    "bridged": "En esta traducción, {{book}} {{chapter}}:{{first}}–{{last}} están unidos en un solo versículo.",
+    "verseTwice": "{{book}} {{chapter}}:{{verse}} aparece dos veces.",
+    "emptyVerse": "{{book}} {{chapter}}:{{verse}} no tiene texto.",
+    "missingChapters": "{{book}}: se encontraron {{found}} de {{count}} capítulos (faltan: {{list}}).",
+    "noVerses": "{{book}} {{chapter}}: no se encontraron versículos.",
+    "missingVerses_one": "{{book}} {{chapter}}: no se encontró el versículo {{list}}. La estructura de versículos esperada difiere de este texto.",
+    "missingVerses_many": "{{book}} {{chapter}}: no se encontraron los versículos {{list}}. La estructura de versículos esperada difiere de este texto.",
+    "missingVerses_other": "{{book}} {{chapter}}: no se encontraron los versículos {{list}}. La estructura de versículos esperada difiere de este texto.",
+    "listMore_one": "{{numbers}} y {{count}} más",
+    "listMore_many": "{{numbers}} y {{count}} más",
+    "listMore_other": "{{numbers}} y {{count}} más",
+    "unknownFormat": "Estos archivos no están en un formato de Biblia que Abiding Word pueda leer todavía. Por ahora lee Biblias en USFM (archivos .usfm o .sfm, o un .zip que los contenga).",
+    "formatNotYet": "Los archivos {{format}} todavía no se pueden importar como una Biblia estructurada. Por ahora Abiding Word lee Biblias en USFM (archivos .usfm o .sfm, o un .zip que los contenga).",
+    "noBooks": "No se encontró ningún libro de la Biblia en estos archivos.",
+    "tooLarge": "Estos archivos son demasiado grandes para ser una sola Biblia.",
+    "badZip": "El archivo “{{fileName}}” no es un archivo .zip legible.",
+    "badZipPart": "No se pudo leer una parte de “{{fileName}}”.",
+    "zipTooLarge": "Este archivo comprimido es demasiado grande para ser una sola Biblia.",
+    "badZipEntry": "No se pudo leer “{{fileName}}” dentro del archivo comprimido."
+  },
+  "library": {
+    "notUtf8": "“{{fileName}}” no está guardado como texto UTF-8, así que no se pudo leer.",
+    "badEpub": "“{{fileName}}” no se pudo leer como libro EPUB.",
+    "badPdf": "“{{fileName}}” no se pudo leer como PDF.",
+    "passwordProtected": "“{{fileName}}” está protegido con contraseña. Quita la protección y vuelve a importarlo.",
+    "unsupportedFile": "“{{fileName}}” no es un tipo de archivo que la biblioteca pueda leer todavía. Lee archivos PDF, EPUB, Markdown (.md) y de texto sin formato (.txt).",
+    "tooLarge": "“{{fileName}}” es demasiado grande para importarlo.",
+    "scannedPdf": "Este PDF parece contener páginas escaneadas. Todavía no hay soporte para OCR, así que no se puede añadir su texto.",
+    "noText": "No se encontró texto en este archivo.",
+    "duplicate": "Este archivo ya está en tu biblioteca como “{{title}}”."
+  },
+  "templates": {
+    "noSections": "Una plantilla necesita al menos una sección.",
+    "tooManySections": "Una plantilla puede tener como máximo {{max}} secciones.",
+    "builtinReadOnly": "Las plantillas integradas no se pueden modificar. Duplícala para crear tu propia versión."
+  },
+  "sections": {
+    "hasContent": "“{{title}}” todavía contiene texto o apuntes."
+  },
+  "relations": {
+    "self": "Un estudio no se puede vincular consigo mismo.",
+    "exists": "Este estudio ya está vinculado con “{{title}}”."
+  },
+  "findings": {
+    "tooLong": "Este apunte es demasiado largo para guardarlo.",
+    "otherStudySection": "Esa sección pertenece a otro estudio.",
+    "tooManyTags": "Un apunte puede tener como máximo {{max}} etiquetas.",
+    "tagTooLong": "La etiqueta “{{tag}}” es demasiado larga."
+  },
+  "annotations": {
+    "tooLong": "Esta nota es demasiado larga para guardarla."
+  }
+}

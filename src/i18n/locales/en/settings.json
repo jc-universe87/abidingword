@@ -1,0 +1,51 @@
+{
+  "backToWorkspace": "Back to workspace",
+  "title": "Settings",
+  "sections": {
+    "appearance": "Appearance",
+    "language": "Language",
+    "bibleTexts": "Bible Texts",
+    "templates": "Study Templates",
+    "shortcuts": "Keyboard shortcuts",
+    "about": "About this installation",
+    "planned": "Coming in later versions"
+  },
+  "language": {
+    "label": "Interface language",
+    "hint": "Changes the language of menus, buttons and messages. Your studies, notes, library and Bible texts stay as they are."
+  },
+  "theme": {
+    "legend": "Theme",
+    "light": "Light",
+    "lightHint": "Warm ivory, for daytime study.",
+    "dark": "Dark",
+    "darkHint": "Deep forest green, easier in low light.",
+    "system": "Match my computer",
+    "systemHint": "Follows your operating system setting."
+  },
+  "layout": {
+    "title": "Workspace layout",
+    "description": "Puts the panes back in their usual order (Scripture, Study, Sources) with their usual widths, and shows or hides them as on first start. Only the arrangement on this computer changes; your studies and library are not affected.",
+    "reset": "Reset layout",
+    "done": "Layout reset."
+  },
+  "shortcutsHint": "These work while a study is open.",
+  "about": {
+    "version": "Version",
+    "versionValue": "Abiding Word {{version}} (Foundation)",
+    "dataFolder": "Data folder",
+    "database": "Database",
+    "logFiles": "Log files",
+    "schema": "Database schema",
+    "schemaVersion": "Version {{version}}",
+    "backup": "All your studies are stored in the data folder on this computer. To back them up, copy that whole folder while Abiding Word is closed."
+  },
+  "planned": {
+    "ai": "AI assistance",
+    "aiText": "Optional help with study. Abiding Word will always work fully without it.",
+    "sync": "Sync",
+    "syncText": "Keep your studies in step across your own devices, under your control.",
+    "integrations": "Integrations",
+    "integrationsText": "Connect other tools you already use."
+  }
+}

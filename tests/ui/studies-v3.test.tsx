@@ -261,7 +261,7 @@ describe("related studies and search", () => {
     await user.selectOptions(screen.getByLabelText("Search in"), "studies");
     await user.type(screen.getByRole("searchbox", { name: "Search studies" }), "fruit{Enter}");
     const results = await screen.findByRole("list", { name: "Study search results" });
-    expect(within(results).getByText("Finding")).toBeInTheDocument();
+    expect(within(results).getByText("Finding: Question")).toBeInTheDocument();
     expect(within(results).getByText("fruit", { selector: "mark" })).toBeInTheDocument();
     await user.click(within(results).getByRole("button", { name: /The True Vine/ }));
     expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("The True Vine");

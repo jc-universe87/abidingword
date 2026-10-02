@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronRight } from "lucide-react";
 import { Notice } from "@/design-system/Notice";
 import { PaneHeader } from "@/design-system/PaneHeader";
@@ -38,6 +39,7 @@ interface StudyPaneProps {
  * study, leave Scripture where the user put it.
  */
 export function StudyPane({ workspace, onRevealScripture, search, onCloseSearch }: StudyPaneProps) {
+  const { t } = useTranslation();
   const [location, setLocation] = useState<StudyLocation>(() =>
     readLocal<StudyLocation>(LOCATION_KEY, { kind: "projects" }),
   );
@@ -58,7 +60,7 @@ export function StudyPane({ workspace, onRevealScripture, search, onCloseSearch 
 
   return (
     <>
-      <PaneHeader id="pane-study-title" title="Study" />
+      <PaneHeader id="pane-study-title" title={t("app.panes.name.study")} />
       <SaveTrackerProvider>
         <div data-scroll-root className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-6">
@@ -99,6 +101,7 @@ interface ProjectScopeProps {
 }
 
 function ProjectScope({ projectId, location, setLocation, onMissing, onOpenStudy, revealFor, onRevealScripture }: ProjectScopeProps) {
+  const { t } = useTranslation();
   const api = useApi();
   const project = useLoad(useCallback(() => api.projectGet(projectId), [api, projectId]));
   const missing = project.error?.kind === "notFound";
@@ -110,7 +113,7 @@ function ProjectScope({ projectId, location, setLocation, onMissing, onOpenStudy
 
   if (missing) return null;
   if (project.error) return <Notice tone="error">{project.error.message}</Notice>;
-  if (!project.data) return <p className="text-text-muted">Opening project…</p>;
+  if (!project.data) return <p className="text-text-muted">{t("studies.projects.opening")}</p>;
 
   const inStudy = location.kind === "study";
   return (
@@ -138,13 +141,14 @@ function ProjectScope({ projectId, location, setLocation, onMissing, onOpenStudy
 }
 
 function Breadcrumb(props: { project: Project; inStudy: boolean; onProjects: () => void; onProject: () => void }) {
+  const { t } = useTranslation();
   const link = "rounded px-1 text-link underline-offset-4 hover:underline";
   return (
-    <nav aria-label="Breadcrumb">
+    <nav aria-label={t("studies.projects.breadcrumb")}>
       <ol className="m-0 flex list-none flex-wrap items-center gap-1 p-0 text-[0.9375rem]">
         <li>
           <button type="button" className={link} onClick={props.onProjects}>
-            Projects
+            {t("studies.projects.title")}
           </button>
         </li>
         <li aria-hidden="true">

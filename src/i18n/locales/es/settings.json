@@ -1,0 +1,51 @@
+{
+  "backToWorkspace": "Volver al espacio de trabajo",
+  "title": "Configuración",
+  "sections": {
+    "appearance": "Apariencia",
+    "language": "Idioma",
+    "bibleTexts": "Traducciones de la Biblia",
+    "templates": "Plantillas de estudio",
+    "shortcuts": "Atajos de teclado",
+    "about": "Acerca de esta instalación",
+    "planned": "En próximas versiones"
+  },
+  "language": {
+    "label": "Idioma de la interfaz",
+    "hint": "Cambia el idioma de los menús, botones y mensajes. Tus estudios, notas, biblioteca y textos bíblicos no cambian."
+  },
+  "theme": {
+    "legend": "Tema",
+    "light": "Claro",
+    "lightHint": "Marfil cálido, para estudiar de día.",
+    "dark": "Oscuro",
+    "darkHint": "Verde bosque profundo, más cómodo con poca luz.",
+    "system": "Igual que mi equipo",
+    "systemHint": "Sigue la configuración de tu sistema operativo."
+  },
+  "layout": {
+    "title": "Disposición del espacio de trabajo",
+    "description": "Devuelve los paneles a su orden habitual (Biblia, Estudio, Fuentes) y a su ancho habitual, y los muestra u oculta como en el primer inicio. Solo cambia la disposición en este equipo; tus estudios y tu biblioteca no se ven afectados.",
+    "reset": "Restablecer disposición",
+    "done": "Disposición restablecida."
+  },
+  "shortcutsHint": "Funcionan mientras hay un estudio abierto.",
+  "about": {
+    "version": "Versión",
+    "versionValue": "Abiding Word {{version}} (Foundation)",
+    "dataFolder": "Carpeta de datos",
+    "database": "Base de datos",
+    "logFiles": "Archivos de registro",
+    "schema": "Esquema de la base de datos",
+    "schemaVersion": "Versión {{version}}",
+    "backup": "Todos tus estudios se guardan en la carpeta de datos de este equipo. Para hacer una copia de seguridad, copia esa carpeta completa con Abiding Word cerrado."
+  },
+  "planned": {
+    "ai": "Asistencia con IA",
+    "aiText": "Ayuda opcional para el estudio. Abiding Word siempre funcionará plenamente sin ella.",
+    "sync": "Sincronización",
+    "syncText": "Mantén tus estudios al día en tus propios dispositivos, bajo tu control.",
+    "integrations": "Integraciones",
+    "integrationsText": "Conecta otras herramientas que ya usas."
+  }
+}

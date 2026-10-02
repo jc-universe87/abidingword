@@ -1,6 +1,6 @@
 //! Input validation. Messages are shown to the user as written.
 
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 
 pub const TITLE_MAX_CHARS: usize = 200;
 pub const DESCRIPTION_MAX_CHARS: usize = 2_000;
@@ -11,14 +11,21 @@ pub const BLOCK_MAX_CHARS: usize = 200_000;
 pub fn title(value: &str, what: &str) -> AppResult<String> {
     let trimmed = value.trim();
     if trimmed.is_empty() {
-        return Err(AppError::InvalidInput(format!(
-            "Please give the {what} a title."
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "validation.titleRequired",
+            format!("Please give the {what} a title."),
         )));
     }
     if trimmed.chars().count() > TITLE_MAX_CHARS {
-        return Err(AppError::InvalidInput(format!(
-            "The {what} title is too long. Please keep it under {TITLE_MAX_CHARS} characters."
-        )));
+        return Err(AppError::InvalidInput(
+            UserMessage::new(
+                "validation.titleTooLong",
+                format!(
+                    "The {what} title is too long. Please keep it under {TITLE_MAX_CHARS} characters."
+                ),
+            )
+            .with("max", TITLE_MAX_CHARS),
+        ));
     }
     Ok(trimmed.to_owned())
 }
@@ -33,9 +40,13 @@ pub fn optional_text(
         return Ok(None);
     };
     if trimmed.chars().count() > max_chars {
-        return Err(AppError::InvalidInput(format!(
-            "The {what} is too long. Please keep it under {max_chars} characters."
-        )));
+        return Err(AppError::InvalidInput(
+            UserMessage::new(
+                "validation.textTooLong",
+                format!("The {what} is too long. Please keep it under {max_chars} characters."),
+            )
+            .with("max", max_chars),
+        ));
     }
     Ok(Some(trimmed.to_owned()))
 }
@@ -43,9 +54,10 @@ pub fn optional_text(
 /// Block content is stored exactly as typed (no trimming), within a size limit.
 pub fn block_content(value: &str) -> AppResult<()> {
     if value.chars().count() > BLOCK_MAX_CHARS {
-        return Err(AppError::InvalidInput(
-            "This block is too long to save. Please split it into several blocks.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "validation.blockTooLong",
+            "This block is too long to save. Please split it into several blocks.",
+        )));
     }
     Ok(())
 }

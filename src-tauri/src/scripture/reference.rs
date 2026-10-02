@@ -20,7 +20,7 @@ use std::fmt;
 
 use serde::Serialize;
 
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 use crate::scripture::canon::{self, Book};
 
 /// No chapter in the canon has more verses than Psalm 119 (176).
@@ -69,24 +69,39 @@ impl ScriptureRef {
         let book = self.book;
         for point in [self.start, self.end] {
             if point.chapter == 0 || point.chapter > book.chapter_count {
-                return Err(AppError::InvalidReference(if book.chapter_count == 1 {
-                    format!("{} has only one chapter.", book.name)
-                } else {
-                    format!("{} has {} chapters.", book.name, book.chapter_count)
-                }));
+                return Err(AppError::InvalidReference(
+                    if book.chapter_count == 1 {
+                        UserMessage::new(
+                            "reference.oneChapter",
+                            format!("{} has only one chapter.", book.name),
+                        )
+                    } else {
+                        UserMessage::new(
+                            "reference.chapterCount",
+                            format!("{} has {} chapters.", book.name, book.chapter_count),
+                        )
+                        .with("count", book.chapter_count)
+                    }
+                    .with("bookCode", book.code),
+                ));
             }
             if let Some(verse) = point.verse {
                 if verse == 0 || verse > MAX_VERSE {
-                    return Err(AppError::InvalidReference(format!(
-                        "Verse {verse} is not a valid verse number."
-                    )));
+                    return Err(AppError::InvalidReference(
+                        UserMessage::new(
+                            "reference.badVerse",
+                            format!("Verse {verse} is not a valid verse number."),
+                        )
+                        .with("verse", verse),
+                    ));
                 }
             }
         }
         if self.end_key() < self.start_key() {
-            return Err(AppError::InvalidReference(
-                "The end of the passage comes before its start.".into(),
-            ));
+            return Err(AppError::InvalidReference(UserMessage::new(
+                "reference.endBeforeStart",
+                "The end of the passage comes before its start.",
+            )));
         }
         Ok(())
     }
@@ -132,8 +147,15 @@ impl ScriptureRef {
 
     /// Parses a canonical string; anything else is rejected.
     pub fn from_canonical(value: &str) -> AppResult<Self> {
-        let invalid =
-            || AppError::InvalidReference(format!("“{value}” is not a valid passage reference."));
+        let invalid = || {
+            AppError::InvalidReference(
+                UserMessage::new(
+                    "reference.invalid",
+                    format!("“{value}” is not a valid passage reference."),
+                )
+                .with("text", value),
+            )
+        };
         let parse_point = |part: &str| -> AppResult<(&'static Book, Point)> {
             let mut pieces = part.split('.');
             let book = pieces.next().and_then(canon::by_code).ok_or_else(invalid)?;
@@ -156,9 +178,10 @@ impl ScriptureRef {
             Some(part) => {
                 let (end_book, end) = parse_point(part)?;
                 if end_book.code != book.code {
-                    return Err(AppError::InvalidReference(
-                        "A passage must stay within one book.".into(),
-                    ));
+                    return Err(AppError::InvalidReference(UserMessage::new(
+                        "reference.oneBook",
+                        "A passage must stay within one book.",
+                    )));
                 }
                 end
             }

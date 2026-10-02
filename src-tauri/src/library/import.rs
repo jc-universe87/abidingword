@@ -8,7 +8,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 use crate::library::adapters::{adapters, ExtractionStatus, ImportedDocument};
 use crate::library::files::content_hash;
 use crate::scripture::parser::{DetectedReference, ReferenceParser};
@@ -30,16 +30,19 @@ pub struct StagedSource {
 
 impl StagedSource {
     /// Why this file cannot be added, in plain words; None when it can.
-    pub fn problem(&self) -> Option<String> {
+    pub fn problem(&self) -> Option<UserMessage> {
         if self.document.extraction_status == ExtractionStatus::OcrRequired {
-            return Some(
+            return Some(UserMessage::new(
+                "library.scannedPdf",
                 "This PDF appears to contain scanned pages. OCR support is not available yet, \
-                 so its text cannot be added."
-                    .into(),
-            );
+                 so its text cannot be added.",
+            ));
         }
         if self.document.segments.is_empty() {
-            return Some("No text was found in this file.".into());
+            return Some(UserMessage::new(
+                "library.noText",
+                "No text was found in this file.",
+            ));
         }
         None
     }
@@ -58,18 +61,28 @@ pub fn stage(path: &Path) -> AppResult<StagedSource> {
         .into_iter()
         .find(|a| a.accepts(&extension))
         .ok_or_else(|| {
-            AppError::UnsupportedFormat(format!(
-                "“{file_name}” is not a kind of file the library can read yet. \
-                 It reads PDF, EPUB, Markdown (.md) and plain text (.txt) files."
-            ))
+            AppError::UnsupportedFormat(
+                UserMessage::new(
+                    "library.unsupportedFile",
+                    format!(
+                        "“{file_name}” is not a kind of file the library can read yet. \
+                         It reads PDF, EPUB, Markdown (.md) and plain text (.txt) files."
+                    ),
+                )
+                .with("fileName", &file_name),
+            )
         })?;
     let size = fs::metadata(path)
         .map_err(|e| AppError::filesystem(path, e))?
         .len();
     if size > MAX_FILE_BYTES {
-        return Err(AppError::Import(format!(
-            "“{file_name}” is too large to import."
-        )));
+        return Err(AppError::Import(
+            UserMessage::new(
+                "library.tooLarge",
+                format!("“{file_name}” is too large to import."),
+            )
+            .with("fileName", &file_name),
+        ));
     }
     let bytes = fs::read(path).map_err(|e| AppError::filesystem(path, e))?;
     let document = adapter.extract(&bytes, &file_name)?;

@@ -10,6 +10,7 @@ import "@fontsource/noto-serif/400.css";
 import "@fontsource/noto-serif/400-italic.css";
 import "@fontsource/noto-serif/600.css";
 import "./design-system/index.css";
+import "./i18n";
 
 import { App } from "./app/App";
 import { tauriApi } from "./lib/api";

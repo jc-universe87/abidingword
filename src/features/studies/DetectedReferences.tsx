@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useScripture } from "@/features/scripture/ScriptureContext";
+import { referenceLabel } from "@/i18n/scripture";
 import { useApi } from "@/lib/ApiContext";
 import type { DetectedReference } from "@/types/scripture";
 
@@ -11,6 +13,7 @@ const DETECT_DELAY_MS = 600;
  * moment after typing stops, and never changes the text.
  */
 export function DetectedReferences({ text, onOpen }: { text: string; onOpen: () => void }) {
+  const { t } = useTranslation();
   const api = useApi();
   const { goTo } = useScripture();
   const [found, setFound] = useState<DetectedReference[]>([]);
@@ -39,7 +42,7 @@ export function DetectedReferences({ text, onOpen }: { text: string; onOpen: () 
   if (unique.length === 0) return null;
   return (
     <p className="m-0 flex flex-wrap items-center gap-x-3 gap-y-1 px-3 text-[0.875rem] text-text-muted">
-      <span>Passages mentioned:</span>
+      <span>{t("studies.blocks.passagesMentioned")}</span>
       {unique.map((d) => (
         <button
           key={d.reference.canonical}
@@ -50,7 +53,7 @@ export function DetectedReferences({ text, onOpen }: { text: string; onOpen: () 
           }}
           className="rounded text-link underline underline-offset-2 hover:no-underline"
         >
-          {d.reference.display}
+          {referenceLabel(d.reference)}
         </button>
       ))}
     </p>

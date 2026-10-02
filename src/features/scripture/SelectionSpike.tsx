@@ -1,19 +1,33 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
-import { anchorFromSelection, type SelectionAnchor } from "@/lib/selectionAnchor";
+import {
+  anchorFromSelection,
+  type SelectionAnchor,
+} from "@/lib/selectionAnchor";
 
 /**
  * Phase 2 spike (docs/scripture-annotations-v0.5.md): shows how the current
  * text selection becomes a phrase anchor and whether the core rebuilds the
  * same words from the stored text. Saves nothing. Shown only when the app
  * is started with VITE_SELECTION_SPIKE=1; replaced by the selection toolbar.
+ * Developer diagnostics only, never part of a normal build, so its text is
+ * marked i18n-ignore; the real selection toolbar (Phase 3) must be translated.
  */
 export const SELECTION_SPIKE = import.meta.env.VITE_SELECTION_SPIKE === "1";
 
-type Verdict = { state: "checking" } | { state: "ok"; quote: string } | { state: "refused"; message: string };
+type Verdict =
+  | { state: "checking" }
+  | { state: "ok"; quote: string }
+  | { state: "refused"; message: string };
 
-export function SelectionSpike({ root, translationId }: { root: RefObject<HTMLElement | null>; translationId: string }) {
+export function SelectionSpike({
+  root,
+  translationId,
+}: {
+  root: RefObject<HTMLElement | null>;
+  translationId: string;
+}) {
   const api = useApi();
   const [anchor, setAnchor] = useState<SelectionAnchor | null>(null);
   const [raw, setRaw] = useState("");
@@ -27,9 +41,22 @@ export function SelectionSpike({ root, translationId }: { root: RefObject<HTMLEl
       const ticket = ++latest.current;
       setVerdict({ state: "checking" });
       api
-        .annotationAnchorCheck({ translationId, start: next.start, end: next.end, quote: next.quote })
-        .then((checked) => ticket === latest.current && setVerdict({ state: "ok", quote: checked.quote }))
-        .catch((e) => ticket === latest.current && setVerdict({ state: "refused", message: toApiError(e).message }));
+        .annotationAnchorCheck({
+          translationId,
+          start: next.start,
+          end: next.end,
+          quote: next.quote,
+        })
+        .then(
+          (checked) =>
+            ticket === latest.current &&
+            setVerdict({ state: "ok", quote: checked.quote }),
+        )
+        .catch(
+          (e) =>
+            ticket === latest.current &&
+            setVerdict({ state: "refused", message: toApiError(e).message }),
+        );
     };
     const read = () => {
       clearTimeout(timer);
@@ -56,37 +83,60 @@ export function SelectionSpike({ root, translationId }: { root: RefObject<HTMLEl
 
   return (
     <section
+      /* i18n-ignore */
       aria-label="Selection check"
       className="mt-2 flex flex-col gap-2 rounded-aw border border-dashed border-border p-3 font-ui text-[0.875rem]"
     >
-      <p className="m-0 font-semibold text-text-strong">Selection check (development; nothing is saved)</p>
+      <p className="m-0 font-semibold text-text-strong">
+        {/* i18n-ignore */}
+        Selection check (development; nothing is saved)
+      </p>
       {!anchor ? (
+        // i18n-ignore
         <p className="m-0 text-text-muted">Select some Scripture text above.</p>
       ) : (
         <>
           <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+            {/* i18n-ignore */}
             <dt className="text-text-muted">Verses</dt>
             <dd className="m-0" data-testid="spike-parts">
-              {anchor.parts.map((p) => `${p.verse} [${p.start}–${p.end})`).join(" · ")}
+              {anchor.parts
+                .map((p) => `${p.verse} [${p.start}–${p.end})`)
+                .join(" · ")}
             </dd>
+            {/* i18n-ignore */}
             <dt className="text-text-muted">Anchor</dt>
             <dd className="m-0">
-              {anchor.start.verse}:{anchor.start.offset} → {anchor.end.verse}:{anchor.end.offset}
+              {anchor.start.verse}:{anchor.start.offset} → {anchor.end.verse}:
+              {anchor.end.offset}
             </dd>
+            {/* i18n-ignore */}
             <dt className="text-text-muted">Rebuilt</dt>
-            <dd className="reading m-0 break-words" data-testid="spike-quote">⟦{anchor.quote}⟧</dd>
+            <dd className="reading m-0 break-words" data-testid="spike-quote">
+              ⟦{anchor.quote}⟧
+            </dd>
+            {/* i18n-ignore */}
             <dt className="text-text-muted">Length</dt>
             <dd className="m-0">
+              {/* i18n-ignore */}
               {units} UTF-16 units, {codePoints} characters
             </dd>
+            {/* i18n-ignore */}
             <dt className="text-text-muted">Browser</dt>
-            <dd className="m-0 break-words font-mono text-[0.8125rem]">{JSON.stringify(raw)}</dd>
+            <dd className="m-0 break-words font-mono text-[0.8125rem]">
+              {JSON.stringify(raw)}
+            </dd>
+            {/* i18n-ignore */}
             <dt className="text-text-muted">Core</dt>
             <dd className="m-0" data-testid="spike-verdict">
               {verdict?.state === "checking" && "checking…"}
               {verdict?.state === "ok" &&
-                (verdict.quote === anchor.quote ? "✓ rebuilt the same words from the stored text" : "✗ rebuilt different words")}
-              {verdict?.state === "refused" && <span className="text-danger">✗ {verdict.message}</span>}
+                (verdict.quote === anchor.quote
+                  ? "✓ rebuilt the same words from the stored text"
+                  : "✗ rebuilt different words")}
+              {verdict?.state === "refused" && (
+                <span className="text-danger">✗ {verdict.message}</span>
+              )}
             </dd>
           </dl>
           <div>
@@ -100,6 +150,7 @@ export function SelectionSpike({ root, translationId }: { root: RefObject<HTMLEl
               }}
               className="min-h-9 rounded-aw border border-border px-3 hover:bg-bg-secondary"
             >
+              {/* i18n-ignore */}
               Clear
             </button>
           </div>

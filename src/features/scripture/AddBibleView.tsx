@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { AlertTriangle, ArrowLeft, Check, CircleX } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
+import { formatNumber } from "@/i18n/format";
+import { localizeMessage } from "@/i18n/messages";
+import { bookName } from "@/i18n/scripture";
 import type { BibleTranslation, ImportIssue, ImportPreview } from "@/types/scripture";
 import { useScripture } from "./ScriptureContext";
 
@@ -19,6 +23,7 @@ type Step =
  * presses "Add this Bible"; cancelling discards the checked files.
  */
 export function AddBibleView({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation();
   const api = useApi();
   const { reloadTranslations, setTranslation } = useScripture();
   const [step, setStep] = useState<Step>({ kind: "choose" });
@@ -52,7 +57,12 @@ export function AddBibleView({ onClose }: { onClose: () => void }) {
     onClose();
   };
 
-  const title = { choose: "Add a Bible", checking: "Checking the Bible…", review: "New Bible", done: "Bible added" }[step.kind];
+  const title = {
+    choose: t("scripture.addBible.title.choose"),
+    checking: t("scripture.addBible.title.checking"),
+    review: t("scripture.addBible.title.review"),
+    done: t("scripture.addBible.title.done"),
+  }[step.kind];
 
   return (
     <main aria-labelledby="add-bible-title" className="min-h-0 flex-1 overflow-y-auto bg-bg" onKeyDown={(e) => e.key === "Escape" && step.kind !== "checking" && cancel()}>
@@ -60,7 +70,7 @@ export function AddBibleView({ onClose }: { onClose: () => void }) {
         <div className="flex flex-col items-start gap-4">
           <Button variant="quiet" onClick={cancel} disabled={step.kind === "checking"}>
             <ArrowLeft className="size-4" aria-hidden="true" />
-            {step.kind === "done" ? "Back" : "Cancel"}
+            {step.kind === "done" ? t("common.back") : t("common.cancel")}
           </Button>
           <h1 id="add-bible-title" ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
             {title}
@@ -72,7 +82,7 @@ export function AddBibleView({ onClose }: { onClose: () => void }) {
         {step.kind === "choose" && <ChooseStep onBundled={(id) => preview({ bundled: id })} onFiles={chooseFiles} />}
         {step.kind === "checking" && (
           <p role="status" className="m-0 text-text-muted">
-            Reading and checking every book, chapter and verse. This can take a few seconds.
+            {t("scripture.addBible.checking")}
           </p>
         )}
         {step.kind === "review" && (
@@ -94,8 +104,12 @@ export function AddBibleView({ onClose }: { onClose: () => void }) {
         {step.kind === "done" && (
           <div className="flex flex-col items-start gap-4">
             <p className="reading m-0">
-              <strong>{step.bible.name}</strong> is ready to read, with {step.bible.bookCount} books and{" "}
-              {step.bible.verseCount.toLocaleString()} verses.
+              <Trans
+                i18nKey="scripture.addBible.done"
+                count={step.bible.bookCount}
+                values={{ name: step.bible.name, verses: formatNumber(step.bible.verseCount) }}
+                components={{ strong: <strong /> }}
+              />
             </p>
             <Button
               variant="primary"
@@ -104,7 +118,7 @@ export function AddBibleView({ onClose }: { onClose: () => void }) {
                 onClose();
               }}
             >
-              Read it now
+              {t("scripture.addBible.readNow")}
             </Button>
           </div>
         )}
@@ -114,6 +128,7 @@ export function AddBibleView({ onClose }: { onClose: () => void }) {
 }
 
 function ChooseStep({ onBundled, onFiles }: { onBundled: (id: string) => void; onFiles: () => void }) {
+  const { t } = useTranslation();
   const api = useApi();
   const bundled = useLoad(useCallback(() => api.bibleBundledList(), [api]));
   const available = (bundled.data ?? []).filter((b) => !b.installed);
@@ -121,22 +136,23 @@ function ChooseStep({ onBundled, onFiles }: { onBundled: (id: string) => void; o
     <div className="flex flex-col gap-8">
       {available.map((bible) => (
         <section key={bible.id} className="flex flex-col items-start gap-2 border-t border-border-subtle pt-6">
-          <h2 className="m-0 text-[1.125rem] font-semibold text-text-strong">Included with Abiding Word</h2>
+          <h2 className="m-0 text-[1.125rem] font-semibold text-text-strong">{t("scripture.addBible.included")}</h2>
           <p className="m-0">
-            <strong>{bible.name}</strong> ({bible.shortName}) · {bible.language} · {bible.licenseType}
+            <strong>{bible.name}</strong> ({bible.shortName})
+            {t("common.listSeparator")}
+            {[bible.language, bible.licenseType].join(t("common.listSeparator"))}
           </p>
           <Button variant="primary" onClick={() => onBundled(bible.id)}>
-            Add {bible.name}
+            {t("scripture.addBible.addNamed", { name: bible.name })}
           </Button>
         </section>
       ))}
       <section className="flex flex-col items-start gap-2 border-t border-border-subtle pt-6">
-        <h2 className="m-0 text-[1.125rem] font-semibold text-text-strong">A Bible you own</h2>
+        <h2 className="m-0 text-[1.125rem] font-semibold text-text-strong">{t("scripture.addBible.ownTitle")}</h2>
         <p className="m-0 text-text-muted">
-          Choose a Bible in USFM format: a .zip download, or its .usfm files. Abiding Word keeps its own copy
-          and never changes your file.
+          {t("scripture.addBible.ownBody")}
         </p>
-        <Button onClick={onFiles}>Choose Bible files…</Button>
+        <Button onClick={onFiles}>{t("scripture.addBible.chooseFiles")}</Button>
       </section>
     </div>
   );
@@ -153,6 +169,7 @@ interface Details {
 }
 
 function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCancel: () => void; onAdd: (d: Details) => Promise<void> }) {
+  const { t } = useTranslation();
   const id = useId();
   const s = preview.suggested;
   const [name, setName] = useState(s.name);
@@ -181,44 +198,43 @@ function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCa
   return (
     <div className="flex flex-col gap-8">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_10rem]">
-        <Field id={`${id}-name`} label="Name" value={name} onChange={setName} />
-        <Field id={`${id}-short`} label="Short name" value={shortName} onChange={setShortName} hint="e.g. WEB" />
-        <Field id={`${id}-lang`} label="Language" value={language} onChange={setLanguage} />
+        <Field id={`${id}-name`} label={t("scripture.addBible.field.name")} value={name} onChange={setName} />
+        <Field id={`${id}-short`} label={t("scripture.addBible.field.shortName")} value={shortName} onChange={setShortName} hint={t("scripture.addBible.field.shortNameHint")} />
+        <Field id={`${id}-lang`} label={t("scripture.addBible.field.language")} value={language} onChange={setLanguage} />
       </div>
 
-      <section aria-label="What was found" className="flex flex-col gap-1">
-        <p className="reading m-0">{preview.bookCount} books detected</p>
-        <p className="reading m-0">{preview.chapterCount.toLocaleString()} chapters detected</p>
-        <p className="reading m-0">{preview.verseCount.toLocaleString()} verses detected</p>
-        {s.licenseType && <p className="m-0 mt-2 text-[0.9375rem] text-text-muted">Licence: {s.licenseType}</p>}
+      <section aria-label={t("scripture.addBible.found")} className="flex flex-col gap-1">
+        <p className="reading m-0">{t("scripture.addBible.booksDetected", { count: preview.bookCount })}</p>
+        <p className="reading m-0">{t("scripture.addBible.chaptersDetected", { count: preview.chapterCount, number: formatNumber(preview.chapterCount) })}</p>
+        <p className="reading m-0">{t("scripture.addBible.versesDetected", { count: preview.verseCount, number: formatNumber(preview.verseCount) })}</p>
+        {s.licenseType && <p className="m-0 mt-2 text-[0.9375rem] text-text-muted">{t("scripture.addBible.licence", { licence: s.licenseType })}</p>}
       </section>
 
-      <ul aria-label="Books" className="m-0 grid list-none grid-cols-1 gap-x-6 p-0 sm:grid-cols-2">
+      <ul aria-label={t("scripture.addBible.books")} className="m-0 grid list-none grid-cols-1 gap-x-6 p-0 sm:grid-cols-2">
         {preview.books.map((book) => (
           <li key={book.code} className="flex items-center justify-between gap-3 border-b border-border-subtle py-1.5">
-            <span>{book.name}</span>
+            <span>{bookName(book.code, book.name)}</span>
             <BookStatus status={book.status} />
           </li>
         ))}
       </ul>
 
       {errors.length > 0 && (
-        <IssueGroup title={`${errors.length} problem${errors.length === 1 ? "" : "s"} must be fixed before this Bible can be added`} issues={errors} open />
+        <IssueGroup title={t("scripture.addBible.problems", { count: errors.length })} issues={errors} open />
       )}
-      {warnings.length > 0 && <IssueGroup title={`${warnings.length} warning${warnings.length === 1 ? "" : "s"} — worth reviewing`} issues={warnings} />}
-      {notes.length > 0 && <IssueGroup title={`${notes.length} note${notes.length === 1 ? "" : "s"}`} issues={notes} />}
+      {warnings.length > 0 && <IssueGroup title={t("scripture.addBible.warnings", { count: warnings.length })} issues={warnings} />}
+      {notes.length > 0 && <IssueGroup title={t("scripture.addBible.notes", { count: notes.length })} issues={notes} />}
       {preview.skippedFiles.length > 0 && (
         <p className="m-0 text-[0.9375rem] text-text-muted">
-          {preview.skippedFiles.length} file{preview.skippedFiles.length === 1 ? " was" : "s were"} left out because{" "}
-          {preview.skippedFiles.length === 1 ? "it is" : "they are"} not one of the 66 books (for example an introduction or glossary).
+          {t("scripture.addBible.skipped", { count: preview.skippedFiles.length })}
         </p>
       )}
 
       <div className="flex flex-wrap gap-3 border-t border-border-subtle pt-6">
         <Button variant="primary" onClick={add} disabled={!preview.canImport || !complete || busy}>
-          {busy ? "Adding…" : "Add this Bible"}
+          {busy ? t("scripture.addBible.adding") : t("scripture.addBible.add")}
         </Button>
-        <Button onClick={onCancel}>Cancel</Button>
+        <Button onClick={onCancel}>{t("common.cancel")}</Button>
       </div>
     </div>
   );
@@ -240,10 +256,11 @@ function Field(props: { id: string; label: string; value: string; onChange: (v: 
 }
 
 function BookStatus({ status }: { status: "ok" | "warning" | "error" }) {
+  const { t } = useTranslation();
   const map: Record<typeof status, [ReactNode, string]> = {
-    ok: [<Check key="i" className="size-4 text-text-strong" aria-hidden="true" />, "Looks good"],
-    warning: [<AlertTriangle key="i" className="size-4 text-accent" aria-hidden="true" />, "Worth reviewing"],
-    error: [<CircleX key="i" className="size-4 text-danger" aria-hidden="true" />, "Problem"],
+    ok: [<Check key="i" className="size-4 text-text-strong" aria-hidden="true" />, t("scripture.addBible.bookStatus.ok")],
+    warning: [<AlertTriangle key="i" className="size-4 text-accent" aria-hidden="true" />, t("scripture.addBible.bookStatus.warning")],
+    error: [<CircleX key="i" className="size-4 text-danger" aria-hidden="true" />, t("scripture.addBible.bookStatus.error")],
   };
   const [icon, label] = map[status];
   return (
@@ -260,7 +277,7 @@ function IssueGroup({ title, issues, open }: { title: string; issues: ImportIssu
       <summary className="cursor-pointer font-semibold text-text-strong">{title}</summary>
       <ul className="m-0 mt-2 flex list-none flex-col gap-1.5 p-0 text-[0.9375rem]">
         {issues.map((issue, index) => (
-          <li key={index}>{issue.message}</li>
+          <li key={index}>{localizeMessage(issue.code, issue.params, issue.message)}</li>
         ))}
       </ul>
     </details>

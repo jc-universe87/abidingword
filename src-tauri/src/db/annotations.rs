@@ -9,7 +9,7 @@
 use rusqlite::{params, Connection, OptionalExtension, Row};
 
 use crate::db::{bibles, new_id, now, workspaces};
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 use crate::scripture::annotation_data::{
     build_anchor, validate_color, wording_matches, AnchorPoint, AnnotationData, StoredAnchor,
     DEFAULT_HIGHLIGHT_COLOR,
@@ -138,9 +138,9 @@ fn verse_texts(
 fn single_verse(canonical: &str) -> AppResult<ScriptureRef> {
     let reference = ScriptureRef::from_canonical(canonical)?;
     if !reference.is_single_verse() {
-        return Err(AppError::InvalidReference(format!(
-            "“{canonical}” is not a single verse."
-        )));
+        return Err(AppError::InvalidReference(
+            format!("“{canonical}” is not a single verse.").into(),
+        ));
     }
     Ok(reference)
 }
@@ -251,9 +251,10 @@ fn get_for(conn: &Connection, id: &str, translation: Option<&str>) -> AppResult<
 
 fn check_content(content: &str) -> AppResult<()> {
     if content.chars().count() > CONTENT_MAX_CHARS {
-        return Err(AppError::InvalidInput(
-            "This note is too long to save.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "annotations.tooLong",
+            "This note is too long to save.",
+        )));
     }
     Ok(())
 }
@@ -281,10 +282,13 @@ fn recolour(conn: &Connection, raw: &RawAnnotation, color: &str) -> AppResult<()
 pub fn create(conn: &Connection, input: &CreateAnnotation) -> AppResult<Annotation> {
     let kind = input.kind.as_str();
     if !ANNOTATION_KINDS.contains(&kind) {
-        return Err(AppError::InvalidInput(format!(
-            "“{}” is not a kind of annotation.",
-            input.kind
-        )));
+        return Err(AppError::InvalidInput(
+            UserMessage::new(
+                "invalidChoice",
+                format!("“{}” is not a kind of annotation.", input.kind),
+            )
+            .with("value", &input.kind),
+        ));
     }
     let reference = ScriptureRef::from_canonical(&input.reference)?;
     let content = input.content.clone().unwrap_or_default();

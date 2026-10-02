@@ -1,6 +1,7 @@
 // The frontend's only door to the native core. Components use the `Api`
 // interface through `useApi()`, never `invoke` directly, so tests can supply
 // an in-memory implementation.
+import { localizeError } from "@/i18n/messages";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import type {
@@ -9,6 +10,7 @@ import type {
   CreateProject,
   CreateStudy,
   CreateStudyBlock,
+  ErrorPayload,
   ErrorKind,
   Project,
   Study,
@@ -170,8 +172,10 @@ export class ApiError extends Error {
   }
 }
 
-const GENERIC_MESSAGE = "Something unexpected went wrong. Details are in the log file.";
-
+/**
+ * The error as the user should see it: the core's payload (kind, message
+ * code, values) becomes a message in the interface language.
+ */
 export function toApiError(error: unknown): ApiError {
   if (error instanceof ApiError) return error;
   if (
@@ -181,9 +185,10 @@ export function toApiError(error: unknown): ApiError {
     "message" in error &&
     typeof error.message === "string"
   ) {
-    return new ApiError(error.kind as ErrorKind, error.message);
+    const payload = error as ErrorPayload;
+    return new ApiError(payload.kind, localizeError(payload.kind, payload.message, payload.code, payload.params));
   }
-  return new ApiError("unexpected", GENERIC_MESSAGE);
+  return new ApiError("unexpected", localizeError("unexpected", ""));
 }
 
 async function call<T>(command: string, args?: Record<string, unknown>): Promise<T> {

@@ -293,8 +293,18 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       { code: "ROM", name: "Romans", chapters: 1, verses: 3, status: "ok" },
     ],
     issues: [
-      ...(broken ? [{ severity: "error" as const, book: "JHN", chapter: 15, message: "John 15:1 appears twice." }] : []),
-      { severity: "warning", book: "JHN", chapter: null, message: "John: 3 of 21 chapters found (missing: 1, 2, 3 and 15 more)." },
+      // Coded like the core's issues; the interface shows them translated.
+      ...(broken
+        ? [{
+            severity: "error" as const, book: "JHN", chapter: 15, message: "John 15:1 appears twice.",
+            code: "bibleImport.verseTwice", params: { bookCode: "JHN", chapter: "15", verse: "1" },
+          }]
+        : []),
+      {
+        severity: "warning", book: "JHN", chapter: null, message: "John: 3 of 21 chapters found (missing: 1, 2, 3 and 15 more).",
+        code: "bibleImport.missingChapters",
+        params: { bookCode: "JHN", found: "3", count: "21", numbers: "1, 2, 3", listed: "18", more: "15" },
+      },
     ],
     skippedFiles: [],
     canImport: !broken,
@@ -513,13 +523,13 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       };
       for (const st of state.studies) {
         const base = { studyId: st.id, studyTitle: st.title, projectId: st.projectId };
-        if (st.title.toLowerCase().includes(needle)) hits.push({ ...base, kind: "study", location: "Title or purpose", snippet: mark(st.title) });
+        if (st.title.toLowerCase().includes(needle)) hits.push({ ...base, kind: "study", location: "Title or purpose", sectionKey: null, sectionTitle: null, findingType: null, snippet: mark(st.title) });
         for (const f of state.findings.filter((x) => x.studyId === st.id && x.content.toLowerCase().includes(needle))) {
-          hits.push({ ...base, kind: "finding", location: "Finding", snippet: mark(f.content) });
+          hits.push({ ...base, kind: "finding", location: "Finding", sectionKey: null, sectionTitle: null, findingType: f.findingType, snippet: mark(f.content) });
         }
         for (const section of sectionsOf(st.id)) {
           for (const b of section.blocks.filter((x) => x.content.toLowerCase().includes(needle))) {
-            hits.push({ ...base, kind: "block", location: section.title, snippet: mark(b.content) });
+            hits.push({ ...base, kind: "block", location: section.title, sectionKey: section.key, sectionTitle: section.title, findingType: null, snippet: mark(b.content) });
           }
         }
       }
@@ -910,6 +920,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         segmentCount: fixture.segments.length, referenceCount: fixture.mentions?.length ?? 0,
         extractionStatus: scanned ? "ocr_required" : "extracted_text",
         problem: scanned ? "This PDF appears to contain scanned pages. OCR support is not available yet." : null,
+        problemCode: scanned ? "library.scannedPdf" : null,
         duplicateOf: duplicate ? { id: duplicate.id, title: duplicate.title } : null,
         canImport: !scanned,
       };

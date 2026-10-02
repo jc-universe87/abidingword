@@ -1,0 +1,44 @@
+{
+  "startup": {
+    "opening": "Abriendo tu espacio de trabajo…",
+    "couldNotStart": "Abiding Word no pudo iniciarse.",
+    "logFiles": "Archivos de registro:",
+    "windowFailed": "Algo inesperado falló en la ventana. Cierra Abiding Word y vuelve a abrirlo. Tu trabajo guardado está a salvo."
+  },
+  "skipToStudy": "Ir al estudio",
+  "search": {
+    "scopeLabel": "Buscar en",
+    "scope": {
+      "scripture": "Biblia",
+      "studies": "Estudios",
+      "library": "Biblioteca"
+    },
+    "label": {
+      "scripture": "Buscar en la Biblia",
+      "studies": "Buscar en los estudios",
+      "library": "Buscar en la biblioteca"
+    },
+    "placeholder": {
+      "scripture": "Buscar en la Biblia",
+      "studies": "Buscar en tus estudios",
+      "library": "Buscar en tu biblioteca",
+      "noBible": "Primero añade una Biblia"
+    }
+  },
+  "toolbar": {
+    "showScripture": "Mostrar panel de la Biblia",
+    "showSources": "Mostrar panel de fuentes",
+    "settings": "Configuración"
+  },
+  "panes": {
+    "name": {
+      "scripture": "Biblia",
+      "study": "Estudio",
+      "sources": "Fuentes"
+    },
+    "arrange": "Organizar el panel {{pane}}",
+    "moveLeft": "Mover el panel {{pane}} a la izquierda",
+    "moveRight": "Mover el panel {{pane}} a la derecha",
+    "resize": "Cambiar el ancho del panel {{pane}}"
+  }
+}

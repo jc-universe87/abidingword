@@ -7,7 +7,7 @@ use crate::domain::validate::{self, DESCRIPTION_MAX_CHARS};
 use crate::domain::{
     BlockType, CreateStudySection, DeleteStudySection, Reorder, StudySection, UpdateStudySection,
 };
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 
 const COLUMNS: &str =
     "id, study_id, key, title, guidance, position, created_at, updated_at, revision";
@@ -130,10 +130,13 @@ pub fn has_content(conn: &Connection, id: &str) -> AppResult<bool> {
 pub fn delete(conn: &Connection, input: &DeleteStudySection) -> AppResult<()> {
     let section = get(conn, &input.id)?;
     if !input.force && has_content(conn, &input.id)? {
-        return Err(AppError::Conflict(format!(
-            "“{}” still has writing or findings in it.",
-            section.title
-        )));
+        return Err(AppError::Conflict(
+            UserMessage::new(
+                "sections.hasContent",
+                format!("“{}” still has writing or findings in it.", section.title),
+            )
+            .with("title", &section.title),
+        ));
     }
     let now = now();
     let tx = conn.unchecked_transaction()?;

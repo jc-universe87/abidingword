@@ -10,7 +10,7 @@ use super::{
     paragraphs, split_long, ExtractionStatus, FoundMetadata, ImportedDocument, NewSegment,
     SourceImportAdapter,
 };
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 
 pub struct PdfImporter;
 
@@ -29,12 +29,26 @@ impl SourceImportAdapter for PdfImporter {
     }
 
     fn extract(&self, bytes: &[u8], file_name: &str) -> AppResult<ImportedDocument> {
-        let unreadable = || AppError::Import(format!("“{file_name}” could not be read as a PDF."));
+        let unreadable = || {
+            AppError::Import(
+                UserMessage::new(
+                    "library.badPdf",
+                    format!("“{file_name}” could not be read as a PDF."),
+                )
+                .with("fileName", file_name),
+            )
+        };
         let document = Document::load_mem(bytes).map_err(|_| unreadable())?;
         if document.is_encrypted() {
-            return Err(AppError::Import(format!(
-                "“{file_name}” is password-protected. Remove the protection and import it again."
-            )));
+            return Err(AppError::Import(
+                UserMessage::new(
+                    "library.passwordProtected",
+                    format!(
+                        "“{file_name}” is password-protected. Remove the protection and import it again."
+                    ),
+                )
+                .with("fileName", file_name),
+            ));
         }
         let metadata = metadata(&document);
         // The text extractor can panic on unusual files; that must never

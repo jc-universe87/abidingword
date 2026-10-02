@@ -1,11 +1,14 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowDown, ArrowUp, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { useSaveTracker } from "@/hooks/SaveTracker";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { BLOCK_TYPES, type BlockType, type StudySection } from "@/types/domain";
-import { BLOCK_LABELS, BlockEditor } from "./BlockEditor";
+import { BlockEditor } from "./BlockEditor";
+import { sectionGuidance, sectionTitle } from "./builtinText";
+import { blockLabel } from "./labels";
 
 interface SectionEditorProps {
   section: StudySection;
@@ -23,12 +26,15 @@ const tool = "inline-flex size-9 items-center justify-center rounded-aw text-tex
 
 export function SectionEditor(props: SectionEditorProps) {
   const { section, isFirst, isLast, hasFindings, onChange, onMove, onDeleted, onRevealScripture } = props;
+  const { t } = useTranslation();
   const api = useApi();
   const { track, settled } = useSaveTracker();
   const [renaming, setRenaming] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const headingId = `section-${section.id}`;
+  const title = sectionTitle(section);
+  const guidance = sectionGuidance(section);
 
   const addBlock = async (blockType: BlockType) => {
     setError(null);
@@ -90,33 +96,33 @@ export function SectionEditor(props: SectionEditorProps) {
   return (
     <section aria-labelledby={headingId} id={`section-anchor-${section.id}`} className="scroll-mt-4 border-t border-border-subtle pt-6">
       {renaming ? (
-        <RenameForm initial={section.title} onSubmit={rename} onCancel={() => setRenaming(false)} />
+        <RenameForm initial={title} onSubmit={rename} onCancel={() => setRenaming(false)} />
       ) : (
         <div className="flex items-baseline gap-2">
           <h2 id={headingId} tabIndex={-1} className="m-0 font-display text-[1.5rem] font-heading text-text-strong">
-            {section.title}
+            {title}
           </h2>
           <button
             type="button"
             onClick={() => setRenaming(true)}
-            aria-label={`Rename section ${section.title}`}
-            title="Rename section"
+            aria-label={t("studies.sections.rename", { title })}
+            title={t("studies.sections.renameTooltip")}
             className="inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary"
           >
             <Pencil className="size-4" aria-hidden="true" />
           </button>
           <span className="ml-auto flex items-center">
-            <button type="button" className={tool} disabled={isFirst} onClick={() => onMove(-1)} aria-label={`Move section ${section.title} up`}>
+            <button type="button" className={tool} disabled={isFirst} onClick={() => onMove(-1)} aria-label={t("studies.sections.moveUp", { title })}>
               <ArrowUp className="size-4" aria-hidden="true" />
             </button>
-            <button type="button" className={tool} disabled={isLast} onClick={() => onMove(1)} aria-label={`Move section ${section.title} down`}>
+            <button type="button" className={tool} disabled={isLast} onClick={() => onMove(1)} aria-label={t("studies.sections.moveDown", { title })}>
               <ArrowDown className="size-4" aria-hidden="true" />
             </button>
             <button
               type="button"
               className={`${tool} hover:text-danger`}
               onClick={() => void remove(false)}
-              aria-label={`Delete section ${section.title}`}
+              aria-label={t("studies.sections.delete", { title })}
             >
               <Trash2 className="size-4" aria-hidden="true" />
             </button>
@@ -124,26 +130,25 @@ export function SectionEditor(props: SectionEditorProps) {
         </div>
       )}
       {confirmingDelete && (
-        <div role="alertdialog" aria-label={`Delete section ${section.title}?`} className="mt-2 flex flex-col gap-2 border-l-[3px] border-danger bg-bg-secondary px-4 py-3">
+        <div role="alertdialog" aria-label={t("studies.sections.confirmLabel", { title })} className="mt-2 flex flex-col gap-2 border-l-[3px] border-danger bg-bg-secondary px-4 py-3">
           <p className="m-0">
-            Delete “{section.title}” and the writing in it?
-            {hasFindings && " Its findings stay in the study as findings for the whole study."}
+            {t(hasFindings ? "studies.sections.confirmWithFindings" : "studies.sections.confirm", { title })}
           </p>
           <div className="flex gap-2">
-            <Button variant="primary" onClick={() => remove(true)}>Delete section</Button>
-            <Button autoFocus onClick={() => setConfirmingDelete(false)}>Keep it</Button>
+            <Button variant="primary" onClick={() => remove(true)}>{t("studies.sections.deleteSection")}</Button>
+            <Button autoFocus onClick={() => setConfirmingDelete(false)}>{t("studies.keepIt")}</Button>
           </div>
         </div>
       )}
-      {section.guidance && <p className="mt-1 mb-3 text-[0.9375rem] text-text-muted">{section.guidance}</p>}
+      {guidance && <p className="mt-1 mb-3 text-[0.9375rem] text-text-muted">{guidance}</p>}
 
       <div className="flex flex-col gap-1">
         {section.blocks.map((block, index) => (
           <BlockEditor
             key={block.id}
             block={block}
-            sectionTitle={section.title}
-            placeholder={index === 0 ? "Write here…" : ""}
+            sectionTitle={title}
+            placeholder={index === 0 ? t("studies.blocks.placeholder") : ""}
             onDeleted={removeBlock}
             onRevealScripture={onRevealScripture}
             isFirst={index === 0}
@@ -153,10 +158,10 @@ export function SectionEditor(props: SectionEditorProps) {
         ))}
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-1" role="group" aria-label={`Add to ${section.title}`}>
+      <div className="mt-2 flex flex-wrap items-center gap-1" role="group" aria-label={t("studies.sections.addTo", { title })}>
         {BLOCK_TYPES.map((type) => (
           <Button key={type} variant="quiet" className="min-h-9 text-[0.875rem] text-text-muted" onClick={() => addBlock(type)}>
-            + {BLOCK_LABELS[type]}
+            {t("studies.blocks.add", { type: blockLabel(t, type) })}
           </Button>
         ))}
       </div>
@@ -178,6 +183,7 @@ function RenameForm({
   onSubmit: (title: string) => void;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState(initial);
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -186,7 +192,7 @@ function RenameForm({
   return (
     <form onSubmit={submit} className="flex flex-wrap items-center gap-2">
       <input
-        aria-label="Section title"
+        aria-label={t("studies.sections.titleLabel")}
         autoFocus
         value={title}
         onChange={(e) => setTitle(e.target.value)}
@@ -194,9 +200,9 @@ function RenameForm({
         className="h-11 min-w-0 flex-1 rounded-aw border border-border bg-bg px-3 font-display text-[1.375rem] font-heading text-text-strong"
       />
       <Button type="submit" variant="primary">
-        Save
+        {t("common.save")}
       </Button>
-      <Button onClick={onCancel}>Cancel</Button>
+      <Button onClick={onCancel}>{t("common.cancel")}</Button>
     </form>
   );
 }

@@ -10,7 +10,7 @@ use rusqlite::{params, Connection, OptionalExtension, Row};
 
 use crate::db::{new_id, now};
 use crate::domain::validate;
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 use crate::scripture::canon;
 use crate::scripture::import::StagedContent;
 use crate::scripture::reference::{split_key, verse_key, ScriptureRef};
@@ -100,16 +100,21 @@ pub fn commit_import(
     source: &SourceRecord,
 ) -> AppResult<BibleTranslation> {
     if content.has_errors() {
-        return Err(AppError::Import(
-            "This Bible has problems that must be resolved before it can be added.".into(),
-        ));
+        return Err(AppError::Import(UserMessage::new(
+            "bibles.hasProblems",
+            "This Bible has problems that must be resolved before it can be added.",
+        )));
     }
     let name = validate::title(&meta.name, "Bible")?;
     let short_name = validate::title(&meta.short_name, "Bible's short name")?;
     if short_name.chars().count() > SHORT_NAME_MAX_CHARS {
-        return Err(AppError::InvalidInput(format!(
-            "Please keep the short name under {SHORT_NAME_MAX_CHARS} characters."
-        )));
+        return Err(AppError::InvalidInput(
+            UserMessage::new(
+                "bibles.shortNameTooLong",
+                format!("Please keep the short name under {SHORT_NAME_MAX_CHARS} characters."),
+            )
+            .with("max", SHORT_NAME_MAX_CHARS),
+        ));
     }
     let language = validate::title(&meta.language, "language")?;
     let taken: bool = conn.query_row(
@@ -246,7 +251,13 @@ pub fn chapter(
 ) -> AppResult<ChapterText> {
     get(conn, translation_id)?;
     let book = canon::by_code(book).ok_or_else(|| {
-        AppError::InvalidReference(format!("“{book}” is not a book of the Bible."))
+        AppError::InvalidReference(
+            UserMessage::new(
+                "reference.notABook",
+                format!("“{book}” is not a book of the Bible."),
+            )
+            .with("text", book),
+        )
     })?;
     let reference = ScriptureRef::chapter(book, chapter)?;
     let superscription = conn
@@ -293,9 +304,10 @@ pub fn passage(
 
 pub fn search(conn: &Connection, input: &SearchScripture) -> AppResult<SearchResults> {
     let Some(query) = crate::db::fts::query(&input.query) else {
-        return Err(AppError::InvalidInput(
-            "Type a word or phrase to search for.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "search.empty",
+            "Type a word or phrase to search for.",
+        )));
     };
     if let Some(id) = &input.translation_id {
         get(conn, id)?;
@@ -303,7 +315,13 @@ pub fn search(conn: &Connection, input: &SearchScripture) -> AppResult<SearchRes
     let range = match input.book.as_deref().filter(|b| !b.is_empty()) {
         Some(code) => {
             let book = canon::by_code(code).ok_or_else(|| {
-                AppError::InvalidReference(format!("“{code}” is not a book of the Bible."))
+                AppError::InvalidReference(
+                    UserMessage::new(
+                        "reference.notABook",
+                        format!("“{code}” is not a book of the Bible."),
+                    )
+                    .with("text", code),
+                )
             })?;
             Some((
                 verse_key(book.ordinal, 0, 0),

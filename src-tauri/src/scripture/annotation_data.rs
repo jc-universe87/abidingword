@@ -9,7 +9,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 use crate::library::files::content_hash;
 
 /// Version of the `data` JSON shape.
@@ -109,9 +109,13 @@ pub fn validate_color(color: &str) -> AppResult<()> {
     if HIGHLIGHT_COLORS.contains(&color) {
         Ok(())
     } else {
-        Err(AppError::InvalidInput(format!(
-            "“{color}” is not one of the highlight colours."
-        )))
+        Err(AppError::InvalidInput(
+            UserMessage::new(
+                "invalidChoice",
+                format!("“{color}” is not one of the highlight colours."),
+            )
+            .with("value", color),
+        ))
     }
 }
 

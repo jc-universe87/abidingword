@@ -1,4 +1,6 @@
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import { localizeError } from "@/i18n/messages";
 import type { Api } from "@/lib/api";
 import { ApiProvider, useApi } from "@/lib/ApiContext";
 import { useLoad } from "@/hooks/useLoad";
@@ -10,6 +12,9 @@ import { Shell } from "./Shell";
 import { StartupScreen } from "./StartupScreen";
 
 export function App({ api }: { api: Api }) {
+  // Re-renders the whole interface when the language changes; nothing is
+  // remounted, so the open study, passage and layout stay as they are.
+  useTranslation();
   return (
     <ApiProvider api={api}>
       <ErrorBoundary onError={(message) => void api.logError(message).catch(() => undefined)}>
@@ -21,6 +26,7 @@ export function App({ api }: { api: Api }) {
 
 /** Checks that the native core started, then loads what the shell needs. */
 function Bootstrap() {
+  const { t } = useTranslation();
   const api = useApi();
   const info = useLoad(useCallback(() => api.appInfo(), [api]));
 
@@ -29,7 +35,11 @@ function Bootstrap() {
   if (!info.data.ready) {
     return (
       <StartupScreen
-        message={info.data.error?.message ?? "Abiding Word could not start."}
+        message={
+          info.data.error
+            ? localizeError(info.data.error.kind, info.data.error.message, info.data.error.code, info.data.error.params)
+            : t("app.startup.couldNotStart")
+        }
         logDirectory={info.data.logDirectory}
       />
     );

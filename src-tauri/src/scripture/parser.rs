@@ -14,7 +14,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 use serde::Serialize;
 
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 use crate::scripture::canon::{Book, BOOKS};
 use crate::scripture::reference::{Point, ScriptureRef, ScriptureRefDto};
 
@@ -135,9 +135,10 @@ impl ReferenceParser {
     pub fn parse(&self, input: &str) -> AppResult<ScriptureRef> {
         let text = input.trim().trim_end_matches(['.', ',', ';']);
         if text.is_empty() {
-            return Err(AppError::InvalidReference(
-                "Type a passage, for example “John 15” or “Rom 8:1-17”.".into(),
-            ));
+            return Err(AppError::InvalidReference(UserMessage::new(
+                "reference.empty",
+                "Type a passage, for example “John 15” or “Rom 8:1-17”.",
+            )));
         }
         if let Some(book) = self.lookup.get(&normalise(text)) {
             return ScriptureRef::chapter(book, 1);
@@ -150,10 +151,16 @@ impl ReferenceParser {
             {
                 self.interpret(&caps)
             }
-            _ => Err(AppError::InvalidReference(format!(
-                "“{}” is not a passage I recognise. Try a form like “John 15” or “Rom 8:1-17”.",
-                input.trim()
-            ))),
+            _ => Err(AppError::InvalidReference(
+                UserMessage::new(
+                    "reference.notRecognised",
+                    format!(
+                        "“{}” is not a passage I recognise. Try a form like “John 15” or “Rom 8:1-17”.",
+                        input.trim()
+                    ),
+                )
+                .with("text", input.trim()),
+            )),
         }
     }
 
@@ -188,7 +195,15 @@ impl ReferenceParser {
             .lookup
             .get(&normalise(book_text))
             .copied()
-            .ok_or_else(|| AppError::InvalidReference(format!("Unknown book “{book_text}”.")))?;
+            .ok_or_else(|| {
+                AppError::InvalidReference(
+                    UserMessage::new(
+                        "reference.unknownBook",
+                        format!("Unknown book “{book_text}”."),
+                    )
+                    .with("text", book_text),
+                )
+            })?;
         let c1 = number("c1").unwrap_or(0);
         let (v1, n2, v2) = (number("v1"), number("n2"), number("v2"));
         let one_chapter = book.chapter_count == 1;

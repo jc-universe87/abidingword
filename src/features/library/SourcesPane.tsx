@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { PaneHeader } from "@/design-system/PaneHeader";
 import { Button } from "@/design-system/Button";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 import { useLoad } from "@/hooks/useLoad";
+import { referenceLabel } from "@/i18n/scripture";
 import { useApi } from "@/lib/ApiContext";
+import { locatorLabel } from "./labels";
 import { useLibraryNav } from "./LibraryNav";
 import { SourceReader } from "./SourceReader";
 
@@ -30,13 +33,25 @@ interface SourcesPaneProps {
  * opened from the workspace is read here, beside Scripture and the Study.
  */
 export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesPaneProps = {}) {
+  const { t } = useTranslation();
   const api = useApi();
   const { openLibrary, openSource, addSource } = useLibraryNav();
   const { currentPassage, location, books } = useScripture();
   // The selected verse or passage; otherwise the chapter on screen.
   const reference = currentPassage?.canonical ?? `${location.book}.${location.chapter}`;
-  const label =
-    currentPassage?.display ?? `${books.find((b) => b.code === location.book)?.name ?? location.book} ${location.chapter}`;
+  const chapterCount = books.find((b) => b.code === (currentPassage?.book ?? location.book))?.chapterCount;
+  const label = referenceLabel(
+    currentPassage ?? {
+      canonical: reference,
+      display: "",
+      book: location.book,
+      startChapter: location.chapter,
+      startVerse: null,
+      endChapter: location.chapter,
+      endVerse: null,
+    },
+    chapterCount,
+  );
   const mentions = useLoad(useCallback(() => api.librarySourcesForPassage(reference), [api, reference]));
   const recent = useLoad(useCallback(() => api.libraryList({}), [api]));
   const empty = recent.data?.length === 0;
@@ -56,7 +71,7 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
   if (reading) {
     return (
       <>
-        <PaneHeader id="pane-sources-title" title="Sources" />
+        <PaneHeader id="pane-sources-title" title={t("app.panes.name.sources")} />
         <SourceReader
           key={reading.key}
           variant="pane"
@@ -74,37 +89,35 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
 
   return (
     <>
-      <PaneHeader id="pane-sources-title" title="Sources" />
+      <PaneHeader id="pane-sources-title" title={t("app.panes.name.sources")} />
       <div ref={overview} className="flex min-h-0 flex-col gap-6 overflow-y-auto px-5 py-5">
         {/* Nothing until the library has loaded, so the pane never flickers
             from one layout to the other. */}
         {recent.error && <p className="m-0 text-[0.9375rem] text-danger">{recent.error.message}</p>}
         {recent.data === undefined ? null : empty ? (
           <section aria-labelledby="library-heading" className="flex flex-col items-start gap-3">
-            <h3 id="library-heading" tabIndex={-1} className="m-0 text-[1.0625rem] font-semibold text-text-strong">Your library</h3>
-            <p className="m-0 text-[0.9375rem] text-text-muted">
-              No sources yet. Add books, articles and your own notes (PDF, EPUB, Markdown or text); they stay on this computer.
-            </p>
-            <Button onClick={addSource}>Add to library…</Button>
+            <h3 id="library-heading" tabIndex={-1} className="m-0 text-[1.0625rem] font-semibold text-text-strong">{t("library.pane.libraryHeading")}</h3>
+            <p className="m-0 text-[0.9375rem] text-text-muted">{t("library.pane.empty")}</p>
+            <Button onClick={addSource}>{t("library.addToLibraryEllipsis")}</Button>
           </section>
         ) : (
           <>
             <section aria-labelledby="mentions-heading" className="flex flex-col gap-2">
               <h3 id="mentions-heading" tabIndex={-1} className="m-0 text-[1.0625rem] font-semibold text-text-strong">
-                Sources mentioning {label}
+                {t("library.pane.mentioning", { passage: label })}
               </h3>
               {mentions.error && <p className="m-0 text-[0.9375rem] text-danger">{mentions.error.message}</p>}
               {mentions.data?.length === 0 && (
-                <p className="m-0 text-[0.9375rem] text-text-muted">None of your sources mention this passage.</p>
+                <p className="m-0 text-[0.9375rem] text-text-muted">{t("library.pane.noMentions")}</p>
               )}
               {mentions.data && mentions.data.length > 0 && (
-                <ul aria-label={`Sources mentioning ${label}`} className="m-0 flex list-none flex-col p-0">
+                <ul aria-label={t("library.pane.mentioning", { passage: label })} className="m-0 flex list-none flex-col p-0">
                   {mentions.data.map((m) => (
                     <li key={`${m.segmentId}-${m.matchedText}`} className="border-t border-border-subtle">
                       <button type="button" onClick={() => openSource(m.sourceId, m.segmentId)} className="flex w-full flex-col items-start gap-0.5 py-2 text-left hover:bg-bg-secondary">
                         <span className="font-semibold text-text-strong"><cite className="not-italic">{m.sourceTitle}</cite></span>
                         <span className="text-[0.875rem] text-text-muted">
-                          {[m.author, m.locator, `“${m.matchedText}”`].filter(Boolean).join(" · ")}
+                          {[m.author, locatorLabel(t, m.locator), t("library.quoted", { text: m.matchedText })].filter(Boolean).join(t("common.listSeparator"))}
                         </span>
                       </button>
                     </li>
@@ -113,20 +126,20 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
               )}
             </section>
             <section aria-labelledby="recent-heading" className="flex flex-col gap-2">
-              <h3 id="recent-heading" className="m-0 text-[1.0625rem] font-semibold text-text-strong">Recently added</h3>
+              <h3 id="recent-heading" className="m-0 text-[1.0625rem] font-semibold text-text-strong">{t("library.pane.recent")}</h3>
               <ul className="m-0 flex list-none flex-col p-0">
                 {(recent.data ?? []).slice(0, 5).map((s) => (
                   <li key={s.id}>
                     <button type="button" onClick={() => openSource(s.id)} className="w-full py-1 text-left text-[0.9375rem] text-text-strong hover:underline">
-                      {s.title}{s.author ? <span className="text-text-muted"> · {s.author}</span> : null}
+                      {s.title}{s.author ? <span className="text-text-muted">{t("common.listSeparator")}{s.author}</span> : null}
                     </button>
                   </li>
                 ))}
               </ul>
             </section>
             <div className="flex flex-wrap gap-2 border-t border-border-subtle pt-4">
-              <Button onClick={() => openLibrary()}>Open library</Button>
-              <Button variant="quiet" onClick={addSource}>Add to library…</Button>
+              <Button onClick={() => openLibrary()}>{t("library.pane.openLibrary")}</Button>
+              <Button variant="quiet" onClick={addSource}>{t("library.addToLibraryEllipsis")}</Button>
             </div>
           </>
         )}

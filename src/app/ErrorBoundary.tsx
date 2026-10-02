@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import i18n from "@/i18n";
 import { StartupScreen } from "./StartupScreen";
 
 interface Props {
@@ -21,7 +22,7 @@ export class ErrorBoundary extends Component<Props, { failed: boolean }> {
   render() {
     if (this.state.failed) {
       return (
-        <StartupScreen message="Something unexpected went wrong in the window. Please close Abiding Word and open it again. Your saved work is safe." />
+        <StartupScreen message={i18n.t("app.startup.windowFailed")} />
       );
     }
     return this.props.children;

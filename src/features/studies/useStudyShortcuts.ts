@@ -1,15 +1,19 @@
 import { useEffect } from "react";
 import type { FindingType } from "@/types/studies";
 
-/** Keyboard shortcuts while a study is open. Listed in Settings. */
-export const STUDY_SHORTCUTS: { keys: string; action: string }[] = [
-  { keys: "Alt+N", action: "New finding" },
-  { keys: "Alt+O", action: "New observation" },
-  { keys: "Alt+Q", action: "New question" },
-  { keys: "Alt+↓ / Alt+↑", action: "Next / previous section" },
-  { keys: "Alt+G", action: "Go to a Scripture passage" },
-  { keys: "Ctrl+Enter", action: "Save the finding being written" },
-];
+/**
+ * Keyboard shortcuts while a study is open, listed in Settings: translation
+ * keys for the key names (e.g. Ctrl is "Strg" on German keyboards) and the
+ * action.
+ */
+export const STUDY_SHORTCUTS = [
+  { keys: "studies.shortcuts.newFinding.keys", action: "studies.shortcuts.newFinding.action" },
+  { keys: "studies.shortcuts.newObservation.keys", action: "studies.shortcuts.newObservation.action" },
+  { keys: "studies.shortcuts.newQuestion.keys", action: "studies.shortcuts.newQuestion.action" },
+  { keys: "studies.shortcuts.section.keys", action: "studies.shortcuts.section.action" },
+  { keys: "studies.shortcuts.goTo.keys", action: "studies.shortcuts.goTo.action" },
+  { keys: "studies.shortcuts.saveFinding.keys", action: "studies.shortcuts.saveFinding.action" },
+] as const;
 
 interface Handlers {
   onCapture: (type?: FindingType) => void;

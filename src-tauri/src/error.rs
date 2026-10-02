@@ -2,12 +2,74 @@
 //!
 //! [`AppError`] carries full technical detail for the log. The frontend never
 //! sees it directly: commands convert it into an [`ErrorPayload`], which holds
-//! only an error kind and a short message written for the user. The
-//! conversion is also where every command error gets logged.
+//! an error kind, a stable message `code` with its `params`, and a short
+//! English message. The interface shows the message for the code in the
+//! user's language (docs/i18n.md); the English text is the fallback and what
+//! the log records. The conversion is also where every command error gets
+//! logged.
 
+use std::collections::BTreeMap;
+use std::fmt;
+use std::ops::Deref;
 use std::path::PathBuf;
 
 use serde::Serialize;
+
+/// A message meant for the user: a stable code the interface translates,
+/// the values it needs, and the English wording (fallback and log).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct UserMessage {
+    pub code: Option<&'static str>,
+    pub params: BTreeMap<&'static str, String>,
+    pub text: String,
+}
+
+impl UserMessage {
+    pub fn new(code: &'static str, text: impl Into<String>) -> Self {
+        Self {
+            code: Some(code),
+            params: BTreeMap::new(),
+            text: text.into(),
+        }
+    }
+
+    /// Adds a value the translated message can use, e.g. a file name.
+    pub fn with(mut self, name: &'static str, value: impl ToString) -> Self {
+        self.params.insert(name, value.to_string());
+        self
+    }
+}
+
+/// English-only text without a code (kept for messages that never reach
+/// the interface).
+impl From<String> for UserMessage {
+    fn from(text: String) -> Self {
+        Self {
+            text,
+            ..Self::default()
+        }
+    }
+}
+
+impl From<&str> for UserMessage {
+    fn from(text: &str) -> Self {
+        text.to_string().into()
+    }
+}
+
+impl fmt::Display for UserMessage {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.text)
+    }
+}
+
+/// Reads as its English text, so callers can inspect it like a string.
+impl Deref for UserMessage {
+    type Target = str;
+    fn deref(&self) -> &str {
+        &self.text
+    }
+}
 
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
@@ -23,7 +85,7 @@ pub enum AppError {
 
     /// The message is shown to the user as written, so keep it plain.
     #[error("invalid input: {0}")]
-    InvalidInput(String),
+    InvalidInput(UserMessage),
 
     #[error("{entity} not found: {id}")]
     NotFound { entity: &'static str, id: String },
@@ -39,20 +101,20 @@ pub enum AppError {
     /// template, a relation that already exists, a section that still has
     /// content. The message is shown to the user as written.
     #[error("conflict: {0}")]
-    Conflict(String),
+    Conflict(UserMessage),
 
     /// A Scripture reference that is not a real passage. The message is
     /// shown to the user as written.
     #[error("invalid Scripture reference: {0}")]
-    InvalidReference(String),
+    InvalidReference(UserMessage),
 
     /// A Bible import could not be read or checked. User-facing message.
     #[error("Bible import failed: {0}")]
-    Import(String),
+    Import(UserMessage),
 
     /// A file in a format that cannot be imported. User-facing message.
     #[error("unsupported import format: {0}")]
-    UnsupportedFormat(String),
+    UnsupportedFormat(UserMessage),
 
     #[error("a Bible with the short name {0} is already installed")]
     DuplicateTranslation(String),
@@ -120,7 +182,24 @@ impl AppError {
         }
     }
 
-    /// A short, plain message that is safe to show in the interface.
+    /// The message code and values for the interface. Kinds whose wording
+    /// never varies are translated from the kind alone.
+    pub fn user_code(&self) -> (Option<&'static str>, BTreeMap<&'static str, String>) {
+        match self {
+            Self::InvalidInput(m)
+            | Self::Conflict(m)
+            | Self::InvalidReference(m)
+            | Self::Import(m)
+            | Self::UnsupportedFormat(m) => (m.code, m.params.clone()),
+            Self::DuplicateTranslation(short_name) => (
+                Some("duplicateTranslation"),
+                BTreeMap::from([("shortName", short_name.clone())]),
+            ),
+            _ => (None, BTreeMap::new()),
+        }
+    }
+
+    /// A short, plain English message that is safe to show in the interface.
     pub fn user_message(&self) -> String {
         match self {
             Self::Database(_) => "Abiding Word could not read or save your data. \
@@ -133,7 +212,7 @@ impl AppError {
             | Self::Conflict(message)
             | Self::InvalidReference(message)
             | Self::Import(message)
-            | Self::UnsupportedFormat(message) => message.clone(),
+            | Self::UnsupportedFormat(message) => message.text.clone(),
             Self::DuplicateTranslation(short_name) => format!(
                 "A Bible called “{short_name}” is already installed. \
                  Choose a different short name."
@@ -165,7 +244,14 @@ pub type AppResult<T> = Result<T, AppError>;
 #[serde(rename_all = "camelCase")]
 pub struct ErrorPayload {
     pub kind: ErrorKind,
+    /// English; shown when the interface has no translation for `code`.
     pub message: String,
+    /// Stable message code, e.g. `library.passwordProtected`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub code: Option<String>,
+    /// Values for the message, e.g. `{"fileName": "notes.pdf"}`.
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub params: BTreeMap<String, String>,
 }
 
 impl From<AppError> for ErrorPayload {
@@ -181,9 +267,15 @@ impl From<AppError> for ErrorPayload {
             | ErrorKind::DuplicateTranslation => log::warn!("{error}"),
             _ => log::error!("{error}"),
         }
+        let (code, params) = error.user_code();
         Self {
             kind: error.kind(),
             message: error.user_message(),
+            code: code.map(String::from),
+            params: params
+                .into_iter()
+                .map(|(k, v)| (k.to_string(), v))
+                .collect(),
         }
     }
 }
@@ -204,6 +296,24 @@ mod tests {
     fn invalid_input_message_is_passed_through() {
         let payload = ErrorPayload::from(AppError::InvalidInput("A title is required.".into()));
         assert_eq!(payload.message, "A title is required.");
+    }
+
+    #[test]
+    fn coded_messages_carry_code_and_params() {
+        let error = AppError::Import(
+            UserMessage::new(
+                "library.passwordProtected",
+                "“a.pdf” is password-protected.",
+            )
+            .with("fileName", "a.pdf"),
+        );
+        let json = serde_json::to_value(ErrorPayload::from(error)).unwrap();
+        assert_eq!(json["code"], "library.passwordProtected");
+        assert_eq!(json["params"]["fileName"], "a.pdf");
+        assert_eq!(json["message"], "“a.pdf” is password-protected.");
+        let plain =
+            serde_json::to_value(ErrorPayload::from(AppError::not_found("study", "x"))).unwrap();
+        assert!(plain.get("code").is_none() && plain.get("params").is_none());
     }
 
     #[test]
