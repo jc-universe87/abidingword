@@ -1,12 +1,15 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Bookmark, Highlighter, StickyNote } from "lucide-react";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
+import { referenceLabel } from "@/i18n/scripture";
 import type { Annotation, AnnotationKind } from "@/types/scripture";
 
 interface VerseToolsProps {
   canonical: string;
-  label: string;
+  /** The verse number, for the tools' labels ("Tools for verse 1"). */
+  verse: number;
   annotations: Annotation[];
   onChanged: () => void;
 }
@@ -20,7 +23,8 @@ const tool =
  * canonical verse, not the translation, so they stay when the reader
  * switches translation.
  */
-export function VerseTools({ canonical, label, annotations, onChanged }: VerseToolsProps) {
+export function VerseTools({ canonical, verse, annotations, onChanged }: VerseToolsProps) {
+  const { t } = useTranslation();
   const api = useApi();
   const [draft, setDraft] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -50,23 +54,23 @@ export function VerseTools({ canonical, label, annotations, onChanged }: VerseTo
     });
 
   return (
-    <div className="mt-2 mb-1 flex flex-col gap-2 font-ui text-[0.9375rem]" role="group" aria-label={`Tools for ${label}`}>
+    <div className="mt-2 mb-1 flex flex-col gap-2 font-ui text-[0.9375rem]" role="group" aria-label={t("scripture.verseTools.toolsFor", { verse })}>
       <div className="flex flex-wrap gap-2">
         <button type="button" className={tool} onClick={() => setDraft(draft === null ? "" : null)} aria-expanded={draft !== null}>
-          <StickyNote className="size-4" aria-hidden="true" /> Add note
+          <StickyNote className="size-4" aria-hidden="true" /> {t("scripture.verseTools.addNote")}
         </button>
         <button type="button" className={tool} aria-pressed={!!find("highlight")} onClick={() => toggle("highlight")}>
-          <Highlighter className="size-4" aria-hidden="true" /> Highlight
+          <Highlighter className="size-4" aria-hidden="true" /> {t("scripture.verseTools.highlight")}
         </button>
         <button type="button" className={tool} aria-pressed={!!find("bookmark")} onClick={() => toggle("bookmark")}>
-          <Bookmark className="size-4" aria-hidden="true" /> Bookmark
+          <Bookmark className="size-4" aria-hidden="true" /> {t("scripture.verseTools.bookmark")}
         </button>
       </div>
 
       {draft !== null && (
         <div className="flex flex-col gap-2">
           <label className="flex flex-col gap-1">
-            <span className="font-medium text-text-strong">Note on {label}</span>
+            <span className="font-medium text-text-strong">{t("scripture.verseTools.noteOn", { verse })}</span>
             <textarea
               autoFocus
               rows={3}
@@ -77,17 +81,17 @@ export function VerseTools({ canonical, label, annotations, onChanged }: VerseTo
           </label>
           <div className="flex gap-2">
             <button type="button" onClick={saveNote} className="min-h-9 rounded-aw bg-primary px-4 font-medium text-on-primary hover:bg-primary-hover">
-              Save note
+              {t("scripture.verseTools.saveNote")}
             </button>
             <button type="button" onClick={() => setDraft(null)} className="min-h-9 rounded-aw border border-border px-4 hover:bg-bg-secondary">
-              Cancel
+              {t("common.cancel")}
             </button>
           </div>
         </div>
       )}
 
       {notes.length > 0 && (
-        <ul className="m-0 flex list-none flex-col gap-2 p-0" aria-label={`Notes on ${label}`}>
+        <ul className="m-0 flex list-none flex-col gap-2 p-0" aria-label={t("scripture.verseTools.notesOn", { verse })}>
           {notes.map((note) => (
             <SavedNote key={note.id} note={note} onChanged={onChanged} />
           ))}
@@ -104,6 +108,7 @@ export function VerseTools({ canonical, label, annotations, onChanged }: VerseTo
 }
 
 function SavedNote({ note, onChanged }: { note: Annotation; onChanged: () => void }) {
+  const { t } = useTranslation();
   const api = useApi();
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(note.content);
@@ -125,7 +130,7 @@ function SavedNote({ note, onChanged }: { note: Annotation; onChanged: () => voi
       {editing ? (
         <div className="flex flex-col gap-2">
           <textarea
-            aria-label="Edit note"
+            aria-label={t("scripture.verseTools.editNote")}
             rows={3}
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -133,10 +138,10 @@ function SavedNote({ note, onChanged }: { note: Annotation; onChanged: () => voi
           />
           <div className="flex gap-2">
             <button type="button" onClick={() => act(() => api.annotationUpdate({ id: note.id, content: text }))} className="min-h-9 rounded-aw bg-primary px-3 text-on-primary">
-              Save
+              {t("common.save")}
             </button>
             <button type="button" onClick={() => setEditing(false)} className="min-h-9 rounded-aw border border-border px-3">
-              Cancel
+              {t("common.cancel")}
             </button>
           </div>
         </div>
@@ -144,14 +149,14 @@ function SavedNote({ note, onChanged }: { note: Annotation; onChanged: () => voi
         <>
           <p className="reading m-0 whitespace-pre-wrap text-[1rem]">{note.content}</p>
           <p className="m-0 mt-1 text-[0.875rem] text-text-muted">
-            On {note.reference.display}
-            {" · "}
+            {t("scripture.verseTools.on", { passage: referenceLabel(note.reference) })}
+            {t("common.listSeparator")}
             <button type="button" className="underline underline-offset-2" onClick={() => setEditing(true)}>
-              Edit
+              {t("common.edit")}
             </button>
-            {" · "}
+            {t("common.listSeparator")}
             <button type="button" className="underline underline-offset-2" onClick={() => act(() => api.annotationDelete(note.id))}>
-              Delete
+              {t("common.delete")}
             </button>
           </p>
         </>

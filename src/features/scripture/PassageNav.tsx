@@ -1,5 +1,7 @@
 import { useId, useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { bookName } from "@/i18n/scripture";
 import { toApiError } from "@/lib/api";
 import { useScripture } from "./ScriptureContext";
 
@@ -11,6 +13,7 @@ const iconButton =
 
 /** Book and chapter pickers, previous/next, and a typed-reference box. */
 export function PassageNav() {
+  const { t } = useTranslation();
   const { books, bookByCode, location, goToChapter, navigateText } = useScripture();
   const id = useId();
   const [text, setText] = useState("");
@@ -43,20 +46,20 @@ export function PassageNav() {
     <div className="flex flex-col gap-3">
       <form onSubmit={submit} className="flex flex-col gap-1" noValidate>
         <label htmlFor="scripture-go-to" className="text-[0.9375rem] font-medium text-text-strong">
-          Go to passage
+          {t("scripture.nav.goToLabel")}
         </label>
         <div className="flex gap-2">
           <input
             id="scripture-go-to"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="e.g. John 15 or Rom 8:1-17"
+            placeholder={t("scripture.nav.goToPlaceholder")}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? `${id}-error` : undefined}
             className={`${field} flex-1 px-3 placeholder:text-text-muted`}
           />
           <button type="submit" className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-bg">
-            Go
+            {t("scripture.nav.go")}
           </button>
         </div>
         {error && (
@@ -67,26 +70,26 @@ export function PassageNav() {
       </form>
 
       <label className="flex flex-col gap-1">
-        <span className="sr-only">Book</span>
+        <span className="sr-only">{t("scripture.nav.book")}</span>
         <select value={location.book} onChange={(e) => goToChapter(e.target.value, 1)} className={field}>
-          <optgroup label="Old Testament">
+          <optgroup label={t("scripture.nav.oldTestament")}>
             {books.filter((b) => b.testament === "OT").map((b) => (
-              <option key={b.code} value={b.code}>{b.name}</option>
+              <option key={b.code} value={b.code}>{bookName(b.code, b.name)}</option>
             ))}
           </optgroup>
-          <optgroup label="New Testament">
+          <optgroup label={t("scripture.nav.newTestament")}>
             {books.filter((b) => b.testament === "NT").map((b) => (
-              <option key={b.code} value={b.code}>{b.name}</option>
+              <option key={b.code} value={b.code}>{bookName(b.code, b.name)}</option>
             ))}
           </optgroup>
         </select>
       </label>
       <div className="flex items-center gap-2">
-        <button type="button" className={iconButton} onClick={() => step(-1)} disabled={atStart} aria-label="Previous chapter" title="Previous chapter">
+        <button type="button" className={iconButton} onClick={() => step(-1)} disabled={atStart} aria-label={t("scripture.nav.previousChapter")} title={t("scripture.nav.previousChapter")}>
           <ChevronLeft className="size-5" aria-hidden="true" />
         </button>
         <label className="flex min-w-0 flex-1 items-center gap-2">
-          <span className="text-[0.9375rem] text-text-muted">Chapter</span>
+          <span className="text-[0.9375rem] text-text-muted">{t("scripture.nav.chapter")}</span>
           <select
             value={location.chapter}
             onChange={(e) => goToChapter(location.book, Number(e.target.value))}
@@ -97,7 +100,7 @@ export function PassageNav() {
             ))}
           </select>
         </label>
-        <button type="button" className={iconButton} onClick={() => step(1)} disabled={atEnd} aria-label="Next chapter" title="Next chapter">
+        <button type="button" className={iconButton} onClick={() => step(1)} disabled={atEnd} aria-label={t("scripture.nav.nextChapter")} title={t("scripture.nav.nextChapter")}>
           <ChevronRight className="size-5" aria-hidden="true" />
         </button>
       </div>

@@ -1,37 +1,38 @@
 import { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 import type { BibleTranslation } from "@/types/scripture";
-import { formatDate } from "@/features/studies/format";
+import { formatDate, formatNumber } from "@/i18n/format";
 
 /** Settings → Bible Texts: what is installed, details, add, remove. */
 export function BibleTexts({ onAddBible }: { onAddBible: () => void }) {
+  const { t } = useTranslation();
   const { translations } = useScripture();
   return (
     <div className="flex flex-col gap-4">
       {translations.length === 0 ? (
-        <p className="m-0 text-text-muted">No Bible has been added yet.</p>
+        <p className="m-0 text-text-muted">{t("scripture.bibles.empty")}</p>
       ) : (
-        <ul aria-label="Installed Bibles" className="m-0 flex list-none flex-col border-t border-border-subtle p-0">
+        <ul aria-label={t("scripture.bibles.installed")} className="m-0 flex list-none flex-col border-t border-border-subtle p-0">
           {translations.map((bible) => (
             <BibleRow key={bible.id} bible={bible} />
           ))}
         </ul>
       )}
       <div>
-        <Button onClick={onAddBible}>Add a Bible…</Button>
+        <Button onClick={onAddBible}>{t("scripture.bibles.addBible")}</Button>
       </div>
     </div>
   );
 }
 
-function source(bible: BibleTranslation): string {
-  return bible.sourceOrigin === "bundled" ? "Included with Abiding Word" : "Imported from your file";
-}
-
 function BibleRow({ bible }: { bible: BibleTranslation }) {
+  const { t } = useTranslation();
+  const source = bible.sourceOrigin === "bundled" ? t("scripture.bibles.source.bundled") : t("scripture.bibles.source.imported");
+  const status = bible.importStatus === "ready" ? t("scripture.bibles.status.ready") : t("scripture.bibles.status.notStructured");
   const api = useApi();
   const { reloadTranslations } = useScripture();
   const [open, setOpen] = useState(false);
@@ -57,28 +58,28 @@ function BibleRow({ bible }: { bible: BibleTranslation }) {
             {bible.name} <span className="font-normal text-text-muted">({bible.shortName})</span>
           </p>
           <p className="m-0 text-[0.9375rem] text-text-muted">
-            {bible.language} · {source(bible)} · {bible.importStatus === "ready" ? "Ready" : "Not yet structured"}
+            {[bible.language, source, status].join(t("common.listSeparator"))}
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="quiet" aria-expanded={open} onClick={() => setOpen(!open)}>
-            {open ? "Hide details" : "Details"}
+            {open ? t("scripture.bibles.hideDetails") : t("scripture.bibles.details")}
           </Button>
-          <Button variant="quiet" onClick={() => setConfirming(true)} aria-label={`Remove ${bible.name}`}>
-            Remove…
+          <Button variant="quiet" onClick={() => setConfirming(true)} aria-label={t("scripture.bibles.removeNamed", { name: bible.name })}>
+            {t("scripture.bibles.removeEllipsis")}
           </Button>
         </div>
       </div>
 
       {open && (
         <dl className="m-0 grid grid-cols-1 gap-x-6 gap-y-1 text-[0.9375rem] sm:grid-cols-[10rem_1fr]">
-          <dt className="font-medium text-text-strong">Contents</dt>
-          <dd className="m-0">{bible.bookCount} books, {bible.verseCount.toLocaleString()} verses</dd>
-          {bible.publisher && (<><dt className="font-medium text-text-strong">Publisher</dt><dd className="m-0">{bible.publisher}</dd></>)}
-          {bible.licenseType && (<><dt className="font-medium text-text-strong">Licence</dt><dd className="m-0">{bible.licenseType}</dd></>)}
-          {bible.copyrightNotice && (<><dt className="font-medium text-text-strong">Notice</dt><dd className="m-0">{bible.copyrightNotice}</dd></>)}
-          {bible.originalFileName && (<><dt className="font-medium text-text-strong">From</dt><dd className="m-0 break-all">{bible.originalFileName}</dd></>)}
-          <dt className="font-medium text-text-strong">Added</dt>
+          <dt className="font-medium text-text-strong">{t("scripture.bibles.field.contents")}</dt>
+          <dd className="m-0">{t("scripture.bibles.contents", { count: bible.bookCount, verses: formatNumber(bible.verseCount) })}</dd>
+          {bible.publisher && (<><dt className="font-medium text-text-strong">{t("scripture.bibles.field.publisher")}</dt><dd className="m-0">{bible.publisher}</dd></>)}
+          {bible.licenseType && (<><dt className="font-medium text-text-strong">{t("scripture.bibles.field.licence")}</dt><dd className="m-0">{bible.licenseType}</dd></>)}
+          {bible.copyrightNotice && (<><dt className="font-medium text-text-strong">{t("scripture.bibles.field.notice")}</dt><dd className="m-0">{bible.copyrightNotice}</dd></>)}
+          {bible.originalFileName && (<><dt className="font-medium text-text-strong">{t("scripture.bibles.field.from")}</dt><dd className="m-0 break-all">{bible.originalFileName}</dd></>)}
+          <dt className="font-medium text-text-strong">{t("scripture.bibles.field.added")}</dt>
           <dd className="m-0">{formatDate(bible.createdAt)}</dd>
         </dl>
       )}
@@ -86,13 +87,15 @@ function BibleRow({ bible }: { bible: BibleTranslation }) {
       {confirming && (
         <div role="alertdialog" aria-labelledby={`remove-${bible.id}`} className="flex flex-col gap-3 border-l-[3px] border-danger bg-bg-secondary px-4 py-3">
           <p id={`remove-${bible.id}`} className="m-0">
-            Remove <strong>{bible.name}</strong>? Its text will be deleted from Abiding Word
-            {bible.sourceOrigin === "managed_copy" ? ", together with Abiding Word's copy of the file (your original file is not touched)" : ""}.
-            Your studies, passage links and notes are kept.
+            <Trans
+              i18nKey={bible.sourceOrigin === "managed_copy" ? "scripture.bibles.confirmRemoveManaged" : "scripture.bibles.confirmRemove"}
+              values={{ name: bible.name }}
+              components={{ strong: <strong /> }}
+            />
           </p>
           <div className="flex gap-2">
-            <Button variant="primary" onClick={remove}>Remove {bible.shortName}</Button>
-            <Button autoFocus onClick={() => setConfirming(false)}>Keep it</Button>
+            <Button variant="primary" onClick={remove}>{t("scripture.bibles.removeNamed", { name: bible.shortName })}</Button>
+            <Button autoFocus onClick={() => setConfirming(false)}>{t("scripture.bibles.keep")}</Button>
           </div>
         </div>
       )}

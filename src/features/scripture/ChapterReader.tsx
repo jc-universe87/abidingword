@@ -1,17 +1,25 @@
 import { useCallback, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Bookmark, StickyNote } from "lucide-react";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
 import { useApi } from "@/lib/ApiContext";
-import { bookLabel, contains } from "@/lib/scripture";
-import type { Annotation, BibleTranslation, VerseText } from "@/types/scripture";
+import { contains } from "@/lib/scripture";
+import { referenceLabel } from "@/i18n/scripture";
+import type { Annotation, BibleTranslation, ScriptureRef, VerseText } from "@/types/scripture";
 import { useScripture } from "./ScriptureContext";
 import { VerseTools } from "./VerseTools";
 
+/** A whole chapter as a reference, for its label ("John 15", "Jude"). */
+function chapterOf(book: string, chapter: number): ScriptureRef {
+  return { canonical: `${book}.${chapter}`, display: "", book, startChapter: chapter, startVerse: null, endChapter: chapter, endVerse: null };
+}
+
 /** One chapter of one translation, with the user's annotations. */
 export function ChapterReader({ translation }: { translation: BibleTranslation }) {
+  const { t } = useTranslation();
   const api = useApi();
-  const { location, selection, navigationId, selectedVerse, selectVerse } = useScripture();
+  const { location, selection, navigationId, selectedVerse, selectVerse, bookByCode } = useScripture();
   const { book, chapter } = location;
   const text = useLoad(
     useCallback(
@@ -37,8 +45,12 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
   }, [loaded, navigationId]);
 
   if (text.error) return <Notice tone="error">{text.error.message}</Notice>;
-  if (!text.data) return <p className="text-text-muted">Opening {book} {chapter}…</p>;
+  const chapterCount = bookByCode.get(book)?.chapterCount;
+  if (!text.data) {
+    return <p className="text-text-muted">{t("scripture.reader.opening", { passage: referenceLabel(chapterOf(book, chapter), chapterCount) })}</p>;
+  }
   const data = text.data;
+  const passage = referenceLabel(chapterOf(data.book, data.chapter), data.chapterCount);
   const annotations = notes.data ?? [];
   const on = (verse: number) =>
     annotations.filter((a) => contains(a.reference, book, chapter, verse));
@@ -47,17 +59,22 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
     <div ref={container} className="flex flex-col gap-4">
       <header>
         <h2 className="m-0 font-display text-[1.5rem] font-heading text-text-strong">
-          {data.chapterCount === 1 ? data.bookName : `${bookLabel(data.book, data.bookName, true)} ${data.chapter}`}
+          {passage}
         </h2>
         <p className="m-0 text-[0.9375rem] text-text-muted">
           {translation.name}
-          {selection && selection.book === book ? <> · showing {selection.display}</> : null}
+          {selection && selection.book === book ? (
+            <>
+              {t("common.listSeparator")}
+              {t("scripture.reader.showing", { passage: referenceLabel(selection, data.chapterCount) })}
+            </>
+          ) : null}
         </p>
       </header>
 
       {data.verses.length === 0 ? (
         <p className="text-text-muted">
-          {translation.name} has no text for {data.chapterCount === 1 ? data.bookName : `${bookLabel(data.book, data.bookName, true)} ${data.chapter}`}.
+          {t("scripture.reader.noText", { name: translation.name, passage })}
         </p>
       ) : (
         <div className="reading flex flex-col gap-1">
@@ -89,9 +106,19 @@ interface VerseProps {
 }
 
 function Verse({ verse, annotations, current, selected, onSelect, onChanged }: VerseProps) {
+  const { t } = useTranslation();
   const highlighted = annotations.some((a) => a.kind === "highlight");
   const bookmarked = annotations.some((a) => a.kind === "bookmark");
   const noted = annotations.filter((a) => a.kind === "note");
+  const states = [
+    noted.length > 0 ? t("scripture.reader.state.note") : null,
+    bookmarked ? t("scripture.reader.state.bookmarked") : null,
+    highlighted ? t("scripture.reader.state.highlighted") : null,
+  ].filter((state): state is string => state !== null);
+  const label =
+    states.length > 0
+      ? t("scripture.reader.verseButtonWithState", { verse: verse.verse, states: states.join(t("scripture.reader.stateSeparator")) })
+      : t("scripture.reader.verseButton", { verse: verse.verse });
   const tone = selected ? "bg-selection" : highlighted ? "bg-note" : "";
   return (
     <div
@@ -103,7 +130,7 @@ function Verse({ verse, annotations, current, selected, onSelect, onChanged }: V
           type="button"
           onClick={onSelect}
           aria-pressed={selected}
-          aria-label={`Verse ${verse.verse}${noted.length ? ", has a note" : ""}${bookmarked ? ", bookmarked" : ""}${highlighted ? ", highlighted" : ""}. Show verse tools`}
+          aria-label={label}
           className="mr-1.5 inline-flex min-w-6 items-baseline justify-center rounded px-0.5 align-baseline font-ui text-[0.8125rem] font-semibold text-text-muted hover:text-text-strong"
         >
           {verse.verse}
@@ -119,7 +146,7 @@ function Verse({ verse, annotations, current, selected, onSelect, onChanged }: V
       {selected && (
         <VerseTools
           canonical={verse.canonical}
-          label={`verse ${verse.verse}`}
+          verse={verse.verse}
           annotations={annotations}
           onChanged={onChanged}
         />

@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import i18n from "@/i18n";
 import { useApi } from "@/lib/ApiContext";
 import { chapterRef, hasVerses, refFromCanonical } from "@/lib/scripture";
 import type { AppSettings } from "@/types/domain";
@@ -148,7 +149,7 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
         });
         setSearch({ ...input, results, error: null, busy: false });
       } catch (error) {
-        const message = error instanceof Error ? error.message : "The search could not be completed.";
+        const message = error instanceof Error ? error.message : i18n.t("scripture.search.failed");
         setSearch({ ...input, results: null, error: message, busy: false });
       }
     },

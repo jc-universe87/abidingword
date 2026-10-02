@@ -1,0 +1,138 @@
+{
+  "translation": "Übersetzung",
+  "empty": {
+    "title": "Es wurde noch keine Bibel hinzugefügt.",
+    "body": "Fügen Sie die World English Bible hinzu, die Abiding Word mitbringt, oder eine Bibeldatei, die Sie besitzen. Alles bleibt auf diesem Computer und funktioniert ohne Internetverbindung.",
+    "addBible": "Bibel hinzufügen …"
+  },
+  "nav": {
+    "goToLabel": "Zur Bibelstelle",
+    "goToPlaceholder": "z. B. John 15 oder Rom 8:1-17",
+    "go": "Los",
+    "book": "Buch",
+    "oldTestament": "Altes Testament",
+    "newTestament": "Neues Testament",
+    "chapter": "Kapitel",
+    "previousChapter": "Vorheriges Kapitel",
+    "nextChapter": "Nächstes Kapitel"
+  },
+  "reader": {
+    "opening": "{{passage}} wird geöffnet …",
+    "showing": "zeigt {{passage}}",
+    "noText": "{{name}} enthält keinen Text für {{passage}}.",
+    "verseButton": "Vers {{verse}}. Verswerkzeuge anzeigen",
+    "verseButtonWithState": "Vers {{verse}}, {{states}}. Verswerkzeuge anzeigen",
+    "stateSeparator": ", ",
+    "state": {
+      "note": "mit Notiz",
+      "bookmarked": "mit Lesezeichen",
+      "highlighted": "markiert"
+    }
+  },
+  "verseTools": {
+    "toolsFor": "Werkzeuge für Vers {{verse}}",
+    "addNote": "Notiz hinzufügen",
+    "highlight": "Markieren",
+    "bookmark": "Lesezeichen",
+    "noteOn": "Notiz zu Vers {{verse}}",
+    "saveNote": "Notiz speichern",
+    "notesOn": "Notizen zu Vers {{verse}}",
+    "editNote": "Notiz bearbeiten",
+    "on": "Zu {{passage}}"
+  },
+  "search": {
+    "title": "Suche",
+    "backToReading": "Zurück zum Lesen",
+    "queryLabel": "Wörter oder „genauer Wortlaut“",
+    "submit": "Suchen",
+    "onlyNamed": "Nur {{name}}",
+    "onlyCurrent": "Nur diese Übersetzung",
+    "book": "Buch",
+    "allBooks": "Alle Bücher",
+    "searching": "Suche läuft …",
+    "noResults": "Keine Verse gefunden.",
+    "found_one": "{{count}} Vers gefunden.",
+    "found_other": "{{count}} Verse gefunden.",
+    "foundTruncated_one": "{{count}}+ Vers gefunden – die ersten {{limit}} werden angezeigt.",
+    "foundTruncated_other": "{{count}}+ Verse gefunden – die ersten {{limit}} werden angezeigt.",
+    "results": "Suchergebnisse",
+    "failed": "Die Suche konnte nicht abgeschlossen werden."
+  },
+  "addBible": {
+    "title": {
+      "choose": "Bibel hinzufügen",
+      "checking": "Bibel wird geprüft …",
+      "review": "Neue Bibel",
+      "done": "Bibel hinzugefügt"
+    },
+    "checking": "Jedes Buch, jedes Kapitel und jeder Vers wird gelesen und geprüft. Das kann einige Sekunden dauern.",
+    "done_one": "<strong>{{name}}</strong> kann jetzt gelesen werden – mit {{count}} Buch und {{verses}} Versen.",
+    "done_other": "<strong>{{name}}</strong> kann jetzt gelesen werden – mit {{count}} Büchern und {{verses}} Versen.",
+    "readNow": "Jetzt lesen",
+    "included": "In Abiding Word enthalten",
+    "addNamed": "{{name}} hinzufügen",
+    "ownTitle": "Eine eigene Bibel",
+    "ownBody": "Wählen Sie eine Bibel im USFM-Format: einen .zip-Download oder ihre .usfm-Dateien. Abiding Word legt eine eigene Kopie an und verändert Ihre Datei nie.",
+    "chooseFiles": "Bibeldateien auswählen …",
+    "field": {
+      "name": "Name",
+      "shortName": "Kurzname",
+      "shortNameHint": "z. B. WEB",
+      "language": "Sprache"
+    },
+    "found": "Gefundener Inhalt",
+    "booksDetected_one": "{{count}} Buch erkannt",
+    "booksDetected_other": "{{count}} Bücher erkannt",
+    "chaptersDetected_one": "{{number}} Kapitel erkannt",
+    "chaptersDetected_other": "{{number}} Kapitel erkannt",
+    "versesDetected_one": "{{number}} Vers erkannt",
+    "versesDetected_other": "{{number}} Verse erkannt",
+    "licence": "Lizenz: {{licence}}",
+    "books": "Bücher",
+    "bookStatus": {
+      "ok": "In Ordnung",
+      "warning": "Bitte prüfen",
+      "error": "Problem"
+    },
+    "problems_one": "{{count}} Problem muss behoben werden, bevor diese Bibel hinzugefügt werden kann",
+    "problems_other": "{{count}} Probleme müssen behoben werden, bevor diese Bibel hinzugefügt werden kann",
+    "warnings_one": "{{count}} Warnung – bitte prüfen",
+    "warnings_other": "{{count}} Warnungen – bitte prüfen",
+    "notes_one": "{{count}} Hinweis",
+    "notes_other": "{{count}} Hinweise",
+    "skipped_one": "{{count}} Datei wurde ausgelassen, weil sie keines der 66 Bücher enthält (zum Beispiel eine Einleitung oder ein Glossar).",
+    "skipped_other": "{{count}} Dateien wurden ausgelassen, weil sie keines der 66 Bücher enthalten (zum Beispiel eine Einleitung oder ein Glossar).",
+    "adding": "Wird hinzugefügt …",
+    "add": "Diese Bibel hinzufügen"
+  },
+  "bibles": {
+    "empty": "Es wurde noch keine Bibel hinzugefügt.",
+    "installed": "Installierte Bibeln",
+    "addBible": "Bibel hinzufügen …",
+    "source": {
+      "bundled": "In Abiding Word enthalten",
+      "imported": "Aus Ihrer Datei importiert"
+    },
+    "status": {
+      "ready": "Bereit",
+      "notStructured": "Noch nicht gegliedert"
+    },
+    "details": "Details",
+    "hideDetails": "Details ausblenden",
+    "removeNamed": "{{name}} entfernen",
+    "removeEllipsis": "Entfernen …",
+    "field": {
+      "contents": "Inhalt",
+      "publisher": "Verlag",
+      "licence": "Lizenz",
+      "notice": "Hinweis",
+      "from": "Herkunft",
+      "added": "Hinzugefügt"
+    },
+    "contents_one": "{{count}} Buch, {{verses}} Verse",
+    "contents_other": "{{count}} Bücher, {{verses}} Verse",
+    "confirmRemove": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht. Ihre Studien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
+    "confirmRemoveManaged": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht, zusammen mit der Kopie der Datei, die Abiding Word angelegt hat (Ihre Originaldatei bleibt unberührt). Ihre Studien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
+    "keep": "Behalten"
+  }
+}
