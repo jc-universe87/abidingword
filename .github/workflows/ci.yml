@@ -1,0 +1,69 @@
+# Checks every push and pull request: the interface (TypeScript) and the
+# native core (Rust). Installers are built by native-builds.yml.
+name: CI
+
+on:
+  push:
+    branches: [main, "feature/**", "fix/**", "chore/**"]
+  pull_request:
+    branches: [main]
+
+# A newer push to the same branch makes an older run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Tool versions
+        run: node --version && npm --version
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  rust:
+    name: Rust
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src-tauri
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Tauri system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      # Caches the Cargo registry and dependency builds; the key includes
+      # Cargo.lock and the compiler version.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: Tool versions
+        run: rustc --version && cargo --version
+      # The app embeds the built interface (../dist) at compile time. The
+      # Rust checks do not need it, so an empty folder stands in.
+      - name: Placeholder for the built interface
+        run: mkdir -p ../dist
+      - name: Format
+        run: cargo fmt -- --check
+      - name: Clippy (warnings are errors)
+        run: cargo clippy --all-targets --locked -- -D warnings
+      - name: Tests
+        run: cargo test --locked
