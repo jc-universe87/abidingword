@@ -27,10 +27,21 @@ use crate::state::AppState;
 
 const LOG_FILE_NAME: &str = "abiding-word";
 
+/// Whether this build was configured with an updater (public key and
+/// endpoint). The updater section is added only by the test-update workflow
+/// (docs/updates.md); without it the plugin is not even registered.
+pub fn updates_configured(app: &AppHandle) -> bool {
+    app.config().plugins.0.contains_key("updater")
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
+            if updates_configured(app.handle()) {
+                app.handle()
+                    .plugin(tauri_plugin_updater::Builder::new().build())?;
+            }
             let state = start(app.handle());
             app.manage(state);
             Ok(())

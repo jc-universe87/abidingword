@@ -15,6 +15,10 @@ pub struct AppInfo {
     pub database_path: Option<String>,
     pub log_directory: Option<String>,
     pub schema_version: Option<i64>,
+    /// True only in builds made by the explicit test-update workflow, which
+    /// carry the updater's signing public key and endpoint. Ordinary builds
+    /// (local, CI) have no updater and never touch the network for updates.
+    pub updates_enabled: bool,
 }
 
 #[tauri::command(async)]
@@ -30,6 +34,7 @@ pub fn app_info(app: tauri::AppHandle, state: State<'_, AppState>) -> AppInfo {
             .map(|p| p.display().to_string()),
         log_directory: state.log_dir().map(|p| p.display().to_string()),
         schema_version: state.schema_version(),
+        updates_enabled: crate::updates_configured(&app),
     }
 }
 

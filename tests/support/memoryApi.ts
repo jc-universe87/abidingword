@@ -177,6 +177,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
   const state: MemoryApi["state"] = {
     info: {
       version: "0.1.0",
+      updatesEnabled: false,
       ready: true,
       error: null,
       dataDirectory: "/home/test/.local/share/Abiding Word",

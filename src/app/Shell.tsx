@@ -7,6 +7,7 @@ import { LibraryNavProvider, type LibraryNav } from "@/features/library/LibraryN
 import { LibraryView } from "@/features/library/LibraryView";
 import { SourceReader } from "@/features/library/SourceReader";
 import { SourcesPane, type PaneSource } from "@/features/library/SourcesPane";
+import { UpdateNotice } from "@/features/updates/UpdateNotice";
 import { SettingsView } from "@/features/settings/SettingsView";
 import { TemplateEditor } from "@/features/settings/TemplateEditor";
 import { StudyPane } from "@/features/studies/StudyPane";
@@ -100,6 +101,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
         onSearchStudies={setStudySearch}
         onSearchLibrary={libraryNav.openLibrary}
       />
+      <UpdateNotice />
       {view === "settings" && (
         <SettingsView
           info={info}

@@ -2,6 +2,8 @@ import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { localizeError } from "@/i18n/messages";
 import type { Api } from "@/lib/api";
+import { noUpdater, type Updater } from "@/lib/updater";
+import { UpdatesProvider } from "@/features/updates/UpdatesContext";
 import { ApiProvider, useApi } from "@/lib/ApiContext";
 import { useLoad } from "@/hooks/useLoad";
 import { ScriptureProvider } from "@/features/scripture/ScriptureContext";
@@ -11,21 +13,21 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { Shell } from "./Shell";
 import { StartupScreen } from "./StartupScreen";
 
-export function App({ api }: { api: Api }) {
+export function App({ api, updater = noUpdater }: { api: Api; updater?: Updater }) {
   // Re-renders the whole interface when the language changes; nothing is
   // remounted, so the open study, passage and layout stay as they are.
   useTranslation();
   return (
     <ApiProvider api={api}>
       <ErrorBoundary onError={(message) => void api.logError(message).catch(() => undefined)}>
-        <Bootstrap />
+        <Bootstrap updater={updater} />
       </ErrorBoundary>
     </ApiProvider>
   );
 }
 
 /** Checks that the native core started, then loads what the shell needs. */
-function Bootstrap() {
+function Bootstrap({ updater }: { updater: Updater }) {
   const { t } = useTranslation();
   const api = useApi();
   const info = useLoad(useCallback(() => api.appInfo(), [api]));
@@ -44,10 +46,10 @@ function Bootstrap() {
       />
     );
   }
-  return <Workspace info={info.data} />;
+  return <Workspace info={info.data} updater={updater} />;
 }
 
-function Workspace({ info }: { info: AppInfo }) {
+function Workspace({ info, updater }: { info: AppInfo; updater: Updater }) {
   const api = useApi();
   const loaded = useLoad(
     useCallback(async () => {
@@ -70,7 +72,9 @@ function Workspace({ info }: { info: AppInfo }) {
         books={loaded.data.books}
         translations={loaded.data.translations}
       >
-        <Shell info={info} workspace={loaded.data.workspace} />
+        <UpdatesProvider updater={updater} enabled={info.updatesEnabled} version={info.version}>
+          <Shell info={info} workspace={loaded.data.workspace} />
+        </UpdatesProvider>
       </ScriptureProvider>
     </ThemeProvider>
   );

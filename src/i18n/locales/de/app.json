@@ -40,5 +40,26 @@
     "moveLeft": "Bereich „{{pane}}“ nach links verschieben",
     "moveRight": "Bereich „{{pane}}“ nach rechts verschieben",
     "resize": "Breite des Bereichs „{{pane}}“ ändern"
+  },
+  "updates": {
+    "title": "Updates",
+    "noticeLabel": "Update",
+    "available": "Ein Update ist verfügbar: Version {{version}}.",
+    "updateNow": "Jetzt aktualisieren",
+    "later": "Später",
+    "downloading": "Das Update wird heruntergeladen …",
+    "downloadingPercent": "Das Update wird heruntergeladen … {{percent}} %",
+    "version": "Installierte Version",
+    "channel": "Update-Kanal",
+    "channelTest": "Entwicklung / Test",
+    "check": "Nach Updates suchen",
+    "checking": "Es wird gesucht …",
+    "upToDate": "Abiding Word ist auf dem neuesten Stand.",
+    "notIncluded": "Diese Version enthält keine automatischen Updates.",
+    "help": "Abiding Word sucht nur gelegentlich oder auf Wunsch nach einem Update. Die App braucht dafür kein Internet zum Arbeiten, und deine Studien bleiben unberührt.",
+    "errors": {
+      "check": "Die Suche nach Updates war nicht möglich. Bitte prüfe deine Verbindung und versuche es erneut.",
+      "install": "Das Update konnte nicht installiert werden. Deine Studien sind nicht betroffen. Du kannst es erneut versuchen."
+    }
   }
 }
