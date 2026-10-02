@@ -88,16 +88,16 @@
     "builtinReadOnly": "Os modelos incluídos não podem ser alterados. Duplique-o para criar sua própria versão."
   },
   "sections": {
-    "hasContent": "“{{title}}” ainda tem texto ou achados."
+    "hasContent": "“{{title}}” ainda tem texto ou registros."
   },
   "relations": {
     "self": "Um estudo não pode ser vinculado a si mesmo.",
     "exists": "Este estudo já está vinculado a “{{title}}”."
   },
   "findings": {
-    "tooLong": "Este achado é longo demais para ser salvo.",
+    "tooLong": "Este registro é longo demais para ser salvo.",
     "otherStudySection": "Essa seção pertence a outro estudo.",
-    "tooManyTags": "Um achado pode ter no máximo {{max}} etiquetas.",
+    "tooManyTags": "Um registro pode ter no máximo {{max}} etiquetas.",
     "tagTooLong": "A etiqueta “{{tag}}” é longa demais."
   },
   "annotations": {

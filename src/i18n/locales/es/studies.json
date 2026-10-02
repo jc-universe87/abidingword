@@ -2,7 +2,7 @@
   "shortcuts": {
     "newFinding": {
       "keys": "Alt+N",
-      "action": "Nuevo hallazgo"
+      "action": "Nuevo apunte"
     },
     "newObservation": {
       "keys": "Alt+O",
@@ -22,7 +22,7 @@
     },
     "saveFinding": {
       "keys": "Ctrl+Intro",
-      "action": "Guardar el hallazgo que estás escribiendo"
+      "action": "Guardar el apunte que estás escribiendo"
     }
   },
   "builtin": {
@@ -179,7 +179,7 @@
           },
           "illustrations": {
             "title": "Ilustraciones",
-            "guidance": "Imágenes y ejemplos que sirven al texto."
+            "guidance": "Imágenes y ejemplos que ayudan a comprender el texto."
           },
           "application": {
             "title": "Aplicación",
@@ -345,7 +345,7 @@
       "continues": "Continuado por",
       "contrasts": "Contrasta con",
       "supports": "Respaldado por",
-      "custom": "Vinculado desde"
+      "custom": "Vinculado con"
     },
     "choice": {
       "related": "está relacionado con",
@@ -361,9 +361,9 @@
   "studyCount_one": "{{count}} estudio",
   "studyCount_many": "{{count}} estudios",
   "studyCount_other": "{{count}} estudios",
-  "findingCount_one": "{{count}} hallazgo",
-  "findingCount_many": "{{count}} hallazgos",
-  "findingCount_other": "{{count}} hallazgos",
+  "findingCount_one": "{{count}} apunte",
+  "findingCount_many": "{{count}} apuntes",
+  "findingCount_other": "{{count}} apuntes",
   "projects": {
     "title": "Proyectos",
     "intro": "Un proyecto reúne estudios relacionados: una serie de sermones, un curso de estudio bíblico o una doctrina.",
@@ -413,7 +413,7 @@
     "changed": "Modificado el {{date}}",
     "duplicate": "Duplicar…",
     "overview": "Resumen",
-    "noFindings": "Todavía no hay hallazgos",
+    "noFindings": "Todavía no hay apuntes",
     "questionCount_one": "{{count}} pregunta",
     "questionCount_many": "{{count}} preguntas",
     "questionCount_other": "{{count}} preguntas",
@@ -424,7 +424,7 @@
     "duplicatePrompt": "Hacer una copia de “{{title}}” en este proyecto:",
     "structureOnly": "Solo la estructura",
     "structureAndContent": "Estructura y contenido",
-    "duplicateHelp": "“Solo la estructura” copia las secciones. Con el contenido, también se copian tus textos, hallazgos y pasajes. Las notas sobre la Biblia nunca se duplican; pertenecen a los versículos.",
+    "duplicateHelp": "“Solo la estructura” copia las secciones. Con el contenido, también se copian tus textos, apuntes y pasajes. Las notas sobre la Biblia nunca se duplican; pertenecen a los versículos.",
     "purpose": "Propósito",
     "purposePlaceholder": "¿Qué quieres entender o preparar?",
     "details": "Detalles: {{type}}",
@@ -455,8 +455,8 @@
     "opening": "Abriendo el estudio…",
     "titleLabel": "Título del estudio",
     "contents": "Contenido del estudio",
-    "findingsLink": "Hallazgos",
-    "findingsLinkCount": "Hallazgos ({{count}})",
+    "findingsLink": "Apuntes",
+    "findingsLinkCount": "Apuntes ({{count}})",
     "addSection": "Añadir sección",
     "newSectionTitle": "Nueva sección",
     "savedAutomatically": "Los cambios se guardan automáticamente.",
@@ -470,7 +470,7 @@
     "delete": "Eliminar la sección {{title}}",
     "confirmLabel": "¿Eliminar la sección {{title}}?",
     "confirm": "¿Eliminar “{{title}}” y el texto que contiene?",
-    "confirmWithFindings": "¿Eliminar “{{title}}” y el texto que contiene? Sus hallazgos se quedan en el estudio como hallazgos del estudio completo.",
+    "confirmWithFindings": "¿Eliminar “{{title}}” y el texto que contiene? Sus apuntes se quedan en el estudio como apuntes del estudio completo.",
     "deleteSection": "Eliminar sección",
     "addTo": "Añadir a {{title}}",
     "titleLabel": "Título de la sección"
@@ -488,17 +488,17 @@
     "passagesMentioned": "Pasajes mencionados:"
   },
   "findings": {
-    "heading": "Hallazgos",
-    "addGroup": "Añadir un hallazgo",
+    "heading": "Apuntes",
+    "addGroup": "Añadir un apunte",
     "add": "Añadir:",
-    "otherKind": "Otro tipo de hallazgo",
+    "otherKind": "Otro tipo de apunte",
     "more": "Más…",
-    "filterGroup": "Mostrar hallazgos",
+    "filterGroup": "Mostrar apuntes",
     "all": "Todos ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "empty": "Todavía no hay hallazgos. Anota observaciones, preguntas y conclusiones mientras estudias; podrás encontrarlas más adelante.",
-    "listLabel": "Hallazgos",
-    "writeFirst": "Primero escribe el hallazgo.",
+    "empty": "Todavía no hay apuntes. Anota observaciones, preguntas y conclusiones mientras estudias; podrás encontrarlas más adelante.",
+    "listLabel": "Apuntes",
+    "writeFirst": "Primero escribe el apunte.",
     "type": "Tipo",
     "in": "En",
     "inLower": "en",
@@ -506,10 +506,10 @@
     "newLabel": "Nueva {{type}}",
     "newPlaceholder": "Nueva {{type}}…",
     "linkCurrent": "Vincular el pasaje actual ({{passage}})",
-    "save": "Guardar hallazgo",
+    "save": "Guardar apunte",
     "saveHint": "Ctrl+Intro guarda",
     "itemLabel": "{{type}}: {{excerpt}}",
-    "typeLabel": "Tipo de hallazgo",
+    "typeLabel": "Tipo de apunte",
     "section": "Sección",
     "moveUp": "Subir {{type}}",
     "moveDown": "Bajar {{type}}",
@@ -559,8 +559,8 @@
       "study": "Título o propósito",
       "section": "Título de la sección",
       "studyText": "Texto del estudio",
-      "finding": "Hallazgo",
-      "findingType": "Hallazgo: {{type}}"
+      "finding": "Apunte",
+      "findingType": "Apunte: {{type}}"
     }
   },
   "templates": {

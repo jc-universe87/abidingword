@@ -2,7 +2,7 @@
   "shortcuts": {
     "newFinding": {
       "keys": "Alt+N",
-      "action": "Novo achado"
+      "action": "Novo registro"
     },
     "newObservation": {
       "keys": "Alt+O",
@@ -22,7 +22,7 @@
     },
     "saveFinding": {
       "keys": "Ctrl+Enter",
-      "action": "Salvar o achado em edição"
+      "action": "Salvar o registro em edição"
     }
   },
   "builtin": {
@@ -179,7 +179,7 @@
           },
           "illustrations": {
             "title": "Ilustrações",
-            "guidance": "Imagens e exemplos que estejam a serviço do texto."
+            "guidance": "Imagens e exemplos que ajudam a compreender o texto."
           },
           "application": {
             "title": "Aplicação",
@@ -345,7 +345,7 @@
       "continues": "Continuado por",
       "contrasts": "Contrasta com",
       "supports": "Apoiado por",
-      "custom": "Vinculado a partir de"
+      "custom": "Vinculado a"
     },
     "choice": {
       "related": "está relacionado a",
@@ -361,9 +361,9 @@
   "studyCount_one": "{{count}} estudo",
   "studyCount_many": "{{count}} estudos",
   "studyCount_other": "{{count}} estudos",
-  "findingCount_one": "{{count}} achado",
-  "findingCount_many": "{{count}} achados",
-  "findingCount_other": "{{count}} achados",
+  "findingCount_one": "{{count}} registro",
+  "findingCount_many": "{{count}} registros",
+  "findingCount_other": "{{count}} registros",
   "projects": {
     "title": "Projetos",
     "intro": "Um projeto reúne estudos relacionados: uma série de sermões, um curso bíblico ou uma doutrina.",
@@ -413,7 +413,7 @@
     "changed": "Alterado em {{date}}",
     "duplicate": "Duplicar…",
     "overview": "Visão geral",
-    "noFindings": "Ainda não há achados",
+    "noFindings": "Ainda não há registros",
     "questionCount_one": "{{count}} pergunta",
     "questionCount_many": "{{count}} perguntas",
     "questionCount_other": "{{count}} perguntas",
@@ -424,7 +424,7 @@
     "duplicatePrompt": "Fazer uma cópia de “{{title}}” neste projeto:",
     "structureOnly": "Somente a estrutura",
     "structureAndContent": "Estrutura e conteúdo",
-    "duplicateHelp": "“Somente a estrutura” copia as seções. Com o conteúdo, seu texto, achados e passagens também são copiados. Notas na Bíblia nunca são duplicadas; elas pertencem aos versículos.",
+    "duplicateHelp": "“Somente a estrutura” copia as seções. Com o conteúdo, seu texto, registros e passagens também são copiados. Notas na Bíblia nunca são duplicadas; elas pertencem aos versículos.",
     "purpose": "Propósito",
     "purposePlaceholder": "O que você está procurando entender ou preparar?",
     "details": "Detalhes: {{type}}",
@@ -455,8 +455,8 @@
     "opening": "Abrindo estudo…",
     "titleLabel": "Título do estudo",
     "contents": "Conteúdo do estudo",
-    "findingsLink": "Achados",
-    "findingsLinkCount": "Achados ({{count}})",
+    "findingsLink": "Registros",
+    "findingsLinkCount": "Registros ({{count}})",
     "addSection": "Adicionar seção",
     "newSectionTitle": "Nova seção",
     "savedAutomatically": "As alterações são salvas automaticamente.",
@@ -470,7 +470,7 @@
     "delete": "Excluir a seção {{title}}",
     "confirmLabel": "Excluir a seção {{title}}?",
     "confirm": "Excluir “{{title}}” e o texto que ela contém?",
-    "confirmWithFindings": "Excluir “{{title}}” e o texto que ela contém? Os achados dela permanecem no estudo como achados do estudo inteiro.",
+    "confirmWithFindings": "Excluir “{{title}}” e o texto que ela contém? Os registros dela permanecem no estudo como registros do estudo inteiro.",
     "deleteSection": "Excluir seção",
     "addTo": "Adicionar a {{title}}",
     "titleLabel": "Título da seção"
@@ -488,17 +488,17 @@
     "passagesMentioned": "Passagens mencionadas:"
   },
   "findings": {
-    "heading": "Achados",
-    "addGroup": "Adicionar um achado",
+    "heading": "Registros",
+    "addGroup": "Adicionar um registro",
     "add": "Adicionar:",
-    "otherKind": "Outro tipo de achado",
+    "otherKind": "Outro tipo de registro",
     "more": "Mais…",
-    "filterGroup": "Mostrar achados",
+    "filterGroup": "Mostrar registros",
     "all": "Todos ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "empty": "Ainda não há achados. Registre observações, perguntas e conclusões enquanto estuda; depois você poderá encontrá-las facilmente.",
-    "listLabel": "Achados",
-    "writeFirst": "Escreva o achado primeiro.",
+    "empty": "Ainda não há registros. Anote observações, perguntas e conclusões enquanto estuda; depois você poderá encontrá-las com facilidade.",
+    "listLabel": "Registros",
+    "writeFirst": "Escreva o registro primeiro.",
     "type": "Tipo",
     "in": "Em",
     "inLower": "em",
@@ -506,10 +506,10 @@
     "newLabel": "Nova {{type}}",
     "newPlaceholder": "Nova {{type}}…",
     "linkCurrent": "Vincular a passagem atual ({{passage}})",
-    "save": "Salvar achado",
+    "save": "Salvar registro",
     "saveHint": "Ctrl+Enter salva",
     "itemLabel": "{{type}}: {{excerpt}}",
-    "typeLabel": "Tipo de achado",
+    "typeLabel": "Tipo de registro",
     "section": "Seção",
     "moveUp": "Mover {{type}} para cima",
     "moveDown": "Mover {{type}} para baixo",
@@ -559,8 +559,8 @@
       "study": "Título ou propósito",
       "section": "Título da seção",
       "studyText": "Texto do estudo",
-      "finding": "Achado",
-      "findingType": "Achado: {{type}}"
+      "finding": "Registro",
+      "findingType": "Registro: {{type}}"
     }
   },
   "templates": {

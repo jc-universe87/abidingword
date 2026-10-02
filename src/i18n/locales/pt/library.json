@@ -59,7 +59,7 @@
     "button": "Remover…",
     "label": "Remover {{title}}",
     "dialogLabel": "Remover {{title}}?",
-    "message": "Remover <strong>{{title}}</strong> da sua biblioteca? O texto e a cópia do arquivo feita pelo Abiding Word são excluídos; seu arquivo original não é alterado. Os achados que a citam mantêm um registro da referência.",
+    "message": "Remover <strong>{{title}}</strong> da sua biblioteca? O texto e a cópia do arquivo feita pelo Abiding Word são excluídos; seu arquivo original não é alterado. Os registros que a citam mantêm um registro da referência.",
     "confirm": "Remover da biblioteca",
     "keep": "Manter"
   },

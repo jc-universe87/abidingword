@@ -2,7 +2,7 @@
   "shortcuts": {
     "newFinding": {
       "keys": "Alt+N",
-      "action": "Nouveau constat"
+      "action": "Nouvel élément d’étude"
     },
     "newObservation": {
       "keys": "Alt+O",
@@ -22,7 +22,7 @@
     },
     "saveFinding": {
       "keys": "Ctrl+Entrée",
-      "action": "Enregistrer le constat en cours de rédaction"
+      "action": "Enregistrer l’élément d’étude en cours de rédaction"
     }
   },
   "builtin": {
@@ -52,7 +52,7 @@
             "guidance": "Comment le thème grandit et évolue à travers le canon."
           },
           "fulfilment": {
-            "title": "Accomplissement / Consommation",
+            "title": "Accomplissement final",
             "guidance": "Son accomplissement en Christ et son achèvement final."
           },
           "synthesis": {
@@ -146,7 +146,7 @@
         }
       },
       "teaching-study": {
-        "name": "Enseignement / Préparation de prédication",
+        "name": "Préparation d’enseignement / de prédication",
         "description": "Du texte à une prédication ou à une leçon préparée pour des personnes réelles.",
         "sections": {
           "text": {
@@ -179,7 +179,7 @@
           },
           "illustrations": {
             "title": "Illustrations",
-            "guidance": "Des images et des exemples au service du texte."
+            "guidance": "Des images et des exemples qui éclairent le texte."
           },
           "application": {
             "title": "Application",
@@ -345,7 +345,7 @@
       "continues": "Prolongée par",
       "contrasts": "Contraste avec",
       "supports": "Appuyée par",
-      "custom": "Reliée depuis"
+      "custom": "Liée à"
     },
     "choice": {
       "related": "est liée à",
@@ -361,9 +361,9 @@
   "studyCount_one": "{{count}} étude",
   "studyCount_many": "{{count}} études",
   "studyCount_other": "{{count}} études",
-  "findingCount_one": "{{count}} constat",
-  "findingCount_many": "{{count}} constats",
-  "findingCount_other": "{{count}} constats",
+  "findingCount_one": "{{count}} élément d’étude",
+  "findingCount_many": "{{count}} éléments d’étude",
+  "findingCount_other": "{{count}} éléments d’étude",
   "projects": {
     "title": "Projets",
     "intro": "Un projet regroupe des études liées : une série de prédications, un cours biblique ou une doctrine.",
@@ -413,7 +413,7 @@
     "changed": "Modifiée le {{date}}",
     "duplicate": "Dupliquer…",
     "overview": "Vue d’ensemble",
-    "noFindings": "Aucun constat pour l’instant",
+    "noFindings": "Aucun élément d’étude pour l’instant",
     "questionCount_one": "{{count}} question",
     "questionCount_many": "{{count}} questions",
     "questionCount_other": "{{count}} questions",
@@ -424,7 +424,7 @@
     "duplicatePrompt": "Faire une copie de « {{title}} » dans ce projet :",
     "structureOnly": "Structure seule",
     "structureAndContent": "Structure et contenu",
-    "duplicateHelp": "« Structure seule » copie les sections. Avec le contenu, votre texte, vos constats et vos passages sont aussi copiés. Les notes sur la Bible ne sont jamais dupliquées ; elles appartiennent aux versets.",
+    "duplicateHelp": "« Structure seule » copie les sections. Avec le contenu, votre texte, vos élément d’études et vos passages sont aussi copiés. Les notes sur la Bible ne sont jamais dupliquées ; elles appartiennent aux versets.",
     "purpose": "Objectif",
     "purposePlaceholder": "Que cherchez-vous à comprendre ou à préparer ?",
     "details": "Détails : {{type}}",
@@ -455,8 +455,8 @@
     "opening": "Ouverture de l’étude…",
     "titleLabel": "Titre de l’étude",
     "contents": "Contenu de l’étude",
-    "findingsLink": "Constats",
-    "findingsLinkCount": "Constats ({{count}})",
+    "findingsLink": "Éléments d’étude",
+    "findingsLinkCount": "Éléments d’étude ({{count}})",
     "addSection": "Ajouter une section",
     "newSectionTitle": "Nouvelle section",
     "savedAutomatically": "Les modifications sont enregistrées automatiquement.",
@@ -470,7 +470,7 @@
     "delete": "Supprimer la section {{title}}",
     "confirmLabel": "Supprimer la section {{title}} ?",
     "confirm": "Supprimer « {{title}} » et le texte qu’elle contient ?",
-    "confirmWithFindings": "Supprimer « {{title}} » et le texte qu’elle contient ? Ses constats restent dans l’étude, rattachés à l’étude entière.",
+    "confirmWithFindings": "Supprimer « {{title}} » et le texte qu’elle contient ? Ses élément d’études restent dans l’étude, rattachés à l’étude entière.",
     "deleteSection": "Supprimer la section",
     "addTo": "Ajouter à {{title}}",
     "titleLabel": "Titre de la section"
@@ -488,38 +488,38 @@
     "passagesMentioned": "Passages mentionnés :"
   },
   "findings": {
-    "heading": "Constats",
-    "addGroup": "Ajouter un constat",
+    "heading": "Éléments d’étude",
+    "addGroup": "Ajouter un élément d’étude",
     "add": "Ajouter :",
-    "otherKind": "Autre type de constat",
+    "otherKind": "Autre type d’élément",
     "more": "Plus…",
-    "filterGroup": "Afficher les constats",
+    "filterGroup": "Afficher les éléments d’étude",
     "all": "Tous ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "empty": "Aucun constat pour l’instant. Notez vos observations, questions et conclusions au fil de l’étude ; vous pourrez les retrouver plus tard.",
-    "listLabel": "Constats",
-    "writeFirst": "Rédigez d’abord le constat.",
+    "empty": "Aucun élément d’étude pour l’instant. Notez vos observations, questions et conclusions au fil de l’étude ; vous pourrez les retrouver plus tard.",
+    "listLabel": "Éléments d’étude",
+    "writeFirst": "Rédigez d’abord l’élément.",
     "type": "Type",
     "in": "Dans",
     "inLower": "dans",
     "wholeStudy": "Toute l’étude",
-    "newLabel": "Nouveau constat : {{type}}",
-    "newPlaceholder": "Nouveau constat : {{type}}…",
+    "newLabel": "Nouveau élément d’étude : {{type}}",
+    "newPlaceholder": "Nouveau élément d’étude : {{type}}…",
     "linkCurrent": "Lier le passage actuel ({{passage}})",
-    "save": "Enregistrer le constat",
+    "save": "Enregistrer l’élément",
     "saveHint": "Ctrl+Entrée pour enregistrer",
     "itemLabel": "{{type}} : {{excerpt}}",
-    "typeLabel": "Type de constat",
+    "typeLabel": "Type d’élément",
     "section": "Section",
-    "moveUp": "Monter le constat ({{type}})",
-    "moveDown": "Descendre le constat ({{type}})",
-    "delete": "Supprimer le constat ({{type}})",
-    "text": "Texte du constat ({{type}})",
+    "moveUp": "Monter le élément d’étude ({{type}})",
+    "moveDown": "Descendre le élément d’étude ({{type}})",
+    "delete": "Supprimer le élément d’étude ({{type}})",
+    "text": "Texte du élément d’étude ({{type}})",
     "unlink": "Délier {{passage}}",
     "link": "+ Lier {{passage}}",
     "tags": "Étiquettes",
     "tagsPlaceholder": "p. ex. alliance, prédication",
-    "confirmDelete": "Supprimer ce constat ({{type}}) ?"
+    "confirmDelete": "Supprimer ce élément d’étude ({{type}}) ?"
   },
   "passages": {
     "label": "Passages",
@@ -559,8 +559,8 @@
       "study": "Titre ou objectif",
       "section": "Titre de section",
       "studyText": "Texte de l’étude",
-      "finding": "Constat",
-      "findingType": "Constat : {{type}}"
+      "finding": "Élément d’étude",
+      "findingType": "Élément d’étude : {{type}}"
     }
   },
   "templates": {

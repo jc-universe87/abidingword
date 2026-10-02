@@ -88,16 +88,16 @@
     "builtinReadOnly": "Las plantillas integradas no se pueden modificar. Duplícala para crear tu propia versión."
   },
   "sections": {
-    "hasContent": "“{{title}}” todavía contiene texto o hallazgos."
+    "hasContent": "“{{title}}” todavía contiene texto o apuntes."
   },
   "relations": {
     "self": "Un estudio no se puede vincular consigo mismo.",
     "exists": "Este estudio ya está vinculado con “{{title}}”."
   },
   "findings": {
-    "tooLong": "Este hallazgo es demasiado largo para guardarlo.",
+    "tooLong": "Este apunte es demasiado largo para guardarlo.",
     "otherStudySection": "Esa sección pertenece a otro estudio.",
-    "tooManyTags": "Un hallazgo puede tener como máximo {{max}} etiquetas.",
+    "tooManyTags": "Un apunte puede tener como máximo {{max}} etiquetas.",
     "tagTooLong": "La etiqueta “{{tag}}” es demasiado larga."
   },
   "annotations": {

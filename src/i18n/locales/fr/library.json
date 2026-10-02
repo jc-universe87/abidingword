@@ -59,7 +59,7 @@
     "button": "Retirer…",
     "label": "Retirer {{title}}",
     "dialogLabel": "Retirer {{title}} ?",
-    "message": "Retirer <strong>{{title}}</strong> de votre bibliothèque ? Son texte et la copie du fichier conservée par Abiding Word sont supprimés ; votre fichier d’origine n’est pas touché. Les constats qui la citent gardent une trace de la référence.",
+    "message": "Retirer <strong>{{title}}</strong> de votre bibliothèque ? Son texte et la copie du fichier conservée par Abiding Word sont supprimés ; votre fichier d’origine n’est pas touché. Les élément d’études qui la citent gardent une trace de la référence.",
     "confirm": "Retirer de la bibliothèque",
     "keep": "La conserver"
   },
