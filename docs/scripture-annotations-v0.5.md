@@ -205,6 +205,14 @@ colour never the only signal (labels name the colour and state), usable
 touch targets in the toolbar. Phrase selection stays pointer/touch based;
 no custom keyboard word-selection system in v0.5.
 
+## Interface languages
+
+All new annotation text (toolbar, popover, marker labels, colour names,
+Marks view, messages, `aria-label`s) must be translatable into `en`, `de`,
+`ko`, `fr`, `es`, `pt` (README, "Interface languages"). The app has no
+translation framework yet, so the i18n foundation is to be built before
+Phase 3 adds the annotation interface.
+
 ## Original Bible documents (principle only)
 
 Structured Scripture is the working representation. The original imported

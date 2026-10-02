@@ -166,6 +166,54 @@ compilation: `CARGO_BUILD_JOBS=2 npm run tauri dev`.
 
 Build output lands in `src-tauri/target/release/bundle/`.
 
+### Development workflow
+
+GitHub is the source of truth; heavy builds run there, not on the
+development machine.
+
+- **Local development.** Clone once, then `git switch <branch>`,
+  `git pull`, `npm run tauri dev`.
+- **Remote validation.** Every push to `main`, `feature/**`, `fix/**` or
+  `chore/**` and every pull request to `main` runs **CI**
+  (`.github/workflows/ci.yml`): *Frontend* (typecheck, lint, tests, build)
+  and *Rust* (format, clippy with warnings as errors, tests).
+- **Test installers.** **Native builds**
+  (`.github/workflows/native-builds.yml`) produces unsigned installers as
+  workflow artifacts, kept 14 days: `Abiding-Word-Windows-x64` (`.msi`,
+  setup `.exe`) and `Abiding-Word-Linux-x64` (`.deb`, `.rpm`, `.AppImage`).
+  It runs on pushes to `main`, on tags, and when started by hand:
+  GitHub → Actions → Native builds → Run workflow → choose the branch
+  (tick *selection spike* to include the v0.5 selection-check panel). A
+  push whose commit message contains `[native-build]` also builds that
+  branch. Download the artifact from the finished run's page. Windows
+  SmartScreen warns about these unsigned installers ("More info → Run
+  anyway"). Artifacts are for testing; annotated tags mark releases.
+- **Platform testing.** CI does not replace trying the real app. The
+  Windows laptop is the main place for native interface testing; the
+  Chromebook (Linux, WebKitGTK) for Linux-specific acceptance checks.
+
+On the Windows laptop, either install the `Abiding-Word-Windows-x64`
+artifact, or keep a development clone (one time: clone, install the
+[Tauri prerequisites](https://v2.tauri.app/start/prerequisites/), `npm ci`;
+then `git switch <branch>`, `git pull`, `npm run tauri dev`). No ZIP
+downloads of the repository are needed.
+
+Rules for every contributor, human or agent: work on an explicit feature
+branch; fetch before starting; make focused commits; push normally; CI must
+pass; no unreviewed work directly on `main`; no force-pushing or history
+rewriting unless explicitly authorised; no credentials or tokens in the
+repository. Native acceptance still happens on real target systems.
+
+### Interface languages
+
+Every user-facing or accessibility-facing text (labels, headings,
+messages, placeholders, `aria-label`s, colour names…) must be translatable,
+in English, German, Korean, French, Spanish and Portuguese (`en`, `de`,
+`ko`, `fr`, `es`, `pt`). **Not in place yet:** the interface currently has
+English text written directly in the components and no translation
+framework. An i18n foundation comes before further major interface work;
+new code must not add more hard-coded text than it has to until then.
+
 ### Keeping development data separate
 
 `ABIDING_WORD_DATA_DIR` points the app at a different data folder, so
