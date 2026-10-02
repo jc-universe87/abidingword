@@ -26,7 +26,8 @@
     "state": {
       "note": "avec une note",
       "bookmarked": "avec un signet",
-      "highlighted": "surligné"
+      "highlighted": "surligné",
+      "highlightedWords": "avec des mots surlignés"
     }
   },
   "verseTools": {
@@ -38,7 +39,11 @@
     "saveNote": "Enregistrer la note",
     "notesOn": "Notes sur le verset {{verse}}",
     "editNote": "Modifier la note",
-    "on": "Sur {{passage}}"
+    "on": "Sur {{passage}}",
+    "removeHighlight": "Retirer le surlignage",
+    "removeHighlightOn": "Retirer le surlignage sur {{quote}}",
+    "markedWords": "Mots surlignés au verset {{verse}}",
+    "notShown": "Non affiché dans ce texte"
   },
   "search": {
     "title": "Recherche",
@@ -145,5 +150,18 @@
     "confirmRemove": "Retirer <strong>{{name}}</strong> ? Son texte sera supprimé d’Abiding Word. Vos études, liens vers des passages et notes sont conservés.",
     "confirmRemoveManaged": "Retirer <strong>{{name}}</strong> ? Son texte sera supprimé d’Abiding Word, ainsi que la copie du fichier conservée par Abiding Word (votre fichier d’origine n’est pas touché). Vos études, liens vers des passages et notes sont conservés.",
     "keep": "La conserver"
+  },
+  "colors": {
+    "label": "Couleur du surlignage",
+    "amber": "Ambre",
+    "green": "Vert",
+    "blue": "Bleu",
+    "rose": "Rose",
+    "grey": "Gris"
+  },
+  "selection": {
+    "toolbarLabel": "Actions pour les mots sélectionnés",
+    "selectedWords": "Mots sélectionnés",
+    "noteOnWords": "Note sur les mots sélectionnés"
   }
 }

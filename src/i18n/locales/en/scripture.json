@@ -26,7 +26,8 @@
     "state": {
       "note": "has a note",
       "bookmarked": "bookmarked",
-      "highlighted": "highlighted"
+      "highlighted": "highlighted",
+      "highlightedWords": "has highlighted words"
     }
   },
   "verseTools": {
@@ -38,7 +39,11 @@
     "saveNote": "Save note",
     "notesOn": "Notes on verse {{verse}}",
     "editNote": "Edit note",
-    "on": "On {{passage}}"
+    "on": "On {{passage}}",
+    "removeHighlight": "Remove highlight",
+    "removeHighlightOn": "Remove highlight on {{quote}}",
+    "markedWords": "Highlighted words in verse {{verse}}",
+    "notShown": "Not shown in this wording"
   },
   "search": {
     "title": "Search",
@@ -134,5 +139,18 @@
     "confirmRemove": "Remove <strong>{{name}}</strong>? Its text will be deleted from Abiding Word. Your studies, passage links and notes are kept.",
     "confirmRemoveManaged": "Remove <strong>{{name}}</strong>? Its text will be deleted from Abiding Word, together with Abiding Word's copy of the file (your original file is not touched). Your studies, passage links and notes are kept.",
     "keep": "Keep it"
+  },
+  "colors": {
+    "label": "Highlight colour",
+    "amber": "Amber",
+    "green": "Green",
+    "blue": "Blue",
+    "rose": "Rose",
+    "grey": "Grey"
+  },
+  "selection": {
+    "toolbarLabel": "Actions for the selected words",
+    "selectedWords": "Selected words",
+    "noteOnWords": "Note on the selected words"
   }
 }

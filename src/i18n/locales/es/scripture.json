@@ -26,7 +26,8 @@
     "state": {
       "note": "tiene una nota",
       "bookmarked": "con marcador",
-      "highlighted": "resaltado"
+      "highlighted": "resaltado",
+      "highlightedWords": "con palabras resaltadas"
     }
   },
   "verseTools": {
@@ -38,7 +39,11 @@
     "saveNote": "Guardar nota",
     "notesOn": "Notas sobre el versículo {{verse}}",
     "editNote": "Editar nota",
-    "on": "Sobre {{passage}}"
+    "on": "Sobre {{passage}}",
+    "removeHighlight": "Quitar el resaltado",
+    "removeHighlightOn": "Quitar el resaltado de {{quote}}",
+    "markedWords": "Palabras resaltadas en el versículo {{verse}}",
+    "notShown": "No se muestra en este texto"
   },
   "search": {
     "title": "Buscar",
@@ -145,5 +150,18 @@
     "confirmRemove": "¿Quitar <strong>{{name}}</strong>? Su texto se eliminará de Abiding Word. Tus estudios, vínculos a pasajes y notas se conservan.",
     "confirmRemoveManaged": "¿Quitar <strong>{{name}}</strong>? Su texto se eliminará de Abiding Word, junto con la copia del archivo que guarda Abiding Word (tu archivo original no se toca). Tus estudios, vínculos a pasajes y notas se conservan.",
     "keep": "Conservarla"
+  },
+  "colors": {
+    "label": "Color del resaltado",
+    "amber": "Ámbar",
+    "green": "Verde",
+    "blue": "Azul",
+    "rose": "Rosa",
+    "grey": "Gris"
+  },
+  "selection": {
+    "toolbarLabel": "Acciones para las palabras seleccionadas",
+    "selectedWords": "Palabras seleccionadas",
+    "noteOnWords": "Nota sobre las palabras seleccionadas"
   }
 }

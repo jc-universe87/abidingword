@@ -26,7 +26,8 @@
     "state": {
       "note": "메모 있음",
       "bookmarked": "책갈피 있음",
-      "highlighted": "강조됨"
+      "highlighted": "강조됨",
+      "highlightedWords": "강조된 말씀 있음"
     }
   },
   "verseTools": {
@@ -38,7 +39,11 @@
     "saveNote": "메모 저장",
     "notesOn": "{{verse}}절 메모",
     "editNote": "메모 편집",
-    "on": "{{passage}}에 대한 메모"
+    "on": "{{passage}}에 대한 메모",
+    "removeHighlight": "강조 제거",
+    "removeHighlightOn": "{{quote}}의 강조 제거",
+    "markedWords": "{{verse}}절의 강조된 말씀",
+    "notShown": "이 번역본에서는 표시되지 않음"
   },
   "search": {
     "title": "검색",
@@ -123,5 +128,18 @@
     "confirmRemove": "<strong>{{name}}</strong>을(를) 제거할까요? 이 성경의 본문이 Abiding Word에서 삭제됩니다. 연구, 본문 연결, 메모는 그대로 유지됩니다.",
     "confirmRemoveManaged": "<strong>{{name}}</strong>을(를) 제거할까요? 이 성경의 본문과 Abiding Word가 보관하던 파일 사본이 함께 삭제됩니다(원본 파일은 그대로 남습니다). 연구, 본문 연결, 메모는 그대로 유지됩니다.",
     "keep": "유지"
+  },
+  "colors": {
+    "label": "강조 색",
+    "amber": "호박색",
+    "green": "초록",
+    "blue": "파랑",
+    "rose": "분홍",
+    "grey": "회색"
+  },
+  "selection": {
+    "toolbarLabel": "선택한 말씀에 대한 작업",
+    "selectedWords": "선택한 말씀",
+    "noteOnWords": "선택한 말씀에 대한 메모"
   }
 }

@@ -1,7 +1,8 @@
 # Abiding Word — Scripture Reading & Annotation v0.5
 
-> Status: **in progress** (Phase 1 done; Phase 2 selection spike awaiting
-> verification on ChromeOS/WebKitGTK). This document records the approved
+> Status: **in progress** (Phases 1–2 done, selection spike verified on
+> ChromeOS/WebKitGTK; selection toolbar, colours, phrase and verse marks
+> implemented — overlapping highlights still awaiting a decision). This document records the approved
 > architecture and scope before the reader UI is built; sections marked
 > *planned* describe work not yet implemented.
 
@@ -179,14 +180,35 @@ by `src/lib/selectionAnchor.ts`:
 
 The Phase 2 spike shows this live (see "Phase 2 spike").
 
-## Overlapping highlights (planned, Phase 4)
+## Selection toolbar, colours and rendering (implemented)
 
-A character range shows one highlight colour only; no stacked layers. When
+- `SelectionToolbar` (reader foot, sticky, in normal flow — not a floating
+  overlay, so WebKitGTK positioning cannot break it) appears for a valid
+  mapped selection with **Add note** and **Highlight**; never Bookmark.
+  The anchor is captured when the selection settles and kept while a colour
+  is chosen or a note written. Saving uses `annotation_create` with the
+  anchor, clears the native selection and reloads the chapter.
+- Whole-verse tools (`VerseTools`): Add note, Highlight (same five colours,
+  recolour or remove), Bookmark; unchanged otherwise. Phrase highlights are
+  listed there with their colour, quote and "Not shown in this wording".
+- Drawing (`src/lib/annotationRender.ts`): a phrase highlight is a coloured
+  `<mark>` and a phrase note a dotted underline, only where the core reports
+  `shown`; they wrap parts of the verse text and never change it. A
+  whole-verse highlight tints the verse block. One small marker per verse
+  that has notes or a bookmark.
+- Colours are tokens (`--aw-hl-*`, light and dark), named in all languages;
+  no colour carries a meaning.
+
+## Overlapping highlights (UNRESOLVED; not implemented)
+
+Proposal (not approved; the owner rejected a simple "latest wins"): a character range shows one highlight colour only; no stacked layers. When
 a new highlight overlaps existing ones in the same wording, the existing
 ones are resolved deterministically (trimmed, split or replaced) so the
 result looks like using a physical highlighter. If splitting proves
 disproportionately complicated, simpler alternatives are reported before
-that part is built.
+that part is built. Until a rule is chosen the reader paints nothing where
+different colours meet (`highlightPaint`, the single place to change); all
+annotations remain stored and listed.
 
 ## Marks view (planned, Phase 6)
 
@@ -209,9 +231,10 @@ no custom keyboard word-selection system in v0.5.
 
 All new annotation text (toolbar, popover, marker labels, colour names,
 Marks view, messages, `aria-label`s) must be translatable into `en`, `de`,
-`ko`, `fr`, `es`, `pt` (README, "Interface languages"). The app has no
-translation framework yet, so the i18n foundation is to be built before
-Phase 3 adds the annotation interface.
+`ko`, `fr`, `es`, `pt` (README, "Interface languages"). The i18n
+foundation is in place (`docs/i18n.md`); every string added here exists in
+all six languages, and the core's annotation errors carry stable codes
+(`errors.annotations.*`).
 
 ## Original Bible documents (principle only)
 

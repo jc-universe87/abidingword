@@ -26,7 +26,8 @@
     "state": {
       "note": "mit Notiz",
       "bookmarked": "mit Lesezeichen",
-      "highlighted": "markiert"
+      "highlighted": "markiert",
+      "highlightedWords": "mit markierten Wörtern"
     }
   },
   "verseTools": {
@@ -38,7 +39,11 @@
     "saveNote": "Notiz speichern",
     "notesOn": "Notizen zu Vers {{verse}}",
     "editNote": "Notiz bearbeiten",
-    "on": "Zu {{passage}}"
+    "on": "Zu {{passage}}",
+    "removeHighlight": "Markierung entfernen",
+    "removeHighlightOn": "Markierung auf {{quote}} entfernen",
+    "markedWords": "Markierte Wörter in Vers {{verse}}",
+    "notShown": "In dieser Übersetzung nicht angezeigt"
   },
   "search": {
     "title": "Suche",
@@ -134,5 +139,18 @@
     "confirmRemove": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht. Ihre Studien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
     "confirmRemoveManaged": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht, zusammen mit der Kopie der Datei, die Abiding Word angelegt hat (Ihre Originaldatei bleibt unberührt). Ihre Studien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
     "keep": "Behalten"
+  },
+  "colors": {
+    "label": "Farbe der Markierung",
+    "amber": "Bernstein",
+    "green": "Grün",
+    "blue": "Blau",
+    "rose": "Rosa",
+    "grey": "Grau"
+  },
+  "selection": {
+    "toolbarLabel": "Aktionen für die ausgewählten Wörter",
+    "selectedWords": "Ausgewählte Wörter",
+    "noteOnWords": "Notiz zu den ausgewählten Wörtern"
   }
 }

@@ -4,7 +4,9 @@ import { Bookmark, Highlighter, StickyNote } from "lucide-react";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { referenceLabel } from "@/i18n/scripture";
-import type { Annotation, AnnotationKind } from "@/types/scripture";
+import { SWATCH_CLASS } from "@/lib/annotationRender";
+import type { Annotation, AnnotationKind, HighlightColor } from "@/types/scripture";
+import { HighlightColors } from "./HighlightColors";
 
 interface VerseToolsProps {
   canonical: string;
@@ -27,10 +29,13 @@ export function VerseTools({ canonical, verse, annotations, onChanged }: VerseTo
   const { t } = useTranslation();
   const api = useApi();
   const [draft, setDraft] = useState<string | null>(null);
+  const [picking, setPicking] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const exact = annotations.filter((a) => a.reference.canonical === canonical);
+  // Whole-verse marks only: a highlighted phrase inside this verse is not a verse highlight.
+  const exact = annotations.filter((a) => a.reference.canonical === canonical && !a.anchor);
   const find = (kind: AnnotationKind) => exact.find((a) => a.kind === kind);
   const notes = annotations.filter((a) => a.kind === "note");
+  const phrases = annotations.filter((a) => a.kind === "highlight" && a.anchor);
 
   const run = async (action: () => Promise<unknown>) => {
     setError(null);
@@ -42,9 +47,24 @@ export function VerseTools({ canonical, verse, annotations, onChanged }: VerseTo
     }
   };
 
-  const toggle = (kind: "highlight" | "bookmark") => {
-    const existing = find(kind);
-    return run(() => (existing ? api.annotationDelete(existing.id) : api.annotationCreate({ reference: canonical, kind })));
+  const toggleBookmark = () => {
+    const existing = find("bookmark");
+    return run(() => (existing ? api.annotationDelete(existing.id) : api.annotationCreate({ reference: canonical, kind: "bookmark" })));
+  };
+
+  // Picking a colour highlights the verse, or recolours its existing highlight.
+  const pickColor = (color: HighlightColor) =>
+    run(async () => {
+      await api.annotationCreate({ reference: canonical, kind: "highlight", color });
+      setPicking(false);
+    });
+
+  const removeHighlight = () => {
+    const existing = find("highlight");
+    return run(async () => {
+      if (existing) await api.annotationDelete(existing.id);
+      setPicking(false);
+    });
   };
 
   const saveNote = () =>
@@ -59,13 +79,24 @@ export function VerseTools({ canonical, verse, annotations, onChanged }: VerseTo
         <button type="button" className={tool} onClick={() => setDraft(draft === null ? "" : null)} aria-expanded={draft !== null}>
           <StickyNote className="size-4" aria-hidden="true" /> {t("scripture.verseTools.addNote")}
         </button>
-        <button type="button" className={tool} aria-pressed={!!find("highlight")} onClick={() => toggle("highlight")}>
+        <button type="button" className={tool} aria-pressed={!!find("highlight")} aria-expanded={picking} onClick={() => setPicking(!picking)}>
           <Highlighter className="size-4" aria-hidden="true" /> {t("scripture.verseTools.highlight")}
         </button>
-        <button type="button" className={tool} aria-pressed={!!find("bookmark")} onClick={() => toggle("bookmark")}>
+        <button type="button" className={tool} aria-pressed={!!find("bookmark")} onClick={toggleBookmark}>
           <Bookmark className="size-4" aria-hidden="true" /> {t("scripture.verseTools.bookmark")}
         </button>
       </div>
+
+      {picking && (
+        <div className="flex flex-wrap items-center gap-3">
+          <HighlightColors current={find("highlight")?.color ?? (find("highlight") ? "amber" : null)} onPick={pickColor} />
+          {find("highlight") && (
+            <button type="button" className={tool} onClick={removeHighlight}>
+              {t("scripture.verseTools.removeHighlight")}
+            </button>
+          )}
+        </div>
+      )}
 
       {draft !== null && (
         <div className="flex flex-col gap-2">
@@ -90,6 +121,14 @@ export function VerseTools({ canonical, verse, annotations, onChanged }: VerseTo
         </div>
       )}
 
+      {phrases.length > 0 && (
+        <ul className="m-0 flex list-none flex-col gap-1 p-0" aria-label={t("scripture.verseTools.markedWords", { verse })}>
+          {phrases.map((mark) => (
+            <PhraseHighlight key={mark.id} mark={mark} onChanged={onChanged} />
+          ))}
+        </ul>
+      )}
+
       {notes.length > 0 && (
         <ul className="m-0 flex list-none flex-col gap-2 p-0" aria-label={t("scripture.verseTools.notesOn", { verse })}>
           {notes.map((note) => (
@@ -104,6 +143,34 @@ export function VerseTools({ canonical, verse, annotations, onChanged }: VerseTo
         </p>
       )}
     </div>
+  );
+}
+
+function PhraseHighlight({ mark, onChanged }: { mark: Annotation; onChanged: () => void }) {
+  const { t } = useTranslation();
+  const api = useApi();
+  const [error, setError] = useState<string | null>(null);
+  const quote = mark.anchor?.quote ?? "";
+  const remove = async () => {
+    setError(null);
+    try {
+      await api.annotationDelete(mark.id);
+      onChanged();
+    } catch (e) {
+      setError(toApiError(e).message);
+    }
+  };
+  return (
+    <li className="flex flex-wrap items-baseline gap-x-2 text-[0.875rem]" data-testid="phrase-highlight">
+      <span aria-hidden="true" className={`inline-block size-3 shrink-0 self-center rounded-full border border-border ${SWATCH_CLASS[mark.color ?? "amber"]}`} />
+      <span className="text-text-muted">{t(`scripture.colors.${mark.color ?? "amber"}`)}</span>
+      <q className="reading text-[1rem]">{quote}</q>
+      {mark.anchor && !mark.anchor.shown && <span className="text-text-muted">{t("scripture.verseTools.notShown")}</span>}
+      <button type="button" className="underline underline-offset-2" onClick={remove} aria-label={t("scripture.verseTools.removeHighlightOn", { quote })}>
+        {t("scripture.verseTools.removeHighlight")}
+      </button>
+      {error && <span role="alert" className="text-danger">{error}</span>}
+    </li>
   );
 }
 
@@ -147,9 +214,16 @@ function SavedNote({ note, onChanged }: { note: Annotation; onChanged: () => voi
         </div>
       ) : (
         <>
+          {note.anchor && <q className="reading m-0 mb-1 block text-[0.9375rem] text-text-muted">{note.anchor.quote}</q>}
           <p className="reading m-0 whitespace-pre-wrap text-[1rem]">{note.content}</p>
           <p className="m-0 mt-1 text-[0.875rem] text-text-muted">
             {t("scripture.verseTools.on", { passage: referenceLabel(note.reference) })}
+            {note.anchor && !note.anchor.shown && (
+              <>
+                {t("common.listSeparator")}
+                {t("scripture.verseTools.notShown")}
+              </>
+            )}
             {t("common.listSeparator")}
             <button type="button" className="underline underline-offset-2" onClick={() => setEditing(true)}>
               {t("common.edit")}

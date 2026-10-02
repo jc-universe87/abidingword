@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useRef } from "react";
+import { Fragment, useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Bookmark, StickyNote } from "lucide-react";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
 import { useApi } from "@/lib/ApiContext";
+import { PHRASE_CLASS, VERSE_CLASS, highlightPaint, phraseSegments, verseMarks } from "@/lib/annotationRender";
 import { contains } from "@/lib/scripture";
 import { referenceLabel } from "@/i18n/scripture";
 import type { Annotation, BibleTranslation, ScriptureRef, VerseText } from "@/types/scripture";
+import { SelectionToolbar } from "./SelectionToolbar";
 import { SELECTION_SPIKE, SelectionSpike } from "./SelectionSpike";
 import { useScripture } from "./ScriptureContext";
 import { VerseTools } from "./VerseTools";
@@ -95,6 +97,9 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
           ))}
         </div>
       )}
+      {data.verses.length > 0 && (
+        <SelectionToolbar key={`${translation.id}:${book}.${chapter}`} root={container} translationId={translation.id} onSaved={notes.reload} />
+      )}
       {SELECTION_SPIKE && data.verses.length > 0 && <SelectionSpike root={container} translationId={translation.id} />}
     </div>
   );
@@ -111,22 +116,25 @@ interface VerseProps {
 
 function Verse({ verse, annotations, current, selected, onSelect, onChanged }: VerseProps) {
   const { t } = useTranslation();
-  const highlighted = annotations.some((a) => a.kind === "highlight");
-  const bookmarked = annotations.some((a) => a.kind === "bookmark");
-  const noted = annotations.filter((a) => a.kind === "note");
+  const marks = verseMarks(verse.canonical, annotations);
+  const verseColor = highlightPaint(marks.verseColors);
+  const { bookmarked, notes: noted } = marks;
   const states = [
     noted.length > 0 ? t("scripture.reader.state.note") : null,
     bookmarked ? t("scripture.reader.state.bookmarked") : null,
-    highlighted ? t("scripture.reader.state.highlighted") : null,
+    marks.verseColors.length > 0 ? t("scripture.reader.state.highlighted") : null,
+    marks.wordsHighlighted ? t("scripture.reader.state.highlightedWords") : null,
   ].filter((state): state is string => state !== null);
   const label =
     states.length > 0
       ? t("scripture.reader.verseButtonWithState", { verse: verse.verse, states: states.join(t("scripture.reader.stateSeparator")) })
       : t("scripture.reader.verseButton", { verse: verse.verse });
-  const tone = selected ? "bg-selection" : highlighted ? "bg-note" : "";
+  const tone = selected ? "bg-selection" : verseColor ? VERSE_CLASS[verseColor] : "";
+  const segments = phraseSegments(verse.canonical, verse.text.length, annotations);
   return (
     <div
       data-current={current || undefined}
+      data-verse-highlight={marks.verseColors.length > 0 ? marks.verseColors.join(" ") : undefined}
       className={`scroll-my-3 border-l-[3px] px-2 py-0.5 ${current ? "border-accent" : "border-transparent"} ${tone}`}
     >
       <p className="m-0">
@@ -139,12 +147,30 @@ function Verse({ verse, annotations, current, selected, onSelect, onChanged }: V
         >
           {verse.verse}
         </button>
-        {/* Only this element holds Scripture text: selections are measured in it. */}
-        <span data-verse-text={verse.canonical}>{verse.text}</span>
+        {/* Only this element holds Scripture text: selections are measured in it.
+            Drawn phrases only wrap parts of the text; they never change it. */}
+        <span data-verse-text={verse.canonical}>
+          {segments.map((segment) => {
+            const text = verse.text.slice(segment.start, segment.end);
+            const paint = highlightPaint(segment.colors);
+            if (!paint && !segment.noted) return <Fragment key={segment.start}>{text}</Fragment>;
+            return (
+              <mark
+                key={segment.start}
+                data-phrase-color={paint ?? undefined}
+                data-phrase-note={segment.noted || undefined}
+                className={`rounded-sm text-inherit ${paint ? PHRASE_CLASS[paint] : "bg-transparent"} ${
+                  segment.noted ? "underline decoration-accent decoration-dotted decoration-2 underline-offset-4" : ""
+                }`}
+              >
+                {text}
+              </mark>
+            );
+          })}
+        </span>
         {(bookmarked || noted.length > 0) && (
-          <span className="ml-1.5 inline-flex select-none gap-1 align-middle text-accent" aria-hidden="true">
-            {bookmarked && <Bookmark className="size-3.5" />}
-            {noted.length > 0 && <StickyNote className="size-3.5" />}
+          <span data-verse-marker className="ml-1.5 inline-flex select-none align-middle text-accent" aria-hidden="true">
+            {noted.length > 0 ? <StickyNote className="size-3.5" /> : <Bookmark className="size-3.5" />}
           </span>
         )}
       </p>

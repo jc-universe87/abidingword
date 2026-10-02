@@ -81,6 +81,7 @@ describe("Scripture pane", () => {
     await user.type(within(tools).getByLabelText("Note on verse 1"), "Remain in the vine.");
     await user.click(within(tools).getByRole("button", { name: "Save note" }));
     await user.click(within(tools).getByRole("button", { name: "Highlight" }));
+    await user.click(within(within(tools).getByRole("group", { name: "Highlight colour" })).getByRole("button", { name: "Amber" }));
     await user.click(within(tools).getByRole("button", { name: "Bookmark" }));
 
     await waitFor(() => expect(api.state.annotations.map((a) => a.kind).sort()).toEqual(["bookmark", "highlight", "note"]));

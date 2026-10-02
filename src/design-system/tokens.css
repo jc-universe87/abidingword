@@ -99,3 +99,24 @@
   --aw-mark-chevron: var(--aw-brass);
   color-scheme: dark;
 }
+
+/*
+ * Highlight colours (Scripture annotations). Five restrained, purely visual
+ * choices with no meaning attached; muted so reading text keeps its
+ * contrast in both themes.
+ */
+:root {
+  --aw-hl-amber: #f0d78c;
+  --aw-hl-green: #bcd9b0;
+  --aw-hl-blue: #b9d1e8;
+  --aw-hl-rose: #ecc0c4;
+  --aw-hl-grey: #d3d0c8;
+}
+
+[data-theme="dark"] {
+  --aw-hl-amber: #6b5521;
+  --aw-hl-green: #34563a;
+  --aw-hl-blue: #2f4c68;
+  --aw-hl-rose: #6b3b41;
+  --aw-hl-grey: #4a4a46;
+}

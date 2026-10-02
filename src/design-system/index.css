@@ -21,6 +21,11 @@
   --color-primary-hover: var(--aw-primary-hover);
   --color-on-primary: var(--aw-on-primary);
   --color-danger: var(--aw-danger);
+  --color-hl-amber: var(--aw-hl-amber);
+  --color-hl-green: var(--aw-hl-green);
+  --color-hl-blue: var(--aw-hl-blue);
+  --color-hl-rose: var(--aw-hl-rose);
+  --color-hl-grey: var(--aw-hl-grey);
 
   --font-display: var(--aw-font-display);
   --font-ui: var(--aw-font-ui);
