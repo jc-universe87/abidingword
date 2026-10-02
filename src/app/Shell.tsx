@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AddBibleView } from "@/features/scripture/AddBibleView";
 import { ScripturePane } from "@/features/scripture/ScripturePane";
 import { AddSourceView } from "@/features/library/AddSourceView";
@@ -17,6 +18,7 @@ import type { AppInfo, Workspace } from "@/types/domain";
 type View = "workspace" | "settings" | "addBible" | "template" | "library" | "source" | "addSource";
 
 export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace }) {
+  const { t } = useTranslation();
   const [view, setView] = useState<View>("workspace");
   const [returnTo, setReturnTo] = useState<View>("workspace");
   const [editingTemplate, setEditingTemplate] = useState<string | null>(null);
@@ -77,7 +79,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
         href="#pane-study"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-10 focus:rounded-aw focus:bg-primary focus:px-4 focus:py-2 focus:text-on-primary"
       >
-        Skip to study
+        {t("app.skipToStudy")}
       </a>
       <AppBar
         view={

@@ -1,0 +1,44 @@
+{
+  "startup": {
+    "opening": "Ihr Arbeitsbereich wird geöffnet …",
+    "couldNotStart": "Abiding Word konnte nicht starten.",
+    "logFiles": "Protokolldateien:",
+    "windowFailed": "Im Fenster ist ein unerwarteter Fehler aufgetreten. Bitte schließen Sie Abiding Word und öffnen Sie es erneut. Ihre gespeicherte Arbeit ist sicher."
+  },
+  "skipToStudy": "Zur Studie springen",
+  "search": {
+    "scopeLabel": "Suchen in",
+    "scope": {
+      "scripture": "Bibel",
+      "studies": "Studien",
+      "library": "Bibliothek"
+    },
+    "label": {
+      "scripture": "In der Bibel suchen",
+      "studies": "In Studien suchen",
+      "library": "In der Bibliothek suchen"
+    },
+    "placeholder": {
+      "scripture": "In der Bibel suchen",
+      "studies": "In Ihren Studien suchen",
+      "library": "In Ihrer Bibliothek suchen",
+      "noBible": "Zuerst eine Bibel hinzufügen"
+    }
+  },
+  "toolbar": {
+    "showScripture": "Bibelbereich anzeigen",
+    "showSources": "Quellenbereich anzeigen",
+    "settings": "Einstellungen"
+  },
+  "panes": {
+    "name": {
+      "scripture": "Bibel",
+      "study": "Studie",
+      "sources": "Quellen"
+    },
+    "arrange": "Bereich „{{pane}}“ anordnen",
+    "moveLeft": "Bereich „{{pane}}“ nach links verschieben",
+    "moveRight": "Bereich „{{pane}}“ nach rechts verschieben",
+    "resize": "Breite des Bereichs „{{pane}}“ ändern"
+  }
+}

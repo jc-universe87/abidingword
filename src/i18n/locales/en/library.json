@@ -1,0 +1,126 @@
+{
+  "addToLibrary": "Add to library",
+  "addToLibraryEllipsis": "Add to library…",
+  "sourceType": {
+    "book": "Book",
+    "article": "Article",
+    "notes": "Notes",
+    "sermon": "Sermon",
+    "lecture": "Lecture",
+    "document": "Document"
+  },
+  "format": {
+    "pdf": "PDF",
+    "epub": "EPUB",
+    "markdown": "Markdown",
+    "text": "Plain text"
+  },
+  "licence": {
+    "private": "My own copy — not to be shared",
+    "distributable": "May be shared",
+    "unknown": "Licence not known"
+  },
+  "locator": {
+    "page": "p. {{page}}"
+  },
+  "quoted": "“{{text}}”",
+  "view": {
+    "backToWorkspace": "Back to workspace",
+    "title": "Library",
+    "intro": "Your own books, notes and documents, stored on this computer. Every search result shows exactly where it comes from.",
+    "addedOn": "added {{date}}"
+  },
+  "search": {
+    "heading": "Search the library",
+    "label": "Search the library",
+    "placeholder": "Words or “exact phrase”",
+    "nothingFound": "Nothing found in your library.",
+    "resultCount_one": "{{number}} passage found.",
+    "resultCount_other": "{{number}} passages found.",
+    "resultCountMore_one": "{{number}}+ passage found.",
+    "resultCountMore_other": "{{number}}+ passages found.",
+    "resultsLabel": "Library search results",
+    "showMore": "Show more results"
+  },
+  "filter": {
+    "heading": "All sources",
+    "label": "Filter sources",
+    "type": "Type",
+    "allTypes": "All types",
+    "language": "Language",
+    "allLanguages": "All languages",
+    "noMatch": "No sources match these filters.",
+    "empty": "Nothing in your library yet. Add a PDF, EPUB, Markdown or text file.",
+    "listLabel": "Sources"
+  },
+  "remove": {
+    "button": "Remove…",
+    "label": "Remove {{title}}",
+    "dialogLabel": "Remove {{title}}?",
+    "message": "Remove <strong>{{title}}</strong> from your library? Its text and Abiding Word’s copy of the file are deleted; your original file is not touched. Findings that cite it keep a record of the citation.",
+    "confirm": "Remove from library",
+    "keep": "Keep it"
+  },
+  "add": {
+    "title": "Add to library",
+    "reading": "Reading the file and finding its text…",
+    "intro": "Choose a PDF, EPUB, Markdown (.md) or text (.txt) file. Abiding Word keeps its own copy in your library and never changes your file. Scanned PDFs cannot be read yet.",
+    "choose": "Choose a file…",
+    "whatFound": "What was found",
+    "extracted": "Text extracted successfully",
+    "references_one": "{{number}} Bible reference detected",
+    "references_other": "{{number}} Bible references detected",
+    "duplicate": "This file is already in your library as <strong>{{title}}</strong>.",
+    "addCopy": "Add a second copy anyway",
+    "adding": "Adding…"
+  },
+  "size": {
+    "pages_one": "{{number}} page",
+    "pages_other": "{{number}} pages",
+    "chapters_one": "{{number}} chapter",
+    "chapters_other": "{{number}} chapters",
+    "sections_one": "{{number}} section",
+    "sections_other": "{{number}} sections",
+    "paragraphs_one": "{{number}} paragraph",
+    "paragraphs_other": "{{number}} paragraphs"
+  },
+  "metadata": {
+    "title": "Title",
+    "author": "Author",
+    "language": "Language",
+    "languagePlaceholder": "e.g. English, Deutsch",
+    "kind": "Kind",
+    "sharing": "Sharing",
+    "isbn": "ISBN {{isbn}}",
+    "fromFile": "from “{{fileName}}”"
+  },
+  "reader": {
+    "showEarlier": "Show earlier text",
+    "showMore": "Show more text",
+    "backToSources": "Back to Sources",
+    "openFull": "Open full reader",
+    "openFullTitle": "Read this source at full width",
+    "pageMarker": "Page {{page}}"
+  },
+  "pane": {
+    "libraryHeading": "Your library",
+    "empty": "No sources yet. Add books, articles and your own notes (PDF, EPUB, Markdown or text); they stay on this computer.",
+    "mentioning": "Sources mentioning {{passage}}",
+    "noMentions": "None of your sources mention this passage.",
+    "recent": "Recently added",
+    "openLibrary": "Open library"
+  },
+  "citations": {
+    "removed": "(removed from library)",
+    "openTitle": "Open this source at the cited place",
+    "removeLabel": "Remove citation {{citation}}",
+    "add": "+ Add source",
+    "pickerLabel": "Add a source",
+    "searchLabel": "Search your library for the passage to cite",
+    "searchPlaceholder": "Search your library for the passage to cite",
+    "replaceQuote": "Also replace this quotation’s text with the cited passage",
+    "useQuote": "Also use the cited passage as this quotation’s text",
+    "listLabel": "Passages to cite",
+    "cite": "Cite {{citation}}"
+  }
+}

@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { PaneControlsProvider, type PaneControls } from "@/design-system/PaneHeader";
 import { Splitter } from "@/design-system/Splitter";
 import type { PaneId, SidePaneId, WorkspaceLayoutState } from "./layoutPrefs";
@@ -8,7 +9,6 @@ const SIDE_MIN = 240;
 /** The Study pane always keeps at least this much room. */
 const STUDY_MIN = 360;
 
-const PANE_NAMES: Record<PaneId, string> = { scripture: "Scripture", study: "Study", sources: "Sources" };
 
 interface WorkspaceLayoutProps {
   layout: WorkspaceLayoutState;
@@ -29,6 +29,8 @@ interface WorkspaceLayoutProps {
  * without changing what is saved, so widening the window restores them.
  */
 export function WorkspaceLayout({ layout, scripture, study, sources }: WorkspaceLayoutProps) {
+  const { t } = useTranslation();
+  const paneName = (pane: PaneId): string => t(`app.panes.name.${pane}`);
   const { order, widths, open, setOrder, setWidth } = layout;
   const container = useRef<HTMLDivElement>(null);
   const room = useWidth(container);
@@ -63,7 +65,7 @@ export function WorkspaceLayout({ layout, scripture, study, sources }: Workspace
       visible.map((pane, i): [PaneId, PaneControls] => [
         pane,
         {
-          name: PANE_NAMES[pane],
+          name: t(`app.panes.name.${pane}`),
           idPrefix: `pane-${pane}`,
           canMoveLeft: i > 0,
           canMoveRight: i < visible.length - 1,
@@ -71,7 +73,7 @@ export function WorkspaceLayout({ layout, scripture, study, sources }: Workspace
         },
       ]),
     ) as Partial<Record<PaneId, PaneControls>>;
-  }, [order, visible, setOrder]);
+  }, [order, visible, setOrder, t]);
 
   /** The widest a side pane may be dragged while the Study pane keeps its room. */
   const maxWidth = (pane: SidePaneId) => {
@@ -119,7 +121,7 @@ export function WorkspaceLayout({ layout, scripture, study, sources }: Workspace
           <Fragment key={pane}>
             {i > 0 && resized && (
               <Splitter
-                label={`Resize ${PANE_NAMES[resized]} pane`}
+                label={t("app.panes.resize", { pane: paneName(resized) })}
                 controls={`pane-${resized}`}
                 value={widths[resized]}
                 min={SIDE_MIN}

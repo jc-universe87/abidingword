@@ -1,0 +1,51 @@
+{
+  "backToWorkspace": "Retour à l’espace de travail",
+  "title": "Paramètres",
+  "sections": {
+    "appearance": "Apparence",
+    "language": "Langue",
+    "bibleTexts": "Traductions de la Bible",
+    "templates": "Modèles d’étude",
+    "shortcuts": "Raccourcis clavier",
+    "about": "À propos de cette installation",
+    "planned": "Dans les prochaines versions"
+  },
+  "language": {
+    "label": "Langue de l’interface",
+    "hint": "Change la langue des menus, des boutons et des messages. Vos études, notes, votre bibliothèque et les textes bibliques restent inchangés."
+  },
+  "theme": {
+    "legend": "Thème",
+    "light": "Clair",
+    "lightHint": "Ivoire chaleureux, pour l’étude en journée.",
+    "dark": "Sombre",
+    "darkHint": "Vert forêt profond, plus reposant avec peu de lumière.",
+    "system": "Comme mon ordinateur",
+    "systemHint": "Suit le réglage de votre système d’exploitation."
+  },
+  "layout": {
+    "title": "Disposition de l’espace de travail",
+    "description": "Remet les volets dans leur ordre habituel (Bible, Étude, Sources) et à leur largeur habituelle, et les affiche ou les masque comme au premier démarrage. Seule la disposition sur cet ordinateur change ; vos études et votre bibliothèque ne sont pas concernées.",
+    "reset": "Réinitialiser la disposition",
+    "done": "Disposition réinitialisée."
+  },
+  "shortcutsHint": "Ils fonctionnent lorsqu’une étude est ouverte.",
+  "about": {
+    "version": "Version",
+    "versionValue": "Abiding Word {{version}} (Foundation)",
+    "dataFolder": "Dossier de données",
+    "database": "Base de données",
+    "logFiles": "Fichiers journaux",
+    "schema": "Schéma de la base de données",
+    "schemaVersion": "Version {{version}}",
+    "backup": "Toutes vos études sont enregistrées dans le dossier de données de cet ordinateur. Pour les sauvegarder, copiez ce dossier entier pendant qu’Abiding Word est fermé."
+  },
+  "planned": {
+    "ai": "Assistance par IA",
+    "aiText": "Une aide facultative pour l’étude. Abiding Word fonctionnera toujours pleinement sans elle.",
+    "sync": "Synchronisation",
+    "syncText": "Gardez vos études à jour sur vos propres appareils, sous votre contrôle.",
+    "integrations": "Intégrations",
+    "integrationsText": "Connectez d’autres outils que vous utilisez déjà."
+  }
+}

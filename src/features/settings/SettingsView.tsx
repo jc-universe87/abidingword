@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
@@ -6,19 +7,12 @@ import type { AppInfo, Theme } from "@/types/domain";
 import { STUDY_SHORTCUTS } from "@/features/studies/useStudyShortcuts";
 import { BibleTexts } from "./BibleTexts";
 import { StudyTemplates } from "./StudyTemplates";
+import { LanguageChoice } from "./LanguageChoice";
 import { useTheme } from "./ThemeContext";
 
-const THEMES: { value: Theme; label: string; hint: string }[] = [
-  { value: "light", label: "Light", hint: "Warm ivory, for daytime study." },
-  { value: "dark", label: "Dark", hint: "Deep forest green, easier in low light." },
-  { value: "system", label: "Match my computer", hint: "Follows your operating system setting." },
-];
+const THEMES = ["light", "dark", "system"] as const satisfies readonly Theme[];
 
-const PLANNED: { title: string; text: string }[] = [
-  { title: "AI assistance", text: "Optional help with study. Abiding Word will always work fully without it." },
-  { title: "Sync", text: "Keep your studies in step across your own devices, under your control." },
-  { title: "Integrations", text: "Connect other tools you already use." },
-];
+const PLANNED = ["ai", "sync", "integrations"] as const;
 
 interface SettingsViewProps {
   info: AppInfo;
@@ -30,6 +24,7 @@ interface SettingsViewProps {
 }
 
 export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditTemplate }: SettingsViewProps) {
+  const { t } = useTranslation();
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), []);
 
@@ -42,7 +37,7 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
         <div className="flex flex-col items-start gap-4">
           <Button variant="quiet" onClick={onClose}>
             <ArrowLeft className="size-4" aria-hidden="true" />
-            Back to workspace
+            {t("settings.backToWorkspace")}
           </Button>
           <h1
             id="settings-title"
@@ -50,58 +45,63 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
             tabIndex={-1}
             className="m-0 font-display text-[1.875rem] font-heading text-text-strong"
           >
-            Settings
+            {t("settings.title")}
           </h1>
         </div>
 
-        <Section title="Appearance">
+        <Section id="appearance" title={t("settings.sections.appearance")}>
           <ThemeChoice />
           <LayoutReset onReset={onResetLayout} />
         </Section>
 
-        <Section title="Bible Texts">
+        <Section id="language" title={t("settings.sections.language")}>
+          <LanguageChoice />
+        </Section>
+
+        <Section id="bible-texts" title={t("settings.sections.bibleTexts")}>
           <BibleTexts onAddBible={onAddBible} />
         </Section>
 
-        <Section title="Study Templates">
+        <Section id="study-templates" title={t("settings.sections.templates")}>
           <StudyTemplates onEdit={onEditTemplate} />
         </Section>
 
-        <Section title="Keyboard shortcuts">
+        <Section id="keyboard-shortcuts" title={t("settings.sections.shortcuts")}>
           <dl className="m-0 grid grid-cols-[10rem_1fr] gap-x-6 gap-y-2">
             {STUDY_SHORTCUTS.map((s) => (
-              <Item key={s.keys} term={s.keys}>{s.action}</Item>
+              <Item key={s.keys} term={t(s.keys)}>{t(s.action)}</Item>
             ))}
           </dl>
-          <p className="mt-3 mb-0 text-[0.9375rem] text-text-muted">These work while a study is open.</p>
+          <p className="mt-3 mb-0 text-[0.9375rem] text-text-muted">{t("settings.shortcutsHint")}</p>
         </Section>
 
-        <Section title="About this installation">
+        <Section id="about-this-installation" title={t("settings.sections.about")}>
           <dl className="m-0 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-[12rem_1fr]">
-            <Item term="Version">Abiding Word {info.version} (Foundation)</Item>
-            <Item term="Data folder">
+            <Item term={t("settings.about.version")}>{t("settings.about.versionValue", { version: info.version })}</Item>
+            <Item term={t("settings.about.dataFolder")}>
               <Path value={info.dataDirectory} />
             </Item>
-            <Item term="Database">
+            <Item term={t("settings.about.database")}>
               <Path value={info.databasePath} />
             </Item>
-            <Item term="Log files">
+            <Item term={t("settings.about.logFiles")}>
               <Path value={info.logDirectory} />
             </Item>
-            <Item term="Database schema">{info.schemaVersion === null ? "Unknown" : `Version ${info.schemaVersion}`}</Item>
+            <Item term={t("settings.about.schema")}>
+              {info.schemaVersion === null
+                ? t("common.unknown")
+                : t("settings.about.schemaVersion", { version: info.schemaVersion })}
+            </Item>
           </dl>
-          <p className="mt-4 mb-0 text-[0.9375rem] text-text-muted">
-            All your studies are stored in the data folder on this computer. To back them up, copy that whole folder
-            while Abiding Word is closed.
-          </p>
+          <p className="mt-4 mb-0 text-[0.9375rem] text-text-muted">{t("settings.about.backup")}</p>
         </Section>
 
-        <Section title="Coming in later versions">
+        <Section id="coming-in-later-versions" title={t("settings.sections.planned")}>
           <ul className="m-0 flex list-none flex-col gap-4 p-0">
             {PLANNED.map((item) => (
-              <li key={item.title} className="border-l-[3px] border-border pl-4">
-                <p className="m-0 font-semibold text-text-strong">{item.title}</p>
-                <p className="m-0 mt-1 text-[0.9375rem] text-text-muted">{item.text}</p>
+              <li key={item} className="border-l-[3px] border-border pl-4">
+                <p className="m-0 font-semibold text-text-strong">{t(`settings.planned.${item}`)}</p>
+                <p className="m-0 mt-1 text-[0.9375rem] text-text-muted">{t(`settings.planned.${item}Text`)}</p>
               </li>
             ))}
           </ul>
@@ -111,8 +111,9 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  const id = `settings-${title.toLowerCase().replace(/\W+/g, "-")}`;
+/** `id` is stable across languages (the heading's text is not). */
+function Section({ id: name, title, children }: { id: string; title: string; children: ReactNode }) {
+  const id = `settings-${name}`;
   return (
     <section aria-labelledby={id} className="border-t border-border-subtle pt-6">
       <h2 id={id} className="m-0 mb-4 font-display text-[1.5rem] font-heading text-text-strong">
@@ -133,20 +134,18 @@ function Item({ term, children }: { term: string; children: ReactNode }) {
 }
 
 function Path({ value }: { value: string | null }) {
-  if (!value) return <span className="text-text-muted">Not available</span>;
+  const { t } = useTranslation();
+  if (!value) return <span className="text-text-muted">{t("common.notAvailable")}</span>;
   return <code className="break-all font-mono text-[0.9375rem]">{value}</code>;
 }
 
 function LayoutReset({ onReset }: { onReset: () => void }) {
+  const { t } = useTranslation();
   const [done, setDone] = useState(false);
   return (
     <div className="mt-6 flex flex-col items-start gap-2">
-      <p className="m-0 font-medium text-text-strong">Workspace layout</p>
-      <p className="m-0 text-[0.9375rem] text-text-muted">
-        Puts the panes back in their usual order (Scripture, Study, Sources) with their usual widths, and shows or
-        hides them as on first start. Only the arrangement on this computer changes; your studies and library are
-        not affected.
-      </p>
+      <p className="m-0 font-medium text-text-strong">{t("settings.layout.title")}</p>
+      <p className="m-0 text-[0.9375rem] text-text-muted">{t("settings.layout.description")}</p>
       <div className="flex flex-wrap items-center gap-3">
         <Button
           onClick={() => {
@@ -154,10 +153,10 @@ function LayoutReset({ onReset }: { onReset: () => void }) {
             setDone(true);
           }}
         >
-          Reset layout
+          {t("settings.layout.reset")}
         </Button>
         <p role="status" className="m-0 text-[0.9375rem] text-text-muted">
-          {done ? "Layout reset." : ""}
+          {done ? t("settings.layout.done") : ""}
         </p>
       </div>
     </div>
@@ -165,6 +164,7 @@ function LayoutReset({ onReset }: { onReset: () => void }) {
 }
 
 function ThemeChoice() {
+  const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
   const [error, setError] = useState<string | null>(null);
 
@@ -179,21 +179,21 @@ function ThemeChoice() {
 
   return (
     <fieldset className="m-0 border-0 p-0">
-      <legend className="mb-3 font-medium text-text-strong">Theme</legend>
+      <legend className="mb-3 font-medium text-text-strong">{t("settings.theme.legend")}</legend>
       <div className="flex flex-col gap-3">
         {THEMES.map((option) => (
-          <label key={option.value} className="flex cursor-pointer items-start gap-3">
+          <label key={option} className="flex cursor-pointer items-start gap-3">
             <input
               type="radio"
               name="theme"
-              value={option.value}
-              checked={theme === option.value}
-              onChange={() => choose(option.value)}
+              value={option}
+              checked={theme === option}
+              onChange={() => choose(option)}
               className="mt-1 size-4 accent-[var(--aw-primary)]"
             />
             <span>
-              <span className="block">{option.label}</span>
-              <span className="block text-[0.9375rem] text-text-muted">{option.hint}</span>
+              <span className="block">{t(`settings.theme.${option}`)}</span>
+              <span className="block text-[0.9375rem] text-text-muted">{t(`settings.theme.${option}Hint`)}</span>
             </span>
           </label>
         ))}

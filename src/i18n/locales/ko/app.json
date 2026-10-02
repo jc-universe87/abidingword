@@ -1,0 +1,44 @@
+{
+  "startup": {
+    "opening": "작업 공간을 여는 중…",
+    "couldNotStart": "Abiding Word를 시작할 수 없습니다.",
+    "logFiles": "로그 파일:",
+    "windowFailed": "창에서 예기치 않은 문제가 발생했습니다. Abiding Word를 닫았다가 다시 열어 주세요. 저장된 작업은 안전합니다."
+  },
+  "skipToStudy": "연구로 건너뛰기",
+  "search": {
+    "scopeLabel": "검색 범위",
+    "scope": {
+      "scripture": "성경",
+      "studies": "연구",
+      "library": "라이브러리"
+    },
+    "label": {
+      "scripture": "성경 검색",
+      "studies": "연구 검색",
+      "library": "라이브러리 검색"
+    },
+    "placeholder": {
+      "scripture": "성경 검색",
+      "studies": "내 연구 검색",
+      "library": "내 라이브러리 검색",
+      "noBible": "먼저 성경을 추가하세요"
+    }
+  },
+  "toolbar": {
+    "showScripture": "성경 창 표시",
+    "showSources": "자료 창 표시",
+    "settings": "설정"
+  },
+  "panes": {
+    "name": {
+      "scripture": "성경",
+      "study": "연구",
+      "sources": "자료"
+    },
+    "arrange": "{{pane}} 창 배치",
+    "moveLeft": "{{pane}} 창을 왼쪽으로 이동",
+    "moveRight": "{{pane}} 창을 오른쪽으로 이동",
+    "resize": "{{pane}} 창 크기 조절"
+  }
+}

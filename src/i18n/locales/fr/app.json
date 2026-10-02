@@ -1,0 +1,44 @@
+{
+  "startup": {
+    "opening": "Ouverture de votre espace de travail…",
+    "couldNotStart": "Abiding Word n’a pas pu démarrer.",
+    "logFiles": "Fichiers journaux :",
+    "windowFailed": "Un problème inattendu est survenu dans la fenêtre. Veuillez fermer Abiding Word puis le rouvrir. Votre travail enregistré est en sécurité."
+  },
+  "skipToStudy": "Aller à l’étude",
+  "search": {
+    "scopeLabel": "Rechercher dans",
+    "scope": {
+      "scripture": "Bible",
+      "studies": "Études",
+      "library": "Bibliothèque"
+    },
+    "label": {
+      "scripture": "Rechercher dans la Bible",
+      "studies": "Rechercher dans les études",
+      "library": "Rechercher dans la bibliothèque"
+    },
+    "placeholder": {
+      "scripture": "Rechercher dans la Bible",
+      "studies": "Rechercher dans vos études",
+      "library": "Rechercher dans votre bibliothèque",
+      "noBible": "Ajoutez d’abord une Bible"
+    }
+  },
+  "toolbar": {
+    "showScripture": "Afficher le volet Bible",
+    "showSources": "Afficher le volet Sources",
+    "settings": "Paramètres"
+  },
+  "panes": {
+    "name": {
+      "scripture": "Bible",
+      "study": "Étude",
+      "sources": "Sources"
+    },
+    "arrange": "Disposer le volet {{pane}}",
+    "moveLeft": "Déplacer le volet {{pane}} vers la gauche",
+    "moveRight": "Déplacer le volet {{pane}} vers la droite",
+    "resize": "Redimensionner le volet {{pane}}"
+  }
+}
