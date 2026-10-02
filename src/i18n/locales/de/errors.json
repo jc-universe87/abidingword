@@ -4,7 +4,7 @@
     "filesystem": "Abiding Word konnte seinen Datenordner nicht verwenden. Prüfen Sie, ob der Ordner vorhanden ist und ob Sie Schreibrechte dafür haben.",
     "notFound": "Dieses Element wurde nicht gefunden. Möglicherweise wurde es gelöscht.",
     "migration": "Abiding Word konnte seine Datenbank nicht auf diese Version aktualisieren. Ihre Daten wurden nicht verändert. Einzelheiten stehen in der Protokolldatei.",
-    "integrity": "Ihre Studiendatenbank scheint beschädigt zu sein, deshalb hat Abiding Word angehalten, bevor etwas verändert wurde. Die Datei ist unverändert. Einzelheiten stehen in der Protokolldatei.",
+    "integrity": "Ihre Datenbank für Bibelstudien scheint beschädigt zu sein, deshalb hat Abiding Word angehalten, bevor etwas verändert wurde. Die Datei ist unverändert. Einzelheiten stehen in der Protokolldatei.",
     "backup": "Abiding Word konnte vor der Aktualisierung der Datenbank keine Sicherungskopie anlegen, deshalb wurde nichts verändert. Prüfen Sie, ob noch genügend Speicherplatz frei ist.",
     "unexpected": "Etwas Unerwartetes ist schiefgegangen. Einzelheiten stehen in der Protokolldatei."
   },
@@ -85,16 +85,16 @@
     "builtinReadOnly": "Mitgelieferte Vorlagen können nicht geändert werden. Duplizieren Sie die Vorlage, um eine eigene Fassung zu erstellen."
   },
   "sections": {
-    "hasContent": "„{{title}}“ enthält noch Text oder Erkenntnisse."
+    "hasContent": "„{{title}}“ enthält noch Text oder Einträge."
   },
   "relations": {
-    "self": "Eine Studie kann nicht mit sich selbst verknüpft werden.",
-    "exists": "Diese Studie ist bereits mit „{{title}}“ verknüpft."
+    "self": "Ein Bibelstudium kann nicht mit sich selbst verknüpft werden.",
+    "exists": "Dieses Bibelstudium ist bereits mit „{{title}}“ verknüpft."
   },
   "findings": {
-    "tooLong": "Diese Erkenntnis ist zu lang zum Speichern.",
-    "otherStudySection": "Dieser Abschnitt gehört zu einer anderen Studie.",
-    "tooManyTags": "Eine Erkenntnis kann höchstens {{max}} Schlagwörter haben.",
+    "tooLong": "Dieser Eintrag ist zu lang zum Speichern.",
+    "otherStudySection": "Dieser Abschnitt gehört zu einem anderen Bibelstudium.",
+    "tooManyTags": "Ein Eintrag kann höchstens {{max}} Schlagwörter haben.",
     "tagTooLong": "Das Schlagwort „{{tag}}“ ist zu lang."
   },
   "annotations": {

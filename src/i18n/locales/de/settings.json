@@ -5,14 +5,14 @@
     "appearance": "Darstellung",
     "language": "Sprache",
     "bibleTexts": "Bibelübersetzungen",
-    "templates": "Studienvorlagen",
+    "templates": "Vorlagen für Bibelstudien",
     "shortcuts": "Tastenkürzel",
     "about": "Über diese Installation",
     "planned": "In späteren Versionen"
   },
   "language": {
     "label": "Sprache der Oberfläche",
-    "hint": "Ändert die Sprache von Menüs, Schaltflächen und Meldungen. Ihre Studien, Notizen, Ihre Bibliothek und die Bibeltexte bleiben unverändert."
+    "hint": "Ändert die Sprache von Menüs, Schaltflächen und Meldungen. Ihre Bibelstudien, Notizen, Ihre Bibliothek und die Bibeltexte bleiben unverändert."
   },
   "theme": {
     "legend": "Farbschema",
@@ -25,11 +25,11 @@
   },
   "layout": {
     "title": "Anordnung des Arbeitsbereichs",
-    "description": "Stellt die Bereiche in ihrer üblichen Reihenfolge (Bibel, Studie, Quellen) und Breite wieder her und blendet sie wie beim ersten Start ein oder aus. Nur die Anordnung auf diesem Computer ändert sich; Ihre Studien und Ihre Bibliothek bleiben unberührt.",
+    "description": "Stellt die Bereiche in ihrer üblichen Reihenfolge (Bibel, Bibelstudium, Quellen) und Breite wieder her und blendet sie wie beim ersten Start ein oder aus. Nur die Anordnung auf diesem Computer ändert sich; Ihre Bibelstudien und Ihre Bibliothek bleiben unberührt.",
     "reset": "Anordnung zurücksetzen",
     "done": "Anordnung zurückgesetzt."
   },
-  "shortcutsHint": "Diese Kürzel gelten, solange eine Studie geöffnet ist.",
+  "shortcutsHint": "Diese Kürzel gelten, solange ein Bibelstudium geöffnet ist.",
   "about": {
     "version": "Version",
     "versionValue": "Abiding Word {{version}} (Foundation)",
@@ -38,13 +38,13 @@
     "logFiles": "Protokolldateien",
     "schema": "Datenbankschema",
     "schemaVersion": "Version {{version}}",
-    "backup": "Alle Ihre Studien werden im Datenordner auf diesem Computer gespeichert. Um sie zu sichern, kopieren Sie den ganzen Ordner, während Abiding Word geschlossen ist."
+    "backup": "Alle Ihre Bibelstudien werden im Datenordner auf diesem Computer gespeichert. Um sie zu sichern, kopieren Sie den ganzen Ordner, während Abiding Word geschlossen ist."
   },
   "planned": {
     "ai": "KI-Unterstützung",
-    "aiText": "Optionale Hilfe beim Studium. Abiding Word wird auch ohne sie immer vollständig funktionieren.",
+    "aiText": "Optionale Hilfe beim Bibelstudium. Abiding Word wird auch ohne sie immer vollständig funktionieren.",
     "sync": "Synchronisierung",
-    "syncText": "Halten Sie Ihre Studien auf Ihren eigenen Geräten auf dem gleichen Stand – unter Ihrer Kontrolle.",
+    "syncText": "Halten Sie Ihre Bibelstudien auf Ihren eigenen Geräten auf dem gleichen Stand – unter Ihrer Kontrolle.",
     "integrations": "Integrationen",
     "integrationsText": "Verbinden Sie andere Werkzeuge, die Sie bereits verwenden."
   }

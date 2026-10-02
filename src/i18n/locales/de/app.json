@@ -5,22 +5,22 @@
     "logFiles": "Protokolldateien:",
     "windowFailed": "Im Fenster ist ein unerwarteter Fehler aufgetreten. Bitte schließen Sie Abiding Word und öffnen Sie es erneut. Ihre gespeicherte Arbeit ist sicher."
   },
-  "skipToStudy": "Zur Studie springen",
+  "skipToStudy": "Zum Bibelstudium springen",
   "search": {
     "scopeLabel": "Suchen in",
     "scope": {
       "scripture": "Bibel",
-      "studies": "Studien",
+      "studies": "Bibelstudien",
       "library": "Bibliothek"
     },
     "label": {
       "scripture": "In der Bibel suchen",
-      "studies": "In Studien suchen",
+      "studies": "Bibelstudien durchsuchen",
       "library": "In der Bibliothek suchen"
     },
     "placeholder": {
       "scripture": "In der Bibel suchen",
-      "studies": "In Ihren Studien suchen",
+      "studies": "Ihre Bibelstudien durchsuchen",
       "library": "In Ihrer Bibliothek suchen",
       "noBible": "Zuerst eine Bibel hinzufügen"
     }
@@ -33,7 +33,7 @@
   "panes": {
     "name": {
       "scripture": "Bibel",
-      "study": "Studie",
+      "study": "Bibelstudium",
       "sources": "Quellen"
     },
     "arrange": "Bereich „{{pane}}“ anordnen",
