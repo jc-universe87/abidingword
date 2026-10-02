@@ -26,13 +26,13 @@
     "state": {
       "note": "메모 있음",
       "bookmarked": "책갈피 있음",
-      "highlighted": "하이라이트 있음"
+      "highlighted": "강조됨"
     }
   },
   "verseTools": {
     "toolsFor": "{{verse}}절 도구",
     "addNote": "메모 추가",
-    "highlight": "하이라이트",
+    "highlight": "강조",
     "bookmark": "책갈피",
     "noteOn": "{{verse}}절 메모",
     "saveNote": "메모 저장",

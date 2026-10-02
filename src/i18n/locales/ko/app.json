@@ -10,18 +10,18 @@
     "scopeLabel": "검색 범위",
     "scope": {
       "scripture": "성경",
-      "studies": "연구",
-      "library": "라이브러리"
+      "studies": "성경공부",
+      "library": "자료실"
     },
     "label": {
       "scripture": "성경 검색",
-      "studies": "연구 검색",
-      "library": "라이브러리 검색"
+      "studies": "성경공부 검색",
+      "library": "자료실 검색"
     },
     "placeholder": {
       "scripture": "성경 검색",
-      "studies": "내 연구 검색",
-      "library": "내 라이브러리 검색",
+      "studies": "성경공부에서 검색",
+      "library": "자료실에서 검색",
       "noBible": "먼저 성경을 추가하세요"
     }
   },
@@ -33,7 +33,7 @@
   "panes": {
     "name": {
       "scripture": "성경",
-      "study": "연구",
+      "study": "성경공부",
       "sources": "자료"
     },
     "arrange": "{{pane}} 창 배치",

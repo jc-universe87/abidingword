@@ -2,7 +2,7 @@
   "shortcuts": {
     "newFinding": {
       "keys": "Alt+N",
-      "action": "새 발견"
+      "action": "새 기록"
     },
     "newObservation": {
       "keys": "Alt+O",
@@ -22,7 +22,7 @@
     },
     "saveFinding": {
       "keys": "Ctrl+Enter",
-      "action": "작성 중인 발견 저장"
+      "action": "작성 중인 기록 저장"
     }
   },
   "builtin": {
@@ -179,7 +179,7 @@
           },
           "illustrations": {
             "title": "예화",
-            "guidance": "본문을 섬기는 그림과 예."
+            "guidance": "본문 이해를 돕는 예화와 사례."
           },
           "application": {
             "title": "적용",
@@ -274,7 +274,7 @@
     "biblical_theology": "성경신학 연구",
     "systematic_theology": "조직신학 연구",
     "teaching": "가르침 / 설교",
-    "custom": "사용자 지정 연구"
+    "custom": "사용자 지정 성경공부"
   },
   "status": {
     "active": "진행 중",
@@ -290,7 +290,7 @@
     "doctrine": "교리",
     "application": "적용",
     "illustration": "예화",
-    "teaching_idea": "가르침 아이디어",
+    "teaching_idea": "가르침 구상",
     "unresolved_issue": "미해결 문제",
     "conclusion": "결론"
   },
@@ -302,7 +302,7 @@
     "doctrine": "교리",
     "application": "적용",
     "illustration": "예화",
-    "teaching_idea": "가르침 아이디어",
+    "teaching_idea": "가르침 구상",
     "unresolved_issue": "미해결 문제",
     "conclusion": "결론"
   },
@@ -314,7 +314,7 @@
     "doctrine": "교리",
     "application": "적용",
     "illustration": "예화",
-    "teaching_idea": "가르침 아이디어",
+    "teaching_idea": "가르침 구상",
     "unresolved_issue": "미해결 문제",
     "conclusion": "결론"
   },
@@ -334,50 +334,50 @@
   },
   "relation": {
     "outgoing": {
-      "related": "관련 연구",
-      "continues": "이전 연구",
-      "contrasts": "대조되는 연구",
-      "supports": "뒷받침하는 대상",
-      "custom": "연결 대상"
+      "related": "관련됨",
+      "continues": "이어 감",
+      "contrasts": "대조됨",
+      "supports": "뒷받침함",
+      "custom": "연결됨"
     },
     "incoming": {
-      "related": "관련 연구",
-      "continues": "후속 연구",
-      "contrasts": "대조되는 연구",
-      "supports": "뒷받침하는 연구",
-      "custom": "연결한 연구"
+      "related": "관련됨",
+      "continues": "이 연구를 이어 감",
+      "contrasts": "대조됨",
+      "supports": "이 연구를 뒷받침함",
+      "custom": "연결됨"
     },
     "choice": {
-      "related": "다음 연구와 관련됨",
-      "continues": "다음 연구를 이어 감",
-      "contrasts": "다음 연구와 대조됨",
-      "supports": "다음 연구를 뒷받침함",
-      "custom": "다음 연구와 연결됨"
+      "related": "관련",
+      "continues": "이어짐",
+      "contrasts": "대조",
+      "supports": "뒷받침",
+      "custom": "연결"
     }
   },
   "keepIt": "유지",
   "titleRequired": "먼저 제목을 입력하세요.",
   "titleRequiredOnBlur": "제목은 꼭 필요합니다. 입력란을 벗어나면 이전 제목이 유지됩니다.",
-  "studyCount_other": "연구 {{count}}개",
-  "findingCount_other": "발견 {{count}}개",
+  "studyCount_other": "성경공부 {{count}}개",
+  "findingCount_other": "기록 {{count}}개",
   "projects": {
     "title": "프로젝트",
-    "intro": "프로젝트는 서로 관련된 연구를 한데 모읍니다. 설교 시리즈, 성경 공부 과정, 교리 하나를 묶을 수 있습니다.",
+    "intro": "프로젝트는 서로 관련된 성경공부를 한데 모읍니다. 설교 시리즈, 성경공부 과정, 하나의 교리 등을 묶을 수 있습니다.",
     "newLabel": "새 프로젝트",
     "newPlaceholder": "예: 로마서 설교 시리즈",
     "create": "프로젝트 만들기",
     "loading": "프로젝트를 불러오는 중…",
     "empty": "아직 프로젝트가 없습니다. 위에서 첫 프로젝트를 만드세요.",
     "listLabel": "프로젝트",
-    "allStudies": "모든 연구",
+    "allStudies": "모든 성경공부",
     "project": "프로젝트",
     "titleLabel": "프로젝트 제목",
-    "studies": "연구",
+    "studies": "성경공부",
     "opening": "프로젝트를 여는 중…",
     "breadcrumb": "현재 위치"
   },
   "newStudy": {
-    "heading": "새 연구",
+    "heading": "새 성경공부",
     "title": "제목",
     "titlePlaceholder": "예: 요한복음 15:1–11",
     "type": "종류",
@@ -387,20 +387,20 @@
     "passage": "본문",
     "optional": "(선택 사항)",
     "passagePlaceholder": "예: John 15:1-11",
-    "create": "연구 만들기"
+    "create": "성경공부 만들기"
   },
   "list": {
-    "filters": "연구 필터",
+    "filters": "성경공부 필터",
     "project": "프로젝트",
     "allProjects": "모든 프로젝트",
     "type": "종류",
     "allTypes": "모든 종류",
     "status": "상태",
     "anyStatus": "모든 상태",
-    "loading": "연구를 불러오는 중…",
-    "noMatch": "이 조건에 맞는 연구가 없습니다.",
-    "empty": "아직 연구가 없습니다.",
-    "listLabel": "연구",
+    "loading": "성경공부를 불러오는 중…",
+    "noMatch": "이 조건에 맞는 성경공부가 없습니다.",
+    "empty": "아직 성경공부가 없습니다.",
+    "listLabel": "성경공부",
     "changed": "{{date}} 수정"
   },
   "header": {
@@ -409,14 +409,14 @@
     "changed": "{{date}} 수정",
     "duplicate": "복제…",
     "overview": "개요",
-    "noFindings": "아직 발견이 없습니다",
+    "noFindings": "아직 기록이 없습니다",
     "questionCount_other": "질문 {{count}}개",
     "unresolvedCount_other": "미해결 문제 {{count}}개",
-    "duplicateGroup": "이 연구 복제",
+    "duplicateGroup": "이 성경공부 복제",
     "duplicatePrompt": "이 프로젝트에 “{{title}}”의 사본을 만듭니다.",
     "structureOnly": "구조만",
     "structureAndContent": "구조와 내용",
-    "duplicateHelp": "‘구조만’은 섹션만 복사합니다. ‘구조와 내용’을 선택하면 작성한 글, 발견, 본문도 함께 복사됩니다. 성경 구절에 단 메모는 해당 절에 속하므로 복제되지 않습니다.",
+    "duplicateHelp": "‘구조만’은 섹션만 복사합니다. ‘구조와 내용’을 선택하면 작성한 글, 기록, 본문도 함께 복사됩니다. 성경 구절에 단 메모는 해당 절에 속하므로 복제되지 않습니다.",
     "purpose": "목적",
     "purposePlaceholder": "무엇을 이해하거나 준비하려고 하나요?",
     "details": "{{type}} 세부 정보",
@@ -444,11 +444,11 @@
     }
   },
   "editor": {
-    "opening": "연구를 여는 중…",
-    "titleLabel": "연구 제목",
-    "contents": "연구 내용",
-    "findingsLink": "발견",
-    "findingsLinkCount": "발견 ({{count}})",
+    "opening": "성경공부를 여는 중…",
+    "titleLabel": "성경공부 제목",
+    "contents": "성경공부 내용",
+    "findingsLink": "기록",
+    "findingsLinkCount": "기록 ({{count}})",
     "addSection": "섹션 추가",
     "newSectionTitle": "새 섹션",
     "savedAutomatically": "변경 사항은 자동으로 저장됩니다.",
@@ -462,7 +462,7 @@
     "delete": "{{title}} 섹션 삭제",
     "confirmLabel": "{{title}} 섹션을 삭제할까요?",
     "confirm": "“{{title}}” 섹션과 그 안의 글을 삭제할까요?",
-    "confirmWithFindings": "“{{title}}” 섹션과 그 안의 글을 삭제할까요? 이 섹션의 발견은 연구 전체에 대한 발견으로 연구에 남습니다.",
+    "confirmWithFindings": "“{{title}}” 섹션과 그 안의 글을 삭제할까요? 이 섹션의 기록은 성경공부 전체에 대한 기록으로 남습니다.",
     "deleteSection": "섹션 삭제",
     "addTo": "{{title}}에 추가",
     "titleLabel": "섹션 제목"
@@ -480,28 +480,28 @@
     "passagesMentioned": "언급된 본문:"
   },
   "findings": {
-    "heading": "발견",
-    "addGroup": "발견 추가",
+    "heading": "기록",
+    "addGroup": "기록 추가",
     "add": "추가:",
-    "otherKind": "다른 종류의 발견",
+    "otherKind": "다른 종류의 기록",
     "more": "더 보기…",
-    "filterGroup": "발견 표시",
+    "filterGroup": "기록 표시",
     "all": "전체 ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "empty": "아직 발견이 없습니다. 연구하면서 관찰, 질문, 결론을 기록해 두면 나중에도 쉽게 찾을 수 있습니다.",
-    "listLabel": "발견",
-    "writeFirst": "먼저 발견 내용을 작성하세요.",
+    "empty": "아직 기록이 없습니다. 성경공부를 하면서 관찰, 질문, 결론을 기록해 두면 나중에도 쉽게 찾을 수 있습니다.",
+    "listLabel": "기록",
+    "writeFirst": "먼저 기록 내용을 작성하세요.",
     "type": "종류",
     "in": "위치",
     "inLower": "위치",
-    "wholeStudy": "연구 전체",
+    "wholeStudy": "성경공부 전체",
     "newLabel": "새 {{type}}",
     "newPlaceholder": "새 {{type}}…",
     "linkCurrent": "현재 본문 연결({{passage}})",
-    "save": "발견 저장",
+    "save": "기록 저장",
     "saveHint": "Ctrl+Enter로 저장",
     "itemLabel": "{{type}}: {{excerpt}}",
-    "typeLabel": "발견 종류",
+    "typeLabel": "기록 종류",
     "section": "섹션",
     "moveUp": "{{type}} 위로 이동",
     "moveDown": "{{type}} 아래로 이동",
@@ -518,44 +518,44 @@
     "open": "성경 창에서 열기",
     "makePrimary": "주 본문으로 지정",
     "makePrimaryLabel": "{{passage}}을(를) 주 본문으로 지정",
-    "remove": "이 연구에서 {{passage}} 제거",
+    "remove": "이 성경공부에서 {{passage}} 제거",
     "primary": "주 본문",
     "related": "관련 본문",
-    "addFirst": "이 연구의 본문을 추가하세요",
+    "addFirst": "이 성경공부의 본문을 추가하세요",
     "add": "본문 추가",
     "linkCurrent": "현재 본문 연결({{passage}})",
     "inputLabel": "추가할 본문",
     "placeholder": "예: John 15:1-11"
   },
   "relations": {
-    "label": "관련 연구",
+    "label": "관련 성경공부",
     "remove": "{{title}}과(와)의 연결 제거",
-    "add": "+ 관련 연구 연결",
-    "addGroup": "관련 연구 연결",
-    "thisStudy": "이 연구는",
+    "add": "+ 관련 성경공부 연결",
+    "addGroup": "관련 성경공부 연결",
+    "thisStudy": "이 성경공부",
     "relation": "관계",
-    "target": "연결할 연구",
-    "choose": "연구 선택…",
+    "target": "연결할 성경공부",
+    "choose": "성경공부 선택…",
     "option": "{{title}} ({{project}})",
     "link": "연결"
   },
   "search": {
-    "heading": "“{{query}}”와 일치하는 연구",
-    "searching": "연구를 검색하는 중…",
-    "none": "연구에서 찾은 내용이 없습니다.",
+    "heading": "“{{query}}”와 일치하는 성경공부",
+    "searching": "성경공부를 검색하는 중…",
+    "none": "성경공부에서 찾은 내용이 없습니다.",
     "count_other": "{{count}}건 일치",
-    "results": "연구 검색 결과",
+    "results": "성경공부 검색 결과",
     "location": {
       "study": "제목 또는 목적",
       "section": "섹션 제목",
-      "studyText": "연구 본문",
-      "finding": "발견",
-      "findingType": "발견: {{type}}"
+      "studyText": "성경공부 내용",
+      "finding": "기록",
+      "findingType": "기록: {{type}}"
     }
   },
   "templates": {
-    "intro": "템플릿은 새 연구에 섹션을 제공합니다. 템플릿을 바꿔도 이미 그 템플릿으로 만든 연구는 바뀌지 않습니다.",
-    "listLabel": "연구 템플릿",
+    "intro": "템플릿은 새 성경공부에 사용할 섹션을 제공합니다. 템플릿을 바꿔도 이미 그 템플릿으로 만든 성경공부는 바뀌지 않습니다.",
+    "listLabel": "성경공부 템플릿",
     "sectionCount_other": "섹션 {{count}}개",
     "builtIn": "기본 제공",
     "duplicateCustomise": "복제하여 사용자 지정",
@@ -563,7 +563,7 @@
     "duplicate": "{{name}} 복제",
     "delete": "{{name}} 삭제",
     "confirmLabel": "{{name}}을(를) 삭제할까요?",
-    "confirm": "“{{name}}” 템플릿을 삭제할까요? 이미 이 템플릿으로 만든 연구에는 영향이 없습니다.",
+    "confirm": "“{{name}}” 템플릿을 삭제할까요? 이미 이 템플릿으로 만든 성경공부에는 영향이 없습니다.",
     "deleteTemplate": "템플릿 삭제",
     "new": "새 템플릿…"
   },

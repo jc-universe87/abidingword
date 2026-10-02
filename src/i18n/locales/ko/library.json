@@ -1,6 +1,6 @@
 {
-  "addToLibrary": "라이브러리에 추가",
-  "addToLibraryEllipsis": "라이브러리에 추가…",
+  "addToLibrary": "자료실에 추가",
+  "addToLibraryEllipsis": "자료실에 추가…",
   "sourceType": {
     "book": "책",
     "article": "글",
@@ -26,18 +26,18 @@
   "quoted": "“{{text}}”",
   "view": {
     "backToWorkspace": "작업 공간으로 돌아가기",
-    "title": "라이브러리",
+    "title": "자료실",
     "intro": "이 컴퓨터에 저장된 나의 책, 노트, 문서입니다. 모든 검색 결과에는 정확한 출처가 표시됩니다.",
     "addedOn": "{{date}} 추가"
   },
   "search": {
-    "heading": "라이브러리 검색",
-    "label": "라이브러리 검색",
+    "heading": "자료실 검색",
+    "label": "자료실 검색",
     "placeholder": "단어 또는 “정확한 구절”",
-    "nothingFound": "라이브러리에서 찾은 내용이 없습니다.",
+    "nothingFound": "자료실에서 찾은 내용이 없습니다.",
     "resultCount_other": "{{number}}개 구절을 찾았습니다.",
     "resultCountMore_other": "{{number}}개 이상의 구절을 찾았습니다.",
-    "resultsLabel": "라이브러리 검색 결과",
+    "resultsLabel": "자료실 검색 결과",
     "showMore": "결과 더 보기"
   },
   "filter": {
@@ -48,26 +48,26 @@
     "language": "언어",
     "allLanguages": "모든 언어",
     "noMatch": "이 조건에 맞는 자료가 없습니다.",
-    "empty": "라이브러리가 아직 비어 있습니다. PDF, EPUB, Markdown 또는 텍스트 파일을 추가하세요.",
+    "empty": "자료실이 아직 비어 있습니다. PDF, EPUB, Markdown 또는 텍스트 파일을 추가하세요.",
     "listLabel": "자료"
   },
   "remove": {
     "button": "제거…",
     "label": "{{title}} 제거",
     "dialogLabel": "{{title}}을(를) 제거할까요?",
-    "message": "라이브러리에서 <strong>{{title}}</strong>을(를) 제거할까요? 텍스트와 Abiding Word가 보관하던 파일 사본이 삭제되며, 원본 파일은 그대로 남습니다. 이 자료를 인용한 발견에는 출처 기록이 남습니다.",
-    "confirm": "라이브러리에서 제거",
+    "message": "자료실에서 <strong>{{title}}</strong>을(를) 제거할까요? 텍스트와 Abiding Word가 보관하던 파일 사본이 삭제되며, 원본 파일은 그대로 남습니다. 이 자료를 인용한 기록에는 출처 기록이 남습니다.",
+    "confirm": "자료실에서 제거",
     "keep": "유지"
   },
   "add": {
-    "title": "라이브러리에 추가",
+    "title": "자료실에 추가",
     "reading": "파일을 읽고 텍스트를 찾는 중…",
-    "intro": "PDF, EPUB, Markdown(.md) 또는 텍스트(.txt) 파일을 선택하세요. Abiding Word는 라이브러리에 자체 사본을 보관하며 원본 파일은 변경하지 않습니다. 스캔한 PDF는 아직 읽을 수 없습니다.",
+    "intro": "PDF, EPUB, Markdown(.md) 또는 텍스트(.txt) 파일을 선택하세요. Abiding Word는 자료실에 자체 사본을 보관하며 원본 파일은 변경하지 않습니다. 스캔한 PDF는 아직 읽을 수 없습니다.",
     "choose": "파일 선택…",
     "whatFound": "확인된 내용",
     "extracted": "텍스트를 추출했습니다",
     "references_other": "성경 참조 {{number}}개 확인됨",
-    "duplicate": "이 파일은 이미 라이브러리에 <strong>{{title}}</strong>(으)로 있습니다.",
+    "duplicate": "이 파일은 이미 자료실에 <strong>{{title}}</strong>(으)로 있습니다.",
     "addCopy": "그래도 사본 하나 더 추가",
     "adding": "추가하는 중…"
   },
@@ -96,21 +96,21 @@
     "pageMarker": "{{page}}쪽"
   },
   "pane": {
-    "libraryHeading": "내 라이브러리",
+    "libraryHeading": "내 자료실",
     "empty": "아직 자료가 없습니다. 책, 글, 직접 작성한 노트(PDF, EPUB, Markdown 또는 텍스트)를 추가하세요. 모든 자료는 이 컴퓨터에 보관됩니다.",
     "mentioning": "{{passage}}을(를) 언급하는 자료",
     "noMentions": "이 본문을 언급하는 자료가 없습니다.",
     "recent": "최근 추가한 자료",
-    "openLibrary": "라이브러리 열기"
+    "openLibrary": "자료실 열기"
   },
   "citations": {
-    "removed": "(라이브러리에서 제거됨)",
+    "removed": "(자료실에서 제거됨)",
     "openTitle": "이 자료의 인용 위치 열기",
     "removeLabel": "출처 {{citation}} 제거",
     "add": "+ 자료 추가",
     "pickerLabel": "자료 추가",
-    "searchLabel": "인용할 구절을 라이브러리에서 검색",
-    "searchPlaceholder": "인용할 구절을 라이브러리에서 검색",
+    "searchLabel": "인용할 구절을 자료실에서 검색",
+    "searchPlaceholder": "인용할 구절을 자료실에서 검색",
     "replaceQuote": "이 인용의 내용도 출처 구절로 바꾸기",
     "useQuote": "출처 구절을 이 인용의 내용으로도 사용하기",
     "listLabel": "인용할 구절",
