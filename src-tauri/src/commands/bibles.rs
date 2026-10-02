@@ -12,7 +12,7 @@ use tauri::State;
 
 use super::CommandResult;
 use crate::db::bibles::{self, SourceRecord};
-use crate::error::{AppError, ErrorPayload};
+use crate::error::{AppError, ErrorPayload, UserMessage};
 use crate::filesystem;
 use crate::scripture::bundled::{self, BUNDLED};
 use crate::scripture::import::{self, ImportOrigin, ImportPreview, SuggestedMetadata};
@@ -116,7 +116,10 @@ pub fn bible_import_commit(
         .as_ref()
         .filter(|s| s.id == input.preview_id)
         .ok_or_else(|| {
-            AppError::InvalidInput("This import has expired. Please choose the files again.".into())
+            AppError::InvalidInput(UserMessage::new(
+                "import.expired",
+                "This import has expired. Please choose the files again.",
+            ))
         })?;
 
     let id = bibles::new_translation_id();

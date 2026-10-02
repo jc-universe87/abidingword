@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "@/app/App";
+import i18n from "@/i18n";
 import { createMemoryApi, type MemoryApi } from "./memoryApi";
 
 /** Window width the app sees; a typical desktop unless a test says otherwise. */
@@ -14,7 +15,8 @@ export async function renderApp(api: MemoryApi = createMemoryApi(), { width = 14
   const user = userEvent.setup();
   render(<App api={api} />);
   if (api.state.info.ready) {
-    await screen.findByRole("main", { name: /study/i });
+    // The Study pane's name is in the interface language.
+    await screen.findByRole("main", { name: new RegExp(i18n.t("app.panes.name.study"), "i") });
   }
   return { api, user };
 }

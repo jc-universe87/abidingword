@@ -1,0 +1,596 @@
+{
+  "shortcuts": {
+    "newFinding": {
+      "keys": "Alt+N",
+      "action": "Neuer Studieneintrag"
+    },
+    "newObservation": {
+      "keys": "Alt+O",
+      "action": "Neue Beobachtung"
+    },
+    "newQuestion": {
+      "keys": "Alt+Q",
+      "action": "Neue Frage"
+    },
+    "section": {
+      "keys": "Alt+↓ / Alt+↑",
+      "action": "Nächster / vorheriger Abschnitt"
+    },
+    "goTo": {
+      "keys": "Alt+G",
+      "action": "Zu einer Bibelstelle gehen"
+    },
+    "saveFinding": {
+      "keys": "Strg+Eingabe",
+      "action": "Den gerade geschriebenen Studieneintrag speichern"
+    }
+  },
+  "builtin": {
+    "templates": {
+      "biblical-theology-study": {
+        "name": "Biblisch-theologisches Studium",
+        "description": "Ein Thema, verfolgt entlang der Gesamterzählung der Schrift – von der Verheißung bis zur Erfüllung.",
+        "sections": {
+          "theme": {
+            "title": "Thema",
+            "guidance": "Das Thema, das verfolgt wird, und warum es wichtig ist."
+          },
+          "old-testament": {
+            "title": "Altes Testament",
+            "guidance": "Wo das Thema beginnt und wie es sich in Gesetz, Propheten und Schriften entfaltet."
+          },
+          "gospels": {
+            "title": "Evangelien",
+            "guidance": "Wie das Thema in den Evangelien in Christus sein Ziel erreicht."
+          },
+          "epistles": {
+            "title": "Briefe",
+            "guidance": "Wie die Apostel das Thema aufgreifen und anwenden."
+          },
+          "canonical-development": {
+            "title": "Entwicklung im Kanon",
+            "guidance": "Wie das Thema im Verlauf des Kanons wächst und sich wandelt."
+          },
+          "fulfilment": {
+            "title": "Erfüllung / Vollendung",
+            "guidance": "Seine Erfüllung in Christus und seine endgültige Vollendung."
+          },
+          "synthesis": {
+            "title": "Synthese",
+            "guidance": "Das Gesamtbild der Bibel in wenigen Sätzen."
+          },
+          "teaching": {
+            "title": "Vermittlung",
+            "guidance": "Wie sich dieses Thema treu und klar lehren lässt."
+          }
+        }
+      },
+      "passage-study": {
+        "name": "Bibelstellenstudium",
+        "description": "Ein sorgfältiges Studium einer Bibelstelle – vom Text selbst bis zu seiner Vermittlung.",
+        "sections": {
+          "text": {
+            "title": "Text",
+            "guidance": "Die untersuchte Bibelstelle und gegebenenfalls Anmerkungen zur Übersetzung."
+          },
+          "context": {
+            "title": "Kontext",
+            "guidance": "Wo die Bibelstelle steht: das Buch, der umgebende Gedankengang, der historische Hintergrund."
+          },
+          "observations": {
+            "title": "Beobachtungen",
+            "guidance": "Was sagt der Text? Wiederholte Wörter, Verbindungswörter, Gegensätze, Aufforderungen, Fragen."
+          },
+          "structure": {
+            "title": "Aufbau",
+            "guidance": "Wie die Bibelstelle aufgebaut ist: ihre Gedankenschritte, Hauptsätze und Wendepunkte."
+          },
+          "exegesis": {
+            "title": "Exegese",
+            "guidance": "Was bedeutete der Text für seine ursprüngliche Leserschaft? Schlüsselwörter, Grammatik, schwierige Wendungen."
+          },
+          "theology": {
+            "title": "Theologie",
+            "guidance": "Was die Bibelstelle über Gott, Christus, die Erlösung und das Leben im Glauben lehrt."
+          },
+          "application": {
+            "title": "Anwendung",
+            "guidance": "Was die Wahrheit der Bibelstelle heute für Glauben, Anbetung und Leben bedeutet."
+          },
+          "audience": {
+            "title": "Zuhörerschaft",
+            "guidance": "Wer diese Lehre hören wird, was die Menschen brauchen und was sie hindern könnte."
+          },
+          "teaching": {
+            "title": "Vermittlung",
+            "guidance": "Hauptgedanke, Gliederung, Veranschaulichungen und wie sich die Botschaft in Liebe weitergeben lässt."
+          }
+        }
+      },
+      "systematic-theology-study": {
+        "name": "Systematisch-theologisches Studium",
+        "description": "Eine Lehre, untersucht anhand der Schrift, des Zeugnisses der Kirche und abweichender Positionen.",
+        "sections": {
+          "doctrine": {
+            "title": "Lehre",
+            "guidance": "Die untersuchte Lehre, klar und einfach formuliert."
+          },
+          "key-texts": {
+            "title": "Zentrale Bibeltexte",
+            "guidance": "Die Bibelstellen, auf denen die Lehre beruht."
+          },
+          "biblical-synthesis": {
+            "title": "Biblische Synthese",
+            "guidance": "Was diese Texte zusammen lehren."
+          },
+          "historical-theology": {
+            "title": "Historische Theologie",
+            "guidance": "Wie die Kirche die Lehre im Lauf ihrer Geschichte verstanden hat."
+          },
+          "confessional-witness": {
+            "title": "Zeugnis der Bekenntnisse",
+            "guidance": "Was die Glaubensbekenntnisse und Bekenntnisschriften sagen."
+          },
+          "alternative-positions": {
+            "title": "Andere Positionen",
+            "guidance": "Andere Sichtweisen, fair dargestellt, mit ihren Begründungen."
+          },
+          "conclusions": {
+            "title": "Schlussfolgerungen",
+            "guidance": "Ihre Schlussfolgerungen und wie fest Sie sie vertreten."
+          },
+          "application": {
+            "title": "Anwendung",
+            "guidance": "Warum diese Lehre für Glauben und Leben wichtig ist."
+          }
+        }
+      },
+      "teaching-study": {
+        "name": "Lehr- / Predigtvorbereitung",
+        "description": "Vom Text zu einer Predigt oder Lehreinheit, vorbereitet für die Menschen, die sie hören.",
+        "sections": {
+          "text": {
+            "title": "Text",
+            "guidance": "Die Bibelstelle, die gelehrt werden soll."
+          },
+          "main-idea": {
+            "title": "Hauptgedanke",
+            "guidance": "Die eine Hauptaussage des Textes, in einem Satz."
+          },
+          "exegesis": {
+            "title": "Exegese",
+            "guidance": "Was der Text für seine ursprüngliche Leserschaft bedeutete."
+          },
+          "theology": {
+            "title": "Theologie",
+            "guidance": "Was der Text über Gott und sein Handeln lehrt."
+          },
+          "purpose": {
+            "title": "Ziel",
+            "guidance": "Was der Text bei denen bewirken will, die ihn hören."
+          },
+          "audience": {
+            "title": "Zuhörerschaft",
+            "guidance": "Wer dies hören wird und was diese Menschen brauchen."
+          },
+          "structure": {
+            "title": "Aufbau",
+            "guidance": "Wie Predigt oder Lehreinheit vom Anfang bis zum Schluss verlaufen."
+          },
+          "illustrations": {
+            "title": "Veranschaulichungen",
+            "guidance": "Bilder und Beispiele, die das Verständnis des Textes fördern."
+          },
+          "application": {
+            "title": "Anwendung",
+            "guidance": "Konkrete, passende Anwendungen."
+          },
+          "teaching-outline": {
+            "title": "Gliederung",
+            "guidance": "Die Gliederung, nach der Sie lehren werden."
+          }
+        }
+      },
+      "topical-study": {
+        "name": "Themenstudium",
+        "description": "Eine Frage oder ein Thema, verfolgt durch die ganze Schrift.",
+        "sections": {
+          "topic": {
+            "title": "Frage / Thema",
+            "guidance": "Die Frage, die Sie stellen, so klar wie möglich formuliert."
+          },
+          "key-passages": {
+            "title": "Zentrale Bibelstellen",
+            "guidance": "Die Bibelstellen, die am direktesten davon sprechen."
+          },
+          "biblical-context": {
+            "title": "Biblischer Kontext",
+            "guidance": "Wo und wie das Thema in der Bibel vorkommt."
+          },
+          "main-themes": {
+            "title": "Hauptlinien",
+            "guidance": "Die wichtigsten Linien der Lehre, die sich zeigen."
+          },
+          "difficult-passages": {
+            "title": "Schwierige Bibelstellen",
+            "guidance": "Texte, die in eine andere Richtung zu weisen scheinen, und wie sie zu lesen sind."
+          },
+          "theology": {
+            "title": "Theologie",
+            "guidance": "Wie sich die Bibelstellen zu einer stimmigen Lehre zusammenfügen."
+          },
+          "conclusions": {
+            "title": "Schlussfolgerungen",
+            "guidance": "Ihre Schlussfolgerungen, mit den Bibelstellen, die sie tragen."
+          },
+          "application": {
+            "title": "Anwendung",
+            "guidance": "Was dies für Glauben, Anbetung und Leben bedeutet."
+          }
+        }
+      },
+      "word-study": {
+        "name": "Wortstudium",
+        "description": "Ein Wort, durch die Schrift verfolgt – von seinem Gebrauch bis zu seiner Bedeutung und seinem Gewicht.",
+        "sections": {
+          "word": {
+            "title": "Wort",
+            "guidance": "Das untersuchte Wort, seine ursprüngliche Form und wie Übersetzungen es wiedergeben."
+          },
+          "occurrences": {
+            "title": "Vorkommen",
+            "guidance": "Wo das Wort vorkommt. (Automatische Listen der Vorkommen folgen mit der Konkordanz.)"
+          },
+          "immediate-contexts": {
+            "title": "Unmittelbarer Kontext",
+            "guidance": "Wie jede wichtige Verwendung von ihrem Satz und Absatz geprägt ist."
+          },
+          "semantic-range": {
+            "title": "Bedeutungsspektrum",
+            "guidance": "Die Bandbreite der Bedeutungen des Wortes und was zwischen ihnen entscheidet."
+          },
+          "key-passages": {
+            "title": "Zentrale Bibelstellen",
+            "guidance": "Die Bibelstellen, an denen das Wort das größte Gewicht hat."
+          },
+          "theological-significance": {
+            "title": "Theologische Bedeutung",
+            "guidance": "Was das Wort zur Lehre der Bibel beiträgt."
+          },
+          "conclusions": {
+            "title": "Schlussfolgerungen",
+            "guidance": "Was Sie gefolgert haben und was offen bleibt."
+          }
+        }
+      }
+    },
+    "defaultSection": "Notizen",
+    "copyTitle": "{{title}} (Kopie)"
+  },
+  "studyType": {
+    "passage": "Bibelstellenstudium",
+    "word": "Wortstudium",
+    "topical": "Themenstudium",
+    "biblical_theology": "Biblisch-theologisches Studium",
+    "systematic_theology": "Systematisch-theologisches Studium",
+    "teaching": "Lehr- / Predigtvorbereitung",
+    "custom": "Eigenes Bibelstudium"
+  },
+  "status": {
+    "active": "Aktiv",
+    "paused": "Pausiert",
+    "completed": "Abgeschlossen",
+    "archived": "Archiviert"
+  },
+  "findingType": {
+    "observation": "Beobachtung",
+    "interpretation": "Auslegung",
+    "question": "Frage",
+    "quotation": "Zitat",
+    "doctrine": "Lehre",
+    "application": "Anwendung",
+    "illustration": "Veranschaulichung",
+    "teaching_idea": "Idee zur Vermittlung",
+    "unresolved_issue": "Ungeklärter Punkt",
+    "conclusion": "Schlussfolgerung"
+  },
+  "findingTypePlural": {
+    "observation": "Beobachtungen",
+    "interpretation": "Auslegungen",
+    "question": "Fragen",
+    "quotation": "Zitate",
+    "doctrine": "Lehre",
+    "application": "Anwendungen",
+    "illustration": "Veranschaulichungen",
+    "teaching_idea": "Ideen zur Vermittlung",
+    "unresolved_issue": "Ungeklärte Punkte",
+    "conclusion": "Schlussfolgerungen"
+  },
+  "findingTypeInline": {
+    "observation": "Beobachtung",
+    "interpretation": "Auslegung",
+    "question": "Frage",
+    "quotation": "Zitat",
+    "doctrine": "Lehre",
+    "application": "Anwendung",
+    "illustration": "Veranschaulichung",
+    "teaching_idea": "Idee zur Vermittlung",
+    "unresolved_issue": "Ungeklärter Punkt",
+    "conclusion": "Schlussfolgerung"
+  },
+  "blockType": {
+    "paragraph": "Absatz",
+    "note": "Notiz",
+    "heading": "Überschrift",
+    "quotation": "Zitat",
+    "question": "Frage"
+  },
+  "blockTypeInline": {
+    "paragraph": "Absatz",
+    "note": "Notiz",
+    "heading": "Überschrift",
+    "quotation": "Zitat",
+    "question": "Frage"
+  },
+  "relation": {
+    "outgoing": {
+      "related": "Verwandt mit",
+      "continues": "Setzt fort",
+      "contrasts": "Steht im Gegensatz zu",
+      "supports": "Stützt",
+      "custom": "Verknüpft mit"
+    },
+    "incoming": {
+      "related": "Verwandt mit",
+      "continues": "Wird fortgesetzt durch",
+      "contrasts": "Steht im Gegensatz zu",
+      "supports": "Wird gestützt durch",
+      "custom": "Verknüpft mit"
+    },
+    "choice": {
+      "related": "ist verwandt mit",
+      "continues": "setzt fort",
+      "contrasts": "steht im Gegensatz zu",
+      "supports": "stützt",
+      "custom": "ist verknüpft mit"
+    }
+  },
+  "keepIt": "Behalten",
+  "titleRequired": "Bitte geben Sie zuerst einen Titel ein.",
+  "titleRequiredOnBlur": "Ein Titel ist erforderlich. Wenn Sie das Feld verlassen, bleibt der bisherige Titel erhalten.",
+  "studyCount_one": "{{count}} Bibelstudium",
+  "studyCount_other": "{{count}} Bibelstudien",
+  "findingCount_one": "{{count}} Eintrag",
+  "findingCount_other": "{{count}} Einträge",
+  "projects": {
+    "title": "Projekte",
+    "intro": "Ein Projekt fasst zusammengehörige Bibelstudien zusammen: eine Predigtreihe, einen Bibelkurs oder eine Lehre.",
+    "newLabel": "Neues Projekt",
+    "newPlaceholder": "z. B. Predigtreihe zum Römerbrief",
+    "create": "Projekt erstellen",
+    "loading": "Projekte werden geladen …",
+    "empty": "Noch keine Projekte. Erstellen Sie oben Ihr erstes Projekt.",
+    "listLabel": "Projekte",
+    "allStudies": "Alle Bibelstudien",
+    "project": "Projekt",
+    "titleLabel": "Projekttitel",
+    "studies": "Bibelstudien",
+    "opening": "Projekt wird geöffnet …",
+    "breadcrumb": "Navigationspfad"
+  },
+  "newStudy": {
+    "heading": "Neues Bibelstudium",
+    "title": "Titel",
+    "titlePlaceholder": "z. B. Johannes 15,1–11",
+    "type": "Art",
+    "template": "Vorlage",
+    "noTemplate": "Keine Vorlage (ein Abschnitt „Notizen“)",
+    "yourTemplate": "{{name}} (eigene)",
+    "passage": "Bibelstelle",
+    "optional": "(optional)",
+    "passagePlaceholder": "z. B. John 15:1-11",
+    "create": "Bibelstudium erstellen"
+  },
+  "list": {
+    "filters": "Bibelstudien filtern",
+    "project": "Projekt",
+    "allProjects": "Alle Projekte",
+    "type": "Art",
+    "allTypes": "Alle Arten",
+    "status": "Status",
+    "anyStatus": "Jeder Status",
+    "loading": "Bibelstudien werden geladen …",
+    "noMatch": "Keine Bibelstudien entsprechen diesen Filtern.",
+    "empty": "Hier gibt es noch keine Bibelstudien.",
+    "listLabel": "Bibelstudien",
+    "changed": "geändert am {{date}}"
+  },
+  "header": {
+    "status": "Status",
+    "template": "Vorlage: {{name}}",
+    "changed": "Geändert am {{date}}",
+    "duplicate": "Duplizieren …",
+    "overview": "Überblick",
+    "noFindings": "Noch keine Einträge",
+    "questionCount_one": "{{count}} Frage",
+    "questionCount_other": "{{count}} Fragen",
+    "unresolvedCount_one": "{{count}} ungeklärter Punkt",
+    "unresolvedCount_other": "{{count}} ungeklärte Punkte",
+    "duplicateGroup": "Dieses Bibelstudium duplizieren",
+    "duplicatePrompt": "Eine Kopie von „{{title}}“ in diesem Projekt anlegen:",
+    "structureOnly": "Nur Struktur",
+    "structureAndContent": "Struktur und Inhalt",
+    "duplicateHelp": "„Nur Struktur“ kopiert die Abschnitte. Mit Inhalt werden auch Ihre Texte, Einträge und Bibelstellen kopiert. Notizen in der Bibel werden nie dupliziert; sie gehören zu den Versen.",
+    "purpose": "Ziel",
+    "purposePlaceholder": "Was möchten Sie verstehen oder vorbereiten?",
+    "details": "Angaben – {{type}}",
+    "detail": {
+      "lemma": {
+        "label": "Wort",
+        "hint": "z. B. δικαιοσύνη"
+      },
+      "originalLanguage": {
+        "label": "Sprache",
+        "hint": "z. B. Griechisch"
+      },
+      "audience": {
+        "label": "Zuhörerschaft",
+        "hint": "z. B. Sonntagsgemeinde"
+      },
+      "duration": {
+        "label": "Dauer",
+        "hint": "z. B. 30 Minuten"
+      },
+      "teachingFormat": {
+        "label": "Form",
+        "hint": "z. B. Predigt"
+      }
+    }
+  },
+  "editor": {
+    "opening": "Bibelstudium wird geöffnet …",
+    "titleLabel": "Titel des Bibelstudiums",
+    "contents": "Inhalt des Bibelstudiums",
+    "findingsLink": "Einträge",
+    "findingsLinkCount": "Einträge ({{count}})",
+    "addSection": "Abschnitt hinzufügen",
+    "newSectionTitle": "Neuer Abschnitt",
+    "savedAutomatically": "Änderungen werden automatisch gespeichert.",
+    "allSaved": "Alle Änderungen gespeichert."
+  },
+  "sections": {
+    "rename": "Abschnitt „{{title}}“ umbenennen",
+    "renameTooltip": "Abschnitt umbenennen",
+    "moveUp": "Abschnitt „{{title}}“ nach oben verschieben",
+    "moveDown": "Abschnitt „{{title}}“ nach unten verschieben",
+    "delete": "Abschnitt „{{title}}“ löschen",
+    "confirmLabel": "Abschnitt „{{title}}“ löschen?",
+    "confirm": "„{{title}}“ mit dem darin geschriebenen Text löschen?",
+    "confirmWithFindings": "„{{title}}“ mit dem darin geschriebenen Text löschen? Die Einträge des Abschnitts bleiben als Einträge zum gesamten Bibelstudium erhalten.",
+    "deleteSection": "Abschnitt löschen",
+    "addTo": "Zu „{{title}}“ hinzufügen",
+    "titleLabel": "Titel des Abschnitts"
+  },
+  "blocks": {
+    "fieldLabel": "{{section}}: {{type}}",
+    "confirmDelete": "{{type}} löschen?",
+    "deleteFailed": "Dieser Block konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+    "moveUp": "{{type}} in „{{section}}“ nach oben verschieben",
+    "moveDown": "{{type}} in „{{section}}“ nach unten verschieben",
+    "delete": "{{type}} in „{{section}}“ löschen",
+    "deleteTooltip": "{{type}} löschen",
+    "add": "+ {{type}}",
+    "placeholder": "Hier schreiben …",
+    "passagesMentioned": "Erwähnte Bibelstellen:"
+  },
+  "findings": {
+    "heading": "Einträge",
+    "addGroup": "Eintrag hinzufügen",
+    "add": "Hinzufügen:",
+    "otherKind": "Andere Art von Eintrag",
+    "more": "Mehr …",
+    "filterGroup": "Einträge anzeigen",
+    "all": "Alle ({{count}})",
+    "filterType": "{{type}} ({{count}})",
+    "empty": "Noch keine Einträge. Halten Sie beim Bibelstudium Beobachtungen, Fragen und Schlussfolgerungen fest; so finden Sie sie später wieder.",
+    "listLabel": "Einträge",
+    "writeFirst": "Schreiben Sie zuerst den Eintrag.",
+    "type": "Art",
+    "in": "In",
+    "inLower": "in",
+    "wholeStudy": "Gesamtes Bibelstudium",
+    "newLabel": "Neu: {{type}}",
+    "newPlaceholder": "Neu: {{type}} …",
+    "linkCurrent": "Aktuelle Bibelstelle verknüpfen ({{passage}})",
+    "save": "Eintrag speichern",
+    "saveHint": "Strg+Eingabe speichert",
+    "itemLabel": "{{type}}: {{excerpt}}",
+    "typeLabel": "Art des Eintrags",
+    "section": "Abschnitt",
+    "moveUp": "{{type}} nach oben verschieben",
+    "moveDown": "{{type}} nach unten verschieben",
+    "delete": "{{type}} löschen",
+    "text": "Text: {{type}}",
+    "unlink": "Verknüpfung mit {{passage}} lösen",
+    "link": "+ {{passage}} verknüpfen",
+    "tags": "Schlagwörter",
+    "tagsPlaceholder": "z. B. Bund, Predigt",
+    "confirmDelete": "{{type}} löschen?"
+  },
+  "passages": {
+    "label": "Bibelstellen",
+    "open": "Im Bibelbereich öffnen",
+    "makePrimary": "Als Hauptstelle festlegen",
+    "makePrimaryLabel": "{{passage}} als Hauptstelle festlegen",
+    "remove": "{{passage}} aus diesem Bibelstudium entfernen",
+    "primary": "Hauptstelle",
+    "related": "Weitere",
+    "addFirst": "Fügen Sie die Bibelstelle hinzu, um die es in diesem Bibelstudium geht",
+    "add": "Bibelstelle hinzufügen",
+    "linkCurrent": "Aktuelle Bibelstelle verknüpfen ({{passage}})",
+    "inputLabel": "Hinzuzufügende Bibelstelle",
+    "placeholder": "z. B. John 15:1-11"
+  },
+  "relations": {
+    "label": "Verwandte Bibelstudien",
+    "remove": "Verknüpfung mit {{title}} entfernen",
+    "add": "+ Verwandtes Bibelstudium verknüpfen",
+    "addGroup": "Verwandtes Bibelstudium verknüpfen",
+    "thisStudy": "Dieses Bibelstudium",
+    "relation": "Beziehung",
+    "target": "Zu verknüpfendes Bibelstudium",
+    "choose": "Bibelstudium auswählen …",
+    "option": "{{title}} ({{project}})",
+    "link": "Verknüpfen"
+  },
+  "search": {
+    "heading": "Bibelstudien mit „{{query}}“",
+    "searching": "Ihre Bibelstudien werden durchsucht …",
+    "none": "In Ihren Bibelstudien wurde nichts gefunden.",
+    "count_one": "{{count}} Treffer.",
+    "count_other": "{{count}} Treffer.",
+    "results": "Suchergebnisse in Bibelstudien",
+    "location": {
+      "study": "Titel oder Ziel",
+      "section": "Titel des Abschnitts",
+      "studyText": "Text des Bibelstudiums",
+      "finding": "Eintrag",
+      "findingType": "Eintrag: {{type}}"
+    }
+  },
+  "templates": {
+    "intro": "Eine Vorlage gibt einem neuen Bibelstudium seine Abschnitte. Änderungen an einer Vorlage verändern nie Bibelstudien, die bereits damit erstellt wurden.",
+    "listLabel": "Vorlagen für Bibelstudien",
+    "sectionCount_one": "{{count}} Abschnitt",
+    "sectionCount_other": "{{count}} Abschnitte",
+    "builtIn": "Mitgeliefert",
+    "duplicateCustomise": "Duplizieren und anpassen",
+    "edit": "{{name}} bearbeiten",
+    "duplicate": "{{name}} duplizieren",
+    "delete": "{{name}} löschen",
+    "confirmLabel": "{{name}} löschen?",
+    "confirm": "Die Vorlage „{{name}}“ löschen? Bibelstudien, die bereits damit erstellt wurden, bleiben unverändert.",
+    "deleteTemplate": "Vorlage löschen",
+    "new": "Neue Vorlage …"
+  },
+  "templateEditor": {
+    "opening": "Vorlage wird geöffnet …",
+    "back": "Zurück zu den Einstellungen",
+    "editTitle": "Vorlage bearbeiten",
+    "newTitle": "Neue Vorlage",
+    "name": "Name",
+    "description": "Beschreibung",
+    "meantFor": "Gedacht für",
+    "sections": "Abschnitte",
+    "sectionsList": "Abschnitte der Vorlage",
+    "sectionTitle": "Titel von Abschnitt {{number}}",
+    "sectionGuidance": "Hinweis zu Abschnitt {{number}}",
+    "guidancePlaceholder": "Hinweis, der unter dem Abschnitt angezeigt wird (optional)",
+    "untitledSection": "Abschnitt",
+    "moveUp": "„{{title}}“ nach oben verschieben",
+    "moveDown": "„{{title}}“ nach unten verschieben",
+    "remove": "„{{title}}“ entfernen",
+    "addSection": "Abschnitt hinzufügen",
+    "save": "Vorlage speichern"
+  }
+}

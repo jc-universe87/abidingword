@@ -1,0 +1,133 @@
+{
+  "addToLibrary": "Ajouter à la bibliothèque",
+  "addToLibraryEllipsis": "Ajouter à la bibliothèque…",
+  "sourceType": {
+    "book": "Livre",
+    "article": "Article",
+    "notes": "Notes",
+    "sermon": "Prédication",
+    "lecture": "Cours",
+    "document": "Document"
+  },
+  "format": {
+    "pdf": "PDF",
+    "epub": "EPUB",
+    "markdown": "Markdown",
+    "text": "Texte brut"
+  },
+  "licence": {
+    "private": "Ma propre copie — à ne pas partager",
+    "distributable": "Peut être partagée",
+    "unknown": "Licence inconnue"
+  },
+  "locator": {
+    "page": "p. {{page}}"
+  },
+  "quoted": "« {{text}} »",
+  "view": {
+    "backToWorkspace": "Retour à l’espace de travail",
+    "title": "Bibliothèque",
+    "intro": "Vos propres livres, notes et documents, conservés sur cet ordinateur. Chaque résultat de recherche indique précisément sa provenance.",
+    "addedOn": "ajoutée le {{date}}"
+  },
+  "search": {
+    "heading": "Rechercher dans la bibliothèque",
+    "label": "Rechercher dans la bibliothèque",
+    "placeholder": "Mots ou « expression exacte »",
+    "nothingFound": "Rien n’a été trouvé dans votre bibliothèque.",
+    "resultCount_one": "{{number}} passage trouvé.",
+    "resultCount_many": "{{number}} passages trouvés.",
+    "resultCount_other": "{{number}} passages trouvés.",
+    "resultCountMore_one": "{{number}}+ passage trouvé.",
+    "resultCountMore_many": "{{number}}+ passages trouvés.",
+    "resultCountMore_other": "{{number}}+ passages trouvés.",
+    "resultsLabel": "Résultats de la recherche dans la bibliothèque",
+    "showMore": "Afficher plus de résultats"
+  },
+  "filter": {
+    "heading": "Toutes les sources",
+    "label": "Filtrer les sources",
+    "type": "Type",
+    "allTypes": "Tous les types",
+    "language": "Langue",
+    "allLanguages": "Toutes les langues",
+    "noMatch": "Aucune source ne correspond à ces filtres.",
+    "empty": "Votre bibliothèque est encore vide. Ajoutez un fichier PDF, EPUB, Markdown ou texte.",
+    "listLabel": "Sources"
+  },
+  "remove": {
+    "button": "Retirer…",
+    "label": "Retirer {{title}}",
+    "dialogLabel": "Retirer {{title}} ?",
+    "message": "Retirer <strong>{{title}}</strong> de votre bibliothèque ? Son texte et la copie du fichier conservée par Abiding Word sont supprimés ; votre fichier d’origine n’est pas touché. Les élément d’études qui la citent gardent une trace de la référence.",
+    "confirm": "Retirer de la bibliothèque",
+    "keep": "La conserver"
+  },
+  "add": {
+    "title": "Ajouter à la bibliothèque",
+    "reading": "Lecture du fichier et recherche de son texte…",
+    "intro": "Choisissez un fichier PDF, EPUB, Markdown (.md) ou texte (.txt). Abiding Word conserve sa propre copie dans votre bibliothèque et ne modifie jamais votre fichier. Les PDF numérisés ne peuvent pas encore être lus.",
+    "choose": "Choisir un fichier…",
+    "whatFound": "Ce qui a été trouvé",
+    "extracted": "Texte extrait avec succès",
+    "references_one": "{{number}} référence biblique détectée",
+    "references_many": "{{number}} références bibliques détectées",
+    "references_other": "{{number}} références bibliques détectées",
+    "duplicate": "Ce fichier se trouve déjà dans votre bibliothèque sous le titre <strong>{{title}}</strong>.",
+    "addCopy": "Ajouter quand même une deuxième copie",
+    "adding": "Ajout…"
+  },
+  "size": {
+    "pages_one": "{{number}} page",
+    "pages_many": "{{number}} pages",
+    "pages_other": "{{number}} pages",
+    "chapters_one": "{{number}} chapitre",
+    "chapters_many": "{{number}} chapitres",
+    "chapters_other": "{{number}} chapitres",
+    "sections_one": "{{number}} section",
+    "sections_many": "{{number}} sections",
+    "sections_other": "{{number}} sections",
+    "paragraphs_one": "{{number}} paragraphe",
+    "paragraphs_many": "{{number}} paragraphes",
+    "paragraphs_other": "{{number}} paragraphes"
+  },
+  "metadata": {
+    "title": "Titre",
+    "author": "Auteur ou autrice",
+    "language": "Langue",
+    "languagePlaceholder": "p. ex. Français, English",
+    "kind": "Genre",
+    "sharing": "Partage",
+    "isbn": "ISBN {{isbn}}",
+    "fromFile": "depuis « {{fileName}} »"
+  },
+  "reader": {
+    "showEarlier": "Afficher le texte précédent",
+    "showMore": "Afficher la suite du texte",
+    "backToSources": "Retour aux sources",
+    "openFull": "Ouvrir en pleine largeur",
+    "openFullTitle": "Lire cette source en pleine largeur",
+    "pageMarker": "Page {{page}}"
+  },
+  "pane": {
+    "libraryHeading": "Votre bibliothèque",
+    "empty": "Aucune source pour l’instant. Ajoutez des livres, des articles et vos propres notes (PDF, EPUB, Markdown ou texte) ; ils restent sur cet ordinateur.",
+    "mentioning": "Sources qui mentionnent {{passage}}",
+    "noMentions": "Aucune de vos sources ne mentionne ce passage.",
+    "recent": "Ajoutées récemment",
+    "openLibrary": "Ouvrir la bibliothèque"
+  },
+  "citations": {
+    "removed": "(retirée de la bibliothèque)",
+    "openTitle": "Ouvrir cette source à l’endroit cité",
+    "removeLabel": "Retirer la référence {{citation}}",
+    "add": "+ Ajouter une source",
+    "pickerLabel": "Ajouter une source",
+    "searchLabel": "Rechercher dans votre bibliothèque le passage à citer",
+    "searchPlaceholder": "Rechercher dans votre bibliothèque le passage à citer",
+    "replaceQuote": "Remplacer aussi le texte de cette citation par le passage cité",
+    "useQuote": "Utiliser aussi le passage cité comme texte de cette citation",
+    "listLabel": "Passages à citer",
+    "cite": "Citer {{citation}}"
+  }
+}

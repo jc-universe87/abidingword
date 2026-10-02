@@ -5,7 +5,7 @@
 use rusqlite::{params, Connection, OptionalExtension};
 
 use crate::domain::{FindingType, StudySearchHit};
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 
 const LIMIT: i64 = 100;
 
@@ -16,9 +16,10 @@ pub const MATCH_END: char = '\u{3}';
 
 pub fn search(conn: &Connection, input: &str) -> AppResult<Vec<StudySearchHit>> {
     let Some(query) = crate::db::fts::query(input) else {
-        return Err(AppError::InvalidInput(
-            "Type a word or phrase to search for.".into(),
-        ));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "search.empty",
+            "Type a word or phrase to search for.",
+        )));
     };
     let mut stmt = conn.prepare(
         "SELECT i.kind, i.item_id, s.id, s.title, s.project_id,
@@ -44,8 +45,12 @@ pub fn search(conn: &Connection, input: &str) -> AppResult<Vec<StudySearchHit>> 
     let mut hits = Vec::new();
     for row in rows {
         let (kind, item_id, study_id, study_title, project_id, snippet) = row?;
+        let place = location(conn, &kind, &item_id)?;
         hits.push(StudySearchHit {
-            location: location(conn, &kind, &item_id)?,
+            location: place.text,
+            section_key: place.section_key,
+            section_title: place.section_title,
+            finding_type: place.finding_type,
             study_id,
             study_title,
             project_id,
@@ -56,28 +61,59 @@ pub fn search(conn: &Connection, input: &str) -> AppResult<Vec<StudySearchHit>> 
     Ok(hits)
 }
 
-/// Where a match is, in plain words.
-fn location(conn: &Connection, kind: &str, item_id: &str) -> AppResult<String> {
+#[derive(Default)]
+struct Place {
+    text: String,
+    section_key: Option<String>,
+    section_title: Option<String>,
+    finding_type: Option<String>,
+}
+
+/// Where a match is: English words, and the facts the interface needs to
+/// say it in the user's language.
+fn location(conn: &Connection, kind: &str, item_id: &str) -> AppResult<Place> {
     Ok(match kind {
-        "study" => "Title or purpose".into(),
-        "section" => "Section title".into(),
-        "block" => conn
-            .query_row(
-                "SELECT s.title FROM study_blocks b JOIN study_sections s ON s.id = b.section_id WHERE b.id = ?1",
-                [item_id],
-                |r| r.get::<_, String>(0),
-            )
-            .optional()?
-            .unwrap_or_else(|| "Study text".into()),
-        _ => {
-            let kind: Option<String> = conn
-                .query_row("SELECT kind FROM findings WHERE id = ?1", [item_id], |r| r.get(0))
+        "study" => Place {
+            text: "Title or purpose".into(),
+            ..Place::default()
+        },
+        "section" => Place {
+            text: "Section title".into(),
+            ..Place::default()
+        },
+        "block" => {
+            let section: Option<(Option<String>, String)> = conn
+                .query_row(
+                    "SELECT s.key, s.title FROM study_blocks b JOIN study_sections s ON s.id = b.section_id WHERE b.id = ?1",
+                    [item_id],
+                    |r| Ok((r.get(0)?, r.get(1)?)),
+                )
                 .optional()?;
-            let label = kind
-                .and_then(|k| FindingType::parse(&k).ok())
-                .map(finding_label)
-                .unwrap_or("Finding");
-            format!("Finding: {label}")
+            match section {
+                Some((key, title)) => Place {
+                    text: title.clone(),
+                    section_key: key,
+                    section_title: Some(title),
+                    finding_type: None,
+                },
+                None => Place {
+                    text: "Study text".into(),
+                    ..Place::default()
+                },
+            }
+        }
+        _ => {
+            let kind: Option<FindingType> = conn
+                .query_row("SELECT kind FROM findings WHERE id = ?1", [item_id], |r| {
+                    r.get::<_, String>(0)
+                })
+                .optional()?
+                .and_then(|k| FindingType::parse(&k).ok());
+            Place {
+                text: format!("Finding: {}", kind.map(finding_label).unwrap_or("Finding")),
+                finding_type: kind.map(|k| k.as_str().to_string()),
+                ..Place::default()
+            }
         }
     })
 }

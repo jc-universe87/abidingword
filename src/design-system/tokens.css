@@ -42,9 +42,14 @@
   --aw-primary-hover: var(--aw-forest-soft);
   --aw-on-primary: var(--aw-ivory);
 
-  --aw-font-display: "Noto Serif", Georgia, "Times New Roman", serif;
-  --aw-font-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --aw-font-reading: "Noto Serif", "Literata", Georgia, serif;
+  /* The bundled fonts have no Hangul; Korean text falls back to the
+     system's Korean fonts (named here, never downloaded). */
+  --aw-font-display: "Noto Serif", Georgia, "Times New Roman", "Noto Serif KR", "Noto Serif CJK KR",
+    "Nanum Myeongjo", "AppleMyungjo", "Batang", serif;
+  --aw-font-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Malgun Gothic", "Apple SD Gothic Neo",
+    "Noto Sans KR", "Noto Sans CJK KR", sans-serif;
+  --aw-font-reading: "Noto Serif", "Literata", Georgia, "Noto Serif KR", "Noto Serif CJK KR", "Nanum Myeongjo",
+    "AppleMyungjo", "Batang", serif;
   --aw-tracking-caps: 0.18em;
   --aw-radius: 6px;
   --aw-radius-lg: 12px;

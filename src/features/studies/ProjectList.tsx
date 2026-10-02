@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronRight } from "lucide-react";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
@@ -15,6 +16,7 @@ interface ProjectListProps {
 }
 
 export function ProjectList({ workspace, onOpenProject, onOpenStudy }: ProjectListProps) {
+  const { t } = useTranslation();
   const api = useApi();
   const projects = useLoad(useCallback(() => api.projectList(workspace.id), [api, workspace.id]));
 
@@ -26,26 +28,26 @@ export function ProjectList({ workspace, onOpenProject, onOpenStudy }: ProjectLi
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="m-0 font-display text-[1.875rem] font-heading text-text-strong">Projects</h1>
+        <h1 className="m-0 font-display text-[1.875rem] font-heading text-text-strong">{t("studies.projects.title")}</h1>
         <p className="mt-2 mb-0 text-text-muted">
-          A project gathers related studies: a sermon series, a Bible study course, or a doctrine.
+          {t("studies.projects.intro")}
         </p>
       </div>
 
       <CreateForm
-        label="New project"
-        placeholder="e.g. Romans Sermon Series"
-        submitLabel="Create project"
+        label={t("studies.projects.newLabel")}
+        placeholder={t("studies.projects.newPlaceholder")}
+        submitLabel={t("studies.projects.create")}
         onCreate={create}
       />
 
       {projects.error && <Notice tone="error">{projects.error.message}</Notice>}
-      {projects.loading && <p className="text-text-muted">Loading projects…</p>}
+      {projects.loading && <p className="text-text-muted">{t("studies.projects.loading")}</p>}
       {projects.data?.length === 0 && (
-        <p className="text-text-muted">No projects yet. Create your first project above.</p>
+        <p className="text-text-muted">{t("studies.projects.empty")}</p>
       )}
       {projects.data && projects.data.length > 0 && (
-        <ul aria-label="Projects" className="m-0 list-none border-t border-border-subtle p-0">
+        <ul aria-label={t("studies.projects.listLabel")} className="m-0 list-none border-t border-border-subtle p-0">
           {projects.data.map((project) => (
             <li key={project.id} className="border-b border-border-subtle">
               <button
@@ -58,7 +60,7 @@ export function ProjectList({ workspace, onOpenProject, onOpenStudy }: ProjectLi
                     {project.title}
                   </span>
                   <span className="mt-1 block text-[0.9375rem] text-text-muted">
-                    {studyCountLabel(project.studyCount)}
+                    {studyCountLabel(t, project.studyCount)}
                   </span>
                 </span>
                 <ChevronRight className="size-5 shrink-0 text-text-muted" aria-hidden="true" />
@@ -71,7 +73,7 @@ export function ProjectList({ workspace, onOpenProject, onOpenStudy }: ProjectLi
       {projects.data && projects.data.length > 0 && (
         <section aria-labelledby="all-studies-heading" className="flex flex-col gap-3">
           <h2 id="all-studies-heading" className="m-0 text-[1.125rem] font-semibold text-text-strong">
-            All studies
+            {t("studies.projects.allStudies")}
           </h2>
           <StudyList projects={projects.data} onOpen={onOpenStudy} />
         </section>

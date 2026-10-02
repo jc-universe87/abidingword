@@ -207,17 +207,16 @@ repository. Native acceptance still happens on real target systems.
 
 ### Interface languages (i18n)
 
-**Requirement:** all new user-facing text must go through i18n, in
-English, German, Korean, French, Spanish and Portuguese (`en`, `de`, `ko`,
-`fr`, `es`, `pt`). That covers visible labels, headings, buttons,
-tooltips, dialogs, notices, empty states, user-visible errors,
+The interface is available in English, German, Korean, French, Spanish and
+Portuguese (`en`, `de`, `ko`, `fr`, `es`, `pt`), chosen in Settings →
+Language (by default the system language, else English). **All new
+user-facing text must go through i18n** — visible labels, headings,
+buttons, tooltips, dialogs, notices, empty states, user-visible errors,
 placeholders, `aria-label`s and other accessibility text, and colour names
-shown to users.
-
-**Current state:** the app has no i18n foundation yet; its interface text
-is English written directly in the components. Building that foundation
-comes before further major interface work, and until then new code must
-not add hard-coded text it can avoid.
+shown to users — in all six languages. `npm run i18n:check` (also in CI)
+checks that the languages stay aligned and that components contain no
+hard-coded text. How it works, the terminology guide and how to add a
+string: [`docs/i18n.md`](docs/i18n.md).
 
 ### Keeping development data separate
 

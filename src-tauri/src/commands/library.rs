@@ -13,7 +13,7 @@ use tauri::State;
 use super::CommandResult;
 use crate::db::{findings, library};
 use crate::domain::Finding;
-use crate::error::{AppError, ErrorPayload};
+use crate::error::{AppError, ErrorPayload, UserMessage};
 use crate::filesystem;
 use crate::library::{adapters, import};
 use crate::library::{
@@ -86,7 +86,8 @@ pub fn library_import_preview(
         reference_count: staged.references.len(),
         extraction_status: doc.extraction_status.as_str(),
         can_import: problem.is_none(),
-        problem,
+        problem_code: problem.as_ref().and_then(|p| p.code).map(String::from),
+        problem: problem.map(|p| p.text),
         duplicate_of,
     };
     *state.pending_source()? = Some(staged);
@@ -107,7 +108,10 @@ pub fn library_import_commit(
         .as_ref()
         .filter(|s| s.id == input.preview_id)
         .ok_or_else(|| {
-            AppError::InvalidInput("This import has expired. Please choose the file again.".into())
+            AppError::InvalidInput(UserMessage::new(
+                "import.expiredFile",
+                "This import has expired. Please choose the file again.",
+            ))
         })?;
     if let Some(problem) = staged.problem() {
         return Err(AppError::Import(problem).into());

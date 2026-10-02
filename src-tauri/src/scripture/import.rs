@@ -18,7 +18,7 @@ use std::path::{Path, PathBuf};
 
 use serde::Serialize;
 
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 use crate::scripture::canon::{self, Book, NON_CANONICAL_USFM_CODES};
 use crate::scripture::usfm;
 
@@ -69,10 +69,14 @@ impl BibleImportAdapter for UsfmAdapter {
                     Severity::Error,
                     None,
                     None,
-                    format!(
-                        "The file “{}” does not say which book it contains.",
-                        file.name
-                    ),
+                    UserMessage::new(
+                        "bibleImport.noBookId",
+                        format!(
+                            "The file “{}” does not say which book it contains.",
+                            file.name
+                        ),
+                    )
+                    .with("fileName", &file.name),
                 );
                 continue;
             };
@@ -80,9 +84,20 @@ impl BibleImportAdapter for UsfmAdapter {
                 if NON_CANONICAL_USFM_CODES.contains(&code.as_str()) {
                     staged.skipped_files.push(file.name.clone());
                 } else {
-                    staged.issue(Severity::Warning, None, None, format!(
-                        "The file “{}” contains a book Abiding Word does not recognise ({code}). It was left out.",
-                        file.name));
+                    staged.issue(
+                        Severity::Warning,
+                        None,
+                        None,
+                        UserMessage::new(
+                            "bibleImport.unknownBook",
+                            format!(
+                                "The file “{}” contains a book Abiding Word does not recognise ({code}). It was left out.",
+                                file.name
+                            ),
+                        )
+                        .with("fileName", &file.name)
+                        .with("code", &code),
+                    );
                 }
                 continue;
             };
@@ -91,7 +106,11 @@ impl BibleImportAdapter for UsfmAdapter {
                     Severity::Error,
                     Some(book),
                     None,
-                    format!("{} appears in more than one file.", book.name),
+                    UserMessage::new(
+                        "bibleImport.bookTwice",
+                        format!("{} appears in more than one file.", book.name),
+                    )
+                    .with("bookCode", book.code),
                 );
                 continue;
             }
@@ -101,10 +120,14 @@ impl BibleImportAdapter for UsfmAdapter {
                     Severity::Error,
                     Some(book),
                     None,
-                    format!(
-                        "{}: some verses appear before the first chapter.",
-                        book.name
-                    ),
+                    UserMessage::new(
+                        "bibleImport.versesBeforeChapter",
+                        format!(
+                            "{}: some verses appear before the first chapter.",
+                            book.name
+                        ),
+                    )
+                    .with("bookCode", book.code),
                 );
             }
             for verse in doc.verses {
@@ -139,8 +162,10 @@ pub struct ImportIssue {
     pub severity: Severity,
     pub book: Option<&'static str>,
     pub chapter: Option<u16>,
-    /// Plain language, shown as written.
+    /// Plain English; the interface shows `code` translated (docs/i18n.md).
     pub message: String,
+    pub code: Option<String>,
+    pub params: BTreeMap<String, String>,
 }
 
 #[derive(Debug, Default)]
@@ -168,13 +193,19 @@ impl StagedContent {
         severity: Severity,
         book: Option<&'static Book>,
         chapter: Option<u16>,
-        message: String,
+        message: UserMessage,
     ) {
         self.issues.push(ImportIssue {
             severity,
             book: book.map(|b| b.code),
             chapter,
-            message,
+            code: message.code.map(String::from),
+            params: message
+                .params
+                .into_iter()
+                .map(|(k, v)| (k.to_string(), v))
+                .collect(),
+            message: message.text,
         });
     }
 
@@ -192,7 +223,12 @@ impl StagedContent {
                 Severity::Error,
                 Some(book),
                 None,
-                format!("{name}: the chapter number “{chapter}” could not be read."),
+                UserMessage::new(
+                    "bibleImport.badChapterNumber",
+                    format!("{name}: the chapter number “{chapter}” could not be read."),
+                )
+                .with("bookCode", book.code)
+                .with("label", chapter),
             );
             return;
         };
@@ -201,11 +237,17 @@ impl StagedContent {
                 Severity::Error,
                 Some(book),
                 Some(chapter),
-                format!(
-                    "{name} {chapter}: {name} has {} chapter{} in the standard numbering.",
-                    book.chapter_count,
-                    if book.chapter_count == 1 { "" } else { "s" }
-                ),
+                UserMessage::new(
+                    "bibleImport.chapterOutOfRange",
+                    format!(
+                        "{name} {chapter}: {name} has {} chapter{} in the standard numbering.",
+                        book.chapter_count,
+                        if book.chapter_count == 1 { "" } else { "s" }
+                    ),
+                )
+                .with("bookCode", book.code)
+                .with("chapter", chapter)
+                .with("count", book.chapter_count),
             );
             return;
         }
@@ -221,7 +263,13 @@ impl StagedContent {
                 Severity::Error,
                 Some(book),
                 Some(chapter),
-                format!("{name} {chapter}: the verse number “{label}” could not be read."),
+                UserMessage::new(
+                    "bibleImport.badVerseNumber",
+                    format!("{name} {chapter}: the verse number “{label}” could not be read."),
+                )
+                .with("bookCode", book.code)
+                .with("chapter", chapter)
+                .with("label", label),
             );
             return;
         };
@@ -231,7 +279,13 @@ impl StagedContent {
                     Severity::Error,
                     Some(book),
                     Some(chapter),
-                    format!("{name} {chapter}: the verse number “{label}” could not be read."),
+                    UserMessage::new(
+                        "bibleImport.badVerseNumber",
+                        format!("{name} {chapter}: the verse number “{label}” could not be read."),
+                    )
+                    .with("bookCode", book.code)
+                    .with("chapter", chapter)
+                    .with("label", label),
                 );
                 return;
             }
@@ -239,8 +293,16 @@ impl StagedContent {
                 Severity::Note,
                 Some(book),
                 Some(chapter),
-                format!(
-                "{name} {chapter}:{verse}–{last} are combined into one verse in this translation."),
+                UserMessage::new(
+                    "bibleImport.bridged",
+                    format!(
+                        "{name} {chapter}:{verse}–{last} are combined into one verse in this translation."
+                    ),
+                )
+                .with("bookCode", book.code)
+                .with("chapter", chapter)
+                .with("first", verse)
+                .with("last", last),
             );
         }
         let verses = &mut content.chapters.entry(chapter).or_default().verses;
@@ -249,7 +311,13 @@ impl StagedContent {
                 Severity::Error,
                 Some(book),
                 Some(chapter),
-                format!("{name} {chapter}:{verse} appears twice."),
+                UserMessage::new(
+                    "bibleImport.verseTwice",
+                    format!("{name} {chapter}:{verse} appears twice."),
+                )
+                .with("bookCode", book.code)
+                .with("chapter", chapter)
+                .with("verse", verse),
             );
             return;
         }
@@ -258,7 +326,13 @@ impl StagedContent {
                 Severity::Warning,
                 Some(book),
                 Some(chapter),
-                format!("{name} {chapter}:{verse} has no text."),
+                UserMessage::new(
+                    "bibleImport.emptyVerse",
+                    format!("{name} {chapter}:{verse} has no text."),
+                )
+                .with("bookCode", book.code)
+                .with("chapter", chapter)
+                .with("verse", verse),
             );
         }
         verses.insert(verse, text);
@@ -281,12 +355,21 @@ impl StagedContent {
                     Severity::Warning,
                     book,
                     None,
-                    format!(
-                        "{}: {} of {} chapters found (missing: {}).",
-                        book.name,
-                        chapters.len(),
-                        book.chapter_count,
-                        list(&missing)
+                    with_list(
+                        UserMessage::new(
+                            "bibleImport.missingChapters",
+                            format!(
+                                "{}: {} of {} chapters found (missing: {}).",
+                                book.name,
+                                chapters.len(),
+                                book.chapter_count,
+                                list(&missing)
+                            ),
+                        )
+                        .with("bookCode", book.code)
+                        .with("found", chapters.len())
+                        .with("count", book.chapter_count),
+                        &missing,
                     ),
                 ));
             }
@@ -296,16 +379,37 @@ impl StagedContent {
                         Severity::Warning,
                         book,
                         Some(*chapter),
-                        format!("{} {chapter}: no verses were found.", book.name),
+                        UserMessage::new(
+                            "bibleImport.noVerses",
+                            format!("{} {chapter}: no verses were found.", book.name),
+                        )
+                        .with("bookCode", book.code)
+                        .with("chapter", chapter),
                     ));
                     continue;
                 };
                 // Verses covered by a bridge ("4-5") are not missing.
                 let gaps: Vec<u16> = (1..max).filter(|v| !text.verses.contains_key(v)).collect();
                 if !gaps.is_empty() {
-                    found.push((Severity::Warning, book, Some(*chapter), format!(
-                        "{} {chapter}: verse{} {} not found. The expected verse structure differs from this text.",
-                        book.name, if gaps.len() == 1 { "" } else { "s" }, list(&gaps))));
+                    found.push((
+                        Severity::Warning,
+                        book,
+                        Some(*chapter),
+                        with_list(
+                            UserMessage::new(
+                                "bibleImport.missingVerses",
+                                format!(
+                                    "{} {chapter}: verse{} {} not found. The expected verse structure differs from this text.",
+                                    book.name,
+                                    if gaps.len() == 1 { "" } else { "s" },
+                                    list(&gaps)
+                                ),
+                            )
+                            .with("bookCode", book.code)
+                            .with("chapter", chapter),
+                            &gaps,
+                        ),
+                    ));
                 }
             }
         }
@@ -316,12 +420,11 @@ impl StagedContent {
         let bridges: Vec<(Option<&str>, Option<u16>)> = self
             .issues
             .iter()
-            .filter(|i| i.severity == Severity::Note && i.message.contains("combined"))
+            .filter(|i| i.code.as_deref() == Some("bibleImport.bridged"))
             .map(|i| (i.book, i.chapter))
             .collect();
         self.issues.retain(|i| {
-            !(i.severity == Severity::Warning
-                && i.message.contains("not found. The expected")
+            !(i.code.as_deref() == Some("bibleImport.missingVerses")
                 && bridges.contains(&(i.book, i.chapter)))
         });
         self.issues.sort_by_key(|i| i.severity);
@@ -344,16 +447,35 @@ impl StagedContent {
     }
 }
 
+/// Adds a number list for the interface: `numbers` (the first few,
+/// comma-separated), `listed` (how many are shown) and `more` (how many
+/// are left out).
+fn with_list(message: UserMessage, numbers: &[u16]) -> UserMessage {
+    let shown = numbers.len().min(LIST_SHOWN);
+    message
+        .with(
+            "numbers",
+            numbers[..shown]
+                .iter()
+                .map(u16::to_string)
+                .collect::<Vec<_>>()
+                .join(", "),
+        )
+        .with("listed", numbers.len())
+        .with("more", numbers.len() - shown)
+}
+
+const LIST_SHOWN: usize = 8;
+
 fn list(numbers: &[u16]) -> String {
-    const SHOWN: usize = 8;
     let mut text = numbers
         .iter()
-        .take(SHOWN)
+        .take(LIST_SHOWN)
         .map(u16::to_string)
         .collect::<Vec<_>>()
         .join(", ");
-    if numbers.len() > SHOWN {
-        text.push_str(&format!(" and {} more", numbers.len() - SHOWN));
+    if numbers.len() > LIST_SHOWN {
+        text.push_str(&format!(" and {} more", numbers.len() - LIST_SHOWN));
     }
     text
 }
@@ -380,7 +502,10 @@ pub struct StagedImport {
 /// Reads the given files, detects the format and stages the content.
 pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport> {
     if paths.is_empty() {
-        return Err(AppError::InvalidInput("Choose at least one file.".into()));
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "import.noFiles",
+            "Choose at least one file.",
+        )));
     }
     let texts = read_sources(paths)?;
     let adapters: [&dyn BibleImportAdapter; 1] = [&UsfmAdapter];
@@ -388,11 +513,11 @@ pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport>
         .into_iter()
         .find(|a| texts.iter().any(|t| a.can_read(t)))
         .ok_or_else(|| {
-            AppError::UnsupportedFormat(
+            AppError::UnsupportedFormat(UserMessage::new(
+                "bibleImport.unknownFormat",
                 "These files are not in a Bible format Abiding Word can read yet. \
-             It currently reads USFM Bibles (.usfm or .sfm files, or a .zip of them)."
-                    .into(),
-            )
+                 It currently reads USFM Bibles (.usfm or .sfm files, or a .zip of them).",
+            ))
         })?;
     let readable: Vec<SourceText> = texts.into_iter().filter(|t| adapter.can_read(t)).collect();
 
@@ -400,9 +525,10 @@ pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport>
     adapter.read(&readable, &mut content);
     content.check_structure();
     if content.books.is_empty() && !content.has_errors() {
-        return Err(AppError::Import(
-            "No books of the Bible were found in these files.".into(),
-        ));
+        return Err(AppError::Import(UserMessage::new(
+            "bibleImport.noBooks",
+            "No books of the Bible were found in these files.",
+        )));
     }
     log::info!(
         "import staged: {} file(s), {} book(s), {} verse(s), {} issue(s)",
@@ -433,10 +559,16 @@ fn suggested_name(paths: &[PathBuf]) -> String {
 }
 
 fn unsupported(kind: &str) -> AppError {
-    AppError::UnsupportedFormat(format!(
-        "{kind} files can’t be imported as a structured Bible yet. Abiding Word currently \
-         reads USFM Bibles (.usfm or .sfm files, or a .zip of them)."
-    ))
+    AppError::UnsupportedFormat(
+        UserMessage::new(
+            "bibleImport.formatNotYet",
+            format!(
+                "{kind} files can’t be imported as a structured Bible yet. Abiding Word currently \
+                 reads USFM Bibles (.usfm or .sfm files, or a .zip of them)."
+            ),
+        )
+        .with("format", kind),
+    )
 }
 
 fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
@@ -460,9 +592,10 @@ fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
             .len();
         total += size;
         if total > MAX_TOTAL_BYTES {
-            return Err(AppError::Import(
-                "These files are too large to be a single Bible.".into(),
-            ));
+            return Err(AppError::Import(UserMessage::new(
+                "bibleImport.tooLarge",
+                "These files are too large to be a single Bible.",
+            )));
         }
         if extension == "zip" {
             texts.extend(read_zip(path, &mut total)?);
@@ -480,18 +613,27 @@ fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
 fn read_zip(path: &Path, total: &mut u64) -> AppResult<Vec<SourceText>> {
     let file = fs::File::open(path).map_err(|e| AppError::filesystem(path, e))?;
     let mut archive = zip::ZipArchive::new(file).map_err(|e| {
-        AppError::Import(format!(
-            "The file “{}” is not a readable .zip archive ({e}).",
-            file_name(path)
-        ))
+        AppError::Import(
+            UserMessage::new(
+                "bibleImport.badZip",
+                format!(
+                    "The file “{}” is not a readable .zip archive ({e}).",
+                    file_name(path)
+                ),
+            )
+            .with("fileName", file_name(path)),
+        )
     })?;
     let mut texts = Vec::new();
     for index in 0..archive.len() {
         let mut entry = archive.by_index(index).map_err(|e| {
-            AppError::Import(format!(
-                "Part of “{}” could not be read ({e}).",
-                file_name(path)
-            ))
+            AppError::Import(
+                UserMessage::new(
+                    "bibleImport.badZipPart",
+                    format!("Part of “{}” could not be read ({e}).", file_name(path)),
+                )
+                .with("fileName", file_name(path)),
+            )
         })?;
         let name = entry.name().to_string();
         let lower = name.to_ascii_lowercase();
@@ -502,15 +644,20 @@ fn read_zip(path: &Path, total: &mut u64) -> AppResult<Vec<SourceText>> {
         }
         *total += entry.size();
         if *total > MAX_TOTAL_BYTES {
-            return Err(AppError::Import(
-                "This archive is too large to be a single Bible.".into(),
-            ));
+            return Err(AppError::Import(UserMessage::new(
+                "bibleImport.zipTooLarge",
+                "This archive is too large to be a single Bible.",
+            )));
         }
         let mut bytes = Vec::new();
         entry.read_to_end(&mut bytes).map_err(|e| {
-            AppError::Import(format!(
-                "“{name}” inside the archive could not be read ({e})."
-            ))
+            AppError::Import(
+                UserMessage::new(
+                    "bibleImport.badZipEntry",
+                    format!("“{name}” inside the archive could not be read ({e})."),
+                )
+                .with("fileName", &name),
+            )
         })?;
         texts.push(SourceText {
             text: decode(&bytes, &name)?,
@@ -522,9 +669,13 @@ fn read_zip(path: &Path, total: &mut u64) -> AppResult<Vec<SourceText>> {
 
 fn decode(bytes: &[u8], name: &str) -> AppResult<String> {
     String::from_utf8(bytes.to_vec()).map_err(|_| {
-        AppError::Import(format!(
-            "“{name}” is not saved as UTF-8 text, so it could not be read."
-        ))
+        AppError::Import(
+            UserMessage::new(
+                "library.notUtf8",
+                format!("“{name}” is not saved as UTF-8 text, so it could not be read."),
+            )
+            .with("fileName", name),
+        )
     })
 }
 

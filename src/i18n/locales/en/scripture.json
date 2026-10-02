@@ -1,0 +1,138 @@
+{
+  "translation": "Translation",
+  "empty": {
+    "title": "No Bible has been added yet.",
+    "body": "Add the World English Bible that comes with Abiding Word, or a Bible file you own. Everything stays on this computer and works offline.",
+    "addBible": "Add a Bible…"
+  },
+  "nav": {
+    "goToLabel": "Go to passage",
+    "goToPlaceholder": "e.g. John 15 or Rom 8:1-17",
+    "go": "Go",
+    "book": "Book",
+    "oldTestament": "Old Testament",
+    "newTestament": "New Testament",
+    "chapter": "Chapter",
+    "previousChapter": "Previous chapter",
+    "nextChapter": "Next chapter"
+  },
+  "reader": {
+    "opening": "Opening {{passage}}…",
+    "showing": "showing {{passage}}",
+    "noText": "{{name}} has no text for {{passage}}.",
+    "verseButton": "Verse {{verse}}. Show verse tools",
+    "verseButtonWithState": "Verse {{verse}}, {{states}}. Show verse tools",
+    "stateSeparator": ", ",
+    "state": {
+      "note": "has a note",
+      "bookmarked": "bookmarked",
+      "highlighted": "highlighted"
+    }
+  },
+  "verseTools": {
+    "toolsFor": "Tools for verse {{verse}}",
+    "addNote": "Add note",
+    "highlight": "Highlight",
+    "bookmark": "Bookmark",
+    "noteOn": "Note on verse {{verse}}",
+    "saveNote": "Save note",
+    "notesOn": "Notes on verse {{verse}}",
+    "editNote": "Edit note",
+    "on": "On {{passage}}"
+  },
+  "search": {
+    "title": "Search",
+    "backToReading": "Back to reading",
+    "queryLabel": "Words or “exact phrase”",
+    "submit": "Search",
+    "onlyNamed": "Only {{name}}",
+    "onlyCurrent": "Only this translation",
+    "book": "Book",
+    "allBooks": "All books",
+    "searching": "Searching…",
+    "noResults": "No verses found.",
+    "found_one": "{{count}} verse found.",
+    "found_other": "{{count}} verses found.",
+    "foundTruncated_one": "{{count}}+ verse found — showing the first {{limit}}.",
+    "foundTruncated_other": "{{count}}+ verses found — showing the first {{limit}}.",
+    "results": "Search results",
+    "failed": "The search could not be completed."
+  },
+  "addBible": {
+    "title": {
+      "choose": "Add a Bible",
+      "checking": "Checking the Bible…",
+      "review": "New Bible",
+      "done": "Bible added"
+    },
+    "checking": "Reading and checking every book, chapter and verse. This can take a few seconds.",
+    "done_one": "<strong>{{name}}</strong> is ready to read, with {{count}} book and {{verses}} verses.",
+    "done_other": "<strong>{{name}}</strong> is ready to read, with {{count}} books and {{verses}} verses.",
+    "readNow": "Read it now",
+    "included": "Included with Abiding Word",
+    "addNamed": "Add {{name}}",
+    "ownTitle": "A Bible you own",
+    "ownBody": "Choose a Bible in USFM format: a .zip download, or its .usfm files. Abiding Word keeps its own copy and never changes your file.",
+    "chooseFiles": "Choose Bible files…",
+    "field": {
+      "name": "Name",
+      "shortName": "Short name",
+      "shortNameHint": "e.g. WEB",
+      "language": "Language"
+    },
+    "found": "What was found",
+    "booksDetected_one": "{{count}} book detected",
+    "booksDetected_other": "{{count}} books detected",
+    "chaptersDetected_one": "{{number}} chapter detected",
+    "chaptersDetected_other": "{{number}} chapters detected",
+    "versesDetected_one": "{{number}} verse detected",
+    "versesDetected_other": "{{number}} verses detected",
+    "licence": "Licence: {{licence}}",
+    "books": "Books",
+    "bookStatus": {
+      "ok": "Looks good",
+      "warning": "Worth reviewing",
+      "error": "Problem"
+    },
+    "problems_one": "{{count}} problem must be fixed before this Bible can be added",
+    "problems_other": "{{count}} problems must be fixed before this Bible can be added",
+    "warnings_one": "{{count}} warning — worth reviewing",
+    "warnings_other": "{{count}} warnings — worth reviewing",
+    "notes_one": "{{count}} note",
+    "notes_other": "{{count}} notes",
+    "skipped_one": "{{count}} file was left out because it is not one of the 66 books (for example an introduction or glossary).",
+    "skipped_other": "{{count}} files were left out because they are not one of the 66 books (for example an introduction or glossary).",
+    "adding": "Adding…",
+    "add": "Add this Bible"
+  },
+  "bibles": {
+    "empty": "No Bible has been added yet.",
+    "installed": "Installed Bibles",
+    "addBible": "Add a Bible…",
+    "source": {
+      "bundled": "Included with Abiding Word",
+      "imported": "Imported from your file"
+    },
+    "status": {
+      "ready": "Ready",
+      "notStructured": "Not yet structured"
+    },
+    "details": "Details",
+    "hideDetails": "Hide details",
+    "removeNamed": "Remove {{name}}",
+    "removeEllipsis": "Remove…",
+    "field": {
+      "contents": "Contents",
+      "publisher": "Publisher",
+      "licence": "Licence",
+      "notice": "Notice",
+      "from": "From",
+      "added": "Added"
+    },
+    "contents_one": "{{count}} book, {{verses}} verses",
+    "contents_other": "{{count}} books, {{verses}} verses",
+    "confirmRemove": "Remove <strong>{{name}}</strong>? Its text will be deleted from Abiding Word. Your studies, passage links and notes are kept.",
+    "confirmRemoveManaged": "Remove <strong>{{name}}</strong>? Its text will be deleted from Abiding Word, together with Abiding Word's copy of the file (your original file is not touched). Your studies, passage links and notes are kept.",
+    "keep": "Keep it"
+  }
+}

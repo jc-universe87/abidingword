@@ -97,7 +97,12 @@ export type ErrorKind =
 
 export interface ErrorPayload {
   kind: ErrorKind;
+  /** English; the interface shows `code` translated when it can (docs/i18n.md). */
   message: string;
+  /** Stable message code, e.g. "library.passwordProtected". */
+  code?: string;
+  /** Values for the message, e.g. { fileName: "notes.pdf" }. */
+  params?: Record<string, string>;
 }
 
 export interface AppInfo {

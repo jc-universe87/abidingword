@@ -1,11 +1,14 @@
 import { useId, useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
+import { bookName, referenceLabel } from "@/i18n/scripture";
 import { Notice } from "@/design-system/Notice";
 import { useScripture } from "./ScriptureContext";
 
 /** Scripture search: form, filters and results. A result opens its verse. */
 export function SearchResultsView() {
-  const { search, runSearch, closeSearch, goTo, books, translation } = useScripture();
+  const { t } = useTranslation();
+  const { search, runSearch, closeSearch, goTo, books, bookByCode, translation } = useScripture();
   const id = useId();
   const [query, setQuery] = useState(search?.query ?? "");
   const [currentOnly, setCurrentOnly] = useState(search?.currentOnly ?? true);
@@ -21,52 +24,58 @@ export function SearchResultsView() {
     <section aria-labelledby={`${id}-title`} className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
         <h2 id={`${id}-title`} className="m-0 font-display text-[1.5rem] font-heading text-text-strong">
-          Search
+          {t("scripture.search.title")}
         </h2>
         <button type="button" onClick={closeSearch} className="inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-strong hover:bg-bg">
-          <ArrowLeft className="size-4" aria-hidden="true" /> Back to reading
+          <ArrowLeft className="size-4" aria-hidden="true" /> {t("scripture.search.backToReading")}
         </button>
       </div>
       <form onSubmit={submit} className="flex flex-col gap-2" noValidate>
         <label htmlFor={`${id}-q`} className="text-[0.9375rem] font-medium text-text-strong">
-          Words or “exact phrase”
+          {t("scripture.search.queryLabel")}
         </label>
         <div className="flex gap-2">
           <input id={`${id}-q`} value={query} onChange={(e) => setQuery(e.target.value)} className="h-10 min-w-0 flex-1 rounded-aw border border-border bg-bg px-3 text-[0.9375rem]" />
-          <button type="submit" className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium hover:bg-bg">Search</button>
+          <button type="submit" className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium hover:bg-bg">{t("scripture.search.submit")}</button>
         </div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.9375rem]">
           <label className="flex items-center gap-2">
             <input type="checkbox" checked={currentOnly} onChange={(e) => setCurrentOnly(e.target.checked)} className="size-4 accent-[var(--aw-primary)]" />
-            Only {translation?.shortName ?? "this translation"}
+            {translation ? t("scripture.search.onlyNamed", { name: translation.shortName }) : t("scripture.search.onlyCurrent")}
           </label>
           <label className="flex items-center gap-2">
-            <span>Book</span>
+            <span>{t("scripture.search.book")}</span>
             <select value={book} onChange={(e) => setBook(e.target.value)} className="h-9 rounded-aw border border-border bg-bg px-2">
-              <option value="">All books</option>
+              <option value="">{t("scripture.search.allBooks")}</option>
               {books.map((b) => (
-                <option key={b.code} value={b.code}>{b.name}</option>
+                <option key={b.code} value={b.code}>{bookName(b.code, b.name)}</option>
               ))}
             </select>
           </label>
         </div>
       </form>
 
-      {search.busy && <p role="status" className="m-0 text-text-muted">Searching…</p>}
+      {search.busy && <p role="status" className="m-0 text-text-muted">{t("scripture.search.searching")}</p>}
       {search.error && <Notice tone="error">{search.error}</Notice>}
       {search.results && (
         <>
           <p role="status" className="m-0 text-[0.9375rem] text-text-muted">
             {search.results.hits.length === 0
-              ? "No verses found."
-              : `${search.results.hits.length}${search.results.truncated ? "+" : ""} verse${search.results.hits.length === 1 ? "" : "s"} found${search.results.truncated ? " — showing the first 200" : ""}.`}
+              ? t("scripture.search.noResults")
+              : search.results.truncated
+                ? t("scripture.search.foundTruncated", { count: search.results.hits.length, limit: search.results.hits.length })
+                : t("scripture.search.found", { count: search.results.hits.length })}
           </p>
-          <ol aria-label="Search results" className="m-0 flex list-none flex-col p-0">
+          <ol aria-label={t("scripture.search.results")} className="m-0 flex list-none flex-col p-0">
             {search.results.hits.map((hit) => (
               <li key={`${hit.translationId}-${hit.reference.canonical}`} className="border-t border-border-subtle">
                 <button type="button" onClick={() => goTo(hit.reference)} className="flex w-full flex-col items-start gap-1 px-1 py-3 text-left hover:bg-bg">
                   <span className="text-[0.9375rem] font-semibold text-link">
-                    {hit.reference.display} <span className="font-normal text-text-muted">· {hit.translationShortName}</span>
+                    {referenceLabel(hit.reference, bookByCode.get(hit.reference.book)?.chapterCount)}
+                    <span className="font-normal text-text-muted">
+                      {t("common.listSeparator")}
+                      {hit.translationShortName}
+                    </span>
                   </span>
                   <span className="reading text-[1rem]">{hit.text}</span>
                 </button>

@@ -1,0 +1,127 @@
+{
+  "translation": "번역본",
+  "empty": {
+    "title": "아직 추가된 성경이 없습니다.",
+    "body": "Abiding Word에 포함된 World English Bible이나 가지고 계신 성경 파일을 추가하세요. 모든 내용은 이 컴퓨터에 저장되며 인터넷 연결 없이도 사용할 수 있습니다.",
+    "addBible": "성경 추가…"
+  },
+  "nav": {
+    "goToLabel": "본문으로 이동",
+    "goToPlaceholder": "예: John 15 또는 Rom 8:1-17",
+    "go": "이동",
+    "book": "책",
+    "oldTestament": "구약",
+    "newTestament": "신약",
+    "chapter": "장",
+    "previousChapter": "이전 장",
+    "nextChapter": "다음 장"
+  },
+  "reader": {
+    "opening": "{{passage}} 여는 중…",
+    "showing": "{{passage}} 표시 중",
+    "noText": "{{name}}에는 {{passage}} 본문이 없습니다.",
+    "verseButton": "{{verse}}절. 절 도구 보기",
+    "verseButtonWithState": "{{verse}}절, {{states}}. 절 도구 보기",
+    "stateSeparator": ", ",
+    "state": {
+      "note": "메모 있음",
+      "bookmarked": "책갈피 있음",
+      "highlighted": "강조됨"
+    }
+  },
+  "verseTools": {
+    "toolsFor": "{{verse}}절 도구",
+    "addNote": "메모 추가",
+    "highlight": "강조",
+    "bookmark": "책갈피",
+    "noteOn": "{{verse}}절 메모",
+    "saveNote": "메모 저장",
+    "notesOn": "{{verse}}절 메모",
+    "editNote": "메모 편집",
+    "on": "{{passage}}에 대한 메모"
+  },
+  "search": {
+    "title": "검색",
+    "backToReading": "읽던 곳으로 돌아가기",
+    "queryLabel": "단어 또는 “정확한 구절”",
+    "submit": "검색",
+    "onlyNamed": "{{name}}에서만",
+    "onlyCurrent": "이 번역본에서만",
+    "book": "책",
+    "allBooks": "모든 책",
+    "searching": "검색 중…",
+    "noResults": "찾은 절이 없습니다.",
+    "found_other": "{{count}}개 절을 찾았습니다.",
+    "foundTruncated_other": "{{count}}개 이상의 절을 찾았습니다. 처음 {{limit}}개를 표시합니다.",
+    "results": "검색 결과",
+    "failed": "검색을 완료하지 못했습니다."
+  },
+  "addBible": {
+    "title": {
+      "choose": "성경 추가",
+      "checking": "성경을 확인하는 중…",
+      "review": "새 성경",
+      "done": "성경을 추가했습니다"
+    },
+    "checking": "모든 책과 장과 절을 읽고 확인하고 있습니다. 몇 초 정도 걸릴 수 있습니다.",
+    "done_other": "<strong>{{name}}</strong>을(를) 읽을 준비가 되었습니다. 책 {{count}}권, {{verses}}절이 들어 있습니다.",
+    "readNow": "지금 읽기",
+    "included": "Abiding Word에 포함됨",
+    "addNamed": "{{name}} 추가",
+    "ownTitle": "가지고 계신 성경",
+    "ownBody": "USFM 형식의 성경을 선택하세요. 내려받은 .zip 파일이나 .usfm 파일을 사용할 수 있습니다. Abiding Word는 자체 사본을 보관하며 원본 파일은 변경하지 않습니다.",
+    "chooseFiles": "성경 파일 선택…",
+    "field": {
+      "name": "이름",
+      "shortName": "약칭",
+      "shortNameHint": "예: WEB",
+      "language": "언어"
+    },
+    "found": "확인된 내용",
+    "booksDetected_other": "책 {{count}}권 확인됨",
+    "chaptersDetected_other": "{{number}}개 장 확인됨",
+    "versesDetected_other": "{{number}}개 절 확인됨",
+    "licence": "라이선스: {{licence}}",
+    "books": "책",
+    "bookStatus": {
+      "ok": "문제 없음",
+      "warning": "확인 권장",
+      "error": "문제 있음"
+    },
+    "problems_other": "이 성경을 추가하려면 먼저 문제 {{count}}개를 해결해야 합니다",
+    "warnings_other": "경고 {{count}}개 — 확인을 권장합니다",
+    "notes_other": "참고 사항 {{count}}개",
+    "skipped_other": "66권에 속하지 않는 파일 {{count}}개(예: 서문, 용어집)는 제외했습니다.",
+    "adding": "추가하는 중…",
+    "add": "이 성경 추가"
+  },
+  "bibles": {
+    "empty": "아직 추가된 성경이 없습니다.",
+    "installed": "설치된 성경",
+    "addBible": "성경 추가…",
+    "source": {
+      "bundled": "Abiding Word에 포함됨",
+      "imported": "내 파일에서 가져옴"
+    },
+    "status": {
+      "ready": "사용 가능",
+      "notStructured": "아직 구조화되지 않음"
+    },
+    "details": "자세히",
+    "hideDetails": "자세히 숨기기",
+    "removeNamed": "{{name}} 제거",
+    "removeEllipsis": "제거…",
+    "field": {
+      "contents": "내용",
+      "publisher": "출판사",
+      "licence": "라이선스",
+      "notice": "고지 사항",
+      "from": "출처",
+      "added": "추가한 날짜"
+    },
+    "contents_other": "책 {{count}}권, {{verses}}절",
+    "confirmRemove": "<strong>{{name}}</strong>을(를) 제거할까요? 이 성경의 본문이 Abiding Word에서 삭제됩니다. 연구, 본문 연결, 메모는 그대로 유지됩니다.",
+    "confirmRemoveManaged": "<strong>{{name}}</strong>을(를) 제거할까요? 이 성경의 본문과 Abiding Word가 보관하던 파일 사본이 함께 삭제됩니다(원본 파일은 그대로 남습니다). 연구, 본문 연결, 메모는 그대로 유지됩니다.",
+    "keep": "유지"
+  }
+}

@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAutosave } from "@/hooks/useAutosave";
 
 interface EditableTitleProps {
@@ -13,6 +14,7 @@ interface EditableTitleProps {
  * title is never saved and is restored when the field is left.
  */
 export function EditableTitle({ label, value, onSave }: EditableTitleProps) {
+  const { t } = useTranslation();
   const [text, setText] = useState(value);
   const [saved, setSaved] = useState(value);
 
@@ -46,7 +48,7 @@ export function EditableTitle({ label, value, onSave }: EditableTitleProps) {
       </h1>
       {blank && (
         <p role="alert" className="m-0 mt-1 text-[0.9375rem] text-danger">
-          A title is required. Leaving the field keeps the previous title.
+          {t("studies.titleRequiredOnBlur")}
         </p>
       )}
     </div>

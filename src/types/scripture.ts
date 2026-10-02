@@ -108,7 +108,10 @@ export interface ImportIssue {
   severity: IssueSeverity;
   book: string | null;
   chapter: number | null;
+  /** English; shown through `code` in the interface language (docs/i18n.md). */
   message: string;
+  code: string | null;
+  params: Record<string, string>;
 }
 
 export interface PreviewBook {

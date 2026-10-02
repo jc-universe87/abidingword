@@ -1,0 +1,149 @@
+{
+  "translation": "Traduction",
+  "empty": {
+    "title": "Aucune Bible n’a encore été ajoutée.",
+    "body": "Ajoutez la World English Bible fournie avec Abiding Word, ou un fichier de Bible qui vous appartient. Tout reste sur cet ordinateur et fonctionne hors ligne.",
+    "addBible": "Ajouter une Bible…"
+  },
+  "nav": {
+    "goToLabel": "Aller au passage",
+    "goToPlaceholder": "p. ex. John 15 ou Rom 8:1-17",
+    "go": "Aller",
+    "book": "Livre",
+    "oldTestament": "Ancien Testament",
+    "newTestament": "Nouveau Testament",
+    "chapter": "Chapitre",
+    "previousChapter": "Chapitre précédent",
+    "nextChapter": "Chapitre suivant"
+  },
+  "reader": {
+    "opening": "Ouverture de {{passage}}…",
+    "showing": "affichage de {{passage}}",
+    "noText": "{{name}} ne contient pas de texte pour {{passage}}.",
+    "verseButton": "Verset {{verse}}. Afficher les outils du verset",
+    "verseButtonWithState": "Verset {{verse}}, {{states}}. Afficher les outils du verset",
+    "stateSeparator": ", ",
+    "state": {
+      "note": "avec une note",
+      "bookmarked": "avec un signet",
+      "highlighted": "surligné"
+    }
+  },
+  "verseTools": {
+    "toolsFor": "Outils pour le verset {{verse}}",
+    "addNote": "Ajouter une note",
+    "highlight": "Surligner",
+    "bookmark": "Signet",
+    "noteOn": "Note sur le verset {{verse}}",
+    "saveNote": "Enregistrer la note",
+    "notesOn": "Notes sur le verset {{verse}}",
+    "editNote": "Modifier la note",
+    "on": "Sur {{passage}}"
+  },
+  "search": {
+    "title": "Recherche",
+    "backToReading": "Retour à la lecture",
+    "queryLabel": "Mots ou « expression exacte »",
+    "submit": "Rechercher",
+    "onlyNamed": "Uniquement {{name}}",
+    "onlyCurrent": "Uniquement cette traduction",
+    "book": "Livre",
+    "allBooks": "Tous les livres",
+    "searching": "Recherche…",
+    "noResults": "Aucun verset trouvé.",
+    "found_one": "{{count}} verset trouvé.",
+    "found_many": "{{count}} versets trouvés.",
+    "found_other": "{{count}} versets trouvés.",
+    "foundTruncated_one": "{{count}}+ verset trouvé — affichage des {{limit}} premiers.",
+    "foundTruncated_many": "{{count}}+ versets trouvés — affichage des {{limit}} premiers.",
+    "foundTruncated_other": "{{count}}+ versets trouvés — affichage des {{limit}} premiers.",
+    "results": "Résultats de la recherche",
+    "failed": "La recherche n’a pas pu aboutir."
+  },
+  "addBible": {
+    "title": {
+      "choose": "Ajouter une Bible",
+      "checking": "Vérification de la Bible…",
+      "review": "Nouvelle Bible",
+      "done": "Bible ajoutée"
+    },
+    "checking": "Lecture et vérification de chaque livre, chapitre et verset. Cela peut prendre quelques secondes.",
+    "done_one": "<strong>{{name}}</strong> est prête à être lue, avec {{count}} livre et {{verses}} versets.",
+    "done_many": "<strong>{{name}}</strong> est prête à être lue, avec {{count}} livres et {{verses}} versets.",
+    "done_other": "<strong>{{name}}</strong> est prête à être lue, avec {{count}} livres et {{verses}} versets.",
+    "readNow": "La lire maintenant",
+    "included": "Fournie avec Abiding Word",
+    "addNamed": "Ajouter {{name}}",
+    "ownTitle": "Une Bible qui vous appartient",
+    "ownBody": "Choisissez une Bible au format USFM : un fichier .zip téléchargé, ou ses fichiers .usfm. Abiding Word conserve sa propre copie et ne modifie jamais votre fichier.",
+    "chooseFiles": "Choisir les fichiers de la Bible…",
+    "field": {
+      "name": "Nom",
+      "shortName": "Nom court",
+      "shortNameHint": "p. ex. WEB",
+      "language": "Langue"
+    },
+    "found": "Ce qui a été trouvé",
+    "booksDetected_one": "{{count}} livre détecté",
+    "booksDetected_many": "{{count}} livres détectés",
+    "booksDetected_other": "{{count}} livres détectés",
+    "chaptersDetected_one": "{{number}} chapitre détecté",
+    "chaptersDetected_many": "{{number}} chapitres détectés",
+    "chaptersDetected_other": "{{number}} chapitres détectés",
+    "versesDetected_one": "{{number}} verset détecté",
+    "versesDetected_many": "{{number}} versets détectés",
+    "versesDetected_other": "{{number}} versets détectés",
+    "licence": "Licence : {{licence}}",
+    "books": "Livres",
+    "bookStatus": {
+      "ok": "Tout semble correct",
+      "warning": "À vérifier",
+      "error": "Problème"
+    },
+    "problems_one": "{{count}} problème doit être corrigé avant de pouvoir ajouter cette Bible",
+    "problems_many": "{{count}} problèmes doivent être corrigés avant de pouvoir ajouter cette Bible",
+    "problems_other": "{{count}} problèmes doivent être corrigés avant de pouvoir ajouter cette Bible",
+    "warnings_one": "{{count}} avertissement — à vérifier",
+    "warnings_many": "{{count}} avertissements — à vérifier",
+    "warnings_other": "{{count}} avertissements — à vérifier",
+    "notes_one": "{{count}} remarque",
+    "notes_many": "{{count}} remarques",
+    "notes_other": "{{count}} remarques",
+    "skipped_one": "{{count}} fichier a été laissé de côté, car il ne correspond à aucun des 66 livres (par exemple une introduction ou un glossaire).",
+    "skipped_many": "{{count}} fichiers ont été laissés de côté, car ils ne correspondent à aucun des 66 livres (par exemple une introduction ou un glossaire).",
+    "skipped_other": "{{count}} fichiers ont été laissés de côté, car ils ne correspondent à aucun des 66 livres (par exemple une introduction ou un glossaire).",
+    "adding": "Ajout…",
+    "add": "Ajouter cette Bible"
+  },
+  "bibles": {
+    "empty": "Aucune Bible n’a encore été ajoutée.",
+    "installed": "Bibles installées",
+    "addBible": "Ajouter une Bible…",
+    "source": {
+      "bundled": "Fournie avec Abiding Word",
+      "imported": "Importée depuis votre fichier"
+    },
+    "status": {
+      "ready": "Prête",
+      "notStructured": "Pas encore structurée"
+    },
+    "details": "Détails",
+    "hideDetails": "Masquer les détails",
+    "removeNamed": "Retirer {{name}}",
+    "removeEllipsis": "Retirer…",
+    "field": {
+      "contents": "Contenu",
+      "publisher": "Éditeur",
+      "licence": "Licence",
+      "notice": "Mention",
+      "from": "Provenance",
+      "added": "Ajoutée le"
+    },
+    "contents_one": "{{count}} livre, {{verses}} versets",
+    "contents_many": "{{count}} livres, {{verses}} versets",
+    "contents_other": "{{count}} livres, {{verses}} versets",
+    "confirmRemove": "Retirer <strong>{{name}}</strong> ? Son texte sera supprimé d’Abiding Word. Vos études, liens vers des passages et notes sont conservés.",
+    "confirmRemoveManaged": "Retirer <strong>{{name}}</strong> ? Son texte sera supprimé d’Abiding Word, ainsi que la copie du fichier conservée par Abiding Word (votre fichier d’origine n’est pas touché). Vos études, liens vers des passages et notes sont conservés.",
+    "keep": "La conserver"
+  }
+}

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { PanelLeft, PanelRight, Search, Settings } from "lucide-react";
 import { BrandLockup } from "@/design-system/BrandLockup";
 import { useScripture } from "@/features/scripture/ScriptureContext";
@@ -19,12 +20,6 @@ interface AppBarProps {
   onSearchLibrary: (query: string) => void;
 }
 
-const SEARCH_LABELS: Record<"scripture" | "studies" | "library", string> = {
-  scripture: "Search Scripture",
-  studies: "Search studies",
-  library: "Search the library",
-};
-
 const iconButton =
   "inline-flex size-10 items-center justify-center rounded-aw text-text-strong hover:bg-bg-secondary " +
   "aria-pressed:bg-bg-secondary disabled:opacity-50";
@@ -32,6 +27,7 @@ const iconButton =
 type Scope = "scripture" | "studies" | "library";
 
 export function AppBar(props: AppBarProps) {
+  const { t } = useTranslation();
   const inWorkspace = props.view === "workspace";
   const { translation, runSearch } = useScripture();
   const [query, setQuery] = useState("");
@@ -58,7 +54,7 @@ export function AppBar(props: AppBarProps) {
 
       <div className="ml-auto flex items-center gap-1">
         <form role="search" onSubmit={submit} className="mr-2 hidden items-center gap-1 md:flex">
-          <label htmlFor="app-search-scope" className="sr-only">Search in</label>
+          <label htmlFor="app-search-scope" className="sr-only">{t("app.search.scopeLabel")}</label>
           <select
             id="app-search-scope"
             value={scope}
@@ -66,12 +62,12 @@ export function AppBar(props: AppBarProps) {
             disabled={!scopeEnabled}
             className="h-10 rounded-aw border border-border bg-bg-secondary px-2 text-[0.9375rem] text-text-strong"
           >
-            <option value="scripture">Scripture</option>
-            <option value="studies">Studies</option>
-            <option value="library">Library</option>
+            <option value="scripture">{t("app.search.scope.scripture")}</option>
+            <option value="studies">{t("app.search.scope.studies")}</option>
+            <option value="library">{t("app.search.scope.library")}</option>
           </select>
           <span className="relative flex items-center">
-            <label htmlFor="app-search" className="sr-only">{SEARCH_LABELS[scope]}</label>
+            <label htmlFor="app-search" className="sr-only">{t(`app.search.label.${scope}`)}</label>
             <Search className="pointer-events-none absolute left-3 size-4 text-text-muted" aria-hidden="true" />
             <input
               id="app-search"
@@ -80,13 +76,9 @@ export function AppBar(props: AppBarProps) {
               onChange={(e) => setQuery(e.target.value)}
               disabled={!canSearch}
               placeholder={
-                scope === "studies"
-                  ? "Search your studies"
-                  : scope === "library"
-                    ? "Search your library"
-                    : translation
-                      ? "Search Scripture"
-                      : "Add a Bible first"
+                scope === "scripture" && !translation
+                  ? t("app.search.placeholder.noBible")
+                  : t(`app.search.placeholder.${scope}`)
               }
               className="h-10 w-60 rounded-aw border border-border bg-bg-secondary pl-9 pr-3 text-[0.9375rem] text-text placeholder:text-text-muted disabled:cursor-not-allowed disabled:border-border-subtle"
             />
@@ -96,8 +88,8 @@ export function AppBar(props: AppBarProps) {
           type="button"
           className={iconButton}
           aria-pressed={props.scriptureOpen}
-          aria-label="Show Scripture pane"
-          title="Show Scripture pane"
+          aria-label={t("app.toolbar.showScripture")}
+          title={t("app.toolbar.showScripture")}
           disabled={!inWorkspace}
           onClick={props.onToggleScripture}
         >
@@ -107,8 +99,8 @@ export function AppBar(props: AppBarProps) {
           type="button"
           className={iconButton}
           aria-pressed={props.sourcesOpen}
-          aria-label="Show Sources pane"
-          title="Show Sources pane"
+          aria-label={t("app.toolbar.showSources")}
+          title={t("app.toolbar.showSources")}
           disabled={!inWorkspace}
           onClick={props.onToggleSources}
         >
@@ -118,8 +110,8 @@ export function AppBar(props: AppBarProps) {
           type="button"
           className={iconButton}
           aria-pressed={props.view === "settings"}
-          aria-label="Settings"
-          title="Settings"
+          aria-label={t("app.toolbar.settings")}
+          title={t("app.toolbar.settings")}
           onClick={props.onOpenSettings}
         >
           <Settings className="size-5" aria-hidden="true" />

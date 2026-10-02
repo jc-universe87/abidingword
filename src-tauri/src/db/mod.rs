@@ -29,7 +29,7 @@ use std::time::Duration;
 
 use rusqlite::Connection;
 
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 
 pub struct Database {
     conn: Mutex<Connection>,
@@ -121,8 +121,9 @@ pub(crate) fn check_same_members(
     a.sort();
     b.sort();
     if a != b {
-        return Err(AppError::InvalidInput(format!(
-            "The {what} have changed since this page was shown. Please try again."
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "changedMeanwhile",
+            format!("The {what} have changed since this page was shown. Please try again."),
         )));
     }
     Ok(())

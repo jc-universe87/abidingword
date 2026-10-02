@@ -1,0 +1,44 @@
+{
+  "startup": {
+    "opening": "Opening your workspace…",
+    "couldNotStart": "Abiding Word could not start.",
+    "logFiles": "Log files:",
+    "windowFailed": "Something unexpected went wrong in the window. Please close Abiding Word and open it again. Your saved work is safe."
+  },
+  "skipToStudy": "Skip to study",
+  "search": {
+    "scopeLabel": "Search in",
+    "scope": {
+      "scripture": "Scripture",
+      "studies": "Studies",
+      "library": "Library"
+    },
+    "label": {
+      "scripture": "Search Scripture",
+      "studies": "Search studies",
+      "library": "Search the library"
+    },
+    "placeholder": {
+      "scripture": "Search Scripture",
+      "studies": "Search your studies",
+      "library": "Search your library",
+      "noBible": "Add a Bible first"
+    }
+  },
+  "toolbar": {
+    "showScripture": "Show Scripture pane",
+    "showSources": "Show Sources pane",
+    "settings": "Settings"
+  },
+  "panes": {
+    "name": {
+      "scripture": "Scripture",
+      "study": "Study",
+      "sources": "Sources"
+    },
+    "arrange": "Arrange {{pane}} pane",
+    "moveLeft": "Move {{pane}} pane left",
+    "moveRight": "Move {{pane}} pane right",
+    "resize": "Resize {{pane}} pane"
+  }
+}

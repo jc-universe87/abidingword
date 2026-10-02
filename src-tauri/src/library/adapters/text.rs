@@ -5,7 +5,7 @@ use super::{
     paragraphs, split_long, ExtractionStatus, FoundMetadata, ImportedDocument, NewSegment,
     SourceImportAdapter,
 };
-use crate::error::{AppError, AppResult};
+use crate::error::{AppError, AppResult, UserMessage};
 
 pub struct TextImporter;
 
@@ -49,9 +49,13 @@ impl SourceImportAdapter for TextImporter {
 pub(crate) fn decode_utf8(bytes: &[u8], file_name: &str) -> AppResult<String> {
     let bytes = bytes.strip_prefix(b"\xEF\xBB\xBF").unwrap_or(bytes);
     String::from_utf8(bytes.to_vec()).map_err(|_| {
-        AppError::Import(format!(
-            "“{file_name}” is not saved as UTF-8 text, so it could not be read."
-        ))
+        AppError::Import(
+            UserMessage::new(
+                "library.notUtf8",
+                format!("“{file_name}” is not saved as UTF-8 text, so it could not be read."),
+            )
+            .with("fileName", file_name),
+        )
     })
 }
 

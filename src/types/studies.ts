@@ -122,7 +122,13 @@ export interface StudySearchHit {
   studyTitle: string;
   projectId: string;
   kind: "study" | "section" | "block" | "finding";
+  /** English description from the core; the interface uses the fields below. */
   location: string;
+  /** Block hits: the section's key and title. */
+  sectionKey: string | null;
+  sectionTitle: string | null;
+  /** Finding hits: the finding's type. */
+  findingType: FindingType | null;
   /** Matches are wrapped in U+0002 … U+0003. */
   snippet: string;
 }

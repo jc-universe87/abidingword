@@ -27,9 +27,13 @@ macro_rules! text_enum {
             pub fn parse(value: &str) -> Result<Self, AppError> {
                 match value {
                     $($text => Ok($name::$variant),)+
-                    other => Err(AppError::InvalidInput(format!(
-                        concat!("“{}” is not a valid ", $what, "."), other
-                    ))),
+                    other => Err(AppError::InvalidInput(
+                        crate::error::UserMessage::new(
+                            "invalidChoice",
+                            format!(concat!("“{}” is not a valid ", $what, "."), other),
+                        )
+                        .with("value", other),
+                    )),
                 }
             }
         }
@@ -281,9 +285,15 @@ pub struct StudySearchHit {
     pub project_id: String,
     /// "study", "section", "block" or "finding".
     pub kind: String,
-    /// Where it matched, in plain words: "Title", "Section: Context",
-    /// "Observations", "Finding: Question".
+    /// Where it matched, in English: "Title or purpose", "Section title",
+    /// the section's title, "Finding: Question". The interface builds its
+    /// own wording from the fields below (docs/i18n.md).
     pub location: String,
+    /// Block hits: the section's key (built-in sections) and title.
+    pub section_key: Option<String>,
+    pub section_title: Option<String>,
+    /// Finding hits: the finding's type, e.g. "question".
+    pub finding_type: Option<String>,
     /// Matching text with matches wrapped in U+0002 … U+0003.
     pub snippet: String,
 }

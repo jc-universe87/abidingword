@@ -19,7 +19,13 @@ macro_rules! text_enum {
             pub fn parse(value: &str) -> Result<Self, crate::error::AppError> {
                 match value {
                     $($text => Ok($name::$variant),)+
-                    other => Err(crate::error::AppError::InvalidInput(format!(concat!("“{}” is not a valid ", $what, "."), other))),
+                    other => Err(crate::error::AppError::InvalidInput(
+                        crate::error::UserMessage::new(
+                            "invalidChoice",
+                            format!(concat!("“{}” is not a valid ", $what, "."), other),
+                        )
+                        .with("value", other),
+                    )),
                 }
             }
         }
@@ -212,6 +218,8 @@ pub struct SourceImportPreview {
     pub extraction_status: &'static str,
     /// Why it cannot be added (e.g. a scanned PDF), in plain words.
     pub problem: Option<String>,
+    /// Message code for `problem` (docs/i18n.md).
+    pub problem_code: Option<String>,
     /// The same file is already in the library.
     pub duplicate_of: Option<DuplicateOf>,
     pub can_import: bool,
