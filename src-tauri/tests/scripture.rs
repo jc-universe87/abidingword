@@ -395,6 +395,7 @@ fn removing_a_bible_keeps_studies_passages_and_notes() {
                 kind: "note".into(),
                 content: Some("No condemnation".into()),
                 translation_id: None,
+                ..Default::default()
             },
         )?;
         let wording = annotations::create(
@@ -404,6 +405,7 @@ fn removing_a_bible_keeps_studies_passages_and_notes() {
                 kind: "note".into(),
                 content: Some("This translation says vine".into()),
                 translation_id: Some(a.id.clone()),
+                ..Default::default()
             },
         )?;
 
@@ -450,6 +452,7 @@ fn annotations_attach_to_canonical_passages() {
                 kind: "note".into(),
                 content: Some("First".into()),
                 translation_id: None,
+                ..Default::default()
             },
         )?;
         let highlight = annotations::create(
@@ -459,6 +462,7 @@ fn annotations_attach_to_canonical_passages() {
                 kind: "highlight".into(),
                 content: None,
                 translation_id: None,
+                ..Default::default()
             },
         )?;
         let again = annotations::create(
@@ -468,6 +472,7 @@ fn annotations_attach_to_canonical_passages() {
                 kind: "highlight".into(),
                 content: None,
                 translation_id: None,
+                ..Default::default()
             },
         )?;
         assert_eq!(highlight.id, again.id, "no duplicate highlights");
@@ -478,6 +483,7 @@ fn annotations_attach_to_canonical_passages() {
                 kind: "bookmark".into(),
                 content: None,
                 translation_id: None,
+                ..Default::default()
             },
         )?;
 
@@ -493,7 +499,8 @@ fn annotations_attach_to_canonical_passages() {
             conn,
             &UpdateAnnotation {
                 id: note.id.clone(),
-                content: "Revised".into(),
+                content: Some("Revised".into()),
+                ..Default::default()
             },
         )?;
         assert_eq!((updated.content.as_str(), updated.revision), ("Revised", 2));
@@ -507,6 +514,7 @@ fn annotations_attach_to_canonical_passages() {
                 kind: "sticker".into(),
                 content: None,
                 translation_id: None,
+                ..Default::default()
             }
         )
         .is_err());
@@ -518,6 +526,7 @@ fn annotations_attach_to_canonical_passages() {
                     kind: "note".into(),
                     content: None,
                     translation_id: None,
+                    ..Default::default()
                 }
             ),
             Err(AppError::InvalidReference(_))
@@ -551,6 +560,7 @@ fn annotations_and_study_passages_survive_a_restart() {
                     kind: "note".into(),
                     content: Some("Ask".into()),
                     translation_id: None,
+                    ..Default::default()
                 },
             )?;
             Ok((study, note.id))

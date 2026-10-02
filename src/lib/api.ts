@@ -23,7 +23,9 @@ import type {
   Workspace,
 } from "@/types/domain";
 import type {
+  AnchorInput,
   Annotation,
+  AnnotationAnchor,
   BibleTranslation,
   BookInfo,
   BundledBibleInfo,
@@ -38,6 +40,7 @@ import type {
   SearchResults,
   SearchScripture,
   StudyPassage,
+  UpdateAnnotation,
 } from "@/types/scripture";
 import type {
   CreateFinding,
@@ -142,10 +145,13 @@ export interface Api {
   bibleImportCancel(previewId: string): Promise<void>;
   bibleRemove(id: string): Promise<void>;
 
-  annotationList(reference: string): Promise<Annotation[]>;
+  /** With a translation, phrase anchors report whether its wording matches. */
+  annotationList(reference: string, translationId?: string): Promise<Annotation[]>;
   annotationCreate(input: CreateAnnotation): Promise<Annotation>;
-  annotationUpdate(input: { id: string; content: string }): Promise<Annotation>;
+  annotationUpdate(input: UpdateAnnotation): Promise<Annotation>;
   annotationDelete(id: string): Promise<void>;
+  /** Checks a phrase selection against the stored text without saving it. */
+  annotationAnchorCheck(input: AnchorInput): Promise<AnnotationAnchor>;
 
   studyPassageList(studyId: string): Promise<StudyPassage[]>;
   studyPassageAdd(input: { studyId: string; reference: string; role?: PassageRole }): Promise<StudyPassage>;
@@ -286,10 +292,11 @@ export const tauriApi: Api = {
   bibleImportCancel: (previewId) => call("bible_import_cancel", { previewId }),
   bibleRemove: (id) => call("bible_remove", { id }),
 
-  annotationList: (reference) => call("annotation_list", { reference }),
+  annotationList: (reference, translationId) => call("annotation_list", { reference, translationId }),
   annotationCreate: (input) => call("annotation_create", { input }),
   annotationUpdate: (input) => call("annotation_update", { input }),
   annotationDelete: (id) => call("annotation_delete", { id }),
+  annotationAnchorCheck: (input) => call("annotation_anchor_check", { input }),
 
   studyPassageList: (studyId) => call("study_passage_list", { studyId }),
   studyPassageAdd: (input) => call("study_passage_add", { input }),

@@ -161,15 +161,49 @@ export interface CommitImport {
 
 export type AnnotationKind = "note" | "highlight" | "bookmark";
 
+/** Visual names only; no meaning is attached to a colour. */
+export const HIGHLIGHT_COLORS = ["amber", "green", "blue", "rose", "grey"] as const;
+export type HighlightColor = (typeof HIGHLIGHT_COLORS)[number];
+
+/** One end of a phrase anchor: a canonical verse and a UTF-16 offset into its text. */
+export interface AnchorEnd {
+  verse: string;
+  offset: number;
+}
+
+/** A phrase highlight's or phrase note's tie to exact wording. */
+export interface AnnotationAnchor {
+  start: AnchorEnd;
+  /** Exclusive. */
+  end: AnchorEnd;
+  quote: string;
+  /** Short name of the translation it was marked in (a snapshot). */
+  translationShortName: string;
+  /** True when the translation asked about has exactly this wording. */
+  shown: boolean;
+}
+
 export interface Annotation {
   id: string;
   reference: ScriptureRef;
   translationId: string | null;
   kind: AnnotationKind;
   content: string;
+  /** Highlights only. */
+  color: HighlightColor | null;
+  /** Phrase highlights and phrase notes only. */
+  anchor: AnnotationAnchor | null;
   createdAt: string;
   updatedAt: string;
   revision: number;
+}
+
+/** A phrase selection in one translation, checked by the core. */
+export interface AnchorInput {
+  translationId: string;
+  start: AnchorEnd;
+  end: AnchorEnd;
+  quote: string;
 }
 
 export interface CreateAnnotation {
@@ -177,6 +211,14 @@ export interface CreateAnnotation {
   kind: AnnotationKind;
   content?: string;
   translationId?: string;
+  color?: HighlightColor;
+  anchor?: AnchorInput;
+}
+
+export interface UpdateAnnotation {
+  id: string;
+  content?: string;
+  color?: HighlightColor;
 }
 
 export interface StudyPassage {

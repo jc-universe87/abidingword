@@ -4,6 +4,7 @@
 //! source document. Everything here is keyed by canonical references that
 //! do not depend on any translation; see docs/scripture-v0.2.md.
 
+pub mod annotation_data;
 pub mod bundled;
 pub mod canon;
 pub mod import;
@@ -184,12 +185,51 @@ pub struct Annotation {
     pub translation_id: Option<String>,
     pub kind: String,
     pub content: String,
+    /// Highlights only; a highlight without a stored colour is the default.
+    pub color: Option<String>,
+    /// Phrase highlights and phrase notes only.
+    pub anchor: Option<AnchorView>,
     pub created_at: String,
     pub updated_at: String,
     pub revision: i64,
 }
 
+/// One end of a phrase anchor: a canonical verse and a UTF-16 offset into
+/// its text.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct AnchorEnd {
+    /// Canonical single verse, e.g. `JHN.15.4`.
+    pub verse: String,
+    pub offset: u32,
+}
+
+/// A phrase anchor as the interface sees it.
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct AnchorView {
+    pub start: AnchorEnd,
+    pub end: AnchorEnd,
+    pub quote: String,
+    /// Short name of the translation it was marked in (a snapshot).
+    pub translation_short_name: String,
+    /// True when the translation asked about has exactly this wording, so
+    /// the phrase can be drawn. False when no translation was given.
+    pub shown: bool,
+}
+
+/// A phrase selection in one translation, to be checked by the core.
 #[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AnchorInput {
+    pub translation_id: String,
+    pub start: AnchorEnd,
+    pub end: AnchorEnd,
+    /// The words the interface saw selected; must equal the core's rebuild.
+    pub quote: String,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateAnnotation {
     pub reference: String,
@@ -198,13 +238,25 @@ pub struct CreateAnnotation {
     pub content: Option<String>,
     #[serde(default)]
     pub translation_id: Option<String>,
+    /// Highlights only; the default colour when left out.
+    #[serde(default)]
+    pub color: Option<String>,
+    /// Phrase highlights and phrase notes; `reference` must then be the
+    /// verse range the anchor covers.
+    #[serde(default)]
+    pub anchor: Option<AnchorInput>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+/// Fields left out are unchanged.
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateAnnotation {
     pub id: String,
-    pub content: String,
+    #[serde(default)]
+    pub content: Option<String>,
+    /// Highlights only.
+    #[serde(default)]
+    pub color: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]

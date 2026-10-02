@@ -109,6 +109,7 @@ pub fn run() {
             commands::annotations::annotation_create,
             commands::annotations::annotation_update,
             commands::annotations::annotation_delete,
+            commands::annotations::annotation_anchor_check,
             commands::study_passages::study_passage_list,
             commands::study_passages::study_passage_add,
             commands::study_passages::study_passage_remove,

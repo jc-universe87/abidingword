@@ -18,7 +18,9 @@ import type {
   Workspace,
 } from "@/types/domain";
 import type {
+  AnchorInput,
   Annotation,
+  AnnotationAnchor,
   BibleTranslation,
   ImportPreview,
   ScriptureRef,
@@ -303,6 +305,51 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     if (!item) throw new ApiError("notFound", `This ${entity} could not be found. It may have been deleted.`);
     return item;
   };
+  // Phrase anchors, as the core builds them: the selected part of each
+  // covered verse joined with one space; drawn only where the covered
+  // verses' text is identical (the core compares hashes).
+  const anchorTexts = new Map<string, string[]>();
+  const coveredVerses = (translationId: string, start: string, end: string) => {
+    const [book, chapter, from] = start.split(".");
+    const [endBook, endChapter, to] = end.split(".");
+    if (book !== endBook || chapter !== endChapter) {
+      throw new ApiError("invalidInput", "A marked phrase must stay within one chapter.");
+    }
+    const verses = state.text.get(translationId)?.get(`${book}|${chapter}`) ?? [];
+    return { book, chapter, from: Number(from), to: Number(to), verses: verses.filter((v) => v.verse >= Number(from) && v.verse <= Number(to)) };
+  };
+  const resolveAnchor = (input: AnchorInput) => {
+    const bible = state.bibles.find((b) => b.id === input.translationId);
+    if (!bible) throw new ApiError("notFound", "This Bible could not be found. It may have been deleted.");
+    const { book, chapter, from, to, verses } = coveredVerses(input.translationId, input.start.verse, input.end.verse);
+    const mismatch = new ApiError("invalidInput", "The selected words do not match the text of this translation.");
+    if (verses[0]?.verse !== from || verses[verses.length - 1]?.verse !== to) throw mismatch;
+    const parts = verses.map((v) => {
+      const a = v.verse === from ? input.start.offset : 0;
+      const b = v.verse === to ? input.end.offset : v.text.length;
+      if (a > b || b > v.text.length) throw mismatch;
+      return v.text.slice(a, b);
+    });
+    const quote = parts.filter(Boolean).join(" ");
+    if (quote !== input.quote || !quote.trim()) throw mismatch;
+    const anchor: AnnotationAnchor = {
+      start: input.start,
+      end: input.end,
+      quote,
+      translationShortName: bible.shortName,
+      shown: true,
+    };
+    const reference = from === to ? `${book}.${chapter}.${from}` : `${book}.${chapter}.${from}-${book}.${chapter}.${to}`;
+    return { anchor, reference, texts: verses.map((v) => v.text) };
+  };
+  const wordingMatches = (annotationId: string, translationId: string | undefined) => {
+    const annotation = state.annotations.find((a) => a.id === annotationId);
+    const saved = anchorTexts.get(annotationId);
+    if (!translationId || !annotation?.anchor || !saved) return false;
+    const { verses } = coveredVerses(translationId, annotation.anchor.start.verse, annotation.anchor.end.verse);
+    return verses.length === saved.length && verses.every((v, i) => v.text === saved[i]);
+  };
+
   const withCount = (p: Project): Project => ({
     ...p,
     studyCount: state.studies.filter((s) => s.projectId === p.id).length,
@@ -752,38 +799,63 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       for (const a of state.annotations) if (a.translationId === bibleId) a.translationId = null;
     },
 
-    annotationList: async (reference) => {
+    annotationList: async (reference, translationId) => {
       const range = refFromCanonical(reference, bookByCode);
-      return range ? state.annotations.filter((a) => overlaps(a.reference, range)) : [];
+      if (!range) return [];
+      return state.annotations
+        .filter((a) => overlaps(a.reference, range))
+        .map((a) => (a.anchor ? { ...a, anchor: { ...a.anchor, shown: wordingMatches(a.id, translationId) } } : a));
     },
     annotationCreate: async (input) => {
       const reference = refFromCanonical(input.reference, bookByCode);
       if (!reference) throw new ApiError("invalidReference", "Invalid reference.");
-      const existing = state.annotations.find((a) => a.kind === input.kind && input.kind !== "note" && a.reference.canonical === input.reference);
-      if (existing) return existing;
+      if (input.color && input.kind !== "highlight") throw new ApiError("invalidInput", "Only highlights have a colour.");
+      const color = input.kind === "highlight" ? (input.color ?? "amber") : null;
+      const resolved = input.anchor ? resolveAnchor(input.anchor) : null;
+      if (resolved && resolved.reference !== input.reference) {
+        throw new ApiError("invalidInput", "The selected words are not in this passage.");
+      }
+      const existing = state.annotations.find(
+        (a) =>
+          a.kind === input.kind &&
+          input.kind !== "note" &&
+          a.reference.canonical === input.reference &&
+          JSON.stringify(a.anchor && [a.anchor.start, a.anchor.end]) ===
+            JSON.stringify(resolved && [resolved.anchor.start, resolved.anchor.end]),
+      );
+      if (existing) {
+        if (color) existing.color = color;
+        return { ...existing };
+      }
       const t = now();
       const annotation: Annotation = {
         id: id(),
         reference,
-        translationId: input.translationId ?? null,
+        translationId: input.anchor?.translationId ?? input.translationId ?? null,
         kind: input.kind,
         content: input.content ?? "",
+        color,
+        anchor: resolved?.anchor ?? null,
         createdAt: t,
         updatedAt: t,
         revision: 1,
       };
+      if (resolved) anchorTexts.set(annotation.id, resolved.texts);
       state.annotations.push(annotation);
       return annotation;
     },
-    annotationUpdate: async ({ id: annotationId, content }) => {
+    annotationUpdate: async ({ id: annotationId, content, color }) => {
       const annotation = find(state.annotations, annotationId, "note");
-      annotation.content = content;
+      if (color && annotation.kind !== "highlight") throw new ApiError("invalidInput", "Only highlights have a colour.");
+      if (content !== undefined) annotation.content = content;
+      if (color) annotation.color = color;
       annotation.revision += 1;
       return { ...annotation };
     },
     annotationDelete: async (annotationId) => {
       state.annotations = state.annotations.filter((a) => a.id !== annotationId);
     },
+    annotationAnchorCheck: async (input) => resolveAnchor(input).anchor,
 
     studyPassageList: async (studyId) =>
       state.passages
