@@ -8,9 +8,13 @@ import { anchorFromSelection, type SelectionAnchor } from "@/lib/selectionAnchor
 import type { HighlightColor } from "@/types/scripture";
 import { HighlightColors } from "./HighlightColors";
 
-const button =
-  "inline-flex min-h-9 items-center gap-1.5 rounded-aw border border-border bg-bg px-3 font-ui text-[0.875rem] " +
-  "text-text-strong hover:bg-bg-secondary";
+// Actions are deliberately larger and stronger than the quiet verse tools:
+// when words are selected the reader should see at once that a choice is
+// waiting. "primary" is the filled brand button; the other is outlined.
+const action =
+  "inline-flex min-h-11 items-center gap-2 rounded-aw px-4 font-ui text-[1rem] font-semibold ";
+const primary = action + "bg-primary text-on-primary hover:bg-primary-hover";
+const outlined = action + "border-2 border-text-strong bg-bg text-text-strong hover:bg-bg-secondary";
 
 type Step = { kind: "actions" } | { kind: "color" } | { kind: "note"; text: string };
 
@@ -103,20 +107,27 @@ export function SelectionToolbar({ root, translationId, onSaved }: Props) {
       onMouseDown={(e) => {
         if (!(e.target instanceof HTMLTextAreaElement)) e.preventDefault();
       }}
-      className="sticky bottom-2 z-10 flex flex-col gap-2 rounded-aw border border-border bg-surface p-3 font-ui text-[0.9375rem] shadow-md"
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && step.kind !== "actions") cancel();
+      }}
+      // A raised panel with a brass rule on top: clearly an active state, not a footer.
+      className="sticky bottom-2 z-10 flex flex-col gap-3 rounded-aw border border-t-[4px] border-border border-t-accent bg-bg-secondary px-4 py-3.5 font-ui text-[0.9375rem] shadow-[0_-6px_20px_rgba(0,0,0,0.22)]"
     >
-      <p className="m-0 text-[0.8125rem] text-text-muted">{t("scripture.selection.selectedWords")}</p>
-      <q className="reading m-0 line-clamp-3 break-words text-[1rem] text-text-strong" data-testid="selection-quote">
+      <p className="m-0 text-[0.875rem] font-semibold text-text-strong">{t("scripture.selection.selectedWords")}</p>
+      <q
+        className="reading m-0 line-clamp-3 break-words border-l-[3px] border-accent bg-bg px-3 py-1.5 text-[1.0625rem] text-text-strong [quotes:none]"
+        data-testid="selection-quote"
+      >
         {anchor.quote}
       </q>
 
       {step.kind === "actions" && (
-        <div className="flex flex-wrap gap-2">
-          <button type="button" className={button} onClick={() => setStep({ kind: "note", text: "" })}>
-            <StickyNote className="size-4" aria-hidden="true" /> {t("scripture.verseTools.addNote")}
+        <div className="flex flex-wrap gap-3">
+          <button type="button" className={outlined} onClick={() => setStep({ kind: "note", text: "" })}>
+            <StickyNote className="size-5" aria-hidden="true" /> {t("scripture.verseTools.addNote")}
           </button>
-          <button type="button" className={button} onClick={() => setStep({ kind: "color" })}>
-            <Highlighter className="size-4" aria-hidden="true" /> {t("scripture.verseTools.highlight")}
+          <button type="button" className={primary} onClick={() => setStep({ kind: "color" })}>
+            <Highlighter className="size-5" aria-hidden="true" /> {t("scripture.verseTools.highlight")}
           </button>
         </div>
       )}
@@ -124,7 +135,7 @@ export function SelectionToolbar({ root, translationId, onSaved }: Props) {
       {step.kind === "color" && (
         <div className="flex flex-wrap items-center gap-3">
           <HighlightColors onPick={(color) => !busy && save({ kind: "highlight", color })} />
-          <button type="button" className={button} onClick={cancel}>
+          <button type="button" className={outlined} onClick={cancel}>
             {t("common.cancel")}
           </button>
         </div>
@@ -139,19 +150,19 @@ export function SelectionToolbar({ root, translationId, onSaved }: Props) {
               rows={3}
               value={step.text}
               onChange={(e) => setStep({ kind: "note", text: e.target.value })}
-              className="reading rounded-aw border border-border bg-bg px-3 py-2 text-[1rem]"
+              className="reading rounded-aw border-2 border-border bg-bg px-3 py-2 text-[1rem]"
             />
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-3">
             <button
               type="button"
               disabled={busy || !step.text.trim()}
               onClick={() => save({ kind: "note", content: step.text.trim() })}
-              className="min-h-9 rounded-aw bg-primary px-4 font-medium text-on-primary hover:bg-primary-hover disabled:opacity-50"
+              className={`${primary} disabled:opacity-50`}
             >
               {t("scripture.verseTools.saveNote")}
             </button>
-            <button type="button" onClick={cancel} className="min-h-9 rounded-aw border border-border px-4 hover:bg-bg-secondary">
+            <button type="button" onClick={cancel} className={outlined}>
               {t("common.cancel")}
             </button>
           </div>

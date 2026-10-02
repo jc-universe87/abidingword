@@ -167,6 +167,22 @@ describe("selection toolbar", () => {
     expect(document.getSelection()!.isCollapsed).toBe(true);
   });
 
+  it("can be used from the keyboard, and Escape leaves a started step", async () => {
+    const { api } = withBible();
+    const { user } = await renderApp(api);
+    await reading();
+    await select(["JHN.15.1", 8], ["JHN.15.1", 13]);
+    const bar = await toolbar();
+    const addNote = within(bar).getByRole("button", { name: "Add note" });
+    addNote.focus();
+    await user.keyboard("{Enter}");
+    const field = within(await toolbar()).getByLabelText("Note on the selected words");
+    expect(field).toHaveFocus();
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(queryToolbar()).toBeNull());
+    expect(api.state.annotations).toHaveLength(0);
+  });
+
   it("keeps start and end offsets for a selection across a verse boundary", async () => {
     const { api } = withBible();
     const { user } = await renderApp(api);
