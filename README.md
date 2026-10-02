@@ -189,9 +189,18 @@ development machine.
   builds that branch. Download the artifact from the finished run's page.
   Windows SmartScreen warns about these unsigned installers ("More info →
   Run anyway"). Artifacts are for testing; annotated tags mark releases.
-- **Platform testing.** CI does not replace trying the real app. The
-  Windows laptop is the main place for native interface testing; the
-  Chromebook (Linux, WebKitGTK) for Linux-specific acceptance checks.
+- **Platform testing.** CI does not replace trying the real app.
+  **Windows desktop is the primary visual and manual acceptance
+  platform**, and normal test builds reach it through the signed
+  test-update channel below. The **Chromebook (Linux, WebKitGTK) is a
+  secondary compatibility check** at selected checkpoints (text selection
+  and other WebKitGTK-specific behaviour, Linux packaging); it is not needed
+  for every interface iteration. Linux builds and CI stay supported.
+- **Windows test updates.** An explicitly published, signed test build can
+  be offered to an installed test build of Abiding Word (Settings →
+  Updates, plus a notice after startup). Nothing is published by a push.
+  See [`docs/updates.md`](docs/updates.md) for the channel, the one-time
+  key setup and the version scheme.
 
 On the Windows laptop, either install the `Abiding-Word-Windows-x64`
 artifact, or keep a development clone (one time: clone, install the
