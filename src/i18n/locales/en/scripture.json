@@ -158,5 +158,41 @@
     "toolbarLabel": "Actions for the selected words",
     "selectedWords": "Selected words",
     "noteOnWords": "Note on the selected words"
+  },
+  "marks": {
+    "viewLabel": "Scripture view",
+    "bible": "Bible",
+    "marks": "Marks",
+    "title": "Marks",
+    "kindLabel": "Show",
+    "kind": {
+      "all": "All",
+      "note": "Notes",
+      "highlight": "Highlights",
+      "bookmark": "Bookmarks"
+    },
+    "book": "Book",
+    "allBooks": "All books",
+    "color": "Colour",
+    "anyColor": "Any colour",
+    "search": "Search your notes",
+    "searchPlaceholder": "Search your notes…",
+    "count_one": "{{count}} mark",
+    "count_other": "{{count}} marks",
+    "loading": "Loading your marks…",
+    "loadMore": "Load more",
+    "empty": {
+      "none": "No marks yet.",
+      "noneBody": "Highlights, notes and bookmarks you add while reading will appear here.",
+      "noMatch": "Nothing here matches. Try another book or colour.",
+      "noSearch": "No notes match your search."
+    },
+    "result": {
+      "note": "Note",
+      "highlight": "Highlight",
+      "bookmark": "Bookmark",
+      "wholeVerse": "Whole verse",
+      "show": "Show in the Bible"
+    }
   }
 }

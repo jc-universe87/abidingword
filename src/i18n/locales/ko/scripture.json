@@ -146,5 +146,40 @@
     "toolbarLabel": "선택한 말씀에 대한 작업",
     "selectedWords": "선택한 말씀",
     "noteOnWords": "선택한 말씀에 대한 메모"
+  },
+  "marks": {
+    "viewLabel": "성경 보기",
+    "bible": "성경",
+    "marks": "표시",
+    "title": "표시",
+    "kindLabel": "보기",
+    "kind": {
+      "all": "전체",
+      "note": "메모",
+      "highlight": "형광펜",
+      "bookmark": "책갈피"
+    },
+    "book": "책",
+    "allBooks": "모든 책",
+    "color": "색",
+    "anyColor": "모든 색",
+    "search": "메모 검색",
+    "searchPlaceholder": "메모 검색…",
+    "count_other": "표시 {{count}}개",
+    "loading": "표시를 불러오는 중…",
+    "loadMore": "더 보기",
+    "empty": {
+      "none": "아직 표시가 없습니다.",
+      "noneBody": "읽으면서 추가한 형광펜, 메모, 책갈피가 여기에 나타납니다.",
+      "noMatch": "일치하는 항목이 없습니다. 다른 책이나 색을 선택해 보세요.",
+      "noSearch": "검색과 일치하는 메모가 없습니다."
+    },
+    "result": {
+      "note": "메모",
+      "highlight": "형광펜",
+      "bookmark": "책갈피",
+      "wholeVerse": "구절 전체",
+      "show": "성경에서 보기"
+    }
   }
 }

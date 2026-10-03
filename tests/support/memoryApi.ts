@@ -825,6 +825,22 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         .filter((a) => overlaps(a.reference, range))
         .map((a) => (a.anchor ? { ...a, anchor: { ...a.anchor, shown: wordingMatches(a.id, translationId) } } : a));
     },
+    annotationMarksList: async (query) => {
+      const key = (r: ScriptureRef) => (bookByCode.get(r.book)?.ordinal ?? 0) * 1_000_000 + r.startChapter * 1000 + (r.startVerse ?? 0);
+      const needle = query.query?.trim().toLowerCase();
+      const wanted = needle ? "note" : query.kind;
+      const matching = state.annotations
+        .filter((a) => (!wanted || a.kind === wanted) && (!query.book || a.reference.book === query.book))
+        .filter((a) => !query.color || (a.kind === "highlight" && a.color === query.color))
+        .filter((a) => !needle || a.content.toLowerCase().includes(needle))
+        .sort((a, b) => key(a.reference) - key(b.reference) || a.createdAt.localeCompare(b.createdAt));
+      const offset = query.offset ?? 0;
+      const limit = Math.min(Math.max(query.limit ?? 30, 1), 100);
+      const marks = matching
+        .slice(offset, offset + limit)
+        .map((a) => (a.anchor ? { ...a, anchor: { ...a.anchor, shown: wordingMatches(a.id, query.translationId) } } : a));
+      return { marks, offset, hasMore: matching.length > offset + limit };
+    },
     annotationCreate: async (input) => {
       const reference = refFromCanonical(input.reference, bookByCode);
       if (!reference) throw new ApiError("invalidReference", "Invalid reference.");

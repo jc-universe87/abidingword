@@ -170,5 +170,42 @@
     "toolbarLabel": "Actions pour les mots sélectionnés",
     "selectedWords": "Mots sélectionnés",
     "noteOnWords": "Note sur les mots sélectionnés"
+  },
+  "marks": {
+    "viewLabel": "Affichage des Écritures",
+    "bible": "Bible",
+    "marks": "Marques",
+    "title": "Marques",
+    "kindLabel": "Afficher",
+    "kind": {
+      "all": "Toutes",
+      "note": "Notes",
+      "highlight": "Surlignages",
+      "bookmark": "Signets"
+    },
+    "book": "Livre",
+    "allBooks": "Tous les livres",
+    "color": "Couleur",
+    "anyColor": "Toutes les couleurs",
+    "search": "Rechercher dans vos notes",
+    "searchPlaceholder": "Rechercher dans vos notes…",
+    "count_one": "{{count}} marque",
+    "count_many": "{{count}} de marques",
+    "count_other": "{{count}} marques",
+    "loading": "Chargement de vos marques…",
+    "loadMore": "Afficher plus",
+    "empty": {
+      "none": "Aucune marque pour l’instant.",
+      "noneBody": "Les surlignages, notes et signets ajoutés pendant la lecture apparaîtront ici.",
+      "noMatch": "Rien ne correspond. Essayez un autre livre ou une autre couleur.",
+      "noSearch": "Aucune note ne correspond à votre recherche."
+    },
+    "result": {
+      "note": "Note",
+      "highlight": "Surlignage",
+      "bookmark": "Signet",
+      "wholeVerse": "Verset entier",
+      "show": "Afficher dans la Bible"
+    }
   }
 }

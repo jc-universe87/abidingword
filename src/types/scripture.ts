@@ -231,3 +231,23 @@ export interface StudyPassage {
   role: "primary" | "related";
   createdAt: string;
 }
+
+/** What the Marks view asks for. All of it optional; nothing set means every mark in Scripture order. */
+export interface MarksQuery {
+  kind?: AnnotationKind;
+  /** A canonical book code, e.g. `JHN`. */
+  book?: string;
+  color?: HighlightColor;
+  /** Words to look for in note text. */
+  query?: string;
+  /** The translation shown, so phrase marks can say whether they fit it. */
+  translationId?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface MarksPage {
+  marks: Annotation[];
+  offset: number;
+  hasMore: boolean;
+}

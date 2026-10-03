@@ -34,6 +34,8 @@ import type {
   ChapterText,
   CommitImport,
   CreateAnnotation,
+  MarksPage,
+  MarksQuery,
   DetectedReference,
   ImportPreview,
   ImportRequest,
@@ -157,6 +159,8 @@ export interface Api {
 
   /** With a translation, phrase anchors report whether its wording matches. */
   annotationList(reference: string, translationId?: string): Promise<Annotation[]>;
+  /** A page of the user's marks in Scripture order, for the Marks view. */
+  annotationMarksList(query: MarksQuery): Promise<MarksPage>;
   annotationCreate(input: CreateAnnotation): Promise<Annotation>;
   annotationUpdate(input: UpdateAnnotation): Promise<Annotation>;
   annotationDelete(id: string): Promise<void>;
@@ -310,6 +314,7 @@ export const tauriApi: Api = {
   bibleRemove: (id) => call("bible_remove", { id }),
 
   annotationList: (reference, translationId) => call("annotation_list", { reference, translationId }),
+  annotationMarksList: (query) => call("annotation_marks_list", { query }),
   annotationCreate: (input) => call("annotation_create", { input }),
   annotationUpdate: (input) => call("annotation_update", { input }),
   annotationDelete: (id) => call("annotation_delete", { id }),

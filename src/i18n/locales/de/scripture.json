@@ -158,5 +158,41 @@
     "toolbarLabel": "Aktionen für die ausgewählten Wörter",
     "selectedWords": "Ausgewählte Wörter",
     "noteOnWords": "Notiz zu den ausgewählten Wörtern"
+  },
+  "marks": {
+    "viewLabel": "Ansicht der Schrift",
+    "bible": "Bibel",
+    "marks": "Markierungen",
+    "title": "Markierungen",
+    "kindLabel": "Anzeigen",
+    "kind": {
+      "all": "Alle",
+      "note": "Notizen",
+      "highlight": "Hervorhebungen",
+      "bookmark": "Lesezeichen"
+    },
+    "book": "Buch",
+    "allBooks": "Alle Bücher",
+    "color": "Farbe",
+    "anyColor": "Jede Farbe",
+    "search": "Notizen durchsuchen",
+    "searchPlaceholder": "Notizen durchsuchen …",
+    "count_one": "{{count}} Markierung",
+    "count_other": "{{count}} Markierungen",
+    "loading": "Markierungen werden geladen …",
+    "loadMore": "Mehr laden",
+    "empty": {
+      "none": "Noch keine Markierungen.",
+      "noneBody": "Hervorhebungen, Notizen und Lesezeichen, die beim Lesen entstehen, erscheinen hier.",
+      "noMatch": "Dazu gibt es nichts. Versuche ein anderes Buch oder eine andere Farbe.",
+      "noSearch": "Keine Notiz passt zur Suche."
+    },
+    "result": {
+      "note": "Notiz",
+      "highlight": "Hervorhebung",
+      "bookmark": "Lesezeichen",
+      "wholeVerse": "Ganzer Vers",
+      "show": "In der Bibel anzeigen"
+    }
   }
 }
