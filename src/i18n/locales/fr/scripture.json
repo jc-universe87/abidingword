@@ -28,6 +28,13 @@
       "bookmarked": "avec un signet",
       "highlighted": "surligné",
       "highlightedWords": "avec des mots surlignés"
+    },
+    "marker": {
+      "label": "Verset {{verse}} : {{states}}. Afficher les annotations",
+      "notes_one": "{{count}} note",
+      "notes_other": "{{count}} notes",
+      "notes_many": "{{count}} notes",
+      "highlightedColor": "surligné en {{color}}"
     }
   },
   "verseTools": {

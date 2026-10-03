@@ -28,6 +28,12 @@
       "bookmarked": "bookmarked",
       "highlighted": "highlighted",
       "highlightedWords": "has highlighted words"
+    },
+    "marker": {
+      "label": "Verse {{verse}}: {{states}}. Show annotations",
+      "notes_one": "{{count}} note",
+      "notes_other": "{{count}} notes",
+      "highlightedColor": "highlighted {{color}}"
     }
   },
   "verseTools": {

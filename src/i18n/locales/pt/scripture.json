@@ -28,6 +28,13 @@
       "bookmarked": "com marcador",
       "highlighted": "com destaque",
       "highlightedWords": "com palavras destacadas"
+    },
+    "marker": {
+      "label": "Versículo {{verse}}: {{states}}. Mostrar as anotações",
+      "notes_one": "{{count}} nota",
+      "notes_other": "{{count}} notas",
+      "notes_many": "{{count}} notas",
+      "highlightedColor": "destacado em {{color}}"
     }
   },
   "verseTools": {

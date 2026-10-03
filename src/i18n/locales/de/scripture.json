@@ -28,6 +28,12 @@
       "bookmarked": "mit Lesezeichen",
       "highlighted": "markiert",
       "highlightedWords": "mit markierten Wörtern"
+    },
+    "marker": {
+      "label": "Vers {{verse}}: {{states}}. Markierungen und Notizen anzeigen",
+      "notes_one": "{{count}} Notiz",
+      "notes_other": "{{count}} Notizen",
+      "highlightedColor": "{{color}} markiert"
     }
   },
   "verseTools": {

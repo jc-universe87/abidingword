@@ -28,6 +28,11 @@
       "bookmarked": "책갈피 있음",
       "highlighted": "강조됨",
       "highlightedWords": "강조된 말씀 있음"
+    },
+    "marker": {
+      "label": "{{verse}}절: {{states}}. 메모와 강조 보기",
+      "notes_other": "메모 {{count}}개",
+      "highlightedColor": "{{color}} 강조"
     }
   },
   "verseTools": {

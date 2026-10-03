@@ -1,6 +1,6 @@
-import { Fragment, useCallback, useEffect, useRef } from "react";
+import { Fragment, useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Bookmark, StickyNote } from "lucide-react";
+import { Bookmark, Highlighter, Layers, StickyNote } from "lucide-react";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
 import { useApi } from "@/lib/ApiContext";
@@ -11,7 +11,8 @@ import type { Annotation, BibleTranslation, ScriptureRef, VerseText } from "@/ty
 import { SelectionToolbar } from "./SelectionToolbar";
 import { SELECTION_SPIKE, SelectionSpike } from "./SelectionSpike";
 import { useScripture } from "./ScriptureContext";
-import { VerseTools } from "./VerseTools";
+import { AnnotationInspector } from "./AnnotationInspector";
+import { usePaneLayout } from "./usePaneLayout";
 
 /** A whole chapter as a reference, for its label ("John 15", "Jude"). */
 function chapterOf(book: string, chapter: number): ScriptureRef {
@@ -38,6 +39,16 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
       ? selectedVerse.startVerse
       : null;
   const container = useRef<HTMLDivElement>(null);
+  const inspectorId = `${useId()}-annotations`;
+  // The one open annotation inspector: which verse, what opened it (focus goes
+  // back there), and where it was opened. It counts as closed once the chapter
+  // or translation on screen is no longer that one, so it is never stale.
+  const scope = `${translation.id}:${book}.${chapter}`;
+  const [opened, setOpened] = useState<{ verse: string; opener: HTMLElement | null; scope: string } | null>(null);
+  // Moving to another chapter or translation drops it for good (it must not
+  // come back if the reader returns to the same place).
+  if (opened && opened.scope !== scope) setOpened(null);
+  const inspector = opened && opened.scope === scope ? opened : null;
 
   // After navigating: show the marked passage if it is out of view,
   // otherwise return to the top so the navigation stays in sight.
@@ -48,6 +59,41 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
     if (first) first.scrollIntoView?.({ block: "nearest" });
     else container.current?.closest("[data-scroll-root]")?.scrollTo?.({ top: 0 });
   }, [loaded, navigationId]);
+
+  const layout = usePaneLayout(container, loaded);
+
+  const closeInspector = () => {
+    if (!inspector) return;
+    const { verse, opener } = inspector;
+    setOpened(null);
+    selectVerse(null);
+    // Back to what opened it; if that is gone (the last mark was removed), the verse number.
+    requestAnimationFrame(() => {
+      const target = opener?.isConnected ? opener : container.current?.querySelector<HTMLElement>(`[data-verse-button="${verse}"]`);
+      target?.focus();
+    });
+  };
+
+  // The panel sits at the foot of the reader; if it would cover the verse
+  // being worked on, scroll just enough to bring that verse clear above it.
+  const keepVerseVisible = (canonical: string) =>
+    requestAnimationFrame(() => {
+      const root = container.current?.closest<HTMLElement>("[data-scroll-root]");
+      const verseBox = container.current?.querySelector(`[data-verse-button="${canonical}"]`)?.closest("div");
+      const panel = document.getElementById(inspectorId);
+      if (!root || !verseBox || !panel) return;
+      const verseRect = verseBox.getBoundingClientRect();
+      if (verseRect.bottom > panel.getBoundingClientRect().top - 8) {
+        root.scrollBy?.({ top: verseRect.top - root.getBoundingClientRect().top - 12 });
+      }
+    });
+
+  const toggleInspector = (canonical: string, opener: HTMLElement) => {
+    if (inspector?.verse === canonical) return closeInspector();
+    setOpened({ verse: canonical, opener, scope });
+    selectVerse(canonical);
+    keepVerseVisible(canonical);
+  };
 
   if (text.error) return <Notice tone="error">{text.error.message}</Notice>;
   const chapterCount = bookByCode.get(book)?.chapterCount;
@@ -91,14 +137,29 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
               annotations={on(verse.verse)}
               current={!!selection && contains(selection, book, chapter, verse.verse)}
               selected={selected === verse.verse}
-              onSelect={() => selectVerse(selected === verse.verse ? null : verse.canonical)}
-              onChanged={notes.reload}
+              inspectorOpen={inspector?.verse === verse.canonical}
+              inspectorId={inspectorId}
+              onToggleInspector={(opener) => toggleInspector(verse.canonical, opener)}
             />
           ))}
         </div>
       )}
       {data.verses.length > 0 && (
-        <SelectionToolbar key={`${translation.id}:${book}.${chapter}`} root={container} translationId={translation.id} onSaved={notes.reload} />
+        <div className="sticky bottom-2 z-10 flex flex-col gap-2">
+          {inspector && (
+            <AnnotationInspector
+              key={inspector.verse}
+              id={inspectorId}
+              canonical={inspector.verse}
+              verse={Number(inspector.verse.split(".")[2])}
+              annotations={on(Number(inspector.verse.split(".")[2]))}
+              layout={layout}
+              onClose={closeInspector}
+              onChanged={notes.reload}
+            />
+          )}
+          <SelectionToolbar key={scope} root={container} translationId={translation.id} onSaved={notes.reload} />
+        </div>
       )}
       {SELECTION_SPIKE && data.verses.length > 0 && <SelectionSpike root={container} translationId={translation.id} />}
     </div>
@@ -110,11 +171,12 @@ interface VerseProps {
   annotations: Annotation[];
   current: boolean;
   selected: boolean;
-  onSelect: () => void;
-  onChanged: () => void;
+  inspectorOpen: boolean;
+  inspectorId: string;
+  onToggleInspector: (opener: HTMLElement) => void;
 }
 
-function Verse({ verse, annotations, current, selected, onSelect, onChanged }: VerseProps) {
+function Verse({ verse, annotations, current, selected, inspectorOpen, inspectorId, onToggleInspector }: VerseProps) {
   const { t } = useTranslation();
   const marks = verseMarks(verse.canonical, annotations);
   const verseColor = highlightPaint(marks.verseColors);
@@ -129,6 +191,24 @@ function Verse({ verse, annotations, current, selected, onSelect, onChanged }: V
     states.length > 0
       ? t("scripture.reader.verseButtonWithState", { verse: verse.verse, states: states.join(t("scripture.reader.stateSeparator")) })
       : t("scripture.reader.verseButton", { verse: verse.verse });
+
+  // One marker for the verse, whatever is on it. Its name says what is there
+  // (counts and colour included), never by icon or colour alone.
+  const phraseMarks = annotations.filter((a) => a.anchor && a.kind === "highlight");
+  const summary = [
+    noted.length > 0 ? t("scripture.reader.marker.notes", { count: noted.length }) : null,
+    bookmarked ? t("scripture.reader.state.bookmarked") : null,
+    marks.verseColors.length === 1
+      ? t("scripture.reader.marker.highlightedColor", { color: t(`scripture.colors.${marks.verseColors[0]!}`) })
+      : marks.verseColors.length > 1
+        ? t("scripture.reader.state.highlighted")
+        : null,
+    phraseMarks.length > 0 ? t("scripture.reader.state.highlightedWords") : null,
+  ].filter((state): state is string => state !== null);
+  const kinds = [noted.length > 0, bookmarked, marks.verseColors.length > 0 || phraseMarks.length > 0].filter(Boolean).length;
+  const MarkIcon = kinds > 1 ? Layers : noted.length > 0 ? StickyNote : bookmarked ? Bookmark : Highlighter;
+  const markerLabel = t("scripture.reader.marker.label", { verse: verse.verse, states: summary.join(t("scripture.reader.stateSeparator")) });
+
   const tone = selected ? "bg-selection" : verseColor ? VERSE_CLASS[verseColor] : "";
   const segments = phraseSegments(verse.canonical, verse.text.length, annotations);
   return (
@@ -140,10 +220,12 @@ function Verse({ verse, annotations, current, selected, onSelect, onChanged }: V
       <p className="m-0">
         <button
           type="button"
-          onClick={onSelect}
-          aria-pressed={selected}
+          data-verse-button={verse.canonical}
+          onClick={(e) => onToggleInspector(e.currentTarget)}
+          aria-expanded={inspectorOpen}
+          aria-controls={inspectorOpen ? inspectorId : undefined}
           aria-label={label}
-          className="mr-1.5 inline-flex min-w-6 select-none items-baseline justify-center rounded px-0.5 align-baseline font-ui text-[0.8125rem] font-semibold text-text-muted hover:text-text-strong"
+          className="-my-1.5 mr-1 inline-flex min-h-8 min-w-8 select-none items-center justify-center rounded px-1 align-baseline font-ui text-[0.8125rem] font-semibold text-text-muted hover:bg-bg-secondary hover:text-text-strong"
         >
           {verse.verse}
         </button>
@@ -168,20 +250,21 @@ function Verse({ verse, annotations, current, selected, onSelect, onChanged }: V
             );
           })}
         </span>
-        {(bookmarked || noted.length > 0) && (
-          <span data-verse-marker className="ml-1.5 inline-flex select-none align-middle text-accent" aria-hidden="true">
-            {noted.length > 0 ? <StickyNote className="size-3.5" /> : <Bookmark className="size-3.5" />}
-          </span>
+        {annotations.length > 0 && (
+          <button
+            type="button"
+            data-verse-marker
+            onClick={(e) => onToggleInspector(e.currentTarget)}
+            aria-expanded={inspectorOpen}
+            aria-controls={inspectorOpen ? inspectorId : undefined}
+            aria-label={markerLabel}
+            title={markerLabel}
+            className="-my-1.5 ml-1 inline-flex size-8 select-none items-center justify-center rounded align-middle text-accent hover:bg-bg-secondary"
+          >
+            <MarkIcon className="size-3.5" aria-hidden="true" />
+          </button>
         )}
       </p>
-      {selected && (
-        <VerseTools
-          canonical={verse.canonical}
-          verse={verse.verse}
-          annotations={annotations}
-          onChanged={onChanged}
-        />
-      )}
     </div>
   );
 }
