@@ -1,10 +1,10 @@
 # Abiding Word — Scripture Reading & Annotation v0.5
 
-> Status: **in progress** (Phases 1–2 done, selection spike verified on
-> ChromeOS/WebKitGTK; selection toolbar, colours, phrase and verse marks
-> implemented — overlapping highlights still awaiting a decision). This document records the approved
-> architecture and scope before the reader UI is built; sections marked
-> *planned* describe work not yet implemented.
+> Status: **in progress.** Implemented: typed annotation data, phrase
+> anchors, the selection toolbar, colours, phrase and verse marks, and the
+> overlapping-highlight rule below. The selection spike was verified on
+> ChromeOS/WebKitGTK. Sections marked *planned* describe work not yet
+> implemented (Marks view, popover, narrow-pane sheet, accessibility pass).
 
 Builds on [`scripture-v0.2.md`](scripture-v0.2.md) (canonical references,
 translations, the `annotations` table). The frozen
@@ -129,12 +129,12 @@ covered verses with identical hashes**. Consequences:
 - Verse highlight on exactly the same passage → the existing one is
   returned, recoloured to the requested colour (like going over a line
   again with another highlighter).
-- Phrase highlight with an identical anchor → the existing one, recoloured.
+- Phrase highlight on exactly the same words → the existing one, recoloured
+  (see "Overlapping highlights").
 - Bookmark on the same passage → the existing one.
 - Notes are never merged; a verse may have several.
 
-Overlapping highlights of different extents: see "Overlapping highlights"
-(planned).
+Phrase highlights that overlap or touch: see "Overlapping highlights".
 
 ## Commands
 
@@ -178,7 +178,7 @@ by `src/lib/selectionAnchor.ts`:
   surrogate pair;
 - verses touched only at an edge (nothing selected in them) are dropped.
 
-The Phase 2 spike shows this live (see "Phase 2 spike").
+The Phase 2 spike shows this live (see "Phase 2 spike"); the toolbar uses the same mapping.
 
 ## Selection toolbar, colours and rendering (implemented)
 
@@ -199,16 +199,62 @@ The Phase 2 spike shows this live (see "Phase 2 spike").
 - Colours are tokens (`--aw-hl-*`, light and dark), named in all languages;
   no colour carries a meaning.
 
-## Overlapping highlights (UNRESOLVED; not implemented)
+## Overlapping highlights (implemented)
 
-Proposal (not approved; the owner rejected a simple "latest wins"): a character range shows one highlight colour only; no stacked layers. When
-a new highlight overlaps existing ones in the same wording, the existing
-ones are resolved deterministically (trimmed, split or replaced) so the
-result looks like using a physical highlighter. If splitting proves
-disproportionately complicated, simpler alternatives are reported before
-that part is built. Until a rule is chosen the reader paints nothing where
-different colours meet (`highlightPaint`, the single place to change); all
-annotations remain stored and listed.
+Phrase highlights behave like a physical highlighter. **A new highlight owns
+exactly the words it covers**; highlights already on the same wording are
+made to fit around it. A stretch of text therefore shows one colour, with no
+stacked layers and no blended colours. This is decided in the core
+(`db/annotations.rs::highlight_phrase`, range arithmetic in
+`scripture/phrase_ranges.rs`) so every front end gets it; the reader only
+draws the result. There is no migration.
+
+**Same wording only.** An existing phrase highlight takes part only if it is
+*shown* in the translation the new one is made in, i.e. its stored verse
+hashes equal that translation's text. Identity is the hashes: not the
+translation name, not `translation_id` (provenance only), and not canonical
+overlap alone. WEB's "God saw everything" and a German "Und Gott sah alles"
+share a verse but are independent; two installs of identical text are one
+wording.
+
+**Positions.** A range is `(verse key, UTF-16 offset)` to `(verse key,
+offset)`, end exclusive. To compare ranges (including across verses) the
+chapter's stored verses are laid end to end and a position becomes a count
+of UTF-16 units, so the end of a verse and the start of the next are the
+same point, and highlights that meet there touch.
+
+**Rules.** In order, inside one transaction (all or nothing):
+
+1. *Same colour, overlapping or touching* → merged into one continuous
+   highlight. The new range grows over every such highlight, repeatedly
+   (a chain of them merges). The earliest of them is kept and extended (its
+   translation provenance becomes the wording it was extended in); the
+   others are soft-deleted.
+2. *Different colour* → cut against the final range:
+   - wholly covered → soft-deleted;
+   - overlapped at its start or end → trimmed (revision + 1);
+   - the new range lies inside it → **split**: the original keeps the part
+     before, a new highlight (same colour and provenance, original creation
+     time) takes the part after.
+   A remainder that holds only whitespace is dropped.
+3. *Exactly the same words*: same colour → nothing changes; another colour →
+   the existing highlight is recoloured in place (same id).
+4. If nothing was merged or recoloured, the new highlight is inserted.
+
+Every surviving piece gets a completely rebuilt anchor from the stored Bible
+text (`build_anchor`: validated offsets, rebuilt quote, hashes of the covered
+verses), never an old quote with new offsets. Recolouring a phrase highlight
+with `annotation_update` follows the same rules.
+
+**Never affected:** phrase notes (they may sit over anything and are never
+trimmed, split, merged or deleted); whole-verse highlights (a separate,
+translation-independent layer; a phrase highlight can sit on top of the
+tint); bookmarks. Soft-deleted rows are ignored.
+
+**Older data.** Highlights saved before this rule may still overlap with
+different colours. They stay readable and listed; the reader paints nothing
+for a stretch where different colours still meet (it never picks a winner),
+and the next highlight made over them is normalised by the core.
 
 ## Marks view (planned, Phase 6)
 
@@ -259,10 +305,10 @@ annotation stays where it is; the finding is a separate record.
 |---|---|---|
 | 0 | branch, this document, baseline | done |
 | 1 | typed annotation data, colours, anchors, validation and hashing, backward compatibility, Rust tests | done |
-| 2 | selection → offsets spike in the real reader; **checkpoint** | spike ready, awaiting ChromeOS verification |
-| 3 | verse-level palette, marker, popover, retire VerseTools | — |
-| 4 | selection toolbar, phrase highlight and note, translation switching, overlaps | — |
-| 5 | narrow-pane sheet, accessibility and focus | — |
+| 2 | selection → offsets spike in the real reader; **checkpoint** | done (verified on ChromeOS/WebKitGTK) |
+| 3 | selection toolbar, five colours, phrase highlight and note, verse highlight with colour, one marker per verse | done |
+| 4 | overlapping phrase highlights (physical-highlighter normalisation in the core) | done |
+| 5 | narrow-pane sheet, annotation popover, accessibility and focus | — |
 | 6 | Marks view, filters, note search, navigation | — |
 | 7 | documentation, tests, real-app acceptance, release preparation | — |
 
@@ -273,7 +319,7 @@ Off by default. Start the app with `VITE_SELECTION_SPIKE=1` (e.g.
 panel appears under the chapter. Selecting text shows the covered verses,
 the UTF-16 offsets, the rebuilt quote, and the core's verdict
 (`annotation_anchor_check` rebuilding the quote from the stored text).
-Nothing is saved. The panel is removed when Phase 4 replaces it.
+Nothing is saved. The panel stays behind the flag for diagnostics; the real toolbar needs no flag.
 
 ## Known limitations (so far)
 
