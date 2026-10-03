@@ -76,8 +76,10 @@ No OCR, AI or network access. Details:
 
 Since v0.4 (development): a PDF source can be read as extracted text
 (*Reading*) or inspected as the real document in the app (*Original*), and
-the full source reader keeps its Back button in a header that does not
-scroll away. See [`docs/formatted-source-viewer.md`](docs/formatted-source-viewer.md).
+the Sources pane has the same Reading | Original switch, so the PDF can be
+inspected without leaving Scripture and the Study; the full reader is an
+optional expansion that keeps the place, and its Back button stays in a header
+that does not scroll away. See [`docs/formatted-source-viewer.md`](docs/formatted-source-viewer.md).
 
 **Not yet, planned for later phases:** OCR and transcription, concordance
 and original-language tools, AI assistance, sync, integrations and MCP.

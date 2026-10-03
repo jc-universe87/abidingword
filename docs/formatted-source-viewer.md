@@ -42,14 +42,39 @@ annotations.
   the dark theme too). Controls: previous/next page, a page box with "of N",
   zoom in/out, **Fit width** (the default) and **Fit page**. Text can be
   selected and copied when the PDF has a text layer.
-- **Sources pane.** It stays a text reader. A PDF there has **Open
-  original**, which opens the full reader on Original; **Open full reader**
-  opens it on Reading.
+- **Sources pane.** The same **Reading | Original** switch is inside the
+  pane, so the actual PDF can be inspected with Scripture and the Study still
+  on screen. The pane is a column like the full reader: **Back to Sources**,
+  **Open full reader** and the switch sit in a header that never scrolls,
+  above the text (which scrolls in its own body) or the PDF (which has its own
+  toolbar and scroller). The PDF toolbar wraps in a narrow pane; the words
+  beside the Fit icons collapse to icons (names and tooltips stay) when the
+  pane is narrow, and the pages follow the pane's width when it is resized
+  (re-measured once the drag settles, so pages are not redrawn on every
+  frame; far-away pages are still not drawn). **Open full reader** is "expand
+  this", not a way into the PDF.
 - A source without an original view (EPUB, Markdown, text) shows no Reading |
   Original switch at all, and Original is never offered for something that
   cannot be shown.
 - If a PDF cannot be drawn, a plain translated notice appears and Reading
   stays available.
+
+## State: where the reader is
+
+The place is a small value, `ReaderPosition { mode: "reading" | "original",
+page: number | null }`, held by the shell for the session (no database
+column; reopening the app starts in Reading).
+
+- Each reader tells the shell where it is when it hands over: the pane at
+  **Open full reader**, the full reader at **Back**. The shell opens the next
+  reader there: Original page 151 in the pane is Original page 151 in the full
+  reader, and Back to the workspace continues the pane at the page the full
+  reader ended on, in the same view.
+- In Reading, the page is the marked passage's page if it is in view, else the
+  page at the top of the view; coming back, the text is opened where that page
+  begins.
+- Opening a *different* source (or the same one at a new citation) is a fresh
+  start in Reading: PDF state never carries over to another source.
 
 ## Physical pages
 
@@ -119,6 +144,50 @@ the renderer can be replaced.
   annotations, forms, OCR or editing.
 - Reading mode is not remembered between visits.
 
+## Future: navigating long books (not built)
+
+Long academic books and commentaries must eventually be navigable from their
+own table of contents, not only by scrolling pages.
+
+- **PDF:** the document outline (bookmarks); clickable internal links and
+  page/destination links; footnote and endnote links; back/forward
+  reading-location history; a contents drawer.
+- **EPUB:** the navigation document / table of contents; chapter navigation;
+  internal hyperlinks; footnote and endnote links; back/forward
+  reading-location history.
+
+None of this exists yet; the viewer shows pages only.
+
+## Bible documents and structured Bibles (principle only)
+
+A **Bible document** and a **structured Bible** are different things.
+
+A Bible PDF can already be a *document*: the original is kept, the PDF viewer
+shows it, and normalised text is extracted where extraction works. That does
+**not** make it a translation in the Bible selector. Extracted PDF text is
+never silently treated as structured Scripture.
+
+A structured Bible needs: reliable book boundaries, chapter boundaries and
+verse boundaries; canonical verse identities; verification; provenance; a
+versification system; handling of split and joined verses; and an honest
+account of uncertainty where extraction is imperfect.
+
+Future path (not built):
+
+```
+PDF Bible original
+        ↓
+normalised extraction
+        ↓
+detected candidate Bible structure
+        ↓
+user verification / correction
+        ↓
+structured Scripture
+        ↓
+versification-aware mapping
+```
+
 ## Future formats (not built)
 
 | Format | Later viewer |
@@ -144,3 +213,15 @@ file name.
    back to Reading lands near that page's text.
 4. In the dark theme the PDF page itself stays white.
 5. A Markdown source shows no Original.
+
+In the normal workspace (Scripture | Study | Sources):
+
+6. Open a PDF in Sources; Reading | Original is in the pane. Click Original:
+   the PDF appears inside Sources, Scripture and the Study stay visible.
+7. Scroll a few pages; make Sources narrower, then wider; the pages follow.
+8. Original → Reading lands near that page; back to Original keeps the page.
+9. Open full reader: same source, Original, same page. Back: the pane is at
+   that page again.
+10. Back to Sources, Open full reader and the Reading | Original switch stay
+    visible throughout; check the dark theme; a Markdown/TXT source shows no
+    Original.
