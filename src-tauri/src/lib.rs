@@ -120,6 +120,7 @@ pub fn run() {
             commands::bibles::bible_import_cancel,
             commands::bibles::bible_remove,
             commands::annotations::annotation_list,
+            commands::annotations::annotation_marks_list,
             commands::annotations::annotation_create,
             commands::annotations::annotation_update,
             commands::annotations::annotation_delete,

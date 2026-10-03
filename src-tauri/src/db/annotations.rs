@@ -18,8 +18,8 @@ use crate::scripture::canon;
 use crate::scripture::phrase_ranges::{absorb, remainders, Layout, Span};
 use crate::scripture::reference::{split_key, verse_key, Point, ScriptureRef};
 use crate::scripture::{
-    AnchorEnd, AnchorInput, AnchorView, Annotation, CreateAnnotation, UpdateAnnotation,
-    ANNOTATION_KINDS,
+    AnchorEnd, AnchorInput, AnchorView, Annotation, CreateAnnotation, MarksPage, MarksQuery,
+    UpdateAnnotation, ANNOTATION_KINDS,
 };
 
 const COLUMNS: &str =
@@ -235,6 +235,101 @@ pub fn list_for(
     rows.into_iter()
         .map(|raw| to_annotation(conn, raw, translation))
         .collect()
+}
+
+const MARKS_PAGE: i64 = 30;
+const MARKS_PAGE_MAX: i64 = 100;
+
+/// A page of the user's marks (notes, highlights, bookmarks), in canonical
+/// Scripture order (book, chapter, verse; then oldest first). Live marks
+/// only. Filters are simple and all optional: kind, book, highlight colour,
+/// and a words-in-the-note search. The search is case-insensitive for any
+/// script (Unicode lower-casing, not just ASCII) and is made while reading
+/// the ordered rows, stopping as soon as the page is full, so a page never
+/// costs more than the rows it has to pass; no index is needed for the
+/// number of marks a person makes. Phrase marks report whether they fit
+/// `translation_id`'s wording, exactly as the reader's own list does.
+pub fn marks(conn: &Connection, query: &MarksQuery) -> AppResult<MarksPage> {
+    let invalid = |what: &str, value: &str| {
+        AppError::InvalidInput(
+            UserMessage::new("invalidChoice", format!("“{value}” is not a valid {what}."))
+                .with("value", value),
+        )
+    };
+    let mut clauses = vec!["deleted_at IS NULL AND passage IS NOT NULL".to_string()];
+    let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    let needle = query
+        .query
+        .as_deref()
+        .map(|q| q.trim().to_lowercase())
+        .filter(|q| !q.is_empty());
+    // Only notes have words to search.
+    let kind = if needle.is_some() {
+        Some("note")
+    } else {
+        query.kind.as_deref()
+    };
+    if let Some(kind) = kind {
+        if !ANNOTATION_KINDS.contains(&kind) {
+            return Err(invalid("kind of mark", kind));
+        }
+        clauses.push("kind = ?".into());
+        values.push(kind.to_string().into());
+    }
+    if let Some(code) = query.book.as_deref() {
+        let book = canon::by_code(code).ok_or_else(|| invalid("book", code))?;
+        clauses.push("start_key BETWEEN ? AND ?".into());
+        values.push(verse_key(book.ordinal, 0, 0).into());
+        values.push((verse_key(book.ordinal, 0, 0) + 999_999).into());
+    }
+    if let Some(color) = query.color.as_deref() {
+        validate_color(color)?;
+        // A highlight without a stored colour is the default colour.
+        clauses.push(format!(
+            "kind = 'highlight' AND CASE WHEN json_valid(data) \
+             THEN COALESCE(json_extract(data, '$.color'), '{DEFAULT_HIGHLIGHT_COLOR}') \
+             ELSE '{DEFAULT_HIGHLIGHT_COLOR}' END = ?"
+        ));
+        values.push(color.to_string().into());
+    }
+    let limit = query.limit.unwrap_or(MARKS_PAGE).clamp(1, MARKS_PAGE_MAX) as usize;
+    let offset = query.offset.unwrap_or(0).max(0) as usize;
+
+    let mut stmt = conn.prepare(&format!(
+        "SELECT {COLUMNS} FROM annotations WHERE {}
+         ORDER BY start_key, end_key, created_at, rowid",
+        clauses.join(" AND ")
+    ))?;
+    let mut rows = stmt.query(rusqlite::params_from_iter(values))?;
+    let mut page = Vec::with_capacity(limit);
+    let mut skipped = 0usize;
+    let mut has_more = false;
+    while let Some(row) = rows.next()? {
+        let raw = from_row(row)?;
+        if let Some(needle) = &needle {
+            if !raw.content.to_lowercase().contains(needle.as_str()) {
+                continue;
+            }
+        }
+        if skipped < offset {
+            skipped += 1;
+        } else if page.len() == limit {
+            has_more = true;
+            break;
+        } else {
+            page.push(raw);
+        }
+    }
+    drop(rows);
+    let marks = page
+        .into_iter()
+        .map(|raw| to_annotation(conn, raw, query.translation_id.as_deref()))
+        .collect::<AppResult<Vec<_>>>()?;
+    Ok(MarksPage {
+        marks,
+        offset: offset as i64,
+        has_more,
+    })
 }
 
 fn get_raw(conn: &Connection, id: &str) -> AppResult<RawAnnotation> {

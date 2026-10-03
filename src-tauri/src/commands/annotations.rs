@@ -3,7 +3,9 @@ use tauri::State;
 use super::CommandResult;
 use crate::db::annotations;
 use crate::scripture::reference::ScriptureRef;
-use crate::scripture::{AnchorInput, AnchorView, Annotation, CreateAnnotation, UpdateAnnotation};
+use crate::scripture::{
+    AnchorInput, AnchorView, Annotation, CreateAnnotation, MarksPage, MarksQuery, UpdateAnnotation,
+};
 use crate::state::AppState;
 
 /// Annotations overlapping a passage (canonical reference). With a
@@ -16,6 +18,15 @@ pub fn annotation_list(
 ) -> CommandResult<Vec<Annotation>> {
     let reference = ScriptureRef::from_canonical(&reference)?;
     state.db(|conn| annotations::list_for(conn, &reference, translation_id.as_deref()))
+}
+
+/// A page of the user's marks in Scripture order, for the Marks view.
+#[tauri::command(async)]
+pub fn annotation_marks_list(
+    state: State<'_, AppState>,
+    query: MarksQuery,
+) -> CommandResult<MarksPage> {
+    state.db(|conn| annotations::marks(conn, &query))
 }
 
 /// Checks a phrase selection against the stored text without saving it.

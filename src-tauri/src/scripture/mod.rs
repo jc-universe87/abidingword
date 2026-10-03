@@ -195,6 +195,34 @@ pub struct Annotation {
     pub revision: i64,
 }
 
+/// What to show in the Marks view. Everything is optional: with nothing set,
+/// every mark in canonical order.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct MarksQuery {
+    /// "note", "highlight" or "bookmark"; all kinds when left out.
+    pub kind: Option<String>,
+    /// A canonical book code (e.g. `JHN`); all books when left out.
+    pub book: Option<String>,
+    /// One highlight colour (highlights only).
+    pub color: Option<String>,
+    /// Words to look for in note text (notes only, case-insensitive).
+    pub query: Option<String>,
+    /// The translation shown, so phrase marks can say whether they fit it.
+    pub translation_id: Option<String>,
+    pub limit: Option<i64>,
+    pub offset: Option<i64>,
+}
+
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct MarksPage {
+    pub marks: Vec<Annotation>,
+    pub offset: i64,
+    /// More marks follow this page.
+    pub has_more: bool,
+}
+
 /// One end of a phrase anchor: a canonical verse and a UTF-16 offset into
 /// its text.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
