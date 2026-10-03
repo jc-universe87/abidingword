@@ -88,14 +88,16 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       {error && <Notice tone="error">{error}</Notice>}
       {s && (
         <header className="flex flex-col gap-1 border-b border-border-subtle pb-4">
-          <Title
-            id={`${id}-title`}
-            ref={heading}
-            tabIndex={-1}
-            className={`m-0 font-display font-heading text-text-strong ${inPane ? "text-[1.375rem] leading-snug" : "text-[1.875rem]"}`}
-          >
-            {s.title}
-          </Title>
+          {inPane && (
+            <Title
+              id={`${id}-title`}
+              ref={heading}
+              tabIndex={-1}
+              className="m-0 font-display font-heading text-[1.375rem] leading-snug text-text-strong"
+            >
+              {s.title}
+            </Title>
+          )}
           {s.author && <p className="reading m-0">{s.author}</p>}
           <p className="m-0 text-[0.9375rem] text-text-muted">
             {[
@@ -158,13 +160,26 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     );
   }
 
+  // The full reader is a column: a header that never scrolls (Back stays
+  // reachable however far the text is scrolled) above the scrolling text.
   return (
-    <main aria-labelledby={`${id}-title`} className="min-h-0 flex-1 overflow-y-auto bg-bg">
-      <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-8">
-        <Button variant="quiet" className="self-start" onClick={onClose}>
+    <main aria-labelledby={`${id}-title`} className="flex min-h-0 flex-1 flex-col bg-bg">
+      <div data-testid="reader-header" className="flex shrink-0 items-center gap-3 border-b border-border bg-bg px-4 py-2">
+        <Button variant="quiet" className="shrink-0" onClick={onClose}>
           <ArrowLeft className="size-4" aria-hidden="true" /> {t("common.back")}
         </Button>
-        {body}
+        <h1
+          id={`${id}-title`}
+          ref={heading}
+          tabIndex={-1}
+          title={s?.title}
+          className="m-0 min-w-0 flex-1 truncate font-display text-[1.125rem] font-heading text-text-strong"
+        >
+          {s?.title}
+        </h1>
+      </div>
+      <div data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-6">{body}</div>
       </div>
     </main>
   );
