@@ -76,7 +76,7 @@ describe("Scripture pane", () => {
     await heading();
 
     await user.click(within(pane()).getByRole("button", { name: /^Verse 1\. Show verse tools/ }));
-    const tools = within(pane()).getByRole("group", { name: "Tools for verse 1" });
+    const tools = within(pane()).getByRole("region", { name: "Tools for verse 1" });
     await user.click(within(tools).getByRole("button", { name: "Add note" }));
     await user.type(within(tools).getByLabelText("Note on verse 1"), "Remain in the vine.");
     await user.click(within(tools).getByRole("button", { name: "Save note" }));

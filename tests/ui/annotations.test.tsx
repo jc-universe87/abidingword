@@ -261,7 +261,7 @@ describe("saved annotations in the reader", () => {
     expect(verseText("JHN.15.1").textContent).toBe("Fixture beta JHN 15:1 about the vine.");
 
     // The annotation is still listed for the verse, marked as not shown in this wording.
-    await user.click(within(pane()).getByRole("button", { name: /^Verse 1/ }));
+    await user.click(within(pane()).getByRole("button", { name: /^Verse 1[.,].*Show verse tools/ }));
     const list = within(pane()).getByRole("list", { name: "Highlighted words in verse 1" });
     expect(within(list).getByText("Not shown in this wording")).toBeInTheDocument();
 
@@ -313,7 +313,7 @@ describe("saved annotations in the reader", () => {
     const { user } = await renderApp(api);
     await reading();
     await user.click(within(pane()).getByRole("button", { name: /^Verse 2\. Show verse tools/ }));
-    const tools = within(pane()).getByRole("group", { name: "Tools for verse 2" });
+    const tools = within(pane()).getByRole("region", { name: "Tools for verse 2" });
     await user.click(within(tools).getByRole("button", { name: "Highlight" }));
     const picker = within(tools).getByRole("group", { name: "Highlight colour" });
     expect(within(picker).getAllByRole("button")).toHaveLength(5);
@@ -337,7 +337,7 @@ describe("saved annotations in the reader", () => {
     const { user } = await renderApp(api);
     await reading();
     await user.click(within(pane()).getByRole("button", { name: /^Verse 2\. Show verse tools/ }));
-    await user.click(within(within(pane()).getByRole("group", { name: "Tools for verse 2" })).getByRole("button", { name: "Bookmark" }));
+    await user.click(within(within(pane()).getByRole("region", { name: "Tools for verse 2" })).getByRole("button", { name: "Bookmark" }));
     await waitFor(() => expect(api.state.annotations).toHaveLength(1));
     expect(api.state.annotations[0]).toMatchObject({ kind: "bookmark", color: null, anchor: null });
     await waitFor(() => expect(pane().querySelectorAll("[data-verse-marker]")).toHaveLength(1));
