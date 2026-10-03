@@ -3,8 +3,8 @@
 > Status: **in progress.** Implemented: typed annotation data, phrase
 > anchors, the selection toolbar, colours, phrase and verse marks, and the
 > overlapping-highlight rule below. The selection spike was verified on
-> ChromeOS/WebKitGTK. Sections marked *planned* describe work not yet
-> implemented (the Marks view).
+> ChromeOS/WebKitGTK. The Marks view is implemented. Sections marked
+> *planned* describe work not yet implemented.
 
 Builds on [`scripture-v0.2.md`](scripture-v0.2.md) (canonical references,
 translations, the `annotations` table). The frozen
@@ -287,13 +287,58 @@ different colours. They stay readable and listed; the reader paints nothing
 for a stretch where different colours still meet (it never picks a winner),
 and the next highlight made over them is normalised by the core.
 
-## Marks view (planned, Phase 6)
+## Marks view (implemented, Phase 6)
 
-Inside the Scripture pane: Notes, Highlights, Bookmarks; filters by kind,
-book and colour; simple search of note text; selecting an entry navigates
-to the passage. A separate, paged query over the existing table — the
-reader keeps loading one chapter's annotations only. No full-text index
-unless measured performance requires one (that would be migration 0005).
+"I marked something earlier — show me." Marks is the second view of the
+**Scripture pane**, beside **Bible** (the default): one plain switch at the
+top of the pane, not a new page. It lists notes, highlights and bookmarks
+together as readable cards, in **Scripture order** (book, chapter, verse;
+then oldest first), so it reads like the annotations in a Bible rather than
+a notes app. There is no sort menu.
+
+- **Filters** (all simple, nothing to configure first): *All | Notes |
+  Highlights | Bookmarks*; a *Book* choice; and, **only while Highlights is
+  chosen**, a *Colour* choice (colours named in words). Choosing another kind
+  forgets the colour.
+- **Search** is a single box over **note text** (case-insensitive in every
+  script, not only ASCII). It is shown with *All* and *Notes* only, because
+  highlights and bookmarks have no words; a search always means notes. There
+  is no syntax.
+- **Cards** show the passage in the interface language's book name (never a
+  code), what it is (Note / Highlight / Bookmark), a note's words, a phrase's
+  quote (a phrase note shows the quote above its words), a highlight's colour
+  as text plus a swatch, "Whole verse" for a verse highlight, and **"Not shown
+  in this wording"** when a phrase mark does not fit the translation being
+  read. No ids, offsets, hashes, revisions or dates are shown.
+- **Navigation.** Choosing a card switches to Bible, goes to that passage and
+  brings the verse into view with the reader's own "showing …" marking. The
+  translation is **never** switched to reveal a phrase; if the wording differs
+  the verse is still shown and its mark stays reachable through the marker and
+  the inspector. Marks is a way back, not a second editor: editing, recolouring
+  and removing stay in the inspector, where the passage is.
+- **Coming back.** The Bible stays mounted under Marks, so switching back
+  restores the same passage, scroll position and open verse tools.
+- **Paging.** 30 marks at a time with **Load more** (the query accepts up to
+  100); the reader keeps loading one chapter's annotations only.
+- **Empty states** are short and warm (no marks yet; nothing matches; no
+  notes match the search).
+
+Backend: `annotation_marks_list` (`db::annotations::marks`), a dedicated paged
+query over the existing `annotations` table, live rows only, with optional
+kind, book (a verse-key range of the book), colour (the stored colour, a
+missing one being the default, tolerant of damaged data) and note text; phrase
+marks are checked against the translation shown exactly as the reader's own
+list does. Order is the verse key (book ordinal, chapter, verse) then
+`end_key`, `created_at` and row id. The note search reads the ordered rows and
+stops when the page is full, so it needs no index: measured on 10,000 notes,
+the worst case (a word that matches nothing, scanning every note) took about
+14 ms in a release build and the first page about 0.2 ms. **No migration and no
+full-text index** (that would have been migration 0005). If a person's marks
+ever grow far beyond that, FTS can be added later behind the same query.
+
+Limitations: no sorting choices, no tag or translation filters, no saved
+searches, no bulk actions; search covers note text only; a mark spanning more
+than one book is listed under the book it starts in.
 
 ## Accessibility (implemented)
 
@@ -342,7 +387,7 @@ annotation stays where it is; the finding is a separate record.
 | 3 | selection toolbar, five colours, phrase highlight and note, verse highlight with colour, one marker per verse | done |
 | 4 | overlapping phrase highlights (physical-highlighter normalisation in the core) | done |
 | 5 | annotation inspector (retires inline VerseTools), interactive marker, narrow-pane sheet, focus and accessibility | done |
-| 6 | Marks view, filters, note search, navigation | — |
+| 6 | Marks view, filters, note search, navigation | done |
 | 7 | documentation, tests, real-app acceptance, release preparation | — |
 
 ## Phase 2 spike
