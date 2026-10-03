@@ -19,16 +19,31 @@ export function useSourceContents(source: Source | null | undefined): ContentsIt
   useEffect(() => {
     if (!id || !kind) return;
     let active = true;
-    const read = kind === "pdf" ? engine.outline(api, id) : api.librarySourceContents(id);
-    read.then(
-      (items) => active && setFound({ id, items }),
-      (e) => {
-        void api.logError(`Contents could not be read: ${e instanceof Error ? e.message : String(e)}`).catch(() => undefined);
-        if (active) setFound({ id, items: [] });
-      },
-    );
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    // Whether a source has contents is a fact about the source, not about one
+    // read having worked: a read that fails (busy file access, a worker still
+    // starting) is tried again a couple of times before the reader settles for
+    // none, so a single hiccup never hides Contents for the whole visit.
+    const attempt = (n: number) => {
+      const read = kind === "pdf" ? engine.outline(api, id) : api.librarySourceContents(id);
+      read.then(
+        (items) => active && setFound({ id, items }),
+        (e) => {
+          if (!active) return;
+          const delay = RETRY_DELAYS_MS[n];
+          if (delay !== undefined) {
+            timer = setTimeout(() => attempt(n + 1), delay);
+            return;
+          }
+          void api.logError(`Contents could not be read: ${e instanceof Error ? e.message : String(e)}`).catch(() => undefined);
+          setFound({ id, items: [] });
+        },
+      );
+    };
+    attempt(0);
     return () => {
       active = false;
+      clearTimeout(timer);
     };
   }, [api, engine, id, kind]);
 
@@ -36,6 +51,9 @@ export function useSourceContents(source: Source | null | undefined): ContentsIt
 }
 
 const EMPTY: ContentsItem[] = [];
+
+/** Waits before the second and third try of a failed read. */
+const RETRY_DELAYS_MS = [300, 1000];
 
 /** The entry the reader is in: the last (deepest, in reading order) whose target is at or before `at`. */
 export function currentEntry(items: ContentsItem[], kind: "page" | "segment", at: number): string | null {

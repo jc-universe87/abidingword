@@ -17,6 +17,8 @@ export interface FakePdfEngine extends PdfEngine {
   outlineItems: ContentsItem[];
   /** Makes reading the outline fail. */
   failOutline: boolean;
+  /** Makes the next N outline reads fail, then lets them succeed (a transient failure). */
+  outlineFailures: number;
   /** Source ids whose outline was read. */
   outlineReads: string[];
 }
@@ -32,10 +34,11 @@ export function createFakePdfEngine({ pages = 5, size = { width: 600, height: 80
     failRender: false,
     outlineItems: outline,
     failOutline: false,
+    outlineFailures: 0,
     outlineReads: [],
     async outline(_api, sourceId) {
       engine.outlineReads.push(sourceId);
-      if (engine.failOutline) throw new Error("synthetic: the outline could not be read");
+      if (engine.failOutline || engine.outlineFailures-- > 0) throw new Error("synthetic: the outline could not be read");
       return engine.outlineItems;
     },
     async open(_api, sourceId) {

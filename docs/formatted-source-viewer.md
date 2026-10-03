@@ -175,6 +175,13 @@ or **Close contents** closes the panel and returns focus to the Contents
 button. Choosing an entry closes the panel and goes there. A heading that has
 no destination of its own is shown as plain text above its children.
 
+Contents belong to the source, not to the way it was opened: the same button
+is there from the library, a passage mention, a finding's citation or a search
+hit (opening at a cited place only chooses where to start; the whole source
+stays readable and reachable through Contents). A read of the contents that
+fails is tried again twice before the reader settles for none, and the reason is
+written to the log file ("Contents could not be read").
+
 **Nothing is generated.** A source without contents shows no Contents button.
 Contents are never inferred from fonts, headings or AI.
 
