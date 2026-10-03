@@ -151,11 +151,58 @@ export function PdfViewer({ sourceId, initialPage, onPageChange }: PdfViewerProp
     setPage(current);
   };
 
+  // Zooming keeps the document point at the centre of the view where it was.
+  const centre = useRef<{ x: number; y: number } | null>(null);
+  const changeZoom = (next: Zoom) => {
+    const el = scroller.current;
+    if (el && el.scrollWidth > 0 && el.scrollHeight > 0) {
+      centre.current = {
+        x: (el.scrollLeft + el.clientWidth / 2) / el.scrollWidth,
+        y: (el.scrollTop + el.clientHeight / 2) / el.scrollHeight,
+      };
+    }
+    setZoom(next);
+  };
+  useLayoutEffect(() => {
+    const el = scroller.current;
+    const kept = centre.current;
+    centre.current = null;
+    if (!el || !kept) return;
+    jumped.current = Date.now();
+    el.scrollLeft = Math.max(0, kept.x * el.scrollWidth - el.clientWidth / 2);
+    el.scrollTop = Math.max(0, kept.y * el.scrollHeight - el.clientHeight / 2);
+  }, [zoom]);
+
+  // Drag the page to move it, from anywhere but the words themselves, so
+  // selecting text keeps working exactly as before.
+  const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = scroller.current;
+    if (!el || e.button !== 0) return;
+    const target = e.target as HTMLElement;
+    if (target.closest(".textLayer > span, .textLayer > br, input, button, textarea")) return;
+    if (el.scrollWidth <= el.clientWidth && el.scrollHeight <= el.clientHeight) return;
+    e.preventDefault();
+    el.focus({ preventScroll: true });
+    const start = { x: e.clientX, y: e.clientY, left: el.scrollLeft, top: el.scrollTop };
+    el.dataset.panning = "true";
+    const move = (ev: MouseEvent) => {
+      el.scrollLeft = start.left - (ev.clientX - start.x);
+      el.scrollTop = start.top - (ev.clientY - start.y);
+    };
+    const stop = () => {
+      delete el.dataset.panning;
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", stop);
+    };
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", stop);
+  };
+
   const zoomBy = (direction: 1 | -1) => {
     const now = currentPercent;
     const next =
       direction === 1 ? ZOOM_STEPS.find((s) => s > now + 1) ?? ZOOM_STEPS[ZOOM_STEPS.length - 1]! : [...ZOOM_STEPS].reverse().find((s) => s < now - 1) ?? ZOOM_STEPS[0]!;
-    setZoom({ kind: "percent", value: next });
+    changeZoom({ kind: "percent", value: next });
   };
 
   const pages = useMemo(() => Array.from({ length: total }, (_, i) => i + 1), [total]);
@@ -218,10 +265,10 @@ export function PdfViewer({ sourceId, initialPage, onPageChange }: PdfViewerProp
           </Button>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="quiet" aria-pressed={zoom.kind === "fit-width"} title={t("library.original.fitWidth")} disabled={!total} onClick={() => setZoom({ kind: "fit-width" })}>
+          <Button variant="quiet" aria-pressed={zoom.kind === "fit-width"} title={t("library.original.fitWidth")} disabled={!total} onClick={() => changeZoom({ kind: "fit-width" })}>
             <MoveHorizontal className="size-4" aria-hidden="true" /> <span className="@max-md:sr-only">{t("library.original.fitWidth")}</span>
           </Button>
-          <Button variant="quiet" aria-pressed={zoom.kind === "fit-page"} title={t("library.original.fitPage")} disabled={!total} onClick={() => setZoom({ kind: "fit-page" })}>
+          <Button variant="quiet" aria-pressed={zoom.kind === "fit-page"} title={t("library.original.fitPage")} disabled={!total} onClick={() => changeZoom({ kind: "fit-page" })}>
             <Maximize2 className="size-4" aria-hidden="true" /> <span className="@max-md:sr-only">{t("library.original.fitPage")}</span>
           </Button>
         </div>
@@ -233,9 +280,14 @@ export function PdfViewer({ sourceId, initialPage, onPageChange }: PdfViewerProp
         aria-label={t("library.original.viewerLabel")}
         tabIndex={0}
         onScroll={onScroll}
-        className="relative min-h-0 flex-1 overflow-auto bg-bg-secondary"
+        onMouseDown={onMouseDown}
+        className="relative min-h-0 flex-1 overflow-auto bg-bg-secondary data-[panning=true]:cursor-grabbing data-[panning=true]:select-none"
       >
         {!doc && <p className="m-0 p-6 text-text-muted">{t("library.original.loading")}</p>}
+        {/* The canvas is at least as wide as the view and as wide as its widest
+            page: a small page is centred in it, a large one fills it and can be
+            scrolled across from its true left edge to its true right edge. */}
+        <div data-testid="pdf-canvas" className="flex w-max min-w-full flex-col items-center px-4">
         {doc &&
           pages.map((n) => (
             <PageView
@@ -248,6 +300,7 @@ export function PdfViewer({ sourceId, initialPage, onPageChange }: PdfViewerProp
               onFailed={fail}
             />
           ))}
+        </div>
       </div>
     </div>
   );
@@ -314,7 +367,7 @@ function PageView({ doc, n, size, scale, onSize, onFailed }: PageViewProps) {
       role="group"
       aria-label={t("library.original.pageLabel", { page: formatNumber(n) })}
       data-rendered={near || undefined}
-      className="relative mx-auto bg-white text-black shadow-md"
+      className="relative shrink-0 bg-white text-black shadow-md"
       style={{ width: size.width * scale, height: size.height * scale, marginTop: GAP, marginBottom: GAP }}
     >
       {near && <canvas ref={canvas} className="block" />}

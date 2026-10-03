@@ -1,4 +1,4 @@
-import { act, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import i18n from "@/i18n";
 import { createFakePdfEngine, installIntersectionObserver } from "../support/fakePdfEngine";
@@ -473,5 +473,148 @@ describe("the place is kept between the pane and the full reader", () => {
     expect(within(second).queryByTestId("pdf-viewer")).toBeNull();
     expect(await within(second).findByText("An opening paragraph about gardens.")).toBeInTheDocument();
     expect(engine.opened).toHaveLength(1); // only the first source's original was ever read
+  });
+});
+
+describe("moving across a zoomed page", () => {
+  const scroller = () =>
+    screen.getByTestId("pdf-canvas").parentElement as HTMLElement;
+
+  /** jsdom has no layout: give the scroller the measurements a real one would have. */
+  function measure(
+    el: HTMLElement,
+    m: {
+      scrollWidth: number;
+      scrollHeight: number;
+      clientWidth: number;
+      clientHeight: number;
+    },
+  ) {
+    for (const [key, value] of Object.entries(m))
+      Object.defineProperty(el, key, { configurable: true, get: () => value });
+  }
+
+  async function openOriginal() {
+    const { api, engine } = setup();
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    await openFromLibrary(user);
+    await user.click(
+      within(modes()!).getByRole("button", { name: "Original" }),
+    );
+    await screen.findByTestId("pdf-canvas");
+    await waitFor(() => expect(pageBox()).toHaveValue("1"));
+    await act(() => new Promise((r) => requestAnimationFrame(() => r(null)))); // the opening jump
+    return user;
+  }
+
+  it("lays pages on a canvas at least as wide as the view and its widest page, with no auto margins", async () => {
+    await openOriginal();
+    const canvas = screen.getByTestId("pdf-canvas");
+    expect(canvas).toHaveClass("min-w-full", "w-max", "items-center");
+    expect(scroller()).toHaveClass("overflow-auto");
+    for (const sheet of document.querySelectorAll("[data-page]")) {
+      expect(sheet).not.toHaveClass("mx-auto");
+      expect(sheet).toHaveClass("shrink-0"); // never squeezed to the view's width
+    }
+  });
+
+  it("keeps the same document point in the middle when zooming in and out", async () => {
+    const user = await openOriginal();
+    const el = scroller();
+    measure(el, {
+      scrollWidth: 2000,
+      scrollHeight: 8000,
+      clientWidth: 500,
+      clientHeight: 600,
+    });
+    el.scrollLeft = 750; // centre at 1000 of 2000
+    el.scrollTop = 3700; // centre at 4000 of 8000
+    const toolbar = screen.getByRole("toolbar", {
+      name: "Original document controls",
+    });
+    await user.click(within(toolbar).getByRole("button", { name: "Zoom in" }));
+    expect(el.scrollLeft).toBe(750); // 0.5 * 2000 - 250
+    expect(el.scrollTop).toBe(3700);
+
+    measure(el, {
+      scrollWidth: 1000,
+      scrollHeight: 4000,
+      clientWidth: 500,
+      clientHeight: 600,
+    });
+    el.scrollLeft = 250;
+    el.scrollTop = 1700;
+    await user.click(within(toolbar).getByRole("button", { name: "Zoom out" }));
+    expect(el.scrollLeft).toBe(250); // 0.5 * 1000 - 250, never snapped to 0
+    expect(el.scrollTop).toBe(1700);
+  });
+
+  it("pans by dragging the page background", async () => {
+    await openOriginal();
+    const el = scroller();
+    measure(el, {
+      scrollWidth: 2000,
+      scrollHeight: 8000,
+      clientWidth: 500,
+      clientHeight: 600,
+    });
+    el.scrollLeft = 300;
+    el.scrollTop = 300;
+    const sheet = document.querySelector("[data-page='1']")!;
+    fireEvent.mouseDown(sheet, { button: 0, clientX: 200, clientY: 200 });
+    expect(el).toHaveAttribute("data-panning", "true");
+    fireEvent.mouseMove(window, { clientX: 150, clientY: 180 });
+    expect(el.scrollLeft).toBe(350);
+    expect(el.scrollTop).toBe(320);
+    fireEvent.mouseUp(window);
+    expect(el).not.toHaveAttribute("data-panning");
+  });
+
+  it("leaves a press on the words alone so text selection works", async () => {
+    await openOriginal();
+    const el = scroller();
+    measure(el, {
+      scrollWidth: 2000,
+      scrollHeight: 8000,
+      clientWidth: 500,
+      clientHeight: 600,
+    });
+    const layer = document.querySelector(".textLayer")!;
+    const word = document.createElement("span");
+    word.textContent = "word";
+    layer.append(word);
+    expect(
+      fireEvent.mouseDown(word, { button: 0, clientX: 10, clientY: 10 }),
+    ).toBe(true); // not cancelled
+    expect(el).not.toHaveAttribute("data-panning");
+    expect(layer).not.toHaveClass("pointer-events-none");
+    expect(el).not.toHaveClass("select-none");
+  });
+
+  it("does not hijack the mouse when the page already fits", async () => {
+    await openOriginal();
+    const el = scroller();
+    measure(el, {
+      scrollWidth: 500,
+      scrollHeight: 500,
+      clientWidth: 500,
+      clientHeight: 500,
+    });
+    fireEvent.mouseDown(document.querySelector("[data-page='1']")!, {
+      button: 0,
+      clientX: 5,
+      clientY: 5,
+    });
+    expect(el).not.toHaveAttribute("data-panning");
+  });
+
+  it("scrolls the same way inside the Sources pane", async () => {
+    const { api, engine } = setup();
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    const region = await openCitationInPane(user);
+    await user.click(within(region).getByRole("button", { name: "Original" }));
+    const canvas = await within(sourcesPane()).findByTestId("pdf-canvas");
+    expect(canvas).toHaveClass("min-w-full", "w-max");
+    expect(canvas.parentElement).toHaveClass("overflow-auto");
   });
 });

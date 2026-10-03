@@ -53,6 +53,19 @@ annotations.
   (re-measured once the drag settles, so pages are not redrawn on every
   frame; far-away pages are still not drawn). **Open full reader** is "expand
   this", not a way into the PDF.
+- **Moving across a zoomed page.** The pages sit on a canvas that is at least
+  as wide as the view and as wide as its widest page. A page that fits is
+  centred and nothing scrolls sideways (Fit width never overflows); a page
+  wider than the view fills the canvas and scrolls from its true left edge to
+  its true right edge, with the same margin on both sides. (Earlier each page
+  was an auto-margined block directly inside the scroller; auto margins on an
+  overflowing child collapse to zero, so the page hugged the left edge with
+  no margin on the right.) Zooming keeps the point at the centre of the view
+  where it was; Fit width and Fit page recalculate. Native scrolling
+  (scrollbar, trackpad, touch, and Shift+wheel in WebView2/Chromium) is used,
+  and dragging the page background pans it. A press on the words themselves
+  is left alone, so text selection is unchanged. Pane and full reader share
+  this code.
 - A source without an original view (EPUB, Markdown, text) shows no Reading |
   Original switch at all, and Original is never offered for something that
   cannot be shown.
