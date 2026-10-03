@@ -224,3 +224,24 @@ EPUB table of contents) — see
   Scripture. Future work is verified book/chapter/verse extraction with
   uncertainty/confidence, provenance and versification handling, and **no
   invented verse structure.**
+
+## 5. Stable signed release and updater channel (infrastructure)
+
+**BACKLOG / FUTURE — not built.** Today a milestone is released as a validated
+`main` plus an **annotated milestone tag** (`studies-v0.3`, `library-v0.4`,
+`scripture-annotations-v0.5`). The normal *Native builds* workflow attaches
+unsigned installers to the tag's run as short-lived workflow artifacts, and the
+only signed distribution is the **test** update channel
+([`updates.md`](updates.md)). There is no stable GitHub Release, no stable
+signed installer and no stable update endpoint, and test builds never read one.
+
+A production distribution channel is separate infrastructure work. It should
+later cover:
+
+- production signing of installers and updater artifacts;
+- a production updater endpoint and repository, with test builds still reading
+  only the test channel and stable builds never seeing test updates;
+- a stable release workflow, run from a tagged commit;
+- a GitHub Release / public artifact policy, if desired;
+- key and secret management, kept apart from the test key;
+- rollback and recovery (withdrawing a bad release, pointing clients back).
