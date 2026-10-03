@@ -156,20 +156,74 @@ the renderer can be replaced.
 - No search inside Original (search is over the extracted text), no
   annotations, forms, OCR or editing.
 - Reading mode is not remembered between visits.
+- Contents exist only where the source carries them (see above); an EPUB
+  entry's precision is the nearest extracted segment, and a fragment that is
+  not found leads to the start of its chapter.
+
+## Contents (table of contents) for long books
+
+A source that carries its own table of contents gets one **Contents** button,
+the same in the Sources pane and the full reader (in the header, next to the
+Reading | Original switch). It opens a panel inside the reader: a compact
+left **drawer** when the reader is wide, a full-width **sheet** when it is
+narrow (chosen from the reader's own measured width, below 560 px, not from
+the window). The list is nested as the source nests it, scrolls on its own,
+opens on the current entry, and names the current entry in text ("Current
+section" for assistive technology, a marker and bold for sight) as well as
+`aria-current`. Tab reaches every entry; Enter or Space opens one; Escape
+or **Close contents** closes the panel and returns focus to the Contents
+button. Choosing an entry closes the panel and goes there. A heading that has
+no destination of its own is shown as plain text above its children.
+
+**Nothing is generated.** A source without contents shows no Contents button.
+Contents are never inferred from fonts, headings or AI.
+
+- **PDF.** The document's embedded outline (bookmarks) is read by PDF.js
+  through the `PdfEngine` (`outline`), reading only the outline objects, never
+  page content, and nested as the PDF nests it. Each entry's destination is
+  resolved with PDF.js, not assumed to hold a page number: a *named*
+  destination is looked up in the document's name tree, an *explicit*
+  destination's page reference is turned into a page index with
+  `getPageIndex`, and a plain index is accepted only inside the document. The
+  result is a **physical** page (1-based), the same numbering the viewer and
+  Reading use. Web links and broken or out-of-range destinations lead nowhere
+  and are left out (a group keeps its place if any child leads somewhere).
+  Entries are capped at 5,000 and 12 levels deep.
+  - *In Original*: the viewer moves to the page, keeping the zoom mode.
+  - *In Reading*: the mode is **kept**; Reading shows the text of that page
+    (or the next page that has text). Contents never switches the view.
+- **EPUB.** The publication's own navigation is read **on demand from the
+  managed EPUB** by the core (`library_source_contents`): the EPUB 3
+  navigation document (`nav` with `epub:type="toc"`), else the EPUB 2 NCX
+  (the spine's `toc`). The hierarchy is kept (`ol > li > ol`, `navPoint`
+  nesting). Each entry becomes `{id, title, target, children}`; the target is
+  the **position of a segment** of the extracted text, found by running the
+  same segmentation as import: a chapter file leads to its first segment, a
+  `#fragment` to the segment where that element's `id` falls, and an unknown
+  fragment falls back to the start of the chapter file. Nothing is stored (no
+  migration): if the file's segmentation no longer matches what was imported,
+  the contents are dropped rather than risk pointing at the wrong place.
+  Choosing an entry opens Reading at that segment (heading above it included)
+  and focuses the paragraph.
+  - Only **internal** targets count. `https:`, `javascript:`, `data:`,
+    `file:`, `mailto:`, absolute paths, backslashes, and any path that climbs
+    out of the book are ignored, as is a target that is not in the reading
+    order. No raw markup or file path reaches the interface. A broken
+    navigation file gives no contents; the book still imports and reads.
+  - EPUB has no Original view yet, so its contents navigate Reading. A future
+    EPUB renderer can reuse the same tree.
 
 ## Future: navigating long books (not built)
 
-Long academic books and commentaries must eventually be navigable from their
-own table of contents, not only by scrolling pages.
+Contents (above) is built. Still to come:
 
-- **PDF:** the document outline (bookmarks); clickable internal links and
-  page/destination links; footnote and endnote links; back/forward
-  reading-location history; a contents drawer.
-- **EPUB:** the navigation document / table of contents; chapter navigation;
-  internal hyperlinks; footnote and endnote links; back/forward
+- **PDF:** clickable internal links and page/destination links beyond
+  outline entries; footnote and endnote links; back/forward
   reading-location history.
-
-None of this exists yet; the viewer shows pages only.
+- **EPUB:** internal hyperlinks; footnote and endnote links; back/forward
+  reading-location history; a formatted EPUB view.
+- **Generated contents** from headings as a fallback for a source that has
+  none: a possible later step, not current behaviour.
 
 ## Bible documents and structured Bibles (principle only)
 
@@ -238,3 +292,19 @@ In the normal workspace (Scripture | Study | Sources):
 10. Back to Sources, Open full reader and the Reading | Original switch stay
     visible throughout; check the dark theme; a Markdown/TXT source shows no
     Original.
+
+### Contents
+
+1. Open a long PDF with bookmarks; **Contents** is in the header. A PDF
+   without bookmarks has no Contents button.
+2. Open Contents: the hierarchy is visible, the current entry is marked.
+3. Choose a chapter, then a nested section: Original lands on the right page
+   with the zoom unchanged; in Reading, the text of that page.
+4. Close and reopen Contents (Escape, **Close contents**): focus returns to
+   the Contents button.
+5. Repeat in the Sources pane (narrow: full-width sheet; wide: left drawer)
+   and in the full reader; horizontal zoom and pan still work.
+6. Open an EPUB with a table of contents: choose a chapter, a nested entry:
+   Reading jumps there. An EPUB without one has no Contents button.
+7. Tab through the entries, Enter to open one, Escape to close.
+

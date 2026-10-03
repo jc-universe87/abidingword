@@ -90,13 +90,19 @@ Cloud providers must not be hard-wired into the internal data model.
 
 ## 4. Formatted sources
 
-Today: PDF **Original** view (see
-[`formatted-source-viewer.md`](formatted-source-viewer.md)). Backlog:
+Today: PDF **Original** view and **Contents** (the source's own PDF outline or
+EPUB table of contents) — see
+[`formatted-source-viewer.md`](formatted-source-viewer.md). Backlog:
 
-- **PDF:** outline/bookmarks, internal links and destinations, table of
-  contents navigation, footnote/endnote links, back/forward reading history.
-- **EPUB:** a formatted renderer, the TOC/navigation document, internal links,
-  chapter navigation, footnotes/endnotes, back/forward history.
+- **PDF:** internal hyperlinks and destinations beyond outline entries,
+  footnote/endnote links, back/forward reading history.
+- **EPUB:** a formatted renderer, internal links, chapter navigation beyond
+  Contents, footnotes/endnotes, back/forward history. Contents already
+  navigate the extracted-text Reading view; a renderer could reuse the same
+  tree.
+- **Generated contents:** deriving a table of contents from headings for a
+  source that has none — a possible later fallback, **not** current
+  behaviour; today a source without contents simply shows none.
 - **PDF Bible:** viewing the original document is distinct from Structured
   Scripture. Future work is verified book/chapter/verse extraction with
   uncertainty/confidence, provenance and versification handling, and **no
