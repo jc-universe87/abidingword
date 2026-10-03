@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveOutline, type OutlineSource } from "@/lib/pdfjsEngine";
+import { resolveOutline, resolveOutlineCounted, type OutlineSource } from "@/lib/pdfjsEngine";
 
 // A stand-in for a PDF.js document: page objects are {num} references.
 function fakeDoc(): OutlineSource {
@@ -86,5 +86,38 @@ describe("resolving a PDF outline", () => {
     let deep: unknown[] = [{ title: "leaf", dest: [{ num: 10 }] }];
     for (let i = 0; i < 100; i += 1) deep = [{ title: `L${i}`, dest: [{ num: 10 }], items: deep }];
     expect(depth(await resolveOutline(fakeDoc(), deep))).toBeLessThanOrEqual(12);
+  });
+
+  it("counts the entries that had somewhere to go, so failing to look them up is not mistaken for having none", async () => {
+    const web = await resolveOutlineCounted(fakeDoc(), [{ title: "Website", url: "https://example.org" }, { title: "Also web", url: "https://example.net" }]);
+    expect(web).toEqual({ items: [], wanted: 0 }); // a real "nothing to navigate"
+    const broken = await resolveOutlineCounted(fakeDoc(), [{ title: "A", dest: "bad" }, { title: "B", dest: [{ num: 999 }] }]);
+    expect(broken.items).toEqual([]);
+    expect(broken.wanted).toBe(2); // they had destinations, none could be resolved
+  });
+
+  it("looks destinations up a few at a time, in the right order, and shares repeated pages", async () => {
+    let running = 0;
+    let peak = 0;
+    let calls = 0;
+    const slow: OutlineSource = {
+      numPages: 50,
+      getDestination: async () => null,
+      getPageIndex: async (ref) => {
+        calls += 1;
+        running += 1;
+        peak = Math.max(peak, running);
+        await new Promise((resolve) => setTimeout(resolve, 15));
+        running -= 1;
+        return (ref as { num: number }).num % 50;
+      },
+    };
+    const raw = Array.from({ length: 40 }, (_, i) => ({ title: `Entry ${i}`, dest: [{ num: i % 20 }] }));
+    const { items } = await resolveOutlineCounted(slow, raw);
+    expect(items.map((i) => i.title)).toEqual(raw.map((r) => r.title));
+    expect(items[7]!.target).toEqual({ kind: "page", page: 8 });
+    expect(peak).toBeGreaterThan(1); // not one at a time
+    expect(peak).toBeLessThanOrEqual(6); // and not all at once
+    expect(calls).toBe(20); // a page referenced by two entries is looked up once
   });
 });

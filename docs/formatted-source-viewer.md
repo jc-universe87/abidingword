@@ -178,9 +178,27 @@ no destination of its own is shown as plain text above its children.
 Contents belong to the source, not to the way it was opened: the same button
 is there from the library, a passage mention, a finding's citation or a search
 hit (opening at a cited place only chooses where to start; the whole source
-stays readable and reachable through Contents). A read of the contents that
-fails is tried again twice before the reader settles for none, and the reason is
-written to the log file ("Contents could not be read").
+stays readable and reachable through Contents). Reading the contents
+is built not to hang and not to mistake failing for "none":
+
+- *None* (a PDF with no outline, an EPUB with no table of contents) is a valid,
+  final answer. A read that *fails* is different: it is tried again (after
+  0.3 s, 1 s and 3 s) and, if it still cannot be read, remembered as a failure,
+  never as "no contents", so the next opening starts afresh.
+- PDF.js cannot be told that a byte range could not be read and would wait for
+  it for ever, so a slice that fails is first read again, then the opening is
+  failed from outside; a read that stalls with no error is failed after 25 s and
+  its loading cancelled. (Before this, one failed read left the outline load
+  pending for ever: no error, no retry, no Contents.)
+- Destinations are looked up a few at a time, in order, sharing repeated pages;
+  an outline whose entries all have destinations but none could be resolved is a
+  failure, while one of only web links is simply empty.
+- In Original, the viewer's own open document also reports the outline, so
+  Contents can still appear when the reader's separate read failed, with no
+  second opening.
+- The log file says where a failure happened (`at "info"`, `"read"`, `"open"`,
+  `"outline"` or `"resolve"`) with the error's message and never any document
+  text: "Contents could not be read (at "read"): …".
 
 **Nothing is generated.** A source without contents shows no Contents button.
 Contents are never inferred from fonts, headings or AI.

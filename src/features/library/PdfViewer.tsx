@@ -5,6 +5,7 @@ import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { formatNumber } from "@/i18n/format";
 import { useApi } from "@/lib/ApiContext";
+import type { ContentsItem } from "@/types/library";
 import type { PdfDocument, PdfPageSize } from "@/lib/pdfEngine";
 import { usePdfEngine } from "./PdfEngineContext";
 
@@ -24,6 +25,8 @@ interface PdfViewerProps {
   initialPage: number;
   /** Told whenever the page in view changes, so Reading can return to it. */
   onPageChange: (page: number) => void;
+  /** The outline, read from this viewer's own open document (a second chance for Contents, with no second opening). */
+  onOutline?: (items: ContentsItem[]) => void;
   /** Go to this page without reopening (zoom is kept). A new `nonce` is a new request. */
   jumpTo?: { page: number; nonce: number } | null;
 }
@@ -36,7 +39,7 @@ interface PdfViewerProps {
  * inspect the source; search, citations and Scripture links stay with the
  * extracted text.
  */
-export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo }: PdfViewerProps) {
+export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutline }: PdfViewerProps) {
   const { t } = useTranslation();
   const api = useApi();
   const engine = usePdfEngine();
@@ -50,6 +53,10 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo }: PdfVi
   const scroller = useRef<HTMLDivElement>(null);
   const jumped = useRef(0);
   const placed = useRef(false);
+  const onOutlineRef = useRef(onOutline);
+  useEffect(() => {
+    onOutlineRef.current = onOutline;
+  }, [onOutline]);
 
   const fail = useCallback(
     (error: unknown) => {
@@ -69,6 +76,9 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo }: PdfVi
         if (!active) return void d.destroy();
         opened = d;
         setDoc(d);
+        // The outline too, from this same document: if the reader's own read of it
+        // failed, Contents still appears. A failure here is not worth a message.
+        void d.outline().then((items) => active && onOutlineRef.current?.(items), () => undefined);
         void d.pageSize(1).then((size) => active && setSizes((s) => ({ ...s, 1: size })), fail);
       },
       (e) => active && fail(e),

@@ -1,4 +1,4 @@
-import type { PdfDocument, PdfEngine, PdfPageSize } from "@/lib/pdfEngine";
+import { PdfOutlineError, type PdfDocument, type PdfEngine, type PdfPageSize } from "@/lib/pdfEngine";
 import type { ContentsItem } from "@/types/library";
 
 export interface FakePdfEngine extends PdfEngine {
@@ -15,10 +15,16 @@ export interface FakePdfEngine extends PdfEngine {
   failRender: boolean;
   /** The outline the PDF "carries" (none by default). */
   outlineItems: ContentsItem[];
+  /** What an open document reports as its outline, if that should differ from `outlineItems`. */
+  docOutlineItems?: ContentsItem[];
+  /** A different outline per source (overrides `outlineItems` for the sources it names). */
+  outlineBySource?: Record<string, ContentsItem[]>;
   /** Makes reading the outline fail. */
   failOutline: boolean;
   /** Makes the next N outline reads fail, then lets them succeed (a transient failure). */
   outlineFailures: number;
+  /** Milliseconds the standalone outline read takes (a slow read). */
+  outlineDelay: number;
   /** Source ids whose outline was read. */
   outlineReads: string[];
 }
@@ -35,11 +41,13 @@ export function createFakePdfEngine({ pages = 5, size = { width: 600, height: 80
     outlineItems: outline,
     failOutline: false,
     outlineFailures: 0,
+    outlineDelay: 0,
     outlineReads: [],
     async outline(_api, sourceId) {
       engine.outlineReads.push(sourceId);
-      if (engine.failOutline || engine.outlineFailures-- > 0) throw new Error("synthetic: the outline could not be read");
-      return engine.outlineItems;
+      if (engine.outlineDelay) await new Promise((resolve) => setTimeout(resolve, engine.outlineDelay));
+      if (engine.failOutline || engine.outlineFailures-- > 0) throw new PdfOutlineError("read", "synthetic: the outline could not be read");
+      return engine.outlineBySource?.[sourceId] ?? engine.outlineItems;
     },
     async open(_api, sourceId) {
       engine.opened.push(sourceId);
@@ -52,6 +60,8 @@ export function createFakePdfEngine({ pages = 5, size = { width: 600, height: 80
           return { promise: engine.failRender ? Promise.reject(new Error("synthetic render failure")) : Promise.resolve(), cancel: () => undefined };
         },
         text: async () => undefined,
+        // The open document's own outline: independent of the standalone read, which may fail.
+        outline: async () => engine.docOutlineItems ?? engine.outlineBySource?.[sourceId] ?? engine.outlineItems,
         release: (page) => {
           engine.released.push(page);
         },

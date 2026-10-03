@@ -1,6 +1,6 @@
 import type { ContentsItem } from "@/types/library";
 import type { Api } from "./api";
-import type { PdfDocument, PdfEngine, PdfPageSize, PdfRender } from "./pdfEngine";
+import { PdfOutlineError, type OutlineStage, type PdfDocument, type PdfEngine, type PdfPageSize, type PdfRender } from "./pdfEngine";
 
 /**
  * The PDF.js implementation of the viewer's engine.
@@ -38,65 +38,156 @@ async function loadPdfJs() {
 
 type PdfJs = Awaited<ReturnType<typeof loadPdfJs>>;
 
-async function openRaw(api: Api, sourceId: string) {
-  {
-    {
-      const pdfjs = await loadPdfJs();
-      const info = await api.libraryOriginalInfo(sourceId);
-      const first = await api.libraryOriginalRead(sourceId, 0, Math.min(INITIAL_BYTES, info.sizeBytes));
+/** A slice of the file that cannot be read is tried again this many times before the document fails. */
+const RANGE_RETRIES = 2;
+const RANGE_RETRY_MS = 150;
+/** Reading an outline that has not finished in this long has stalled; it fails (and is tried again) instead of hanging. */
+const OUTLINE_TIMEOUT_MS = 25_000;
+/** Destinations are looked up this many at a time: each can need a read, and reads are what is slow. */
+const RESOLVE_CONCURRENCY = 6;
 
-      class CoreRange extends pdfjs.PDFDataRangeTransport {
-        private stopped = false;
+interface OpenHooks {
+  /** Where the opening has got to (for the outline's failure report). */
+  stage?: (stage: OutlineStage) => void;
+  /** Called with the way to cancel the loading, as soon as there is one (so a stalled load can be cancelled). */
+  created?: (destroy: () => Promise<void>) => void;
+  /** A slice of the file could not be read (after retries): PDF.js would wait for it forever. */
+  fail?: (error: PdfOutlineError) => void;
+}
 
-        override requestDataRange(begin: number, end: number) {
-          void (async () => {
-            try {
-              for (let at = begin; at < end && !this.stopped; at += READ_SLICE) {
-                const chunk = await api.libraryOriginalRead(sourceId, at, Math.min(READ_SLICE, end - at));
-                if (this.stopped) return;
-                this.onDataRange(at, chunk);
-              }
-            } catch {
-              // The document's own loading reports the failure.
-              this.stopped = true;
-            }
-          })();
-        }
+const messageOf = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
-        override abort() {
+/** A promise that only ever rejects, with no unhandled-rejection noise if nobody is racing it. */
+function failure() {
+  let reject!: (error: unknown) => void;
+  const promise = new Promise<never>((_, r) => {
+    reject = r;
+  });
+  promise.catch(() => undefined);
+  return { promise, reject };
+}
+
+async function openRaw(api: Api, sourceId: string, hooks: OpenHooks = {}) {
+  const fail = (stage: OutlineStage, error: unknown): never => {
+    throw error instanceof PdfOutlineError ? error : new PdfOutlineError(stage, messageOf(error));
+  };
+  const pdfjs = await loadPdfJs().catch((e) => fail("open", e));
+  hooks.stage?.("info");
+  const info = await api.libraryOriginalInfo(sourceId).catch((e) => fail("info", e));
+  hooks.stage?.("read");
+  const first = await api.libraryOriginalRead(sourceId, 0, Math.min(INITIAL_BYTES, info.sizeBytes)).catch((e) => fail("read", e));
+  hooks.stage?.("open");
+
+  class CoreRange extends pdfjs.PDFDataRangeTransport {
+    private stopped = false;
+
+    override requestDataRange(begin: number, end: number) {
+      void (async () => {
+        try {
+          for (let at = begin; at < end && !this.stopped; at += READ_SLICE) {
+            const chunk = await this.slice(at, Math.min(READ_SLICE, end - at));
+            if (this.stopped) return;
+            this.onDataRange(at, chunk);
+          }
+        } catch (error) {
+          // PDF.js has no way to be told a range failed and would wait for it
+          // for ever, so the opening is failed from outside.
           this.stopped = true;
+          hooks.fail?.(new PdfOutlineError("read", `a range of the file could not be read: ${messageOf(error)}`));
+        }
+      })();
+    }
+
+    private async slice(at: number, length: number): Promise<Uint8Array> {
+      for (let attempt = 0; ; attempt += 1) {
+        try {
+          return await api.libraryOriginalRead(sourceId, at, length);
+        } catch (error) {
+          if (attempt >= RANGE_RETRIES || this.stopped) throw error;
+          await new Promise((resolve) => setTimeout(resolve, RANGE_RETRY_MS * (attempt + 1)));
         }
       }
+    }
 
-      const transport = new CoreRange(info.sizeBytes, first);
-      const task = pdfjs.getDocument({
-        range: transport,
-        disableAutoFetch: true,
-        disableStream: true,
-        useWasm: false,
-        enableXfa: false,
-      });
-      const doc = await task.promise;
-      return { pdfjs, doc, destroy: () => task.destroy() };
+    override abort() {
+      this.stopped = true;
     }
   }
+
+  const transport = new CoreRange(info.sizeBytes, first);
+  const task = pdfjs.getDocument({
+    range: transport,
+    disableAutoFetch: true,
+    disableStream: true,
+    useWasm: false,
+    enableXfa: false,
+  });
+  hooks.created?.(() => task.destroy());
+  const doc = await task.promise.catch((e) => fail("open", e));
+  return { pdfjs, doc, destroy: () => task.destroy() };
 }
 
 export function createPdfJsEngine(): PdfEngine {
   return {
     async open(api: Api, sourceId: string): Promise<PdfDocument> {
-      const { pdfjs, doc, destroy } = await openRaw(api, sourceId);
+      const failed = failure();
+      const { pdfjs, doc, destroy } = await Promise.race([openRaw(api, sourceId, { fail: failed.reject }), failed.promise]);
       return wrap(pdfjs, doc, destroy);
     },
     async outline(api: Api, sourceId: string): Promise<ContentsItem[]> {
-      const { doc, destroy } = await openRaw(api, sourceId);
+      let stage: OutlineStage = "info";
+      let cancel: (() => Promise<void>) | undefined;
+      const failed = failure();
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const stalled = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new PdfOutlineError(stage, `stalled for ${OUTLINE_TIMEOUT_MS / 1000} s`)), OUTLINE_TIMEOUT_MS);
+      });
+      stalled.catch(() => undefined);
+      const work = (async () => {
+        const { doc } = await openRaw(api, sourceId, {
+          stage: (s) => {
+            stage = s;
+          },
+          created: (destroy) => {
+            cancel = destroy;
+          },
+          fail: failed.reject,
+        });
+        return readOutline(doc, (s) => {
+          stage = s;
+        });
+      })();
+      work.catch(() => undefined);
       try {
-        return await resolveOutline(doc, (await doc.getOutline()) ?? []);
+        return await Promise.race([work, failed.promise, stalled]);
+      } catch (error) {
+        throw error instanceof PdfOutlineError ? error : new PdfOutlineError(stage, messageOf(error));
       } finally {
-        void destroy();
+        clearTimeout(timer);
+        void cancel?.().catch(() => undefined);
       }
     },
   };
+}
+
+/** The document's outline, resolved; empty if it has none; a [`PdfOutlineError`] if reading it failed. */
+async function readOutline(doc: Awaited<ReturnType<typeof openRaw>>["doc"], setStage?: (stage: OutlineStage) => void): Promise<ContentsItem[]> {
+  setStage?.("outline");
+  let raw: unknown;
+  try {
+    raw = await doc.getOutline();
+  } catch (error) {
+    throw new PdfOutlineError("outline", messageOf(error));
+  }
+  if (!Array.isArray(raw) || raw.length === 0) return []; // a genuine "no outline"
+  setStage?.("resolve");
+  const { items, wanted } = await resolveOutlineCounted(doc, raw);
+  // Entries that point inside the document, none of which could be resolved,
+  // is a failure to look them up, not an outline without contents.
+  if (items.length === 0 && wanted > 0) {
+    throw new PdfOutlineError("resolve", `the outline has ${wanted} entries with destinations but none could be resolved`);
+  }
+  return items;
 }
 
 /** What outline resolution needs from a PDF.js document (so it can be tested without one). */
@@ -110,6 +201,14 @@ const MAX_OUTLINE_ITEMS = 5000;
 const MAX_OUTLINE_DEPTH = 12;
 const MAX_TITLE = 300;
 
+interface OutlineNode {
+  id: string;
+  title: string;
+  dest: unknown;
+  page: number | null;
+  children: OutlineNode[];
+}
+
 /**
  * Turns PDF.js's outline into the app's contents tree. A destination is a
  * name (looked up in the document's name tree) or an explicit array whose
@@ -121,8 +220,23 @@ const MAX_TITLE = 300;
  * Malformed entries are skipped, never fatal.
  */
 export async function resolveOutline(doc: OutlineSource, raw: unknown): Promise<ContentsItem[]> {
-  const cache = new Map<string, number | null>();
+  return (await resolveOutlineCounted(doc, raw)).items;
+}
+
+/** As [`resolveOutline`], also counting the entries that had a destination to look up. */
+export async function resolveOutlineCounted(doc: OutlineSource, raw: unknown): Promise<{ items: ContentsItem[]; wanted: number }> {
+  const lookups = new Map<string, Promise<number>>();
   let count = 0;
+
+  const indexOf = (ref: { num: number; gen?: number }): Promise<number> => {
+    const key = `${ref.num}:${ref.gen ?? 0}`;
+    let found = lookups.get(key);
+    if (!found) {
+      found = doc.getPageIndex(ref as never).catch(() => -1);
+      lookups.set(key, found);
+    }
+    return found;
+  };
 
   const pageOf = async (dest: unknown): Promise<number | null> => {
     try {
@@ -133,10 +247,7 @@ export async function resolveOutline(doc: OutlineSource, raw: unknown): Promise<
       if (typeof head === "number") {
         index = head;
       } else if (head && typeof head === "object" && "num" in head) {
-        const ref = head as { num: number; gen?: number };
-        const key = `${ref.num}:${ref.gen ?? 0}`;
-        if (!cache.has(key)) cache.set(key, await doc.getPageIndex(ref as never).catch(() => -1));
-        index = cache.get(key) ?? -1;
+        index = await indexOf(head as { num: number; gen?: number });
       } else {
         return null;
       }
@@ -146,8 +257,9 @@ export async function resolveOutline(doc: OutlineSource, raw: unknown): Promise<
     }
   };
 
-  const walk = async (entries: unknown, depth: number): Promise<ContentsItem[]> => {
-    const out: ContentsItem[] = [];
+  // First the shape, with no waiting; then the lookups, a few at a time.
+  const build = (entries: unknown, depth: number): OutlineNode[] => {
+    const out: OutlineNode[] = [];
     if (!Array.isArray(entries)) return out;
     for (const entry of entries) {
       if (count >= MAX_OUTLINE_ITEMS) break;
@@ -156,19 +268,45 @@ export async function resolveOutline(doc: OutlineSource, raw: unknown): Promise<
       const title = typeof item.title === "string" ? item.title.replace(/\s+/g, " ").trim().slice(0, MAX_TITLE) : "";
       const id = `p${count}`;
       if (title) count += 1;
-      const children = depth + 1 < MAX_OUTLINE_DEPTH ? await walk(item.items, depth + 1) : [];
+      const children = depth + 1 < MAX_OUTLINE_DEPTH ? build(item.items, depth + 1) : [];
       if (!title) {
         out.push(...children); // an untitled wrapper: its children still count
         continue;
       }
-      const page = item.dest === undefined || item.dest === null ? null : await pageOf(item.dest);
-      if (page === null && children.length === 0) continue;
-      out.push({ id, title, target: page === null ? null : { kind: "page", page }, children });
+      out.push({ id, title, dest: item.dest ?? null, page: null, children });
     }
     return out;
   };
+  const nodes = build(raw, 0);
 
-  return walk(raw, 0);
+  const wantedNodes: OutlineNode[] = [];
+  const collect = (list: OutlineNode[]) => {
+    for (const node of list) {
+      if (node.dest !== null) wantedNodes.push(node);
+      collect(node.children);
+    }
+  };
+  collect(nodes);
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(RESOLVE_CONCURRENCY, wantedNodes.length) }, async () => {
+      while (next < wantedNodes.length) {
+        const node = wantedNodes[next++]!;
+        node.page = await pageOf(node.dest);
+      }
+    }),
+  );
+
+  const prune = (list: OutlineNode[]): ContentsItem[] => {
+    const out: ContentsItem[] = [];
+    for (const node of list) {
+      const children = prune(node.children);
+      if (node.page === null && children.length === 0) continue;
+      out.push({ id: node.id, title: node.title, target: node.page === null ? null : { kind: "page", page: node.page }, children });
+    }
+    return out;
+  };
+  return { items: prune(nodes), wanted: wantedNodes.length };
 }
 
 function wrap(
@@ -227,6 +365,7 @@ function wrap(
         // Selectable text is a convenience; the page itself is already drawn.
       }
     },
+    outline: () => readOutline(doc),
     release(n) {
       const p = pages.get(n);
       pages.delete(n);

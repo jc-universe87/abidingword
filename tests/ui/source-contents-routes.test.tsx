@@ -159,10 +159,10 @@ describe("a failed read does not hide Contents for good", () => {
     const { user, findings } = await openStudy(api, engine, width);
     await user.click(await within(findings).findByTitle("Open this source at the cited place"));
     const reader = await within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" });
-    await waitFor(() => expect(engine.outlineReads.length).toBe(3), { timeout: 5000 }); // first try + two retries
+    await waitFor(() => expect(engine.outlineReads.length).toBe(4), { timeout: 8000 }); // first try + three retries
     expect(contentsButton(reader)).toBeNull();
     expect(reader.querySelector("[data-target]")).not.toBeNull(); // still reading the cited place
-  });
+  }, 15000);
 });
 
 describe("opened at a citation, the source is still the whole source", () => {
@@ -243,5 +243,93 @@ describe("Contents belongs to the source, not to the last one opened", () => {
     await within(reader).findByText("Only text.");
     await new Promise((resolve) => setTimeout(resolve, 100));
     expect(contentsButton(reader)).toBeNull();
+  });
+});
+
+describe("a PDF's outline is read reliably, and failing is not the same as having none", () => {
+  const SECOND: SourceFixture = { ...VINE, title: "Another Notebook", segments: VINE.segments.map((x) => ({ ...x })) };
+
+  it("a slow read still ends in Contents", async () => {
+    const { api, engine, finding, width } = await study();
+    engine.outlineDelay = 700;
+    await cite(api, finding.id, "Notes on the Vine", 2);
+    const { user, findings } = await openStudy(api, engine, width);
+    await user.click(await within(findings).findByTitle("Open this source at the cited place"));
+    const reader = await within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" });
+    expect(contentsButton(reader)).toBeNull(); // not yet
+    await waitFor(() => expect(contentsButton(reader)).not.toBeNull(), { timeout: 4000 });
+  });
+
+  it("when the reader's own read keeps failing, Original's open document still supplies Contents (and it stays in Reading)", async () => {
+    const { api, engine, finding, width } = await study();
+    engine.failOutline = true;
+    await cite(api, finding.id, "Notes on the Vine", 2);
+    const { user, findings } = await openStudy(api, engine, width);
+    await user.click(await within(findings).findByTitle("Open this source at the cited place"));
+    const reader = await within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" });
+    expect(contentsButton(reader)).toBeNull();
+    await user.click(within(reader).getByRole("button", { name: "Original" }));
+    await waitFor(() => expect(contentsButton(reader)).not.toBeNull());
+    await user.click(within(reader).getByRole("button", { name: "Reading" }));
+    expect(contentsButton(reader)).not.toBeNull();
+  });
+
+  it("a PDF that truly has no outline stays without Contents, in Reading and in Original", async () => {
+    const { api, engine, finding, width } = await study();
+    engine.outlineItems = [];
+    await cite(api, finding.id, "Notes on the Vine", 2);
+    const { user, findings } = await openStudy(api, engine, width);
+    await user.click(await within(findings).findByTitle("Open this source at the cited place"));
+    const reader = await within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" });
+    await waitFor(() => expect(engine.outlineReads.length).toBe(1)); // asked, and answered "none"
+    await user.click(within(reader).getByRole("button", { name: "Original" }));
+    await within(reader).findByRole("toolbar", { name: "Original document controls" });
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(contentsButton(reader)).toBeNull();
+    expect(engine.outlineReads.length).toBe(1); // "none" is final: no retries
+  });
+
+  it("another PDF never inherits the previous PDF's outline", async () => {
+    const { api, engine, finding, width } = await study([VINE, SECOND, PLAIN]);
+    const sources = await api.libraryList({});
+    const vine = sources.find((s) => s.title === "Notes on the Vine")!;
+    engine.outlineItems = []; // by default a PDF has none…
+    engine.outlineBySource = { [vine.id]: OUTLINE }; // …but this one does
+    await cite(api, finding.id, "Notes on the Vine", 2);
+    await cite(api, finding.id, "Another Notebook", 1);
+    const { user, findings } = await openStudy(api, engine, width);
+    const chips = await within(findings).findAllByTitle("Open this source at the cited place");
+    await user.click(chips[0]!);
+    const first = await within(sourcesPane()).findByRole("region", { name: /Notes on the Vine|Another Notebook/ });
+    const firstHasContents = first.getAttribute("aria-label") === "Notes on the Vine";
+    if (firstHasContents) await waitFor(() => expect(contentsButton(first)).not.toBeNull());
+    await user.click(within(first).getByRole("button", { name: "Back to Sources" }));
+    await user.click(chips[1]!);
+    const second = await within(sourcesPane()).findByRole("region", { name: /Notes on the Vine|Another Notebook/ });
+    expect(second.getAttribute("aria-label")).not.toBe(first.getAttribute("aria-label"));
+    if (firstHasContents) {
+      await waitFor(() => expect(engine.outlineReads.length).toBe(2));
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(contentsButton(second)).toBeNull(); // the first one's outline did not carry over
+    } else {
+      await waitFor(() => expect(contentsButton(second)).not.toBeNull());
+    }
+  });
+
+  it("the full reader and the pane both keep Contents across Reading and Original", async () => {
+    const { api, engine, finding, width } = await study();
+    await cite(api, finding.id, "Notes on the Vine", 2);
+    const { user, findings } = await openStudy(api, engine, width);
+    await user.click(await within(findings).findByTitle("Open this source at the cited place"));
+    const pane = await within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" });
+    await waitFor(() => expect(contentsButton(pane)).not.toBeNull());
+    await user.click(within(pane).getByRole("button", { name: "Open full reader" }));
+    const full = await screen.findByRole("main");
+    await waitFor(() => expect(contentsButton(full)).not.toBeNull());
+    await user.click(within(full).getByRole("button", { name: "Original" }));
+    await within(full).findByRole("toolbar", { name: "Original document controls" });
+    expect(contentsButton(full)).not.toBeNull();
+    await user.click(within(full).getByRole("button", { name: "Reading" }));
+    expect(contentsButton(full)).not.toBeNull();
   });
 });
