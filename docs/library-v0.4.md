@@ -316,6 +316,9 @@ chose in the system file dialog.
   installed (often the case in a Chromebook's Linux environment). The
   extracted text stays the working representation; access to the original
   document, here and later for imported Bibles, is a follow-up.
+  *(Follow-up, after v0.4: PDFs now have an in-app Original view; see
+  [`formatted-source-viewer.md`](formatted-source-viewer.md). The v0.4
+  release itself did not include it.)*
 - One file per source; a second edition is a second source.
 - A citation is chosen by searching; the reader has no "cite this
   paragraph" button yet.

@@ -74,6 +74,11 @@ personal source library:
 No OCR, AI or network access. Details:
 [`docs/library-v0.4.md`](docs/library-v0.4.md).
 
+Since v0.4 (development): a PDF source can be read as extracted text
+(*Reading*) or inspected as the real document in the app (*Original*), and
+the full source reader keeps its Back button in a header that does not
+scroll away. See [`docs/formatted-source-viewer.md`](docs/formatted-source-viewer.md).
+
 **Not yet, planned for later phases:** OCR and transcription, concordance
 and original-language tools, AI assistance, sync, integrations and MCP.
 
