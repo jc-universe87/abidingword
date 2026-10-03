@@ -156,7 +156,7 @@
     "kind": {
       "all": "전체",
       "note": "메모",
-      "highlight": "형광펜",
+      "highlight": "강조",
       "bookmark": "책갈피"
     },
     "book": "책",
@@ -170,13 +170,13 @@
     "loadMore": "더 보기",
     "empty": {
       "none": "아직 표시가 없습니다.",
-      "noneBody": "읽으면서 추가한 형광펜, 메모, 책갈피가 여기에 나타납니다.",
+      "noneBody": "읽으면서 추가한 강조, 메모, 책갈피가 여기에 나타납니다.",
       "noMatch": "일치하는 항목이 없습니다. 다른 책이나 색을 선택해 보세요.",
       "noSearch": "검색과 일치하는 메모가 없습니다."
     },
     "result": {
       "note": "메모",
-      "highlight": "형광펜",
+      "highlight": "강조",
       "bookmark": "책갈피",
       "wholeVerse": "구절 전체",
       "show": "성경에서 보기"

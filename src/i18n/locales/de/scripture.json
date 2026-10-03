@@ -162,13 +162,13 @@
   "marks": {
     "viewLabel": "Ansicht der Schrift",
     "bible": "Bibel",
-    "marks": "Markierungen",
-    "title": "Markierungen",
+    "marks": "Anmerkungen",
+    "title": "Anmerkungen",
     "kindLabel": "Anzeigen",
     "kind": {
       "all": "Alle",
       "note": "Notizen",
-      "highlight": "Hervorhebungen",
+      "highlight": "Markierungen",
       "bookmark": "Lesezeichen"
     },
     "book": "Buch",
@@ -177,19 +177,19 @@
     "anyColor": "Jede Farbe",
     "search": "Notizen durchsuchen",
     "searchPlaceholder": "Notizen durchsuchen …",
-    "count_one": "{{count}} Markierung",
-    "count_other": "{{count}} Markierungen",
-    "loading": "Markierungen werden geladen …",
+    "count_one": "{{count}} Anmerkung",
+    "count_other": "{{count}} Anmerkungen",
+    "loading": "Anmerkungen werden geladen …",
     "loadMore": "Mehr laden",
     "empty": {
-      "none": "Noch keine Markierungen.",
-      "noneBody": "Hervorhebungen, Notizen und Lesezeichen, die beim Lesen entstehen, erscheinen hier.",
+      "none": "Noch keine Anmerkungen.",
+      "noneBody": "Markierungen, Notizen und Lesezeichen, die beim Lesen entstehen, erscheinen hier.",
       "noMatch": "Dazu gibt es nichts. Versuche ein anderes Buch oder eine andere Farbe.",
       "noSearch": "Keine Notiz passt zur Suche."
     },
     "result": {
       "note": "Notiz",
-      "highlight": "Hervorhebung",
+      "highlight": "Markierung",
       "bookmark": "Lesezeichen",
       "wholeVerse": "Ganzer Vers",
       "show": "In der Bibel anzeigen"
