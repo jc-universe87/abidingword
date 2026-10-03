@@ -101,7 +101,10 @@ The authoritative baseline is the frozen
 it: [`docs/foundation-v0.1.md`](docs/foundation-v0.1.md),
 [`docs/scripture-v0.2.md`](docs/scripture-v0.2.md),
 [`docs/studies-v0.3.md`](docs/studies-v0.3.md) and
-[`docs/library-v0.4.md`](docs/library-v0.4.md).
+[`docs/library-v0.4.md`](docs/library-v0.4.md). After v0.4 (on the v0.5 branch):
+[`docs/scripture-annotations-v0.5.md`](docs/scripture-annotations-v0.5.md),
+[`docs/formatted-source-viewer.md`](docs/formatted-source-viewer.md) and, for
+what is deliberately not built yet, [`docs/product-backlog.md`](docs/product-backlog.md).
 
 ## Milestones
 
@@ -110,6 +113,7 @@ it: [`docs/foundation-v0.1.md`](docs/foundation-v0.1.md),
 | Foundation v0.1 | complete, frozen | shell, data folder, migrations, integrity check, pre-migration backup |
 | Scripture v0.2 | complete | canon, references, reader, Bible import, annotations, search |
 | Studies v0.3 | complete (tag `studies-v0.3`) | study types, findings, templates, relations, study search |
+| Scripture annotations v0.5 | release candidate (`feature/scripture-annotations-v0.5`, not merged) | verse and phrase highlights in five colours, notes, bookmarks, the annotation inspector, the Marks view; PDF Original view and Contents for PDF and EPUB |
 | Library v0.4 | in development (`feature/library-v0.4`) | PDF/EPUB/Markdown/text import, provenance, library search, passage mentions, finding citations |
 
 ## Supported platforms

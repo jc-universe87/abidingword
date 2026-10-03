@@ -63,6 +63,65 @@ reflection prompts, audience/application sections.
 - The original material is never silently restructured or overwritten, and
   stays separate from the resulting template.
 
+### Study workspace UX simplification (high priority)
+
+The Study / Project workspace currently shows too many internal concepts at
+once: title, active/status, template, type, empty-findings messages,
+purpose/goal, primary passage, related passages, linked items and studies,
+text blocks and several Add controls. User feedback: too cluttered.
+
+**Rule: show only what the user needs at the current moment.** The workspace
+should be redesigned around progressive disclosure. The first impression is:
+what passage or topic is being studied, the study content itself, and the next
+natural action. Internal metadata stays available but largely leaves the
+normal study surface.
+
+- **Title**: derived automatically where sensible, editable in place, not a
+  permanent form field.
+- **Type / template**: may stay separate internally, but should not be two
+  separate conceptual decisions in normal use. Chosen mainly at creation and
+  hidden afterwards unless the user wants to change or customise.
+- **Status**: not prominent; move to Study details/settings if needed.
+- **Purpose / goal**: optional; reveal only when genuinely useful (e.g.
+  teaching preparation).
+- **Primary passage**: no redundant form field when it is already obvious.
+- **Related passages**: a quiet "+ Related passage" action; existing ones
+  shown compactly.
+- **Links, related studies, findings**: hidden until present or requested.
+- **Adding content**: avoid several competing Add buttons; one obvious action
+  can reveal the relevant content types.
+
+Core test: *the user should be studying Scripture, not operating the Study
+data model.* (See the principle in [`concept.md`](concept.md) §3a.)
+
+### Document annotations and ink (future milestone)
+
+**Document Annotations & Ink** is a separate system from the structured
+Scripture annotations of v0.5. For PDF sources, including PDF Bibles, future
+support would include: text highlighting; notes attached to text, a page or a
+location; page/location bookmarks; freehand pen/stylus markup (underline and
+shapes possibly later); exact navigation back to the annotated page or
+location. The original PDF stays untouched and annotations are stored
+separately.
+
+| | Structured Scripture annotations (v0.5) | Document / PDF annotations (future) |
+|---|---|---|
+| Tied to | canonical verse / phrase | one source document |
+| Position | canonical reference, translation-aware | page, text or location |
+| Ink | no | yes |
+| Works without structured Scripture | no | yes |
+
+For a PDF Bible the two may eventually be linked **only if reliable verse
+mapping exists**. Page annotations never automatically correspond to
+canonical Scripture and no verse mapping is invented.
+
+The Marks view should eventually be able to surface Scripture notes,
+highlights and bookmarks, PDF/source notes, highlights and bookmarks, and ink
+together, hiding the technical distinction unless the user needs it. Stylus
+support should consider Windows pen, touch devices, tablets and pen-enabled
+laptops, a smooth handwriting experience, and pressure/stroke data only if
+needed.
+
 ## 1. Detachable panes (multi-monitor workspace)
 
 The workspace has three primary panes: **Scripture | Study | Sources**. Each

@@ -1,10 +1,14 @@
 # Abiding Word — Scripture Reading & Annotation v0.5
 
-> Status: **in progress.** Implemented: typed annotation data, phrase
-> anchors, the selection toolbar, colours, phrase and verse marks, and the
-> overlapping-highlight rule below. The selection spike was verified on
-> ChromeOS/WebKitGTK. The Marks view is implemented. Sections marked
-> *planned* describe work not yet implemented.
+> Status: **release candidate (Phase 7).** Everything below marked
+> *(implemented)* is built and tested; the sections under "Not in v0.5" are
+> future work. Implemented: typed annotation data, phrase anchors,
+> deterministic anchoring to exact wording, the selection toolbar, five
+> colours, physical-highlighter overlap normalisation, the annotation
+> inspector, and the Marks view. The selection spike was verified on
+> ChromeOS/WebKitGTK. The branch also carries the PDF Original view and
+> Contents navigation; see
+> [`formatted-source-viewer.md`](formatted-source-viewer.md).
 
 Builds on [`scripture-v0.2.md`](scripture-v0.2.md) (canonical references,
 translations, the `annotations` table). The frozen
@@ -19,8 +23,8 @@ careful reading: highlight a verse or a phrase in one of a few restrained
 colours, leave a quick note on a verse or a phrase, see a small marker
 where marks exist, bookmark places, and find any of these again later.
 
-Out of scope: Study integration, AI, formatted Bible rendering, export,
-sync, general notes management.
+Out of scope (see "Not in v0.5"): Study integration, AI, formatted Bible
+rendering, export, sync, general notes management.
 
 ## Principles
 
@@ -144,6 +148,7 @@ Phrase highlights that overlap or touch: see "Overlapping highlights".
 | `annotation_create(input)` | + `color`, `anchor {translationId, start, end, quote}` |
 | `annotation_update(input)` | `content` and/or `color` (both optional) |
 | `annotation_delete(id)` | unchanged (soft delete) |
+| `annotation_marks_list(query)` | new (Phase 6): a page of notes, highlights and bookmarks in Scripture order for the Marks view |
 | `annotation_anchor_check(input)` | new: validates a phrase anchor without saving; returns the rebuilt quote and covered verses (used by the selection spike, kept for the toolbar) |
 
 ## Reader interaction (implemented)
@@ -377,6 +382,61 @@ content and a canonical passage. Provenance would be recorded on both sides
 (`findings.data` and the annotation's `data`, both unused today). The
 annotation stays where it is; the finding is a separate record.
 
+## What v0.5 is (final)
+
+- **Verse annotations**: bookmark, verse highlight (five colours), verse
+  notes, all independent of translation.
+- **Phrase annotations**: highlight or note on exact words within a chapter,
+  anchored deterministically (UTF-16 offsets, rebuilt quote, verse hashes),
+  drawn only where the wording is identical, otherwise kept and listed as
+  "Not shown in this wording". Never fuzzy matching.
+- **Five colours** (amber, green, blue, rose, grey), always named in text.
+- **Physical-highlighter overlap normalisation** in the core, atomic and
+  without a migration.
+- **Annotation inspector** (panel, or full-width sheet in a narrow pane) with
+  one marker per annotated verse; focus, Escape and accessibility as
+  described below.
+- **Marks view** in the Scripture pane: kind, book and (for highlights)
+  colour filters, a note-text search, Scripture order, Load more, and
+  navigation back to the passage without changing the translation.
+
+Reviewed as one release candidate (Phase 7): navigating to a passage by any
+route now shows the Bible and starts the verse tools afresh (a stale
+inspector could stay open for a verse the reader had left), and "Load more"
+keeps focus on what arrived. Cross-feature regression tests live in
+`tests/ui/v05-regression.test.tsx`.
+
+## Not in v0.5 (future)
+
+- **PDF / source annotations** (highlights, notes and bookmarks tied to a
+  document page or location) and **stylus / ink**: a separate, document-based
+  system, distinct from these canonical Scripture annotations; see
+  [`product-backlog.md`](product-backlog.md).
+- **Annotation → finding** (see above).
+- **Versification-aware cross-translation mapping**: phrase marks are not
+  carried across translations with different wording or verse numbering.
+- **Formatted Bible source view** (see "Original Bible documents").
+- **Export and sync** of annotations.
+- Study workspace simplification and the other items in the backlog.
+
+## Release-candidate acceptance (Windows)
+
+1. **Scripture**: go to a passage; change translation; select a phrase; add a
+   phrase highlight; highlight an overlapping range in a second colour and see
+   it recolour only those words; add a phrase note; highlight a whole verse;
+   bookmark; open the inspector from a verse number and from a marker; Escape
+   closes it and focus returns.
+2. **Marks**: All, Notes, Highlights, Bookmarks; book filter; colour filter
+   (only with Highlights); search note text; open a mark and land on the
+   verse in the same Bible; a phrase read in another wording says "Not shown
+   in this wording".
+3. **Sources**: open a PDF's Original in the pane and the full reader; zoom;
+   scroll across a zoomed page; Reading ⇄ Original; Contents (PDF outline,
+   EPUB table of contents); Escape closes and focus returns.
+4. **Layout**: narrow and wide panes; light and dark themes.
+5. **General**: restart and confirm annotations remain; no crashes; Settings →
+   Updates detects the test build.
+
 ## Phases
 
 | Phase | Content | Status |
@@ -388,7 +448,7 @@ annotation stays where it is; the finding is a separate record.
 | 4 | overlapping phrase highlights (physical-highlighter normalisation in the core) | done |
 | 5 | annotation inspector (retires inline VerseTools), interactive marker, narrow-pane sheet, focus and accessibility | done |
 | 6 | Marks view, filters, note search, navigation | done |
-| 7 | documentation, tests, real-app acceptance, release preparation | — |
+| 7 | documentation, cleanup, regression review, acceptance checklist, release preparation | done (release candidate; merge and tag await sign-off) |
 
 ## Phase 2 spike
 
