@@ -29,6 +29,7 @@ import type {
 } from "@/types/scripture";
 import { contains, refFromCanonical } from "@/lib/scripture";
 import type {
+  ContentsItem,
   FindingCitation,
   LibraryHit,
   PassageMention,
@@ -106,6 +107,8 @@ export interface SourceFixture {
   segments: { text: string; pageNumber?: number; sectionPath?: string }[];
   /** Scripture mentions: segment index, canonical reference, text as written. */
   mentions?: { segment: number; reference: string; matchedText: string }[];
+  /** The contents an EPUB carries (segment targets), as the core would return them. */
+  contents?: ContentsItem[];
 }
 
 /**
@@ -380,6 +383,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
   };
   const locator = (s: { pageNumber: number | null; sectionPath: string | null; paragraphIndex: number | null }) =>
     s.pageNumber !== null ? `p. ${s.pageNumber}` : (s.sectionPath ?? `¶ ${(s.paragraphIndex ?? 0) + 1}`);
+  const contentsOf = new Map<string, ContentsItem[]>();
   const addSource = (fixture: SourceFixture, extra: Partial<Source> = {}): Source => {
     const t = now();
     const sourceId = id();
@@ -411,6 +415,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       deleted: false, ...extra,
     };
     library.sources.push(source);
+    if (fixture.contents) contentsOf.set(sourceId, fixture.contents);
     return source;
   };
   const toSummary = (s: Source): SourceSummary => ({
@@ -981,6 +986,10 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         if (first) return window(sourceId, Math.max(0, first.position - Math.floor(limit / 3)), limit, null);
       }
       return window(sourceId, offset, limit, null);
+    },
+    librarySourceContents: async (sourceId) => {
+      liveSource(sourceId);
+      return contentsOf.get(sourceId) ?? [];
     },
     libraryOriginalInfo: async (sourceId) => {
       const source = liveSource(sourceId);

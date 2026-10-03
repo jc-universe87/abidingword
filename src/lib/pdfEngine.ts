@@ -1,3 +1,4 @@
+import type { ContentsItem } from "@/types/library";
 import type { Api } from "./api";
 
 /**
@@ -32,4 +33,10 @@ export interface PdfDocument {
 export interface PdfEngine {
   /** Opens a source's original PDF. Reads only the byte ranges it needs. */
   open(api: Api, sourceId: string): Promise<PdfDocument>;
+  /**
+   * The outline (bookmarks) the PDF itself carries, nested, each entry
+   * resolved to a physical page. Empty when it has none; never generated.
+   * Reads the outline objects only, never the pages' content.
+   */
+  outline(api: Api, sourceId: string): Promise<ContentsItem[]>;
 }

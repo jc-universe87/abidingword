@@ -150,3 +150,19 @@ export interface FindingCitation {
   locator: string | null;
   removed: boolean;
 }
+
+/**
+ * A place a contents entry leads to: a physical PDF page, or (EPUB) the
+ * position of a segment of the extracted text. Always internal to the source.
+ */
+export type ContentsTarget = { kind: "page"; page: number } | { kind: "segment"; position: number };
+
+/** One entry of a source's own table of contents. Never generated. */
+export interface ContentsItem {
+  /** Stable within one source's contents. */
+  id: string;
+  title: string;
+  /** None for a heading that only groups its children. */
+  target: ContentsTarget | null;
+  children: ContentsItem[];
+}

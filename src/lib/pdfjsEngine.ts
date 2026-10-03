@@ -1,3 +1,4 @@
+import type { ContentsItem } from "@/types/library";
 import type { Api } from "./api";
 import type { PdfDocument, PdfEngine, PdfPageSize, PdfRender } from "./pdfEngine";
 
@@ -37,9 +38,9 @@ async function loadPdfJs() {
 
 type PdfJs = Awaited<ReturnType<typeof loadPdfJs>>;
 
-export function createPdfJsEngine(): PdfEngine {
-  return {
-    async open(api: Api, sourceId: string): Promise<PdfDocument> {
+async function openRaw(api: Api, sourceId: string) {
+  {
+    {
       const pdfjs = await loadPdfJs();
       const info = await api.libraryOriginalInfo(sourceId);
       const first = await api.libraryOriginalRead(sourceId, 0, Math.min(INITIAL_BYTES, info.sizeBytes));
@@ -76,9 +77,98 @@ export function createPdfJsEngine(): PdfEngine {
         enableXfa: false,
       });
       const doc = await task.promise;
-      return wrap(pdfjs, doc, () => task.destroy());
+      return { pdfjs, doc, destroy: () => task.destroy() };
+    }
+  }
+}
+
+export function createPdfJsEngine(): PdfEngine {
+  return {
+    async open(api: Api, sourceId: string): Promise<PdfDocument> {
+      const { pdfjs, doc, destroy } = await openRaw(api, sourceId);
+      return wrap(pdfjs, doc, destroy);
+    },
+    async outline(api: Api, sourceId: string): Promise<ContentsItem[]> {
+      const { doc, destroy } = await openRaw(api, sourceId);
+      try {
+        return await resolveOutline(doc, (await doc.getOutline()) ?? []);
+      } finally {
+        void destroy();
+      }
     },
   };
+}
+
+/** What outline resolution needs from a PDF.js document (so it can be tested without one). */
+export interface OutlineSource {
+  numPages: number;
+  getDestination(name: string): Promise<unknown[] | null>;
+  getPageIndex(ref: never): Promise<number>;
+}
+
+const MAX_OUTLINE_ITEMS = 5000;
+const MAX_OUTLINE_DEPTH = 12;
+const MAX_TITLE = 300;
+
+/**
+ * Turns PDF.js's outline into the app's contents tree. A destination is a
+ * name (looked up in the document's name tree) or an explicit array whose
+ * first element is a reference to the page object (or, in some producers, a
+ * plain page index); either way it is resolved to a physical page number
+ * with PDF.js itself, never assumed to hold one. Entries that lead nowhere
+ * inside the document (a web link, a broken or out-of-range destination)
+ * keep no target; those left with neither a target nor children are dropped.
+ * Malformed entries are skipped, never fatal.
+ */
+export async function resolveOutline(doc: OutlineSource, raw: unknown): Promise<ContentsItem[]> {
+  const cache = new Map<string, number | null>();
+  let count = 0;
+
+  const pageOf = async (dest: unknown): Promise<number | null> => {
+    try {
+      const target = typeof dest === "string" ? await doc.getDestination(dest) : dest;
+      if (!Array.isArray(target) || target.length === 0) return null;
+      const head: unknown = target[0];
+      let index: number;
+      if (typeof head === "number") {
+        index = head;
+      } else if (head && typeof head === "object" && "num" in head) {
+        const ref = head as { num: number; gen?: number };
+        const key = `${ref.num}:${ref.gen ?? 0}`;
+        if (!cache.has(key)) cache.set(key, await doc.getPageIndex(ref as never).catch(() => -1));
+        index = cache.get(key) ?? -1;
+      } else {
+        return null;
+      }
+      return Number.isInteger(index) && index >= 0 && index < doc.numPages ? index + 1 : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const walk = async (entries: unknown, depth: number): Promise<ContentsItem[]> => {
+    const out: ContentsItem[] = [];
+    if (!Array.isArray(entries)) return out;
+    for (const entry of entries) {
+      if (count >= MAX_OUTLINE_ITEMS) break;
+      if (!entry || typeof entry !== "object") continue;
+      const item = entry as { title?: unknown; dest?: unknown; items?: unknown };
+      const title = typeof item.title === "string" ? item.title.replace(/\s+/g, " ").trim().slice(0, MAX_TITLE) : "";
+      const id = `p${count}`;
+      if (title) count += 1;
+      const children = depth + 1 < MAX_OUTLINE_DEPTH ? await walk(item.items, depth + 1) : [];
+      if (!title) {
+        out.push(...children); // an untitled wrapper: its children still count
+        continue;
+      }
+      const page = item.dest === undefined || item.dest === null ? null : await pageOf(item.dest);
+      if (page === null && children.length === 0) continue;
+      out.push({ id, title, target: page === null ? null : { kind: "page", page }, children });
+    }
+    return out;
+  };
+
+  return walk(raw, 0);
 }
 
 function wrap(

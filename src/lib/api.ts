@@ -61,6 +61,7 @@ import type {
 import type {
   CommitSourceImport,
   LibraryResults,
+  ContentsItem,
   OriginalInfo,
   PassageMention,
   SegmentWindow,
@@ -123,6 +124,8 @@ export interface Api {
   libraryOpenSegment(segmentId: string): Promise<SegmentWindow>;
   sourceGetSegments(input: { sourceId: string; offset?: number; limit?: number; aroundPage?: number }): Promise<SegmentWindow>;
   /** Size and kind of a source's original file, found by source id only. */
+  /** The contents an EPUB carries, as segment targets (a PDF's outline comes from the PDF engine). */
+  librarySourceContents(id: string): Promise<ContentsItem[]>;
   libraryOriginalInfo(id: string): Promise<OriginalInfo>;
   /** A bounded range of a source's original file (never the whole file). */
   libraryOriginalRead(id: string, offset: number, length: number): Promise<Uint8Array>;
@@ -265,6 +268,7 @@ export const tauriApi: Api = {
   librarySearch: (input) => call("library_search", { input }),
   libraryOpenSegment: (segmentId) => call("library_open_segment", { segmentId }),
   sourceGetSegments: (input) => call("source_get_segments", { input }),
+  librarySourceContents: (id) => call("library_source_contents", { id }),
   libraryOriginalInfo: (id) => call("library_original_info", { id }),
   libraryOriginalRead: async (id, offset, length) =>
     new Uint8Array(await call<ArrayBuffer>("library_original_read", { id, offset, length })),

@@ -1,4 +1,5 @@
 import type { PdfDocument, PdfEngine, PdfPageSize } from "@/lib/pdfEngine";
+import type { ContentsItem } from "@/types/library";
 
 export interface FakePdfEngine extends PdfEngine {
   /** Source ids opened, in order. */
@@ -12,10 +13,16 @@ export interface FakePdfEngine extends PdfEngine {
   failOpen: boolean;
   /** Makes drawing fail. */
   failRender: boolean;
+  /** The outline the PDF "carries" (none by default). */
+  outlineItems: ContentsItem[];
+  /** Makes reading the outline fail. */
+  failOutline: boolean;
+  /** Source ids whose outline was read. */
+  outlineReads: string[];
 }
 
 /** A synthetic PDF renderer for tests: `pages` pages of `size`, no canvas needed. */
-export function createFakePdfEngine({ pages = 5, size = { width: 600, height: 800 } }: { pages?: number; size?: PdfPageSize } = {}): FakePdfEngine {
+export function createFakePdfEngine({ pages = 5, size = { width: 600, height: 800 }, outline = [] }: { pages?: number; size?: PdfPageSize; outline?: ContentsItem[] } = {}): FakePdfEngine {
   const engine: FakePdfEngine = {
     opened: [],
     rendered: new Set(),
@@ -23,6 +30,14 @@ export function createFakePdfEngine({ pages = 5, size = { width: 600, height: 80
     destroyed: 0,
     failOpen: false,
     failRender: false,
+    outlineItems: outline,
+    failOutline: false,
+    outlineReads: [],
+    async outline(_api, sourceId) {
+      engine.outlineReads.push(sourceId);
+      if (engine.failOutline) throw new Error("synthetic: the outline could not be read");
+      return engine.outlineItems;
+    },
     async open(_api, sourceId) {
       engine.opened.push(sourceId);
       if (engine.failOpen) throw new Error("synthetic: the PDF could not be read");
