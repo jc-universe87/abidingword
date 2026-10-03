@@ -3,6 +3,7 @@
 //! See docs/library-v0.4.md.
 
 pub mod adapters;
+pub mod contents;
 pub mod files;
 pub mod import;
 pub mod original;

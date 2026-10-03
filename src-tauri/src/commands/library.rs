@@ -15,7 +15,7 @@ use crate::db::{findings, library};
 use crate::domain::Finding;
 use crate::error::{AppError, ErrorPayload, UserMessage};
 use crate::filesystem;
-use crate::library::{adapters, import, original};
+use crate::library::{adapters, contents, import, original};
 use crate::library::{
     AddFindingSource, CommitSourceImport, FindingCitation, GetSegments, LibraryResults,
     ListSources, PassageMention, SearchLibrary, SegmentWindow, Source, SourceImportPreview,
@@ -282,3 +282,34 @@ pub fn library_original_read(
     let file = original::open(&core.dirs.sources(), &id, &relative, &format)?;
     Ok(tauri::ipc::Response::new(file.read(offset, length)?))
 }
+
+/// The contents the source itself carries, as a nested tree of internal
+/// targets. EPUB only here (read from the managed file, mapped to segment
+/// positions); a PDF's outline is read by the viewer's PDF engine. Anything
+/// else, and a book without usable contents, gives an empty list.
+#[tauri::command(async)]
+pub fn library_source_contents(
+    state: State<'_, AppState>,
+    id: String,
+) -> CommandResult<Vec<contents::ContentsItem>> {
+    let core = state.core()?;
+    let (source, record) = core.db.with_conn(|conn| {
+        let source = library::get(conn, &id)?;
+        let record = library::original_record(conn, &id).ok();
+        Ok((source, record))
+    })?;
+    let Some((relative, format)) = record else {
+        return Ok(Vec::new());
+    };
+    if format != "epub" {
+        return Ok(Vec::new());
+    }
+    let bytes = original::read_managed(&core.dirs.sources(), &id, &relative, MAX_CONTENTS_FILE)?;
+    Ok(adapters::epub::contents(
+        &bytes,
+        usize::try_from(source.segment_count).unwrap_or(0),
+    ))
+}
+
+/// The largest EPUB read for its contents (matches what import accepts).
+const MAX_CONTENTS_FILE: u64 = 200 * 1024 * 1024;

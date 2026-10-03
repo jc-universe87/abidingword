@@ -3,6 +3,11 @@
 //! heading; deeper headings form the section path. EPUBs have no fixed
 //! pages, so none are invented. Scripts and styles are skipped; nothing in
 //! the book is executed.
+//!
+//! The book's own table of contents (EPUB 3 navigation document, EPUB 2 NCX)
+//! is read on demand from the managed file by [`contents`], and each entry is
+//! mapped to the position of the extracted segment it leads to. Nothing is
+//! stored for it, and nothing is generated when a book has none.
 
 use std::collections::HashMap;
 use std::io::{Cursor, Read};
@@ -15,6 +20,7 @@ use super::{
     SourceImportAdapter,
 };
 use crate::error::{AppError, AppResult, UserMessage};
+use crate::library::contents::{clean_title, ContentsItem, ContentsTarget, MAX_DEPTH, MAX_ITEMS};
 
 pub struct EpubImporter;
 
@@ -31,86 +37,156 @@ impl SourceImportAdapter for EpubImporter {
     }
 
     fn extract(&self, bytes: &[u8], file_name: &str) -> AppResult<ImportedDocument> {
-        let bad = |why: &str| {
-            AppError::Import(
-                UserMessage::new(
-                    "library.badEpub",
-                    format!("“{file_name}” could not be read as an EPUB book ({why})."),
-                )
-                .with("fileName", file_name),
-            )
-        };
-        let mut archive =
-            zip::ZipArchive::new(Cursor::new(bytes)).map_err(|_| bad("not a valid archive"))?;
-        let container = read_entry(&mut archive, "META-INF/container.xml")
-            .ok_or_else(|| bad("no container"))?;
-        let opf_path = attribute_of(&container, "rootfile", "full-path")
-            .ok_or_else(|| bad("no package document"))?;
-        let opf =
-            read_entry(&mut archive, &opf_path).ok_or_else(|| bad("package document missing"))?;
-        let base = opf_path
-            .rsplit_once('/')
-            .map(|(dir, _)| format!("{dir}/"))
-            .unwrap_or_default();
-        let package = parse_package(&opf);
-        if package.spine.is_empty() {
-            return Err(bad("no reading order"));
-        }
+        read_book(bytes, file_name, false).map(|(document, _)| document)
+    }
+}
 
-        let mut segments = Vec::new();
-        let mut chapters = 0u32;
-        for idref in &package.spine {
-            let Some(href) = package.manifest.get(idref) else {
+/// The book's own contents, each entry pointing at the segment (by position
+/// in the extracted text) it leads to. Empty when the book has no usable
+/// contents, or when its text no longer matches what was imported
+/// (`expected_segments`), since positions could then be wrong. Never fails
+/// the book: anything unreadable simply yields no contents.
+pub fn contents(bytes: &[u8], expected_segments: usize) -> Vec<ContentsItem> {
+    match read_book(bytes, "book.epub", true) {
+        Ok((document, items)) if document.segments.len() == expected_segments => items,
+        _ => Vec::new(),
+    }
+}
+
+/// Where each spine document's text starts, and where its anchors fall, in
+/// the numbering of the extracted segments.
+#[derive(Default)]
+struct Layout {
+    docs: HashMap<String, DocLayout>,
+    total: usize,
+}
+
+#[derive(Default)]
+struct DocLayout {
+    first: usize,
+    anchors: HashMap<String, usize>,
+}
+
+impl Layout {
+    /// The segment a (document, fragment) leads to: the anchor's own segment
+    /// if the fragment is known, else the document's first. None if the
+    /// document is not part of the reading order or the book has no text.
+    fn position(&self, path: &str, fragment: Option<&str>) -> Option<i64> {
+        let doc = self.docs.get(path)?;
+        let at = fragment
+            .and_then(|f| doc.anchors.get(f).copied())
+            .unwrap_or(doc.first);
+        (self.total > 0).then(|| at.min(self.total - 1) as i64)
+    }
+}
+
+fn read_book(
+    bytes: &[u8],
+    file_name: &str,
+    want_contents: bool,
+) -> AppResult<(ImportedDocument, Vec<ContentsItem>)> {
+    let bad = |why: &str| {
+        AppError::Import(
+            UserMessage::new(
+                "library.badEpub",
+                format!("“{file_name}” could not be read as an EPUB book ({why})."),
+            )
+            .with("fileName", file_name),
+        )
+    };
+    let mut archive =
+        zip::ZipArchive::new(Cursor::new(bytes)).map_err(|_| bad("not a valid archive"))?;
+    let container =
+        read_entry(&mut archive, "META-INF/container.xml").ok_or_else(|| bad("no container"))?;
+    let opf_path = attribute_of(&container, "rootfile", "full-path")
+        .ok_or_else(|| bad("no package document"))?;
+    let opf = read_entry(&mut archive, &opf_path).ok_or_else(|| bad("package document missing"))?;
+    let base = opf_path
+        .rsplit_once('/')
+        .map(|(dir, _)| format!("{dir}/"))
+        .unwrap_or_default();
+    let package = parse_package(&opf);
+    if package.spine.is_empty() {
+        return Err(bad("no reading order"));
+    }
+
+    let mut segments = Vec::new();
+    let mut layout = Layout::default();
+    let mut chapters = 0u32;
+    for idref in &package.spine {
+        let Some(item) = package.manifest.get(idref) else {
+            continue;
+        };
+        let path = normalise(&format!("{base}{}", item.href));
+        let Some(xhtml) = read_entry(&mut archive, &path) else {
+            continue;
+        };
+        let (blocks, anchors) = blocks(&xhtml);
+        let chapter = blocks
+            .iter()
+            .find(|b| b.heading_level.is_some())
+            .map(|b| b.text.clone());
+        if chapter.is_some() {
+            chapters += 1;
+        }
+        let mut doc = DocLayout {
+            first: segments.len(),
+            anchors: HashMap::new(),
+        };
+        // Segments emitted before each block, to place anchors among them.
+        let mut before = Vec::with_capacity(blocks.len() + 1);
+        let mut headings: Vec<Option<String>> = vec![None; 6];
+        let mut paragraph = 0u32;
+        for block in blocks {
+            before.push(segments.len());
+            if let Some(level) = block.heading_level {
+                headings[level - 1] = Some(block.text);
+                for deeper in headings.iter_mut().skip(level) {
+                    *deeper = None;
+                }
+                paragraph = 0;
                 continue;
-            };
-            let path = normalise(&format!("{base}{href}"));
-            let Some(xhtml) = read_entry(&mut archive, &path) else {
-                continue;
-            };
-            let blocks = blocks(&xhtml);
-            let chapter = blocks
-                .iter()
-                .find(|b| b.heading_level.is_some())
-                .map(|b| b.text.clone());
-            if chapter.is_some() {
-                chapters += 1;
             }
-            let mut headings: Vec<Option<String>> = vec![None; 6];
-            let mut paragraph = 0u32;
-            for block in blocks {
-                if let Some(level) = block.heading_level {
-                    headings[level - 1] = Some(block.text);
-                    for deeper in headings.iter_mut().skip(level) {
-                        *deeper = None;
-                    }
-                    paragraph = 0;
-                    continue;
-                }
-                let names: Vec<&str> = headings.iter().flatten().map(String::as_str).collect();
-                let section_path = (!names.is_empty()).then(|| names.join(" › "));
-                let heading = headings.iter().rev().flatten().next().cloned();
-                for part in split_long(&block.text, MAX_SEGMENT) {
-                    segments.push(NewSegment {
-                        text: part,
-                        chapter: chapter.clone(),
-                        heading: heading.clone(),
-                        section_path: section_path.clone().or_else(|| chapter.clone()),
-                        paragraph_index: Some(paragraph),
-                        ..Default::default()
-                    });
-                    paragraph += 1;
-                }
+            let names: Vec<&str> = headings.iter().flatten().map(String::as_str).collect();
+            let section_path = (!names.is_empty()).then(|| names.join(" › "));
+            let heading = headings.iter().rev().flatten().next().cloned();
+            for part in split_long(&block.text, MAX_SEGMENT) {
+                segments.push(NewSegment {
+                    text: part,
+                    chapter: chapter.clone(),
+                    heading: heading.clone(),
+                    section_path: section_path.clone().or_else(|| chapter.clone()),
+                    paragraph_index: Some(paragraph),
+                    ..Default::default()
+                });
+                paragraph += 1;
             }
         }
-        Ok(ImportedDocument {
+        before.push(segments.len());
+        for (id, block_index) in anchors {
+            let at = before.get(block_index).copied().unwrap_or(segments.len());
+            doc.anchors.entry(id).or_insert(at);
+        }
+        layout.docs.entry(path).or_insert(doc);
+    }
+    layout.total = segments.len();
+
+    let items = if want_contents {
+        read_contents(&mut archive, &package, &base, &layout)
+    } else {
+        Vec::new()
+    };
+    Ok((
+        ImportedDocument {
             format: "epub",
             metadata: package.metadata,
             segments,
             extraction_status: ExtractionStatus::DigitalText,
             page_count: None,
             chapter_count: Some(chapters),
-        })
-    }
+        },
+        items,
+    ))
 }
 
 fn read_entry(archive: &mut zip::ZipArchive<Cursor<&[u8]>>, name: &str) -> Option<String> {
@@ -160,10 +236,18 @@ fn attribute_of(xml: &str, element: &str, attribute: &str) -> Option<String> {
     }
 }
 
+struct ManifestItem {
+    href: String,
+    media_type: String,
+    properties: String,
+}
+
 struct Package {
     metadata: FoundMetadata,
-    manifest: HashMap<String, String>,
+    manifest: HashMap<String, ManifestItem>,
     spine: Vec<String>,
+    /// The spine's `toc` attribute: the manifest id of the NCX (EPUB 2).
+    ncx_id: Option<String>,
 }
 
 fn parse_package(opf: &str) -> Package {
@@ -171,6 +255,7 @@ fn parse_package(opf: &str) -> Package {
     let mut metadata = FoundMetadata::default();
     let mut manifest = HashMap::new();
     let mut spine = Vec::new();
+    let mut ncx_id = None;
     let mut current: Option<String> = None;
     let mut scheme_isbn = false;
     let mut buffer = String::new();
@@ -178,6 +263,13 @@ fn parse_package(opf: &str) -> Package {
         match reader.read_event() {
             Ok(Event::Start(e)) => {
                 let name = local_name(e.name().as_ref()).to_string();
+                if name == "spine" {
+                    ncx_id = e
+                        .attributes()
+                        .flatten()
+                        .find(|a| local_name(a.key.as_ref()) == "toc")
+                        .map(|a| a.value.to_string());
+                }
                 scheme_isbn = e.attributes().flatten().any(|a| {
                     local_name(a.key.as_ref()) == "scheme" && a.value.eq_ignore_ascii_case("isbn")
                 });
@@ -194,7 +286,14 @@ fn parse_package(opf: &str) -> Package {
                 };
                 if name == "item" {
                     if let (Some(id), Some(href)) = (attr("id"), attr("href")) {
-                        manifest.insert(id, percent_decode(&href));
+                        manifest.insert(
+                            id,
+                            ManifestItem {
+                                href: percent_decode(&href),
+                                media_type: attr("media-type").unwrap_or_default(),
+                                properties: attr("properties").unwrap_or_default(),
+                            },
+                        );
                     }
                 } else if name == "itemref" {
                     if let Some(id) = attr("idref") {
@@ -244,6 +343,7 @@ fn parse_package(opf: &str) -> Package {
         metadata,
         manifest,
         spine,
+        ncx_id,
     }
 }
 
@@ -273,10 +373,12 @@ struct Block {
 /// Block-level text of an XHTML document: headings and paragraphs (p, li,
 /// blockquote, dd, dt, pre, and text directly in div/section). Tolerant of
 /// imperfect markup; HTML entities outside XML's five are kept as written.
-fn blocks(xhtml: &str) -> Vec<Block> {
+fn blocks(xhtml: &str) -> (Vec<Block>, Vec<(String, usize)>) {
     let mut reader = Reader::from_str(xhtml);
     reader.config_mut().check_end_names = false;
     let mut out = Vec::new();
+    // Elements with an id, and the index of the block they begin in or at.
+    let mut anchors: Vec<(String, usize)> = Vec::new();
     let mut text = String::new();
     let mut heading: Option<usize> = None;
     let mut skip_depth = 0usize;
@@ -305,6 +407,7 @@ fn blocks(xhtml: &str) -> Vec<Block> {
                     }
                     _ => {}
                 }
+                note_anchor(&e, out.len(), &mut anchors);
             }
             Ok(Event::End(e)) => {
                 let name = local_name(e.name().as_ref()).to_ascii_lowercase();
@@ -323,6 +426,7 @@ fn blocks(xhtml: &str) -> Vec<Block> {
             Ok(Event::Empty(e)) if local_name(e.name().as_ref()).eq_ignore_ascii_case("br") => {
                 text.push(' ')
             }
+            Ok(Event::Empty(e)) => note_anchor(&e, out.len(), &mut anchors),
             // Entities arrive separately (GeneralRef), so text is used as is.
             Ok(Event::Text(t)) if skip_depth == 0 => text.push_str(&t),
             Ok(Event::CData(t)) if skip_depth == 0 => text.push_str(&t),
@@ -335,7 +439,20 @@ fn blocks(xhtml: &str) -> Vec<Block> {
         }
     }
     flush(&mut out, &mut text, heading);
-    out
+    (out, anchors)
+}
+
+fn note_anchor(
+    e: &quick_xml::events::BytesStart,
+    block: usize,
+    anchors: &mut Vec<(String, usize)>,
+) {
+    for a in e.attributes().flatten() {
+        let key = local_name(a.key.as_ref());
+        if key == "id" || (key == "name" && local_name(e.name().as_ref()) == "a") {
+            anchors.push((percent_decode(&a.value), block));
+        }
+    }
 }
 
 /// XML's five entities, numeric references and a few common HTML ones.
@@ -381,13 +498,278 @@ fn unescape(raw: &str) -> String {
     out
 }
 
+// --- The book's own contents ---------------------------------------------------
+
+#[derive(Default)]
+struct RawItem {
+    title: String,
+    href: Option<String>,
+    children: Vec<RawItem>,
+}
+
+/// The navigation document if there is one (EPUB 3), else the NCX (EPUB 2).
+fn read_contents(
+    archive: &mut zip::ZipArchive<Cursor<&[u8]>>,
+    package: &Package,
+    base: &str,
+    layout: &Layout,
+) -> Vec<ContentsItem> {
+    let nav = package
+        .manifest
+        .values()
+        .find(|i| i.properties.split_whitespace().any(|p| p == "nav"));
+    let ncx = package
+        .ncx_id
+        .as_ref()
+        .and_then(|id| package.manifest.get(id))
+        .or_else(|| {
+            package
+                .manifest
+                .values()
+                .find(|i| i.media_type == "application/x-dtbncx+xml")
+        });
+    for (item, is_nav) in [(nav, true), (ncx, false)] {
+        let Some(item) = item else { continue };
+        let path = normalise(&format!("{base}{}", item.href));
+        let Some(xml) = read_entry(archive, &path) else {
+            continue;
+        };
+        let dir = path.rsplit_once('/').map(|(d, _)| d).unwrap_or("");
+        let raw = if is_nav {
+            parse_nav(&xml)
+        } else {
+            parse_ncx(&xml)
+        };
+        let mut counter = 0usize;
+        let items = convert(raw, 0, dir, layout, &mut counter);
+        if !items.is_empty() {
+            return items;
+        }
+    }
+    Vec::new()
+}
+
+fn convert(
+    raw: Vec<RawItem>,
+    depth: usize,
+    dir: &str,
+    layout: &Layout,
+    counter: &mut usize,
+) -> Vec<ContentsItem> {
+    let mut out = Vec::new();
+    for item in raw {
+        if *counter >= MAX_ITEMS {
+            break;
+        }
+        let title = clean_title(&item.title);
+        let id = format!("n{counter}");
+        if !title.is_empty() {
+            *counter += 1;
+        }
+        let children = if depth + 1 < MAX_DEPTH {
+            convert(item.children, depth + 1, dir, layout, counter)
+        } else {
+            Vec::new()
+        };
+        if title.is_empty() {
+            // An untitled wrapper: its children still count.
+            out.extend(children);
+            continue;
+        }
+        let target = item
+            .href
+            .as_deref()
+            .and_then(|href| internal_target(dir, href))
+            .and_then(|(path, fragment)| layout.position(&path, fragment.as_deref()))
+            .map(|position| ContentsTarget::Segment { position });
+        if target.is_none() && children.is_empty() {
+            continue; // nowhere to go (external, outside the book, or not in reading order)
+        }
+        out.push(ContentsItem {
+            id,
+            title,
+            target,
+            children,
+        });
+    }
+    out
+}
+
+/// An href as an internal (path in the archive, fragment), or None for
+/// anything else: an external or scripted link (`https:`, `javascript:`,
+/// `data:` …), an absolute path, backslashes, or a path that climbs out of
+/// the book.
+fn internal_target(dir: &str, href: &str) -> Option<(String, Option<String>)> {
+    let href = href.trim();
+    let (path, fragment) = match href.split_once('#') {
+        Some((p, f)) => (p, Some(f)),
+        None => (href, None),
+    };
+    let first_segment = path.split('/').next().unwrap_or("");
+    if path.is_empty()
+        || first_segment.contains(':')
+        || path.starts_with('/')
+        || path.contains('\\')
+        || path.contains('\0')
+    {
+        return None;
+    }
+    let path = percent_decode(path);
+    if path.contains('\\') || path.contains('\0') {
+        return None;
+    }
+    let mut parts: Vec<&str> = dir.split('/').filter(|p| !p.is_empty()).collect();
+    for part in path.split('/') {
+        match part {
+            "" | "." => {}
+            ".." => {
+                parts.pop()?; // climbing above the book's root
+            }
+            p => parts.push(p),
+        }
+    }
+    Some((parts.join("/"), fragment.map(percent_decode)))
+}
+
+fn attr_value(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
+    e.attributes()
+        .flatten()
+        .find(|a| local_name(a.key.as_ref()) == key)
+        .map(|a| a.value.to_string())
+}
+
+/// EPUB 3: the `<nav epub:type="toc">` list, nested `ol > li > (a | span, ol)`.
+fn parse_nav(xhtml: &str) -> Vec<RawItem> {
+    enum Frame {
+        List(Vec<RawItem>),
+        Item(RawItem),
+    }
+    let mut reader = Reader::from_str(xhtml);
+    reader.config_mut().check_end_names = false;
+    let mut in_toc = false;
+    let mut stack: Vec<Frame> = Vec::new();
+    let mut root = Vec::new();
+    loop {
+        match reader.read_event() {
+            Ok(Event::Start(e)) => {
+                let name = local_name(e.name().as_ref()).to_ascii_lowercase();
+                if !in_toc {
+                    in_toc = name == "nav"
+                        && attr_value(&e, "type")
+                            .is_some_and(|t| t.split_whitespace().any(|w| w == "toc"));
+                    continue;
+                }
+                match name.as_str() {
+                    "ol" => stack.push(Frame::List(Vec::new())),
+                    "li" => stack.push(Frame::Item(RawItem::default())),
+                    "a" => {
+                        if let Some(Frame::Item(item)) = stack.last_mut() {
+                            if item.href.is_none() {
+                                item.href = attr_value(&e, "href");
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            Ok(Event::End(e)) if in_toc => {
+                match local_name(e.name().as_ref()).to_ascii_lowercase().as_str() {
+                    "ol" => {
+                        if let Some(Frame::List(items)) = stack.pop() {
+                            match stack.last_mut() {
+                                Some(Frame::Item(parent)) => parent.children = items,
+                                _ => root = items,
+                            }
+                        }
+                    }
+                    "li" => {
+                        if let Some(Frame::Item(item)) = stack.pop() {
+                            if let Some(Frame::List(list)) = stack.last_mut() {
+                                list.push(item);
+                            }
+                        }
+                    }
+                    "nav" => break,
+                    _ => {}
+                }
+            }
+            Ok(Event::Text(t)) if in_toc => {
+                if let Some(Frame::Item(item)) = stack.last_mut() {
+                    item.title.push_str(&t);
+                }
+            }
+            Ok(Event::GeneralRef(r)) if in_toc => {
+                if let Some(Frame::Item(item)) = stack.last_mut() {
+                    item.title.push_str(&unescape(&format!("&{};", &*r)));
+                }
+            }
+            Ok(Event::Eof) | Err(_) => break,
+            _ => {}
+        }
+    }
+    root
+}
+
+/// EPUB 2: the NCX `navMap`, nested `navPoint > (navLabel > text, content, navPoint…)`.
+fn parse_ncx(xml: &str) -> Vec<RawItem> {
+    let mut reader = Reader::from_str(xml);
+    reader.config_mut().check_end_names = false;
+    let mut stack: Vec<RawItem> = Vec::new();
+    let mut root = Vec::new();
+    let mut in_label = false;
+    loop {
+        match reader.read_event() {
+            Ok(Event::Start(e)) => match local_name(e.name().as_ref()) {
+                "navPoint" => stack.push(RawItem::default()),
+                "navLabel" => in_label = true,
+                "content" => {
+                    if let Some(item) = stack.last_mut() {
+                        item.href = item.href.take().or_else(|| attr_value(&e, "src"));
+                    }
+                }
+                _ => {}
+            },
+            Ok(Event::Empty(e)) if local_name(e.name().as_ref()) == "content" => {
+                if let Some(item) = stack.last_mut() {
+                    item.href = item.href.take().or_else(|| attr_value(&e, "src"));
+                }
+            }
+            Ok(Event::End(e)) => match local_name(e.name().as_ref()) {
+                "navLabel" => in_label = false,
+                "navPoint" => {
+                    if let Some(done) = stack.pop() {
+                        match stack.last_mut() {
+                            Some(parent) => parent.children.push(done),
+                            None => root.push(done),
+                        }
+                    }
+                }
+                _ => {}
+            },
+            Ok(Event::Text(t)) if in_label => {
+                if let Some(item) = stack.last_mut() {
+                    item.title.push_str(&t);
+                }
+            }
+            Ok(Event::GeneralRef(r)) if in_label => {
+                if let Some(item) = stack.last_mut() {
+                    item.title.push_str(&unescape(&format!("&{};", &*r)));
+                }
+            }
+            Ok(Event::Eof) | Err(_) => break,
+            _ => {}
+        }
+    }
+    root
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn blocks_follow_headings_and_skip_scripts() {
-        let found = blocks(
+        let (found, _) = blocks(
             "<html><head><title>x</title><style>p{}</style></head><body>\
              <h1>Chapter One</h1><p>First &amp; <em>best</em>.</p>\
              <script>alert('no')</script><h2>A Part</h2><p>Second&nbsp;line<br/>continues.</p>\
@@ -417,5 +799,34 @@ mod tests {
             "A — B ’ &unknown; &"
         );
         assert_eq!(percent_decode("chapter%201.xhtml"), "chapter 1.xhtml");
+    }
+
+    #[test]
+    fn only_internal_targets_are_followed() {
+        let ok = |h| internal_target("OEBPS/text", h);
+        assert_eq!(
+            ok("ch1.xhtml#s2"),
+            Some(("OEBPS/text/ch1.xhtml".into(), Some("s2".into())))
+        );
+        assert_eq!(
+            ok("../ch%202.xhtml"),
+            Some(("OEBPS/ch 2.xhtml".into(), None))
+        );
+        for bad in [
+            "https://example.org/x",
+            "HTTP://x",
+            "javascript:alert(1)",
+            "data:text/html,x",
+            "file:///etc/passwd",
+            "mailto:a@b.c",
+            "/etc/passwd",
+            "..\\..\\x.xhtml",
+            "../../../etc/passwd",
+            "../../../../x.xhtml",
+            "#only-a-fragment",
+            "",
+        ] {
+            assert_eq!(ok(bad), None, "{bad}");
+        }
     }
 }

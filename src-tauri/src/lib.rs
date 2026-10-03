@@ -97,6 +97,7 @@ pub fn run() {
             commands::library::library_open_segment,
             commands::library::library_original_info,
             commands::library::library_original_read,
+            commands::library::library_source_contents,
             commands::library::source_get_segments,
             commands::library::source_get_passages,
             commands::library::library_sources_for_passage,

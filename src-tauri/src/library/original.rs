@@ -78,6 +78,27 @@ pub fn open(root: &Path, source_id: &str, relative: &str, format: &str) -> AppRe
             "This source has no original view.",
         ))
     })?;
+    let (path, size) = verify(root, source_id, relative)?;
+    Ok(OriginalFile { path, size, view })
+}
+
+/// The whole managed file of a source (checked exactly as [`open`] checks
+/// it), for formats the core reads itself, such as an EPUB's contents.
+/// Refuses anything larger than `max_bytes`.
+pub fn read_managed(
+    root: &Path,
+    source_id: &str,
+    relative: &str,
+    max_bytes: u64,
+) -> AppResult<Vec<u8>> {
+    let (path, size) = verify(root, source_id, relative)?;
+    if size > max_bytes {
+        return Err(unavailable());
+    }
+    fs::read(path).map_err(|_| missing())
+}
+
+fn verify(root: &Path, source_id: &str, relative: &str) -> AppResult<(PathBuf, u64)> {
     let parts: Vec<&std::ffi::OsStr> = Path::new(relative)
         .components()
         .map(|c| match c {
@@ -97,11 +118,7 @@ pub fn open(root: &Path, source_id: &str, relative: &str, format: &str) -> AppRe
     if !meta.is_file() {
         return Err(missing());
     }
-    Ok(OriginalFile {
-        path,
-        size: meta.len(),
-        view,
-    })
+    Ok((path, meta.len()))
 }
 
 impl OriginalFile {
