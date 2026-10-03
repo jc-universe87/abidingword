@@ -5,7 +5,7 @@ import { ScripturePane } from "@/features/scripture/ScripturePane";
 import { AddSourceView } from "@/features/library/AddSourceView";
 import { LibraryNavProvider, type LibraryNav } from "@/features/library/LibraryNav";
 import { LibraryView } from "@/features/library/LibraryView";
-import { SourceReader, type ReaderMode } from "@/features/library/SourceReader";
+import { SourceReader, type ReaderPosition } from "@/features/library/SourceReader";
 import { SourcesPane, type PaneSource } from "@/features/library/SourcesPane";
 import { UpdateNotice } from "@/features/updates/UpdateNotice";
 import { SettingsView } from "@/features/settings/SettingsView";
@@ -27,7 +27,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
   // Each request to open the library (id) remembers its latest search.
   const [library, setLibrary] = useState<{ id: number; query?: string }>({ id: 0 });
   // The full-width reader, and where its Back returns to.
-  const [reading, setReading] = useState<{ sourceId: string; segmentId?: string; from: View; mode?: ReaderMode } | null>(null);
+  const [reading, setReading] = useState<{ sourceId: string; segmentId?: string; from: View; position?: ReaderPosition } | null>(null);
   // A source read inside the Sources pane. Kept here, not in the pane, so it
   // is still open after a visit to the full reader, Settings or the Library.
   const [paneSource, setPaneSource] = useState<PaneSource | null>(null);
@@ -129,8 +129,16 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
           key={`${reading.sourceId}-${reading.segmentId ?? ""}`}
           sourceId={reading.sourceId}
           segmentId={reading.segmentId}
-          initialMode={reading.mode}
-          onClose={() => setView(reading.from)}
+          initialPosition={reading.position}
+          onClose={(position) => {
+            // Back to the workspace: the pane continues where this reader was.
+            if (reading.from === "workspace") {
+              setPaneSource((current) =>
+                current?.sourceId === reading.sourceId ? { ...current, position, key: current.key + 1 } : current,
+              );
+            }
+            setView(reading.from);
+          }}
         />
       )}
       {view === "addBible" && <AddBibleView onClose={() => setView(returnTo)} />}
@@ -151,9 +159,9 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
             <SourcesPane
               reading={paneSource}
               onCloseReader={() => setPaneSource(null)}
-              onExpandReader={(mode) => {
+              onExpandReader={(position) => {
                 if (!paneSource) return;
-                setReading({ sourceId: paneSource.sourceId, segmentId: paneSource.segmentId, from: "workspace", mode });
+                setReading({ sourceId: paneSource.sourceId, segmentId: paneSource.segmentId, from: "workspace", position });
                 setView("source");
               }}
             />

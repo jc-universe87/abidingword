@@ -217,30 +217,190 @@ describe("Reading and Original", () => {
   });
 });
 
-describe("the page follows the reader between modes", () => {
-  it("opens the original on the physical page of the passage that was open", async () => {
+describe("Original inside the Sources pane", () => {
+  const pane = () => within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" });
+
+  it("offers Reading | Original in the pane for a PDF, and Reading stays the default", async () => {
     const { api, engine } = setup();
     const { user } = await renderApp(api, { pdfEngine: engine });
-    const pane = await openCitationInPane(user);
-    // The mention is on physical page 3.
-    await waitFor(() => expect(pane.querySelector("[data-target]")).toHaveAttribute("data-seg-page", "3"));
-    await user.click(within(pane).getByRole("button", { name: "Open original" }));
+    await user.click((await within(sourcesPane()).findAllByRole("button", { name: /^Notes on the Vine/ }))[0]!);
+    const reader = await pane();
+    const view = within(within(reader).getByRole("group", { name: "View" }));
+    expect(view.getByRole("button", { name: "Reading" })).toHaveAttribute("aria-pressed", "true");
+    expect(view.getByRole("button", { name: "Original" })).toHaveAttribute("aria-pressed", "false");
+    expect(within(reader).getByRole("button", { name: "Open full reader" })).toBeInTheDocument();
+    expect(within(reader).queryByTestId("pdf-viewer")).toBeNull();
+    expect(engine.opened).toEqual([]);
+  });
 
-    await screen.findByRole("toolbar", { name: "Original document controls" });
+  it("shows the real PDF inside the pane while Scripture and the Study stay on screen", async () => {
+    const { api, engine } = setup();
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    await user.click((await within(sourcesPane()).findAllByRole("button", { name: /^Notes on the Vine/ }))[0]!);
+    const reader = await pane();
+    const originalTab = within(reader).getByRole("button", { name: "Original" });
+    await user.click(originalTab);
+
+    expect(await within(reader).findByTestId("pdf-viewer")).toBeInTheDocument();
+    expect(originalTab).toHaveFocus(); // changing view does not move focus away
+    expect(within(sourcesPane()).getByRole("toolbar", { name: "Original document controls" })).toBeInTheDocument();
+    // Still the workspace: no full reader took over.
+    expect(screen.getByRole("main", { name: "Study" })).toBeInTheDocument();
+    expect(screen.getByRole("complementary", { name: "Scripture" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 1, name: "Notes on the Vine" })).toBeNull();
+    expect(engine.opened).toHaveLength(1);
+
+    // And back to Reading without leaving.
+    await user.click(within(reader).getByRole("button", { name: "Reading" }));
+    expect(await within(reader).findByText("An opening paragraph about gardens.")).toBeInTheDocument();
+    expect(within(reader).queryByTestId("pdf-viewer")).toBeNull();
+    expect(screen.getByRole("main", { name: "Study" })).toBeInTheDocument();
+  });
+
+  it("keeps Back, the view switch and Open full reader outside whatever scrolls", async () => {
+    const { api, engine } = setup();
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    await user.click((await within(sourcesPane()).findAllByRole("button", { name: /^Notes on the Vine/ }))[0]!);
+    const reader = await pane();
+    const controls = [
+      within(reader).getByRole("button", { name: "Back to Sources" }),
+      within(reader).getByRole("button", { name: "Open full reader" }),
+      within(reader).getByRole("group", { name: "View" }),
+    ];
+    const outsideScrolling = (scroller: Element) => controls.every((el) => !scroller.contains(el));
+    // Reading: the text scrolls in its own body.
+    const body = within(reader).getByTestId("reader-body");
+    expect(body.className).toMatch(/overflow-y-auto/);
+    expect(outsideScrolling(body)).toBe(true);
+    // Original: the page area scrolls; the pane's controls are still outside it.
+    await user.click(within(reader).getByRole("button", { name: "Original" }));
+    const pages = await within(reader).findByRole("region", { name: "Original document" });
+    expect(pages.className).toMatch(/overflow-auto/);
+    expect(outsideScrolling(pages)).toBe(true);
+    expect(reader.firstElementChild).toBe(screen.getByTestId("reader-header"));
+  });
+
+  it("does not offer Original for a source without an original view", async () => {
+    const { api, engine } = setup();
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    await user.click(await within(sourcesPane()).findByRole("button", { name: /^Ein Aufsatz/ }));
+    const reader = await within(sourcesPane()).findByRole("region", { name: "Ein Aufsatz" });
+    expect(within(reader).queryByRole("group", { name: "View" })).toBeNull();
+    expect(within(reader).queryByRole("button", { name: "Original" })).toBeNull();
+    expect(within(reader).getByRole("button", { name: "Open full reader" })).toBeInTheDocument();
+  });
+
+  it("keeps Reading usable when the original cannot be shown in the pane", async () => {
+    const { api, engine } = setup();
+    engine.failOpen = true;
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    await user.click((await within(sourcesPane()).findAllByRole("button", { name: /^Notes on the Vine/ }))[0]!);
+    const reader = await pane();
+    await user.click(within(reader).getByRole("button", { name: "Original" }));
+    expect(await within(reader).findByText("The original could not be shown. You can still read the extracted text.")).toBeInTheDocument();
+    expect(screen.queryByText(/synthetic/)).toBeNull();
+    // Nothing closed or navigated; Reading is one click away.
+    expect(within(reader).getByRole("button", { name: "Back to Sources" })).toBeInTheDocument();
+    await user.click(within(reader).getByRole("button", { name: "Reading" }));
+    expect(await within(reader).findByText("An opening paragraph about gardens.")).toBeInTheDocument();
+    expect(screen.getByRole("main", { name: "Study" })).toBeInTheDocument();
+  });
+
+  it("uses the interface language for the pane's controls", async () => {
+    const { api, engine } = setup();
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    await user.click((await within(sourcesPane()).findAllByRole("button", { name: /^Notes on the Vine/ }))[0]!);
+    const reader = await pane();
+    await act(async () => {
+      await i18n.changeLanguage("de");
+    });
+    expect(within(reader).getByRole("group", { name: "Ansicht" })).toBeInTheDocument();
+    await user.click(within(reader).getByRole("button", { name: "Original" }));
+    const toolbar = await within(reader).findByRole("toolbar", { name: "Steuerung des Originaldokuments" });
+    for (const name of ["Vorherige Seite", "Nächste Seite", "Vergrößern", "Verkleinern", "Breite anpassen", "Seite einpassen"]) {
+      expect(within(toolbar).getByRole("button", { name })).toBeInTheDocument();
+    }
+  });
+
+  it("keeps every essential control reachable in a narrow pane (labels may shrink to icons)", async () => {
+    const { api, engine } = setup();
+    const { user } = await renderApp(api, { pdfEngine: engine, width: 1100 });
+    await user.click((await within(sourcesPane()).findAllByRole("button", { name: /^Notes on the Vine/ }))[0]!);
+    const reader = await pane();
+    await user.click(within(reader).getByRole("button", { name: "Original" }));
+    const toolbar = await within(reader).findByRole("toolbar", { name: "Original document controls" });
+    for (const name of ["Previous page", "Next page", "Zoom in", "Zoom out", "Fit width", "Fit page"]) {
+      const button = within(toolbar).getByRole("button", { name });
+      expect(button).toHaveAccessibleName(name);
+      expect(button.getAttribute("title") ?? button.textContent).toBeTruthy();
+    }
+    expect(within(toolbar).getByRole("textbox", { name: "Page number" })).toBeInTheDocument();
+    // The toolbar wraps rather than forcing the pane to scroll sideways, and
+    // the text beside the fit icons collapses (but stays readable to assistive technology) when narrow.
+    expect(toolbar.className).toMatch(/flex-wrap/);
+    expect(toolbar.className).toMatch(/@container/);
+    expect(within(toolbar).getByText("Fit width").className).toMatch(/@max-md:sr-only/);
+  });
+
+  it("does not redraw pages while the pane is being resized", async () => {
+    const callbacks: ResizeObserverCallback[] = [];
+    const previous = globalThis.ResizeObserver;
+    globalThis.ResizeObserver = class {
+      constructor(callback: ResizeObserverCallback) {
+        callbacks.push(callback);
+      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    } as unknown as typeof ResizeObserver;
+    const restoreObserver = () => {
+      globalThis.ResizeObserver = previous;
+    };
+    restore = restoreObserver;
+    const { api, engine } = setup({ pages: 600 });
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    await user.click((await within(sourcesPane()).findAllByRole("button", { name: /^Notes on the Vine/ }))[0]!);
+    const reader = await pane();
+    await user.click(within(reader).getByRole("button", { name: "Original" }));
+    const region = await within(reader).findByRole("region", { name: "Original document" });
+    await waitFor(() => expect(engine.rendered.size).toBeGreaterThan(0));
+    const drawn = new Set(engine.rendered);
+
+    // Drag the pane edge through many widths, quickly.
+    for (const width of [500, 450, 400, 380, 360, 340]) {
+      Object.defineProperty(region, "clientWidth", { configurable: true, value: width });
+      for (const callback of callbacks) callback([], {} as ResizeObserver);
+    }
+    await new Promise((r) => setTimeout(r, 300));
+    // Only pages that were already near the screen were drawn; the other 600 were not.
+    expect([...engine.rendered].every((page) => drawn.has(page))).toBe(true);
+    expect(engine.rendered.size).toBeLessThan(10);
+  });
+});
+
+describe("the place is kept between the pane and the full reader", () => {
+  const pane = () => within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" });
+
+  it("opens the original in the pane on the physical page of the passage that was open", async () => {
+    const { api, engine } = setup();
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    const reader = await openCitationInPane(user);
+    await waitFor(() => expect(reader.querySelector("[data-target]")).toHaveAttribute("data-seg-page", "3"));
+    await user.click(within(reader).getByRole("button", { name: "Original" }));
+    await within(reader).findByRole("toolbar", { name: "Original document controls" });
     await waitFor(() => expect(pageBox()).toHaveValue("3"));
-    expect(screen.getByRole("heading", { level: 1, name: "Notes on the Vine" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 1, name: "Notes on the Vine" })).toBeNull();
   });
 
   it("returns to the text of the page the original was on", async () => {
     const { api, engine } = setup();
     const { user } = await renderApp(api, { pdfEngine: engine });
-    const pane = await openCitationInPane(user);
-    await user.click(within(pane).getByRole("button", { name: "Open original" }));
-    await screen.findByRole("toolbar", { name: "Original document controls" });
+    const reader = await openCitationInPane(user);
+    await user.click(within(reader).getByRole("button", { name: "Original" }));
     await waitFor(() => expect(pageBox()).toHaveValue("3"));
-
     await user.click(screen.getByRole("button", { name: "Previous page" }));
     expect(pageBox()).toHaveValue("2");
+
     const scrolled: HTMLElement[] = [];
     // jsdom has no scrollIntoView; record what the reader scrolls to.
     Element.prototype.scrollIntoView = function (this: Element) {
@@ -249,43 +409,69 @@ describe("the page follows the reader between modes", () => {
     restore = () => {
       delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
     };
-    await user.click(within(modes()!).getByRole("button", { name: "Reading" }));
-    expect(await screen.findByText("Abiding is the heart of fruitfulness.")).toBeInTheDocument();
+    await user.click(within(reader).getByRole("button", { name: "Reading" }));
+    expect(await within(reader).findByText("Abiding is the heart of fruitfulness.")).toBeInTheDocument();
     await waitFor(() => expect(scrolled.some((el) => el.dataset.segPage === "2")).toBe(true));
-    expect(within(modes()!).getByRole("button", { name: "Reading" })).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("goes back to the workspace, with the source still open in the pane", async () => {
+  it("opens the full reader on the same view and page, and brings them back to the pane", async () => {
     const { api, engine } = setup();
     const { user } = await renderApp(api, { pdfEngine: engine });
-    const pane = await openCitationInPane(user);
-    await user.click(within(pane).getByRole("button", { name: "Open original" }));
-    await screen.findByRole("toolbar", { name: "Original document controls" });
-    await user.click(screen.getByRole("button", { name: "Back" }));
-    expect(await screen.findByRole("main", { name: "Study" })).toBeInTheDocument();
-    expect(await within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" })).toBeInTheDocument();
-  });
-});
+    const reader = await openCitationInPane(user);
+    await user.click(within(reader).getByRole("button", { name: "Original" }));
+    await waitFor(() => expect(pageBox()).toHaveValue("3"));
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    expect(pageBox()).toHaveValue("4");
 
-describe("the Sources pane", () => {
-  it("offers Open original for a PDF, next to Open full reader", async () => {
+    // Expand: still Original, still page 4 (not Reading from the start).
+    await user.click(within(reader).getByRole("button", { name: "Open full reader" }));
+    expect(await screen.findByRole("heading", { level: 1, name: "Notes on the Vine" })).toBeInTheDocument();
+    expect(screen.queryByRole("main", { name: "Study" })).toBeNull();
+    await screen.findByRole("toolbar", { name: "Original document controls" });
+    await waitFor(() => expect(pageBox()).toHaveValue("4"));
+    expect(within(header()).getByRole("button", { name: "Original" })).toHaveAttribute("aria-pressed", "true");
+
+    // Go on in the full reader, then return: the pane continues at that page, same view.
+    await user.click(screen.getByRole("button", { name: "Previous page" }));
+    await user.click(screen.getByRole("button", { name: "Previous page" }));
+    expect(pageBox()).toHaveValue("2");
+    await user.click(within(header()).getByRole("button", { name: "Back" }));
+    expect(await screen.findByRole("main", { name: "Study" })).toBeInTheDocument();
+    const back = await pane();
+    expect(await within(back).findByTestId("pdf-viewer")).toBeInTheDocument();
+    await waitFor(() => expect(pageBox()).toHaveValue("2"));
+    expect(within(back).getByRole("button", { name: "Original" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("keeps the reading location too when expanding and returning in Reading", async () => {
     const { api, engine } = setup();
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    const reader = await openCitationInPane(user);
+    await user.click(within(reader).getByRole("button", { name: "Open full reader" }));
+    await screen.findByRole("heading", { level: 1, name: "Notes on the Vine" });
+    // Reading in the full reader, at the marked passage on page 3.
+    await waitFor(() => expect(screen.getByTestId("reader-body").querySelector("[data-target]")).toHaveAttribute("data-seg-page", "3"));
+    await user.click(within(header()).getByRole("button", { name: "Back" }));
+    const back = await pane();
+    expect(within(back).getByRole("button", { name: "Reading" })).toHaveAttribute("aria-pressed", "true");
+    await waitFor(() => expect(back.querySelector("[data-target]")).toHaveAttribute("data-seg-page", "3"));
+  });
+
+  it("starts a different source in Reading, not in the previous source's Original", async () => {
+    const other: SourceFixture = { ...VINE, title: "Notes on Pruning", mentions: [] };
+    const { api, engine } = setup({ sources: [VINE, other] });
     const { user } = await renderApp(api, { pdfEngine: engine });
     await user.click((await within(sourcesPane()).findAllByRole("button", { name: /^Notes on the Vine/ }))[0]!);
-    const reader = await within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" });
-    expect(within(reader).getByRole("button", { name: "Open original" })).toBeInTheDocument();
-    expect(within(reader).getByRole("button", { name: "Open full reader" })).toBeInTheDocument();
-    // The pane itself stays the text reader.
-    expect(within(reader).queryByTestId("pdf-viewer")).toBeNull();
-    expect(engine.opened).toEqual([]);
-  });
+    const reader = await pane();
+    await user.click(within(reader).getByRole("button", { name: "Original" }));
+    await within(reader).findByTestId("pdf-viewer");
+    await user.click(within(reader).getByRole("button", { name: "Back to Sources" }));
 
-  it("does not offer it for a source without an original view", async () => {
-    const { api, engine } = setup();
-    const { user } = await renderApp(api, { pdfEngine: engine });
-    await user.click(await within(sourcesPane()).findByRole("button", { name: /^Ein Aufsatz/ }));
-    const reader = await within(sourcesPane()).findByRole("region", { name: "Ein Aufsatz" });
-    expect(within(reader).queryByRole("button", { name: "Open original" })).toBeNull();
-    expect(within(reader).getByRole("button", { name: "Open full reader" })).toBeInTheDocument();
+    await user.click((await within(sourcesPane()).findAllByRole("button", { name: /^Notes on Pruning/ }))[0]!);
+    const second = await within(sourcesPane()).findByRole("region", { name: "Notes on Pruning" });
+    expect(within(second).getByRole("button", { name: "Reading" })).toHaveAttribute("aria-pressed", "true");
+    expect(within(second).queryByTestId("pdf-viewer")).toBeNull();
+    expect(await within(second).findByText("An opening paragraph about gardens.")).toBeInTheDocument();
+    expect(engine.opened).toHaveLength(1); // only the first source's original was ever read
   });
 });

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, FileText, Maximize2 } from "lucide-react";
+import { ArrowLeft, Maximize2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
@@ -13,20 +13,32 @@ import { PdfViewer } from "./PdfViewer";
 
 export type ReaderMode = "reading" | "original";
 
+/**
+ * Where a reader is: which view, and the physical page (PDF) that view is
+ * at. Kept by the shell for the current session so that moving between the
+ * Sources pane and the full reader (and back) does not lose the place.
+ */
+export interface ReaderPosition {
+  mode: ReaderMode;
+  /** Physical page, or null for a source that has none (or before it is known). */
+  page: number | null;
+}
+
 interface SourceReaderProps {
   sourceId: string;
   segmentId?: string;
-  onClose: () => void;
+  /** Leaves the reader. Told where it was, so the next reader can open there. */
+  onClose: (position: ReaderPosition) => void;
   /**
    * "page" (default): the full-width reader that replaces the workspace.
    * "pane": inside the Sources pane, beside Scripture and the Study, with
    * "Open full reader" to switch to the page.
    */
   variant?: "page" | "pane";
-  /** Pane only: open this source in the full-width reader, optionally on its original. */
-  onExpand?: (mode?: ReaderMode) => void;
-  /** Page reader only: start on the original (PDF) instead of the extracted text. */
-  initialMode?: ReaderMode;
+  /** Pane only: open this source in the full-width reader, at the same place. */
+  onExpand?: (position: ReaderPosition) => void;
+  /** Where to open (view and page), when continuing from another reader. */
+  initialPosition?: ReaderPosition;
 }
 
 /**
@@ -34,7 +46,7 @@ interface SourceReaderProps {
  * extracted text with page markers (PDF) or section headings (EPUB,
  * Markdown). Opens at an exact segment and loads more around it on demand.
  */
-export function SourceReader({ sourceId, segmentId, onClose, variant = "page", onExpand, initialMode = "reading" }: SourceReaderProps) {
+export function SourceReader({ sourceId, segmentId, onClose, variant = "page", onExpand, initialPosition }: SourceReaderProps) {
   const { t } = useTranslation();
   const api = useApi();
   const id = useId();
@@ -44,7 +56,10 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const target = useRef<HTMLElement | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const [mode, setMode] = useState<ReaderMode>(initialMode);
+  const [mode, setMode] = useState<ReaderMode>(initialPosition?.mode ?? "reading");
+  // The page this reader was told to open at (continuing from another reader).
+  const [initialPage] = useState(initialPosition?.page ?? null);
+  const startedInOriginal = initialPosition?.mode === "original";
   // The physical page the original is showing, kept for the way back to Reading.
   const originalPage = useRef<number | null>(null);
   // A page Reading should scroll to after coming back from the original.
@@ -54,12 +69,24 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
 
   useEffect(() => {
     let active = true;
-    const load = segmentId ? api.libraryOpenSegment(segmentId) : api.sourceGetSegments({ sourceId });
+    let load: Promise<SegmentWindow>;
+    if (initialPage !== null) {
+      // Continuing from another reader: open the text where that page begins.
+      // The marked passage stays marked only if it is on that page.
+      load = api.sourceGetSegments({ sourceId, aroundPage: initialPage }).then((w) => {
+        const marked = segmentId ? w.segments.find((x) => x.id === segmentId) : undefined;
+        const keep = marked !== undefined && marked.pageNumber === initialPage;
+        if (!keep && !startedInOriginal) landing.current = initialPage;
+        return { ...w, targetSegmentId: keep ? segmentId! : null };
+      });
+    } else {
+      load = segmentId ? api.libraryOpenSegment(segmentId) : api.sourceGetSegments({ sourceId });
+    }
     load.then((w) => active && setWindow(w), (e) => active && setError(toApiError(e).message));
     return () => {
       active = false;
     };
-  }, [api, sourceId, segmentId]);
+  }, [api, sourceId, segmentId, initialPage, startedInOriginal]);
 
   // Opened at a place: show and focus that paragraph. Otherwise focus the
   // title, so keyboard and screen-reader users know the reader opened.
@@ -77,7 +104,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
 
   const hasOriginal = source.data?.originalView?.kind === "pdf";
   const targetPage = window?.segments.find((x) => x.id === window.targetSegmentId)?.pageNumber ?? null;
-  const startPage = openPage ?? targetPage ?? 1;
+  const startPage = openPage ?? initialPage ?? targetPage ?? 1;
   const showOriginal = mode === "original" && hasOriginal;
 
   /** The physical page Reading is at: the marked passage if it is in view, else the top of the view. */
@@ -94,6 +121,12 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     const top = paragraphs.find((el) => area && el.getBoundingClientRect().bottom > area.top);
     return Number(top?.dataset.segPage ?? targetPage ?? 1);
   };
+
+  /** Where this reader is now, for the next reader to continue from. */
+  const positionNow = (): ReaderPosition =>
+    showOriginal
+      ? { mode: "original", page: originalPage.current ?? startPage }
+      : { mode: "reading", page: hasOriginal && window ? readingPage() : null };
 
   const choose = async (next: ReaderMode) => {
     if (next === mode) return;
@@ -206,40 +239,56 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     </>
   );
 
+  // The original, as its own view under the (never scrolling) header. It
+  // mounts as soon as the page to open at is known.
+  const original = showOriginal ? (
+    !window && !error && openPage === null && initialPage === null ? null : (
+      <PdfViewer
+        key={`${sourceId}-${startPage}`}
+        sourceId={sourceId}
+        initialPage={startPage}
+        onPageChange={(page) => {
+          originalPage.current = page;
+        }}
+      />
+    )
+  ) : null;
+
+  const modeSwitch = hasOriginal ? <ModeSwitch mode={mode} onChange={(m) => void choose(m)} /> : null;
+
   if (inPane) {
+    // A column: controls that never scroll away, then Reading (which scrolls
+    // inside its own body) or the original (which has its own toolbar and scroller).
     return (
-      <section aria-labelledby={`${id}-title`} className="flex min-h-0 flex-1 flex-col">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtle px-3 py-2">
-          <Button variant="quiet" onClick={onClose}>
+      <section aria-label={s?.title} className="flex min-h-0 flex-1 flex-col">
+        <div data-testid="reader-header" className="flex shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b border-border-subtle px-3 py-2">
+          <Button variant="quiet" onClick={() => onClose(positionNow())}>
             <ArrowLeft className="size-4" aria-hidden="true" /> {t("library.reader.backToSources")}
           </Button>
-          <div className="flex flex-wrap items-center gap-1">
-            {onExpand && hasOriginal && (
-              <Button variant="quiet" onClick={() => onExpand("original")} title={t("library.original.openOriginalTitle")}>
-                <FileText className="size-4" aria-hidden="true" /> {t("library.original.openOriginal")}
-              </Button>
-            )}
-            {onExpand && (
-              <Button variant="quiet" onClick={() => onExpand()} title={t("library.reader.openFullTitle")}>
-                <Maximize2 className="size-4" aria-hidden="true" /> {t("library.reader.openFull")}
-              </Button>
-            )}
+          {onExpand && (
+            <Button variant="quiet" onClick={() => onExpand(positionNow())} title={t("library.reader.openFullTitle")}>
+              <Maximize2 className="size-4" aria-hidden="true" /> {t("library.reader.openFull")}
+            </Button>
+          )}
+        </div>
+        {modeSwitch && <div className="flex shrink-0 border-b border-border-subtle px-3 py-1.5">{modeSwitch}</div>}
+        {showOriginal ? (
+          original
+        ) : (
+          <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
+            <div className="flex flex-col gap-5 px-5 pb-16 pt-5">{body}</div>
           </div>
-        </div>
-        <div ref={bodyRef} className="min-h-0 flex-1 overflow-y-auto">
-          <div className="flex flex-col gap-5 px-5 pb-16 pt-5">{body}</div>
-        </div>
+        )}
       </section>
     );
   }
 
-  // The full reader is a column: a header that never scrolls (Back stays
-  // reachable however far the text is scrolled) above the content. Reading
-  // scrolls inside its own body; the original has its own toolbar and scroller.
+  // The full reader is a column too: a header that never scrolls (Back stays
+  // reachable however far the text is scrolled) above the content.
   return (
     <main aria-labelledby={`${id}-title`} className="flex min-h-0 flex-1 flex-col bg-bg">
       <div data-testid="reader-header" className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-border bg-bg px-4 py-2">
-        <Button variant="quiet" className="shrink-0" onClick={onClose}>
+        <Button variant="quiet" className="shrink-0" onClick={() => onClose(positionNow())}>
           <ArrowLeft className="size-4" aria-hidden="true" /> {t("common.back")}
         </Button>
         <h1
@@ -251,37 +300,36 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         >
           {s?.title}
         </h1>
-        {hasOriginal && (
-          <div role="group" aria-label={t("library.original.modesLabel")} className="flex shrink-0 rounded-aw border border-border p-0.5">
-            {(["reading", "original"] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                aria-pressed={mode === m}
-                onClick={() => void choose(m)}
-                className="min-h-8 rounded-[4px] px-3 font-ui text-[0.9375rem] text-text-strong hover:bg-bg-secondary aria-pressed:bg-primary aria-pressed:text-on-primary"
-              >
-                {t(`library.original.${m}`)}
-              </button>
-            ))}
-          </div>
-        )}
+        {modeSwitch}
       </div>
-      {showOriginal && !window && !error ? null : showOriginal ? (
-        <PdfViewer
-          key={`${sourceId}-${startPage}`}
-          sourceId={sourceId}
-          initialPage={startPage}
-          onPageChange={(page) => {
-            originalPage.current = page;
-          }}
-        />
+      {showOriginal ? (
+        original
       ) : (
         <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-6">{body}</div>
         </div>
       )}
     </main>
+  );
+}
+
+/** Reading | Original, one control for both readers. */
+function ModeSwitch({ mode, onChange }: { mode: ReaderMode; onChange: (mode: ReaderMode) => void }) {
+  const { t } = useTranslation();
+  return (
+    <div role="group" aria-label={t("library.original.modesLabel")} className="flex shrink-0 rounded-aw border border-border p-0.5">
+      {(["reading", "original"] as const).map((m) => (
+        <button
+          key={m}
+          type="button"
+          aria-pressed={mode === m}
+          onClick={() => onChange(m)}
+          className="min-h-9 rounded-[4px] px-3 font-ui text-[0.9375rem] text-text-strong hover:bg-bg-secondary aria-pressed:bg-primary aria-pressed:text-on-primary"
+        >
+          {t(`library.original.${m}`)}
+        </button>
+      ))}
+    </div>
   );
 }
 

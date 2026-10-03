@@ -13,6 +13,7 @@ const CSS_PER_POINT = 96 / 72;
 const ZOOM_STEPS = [25, 50, 75, 100, 125, 150, 200, 300, 400];
 const FALLBACK_PAGE: PdfPageSize = { width: 612, height: 792 };
 const GAP = 12;
+const RESIZE_SETTLE_MS = 120;
 const PADDING = 16;
 
 type Zoom = { kind: "fit-width" } | { kind: "fit-page" } | { kind: "percent"; value: number };
@@ -76,16 +77,25 @@ export function PdfViewer({ sourceId, initialPage, onPageChange }: PdfViewerProp
     };
   }, [engine, api, sourceId, fail]);
 
-  // The room the pages have (fit modes follow it).
+  // The room the pages have (fit modes follow it). The first measurement is
+  // immediate; while a pane is being dragged wider or narrower the later ones
+  // wait until it settles, so pages are not redrawn on every frame.
   useLayoutEffect(() => {
     const el = scroller.current;
     if (!el) return;
     const measure = () => setBox({ width: el.clientWidth, height: el.clientHeight });
     measure();
     if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(measure);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const observer = new ResizeObserver(() => {
+      clearTimeout(timer);
+      timer = setTimeout(measure, RESIZE_SETTLE_MS);
+    });
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
   }, [doc]);
 
   const room = { width: box.width || 800, height: box.height || 600 };
@@ -169,7 +179,7 @@ export function PdfViewer({ sourceId, initialPage, onPageChange }: PdfViewerProp
       <div
         role="toolbar"
         aria-label={t("library.original.toolbar")}
-        className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-border-subtle bg-bg px-3 py-1.5 font-ui text-[0.9375rem]"
+        className="@container flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-border-subtle bg-bg px-3 py-1.5 font-ui text-[0.9375rem]"
       >
         <div className="flex items-center gap-1">
           <Button variant="quiet" aria-label={t("library.original.previousPage")} title={t("library.original.previousPage")} disabled={!total || page <= 1} onClick={() => goTo(page - 1)}>
@@ -209,10 +219,10 @@ export function PdfViewer({ sourceId, initialPage, onPageChange }: PdfViewerProp
         </div>
         <div className="flex items-center gap-1">
           <Button variant="quiet" aria-pressed={zoom.kind === "fit-width"} title={t("library.original.fitWidth")} disabled={!total} onClick={() => setZoom({ kind: "fit-width" })}>
-            <MoveHorizontal className="size-4" aria-hidden="true" /> {t("library.original.fitWidth")}
+            <MoveHorizontal className="size-4" aria-hidden="true" /> <span className="@max-md:sr-only">{t("library.original.fitWidth")}</span>
           </Button>
           <Button variant="quiet" aria-pressed={zoom.kind === "fit-page"} title={t("library.original.fitPage")} disabled={!total} onClick={() => setZoom({ kind: "fit-page" })}>
-            <Maximize2 className="size-4" aria-hidden="true" /> {t("library.original.fitPage")}
+            <Maximize2 className="size-4" aria-hidden="true" /> <span className="@max-md:sr-only">{t("library.original.fitPage")}</span>
           </Button>
         </div>
       </div>

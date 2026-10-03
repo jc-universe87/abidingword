@@ -8,7 +8,7 @@ import { referenceLabel } from "@/i18n/scripture";
 import { useApi } from "@/lib/ApiContext";
 import { locatorLabel } from "./labels";
 import { useLibraryNav } from "./LibraryNav";
-import { SourceReader, type ReaderMode } from "./SourceReader";
+import { SourceReader, type ReaderPosition } from "./SourceReader";
 
 /** A source open inside the Sources pane (kept by the shell, so it survives leaving the workspace). */
 export interface PaneSource {
@@ -18,12 +18,14 @@ export interface PaneSource {
   key: number;
   /** What had focus when the source was opened; focus returns there on Back. */
   opener: HTMLElement | null;
+  /** Where to open (view and page) when continuing from the full reader. */
+  position?: ReaderPosition;
 }
 
 interface SourcesPaneProps {
   reading?: PaneSource | null;
   onCloseReader?: () => void;
-  onExpandReader?: (mode?: ReaderMode) => void;
+  onExpandReader?: (position: ReaderPosition) => void;
 }
 
 /**
@@ -77,6 +79,7 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
           variant="pane"
           sourceId={reading.sourceId}
           segmentId={reading.segmentId}
+          initialPosition={reading.position}
           onClose={() => {
             returning.current = { opener: reading.opener };
             onCloseReader?.();
