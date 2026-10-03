@@ -5,6 +5,64 @@
 > make them harder later. The frozen [`architecture.md`](architecture.md) and
 > [`concept.md`](concept.md) remain the references for what the product is.
 
+## 0. Guiding principle: the software should disappear
+
+Every item below is judged against the product principle in
+[`concept.md`](concept.md) (§3a): the user should be thinking about Scripture,
+not about Abiding Word. Simple UI over expressive internals; sensible defaults;
+natural input; advanced options hidden until useful.
+
+## Future UX and input items
+
+### Simplify Study creation (UX)
+
+Study creation currently asks for both a **study type** and a **template**.
+Both are useful internal concepts but are too rigid and repetitive as separate
+mandatory choices. Future direction: the user chooses *what they want to do*,
+not internal metadata.
+
+> What would you like to study?  
+> **[ Bible passage or reference ]**  
+> then simple choices such as *Passage study*, *Word study*, *Topic*,
+> *Teaching preparation*, *My template*.
+
+Internally the study may still store type, template id, purpose, status and
+metadata; they need not each be a separate UI decision. The data concepts are
+**not** merged merely to simplify the screen: simple UI over expressive
+internals.
+
+### Multilingual, natural Bible references (input)
+
+The reference parser should become broadly multilingual and tolerant of
+normal local notation, so that nobody has to learn Abiding Word syntax.
+
+- Languages: at minimum English, German, Korean, French, Spanish, Portuguese;
+  also common Koine Greek and Biblical Hebrew book names and abbreviations.
+- Natural forms, e.g. `John 3:16`, `John 3.16`, `John 3,16`, `Joh 3,16`,
+  `Johannes 3,16`, `Jn 3:16`, `Jean 3,16`, `Juan 3:16`, `João 3:16`,
+  `요 3:16`, `요한복음 3장 16절`.
+- Tolerate colon, comma, period, semicolon, spaces, hyphen and en-dash
+  ranges, chapter/verse words where common, and standard local abbreviations.
+- Pipeline: natural input → locale/book-alias recognition → punctuation and
+  reference normalisation → deterministic parse → canonical `ScriptureRef`.
+  No AI.
+- Reusable in Go to passage, study creation, Scripture navigation, findings,
+  source passage detection, imports and future AI tools.
+
+### From the user's own materials to templates
+
+The user may bring their own Bible-study, sermon or teaching materials.
+Abiding Word could help derive **reusable study templates** from structures
+that recur in them: section headings, question sequences, an
+observation → interpretation → application flow, teaching outlines,
+reflection prompts, audience/application sections.
+
+- Templates stay user-owned.
+- Extraction is human-reviewed: suggest a template, let the user confirm and
+  edit it.
+- The original material is never silently restructured or overwritten, and
+  stays separate from the resulting template.
+
 ## 1. Detachable panes (multi-monitor workspace)
 
 The workspace has three primary panes: **Scripture | Study | Sources**. Each

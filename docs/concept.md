@@ -105,6 +105,50 @@ The user should be able to return months or years later and continue from the ac
 
 ---
 
+### 3a. The software should disappear
+
+Abiding Word exists to support Bible study, not to become the object of
+attention. The architecture underneath may be as sophisticated as it needs to
+be; that complexity must not be passed on to the user.
+
+The interface should be:
+
+- frictionless
+- intuitive
+- calm
+- non-technical
+- progressively disclosed
+- sensible by default
+- usable by pastors, teachers and ordinary Bible readers without any software
+  training
+
+The user should not need to understand internal database concepts, canonical
+reference syntax, provider abstractions, sync architecture, source adapters,
+internal annotation models, AI-provider terminology, or any implementation
+distinction that does not help them study.
+
+> **The user should be thinking about Scripture, not about Abiding Word.**
+
+In practice:
+
+- Prefer one obvious action over several configuration steps.
+- Prefer sensible defaults over setup.
+- Use the user's language, not implementation terminology.
+- Accept natural input instead of teaching users special syntax.
+- Hide advanced options until they are useful.
+- Do not expose a capability merely because it exists technically.
+- Avoid the feature-dashboard, developer-tool look.
+- Accessibility is part of simplicity, not an advanced feature.
+- More internal complexity is acceptable if it makes the user's experience
+  simpler.
+
+This is inspired by the "it should just work" philosophy of product design,
+not by copying anyone's visual style. Before adding a control, ask: *does the
+user need to make this decision?* If not, choose a good default and hide the
+complexity.
+
+---
+
 ### 4. Main study types
 
 Abiding Word should support multiple study entry points within the same underlying study engine.
