@@ -9,6 +9,7 @@ pub mod bundled;
 pub mod canon;
 pub mod import;
 pub mod parser;
+pub mod phrase_ranges;
 pub mod reference;
 pub mod usfm;
 

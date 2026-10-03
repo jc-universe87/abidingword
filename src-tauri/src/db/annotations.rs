@@ -15,7 +15,8 @@ use crate::scripture::annotation_data::{
     DEFAULT_HIGHLIGHT_COLOR,
 };
 use crate::scripture::canon;
-use crate::scripture::reference::{split_key, Point, ScriptureRef};
+use crate::scripture::phrase_ranges::{absorb, remainders, Layout, Span};
+use crate::scripture::reference::{split_key, verse_key, Point, ScriptureRef};
 use crate::scripture::{
     AnchorEnd, AnchorInput, AnchorView, Annotation, CreateAnnotation, UpdateAnnotation,
     ANNOTATION_KINDS,
@@ -349,6 +350,18 @@ pub fn create(conn: &Connection, input: &CreateAnnotation) -> AppResult<Annotati
         bibles::get(conn, translation)?;
     }
 
+    // A phrase highlight owns exactly the words just selected: highlights
+    // already on that wording are merged, trimmed or split around it, all in
+    // one transaction (see `highlight_phrase`).
+    if let (true, Some(anchor), Some(translation)) = (kind == "highlight", &anchor, &translation_id)
+    {
+        let color = color.as_deref().unwrap_or(DEFAULT_HIGHLIGHT_COLOR);
+        let tx = conn.unchecked_transaction()?;
+        let id = highlight_phrase(&tx, translation, color, anchor)?;
+        tx.commit()?;
+        return get_for(conn, &id, Some(translation));
+    }
+
     if kind != "note" {
         let mut stmt = conn.prepare(&format!(
             "SELECT {COLUMNS} FROM annotations
@@ -425,6 +438,24 @@ pub fn update(conn: &Connection, input: &UpdateAnnotation) -> AppResult<Annotati
         }
     }
     if let Some(color) = &input.color {
+        let data = AnnotationData::read(raw.data.as_deref());
+        // A phrase highlight recoloured is the same as highlighting its words
+        // again in the new colour, so neighbours and overlaps follow the same
+        // rules. If its wording can no longer be checked (its translation was
+        // removed), only the colour changes.
+        if let (Some(anchor), Some(translation), true) =
+            (&data.anchor, &raw.translation_id, raw.kind == "highlight")
+        {
+            if data.color.as_deref().unwrap_or(DEFAULT_HIGHLIGHT_COLOR) != color.as_str() {
+                let texts = verse_texts(conn, translation, anchor.start.verse, anchor.end.verse)?;
+                if wording_matches(anchor, &texts) {
+                    let tx = conn.unchecked_transaction()?;
+                    let id = highlight_phrase(&tx, translation, color, anchor)?;
+                    tx.commit()?;
+                    return get_for(conn, &id, Some(translation));
+                }
+            }
+        }
         recolour(conn, &raw, color)?;
     }
     get(conn, &input.id)
@@ -439,4 +470,259 @@ pub fn delete(conn: &Connection, id: &str) -> AppResult<()> {
         params![id, now],
     )?;
     Ok(())
+}
+
+/// A phrase highlight that is on screen in one wording.
+struct PhraseHighlight {
+    raw: RawAnnotation,
+    color: String,
+    anchor: StoredAnchor,
+    span: Span,
+}
+
+/// The canonical passage, start key and end key an anchor covers.
+fn covered(anchor: &StoredAnchor) -> AppResult<ScriptureRef> {
+    let one = |key: i64| verse_canonical(key);
+    let text = if anchor.start.verse == anchor.end.verse {
+        one(anchor.start.verse)
+    } else {
+        format!("{}-{}", one(anchor.start.verse), one(anchor.end.verse))
+    };
+    ScriptureRef::from_canonical(&text)
+}
+
+/// Rebuilds an anchor for `span` from the stored text, the same way a new
+/// selection is checked: offsets validated, quote rebuilt, verses hashed.
+fn rebuild(
+    layout: &Layout,
+    texts: &[(i64, String)],
+    span: Span,
+    short_name: &str,
+) -> AppResult<StoredAnchor> {
+    let unreachable =
+        || AppError::Unexpected("a highlight range does not lie inside its chapter's text".into());
+    let start = layout.start_point(span.start).ok_or_else(unreachable)?;
+    let end = layout.end_point(span.end).ok_or_else(unreachable)?;
+    build_anchor(texts, start, end, short_name)
+}
+
+/// Rewrites a highlight's anchor (and the columns derived from it).
+fn write_anchor(
+    conn: &Connection,
+    id: &str,
+    color: &str,
+    anchor: &StoredAnchor,
+    translation_id: Option<&str>,
+) -> AppResult<()> {
+    let reference = covered(anchor)?;
+    let data = AnnotationData {
+        v: 0,
+        color: Some(color.into()),
+        anchor: Some(anchor.clone()),
+    };
+    conn.execute(
+        "UPDATE annotations
+         SET passage = ?2, start_key = ?3, end_key = ?4, data = ?5,
+             translation_id = COALESCE(?6, translation_id),
+             updated_at = ?7, revision = revision + 1
+         WHERE id = ?1",
+        params![
+            id,
+            reference.canonical(),
+            reference.start_key(),
+            reference.end_key(),
+            data.to_stored(),
+            translation_id,
+            now()
+        ],
+    )?;
+    Ok(())
+}
+
+fn soft_delete(conn: &Connection, id: &str) -> AppResult<()> {
+    let at = now();
+    conn.execute(
+        "UPDATE annotations SET deleted_at = ?2, updated_at = ?2, revision = revision + 1 WHERE id = ?1",
+        params![id, at],
+    )?;
+    Ok(())
+}
+
+/// Inserts a highlight row. `created_at` is kept when a highlight is split,
+/// so both halves read as the original.
+fn insert_highlight(
+    conn: &Connection,
+    color: &str,
+    anchor: &StoredAnchor,
+    translation_id: Option<&str>,
+    created_at: Option<&str>,
+) -> AppResult<String> {
+    let reference = covered(anchor)?;
+    let data = AnnotationData {
+        v: 0,
+        color: Some(color.into()),
+        anchor: Some(anchor.clone()),
+    };
+    let workspace = workspaces::get_default(conn)?;
+    let id = new_id();
+    let at = now();
+    conn.execute(
+        "INSERT INTO annotations
+             (id, workspace_id, passage, start_key, end_key, translation_id, kind, content, data,
+              created_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'highlight', '', ?7, ?8, ?9)",
+        params![
+            id,
+            workspace.id,
+            reference.canonical(),
+            reference.start_key(),
+            reference.end_key(),
+            translation_id,
+            data.to_stored(),
+            created_at.unwrap_or(&at),
+            at
+        ],
+    )?;
+    Ok(id)
+}
+
+/// Applies a phrase highlight the way a physical highlighter works: the new
+/// highlight owns exactly the words it covers, and highlights already on the
+/// same wording are made to fit around it.
+///
+/// Only highlights whose stored verse hashes match the translation's text
+/// are touched ("same wording" is decided by hashes, never by translation
+/// name or by canonical overlap). Phrase notes, whole-verse highlights and
+/// bookmarks are never looked at. The caller supplies the transaction, so
+/// either everything below happens or nothing does.
+///
+/// Order, which is deterministic:
+/// 1. Lay the chapter's text on one line and find the highlights shown in it.
+/// 2. Grow the new range over same-colour highlights that overlap or touch it
+///    (repeatedly) — the final range.
+/// 3. Different-colour highlights are cut against the final range: wholly
+///    covered ones are soft-deleted, one overlapped at an edge is trimmed,
+///    one the range lies inside is split (the original keeps the part before,
+///    a new row takes the part after, with the same colour and provenance).
+///    Each remaining piece is rebuilt from the stored text.
+/// 4. The final range is one highlight: the earliest merged same-colour
+///    highlight (extended if needed, the others soft-deleted); else a
+///    different-colour highlight on exactly that range, recoloured in place;
+///    else a new row. Returns its id.
+pub fn highlight_phrase(
+    conn: &Connection,
+    translation_id: &str,
+    color: &str,
+    anchor: &StoredAnchor,
+) -> AppResult<String> {
+    let (ordinal, chapter, _) = split_key(anchor.start.verse);
+    let first = verse_key(ordinal, chapter, 0);
+    let last = verse_key(ordinal, chapter, 999);
+    let texts = verse_texts(conn, translation_id, first, last)?;
+    let layout = Layout::new(&texts);
+    let unreachable =
+        || AppError::Unexpected("a new highlight is not in its chapter's text".into());
+    let wanted = layout
+        .span(anchor.start, anchor.end)
+        .ok_or_else(unreachable)?;
+
+    // Highlights of this chapter that are on screen in this very wording.
+    let mut stmt = conn.prepare(&format!(
+        "SELECT {COLUMNS} FROM annotations
+         WHERE deleted_at IS NULL AND passage IS NOT NULL AND kind = 'highlight'
+           AND start_key <= ?2 AND end_key >= ?1
+         ORDER BY created_at, rowid"
+    ))?;
+    let rows = stmt
+        .query_map(params![first, last], from_row)?
+        .collect::<Result<Vec<_>, _>>()?;
+    let mut same: Vec<PhraseHighlight> = Vec::new();
+    let mut other: Vec<PhraseHighlight> = Vec::new();
+    for raw in rows {
+        let data = AnnotationData::read(raw.data.as_deref());
+        let Some(stored) = data.anchor else { continue };
+        if !wording_matches(&stored, &texts) {
+            continue;
+        }
+        let Some(span) = layout.span(stored.start, stored.end) else {
+            continue;
+        };
+        let item = PhraseHighlight {
+            color: data
+                .color
+                .unwrap_or_else(|| DEFAULT_HIGHLIGHT_COLOR.to_string()),
+            anchor: stored,
+            span,
+            raw,
+        };
+        if item.color == color {
+            same.push(item);
+        } else {
+            other.push(item);
+        }
+    }
+
+    // 2. The final range.
+    let (range, absorbed) = absorb(wanted, &same.iter().map(|h| h.span).collect::<Vec<_>>());
+
+    // 3. Make the other colours fit around it.
+    let mut recolour_in_place: Option<usize> = None;
+    for (i, old) in other.iter().enumerate() {
+        if !old.span.overlaps(range) {
+            continue;
+        }
+        if old.span == range && absorbed.is_empty() {
+            // Exactly the same words: the highlight just changes colour (below).
+            recolour_in_place = Some(i);
+            continue;
+        }
+        let (before, after) = remainders(old.span, range);
+        let mut pieces = [before, after]
+            .into_iter()
+            .flatten()
+            .filter(|piece| layout.has_visible_text(*piece));
+        let name = &old.anchor.translation_short_name;
+        match pieces.next() {
+            None => soft_delete(conn, &old.raw.id)?,
+            Some(keep) => {
+                write_anchor(
+                    conn,
+                    &old.raw.id,
+                    &old.color,
+                    &rebuild(&layout, &texts, keep, name)?,
+                    None,
+                )?;
+                if let Some(split) = pieces.next() {
+                    insert_highlight(
+                        conn,
+                        &old.color,
+                        &rebuild(&layout, &texts, split, name)?,
+                        old.raw.translation_id.as_deref(),
+                        Some(&old.raw.created_at),
+                    )?;
+                }
+            }
+        }
+    }
+
+    // 4. The highlight that holds the final range.
+    if let Some(&lead) = absorbed.first() {
+        let lead = &same[lead];
+        for &i in absorbed.iter().skip(1) {
+            soft_delete(conn, &same[i].raw.id)?;
+        }
+        if lead.span != range {
+            // Extended: provenance becomes the wording it was extended in.
+            let short_name = bibles::get(conn, translation_id)?.short_name;
+            let rebuilt = rebuild(&layout, &texts, range, &short_name)?;
+            write_anchor(conn, &lead.raw.id, color, &rebuilt, Some(translation_id))?;
+        }
+        return Ok(lead.raw.id.clone());
+    }
+    if let Some(i) = recolour_in_place {
+        let target = &other[i];
+        write_anchor(conn, &target.raw.id, color, &target.anchor, None)?;
+        return Ok(target.raw.id.clone());
+    }
+    insert_highlight(conn, color, anchor, Some(translation_id), None)
 }
