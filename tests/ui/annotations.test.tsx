@@ -377,4 +377,46 @@ describe("what is drawn where highlights meet", () => {
     ]);
     expect(highlightPaint(["amber"])).toBe("amber");
   });
+
+  it("paints what the core's split leaves: blue | rose | blue", () => {
+    const segments = phraseSegments("JHN.15.1", 30, [ann("l", "blue", 0, 10), ann("m", "rose", 10, 20), ann("r", "blue", 20, 30)]);
+    expect(segments.map((s) => highlightPaint(s.colors))).toEqual(["blue", "rose", "blue"]);
+  });
+
+  it("paints a colour once where the same colour overlaps itself", () => {
+    const segments = phraseSegments("JHN.15.1", 20, [ann("a", "blue", 0, 12), ann("b", "blue", 8, 20)]);
+    expect(segments.map((s) => highlightPaint(s.colors))).toEqual(["blue", "blue", "blue"]);
+  });
+
+  it("paints nothing, and does not fail, for older data where colours still overlap", () => {
+    const segments = phraseSegments("JHN.15.1", 20, [ann("a", "blue", 0, 12), ann("b", "rose", 8, 20)]);
+    expect(segments.map((s) => [s.start, s.end, highlightPaint(s.colors)])).toEqual([
+      [0, 8, "blue"],
+      [8, 12, null],
+      [12, 20, "rose"],
+    ]);
+  });
+
+  it("draws the stretches the core saved, in the reader", async () => {
+    const { api, alpha } = withBible();
+    const at = (start: number, end: number, color: "blue" | "rose") =>
+      api.annotationCreate({
+        reference: "JHN.15.1",
+        kind: "highlight",
+        color,
+        anchor: { translationId: alpha.id, start: { verse: "JHN.15.1", offset: start }, end: { verse: "JHN.15.1", offset: end }, quote: V1.slice(start, end) },
+      });
+    await at(0, 8, "blue");
+    await at(8, 13, "rose");
+    await at(13, 22, "blue");
+    await renderApp(api);
+    await reading();
+    const marks = [...verseText("JHN.15.1").querySelectorAll("mark[data-phrase-color]")];
+    expect(marks.map((m) => [m.getAttribute("data-phrase-color"), m.textContent])).toEqual([
+      ["blue", "Fixture "],
+      ["rose", "alpha"],
+      ["blue", " JHN 15:1"],
+    ]);
+    expect(verseText("JHN.15.1").textContent).toBe(V1);
+  });
 });

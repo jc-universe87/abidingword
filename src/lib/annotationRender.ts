@@ -13,19 +13,29 @@ export type CoveringColors = HighlightColor[];
 /** What to paint where highlights meet: a colour, or nothing. */
 export type Paint = HighlightColor | null;
 
+let warned = false;
+
 /**
  * Chooses what is painted for the highlight colours covering one stretch of
  * text (or one whole verse).
  *
- * UNRESOLVED PRODUCT DECISION — overlapping highlights. When two or more
- * *different* colours cover the same stretch, which should show: split spans,
- * stacked layers, a most-specific range, a merge…? The decision belongs to
- * the owner (see the Phase 3 report); until it is made this deliberately paints
- * NOTHING for such a stretch rather than inventing a rule. Every annotation is
- * still stored, listed and recoverable. This is the only place that choice is
- * made, so the eventual rule replaces this function and nothing else.
+ * The core keeps phrase highlights on one wording from overlapping: a new
+ * highlight owns exactly the words it covers and the others are merged,
+ * trimmed or split around it (docs/scripture-annotations-v0.5.md,
+ * "Overlapping highlights"). So one colour covers a stretch, and the same
+ * colour twice is still one colour (callers pass the distinct colours).
+ *
+ * Several *different* colours can only come from data written before that
+ * rule existed (or damaged data). The reader does not pick a winner for it —
+ * no "latest wins" here — it paints nothing for that stretch, which is safe
+ * and not misleading. Everything stays stored and listed, and the next
+ * highlight made over it is normalised by the core.
  */
 export function highlightPaint(colors: CoveringColors): Paint {
+  if (colors.length > 1 && !warned && import.meta.env.DEV) {
+    warned = true;
+    console.warn("Overlapping highlights of different colours (older data); nothing is painted for them.");
+  }
   return colors.length === 1 ? (colors[0] ?? null) : null;
 }
 

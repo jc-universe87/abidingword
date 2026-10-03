@@ -46,10 +46,16 @@ describe("test-build versions", () => {
 });
 
 describe("the test channel", () => {
-  it("is not ready until the owner sets the public key and repository (nothing fake is committed)", () => {
+  it("holds only public information: a repository and an updater public key", () => {
     const committed = readChannel();
-    expect(committed.pubkey).toBe("");
-    expect(() => validateChannel(committed)).toThrow(/updatesRepository|pubkey/);
+    expect(() => validateChannel(committed)).not.toThrow();
+    expect(Object.keys(committed).sort()).toEqual(["channel", "pubkey", "updatesRepository"]);
+    expect(Buffer.from(committed.pubkey, "base64").toString("utf8")).toMatch(/^untrusted comment: minisign public key/);
+  });
+
+  it("refuses to build while the repository or public key is missing", () => {
+    expect(() => validateChannel({ ...readChannel(), updatesRepository: "" })).toThrow(/updatesRepository/);
+    expect(() => validateChannel({ ...readChannel(), pubkey: "" })).toThrow(/pubkey/);
   });
 
   it("only accepts a public key, and a plain owner/name repository", () => {
