@@ -6,7 +6,6 @@
     "language": "Idioma",
     "bibleTexts": "Traduções da Bíblia",
     "templates": "Modelos de estudo",
-    "shortcuts": "Atalhos de teclado",
     "about": "Sobre esta instalação",
     "planned": "Nas próximas versões"
   },
@@ -29,7 +28,6 @@
     "reset": "Redefinir disposição",
     "done": "Disposição redefinida."
   },
-  "shortcutsHint": "Funcionam enquanto um estudo está aberto.",
   "about": {
     "version": "Versão",
     "versionValue": "Abiding Word {{version}} (Foundation)",

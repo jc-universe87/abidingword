@@ -10,14 +10,13 @@ import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import type { StudySection } from "@/types/domain";
 import { EditableTitle } from "./EditableTitle";
-import { FindingsPanel, type FindingsPanelHandle } from "./FindingsPanel";
+import { FindingsPanel } from "./FindingsPanel";
 import { sectionTitle } from "./builtinText";
 import { studyTypeLabel } from "./labels";
 import { RelatedStudies } from "./RelatedStudies";
 import { SectionEditor } from "./SectionEditor";
 import { StudyHeader } from "./StudyHeader";
 import { StudyPassages } from "./StudyPassages";
-import { useStudyShortcuts } from "./useStudyShortcuts";
 
 interface StudyEditorProps {
   studyId: string;
@@ -36,7 +35,6 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   const findings = useLoad(useCallback(() => api.findingList(studyId), [api, studyId]));
   const templates = useLoad(useCallback(() => api.templateList(), [api]));
   const rename = useCallback((title: string) => api.studyUpdate({ id: studyId, title }), [api, studyId]);
-  const findingsPanel = useRef<FindingsPanelHandle>(null);
   const [error, setError] = useState<string | null>(null);
   const missing = detail.error?.kind === "notFound";
 
@@ -62,28 +60,6 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   }, [revealPrimary, api, studyId, goTo, onRevealScripture]);
 
   const sections = useMemo(() => detail.data?.sections ?? [], [detail.data]);
-  const jumpSection = useCallback(
-    (delta: 1 | -1) => {
-      const anchors = ["study-overview", "study-findings", ...sections.map((s) => `section-anchor-${s.id}`)];
-      const scroller = document.querySelector("#pane-study [data-scroll-root]");
-      const top = scroller?.getBoundingClientRect().top ?? 0;
-      const positions = anchors.map((id) => document.getElementById(id)?.getBoundingClientRect().top ?? 0);
-      const current = positions.reduce((best, pos, i) => (pos - top <= 8 ? i : best), 0);
-      const target = anchors[Math.min(anchors.length - 1, Math.max(0, current + delta))];
-      const element = target ? document.getElementById(target) : null;
-      element?.scrollIntoView?.({ block: "start" });
-      element?.querySelector<HTMLElement>("h2, textarea")?.focus({ preventScroll: true });
-    },
-    [sections],
-  );
-  useStudyShortcuts({
-    onCapture: useCallback((type) => {
-      document.getElementById("study-findings")?.scrollIntoView?.({ block: "start" });
-      findingsPanel.current?.capture(type);
-    }, []),
-    onSection: jumpSection,
-  });
-
   if (missing) return null;
   if (detail.error) return <Notice tone="error">{detail.error.message}</Notice>;
   if (!detail.data) return <p className="text-text-muted">{t("studies.editor.opening")}</p>;
@@ -154,7 +130,6 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
       </header>
 
       <FindingsPanel
-        ref={findingsPanel}
         studyId={study.id}
         findings={findings.data ?? []}
         sections={sections}

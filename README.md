@@ -50,7 +50,8 @@ Studies v0.3 makes the study the centre of work:
 - editable, reorderable sections; quotation and question blocks
 - links between related studies, study status, duplication
 - search across your studies, separate from Scripture search
-- keyboard shortcuts for quick capture
+- quick capture of findings (Ctrl+Enter saves; the earlier Alt-based global
+  shortcuts were removed after v0.3 and are deferred)
 
 Details: [`docs/studies-v0.3.md`](docs/studies-v0.3.md).
 

@@ -4,7 +4,6 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
 import type { AppInfo, Theme } from "@/types/domain";
-import { STUDY_SHORTCUTS } from "@/features/studies/useStudyShortcuts";
 import { BibleTexts } from "./BibleTexts";
 import { StudyTemplates } from "./StudyTemplates";
 import { UpdateSettings } from "@/features/updates/UpdateSettings";
@@ -65,15 +64,6 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
 
         <Section id="study-templates" title={t("settings.sections.templates")}>
           <StudyTemplates onEdit={onEditTemplate} />
-        </Section>
-
-        <Section id="keyboard-shortcuts" title={t("settings.sections.shortcuts")}>
-          <dl className="m-0 grid grid-cols-[10rem_1fr] gap-x-6 gap-y-2">
-            {STUDY_SHORTCUTS.map((s) => (
-              <Item key={s.keys} term={t(s.keys)}>{t(s.action)}</Item>
-            ))}
-          </dl>
-          <p className="mt-3 mb-0 text-[0.9375rem] text-text-muted">{t("settings.shortcutsHint")}</p>
         </Section>
 
         <Section id="updates" title={t("app.updates.title")}>

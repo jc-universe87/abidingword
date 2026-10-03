@@ -6,7 +6,6 @@
     "language": "Language",
     "bibleTexts": "Bible Texts",
     "templates": "Study Templates",
-    "shortcuts": "Keyboard shortcuts",
     "about": "About this installation",
     "planned": "Coming in later versions"
   },
@@ -29,7 +28,6 @@
     "reset": "Reset layout",
     "done": "Layout reset."
   },
-  "shortcutsHint": "These work while a study is open.",
   "about": {
     "version": "Version",
     "versionValue": "Abiding Word {{version}} (Foundation)",

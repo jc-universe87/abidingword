@@ -164,11 +164,19 @@ describe("findings", () => {
     expect(await within(scripture).findByRole("heading", { level: 2, name: "John 15" })).toBeInTheDocument();
   });
 
-  it("opens quick capture with Alt+O", async () => {
-    await inStudy();
-    const { default: userEvent } = await import("@testing-library/user-event");
-    await userEvent.keyboard("{Alt>}o{/Alt}");
-    expect(await screen.findByLabelText("New observation")).toHaveFocus();
+  it("does not react to the old Alt shortcuts, and keeps Ctrl+Enter in the editor", async () => {
+    const { user } = await inStudy();
+    for (const combo of ["{Alt>}o{/Alt}", "{Alt>}n{/Alt}", "{Alt>}q{/Alt}", "{Alt>}g{/Alt}", "{Alt>}{ArrowDown}{/Alt}"]) {
+      await user.keyboard(combo);
+    }
+    expect(screen.queryByLabelText("New observation")).toBeNull();
+    expect(screen.queryByLabelText("New question")).toBeNull();
+    expect(screen.queryByLabelText("New finding")).toBeNull();
+
+    // Writing a finding still says how to save it, where it is written.
+    await user.click(within(screen.getByRole("group", { name: "Add a finding" })).getByRole("button", { name: "Observation" }));
+    expect(await screen.findByLabelText("New observation")).toBeInTheDocument();
+    expect(screen.getByText("Ctrl+Enter saves")).toBeInTheDocument();
   });
 });
 

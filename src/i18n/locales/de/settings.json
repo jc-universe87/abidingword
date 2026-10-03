@@ -6,7 +6,6 @@
     "language": "Sprache",
     "bibleTexts": "Bibelübersetzungen",
     "templates": "Vorlagen für Bibelstudien",
-    "shortcuts": "Tastenkürzel",
     "about": "Über diese Installation",
     "planned": "In späteren Versionen"
   },
@@ -29,7 +28,6 @@
     "reset": "Anordnung zurücksetzen",
     "done": "Anordnung zurückgesetzt."
   },
-  "shortcutsHint": "Diese Kürzel gelten, solange ein Bibelstudium geöffnet ist.",
   "about": {
     "version": "Version",
     "versionValue": "Abiding Word {{version}} (Foundation)",

@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useId, useImperativeHandle, useRef, useState, type KeyboardEvent } from "react";
+import { forwardRef, useCallback, useId, useRef, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/design-system/Button";
@@ -15,11 +15,6 @@ import { findingInline, findingLabel, findingPlural } from "./labels";
 
 const QUICK: FindingType[] = ["observation", "question", "interpretation", "application", "conclusion"];
 
-export interface FindingsPanelHandle {
-  /** Opens quick capture, optionally for a type, and focuses it. */
-  capture: (type?: FindingType) => void;
-}
-
 interface FindingsPanelProps {
   studyId: string;
   findings: Finding[];
@@ -32,23 +27,12 @@ interface FindingsPanelProps {
  * Structured findings for a study: quick capture, a type filter and the
  * list itself. Adding an observation should feel like taking a note.
  */
-export const FindingsPanel = forwardRef<FindingsPanelHandle, FindingsPanelProps>(function FindingsPanel(
-  { studyId, findings, sections, onChanged, onRevealScripture },
-  ref,
-) {
+export function FindingsPanel({ studyId, findings, sections, onChanged, onRevealScripture }: FindingsPanelProps) {
   const { t } = useTranslation();
   const id = useId();
   const [capturing, setCapturing] = useState<FindingType | null>(null);
   const [filter, setFilter] = useState<FindingType | null>(null);
   const captureRef = useRef<HTMLTextAreaElement>(null);
-
-  useImperativeHandle(ref, () => ({
-    capture: (type) => {
-      setCapturing(type ?? capturing ?? "observation");
-      // Focus after the capture box has rendered.
-      setTimeout(() => captureRef.current?.focus(), 0);
-    },
-  }));
 
   const counts = new Map<FindingType, number>();
   for (const f of findings) counts.set(f.findingType, (counts.get(f.findingType) ?? 0) + 1);
@@ -146,7 +130,7 @@ export const FindingsPanel = forwardRef<FindingsPanelHandle, FindingsPanelProps>
       </ol>
     </section>
   );
-});
+}
 
 function FilterButton({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (

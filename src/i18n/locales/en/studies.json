@@ -1,30 +1,4 @@
 {
-  "shortcuts": {
-    "newFinding": {
-      "keys": "Alt+N",
-      "action": "New finding"
-    },
-    "newObservation": {
-      "keys": "Alt+O",
-      "action": "New observation"
-    },
-    "newQuestion": {
-      "keys": "Alt+Q",
-      "action": "New question"
-    },
-    "section": {
-      "keys": "Alt+↓ / Alt+↑",
-      "action": "Next / previous section"
-    },
-    "goTo": {
-      "keys": "Alt+G",
-      "action": "Go to a Scripture passage"
-    },
-    "saveFinding": {
-      "keys": "Ctrl+Enter",
-      "action": "Save the finding being written"
-    }
-  },
   "builtin": {
     "templates": {
       "biblical-theology-study": {

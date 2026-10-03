@@ -6,7 +6,6 @@
     "language": "언어",
     "bibleTexts": "성경 번역본",
     "templates": "성경공부 템플릿",
-    "shortcuts": "키보드 단축키",
     "about": "이 설치 정보",
     "planned": "향후 버전에서 제공 예정"
   },
@@ -29,7 +28,6 @@
     "reset": "배치 초기화",
     "done": "배치를 초기화했습니다."
   },
-  "shortcutsHint": "성경공부가 열려 있을 때 사용할 수 있습니다.",
   "about": {
     "version": "버전",
     "versionValue": "Abiding Word {{version}} (Foundation)",

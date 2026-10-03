@@ -1,30 +1,4 @@
 {
-  "shortcuts": {
-    "newFinding": {
-      "keys": "Alt+N",
-      "action": "새 기록"
-    },
-    "newObservation": {
-      "keys": "Alt+O",
-      "action": "새 관찰"
-    },
-    "newQuestion": {
-      "keys": "Alt+Q",
-      "action": "새 질문"
-    },
-    "section": {
-      "keys": "Alt+↓ / Alt+↑",
-      "action": "다음 / 이전 섹션"
-    },
-    "goTo": {
-      "keys": "Alt+G",
-      "action": "성경 본문으로 이동"
-    },
-    "saveFinding": {
-      "keys": "Ctrl+Enter",
-      "action": "작성 중인 기록 저장"
-    }
-  },
   "builtin": {
     "templates": {
       "biblical-theology-study": {

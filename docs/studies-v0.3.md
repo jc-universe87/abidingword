@@ -163,10 +163,14 @@ Projects page lists all studies; a project page lists its own.
 
 ## Keyboard
 
-While a study is open: Alt+N new finding, Alt+O new observation, Alt+Q
-new question, Alt+↓ / Alt+↑ next / previous part of the study, Alt+G go to
-a Scripture passage, Ctrl+Enter save the finding being written. Listed in
-Settings → Keyboard shortcuts.
+*(Changed after v0.3.)* v0.3 shipped Alt-based global shortcuts while a study
+was open (Alt+N, Alt+O, Alt+Q, Alt+↓/↑, Alt+G) and listed them in Settings.
+They are removed: Windows and its web view intercept Alt combinations
+unreliably, and they are not needed now. Global keyboard shortcuts are
+deferred until a deliberate cross-platform shortcut scheme is designed and
+tested. Normal keyboard use (Tab, Enter/Space, Escape, visible focus) is
+unchanged, and **Ctrl+Enter** still saves the finding being written, with the
+hint shown beside the editor.
 
 ## Migration 0003
 

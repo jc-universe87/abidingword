@@ -6,7 +6,6 @@
     "language": "Langue",
     "bibleTexts": "Traductions de la Bible",
     "templates": "Modèles d’étude",
-    "shortcuts": "Raccourcis clavier",
     "about": "À propos de cette installation",
     "planned": "Dans les prochaines versions"
   },
@@ -29,7 +28,6 @@
     "reset": "Réinitialiser la disposition",
     "done": "Disposition réinitialisée."
   },
-  "shortcutsHint": "Ils fonctionnent lorsqu’une étude est ouverte.",
   "about": {
     "version": "Version",
     "versionValue": "Abiding Word {{version}} (Foundation)",
