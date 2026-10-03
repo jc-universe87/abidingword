@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from "react";
+import type { ComponentPropsWithRef } from "react";
 
 type Variant = "primary" | "secondary" | "quiet";
 
@@ -12,7 +12,7 @@ const variants: Record<Variant, string> = {
   quiet: "px-2 text-text-strong hover:bg-bg-secondary",
 };
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ComponentPropsWithRef<"button"> {
   variant?: Variant;
 }
 

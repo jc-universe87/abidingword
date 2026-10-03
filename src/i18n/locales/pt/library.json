@@ -149,5 +149,13 @@
     "fitPage": "Ajustar à página",
     "loading": "Abrindo o original…",
     "renderFailed": "Não foi possível mostrar o original. Você ainda pode ler o texto extraído."
+  },
+  "contents": {
+    "title": "Conteúdo",
+    "show": "Mostrar o conteúdo",
+    "close": "Fechar o conteúdo",
+    "for": "Conteúdo de {{title}}",
+    "none": "Nenhum conteúdo disponível",
+    "current": "Seção atual"
   }
 }

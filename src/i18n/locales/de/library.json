@@ -142,5 +142,13 @@
     "fitPage": "Seite einpassen",
     "loading": "Das Original wird geöffnet …",
     "renderFailed": "Das Original konnte nicht angezeigt werden. Der extrahierte Text bleibt lesbar."
+  },
+  "contents": {
+    "title": "Inhalt",
+    "show": "Inhaltsverzeichnis anzeigen",
+    "close": "Inhaltsverzeichnis schließen",
+    "for": "Inhaltsverzeichnis von {{title}}",
+    "none": "Kein Inhaltsverzeichnis vorhanden",
+    "current": "Aktueller Abschnitt"
   }
 }

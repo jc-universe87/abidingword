@@ -149,5 +149,13 @@
     "fitPage": "Ajuster à la page",
     "loading": "Ouverture de l’original…",
     "renderFailed": "L’original n’a pas pu être affiché. Vous pouvez toujours lire le texte extrait."
+  },
+  "contents": {
+    "title": "Sommaire",
+    "show": "Afficher le sommaire",
+    "close": "Fermer le sommaire",
+    "for": "Sommaire de {{title}}",
+    "none": "Aucun sommaire disponible",
+    "current": "Section en cours"
   }
 }

@@ -1,15 +1,17 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Maximize2 } from "lucide-react";
+import { ArrowLeft, List, Maximize2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
 import { formatNumber } from "@/i18n/format";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
-import type { SegmentWindow, SourceSegment } from "@/types/library";
+import type { ContentsItem, SegmentWindow, SourceSegment } from "@/types/library";
 import { formatLabel, licenceLabel, locatorLabel, sourceTypeLabel } from "./labels";
+import { ContentsPanel, useContentsLayout } from "./ContentsPanel";
 import { PdfViewer } from "./PdfViewer";
+import { currentEntry, useSourceContents } from "./useSourceContents";
 
 export type ReaderMode = "reading" | "original";
 
@@ -66,6 +68,15 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const landing = useRef<number | null>(null);
   // Where the original opens; until chosen, the page of the passage opened at.
   const [openPage, setOpenPage] = useState<number | null>(null);
+  // The source's own contents (an EPUB's, a PDF's outline), and the panel that shows them.
+  const contents = useSourceContents(source.data);
+  const stage = useRef<HTMLDivElement>(null);
+  const opener = useRef<HTMLButtonElement>(null);
+  const contentsLayout = useContentsLayout(stage, contents.length > 0);
+  const [panel, setPanel] = useState<{ currentId: string | null } | null>(null);
+  const [jump, setJump] = useState<{ page: number; nonce: number } | null>(null);
+  // A segment position Reading should scroll to after a contents entry was chosen.
+  const landingPosition = useRef<number | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -153,13 +164,87 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     }
   };
 
-  // Scroll Reading to the page the original was on.
+  // Scroll Reading to the page the original was on, or to the entry chosen in the contents.
   useEffect(() => {
-    if (landing.current === null || mode !== "reading" || !window) return;
-    const spot = bodyRef.current?.querySelector<HTMLElement>(`[data-seg-page="${landing.current}"]`);
-    spot?.scrollIntoView?.({ block: "start" });
-    landing.current = null;
+    if (mode !== "reading" || !window) return;
+    const body = bodyRef.current;
+    if (landing.current !== null) {
+      // The page itself, or (a page with no text of its own) the next one that has some.
+      const wanted = landing.current;
+      const spots = body ? [...body.querySelectorAll<HTMLElement>("[data-seg-page]")] : [];
+      spots.find((el) => Number(el.dataset.segPage) >= wanted)?.scrollIntoView?.({ block: "start" });
+      landing.current = null;
+    }
+    if (landingPosition.current !== null) {
+      const spot = body?.querySelector<HTMLElement>(`[data-seg-position="${landingPosition.current}"]`);
+      // Show the chapter or section heading that precedes the text, too.
+      const before = spot?.previousElementSibling;
+      (before?.hasAttribute("data-section-marker") ? before : spot)?.scrollIntoView?.({ block: "start" });
+      spot?.setAttribute("tabindex", "-1");
+      spot?.focus({ preventScroll: true });
+      landingPosition.current = null;
+    }
   }, [mode, window]);
+
+  /** The contents entry the reader is in now: by page for a PDF, by segment position otherwise. */
+  const currentEntryNow = (): string | null => {
+    if (hasOriginal) return currentEntry(contents, "page", showOriginal ? (originalPage.current ?? startPage) : readingPage());
+    const body = bodyRef.current;
+    const area = body?.getBoundingClientRect();
+    const top = body ? [...body.querySelectorAll<HTMLElement>("[data-seg-position]")].find((el) => area && el.getBoundingClientRect().bottom > area.top) : undefined;
+    return currentEntry(contents, "segment", Number(top?.dataset.segPosition ?? window?.offset ?? 0));
+  };
+
+  const openContents = () => setPanel({ currentId: currentEntryNow() });
+  const closeContents = () => {
+    setPanel(null);
+    requestAnimationFrame(() => opener.current?.focus({ preventScroll: true }));
+  };
+
+  /** Reading, at a physical page: stay in Reading and show that page's text. */
+  const goToPage = async (page: number) => {
+    landing.current = page;
+    if (window?.segments.some((x) => x.pageNumber === page)) {
+      setWindow({ ...window });
+      return;
+    }
+    try {
+      const w = await api.sourceGetSegments({ sourceId, aroundPage: page });
+      setWindow({ ...w, targetSegmentId: null });
+    } catch (e) {
+      landing.current = null;
+      setError(toApiError(e).message);
+    }
+  };
+
+  /** Reading, at a segment of the extracted text (EPUB). */
+  const goToPosition = async (position: number) => {
+    landingPosition.current = position;
+    if (window && position >= window.offset && position < window.offset + window.segments.length) {
+      setWindow({ ...window });
+      return;
+    }
+    try {
+      const w = await api.sourceGetSegments({ sourceId, offset: Math.max(0, position - 20), limit: 150 });
+      setWindow({ ...w, targetSegmentId: null });
+    } catch (e) {
+      landingPosition.current = null;
+      setError(toApiError(e).message);
+    }
+  };
+
+  const chooseEntry = (item: ContentsItem) => {
+    const target = item.target;
+    if (!target) return;
+    closeContents();
+    if (target.kind === "page") {
+      // The mode is kept: Original moves its page (zoom unchanged), Reading shows that page's text.
+      if (showOriginal) setJump({ page: target.page, nonce: Date.now() });
+      else void goToPage(target.page);
+    } else {
+      void goToPosition(target.position);
+    }
+  };
 
   const more = async (direction: "earlier" | "later") => {
     if (!window) return;
@@ -250,11 +335,21 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         onPageChange={(page) => {
           originalPage.current = page;
         }}
+        jumpTo={jump}
       />
     )
   ) : null;
 
   const modeSwitch = hasOriginal ? <ModeSwitch mode={mode} onChange={(m) => void choose(m)} /> : null;
+  const contentsButton =
+    contents.length > 0 ? (
+      <Button ref={opener} variant="quiet" aria-expanded={panel !== null} title={t("library.contents.show")} onClick={() => (panel ? closeContents() : openContents())}>
+        <List className="size-4" aria-hidden="true" /> {t("library.contents.title")}
+      </Button>
+    ) : null;
+  const contentsPanel = panel ? (
+    <ContentsPanel title={s?.title ?? ""} items={contents} currentId={panel.currentId} layout={contentsLayout} onSelect={chooseEntry} onClose={closeContents} />
+  ) : null;
 
   if (inPane) {
     // A column: controls that never scroll away, then Reading (which scrolls
@@ -271,14 +366,22 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
             </Button>
           )}
         </div>
-        {modeSwitch && <div className="flex shrink-0 border-b border-border-subtle px-3 py-1.5">{modeSwitch}</div>}
-        {showOriginal ? (
-          original
-        ) : (
-          <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
-            <div className="flex flex-col gap-5 px-5 pb-16 pt-5">{body}</div>
+        {(modeSwitch || contentsButton) && (
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border-subtle px-3 py-1.5">
+            {modeSwitch}
+            {contentsButton}
           </div>
         )}
+        <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
+          {showOriginal ? (
+            original
+          ) : (
+            <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
+              <div className="flex flex-col gap-5 px-5 pb-16 pt-5">{body}</div>
+            </div>
+          )}
+          {contentsPanel}
+        </div>
       </section>
     );
   }
@@ -301,14 +404,18 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
           {s?.title}
         </h1>
         {modeSwitch}
+        {contentsButton}
       </div>
-      {showOriginal ? (
-        original
-      ) : (
-        <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
-          <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-6">{body}</div>
-        </div>
-      )}
+      <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
+        {showOriginal ? (
+          original
+        ) : (
+          <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
+            <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-6">{body}</div>
+          </div>
+        )}
+        {contentsPanel}
+      </div>
     </main>
   );
 }
@@ -345,12 +452,17 @@ function SegmentView({ segment, previous, isTarget, targetRef }: { segment: Sour
           {locatorLabel(t, segment.locator, page)}
         </p>
       )}
-      {newSection && <p className="m-0 mt-3 font-display text-[1.125rem] font-heading text-text-strong">{segment.sectionPath}</p>}
+      {newSection && (
+        <p data-section-marker className="m-0 mt-3 font-display text-[1.125rem] font-heading text-text-strong">
+          {segment.sectionPath}
+        </p>
+      )}
       <p
         ref={targetRef as React.RefObject<HTMLParagraphElement> | undefined}
         tabIndex={isTarget ? -1 : undefined}
         data-target={isTarget || undefined}
         data-seg-page={segment.pageNumber ?? undefined}
+        data-seg-position={segment.position}
         className={`m-0 ${isTarget ? "border-l-[3px] border-accent bg-note px-3 py-1" : ""}`}
       >
         {segment.text}

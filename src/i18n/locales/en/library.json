@@ -142,5 +142,13 @@
     "fitPage": "Fit page",
     "loading": "Opening the original…",
     "renderFailed": "The original could not be shown. You can still read the extracted text."
+  },
+  "contents": {
+    "title": "Contents",
+    "show": "Show contents",
+    "close": "Close contents",
+    "for": "Contents of {{title}}",
+    "none": "No contents available",
+    "current": "Current section"
   }
 }

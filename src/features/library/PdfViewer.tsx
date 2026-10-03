@@ -24,6 +24,8 @@ interface PdfViewerProps {
   initialPage: number;
   /** Told whenever the page in view changes, so Reading can return to it. */
   onPageChange: (page: number) => void;
+  /** Go to this page without reopening (zoom is kept). A new `nonce` is a new request. */
+  jumpTo?: { page: number; nonce: number } | null;
 }
 
 /**
@@ -34,7 +36,7 @@ interface PdfViewerProps {
  * inspect the source; search, citations and Scripture links stay with the
  * extracted text.
  */
-export function PdfViewer({ sourceId, initialPage, onPageChange }: PdfViewerProps) {
+export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo }: PdfViewerProps) {
   const { t } = useTranslation();
   const api = useApi();
   const engine = usePdfEngine();
@@ -137,6 +139,14 @@ export function PdfViewer({ sourceId, initialPage, onPageChange }: PdfViewerProp
   useEffect(() => {
     onPageChange(page);
   }, [page, onPageChange]);
+
+  // A request from outside (the contents): move there, keeping the zoom.
+  const requested = useRef<number | null>(null);
+  useEffect(() => {
+    if (!jumpTo || requested.current === jumpTo.nonce || !doc || !sizes[1]) return;
+    requested.current = jumpTo.nonce;
+    goTo(jumpTo.page);
+  }, [jumpTo, doc, sizes, goTo]);
 
   // Follow the user's own scrolling (not our own jumps).
   const onScroll = () => {

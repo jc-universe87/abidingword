@@ -40,9 +40,10 @@ describe("full source reader", () => {
     expect(await within(body).findByText("Paragraph 1 about abiding.")).toBeInTheDocument();
     expect(within(body).queryByRole("button", { name: "Back" })).toBeNull();
 
-    // Siblings in a flex column: only the body scrolls, so the header cannot scroll away.
+    // The header and the content stage (which holds the body) are siblings in a
+    // flex column: only the body scrolls, so the header cannot scroll away.
     expect(header.parentElement).toBe(main);
-    expect(body.parentElement).toBe(main);
+    expect(body.parentElement?.parentElement).toBe(main);
     expect(header.contains(body) || body.contains(header)).toBe(false);
     expect(main.className).toMatch(/\bflex-col\b/);
     expect(header.className).toMatch(/\bshrink-0\b/);
