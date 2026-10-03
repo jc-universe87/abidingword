@@ -4,7 +4,7 @@
 > anchors, the selection toolbar, colours, phrase and verse marks, and the
 > overlapping-highlight rule below. The selection spike was verified on
 > ChromeOS/WebKitGTK. Sections marked *planned* describe work not yet
-> implemented (Marks view, popover, narrow-pane sheet, accessibility pass).
+> implemented (the Marks view).
 
 Builds on [`scripture-v0.2.md`](scripture-v0.2.md) (canonical references,
 translations, the `annotations` table). The frozen
@@ -146,20 +146,53 @@ Phrase highlights that overlap or touch: see "Overlapping highlights".
 | `annotation_delete(id)` | unchanged (soft delete) |
 | `annotation_anchor_check(input)` | new: validates a phrase anchor without saving; returns the rebuilt quote and covered verses (used by the selection spike, kept for the toolbar) |
 
-## Reader interaction (planned)
+## Reader interaction (implemented)
 
-- **Selection toolbar** — appears next to a text selection or after
-  activating a verse number: five colour swatches, Note, and Bookmark only
-  when the target is whole verses. Disappears after use.
-- **One marker per annotated verse**, inline after the verse text; a
-  button whose accessible label summarises the marks ("Verse 7: 2 notes,
-  bookmarked, highlighted amber").
-- **Annotation popover** — notes (with quote), highlights (colour, quote,
-  "not shown in this wording"), bookmark; edit, recolour, delete.
-- **Narrow pane** — the popover and note editor become a sheet inside the
-  Scripture pane, chosen by the pane's width, not the window's.
-- The inline `VerseTools` panel (which pushed the text down) is retired
-  once the above fully replaces it. The commands stay.
+- **Selection toolbar** — a stable bar at the foot of the reader for a text
+  selection: Add note and Highlight (never Bookmark). See "Selection toolbar,
+  colours and rendering".
+- **Verse number** — a button (larger hit area, `aria-expanded`) that opens
+  the annotation inspector for that verse; activating it again closes it. It
+  also selects the verse, as before ("Link current passage").
+- **One marker per annotated verse** — a single button after the verse text,
+  shown when anything covers the verse (notes, bookmark, a verse highlight,
+  a phrase highlight). Its name says what is there, with counts and the
+  colour name, never by icon or colour alone ("Verse 7: 2 notes, bookmarked,
+  highlighted Amber. Show annotations"); its icon is a note, a bookmark or a
+  highlighter when there is one kind of mark and a stack when there are
+  several. It opens the same inspector and has `aria-expanded`.
+- **Annotation inspector** (`AnnotationInspector.tsx`) — the one place for a
+  verse's marks, replacing the old inline `VerseTools` block that pushed the
+  text down (nothing is inserted under a verse any more). Whole-verse: Add
+  note, Highlight (the five colours, recolour, remove), Bookmark (pressed
+  state). Existing marks: notes with edit and delete (a phrase note shows its
+  words), phrase highlights with colour name, words, recolour and remove, each
+  with "Not shown in this wording" when the translation on screen does not
+  have that exact wording. A phrase mark or note that spans several verses is
+  listed in the inspector of every verse it covers. No hashes or offsets are
+  shown. Recolouring a phrase highlight uses `annotation_update`, so the
+  core's overlap rules apply; the interface has no overlap logic.
+- **Layout from the Scripture pane's own width** — a compact panel when the
+  reader is at least 480 px wide, a full-width **sheet** (stacked controls,
+  scrolls inside itself, text fields fill the width) when it is narrower,
+  measured with a `ResizeObserver` on the reader, not the window. Both sit
+  at the foot of the reader like the selection toolbar, in normal flow with
+  `position: sticky`: no floating overlay and no position arithmetic, which
+  were unreliable in WebKitGTK. If the panel would cover the verse being
+  worked on, the reader scrolls just enough to bring that verse clear above it.
+- **Focus and Escape** — opening focuses the inspector's heading. Escape
+  closes the innermost thing first (the colours, a note being written or
+  edited), then the inspector, and focus returns to the verse number or
+  marker that opened it (the verse number if that marker has gone). The
+  note editor takes focus when it opens; cancelling returns focus to Add note
+  or Edit; deleting something keeps focus inside the inspector. Escape does
+  not reach the rest of the app. Close is also a button.
+- **One inspector at a time.** Opening another verse replaces it; changing
+  chapter or translation closes it, for good. Switching translation never
+  changes an annotation.
+- **Errors** (translated, coded) keep the inspector open and keep a note being
+  typed.
+- Phrase *selection* stays pointer/touch; there is no keyboard word selection.
 
 ## Selection anchoring in the reader
 
@@ -188,14 +221,12 @@ The Phase 2 spike shows this live (see "Phase 2 spike"); the toolbar uses the sa
   The anchor is captured when the selection settles and kept while a colour
   is chosen or a note written. Saving uses `annotation_create` with the
   anchor, clears the native selection and reloads the chapter.
-- Whole-verse tools (`VerseTools`): Add note, Highlight (same five colours,
-  recolour or remove), Bookmark; unchanged otherwise. Phrase highlights are
-  listed there with their colour, quote and "Not shown in this wording".
+- Whole-verse tools and the list of a verse's marks live in the annotation
+  inspector (see "Reader interaction").
 - Drawing (`src/lib/annotationRender.ts`): a phrase highlight is a coloured
   `<mark>` and a phrase note a dotted underline, only where the core reports
   `shown`; they wrap parts of the verse text and never change it. A
-  whole-verse highlight tints the verse block. One small marker per verse
-  that has notes or a bookmark.
+  whole-verse highlight tints the verse block. One marker button per annotated verse.
 - Colours are tokens (`--aw-hl-*`, light and dark), named in all languages;
   no colour carries a meaning.
 
@@ -264,14 +295,16 @@ to the passage. A separate, paged query over the existing table — the
 reader keeps loading one chapter's annotations only. No full-text index
 unless measured performance requires one (that would be migration 0005).
 
-## Accessibility (planned)
+## Accessibility (implemented)
 
-Verse-level keyboard parity for everything: semantic verse-number buttons
-with larger hit targets, a semantic marker button, visible focus, Escape
-closes the popover or sheet and returns focus, no hover-only functions,
-colour never the only signal (labels name the colour and state), usable
-touch targets in the toolbar. Phrase selection stays pointer/touch based;
-no custom keyboard word-selection system in v0.5.
+Everything on a verse is reachable from the keyboard: semantic verse-number
+and marker buttons with comfortable hit areas and `aria-expanded`/
+`aria-controls`, visible focus, no hover-only functions, an inspector that is
+a labelled region with a heading that takes focus, Escape that closes the
+innermost thing then the inspector and returns focus to the opener, textareas
+with labels, errors as alerts, colour names as text (colour is never the only
+signal) and 40 px-high controls. Phrase selection stays pointer/touch based;
+there is no custom keyboard word-selection system in v0.5.
 
 ## Interface languages
 
@@ -308,7 +341,7 @@ annotation stays where it is; the finding is a separate record.
 | 2 | selection → offsets spike in the real reader; **checkpoint** | done (verified on ChromeOS/WebKitGTK) |
 | 3 | selection toolbar, five colours, phrase highlight and note, verse highlight with colour, one marker per verse | done |
 | 4 | overlapping phrase highlights (physical-highlighter normalisation in the core) | done |
-| 5 | narrow-pane sheet, annotation popover, accessibility and focus | — |
+| 5 | annotation inspector (retires inline VerseTools), interactive marker, narrow-pane sheet, focus and accessibility | done |
 | 6 | Marks view, filters, note search, navigation | — |
 | 7 | documentation, tests, real-app acceptance, release preparation | — |
 
