@@ -11,13 +11,20 @@ import { SearchResultsView } from "./SearchResultsView";
 /** The Scripture pane: a local passage reader over installed translations. */
 export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
   const { t } = useTranslation();
-  const { translations, translation, setTranslation, search, goTo } = useScripture();
+  const { translations, translation, setTranslation, search, goTo, navigationId } = useScripture();
   // Bible is the default; Marks is a second view of the same pane. The Bible
   // stays mounted underneath, so coming back finds the reading place, the open
   // verse tools and the scroll position as they were.
   const [view, setView] = useState<"bible" | "marks">("bible");
   const scroller = useRef<HTMLDivElement>(null);
   const bibleScroll = useRef(0);
+  // Going to a passage by any route (a search result, a chapter button, a mark)
+  // shows the Bible: nobody navigates to a verse to look at a list.
+  const [seenNavigation, setSeenNavigation] = useState(navigationId);
+  if (seenNavigation !== navigationId) {
+    setSeenNavigation(navigationId);
+    if (view !== "bible") setView("bible");
+  }
   const choose = (next: "bible" | "marks") => {
     if (next === view) return;
     if (view === "bible") bibleScroll.current = scroller.current?.scrollTop ?? 0;

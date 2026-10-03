@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Bookmark, Highlighter, StickyNote } from "lucide-react";
 import { Button } from "@/design-system/Button";
@@ -40,6 +40,15 @@ export function MarksView({ translation, onOpen }: MarksViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const request = useRef(0);
+  const list = useRef<HTMLUListElement>(null);
+  // After "Load more", focus moves to the first new mark: the button may be gone
+  // (nothing more to load), and a screen-reader user should land on what arrived.
+  const focusFrom = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    if (focusFrom.current === null) return;
+    list.current?.querySelectorAll<HTMLElement>("button")[focusFrom.current]?.focus();
+    focusFrom.current = null;
+  }, [page.marks.length]);
 
   const query = text.trim();
   const filters = { kind: kind === "all" ? undefined : kind, book: book || undefined, color: kind === "highlight" && color ? color : undefined, query: query || undefined, translationId: translation.id };
@@ -64,6 +73,7 @@ export function MarksView({ translation, onOpen }: MarksViewProps) {
     try {
       const result = await api.annotationMarksList({ ...JSON.parse(key), limit: PAGE, offset: page.marks.length });
       if (mine !== request.current) return;
+      focusFrom.current = page.marks.length;
       setPage((p) => ({ marks: [...p.marks, ...result.marks], hasMore: result.hasMore, ready: true }));
     } catch (e) {
       setError(toApiError(e).message);
@@ -154,7 +164,7 @@ export function MarksView({ translation, onOpen }: MarksViewProps) {
       {empty && <p className="reading m-0 text-text-muted">{empty}</p>}
 
       {page.marks.length > 0 && (
-        <ul className="m-0 flex list-none flex-col gap-2 p-0">
+        <ul ref={list} className="m-0 flex list-none flex-col gap-2 p-0">
           {page.marks.map((mark) => (
             <li key={mark.id}>
               <MarkCard mark={mark} chapterCount={books.find((b) => b.code === mark.reference.book)?.chapterCount} onOpen={() => onOpen(mark)} />

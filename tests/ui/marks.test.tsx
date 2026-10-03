@@ -209,7 +209,7 @@ describe("what each mark says", () => {
     const api = await seeded();
     const { user } = await renderApp(api);
     await waitFor(() => expect(document.querySelector('[data-verse-text="JHN.15.1"]')).not.toBeNull());
-    await user.click(screen.getByRole("button", { name: "Markierungen" }));
+    await user.click(screen.getByRole("button", { name: "Anmerkungen" }));
     expect(await screen.findByText("Johannes 15,4")).toBeInTheDocument();
     expect(screen.getByText("Genesis 1,1")).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/JHN\.|GEN\./);
@@ -338,5 +338,15 @@ describe("keyboard, narrow panes and structure", () => {
   it("says how many marks are listed to assistive technology without adding clutter", async () => {
     await openMarks(await seeded());
     expect(within(pane()).getByText("7 marks")).toHaveClass("sr-only");
+  });
+});
+
+describe("focus after loading more", () => {
+  it("moves to the first mark that arrived, even when the button has gone", async () => {
+    const user = await openMarks(await seeded({ extra: 40 }));
+    await user.click(within(pane()).getByRole("button", { name: "Load more" }));
+    await waitFor(() => expect(cards()).toHaveLength(47));
+    expect(within(pane()).queryByRole("button", { name: "Load more" })).toBeNull();
+    expect(cards()[30]).toHaveFocus();
   });
 });

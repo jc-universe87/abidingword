@@ -43,7 +43,8 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
   // The one open annotation inspector: which verse, what opened it (focus goes
   // back there), and where it was opened. It counts as closed once the chapter
   // or translation on screen is no longer that one, so it is never stale.
-  const scope = `${translation.id}:${book}.${chapter}`;
+  // Any navigation (even within this chapter) starts afresh: nothing stays open for a verse the reader has left.
+  const scope = `${translation.id}:${book}.${chapter}:${navigationId}`;
   const [opened, setOpened] = useState<{ verse: string; opener: HTMLElement | null; scope: string } | null>(null);
   // Moving to another chapter or translation drops it for good (it must not
   // come back if the reader returns to the same place).

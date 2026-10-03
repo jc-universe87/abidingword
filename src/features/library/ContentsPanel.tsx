@@ -8,6 +8,8 @@ import type { ContentsItem } from "@/types/library";
 export type ContentsLayout = "drawer" | "sheet";
 
 interface ContentsPanelProps {
+  /** For the opening button's `aria-controls`. */
+  id?: string;
   /** The source's title, for the panel's name. */
   title: string;
   items: ContentsItem[];
@@ -25,7 +27,7 @@ interface ContentsPanelProps {
  * Enter or Space opens one, Escape closes (and, like Close, hands focus
  * back to whatever opened the panel, which the reader does).
  */
-export function ContentsPanel({ title, items, currentId, layout, onSelect, onClose }: ContentsPanelProps) {
+export function ContentsPanel({ id, title, items, currentId, layout, onSelect, onClose }: ContentsPanelProps) {
   const { t } = useTranslation();
   const heading = useRef<HTMLHeadingElement>(null);
   const root = useRef<HTMLElement>(null);
@@ -41,6 +43,7 @@ export function ContentsPanel({ title, items, currentId, layout, onSelect, onClo
   const place = layout === "sheet" ? "absolute inset-0" : "absolute inset-y-0 left-0 w-80 max-w-[85%] border-r border-border shadow-lg";
   return (
     <nav
+      id={id}
       ref={root}
       aria-label={t("library.contents.for", { title })}
       data-testid="contents-panel"

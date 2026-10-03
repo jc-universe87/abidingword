@@ -1,4 +1,4 @@
-import { cleanup, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ContentsItem } from "@/types/library";
 import { createFakePdfEngine } from "../support/fakePdfEngine";
@@ -351,6 +351,7 @@ describe("Contents panel keyboard and focus", () => {
     const nav = screen.getByRole("navigation", { name: /^Contents of / });
     expect(nav).toContainElement(document.activeElement as HTMLElement);
     expect(opener).toHaveAttribute("aria-expanded", "true");
+    expect(opener).toHaveAttribute("aria-controls", nav.id);
     await user.keyboard("{Escape}");
     expect(panel()).toBeNull();
     await waitFor(() => expect(opener).toHaveFocus());
@@ -385,5 +386,38 @@ describe("Contents panel keyboard and focus", () => {
     const { user, opener } = await open();
     await user.click(opener);
     expect(panel()).toBeNull();
+  });
+});
+
+describe("Contents does not leave stale requests behind", () => {
+  it("does not replay an old jump when Original is opened again", async () => {
+    readerWidth(900);
+    const { api, engine } = setup();
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    await openFromLibrary(user, "Notes on the Vine");
+    await user.click(await screen.findByRole("button", { name: "Original" }));
+    await screen.findByRole("toolbar", { name: "Original document controls" });
+    await user.click(screen.getByRole("button", { name: "Contents" }));
+    await user.click(screen.getByRole("button", { name: "Appendix A" }));
+    expect(screen.getByRole("textbox", { name: "Page number" })).toHaveValue("4");
+    await user.click(screen.getByRole("button", { name: "Reading" }));
+    await user.click(screen.getByRole("button", { name: "Original" }));
+    await screen.findByRole("toolbar", { name: "Original document controls" });
+    // Reading was never moved off the first page, so Original opens there, and stays there.
+    await waitFor(() => expect(screen.getByRole("textbox", { name: "Page number" })).toHaveValue("1"));
+    await act(async () => new Promise((resolve) => setTimeout(resolve, 80)));
+    expect(screen.getByRole("textbox", { name: "Page number" })).toHaveValue("1");
+  });
+
+  it("closes the panel when the view is switched, so it never names a stale place", async () => {
+    readerWidth(900);
+    const { api, engine } = setup();
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    await openFromLibrary(user, "Notes on the Vine");
+    await user.click(await screen.findByRole("button", { name: "Contents" }));
+    expect(panel()).not.toBeNull();
+    await user.click(screen.getByRole("button", { name: "Original" }));
+    expect(panel()).toBeNull();
+    expect(screen.getByRole("button", { name: "Contents" })).toHaveAttribute("aria-expanded", "false");
   });
 });

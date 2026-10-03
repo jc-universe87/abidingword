@@ -141,6 +141,9 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
 
   const choose = async (next: ReaderMode) => {
     if (next === mode) return;
+    // A request made in the other view, and a panel that named a place there, are finished.
+    setPanel(null);
+    setJump(null);
     if (next === "original") {
       setOpenPage(readingPage());
       setMode("original");
@@ -343,12 +346,12 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const modeSwitch = hasOriginal ? <ModeSwitch mode={mode} onChange={(m) => void choose(m)} /> : null;
   const contentsButton =
     contents.length > 0 ? (
-      <Button ref={opener} variant="quiet" aria-expanded={panel !== null} title={t("library.contents.show")} onClick={() => (panel ? closeContents() : openContents())}>
+      <Button ref={opener} variant="quiet" aria-expanded={panel !== null} aria-controls={panel ? `${id}-contents` : undefined} title={t("library.contents.show")} onClick={() => (panel ? closeContents() : openContents())}>
         <List className="size-4" aria-hidden="true" /> {t("library.contents.title")}
       </Button>
     ) : null;
   const contentsPanel = panel ? (
-    <ContentsPanel title={s?.title ?? ""} items={contents} currentId={panel.currentId} layout={contentsLayout} onSelect={chooseEntry} onClose={closeContents} />
+    <ContentsPanel id={`${id}-contents`} title={s?.title ?? ""} items={contents} currentId={panel.currentId} layout={contentsLayout} onSelect={chooseEntry} onClose={closeContents} />
   ) : null;
 
   if (inPane) {

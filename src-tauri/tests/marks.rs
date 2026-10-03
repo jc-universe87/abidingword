@@ -420,3 +420,108 @@ fn unknown_choices_are_refused_and_a_damaged_colour_record_does_not_break_the_li
         Ok(())
     });
 }
+
+#[test]
+fn overlapping_highlights_are_listed_as_the_normalised_pieces() {
+    with_db(|conn| {
+        let a = install(conn, "usfm-a", "FXA")?;
+        let text = "Fixture alpha fifteen four about remaining.";
+        let range = |words: &str| {
+            let at = text.find(words).unwrap() as u32;
+            AnchorInput {
+                translation_id: a.id.clone(),
+                start: AnchorEnd {
+                    verse: "JHN.15.4".into(),
+                    offset: at,
+                },
+                end: AnchorEnd {
+                    verse: "JHN.15.4".into(),
+                    offset: at + words.len() as u32,
+                },
+                quote: words.into(),
+            }
+        };
+        let make = |words: &str, color: &str| {
+            annotations::create(
+                conn,
+                &CreateAnnotation {
+                    reference: "JHN.15.4".into(),
+                    kind: "highlight".into(),
+                    color: Some(color.into()),
+                    anchor: Some(range(words)),
+                    ..Default::default()
+                },
+            )
+            .unwrap()
+        };
+        make("about remaining", "green");
+        make("remaining", "rose"); // the physical highlighter: the new colour owns its words
+        let listed = annotations::marks(
+            conn,
+            &MarksQuery {
+                kind: Some("highlight".into()),
+                translation_id: Some(a.id.clone()),
+                ..Default::default()
+            },
+        )?;
+        let pieces: Vec<(String, String)> = listed
+            .marks
+            .iter()
+            .map(|m| (m.color.clone().unwrap(), m.anchor.clone().unwrap().quote))
+            .collect();
+        assert_eq!(
+            pieces,
+            [
+                ("green".to_string(), "about ".to_string()),
+                ("rose".to_string(), "remaining".to_string())
+            ]
+        );
+        assert!(listed.marks.iter().all(|m| m.anchor.clone().unwrap().shown));
+        // The colour filter sees the same pieces.
+        let rose = annotations::marks(
+            conn,
+            &MarksQuery {
+                color: Some("rose".into()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(rose.marks.len(), 1);
+        Ok(())
+    });
+}
+
+#[test]
+fn marks_survive_closing_and_reopening_the_database() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("abiding-word.sqlite");
+    let backups = dir.path().join("backups");
+    {
+        let db = Database::open(&path, &backups).unwrap();
+        db.with_conn(|conn| {
+            mark(
+                conn,
+                "note",
+                "ROM.8.28",
+                Some("Kept across a restart"),
+                None,
+            );
+            mark(conn, "highlight", "JHN.15.5", None, Some("blue"));
+            let gone = mark(conn, "bookmark", "GEN.1.1", None, None);
+            annotations::delete(conn, &gone.id)?;
+            Ok(())
+        })
+        .unwrap();
+    }
+    let db = Database::open(&path, &backups).unwrap();
+    db.with_conn(|conn| {
+        let page = annotations::marks(conn, &MarksQuery::default())?;
+        assert_eq!(
+            refs(&page),
+            [("JHN.15.5", "highlight"), ("ROM.8.28", "note")]
+        );
+        assert_eq!(page.marks[0].color.as_deref(), Some("blue"));
+        assert_eq!(page.marks[1].content, "Kept across a restart");
+        Ok(())
+    })
+    .unwrap();
+}
