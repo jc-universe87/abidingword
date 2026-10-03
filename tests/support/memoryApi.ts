@@ -405,7 +405,8 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       sourceType: fixture.sourceType ?? (format === "pdf" || format === "epub" ? "book" : "notes"),
       licenceStatus: "private", licence: null, notes: null, format, originalFilename: `${fixture.title}.${format}`,
       extractionStatus: format === "pdf" ? "extracted_text" : "digital_text",
-      pageCount: format === "pdf" ? Math.max(0, ...pages) : null, segmentCount: fixture.segments.length,
+      pageCount: format === "pdf" ? Math.max(0, ...pages) : null,
+      originalView: format === "pdf" ? { kind: "pdf" } : null, segmentCount: fixture.segments.length,
       passageCount: fixture.mentions?.length ?? 0, contentHash: `hash-${fixture.title}`, createdAt: t, updatedAt: t,
       deleted: false, ...extra,
     };
@@ -416,6 +417,8 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     id: s.id, title: s.title, author: s.author, sourceType: s.sourceType, format: s.format, language: s.language, createdAt: s.createdAt,
   });
   const segmentsOf = (sourceId: string) => library.segments.filter((x) => x.sourceId === sourceId).sort((a, b) => a.position - b.position);
+  // Stands in for a PDF file (the tests' viewer is a fake engine; nothing parses these bytes).
+  const originalBytes = new TextEncoder().encode("%PDF-1.4 synthetic test file");
   const window = (sourceId: string, offset: number, limit: number, target: string | null) => {
     const all = segmentsOf(sourceId);
     return { sourceId, total: all.length, offset, segments: all.slice(offset, offset + limit), targetSegmentId: target };
@@ -971,9 +974,22 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const offset = Math.max(0, segment.position - Math.floor(limit / 3));
       return window(segment.sourceId, offset, limit, segmentId);
     },
-    sourceGetSegments: async ({ sourceId, offset = 0, limit = 150 }) => {
+    sourceGetSegments: async ({ sourceId, offset = 0, limit = 150, aroundPage }) => {
       liveSource(sourceId);
+      if (aroundPage !== undefined) {
+        const first = segmentsOf(sourceId).find((x) => (x.pageNumber ?? 0) >= aroundPage);
+        if (first) return window(sourceId, Math.max(0, first.position - Math.floor(limit / 3)), limit, null);
+      }
       return window(sourceId, offset, limit, null);
+    },
+    libraryOriginalInfo: async (sourceId) => {
+      const source = liveSource(sourceId);
+      if (!source.originalView) throw new ApiError("invalidInput", "This source has no original view.");
+      return { kind: "pdf", sizeBytes: originalBytes.length };
+    },
+    libraryOriginalRead: async (sourceId, offset, length) => {
+      liveSource(sourceId);
+      return originalBytes.slice(offset, offset + length);
     },
     sourceGetPassages: async (sourceId) => library.mentions.filter((m) => m.sourceId === sourceId).map(mention),
     librarySourcesForPassage: async (reference) => {

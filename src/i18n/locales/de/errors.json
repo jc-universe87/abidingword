@@ -77,7 +77,10 @@
     "tooLarge": "„{{fileName}}“ ist zu groß für den Import.",
     "scannedPdf": "Dieses PDF scheint eingescannte Seiten zu enthalten. OCR wird noch nicht unterstützt, daher kann der Text nicht hinzugefügt werden.",
     "noText": "In dieser Datei wurde kein Text gefunden.",
-    "duplicate": "Diese Datei ist bereits als „{{title}}“ in Ihrer Bibliothek."
+    "duplicate": "Diese Datei ist bereits als „{{title}}“ in Ihrer Bibliothek.",
+    "originalUnsupported": "Für diese Quelle gibt es keine Originalansicht.",
+    "originalMissing": "Die von Abiding Word gespeicherte Kopie dieser Datei wurde nicht gefunden.",
+    "originalUnavailable": "Das Original dieser Quelle kann nicht geöffnet werden."
   },
   "templates": {
     "noSections": "Eine Vorlage braucht mindestens einen Abschnitt.",

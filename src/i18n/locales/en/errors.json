@@ -77,7 +77,10 @@
     "tooLarge": "“{{fileName}}” is too large to import.",
     "scannedPdf": "This PDF appears to contain scanned pages. OCR support is not available yet, so its text cannot be added.",
     "noText": "No text was found in this file.",
-    "duplicate": "This file is already in your library as “{{title}}”."
+    "duplicate": "This file is already in your library as “{{title}}”.",
+    "originalUnsupported": "This source has no original view.",
+    "originalMissing": "Abiding Word’s copy of this file can’t be found.",
+    "originalUnavailable": "The original of this source can’t be opened."
   },
   "templates": {
     "noSections": "A template needs at least one section.",

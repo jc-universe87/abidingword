@@ -15,7 +15,7 @@ use crate::db::{findings, library};
 use crate::domain::Finding;
 use crate::error::{AppError, ErrorPayload, UserMessage};
 use crate::filesystem;
-use crate::library::{adapters, import};
+use crate::library::{adapters, import, original};
 use crate::library::{
     AddFindingSource, CommitSourceImport, FindingCitation, GetSegments, LibraryResults,
     ListSources, PassageMention, SearchLibrary, SegmentWindow, Source, SourceImportPreview,
@@ -194,6 +194,7 @@ pub fn library_open_segment(
             &GetSegments {
                 source_id,
                 around_segment_id: Some(segment_id.clone()),
+                around_page: None,
                 offset: None,
                 limit: None,
             },
@@ -249,4 +250,35 @@ pub fn finding_source_list(
     finding_id: String,
 ) -> CommandResult<Vec<FindingCitation>> {
     state.db(|conn| Ok(findings::get(conn, &finding_id)?.sources))
+}
+
+/// What the viewer needs to open a source's original: its kind and size.
+/// Takes a source id only; the file is found and checked by the core.
+#[tauri::command(async)]
+pub fn library_original_info(
+    state: State<'_, AppState>,
+    id: String,
+) -> CommandResult<original::OriginalInfo> {
+    let core = state.core()?;
+    let (relative, format) = core
+        .db
+        .with_conn(|conn| library::original_record(conn, &id))?;
+    Ok(original::open(&core.dirs.sources(), &id, &relative, &format)?.info())
+}
+
+/// A bounded range of a source's original file, as raw bytes (no JSON, no
+/// base64). The viewer reads only what it is showing.
+#[tauri::command(async)]
+pub fn library_original_read(
+    state: State<'_, AppState>,
+    id: String,
+    offset: u64,
+    length: u32,
+) -> CommandResult<tauri::ipc::Response> {
+    let core = state.core()?;
+    let (relative, format) = core
+        .db
+        .with_conn(|conn| library::original_record(conn, &id))?;
+    let file = original::open(&core.dirs.sources(), &id, &relative, &format)?;
+    Ok(tauri::ipc::Response::new(file.read(offset, length)?))
 }

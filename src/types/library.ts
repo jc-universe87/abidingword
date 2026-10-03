@@ -9,6 +9,16 @@ export type LicenceStatus = (typeof LICENCE_STATUSES)[number];
 
 export type SourceFormat = "pdf" | "epub" | "markdown" | "text";
 
+/** Which in-app viewer shows a source's original file (the format decides). */
+export interface OriginalView {
+  kind: "pdf";
+}
+
+export interface OriginalInfo {
+  kind: "pdf";
+  sizeBytes: number;
+}
+
 export interface Source {
   id: string;
   title: string;
@@ -28,6 +38,8 @@ export interface Source {
   originalFilename: string | null;
   extractionStatus: string | null;
   pageCount: number | null;
+  /** How the original file can be viewed in the app; null when it cannot. */
+  originalView: OriginalView | null;
   segmentCount: number;
   passageCount: number;
   contentHash: string | null;

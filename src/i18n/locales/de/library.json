@@ -122,5 +122,27 @@
     "useQuote": "Die angeführte Textstelle auch als Text dieses Zitats verwenden",
     "listLabel": "Textstellen zum Anführen",
     "cite": "{{citation}} anführen"
+  },
+  "original": {
+    "modesLabel": "Ansicht",
+    "reading": "Lesen",
+    "original": "Original",
+    "openOriginal": "Original öffnen",
+    "openOriginalTitle": "Das Original-PDF in voller Breite zeigen",
+    "viewerLabel": "Originaldokument",
+    "toolbar": "Steuerung des Originaldokuments",
+    "previousPage": "Vorherige Seite",
+    "nextPage": "Nächste Seite",
+    "pageNumber": "Seitenzahl",
+    "pageTotal": "/ {{total}}",
+    "pageOf": "Seite {{page}} von {{total}}",
+    "pageLabel": "Seite {{page}}",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern",
+    "zoomValue": "{{percent}} %",
+    "fitWidth": "Breite anpassen",
+    "fitPage": "Seite einpassen",
+    "loading": "Das Original wird geöffnet …",
+    "renderFailed": "Das Original konnte nicht angezeigt werden. Der extrahierte Text bleibt lesbar."
   }
 }

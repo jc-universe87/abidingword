@@ -80,7 +80,10 @@
     "tooLarge": "“{{fileName}}” é grande demais para ser importado.",
     "scannedPdf": "Este PDF parece conter páginas digitalizadas. O suporte a OCR ainda não está disponível, por isso o texto não pode ser adicionado.",
     "noText": "Nenhum texto foi encontrado neste arquivo.",
-    "duplicate": "Este arquivo já está na sua biblioteca como “{{title}}”."
+    "duplicate": "Este arquivo já está na sua biblioteca como “{{title}}”.",
+    "originalUnsupported": "Esta fonte não tem visualização do original.",
+    "originalMissing": "A cópia deste arquivo guardada pelo Abiding Word não foi encontrada.",
+    "originalUnavailable": "Não é possível abrir o original desta fonte."
   },
   "templates": {
     "noSections": "Um modelo precisa de pelo menos uma seção.",

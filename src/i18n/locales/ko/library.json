@@ -115,5 +115,27 @@
     "useQuote": "출처 구절을 이 인용의 내용으로도 사용하기",
     "listLabel": "인용할 구절",
     "cite": "{{citation}} 인용"
+  },
+  "original": {
+    "modesLabel": "보기",
+    "reading": "읽기",
+    "original": "원본",
+    "openOriginal": "원본 열기",
+    "openOriginalTitle": "원본 PDF를 전체 너비로 보기",
+    "viewerLabel": "원본 문서",
+    "toolbar": "원본 문서 조작",
+    "previousPage": "이전 쪽",
+    "nextPage": "다음 쪽",
+    "pageNumber": "쪽 번호",
+    "pageTotal": "/ {{total}}",
+    "pageOf": "{{page}}쪽 / 전체 {{total}}쪽",
+    "pageLabel": "{{page}}쪽",
+    "zoomIn": "확대",
+    "zoomOut": "축소",
+    "zoomValue": "{{percent}}%",
+    "fitWidth": "너비에 맞춤",
+    "fitPage": "쪽에 맞춤",
+    "loading": "원본을 여는 중…",
+    "renderFailed": "원본을 표시할 수 없습니다. 추출된 텍스트는 계속 읽을 수 있습니다."
   }
 }

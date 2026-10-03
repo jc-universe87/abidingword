@@ -61,6 +61,7 @@ import type {
 import type {
   CommitSourceImport,
   LibraryResults,
+  OriginalInfo,
   PassageMention,
   SegmentWindow,
   Source,
@@ -120,7 +121,11 @@ export interface Api {
   libraryRemoveSource(id: string): Promise<void>;
   librarySearch(input: { query: string; offset?: number }): Promise<LibraryResults>;
   libraryOpenSegment(segmentId: string): Promise<SegmentWindow>;
-  sourceGetSegments(input: { sourceId: string; offset?: number; limit?: number }): Promise<SegmentWindow>;
+  sourceGetSegments(input: { sourceId: string; offset?: number; limit?: number; aroundPage?: number }): Promise<SegmentWindow>;
+  /** Size and kind of a source's original file, found by source id only. */
+  libraryOriginalInfo(id: string): Promise<OriginalInfo>;
+  /** A bounded range of a source's original file (never the whole file). */
+  libraryOriginalRead(id: string, offset: number, length: number): Promise<Uint8Array>;
   sourceGetPassages(sourceId: string): Promise<PassageMention[]>;
   librarySourcesForPassage(reference: string): Promise<PassageMention[]>;
   findingSourceAdd(input: { findingId: string; segmentId: string }): Promise<Finding>;
@@ -260,6 +265,9 @@ export const tauriApi: Api = {
   librarySearch: (input) => call("library_search", { input }),
   libraryOpenSegment: (segmentId) => call("library_open_segment", { segmentId }),
   sourceGetSegments: (input) => call("source_get_segments", { input }),
+  libraryOriginalInfo: (id) => call("library_original_info", { id }),
+  libraryOriginalRead: async (id, offset, length) =>
+    new Uint8Array(await call<ArrayBuffer>("library_original_read", { id, offset, length })),
   sourceGetPassages: (sourceId) => call("source_get_passages", { sourceId }),
   librarySourcesForPassage: (reference) => call("library_sources_for_passage", { reference }),
   findingSourceAdd: (input) => call("finding_source_add", { input }),

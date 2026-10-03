@@ -80,7 +80,10 @@
     "tooLarge": "« {{fileName}} » est trop volumineux pour être importé.",
     "scannedPdf": "Ce PDF semble contenir des pages numérisées. La reconnaissance de texte (OCR) n’est pas encore disponible ; son texte ne peut donc pas être ajouté.",
     "noText": "Aucun texte n’a été trouvé dans ce fichier.",
-    "duplicate": "Ce fichier se trouve déjà dans votre bibliothèque sous le titre « {{title}} »."
+    "duplicate": "Ce fichier se trouve déjà dans votre bibliothèque sous le titre « {{title}} ».",
+    "originalUnsupported": "Cette source n’a pas d’affichage de l’original.",
+    "originalMissing": "La copie de ce fichier conservée par Abiding Word est introuvable.",
+    "originalUnavailable": "L’original de cette source ne peut pas être ouvert."
   },
   "templates": {
     "noSections": "Un modèle doit comporter au moins une section.",

@@ -13,6 +13,7 @@ use crate::domain::validate::{self, DESCRIPTION_MAX_CHARS};
 use crate::error::{AppError, AppResult, UserMessage};
 use crate::library::files::{category, safe_file_name};
 use crate::library::import::StagedSource;
+use crate::library::original;
 use crate::library::{
     CommitSourceImport, DuplicateOf, GetSegments, LibraryHit, LibraryResults, LicenceStatus,
     ListSources, PassageMention, SearchLibrary, SegmentWindow, Source, SourceSegment,
@@ -60,6 +61,10 @@ fn source_from_row(row: &Row) -> rusqlite::Result<Source> {
         original_filename: row.get(15)?,
         extraction_status: row.get(16)?,
         page_count: row.get(17)?,
+        original_view: row
+            .get::<_, Option<String>>(14)?
+            .as_deref()
+            .and_then(original::view_for),
         segment_count: row.get(18)?,
         passage_count: row.get(19)?,
         content_hash: row.get(20)?,
@@ -371,6 +376,19 @@ pub fn segments(conn: &Connection, input: &GetSegments) -> AppResult<SegmentWind
         ),
         None => None,
     };
+    // A physical page (PDF): its first segment, or the next one that has a
+    // page, so the window opens where that page's text begins.
+    let target = match (target, input.around_page) {
+        (None, Some(page)) => conn
+            .query_row(
+                "SELECT position FROM source_segments
+                 WHERE source_id = ?1 AND page_number >= ?2 ORDER BY position LIMIT 1",
+                params![input.source_id, page],
+                |r| r.get::<_, i64>(0),
+            )
+            .optional()?,
+        (target, _) => target,
+    };
     let offset = match target {
         Some(position) => (position - limit / 3).max(0),
         None => input.offset.unwrap_or(0).max(0),
@@ -388,6 +406,25 @@ pub fn segments(conn: &Connection, input: &GetSegments) -> AppResult<SegmentWind
         offset,
         segments,
         target_segment_id: input.around_segment_id.clone(),
+    })
+}
+
+/// The managed file record of a live source: its relative path and format.
+/// Refuses removed sources and sources without a live primary file.
+pub fn original_record(conn: &Connection, source_id: &str) -> AppResult<(String, String)> {
+    get(conn, source_id)?;
+    conn.query_row(
+        "SELECT relative_path, format FROM source_files
+         WHERE source_id = ?1 AND is_primary = 1 AND deleted_at IS NULL",
+        [source_id],
+        |r| Ok((r.get(0)?, r.get(1)?)),
+    )
+    .optional()?
+    .ok_or_else(|| {
+        AppError::InvalidInput(UserMessage::new(
+            "library.originalUnsupported",
+            "This source has no original view.",
+        ))
     })
 }
 

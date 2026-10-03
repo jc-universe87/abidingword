@@ -5,6 +5,7 @@
 pub mod adapters;
 pub mod files;
 pub mod import;
+pub mod original;
 
 use serde::{Deserialize, Serialize};
 
@@ -80,6 +81,8 @@ pub struct Source {
     pub original_filename: Option<String>,
     pub extraction_status: Option<String>,
     pub page_count: Option<i64>,
+    /// How the original file can be viewed in the app, if it can.
+    pub original_view: Option<original::OriginalView>,
     pub segment_count: i64,
     pub passage_count: i64,
     pub content_hash: Option<String>,
@@ -130,6 +133,9 @@ pub struct GetSegments {
     /// Centre the window on this segment (search result, citation).
     #[serde(default)]
     pub around_segment_id: Option<String>,
+    /// Centre the window on this physical page (PDF), without marking a segment.
+    #[serde(default)]
+    pub around_page: Option<i64>,
     #[serde(default)]
     pub offset: Option<i64>,
     #[serde(default)]

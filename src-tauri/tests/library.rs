@@ -12,6 +12,7 @@ use abiding_word_lib::db::{findings, library, projects, studies, workspaces, Dat
 use abiding_word_lib::domain::{CreateFinding, CreateProject, CreateStudy, FindingType};
 use abiding_word_lib::error::{AppError, AppResult};
 use abiding_word_lib::library::import::{self, StagedSource};
+use abiding_word_lib::library::original;
 use abiding_word_lib::library::{
     AddFindingSource, CommitSourceImport, GetSegments, LicenceStatus, SearchLibrary, SourceType,
 };
@@ -148,6 +149,7 @@ fn a_text_pdf_keeps_page_provenance() {
             &GetSegments {
                 source_id: id.clone(),
                 around_segment_id: Some(hit.segment_id.clone()),
+                around_page: None,
                 offset: None,
                 limit: Some(3),
             },
@@ -590,4 +592,281 @@ fn findings_cite_segments_and_survive_restart_and_removal() {
         Ok(())
     })
     .unwrap();
+}
+
+// --- the original file, for the in-app viewer --------------------------------
+
+fn code_of<T: std::fmt::Debug>(result: AppResult<T>) -> String {
+    let error = result.unwrap_err();
+    error.user_code().0.unwrap_or("(no code)").to_string()
+}
+
+/// A PDF source whose managed copy really is on disk under `root`.
+fn pdf_source(conn: &Connection, root: &Path) -> (String, String, Vec<u8>) {
+    let temp = tempfile::tempdir().unwrap();
+    let bytes = fixtures::pdf(
+        &[
+            &[
+                "The first page holds a few sentences of ordinary prose.",
+                "It continues for a second line so it is clearly text.",
+            ],
+            &[
+                "The second page also holds a few sentences of prose.",
+                "It continues for a second line so it is clearly text.",
+            ],
+            &[
+                "The third page holds the last of the ordinary prose.",
+                "It continues for a second line so it is clearly text.",
+            ],
+        ],
+        Some("Three Pages"),
+        None,
+    );
+    let staged = import::stage(&write(temp.path(), "three.pdf", &bytes)).unwrap();
+    let id = commit(conn, &staged, "Three Pages").unwrap();
+    let relative = library::managed_relative_path(&id, &staged);
+    let target = root.join(&relative);
+    fs::create_dir_all(target.parent().unwrap()).unwrap();
+    fs::write(&target, &bytes).unwrap();
+    (id, relative, bytes)
+}
+
+#[test]
+fn a_pdf_source_offers_its_original_and_other_formats_do_not() {
+    with_db(|conn| {
+        let root = tempfile::tempdir().unwrap();
+        let (id, _, _) = pdf_source(conn, root.path());
+        let pdf = library::get(conn, &id)?;
+        assert_eq!(pdf.original_view.as_ref().map(|v| v.kind), Some("pdf"));
+        assert_eq!(pdf.page_count, Some(3));
+
+        let temp = tempfile::tempdir().unwrap();
+        for (name, body) in [
+            ("note.md", "# Title\n\ntext"),
+            ("note.txt", "plain text here"),
+        ] {
+            let staged = import::stage(&write(temp.path(), name, body.as_bytes())).unwrap();
+            let other = commit(conn, &staged, name)?;
+            assert!(
+                library::get(conn, &other)?.original_view.is_none(),
+                "{name}"
+            );
+            let (relative, format) = library::original_record(conn, &other)?;
+            assert_eq!(
+                code_of(original::open(root.path(), &other, &relative, &format)),
+                "library.originalUnsupported"
+            );
+        }
+        Ok(())
+    });
+}
+
+#[test]
+fn only_a_sources_own_active_file_is_read_and_only_in_bounded_ranges() {
+    with_db(|conn| {
+        let root = tempfile::tempdir().unwrap();
+        let (id, relative, bytes) = pdf_source(conn, root.path());
+        let (record, format) = library::original_record(conn, &id)?;
+        assert_eq!(
+            (record.as_str(), format.as_str()),
+            (relative.as_str(), "pdf")
+        );
+
+        let file = original::open(root.path(), &id, &record, &format)?;
+        assert_eq!(file.info().size_bytes, bytes.len() as u64);
+        assert_eq!(file.info().kind, "pdf");
+        assert!(file.path().starts_with(root.path().canonicalize().unwrap()));
+        assert_eq!(file.read(0, 5)?, b"%PDF-");
+        assert_eq!(
+            file.read(bytes.len() as u64 - 6, 1000)?,
+            bytes[bytes.len() - 6..]
+        );
+        assert!(file.read(bytes.len() as u64, 10)?.is_empty());
+        assert!(file.read(u64::MAX, 10)?.is_empty());
+        // A request is capped however much it asks for.
+        assert!(file.read(0, u32::MAX)?.len() as u64 <= u64::from(original::MAX_READ));
+        // What is reported carries no path.
+        let json = serde_json::to_value(file.info()).unwrap();
+        assert_eq!(
+            json,
+            serde_json::json!({"kind": "pdf", "sizeBytes": bytes.len()})
+        );
+        Ok(())
+    });
+}
+
+#[test]
+fn a_removed_source_or_file_cannot_be_opened() {
+    with_db(|conn| {
+        let root = tempfile::tempdir().unwrap();
+        let (gone, _, _) = pdf_source(conn, root.path());
+        library::remove(conn, &gone)?;
+        assert!(matches!(
+            library::original_record(conn, &gone),
+            Err(AppError::NotFound { .. })
+        ));
+
+        let (kept, _, _) = pdf_source(conn, root.path());
+        conn.execute(
+            "UPDATE source_files SET deleted_at = '2026-01-01T00:00:00Z' WHERE source_id = ?1",
+            [&kept],
+        )?;
+        assert_eq!(
+            code_of(library::original_record(conn, &kept)),
+            "library.originalUnsupported"
+        );
+        assert!(matches!(
+            library::original_record(conn, "no-such-source"),
+            Err(AppError::NotFound { .. })
+        ));
+        Ok(())
+    });
+}
+
+#[test]
+fn a_file_record_cannot_reach_outside_the_managed_folder() {
+    let root = tempfile::tempdir().unwrap();
+    fs::create_dir_all(root.path().join("books/abc")).unwrap();
+    fs::create_dir_all(root.path().join("books/other")).unwrap();
+    fs::write(root.path().join("books/abc/ok.pdf"), b"%PDF-1.4 ok").unwrap();
+    fs::write(
+        root.path().join("books/other/theirs.pdf"),
+        b"%PDF-1.4 theirs",
+    )
+    .unwrap();
+    let outside = tempfile::tempdir().unwrap();
+    fs::write(outside.path().join("secret.pdf"), b"%PDF-1.4 secret").unwrap();
+
+    let open = |relative: &str| original::open(root.path(), "abc", relative, "pdf");
+    assert!(open("books/abc/ok.pdf").is_ok());
+    for bad in [
+        "../secret.pdf",
+        "books/../secret.pdf",
+        "books/abc/../other/theirs.pdf",
+        "books/abc/../../secret.pdf",
+        "/etc/passwd",
+        "books/other/theirs.pdf", // another source's folder
+        "books/abc",              // too short
+        "books/abc/sub/ok.pdf",   // too deep
+        "./books/abc/ok.pdf",
+        "",
+    ] {
+        assert_eq!(code_of(open(bad)), "library.originalUnavailable", "{bad:?}");
+    }
+    assert_eq!(
+        code_of(open("books/abc/gone.pdf")),
+        "library.originalMissing"
+    );
+    assert_eq!(
+        code_of(original::open(
+            root.path(),
+            "abc",
+            "books/abc/ok.pdf",
+            "epub"
+        )),
+        "library.originalUnsupported"
+    );
+
+    // A link inside the folder that leads out of it is refused.
+    #[cfg(unix)]
+    {
+        std::os::unix::fs::symlink(
+            outside.path().join("secret.pdf"),
+            root.path().join("books/abc/link.pdf"),
+        )
+        .unwrap();
+        assert_eq!(
+            code_of(open("books/abc/link.pdf")),
+            "library.originalUnavailable"
+        );
+        std::os::unix::fs::symlink(outside.path(), root.path().join("books/abc/dir")).unwrap();
+        assert_eq!(
+            code_of(open("books/abc/dir")),
+            "library.originalUnavailable"
+        );
+    }
+    // A folder is not a file.
+    fs::create_dir_all(root.path().join("books/abc/folder")).unwrap();
+    assert_eq!(code_of(open("books/abc/folder")), "library.originalMissing");
+}
+
+#[test]
+fn a_missing_managed_file_is_reported_with_a_code_and_no_path() {
+    with_db(|conn| {
+        let root = tempfile::tempdir().unwrap();
+        let (id, relative, _) = pdf_source(conn, root.path());
+        fs::remove_file(root.path().join(&relative)).unwrap();
+        let (record, format) = library::original_record(conn, &id)?;
+        let error = original::open(root.path(), &id, &record, &format).unwrap_err();
+        assert_eq!(error.user_code().0, Some("library.originalMissing"));
+        let shown = error.user_message();
+        assert!(
+            !shown.contains(root.path().to_str().unwrap()) && !shown.contains(&id),
+            "{shown}"
+        );
+        Ok(())
+    });
+}
+
+#[test]
+fn a_window_can_open_at_a_physical_page() {
+    with_db(|conn| {
+        let temp = tempfile::tempdir().unwrap();
+        let pages: Vec<Vec<String>> = (1..=6)
+            .map(|p| {
+                vec![
+                    format!("First paragraph of page {p}."),
+                    format!("Second paragraph of page {p}."),
+                ]
+            })
+            .collect();
+        let refs: Vec<Vec<&str>> = pages
+            .iter()
+            .map(|p| p.iter().map(String::as_str).collect())
+            .collect();
+        let slices: Vec<&[&str]> = refs.iter().map(Vec::as_slice).collect();
+        let staged = import::stage(&write(
+            temp.path(),
+            "six.pdf",
+            &fixtures::pdf(&slices, Some("Six"), None),
+        ))
+        .unwrap();
+        let id = commit(conn, &staged, "Six")?;
+        let window = library::segments(
+            conn,
+            &GetSegments {
+                source_id: id.clone(),
+                around_segment_id: None,
+                around_page: Some(5),
+                offset: None,
+                limit: Some(3),
+            },
+        )?;
+        assert!(
+            window.target_segment_id.is_none(),
+            "a page is not a marked segment"
+        );
+        assert!(
+            window.segments.iter().any(|s| s.page_number == Some(5)),
+            "{:?}",
+            window
+                .segments
+                .iter()
+                .map(|s| s.page_number)
+                .collect::<Vec<_>>()
+        );
+        // A page past the end falls back to the start rather than failing.
+        let past = library::segments(
+            conn,
+            &GetSegments {
+                source_id: id,
+                around_segment_id: None,
+                around_page: Some(99),
+                offset: None,
+                limit: Some(3),
+            },
+        )?;
+        assert_eq!(past.offset, 0);
+        Ok(())
+    });
 }

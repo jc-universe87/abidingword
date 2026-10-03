@@ -122,5 +122,27 @@
     "useQuote": "Also use the cited passage as this quotation’s text",
     "listLabel": "Passages to cite",
     "cite": "Cite {{citation}}"
+  },
+  "original": {
+    "modesLabel": "View",
+    "reading": "Reading",
+    "original": "Original",
+    "openOriginal": "Open original",
+    "openOriginalTitle": "Show the original PDF at full width",
+    "viewerLabel": "Original document",
+    "toolbar": "Original document controls",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "pageNumber": "Page number",
+    "pageTotal": "/ {{total}}",
+    "pageOf": "Page {{page}} of {{total}}",
+    "pageLabel": "Page {{page}}",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "zoomValue": "{{percent}}%",
+    "fitWidth": "Fit width",
+    "fitPage": "Fit page",
+    "loading": "Opening the original…",
+    "renderFailed": "The original could not be shown. You can still read the extracted text."
   }
 }

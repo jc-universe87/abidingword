@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { localizeError } from "@/i18n/messages";
 import type { Api } from "@/lib/api";
 import { noUpdater, type Updater } from "@/lib/updater";
+import { PdfEngineProvider } from "@/features/library/PdfEngineContext";
+import type { PdfEngine } from "@/lib/pdfEngine";
 import { UpdatesProvider } from "@/features/updates/UpdatesContext";
 import { ApiProvider, useApi } from "@/lib/ApiContext";
 import { useLoad } from "@/hooks/useLoad";
@@ -13,14 +15,16 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { Shell } from "./Shell";
 import { StartupScreen } from "./StartupScreen";
 
-export function App({ api, updater = noUpdater }: { api: Api; updater?: Updater }) {
+export function App({ api, updater = noUpdater, pdfEngine }: { api: Api; updater?: Updater; pdfEngine?: PdfEngine }) {
   // Re-renders the whole interface when the language changes; nothing is
   // remounted, so the open study, passage and layout stay as they are.
   useTranslation();
   return (
     <ApiProvider api={api}>
       <ErrorBoundary onError={(message) => void api.logError(message).catch(() => undefined)}>
-        <Bootstrap updater={updater} />
+        <PdfEngineProvider engine={pdfEngine}>
+          <Bootstrap updater={updater} />
+        </PdfEngineProvider>
       </ErrorBoundary>
     </ApiProvider>
   );

@@ -129,5 +129,27 @@
     "useQuote": "Usar também o trecho citado como texto desta citação",
     "listLabel": "Trechos a citar",
     "cite": "Citar {{citation}}"
+  },
+  "original": {
+    "modesLabel": "Visualização",
+    "reading": "Leitura",
+    "original": "Original",
+    "openOriginal": "Abrir o original",
+    "openOriginalTitle": "Mostrar o PDF original em largura total",
+    "viewerLabel": "Documento original",
+    "toolbar": "Controles do documento original",
+    "previousPage": "Página anterior",
+    "nextPage": "Próxima página",
+    "pageNumber": "Número da página",
+    "pageTotal": "/ {{total}}",
+    "pageOf": "Página {{page}} de {{total}}",
+    "pageLabel": "Página {{page}}",
+    "zoomIn": "Ampliar",
+    "zoomOut": "Reduzir",
+    "zoomValue": "{{percent}}%",
+    "fitWidth": "Ajustar à largura",
+    "fitPage": "Ajustar à página",
+    "loading": "Abrindo o original…",
+    "renderFailed": "Não foi possível mostrar o original. Você ainda pode ler o texto extraído."
   }
 }

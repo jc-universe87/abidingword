@@ -5,7 +5,7 @@ import { ScripturePane } from "@/features/scripture/ScripturePane";
 import { AddSourceView } from "@/features/library/AddSourceView";
 import { LibraryNavProvider, type LibraryNav } from "@/features/library/LibraryNav";
 import { LibraryView } from "@/features/library/LibraryView";
-import { SourceReader } from "@/features/library/SourceReader";
+import { SourceReader, type ReaderMode } from "@/features/library/SourceReader";
 import { SourcesPane, type PaneSource } from "@/features/library/SourcesPane";
 import { UpdateNotice } from "@/features/updates/UpdateNotice";
 import { SettingsView } from "@/features/settings/SettingsView";
@@ -27,7 +27,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
   // Each request to open the library (id) remembers its latest search.
   const [library, setLibrary] = useState<{ id: number; query?: string }>({ id: 0 });
   // The full-width reader, and where its Back returns to.
-  const [reading, setReading] = useState<{ sourceId: string; segmentId?: string; from: View } | null>(null);
+  const [reading, setReading] = useState<{ sourceId: string; segmentId?: string; from: View; mode?: ReaderMode } | null>(null);
   // A source read inside the Sources pane. Kept here, not in the pane, so it
   // is still open after a visit to the full reader, Settings or the Library.
   const [paneSource, setPaneSource] = useState<PaneSource | null>(null);
@@ -129,6 +129,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
           key={`${reading.sourceId}-${reading.segmentId ?? ""}`}
           sourceId={reading.sourceId}
           segmentId={reading.segmentId}
+          initialMode={reading.mode}
           onClose={() => setView(reading.from)}
         />
       )}
@@ -150,9 +151,9 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
             <SourcesPane
               reading={paneSource}
               onCloseReader={() => setPaneSource(null)}
-              onExpandReader={() => {
+              onExpandReader={(mode) => {
                 if (!paneSource) return;
-                setReading({ sourceId: paneSource.sourceId, segmentId: paneSource.segmentId, from: "workspace" });
+                setReading({ sourceId: paneSource.sourceId, segmentId: paneSource.segmentId, from: "workspace", mode });
                 setView("source");
               }}
             />

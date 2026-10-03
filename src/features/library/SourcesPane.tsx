@@ -8,7 +8,7 @@ import { referenceLabel } from "@/i18n/scripture";
 import { useApi } from "@/lib/ApiContext";
 import { locatorLabel } from "./labels";
 import { useLibraryNav } from "./LibraryNav";
-import { SourceReader } from "./SourceReader";
+import { SourceReader, type ReaderMode } from "./SourceReader";
 
 /** A source open inside the Sources pane (kept by the shell, so it survives leaving the workspace). */
 export interface PaneSource {
@@ -23,7 +23,7 @@ export interface PaneSource {
 interface SourcesPaneProps {
   reading?: PaneSource | null;
   onCloseReader?: () => void;
-  onExpandReader?: () => void;
+  onExpandReader?: (mode?: ReaderMode) => void;
 }
 
 /**

@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "@/app/App";
 import i18n from "@/i18n";
+import type { PdfEngine } from "@/lib/pdfEngine";
 import type { Updater } from "@/lib/updater";
 import { createMemoryApi, type MemoryApi } from "./memoryApi";
 
@@ -11,10 +12,10 @@ export function setWindowWidth(width: number) {
 }
 
 /** Renders the whole app against an in-memory API and waits for the shell. */
-export async function renderApp(api: MemoryApi = createMemoryApi(), { width = 1440, updater }: { width?: number; updater?: Updater } = {}) {
+export async function renderApp(api: MemoryApi = createMemoryApi(), { width = 1440, updater, pdfEngine }: { width?: number; updater?: Updater; pdfEngine?: PdfEngine } = {}) {
   setWindowWidth(width);
   const user = userEvent.setup();
-  render(<App api={api} updater={updater} />);
+  render(<App api={api} updater={updater} pdfEngine={pdfEngine} />);
   if (api.state.info.ready) {
     // The Study pane's name is in the interface language.
     await screen.findByRole("main", { name: new RegExp(i18n.t("app.panes.name.study"), "i") });
