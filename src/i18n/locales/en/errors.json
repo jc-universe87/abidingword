@@ -71,9 +71,10 @@
   "library": {
     "notUtf8": "“{{fileName}}” is not saved as UTF-8 text, so it could not be read.",
     "badEpub": "“{{fileName}}” could not be read as an EPUB book.",
+    "badDocx": "“{{fileName}}” could not be read as a Word document.",
     "badPdf": "“{{fileName}}” could not be read as a PDF.",
     "passwordProtected": "“{{fileName}}” is password-protected. Remove the protection and import it again.",
-    "unsupportedFile": "“{{fileName}}” is not a kind of file the library can read yet. It reads PDF, EPUB, Markdown (.md) and plain text (.txt) files.",
+    "unsupportedFile": "“{{fileName}}” is not a kind of file the library can read yet. It reads PDF, EPUB, Word (.docx), Markdown (.md) and plain text (.txt) files.",
     "tooLarge": "“{{fileName}}” is too large to import.",
     "scannedPdf": "This PDF appears to contain scanned pages. OCR support is not available yet, so its text cannot be added.",
     "noText": "No text was found in this file.",

@@ -1,4 +1,4 @@
-//! The personal library: sources the user brings (PDF, EPUB, Markdown,
+//! The personal library: sources the user brings (PDF, EPUB, Word, Markdown,
 //! plain text), with exact provenance for every extracted segment.
 //! See docs/library-v0.4.md.
 
@@ -55,6 +55,7 @@ impl SourceType {
     pub fn default_for(format: &str) -> Self {
         match format {
             "pdf" | "epub" => Self::Book,
+            "docx" => Self::Document,
             _ => Self::Notes,
         }
     }

@@ -7,11 +7,12 @@ export type SourceType = (typeof SOURCE_TYPES)[number];
 export const LICENCE_STATUSES = ["private", "distributable", "unknown"] as const;
 export type LicenceStatus = (typeof LICENCE_STATUSES)[number];
 
-export type SourceFormat = "pdf" | "epub" | "markdown" | "text";
+export type SourceFormat = "pdf" | "epub" | "docx" | "markdown" | "text";
 
 /** Which in-app viewer shows a source's original file (the format decides). */
 export interface OriginalView {
-  kind: "pdf";
+  /** "pdf": drawn from the file's own bytes; "epub" and "docx": pages the core builds (see `EpubItem`). */
+  kind: "pdf" | "epub" | "docx";
 }
 
 export interface OriginalInfo {
@@ -177,4 +178,44 @@ export interface SourceLink {
   start: number;
   end: number;
   target: number;
+}
+
+/**
+ * Where one reading-order document of an EPUB starts among the extracted text,
+ * and which segment each of its element ids falls in: how Reading and
+ * Original find the same place in a book. `id` is the only name the interface
+ * uses for a document.
+ */
+export interface EpubStructureItem {
+  id: string;
+  startSegment: number;
+  segmentCount: number;
+  anchors: Record<string, number>;
+}
+
+/** An element of a formatted EPUB page, as the core allows it (see `epubDocument.tsx`). Text is a plain string. */
+export type EpubNode = string | EpubElement;
+
+export interface EpubElement {
+  /** The tag. */
+  t: string;
+  /** Allowed attributes. */
+  a?: Record<string, string>;
+  /** Children. */
+  c?: EpubNode[];
+  /** A link to another place in the same book. */
+  l?: { item: string; id?: string };
+  /** A link to the web: an address the core has already checked (http or https). Opened only on a click. */
+  x?: string;
+}
+
+/** One reading-order document of an EPUB, sanitised by the core. */
+export interface EpubItem {
+  id: string;
+  nodes: EpubNode[];
+  /** The document's own style, already reduced to what is safe. */
+  css: string;
+  /** What the `<body>` carried (class, id, style). */
+  root: Record<string, string>;
+  missingImages: number;
 }

@@ -20,7 +20,9 @@ pub const MAX_READ: u32 = 4 * 1024 * 1024;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OriginalView {
-    /// Which viewer: "pdf".
+    /// Which viewer: "pdf" (its bytes are read in ranges by the interface)
+    /// "epub" or "docx" (the core builds the pages, see `adapters::epub_view`
+    /// and `adapters::docx_view`).
     pub kind: &'static str,
 }
 
@@ -31,6 +33,16 @@ pub fn view_for(format: &str) -> Option<OriginalView> {
     match format {
         "pdf" => Some(OriginalView { kind: "pdf" }),
         _ => None,
+    }
+}
+
+/// The viewer a source offers, as the interface sees it: PDF as before, and
+/// EPUB and DOCX (formatted by the core, so no file bytes ever reach the interface).
+pub fn source_view_for(format: &str) -> Option<OriginalView> {
+    match format {
+        "epub" => Some(OriginalView { kind: "epub" }),
+        "docx" => Some(OriginalView { kind: "docx" }),
+        other => view_for(other),
     }
 }
 

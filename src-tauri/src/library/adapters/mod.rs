@@ -2,13 +2,16 @@
 //!
 //! Each adapter turns a file's bytes into an [`ImportedDocument`]: metadata
 //! it can find, and ordered segments carrying only the provenance the format
-//! really has (PDF pages; EPUB chapters and sections; Markdown headings).
+//! really has (PDF pages; EPUB chapters and sections; DOCX headings; Markdown headings).
 //! Adapters never execute content and never guess page numbers.
 //!
 //! Later formats (DOCX, HTML, OCR'd scans, transcripts) are further
 //! adapters producing the same result.
 
+pub mod docx;
+pub mod docx_view;
 pub mod epub;
+pub mod epub_view;
 pub mod markdown;
 pub mod pdf;
 pub mod text;
@@ -87,7 +90,7 @@ impl NewSegment {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ImportedDocument {
-    /// "pdf", "epub", "markdown", "text".
+    /// "pdf", "epub", "docx", "markdown", "text".
     pub format: &'static str,
     pub metadata: FoundMetadata,
     pub segments: Vec<NewSegment>,
@@ -104,10 +107,11 @@ pub trait SourceImportAdapter {
     fn extract(&self, bytes: &[u8], file_name: &str) -> AppResult<ImportedDocument>;
 }
 
-pub fn adapters() -> [&'static dyn SourceImportAdapter; 4] {
+pub fn adapters() -> [&'static dyn SourceImportAdapter; 5] {
     [
         &pdf::PdfImporter,
         &epub::EpubImporter,
+        &docx::DocxImporter,
         &markdown::MarkdownImporter,
         &text::TextImporter,
     ]

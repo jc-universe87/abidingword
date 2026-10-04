@@ -35,6 +35,7 @@ sha2 = "0.10"
 # Reads .zip Bible downloads; only standard (deflate) compression is needed.
 zip = { version = "2", default-features = false, features = ["deflate"] }
 tauri-plugin-updater = "2"
+tauri-plugin-opener = "2"
 
 [dev-dependencies]
 tempfile = "3"

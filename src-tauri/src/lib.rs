@@ -37,6 +37,7 @@ pub fn updates_configured(app: &AppHandle) -> bool {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             if updates_configured(app.handle()) {
                 app.handle()
@@ -99,6 +100,10 @@ pub fn run() {
             commands::library::library_original_read,
             commands::library::library_source_contents,
             commands::library::library_source_links,
+            commands::library::library_epub_structure,
+            commands::library::library_epub_item,
+            commands::library::library_docx_structure,
+            commands::library::library_docx_item,
             commands::library::source_get_segments,
             commands::library::source_get_passages,
             commands::library::library_sources_for_passage,

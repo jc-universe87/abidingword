@@ -110,7 +110,7 @@ describe("Library", () => {
     const api = withLibrary();
     const { user } = await renderApp(api);
     await user.click(await within(sourcesPane()).findByRole("button", { name: "Add to library…" }));
-    await chooseFile(user, api, "/home/test/letter.docx");
+    await chooseFile(user, api, "/home/test/letter.rtf");
     expect(await screen.findByRole("alert")).toHaveTextContent("can’t be added to the library");
   });
 

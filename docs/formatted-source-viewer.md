@@ -2,7 +2,9 @@
 
 > Status: in development, after the frozen Library v0.4 (`library-v0.4`
 > tag). v0.4 itself had no Original view; this document describes what was
-> added afterwards. Only PDF has an Original view so far.
+> added afterwards. PDF has an Original view, and (v0.8) so do EPUB and DOCX:
+> see [`formatted-epub-v0.8.md`](formatted-epub-v0.8.md) and
+> [`formatted-docx-v0.8.md`](formatted-docx-v0.8.md).
 
 ## The idea
 
@@ -66,7 +68,8 @@ annotations.
   and dragging the page background pans it. A press on the words themselves
   is left alone, so text selection is unchanged. Pane and full reader share
   this code.
-- A source without an original view (EPUB, Markdown, text) shows no Reading |
+- A source without an original view (Markdown, text, or an EPUB or DOCX whose
+  structure cannot be read) shows no Reading |
   Original switch at all, and Original is never offered for something that
   cannot be shown.
 - If a PDF cannot be drawn, a plain translated notice appears and Reading
@@ -235,8 +238,9 @@ Contents are never inferred from fonts, headings or AI.
     out of the book are ignored, as is a target that is not in the reading
     order. No raw markup or file path reaches the interface. A broken
     navigation file gives no contents; the book still imports and reads.
-  - EPUB has no Original view yet, so its contents navigate Reading. A future
-    EPUB renderer can reuse the same tree.
+  - An EPUB's Contents work in both views (v0.8): in Original the entry's
+    segment is mapped to its reading-order document and element
+    (`formatted-epub-v0.8.md`), and the jump is recorded in the same history.
 
 ## Links, footnotes and Back / Forward (v0.7)
 
@@ -246,12 +250,32 @@ inside a PDF's pages (Original view) and inside an EPUB's text (Reading view)
 that lead elsewhere in the same document can be followed, and a Back /
 Forward pair in the reader's header returns to where the reader was.
 
+## Formatted EPUB (v0.8)
+
+An EPUB now has a **Reading | Original** switch like a PDF's. The Original view
+shows the publication's own structure and style, page by page of its reading
+order, built by the core into a sanitised tree and drawn by the interface in an
+isolated shadow root. See [`formatted-epub-v0.8.md`](formatted-epub-v0.8.md)
+for the architecture, the security boundary and the limits.
+
+## Formatted DOCX (v0.8)
+
+A Word document has the same **Reading | Original** switch. It is read from the
+managed file by the core (there is no Word-specific viewer): headings, text
+styles, lists, tables, pictures, bookmark links, footnotes and endnotes become
+the same sanitised tree the EPUB view uses, drawn by the same renderer in an
+isolated shadow root. Contents are the document's headings; Back / Forward are the
+one reader history. See [`formatted-docx-v0.8.md`](formatted-docx-v0.8.md) for the
+architecture, what is supported and ignored, the security boundary and the
+limits. A link to the web (`http`/`https` only) opens in the system browser on a click and
+is not history; see the "Links to the web" section of
+[`formatted-epub-v0.8.md`](formatted-epub-v0.8.md).
+
 ## Future: navigating long books
 
 Still to come:
 
 - **PDF:** links that leave the document, and named actions.
-- **EPUB:** a formatted EPUB view.
 - **Generated contents** from headings as a fallback for a source that has
   none: a possible later step, not current behaviour.
 
@@ -290,14 +314,14 @@ versification-aware mapping
 | Format | Later viewer |
 |---|---|
 | PDF | this viewer |
-| EPUB | an EPUB renderer |
-| DOCX | formatted rendering or conversion |
+| EPUB | built (v0.8): sanitised tree, shadow root |
+| DOCX | built (v0.8): same sanitised tree and renderer as EPUB |
 | HTML | sanitised rich HTML |
 | Markdown | rendered Markdown |
 | TXT | normalised/plain reader |
 | images, scans | page/image viewer with an OCR layer |
 
-`originalView` on a source (`{ kind: "pdf" }` or null) is how the interface
+`originalView` on a source (`{ kind: "pdf" | "epub" | "docx" }` or null) is how the interface
 learns that a viewer exists: from the stored file's format, never from a
 file name.
 

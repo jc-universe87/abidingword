@@ -27,7 +27,7 @@ use crate::library::contents::{
 pub struct EpubImporter;
 
 const MAX_SEGMENT: usize = 1_500;
-const MAX_ENTRY_BYTES: u64 = 20 * 1024 * 1024;
+pub(super) const MAX_ENTRY_BYTES: u64 = 20 * 1024 * 1024;
 
 impl SourceImportAdapter for EpubImporter {
     fn format(&self) -> &'static str {
@@ -70,10 +70,52 @@ pub fn links(bytes: &[u8], expected_segments: usize) -> Vec<SourceLink> {
     }
 }
 
+/// The reading order of a book as the formatted view needs it: for each
+/// document that was read, where its text starts among the extracted segments
+/// and which segment each of its anchors falls in. Empty when the text no
+/// longer matches what was imported (`expected_segments`).
+pub fn structure(bytes: &[u8], expected_segments: usize) -> Vec<super::epub_view::StructureItem> {
+    let Ok(book) = read_book(bytes, "book.epub", false) else {
+        return Vec::new();
+    };
+    if book.document.segments.len() != expected_segments {
+        return Vec::new();
+    }
+    let layout = &book.layout;
+    let mut items = Vec::with_capacity(layout.order.len());
+    for (index, (id, path)) in layout.order.iter().enumerate() {
+        let Some(doc) = layout.docs.get(path) else {
+            continue;
+        };
+        let end = layout
+            .order
+            .get(index + 1)
+            .and_then(|(_, next)| layout.docs.get(next))
+            .map_or(layout.total, |next| next.first);
+        items.push(super::epub_view::StructureItem {
+            id: id.clone(),
+            start_segment: doc.first as i64,
+            segment_count: end.saturating_sub(doc.first) as i64,
+            anchors: doc
+                .anchors
+                .iter()
+                .map(|(name, at)| {
+                    (
+                        name.clone(),
+                        (*at).min(layout.total.saturating_sub(1)) as i64,
+                    )
+                })
+                .collect(),
+        });
+    }
+    items
+}
+
 struct Book {
     document: ImportedDocument,
     items: Vec<ContentsItem>,
     links: Vec<SourceLink>,
+    layout: Layout,
 }
 
 /// A link found in a segment, before its target is looked up.
@@ -89,9 +131,11 @@ struct PendingLink {
 /// Where each spine document's text starts, and where its anchors fall, in
 /// the numbering of the extracted segments.
 #[derive(Default)]
-struct Layout {
+pub(super) struct Layout {
     docs: HashMap<String, DocLayout>,
     total: usize,
+    /// (manifest id, archive path) of each document that was read, in reading order.
+    order: Vec<(String, String)>,
 }
 
 #[derive(Default)]
@@ -232,6 +276,7 @@ fn read_book(bytes: &[u8], file_name: &str, want_contents: bool) -> AppResult<Bo
             let at = before.get(block_index).copied().unwrap_or(segments.len());
             doc.anchors.entry(id).or_insert(at);
         }
+        layout.order.push((idref.clone(), path.clone()));
         layout.docs.entry(path).or_insert(doc);
     }
     layout.total = segments.len();
@@ -253,6 +298,7 @@ fn read_book(bytes: &[u8], file_name: &str, want_contents: bool) -> AppResult<Bo
         },
         items,
         links,
+        layout,
     })
 }
 
@@ -286,7 +332,10 @@ fn link_target(dir: &str, doc: &str, href: &str) -> Option<(String, Option<Strin
     internal_target(dir, href)
 }
 
-fn read_entry(archive: &mut zip::ZipArchive<Cursor<&[u8]>>, name: &str) -> Option<String> {
+pub(super) fn read_entry(
+    archive: &mut zip::ZipArchive<Cursor<&[u8]>>,
+    name: &str,
+) -> Option<String> {
     let mut entry = archive.by_name(name).ok()?;
     if entry.size() > MAX_ENTRY_BYTES {
         return None;
@@ -297,7 +346,7 @@ fn read_entry(archive: &mut zip::ZipArchive<Cursor<&[u8]>>, name: &str) -> Optio
 }
 
 /// Resolves "OEBPS/text/../images/a.xhtml" style paths inside the archive.
-fn normalise(path: &str) -> String {
+pub(super) fn normalise(path: &str) -> String {
     let path = path.split('#').next().unwrap_or(path);
     let mut parts: Vec<&str> = Vec::new();
     for part in path.split('/') {
@@ -312,11 +361,11 @@ fn normalise(path: &str) -> String {
     parts.join("/")
 }
 
-fn local_name(name: &str) -> &str {
+pub(super) fn local_name(name: &str) -> &str {
     name.rsplit(':').next().unwrap_or(name)
 }
 
-fn attribute_of(xml: &str, element: &str, attribute: &str) -> Option<String> {
+pub(super) fn attribute_of(xml: &str, element: &str, attribute: &str) -> Option<String> {
     let mut reader = Reader::from_str(xml);
     loop {
         match reader.read_event() {
@@ -333,21 +382,21 @@ fn attribute_of(xml: &str, element: &str, attribute: &str) -> Option<String> {
     }
 }
 
-struct ManifestItem {
-    href: String,
-    media_type: String,
-    properties: String,
+pub(super) struct ManifestItem {
+    pub(super) href: String,
+    pub(super) media_type: String,
+    pub(super) properties: String,
 }
 
-struct Package {
-    metadata: FoundMetadata,
-    manifest: HashMap<String, ManifestItem>,
-    spine: Vec<String>,
+pub(super) struct Package {
+    pub(super) metadata: FoundMetadata,
+    pub(super) manifest: HashMap<String, ManifestItem>,
+    pub(super) spine: Vec<String>,
     /// The spine's `toc` attribute: the manifest id of the NCX (EPUB 2).
-    ncx_id: Option<String>,
+    pub(super) ncx_id: Option<String>,
 }
 
-fn parse_package(opf: &str) -> Package {
+pub(super) fn parse_package(opf: &str) -> Package {
     let mut reader = Reader::from_str(opf);
     let mut metadata = FoundMetadata::default();
     let mut manifest = HashMap::new();
@@ -444,7 +493,7 @@ fn parse_package(opf: &str) -> Package {
     }
 }
 
-fn percent_decode(value: &str) -> String {
+pub(super) fn percent_decode(value: &str) -> String {
     let bytes = value.as_bytes();
     let mut out = Vec::with_capacity(bytes.len());
     let mut i = 0;
@@ -636,7 +685,7 @@ fn note_anchor(
 }
 
 /// XML's five entities, numeric references and a few common HTML ones.
-fn unescape(raw: &str) -> String {
+pub(super) fn unescape(raw: &str) -> String {
     let mut out = String::with_capacity(raw.len());
     let mut rest = raw;
     while let Some(start) = rest.find('&') {
@@ -779,7 +828,7 @@ fn convert(
 /// anything else: an external or scripted link (`https:`, `javascript:`,
 /// `data:` …), an absolute path, backslashes, or a path that climbs out of
 /// the book.
-fn internal_target(dir: &str, href: &str) -> Option<(String, Option<String>)> {
+pub(super) fn internal_target(dir: &str, href: &str) -> Option<(String, Option<String>)> {
     let href = href.trim();
     let (path, fragment) = match href.split_once('#') {
         Some((p, f)) => (p, Some(f)),
@@ -811,7 +860,7 @@ fn internal_target(dir: &str, href: &str) -> Option<(String, Option<String>)> {
     Some((parts.join("/"), fragment.map(percent_decode)))
 }
 
-fn attr_value(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
+pub(super) fn attr_value(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
     e.attributes()
         .flatten()
         .find(|a| local_name(a.key.as_ref()) == key)

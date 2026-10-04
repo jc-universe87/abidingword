@@ -12,6 +12,7 @@
   "format": {
     "pdf": "PDF",
     "epub": "EPUB",
+    "docx": "Word",
     "markdown": "Markdown",
     "text": "Texte brut"
   },
@@ -52,7 +53,7 @@
     "language": "Langue",
     "allLanguages": "Toutes les langues",
     "noMatch": "Aucune source ne correspond à ces filtres.",
-    "empty": "Votre bibliothèque est encore vide. Ajoutez un fichier PDF, EPUB, Markdown ou texte.",
+    "empty": "Votre bibliothèque est encore vide. Ajoutez un fichier PDF, EPUB, Word, Markdown ou texte.",
     "listLabel": "Sources"
   },
   "remove": {
@@ -66,7 +67,7 @@
   "add": {
     "title": "Ajouter à la bibliothèque",
     "reading": "Lecture du fichier et recherche de son texte…",
-    "intro": "Choisissez un fichier PDF, EPUB, Markdown (.md) ou texte (.txt). Abiding Word conserve sa propre copie dans votre bibliothèque et ne modifie jamais votre fichier. Les PDF numérisés ne peuvent pas encore être lus.",
+    "intro": "Choisissez un fichier PDF, EPUB, Word (.docx), Markdown (.md) ou texte (.txt). Abiding Word conserve sa propre copie dans votre bibliothèque et ne modifie jamais votre fichier. Les PDF numérisés ne peuvent pas encore être lus.",
     "choose": "Choisir un fichier…",
     "whatFound": "Ce qui a été trouvé",
     "extracted": "Texte extrait avec succès",
@@ -111,7 +112,7 @@
   },
   "pane": {
     "libraryHeading": "Votre bibliothèque",
-    "empty": "Aucune source pour l’instant. Ajoutez des livres, des articles et vos propres notes (PDF, EPUB, Markdown ou texte) ; ils restent sur cet ordinateur.",
+    "empty": "Aucune source pour l’instant. Ajoutez des livres, des articles et vos propres notes (PDF, EPUB, Word, Markdown ou texte) ; ils restent sur cet ordinateur.",
     "mentioning": "Sources qui mentionnent {{passage}}",
     "noMentions": "Aucune de vos sources ne mentionne ce passage.",
     "recent": "Ajoutées récemment",
@@ -165,5 +166,17 @@
     "group": "Historique de lecture",
     "back": "Revenir à l’endroit précédent",
     "forward": "Avancer à l’endroit suivant"
+  },
+  "formatted": {
+    "previousPart": "Partie précédente",
+    "nextPart": "Partie suivante",
+    "partOf": "Partie {{part}} sur {{total}}",
+    "failed": "La vue originale de ce livre ne peut pas être affichée. La lecture reste disponible.",
+    "failedDocument": "La vue originale de ce document ne peut pas être affichée. La lecture reste disponible.",
+    "linkFailed": "Le lien n’a pas pu être ouvert.",
+    "table": "Tableau",
+    "missingImages_one": "{{count}} image n’a pas pu être affichée.",
+    "missingImages_many": "{{count}} d’images n’ont pas pu être affichées.",
+    "missingImages_other": "{{count}} images n’ont pas pu être affichées."
   }
 }

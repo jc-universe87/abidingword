@@ -12,6 +12,7 @@
   "format": {
     "pdf": "PDF",
     "epub": "EPUB",
+    "docx": "Word",
     "markdown": "Markdown",
     "text": "Reiner Text"
   },
@@ -50,7 +51,7 @@
     "language": "Sprache",
     "allLanguages": "Alle Sprachen",
     "noMatch": "Keine Quellen entsprechen diesen Filtern.",
-    "empty": "Ihre Bibliothek ist noch leer. Fügen Sie eine PDF-, EPUB-, Markdown- oder Textdatei hinzu.",
+    "empty": "Ihre Bibliothek ist noch leer. Fügen Sie eine PDF-, EPUB-, Word-, Markdown- oder Textdatei hinzu.",
     "listLabel": "Quellen"
   },
   "remove": {
@@ -64,7 +65,7 @@
   "add": {
     "title": "Zur Bibliothek hinzufügen",
     "reading": "Die Datei wird gelesen und ihr Text ermittelt …",
-    "intro": "Wählen Sie eine PDF-, EPUB-, Markdown- (.md) oder Textdatei (.txt). Abiding Word legt eine eigene Kopie in Ihrer Bibliothek an und verändert Ihre Datei nie. Eingescannte PDFs können noch nicht gelesen werden.",
+    "intro": "Wählen Sie eine PDF-, EPUB-, Word- (.docx), Markdown- (.md) oder Textdatei (.txt). Abiding Word legt eine eigene Kopie in Ihrer Bibliothek an und verändert Ihre Datei nie. Eingescannte PDFs können noch nicht gelesen werden.",
     "choose": "Datei auswählen …",
     "whatFound": "Gefundener Inhalt",
     "extracted": "Text erfolgreich ausgelesen",
@@ -104,7 +105,7 @@
   },
   "pane": {
     "libraryHeading": "Ihre Bibliothek",
-    "empty": "Noch keine Quellen. Fügen Sie Bücher, Artikel und eigene Notizen hinzu (PDF, EPUB, Markdown oder Text); sie bleiben auf diesem Computer.",
+    "empty": "Noch keine Quellen. Fügen Sie Bücher, Artikel und eigene Notizen hinzu (PDF, EPUB, Word, Markdown oder Text); sie bleiben auf diesem Computer.",
     "mentioning": "Quellen, die {{passage}} erwähnen",
     "noMentions": "Keine Ihrer Quellen erwähnt diese Bibelstelle.",
     "recent": "Zuletzt hinzugefügt",
@@ -158,5 +159,16 @@
     "group": "Leseverlauf",
     "back": "Zurück zur vorherigen Stelle",
     "forward": "Vor zur nächsten Stelle"
+  },
+  "formatted": {
+    "previousPart": "Vorheriger Teil",
+    "nextPart": "Nächster Teil",
+    "partOf": "Teil {{part}} von {{total}}",
+    "failed": "Die Originalansicht dieses Buches kann nicht angezeigt werden. Die Leseansicht funktioniert weiterhin.",
+    "failedDocument": "Die Originalansicht dieses Dokuments kann nicht angezeigt werden. Die Leseansicht funktioniert weiterhin.",
+    "linkFailed": "Der Link konnte nicht geöffnet werden.",
+    "table": "Tabelle",
+    "missingImages_one": "{{count}} Bild konnte nicht angezeigt werden.",
+    "missingImages_other": "{{count}} Bilder konnten nicht angezeigt werden."
   }
 }

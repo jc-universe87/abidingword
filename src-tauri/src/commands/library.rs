@@ -284,8 +284,8 @@ pub fn library_original_read(
 }
 
 /// The contents the source itself carries, as a nested tree of internal
-/// targets. EPUB only here (read from the managed file, mapped to segment
-/// positions); a PDF's outline is read by the viewer's PDF engine. Anything
+/// targets. EPUB (its own contents) and DOCX (its headings) here (read from the
+/// managed file, mapped to segment positions); a PDF's outline is read by the viewer's PDF engine. Anything
 /// else, and a book without usable contents, gives an empty list.
 #[tauri::command(async)]
 pub fn library_source_contents(
@@ -301,14 +301,16 @@ pub fn library_source_contents(
     let Some((relative, format)) = record else {
         return Ok(Vec::new());
     };
-    if format != "epub" {
+    if format != "epub" && format != "docx" {
         return Ok(Vec::new());
     }
     let bytes = original::read_managed(&core.dirs.sources(), &id, &relative, MAX_CONTENTS_FILE)?;
-    Ok(adapters::epub::contents(
-        &bytes,
-        usize::try_from(source.segment_count).unwrap_or(0),
-    ))
+    let expected = usize::try_from(source.segment_count).unwrap_or(0);
+    Ok(if format == "docx" {
+        adapters::docx::contents(&bytes, expected)
+    } else {
+        adapters::epub::contents(&bytes, expected)
+    })
 }
 
 /// The links inside an EPUB's text that lead elsewhere in the same book (see
@@ -335,6 +337,95 @@ pub fn library_source_links(
         &bytes,
         usize::try_from(source.segment_count).unwrap_or(0),
     ))
+}
+
+/// Where each reading-order document of an EPUB starts among the extracted
+/// text, and which segment each of its anchors falls in: what the formatted
+/// view needs to move between Reading and Original. EPUB only.
+#[tauri::command(async)]
+pub fn library_epub_structure(
+    state: State<'_, AppState>,
+    id: String,
+) -> CommandResult<Vec<adapters::epub_view::StructureItem>> {
+    let (source, bytes) = epub_bytes(&state, &id)?;
+    Ok(adapters::epub::structure(
+        &bytes,
+        usize::try_from(source.segment_count).unwrap_or(0),
+    ))
+}
+
+/// One reading-order document of an EPUB, sanitised into a tree the
+/// interface renders itself (see `adapters::epub_view`). `item` is an id
+/// from [`library_epub_structure`]; anything else is refused.
+#[tauri::command(async)]
+pub fn library_epub_item(
+    state: State<'_, AppState>,
+    id: String,
+    item: String,
+) -> CommandResult<adapters::epub_view::EpubItem> {
+    let (_, bytes) = epub_bytes(&state, &id)?;
+    Ok(adapters::epub_view::render_item(&bytes, &item)?)
+}
+
+/// Where each part of a DOCX's formatted view starts among the extracted
+/// text, and which segment each of its element ids falls in (the same shape as
+/// [`library_epub_structure`]). DOCX only.
+#[tauri::command(async)]
+pub fn library_docx_structure(
+    state: State<'_, AppState>,
+    id: String,
+) -> CommandResult<Vec<adapters::epub_view::StructureItem>> {
+    let (source, bytes) = managed_bytes(&state, &id, "docx")?;
+    Ok(adapters::docx::structure(
+        &bytes,
+        usize::try_from(source.segment_count).unwrap_or(0),
+    ))
+}
+
+/// One part of a DOCX, sanitised into the same tree the formatted EPUB view
+/// uses (see `adapters::docx_view`). `item` is an id from
+/// [`library_docx_structure`]; anything else is refused.
+#[tauri::command(async)]
+pub fn library_docx_item(
+    state: State<'_, AppState>,
+    id: String,
+    item: String,
+) -> CommandResult<adapters::epub_view::EpubItem> {
+    let (_, bytes) = managed_bytes(&state, &id, "docx")?;
+    Ok(adapters::docx_view::render_part(&bytes, &item)?)
+}
+
+/// The managed EPUB of a source (checked as every managed file is), with its record.
+fn epub_bytes(
+    state: &State<'_, AppState>,
+    id: &str,
+) -> CommandResult<(crate::library::Source, Vec<u8>)> {
+    managed_bytes(state, id, "epub")
+}
+
+/// The managed file of a source in the given format (checked as every managed
+/// file is), with its record.
+fn managed_bytes(
+    state: &State<'_, AppState>,
+    id: &str,
+    wanted: &str,
+) -> CommandResult<(crate::library::Source, Vec<u8>)> {
+    let core = state.core()?;
+    let (source, record) = core.db.with_conn(|conn| {
+        let source = library::get(conn, id)?;
+        let record = library::original_record(conn, id)?;
+        Ok((source, record))
+    })?;
+    let (relative, format) = record;
+    if format != wanted {
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "library.originalUnsupported",
+            "This source has no original view.",
+        ))
+        .into());
+    }
+    let bytes = original::read_managed(&core.dirs.sources(), id, &relative, MAX_CONTENTS_FILE)?;
+    Ok((source, bytes))
 }
 
 /// The largest EPUB read for its contents (matches what import accepts).
