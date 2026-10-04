@@ -324,16 +324,24 @@ describe("EPUB internal links", () => {
   it("follows a link to another chapter, and Contents enters the same history", async () => {
     const { api, engine } = setup();
     const { user, reader } = await openPane(api, engine, "A Synthetic Commentary");
+    // Where the reader is, not which control holds focus: choosing a Contents entry both lands on
+    // its paragraph and gives focus back to the Contents button (a frame later), and either can
+    // finish last. `top` is the paragraph at the top of the view (see the layout stand-in above).
     await user.click(await within(reader).findByRole("link", { name: "cross reference" }));
-    await waitFor(() => expect(focusedPosition()).toBe("3"));
+    await waitFor(() => expect(top).toBe(3));
     await user.click(within(reader).getByRole("button", { name: "Contents" }));
     await user.click(await screen.findByRole("button", { name: /^Chapter One/ }));
-    await waitFor(() => expect(focusedPosition()).toBe("0"));
+    await waitFor(() => expect(top).toBe(0));
+    expect(within(reader).getByText(/^Body text with a/)).toBeInTheDocument();
     await user.click(back(reader));
-    await waitFor(() => expect(focusedPosition()).toBe("3"));
+    await waitFor(() => expect(top).toBe(3));
+    expect(within(reader).getByText("Chapter two begins.")).toBeInTheDocument();
     await user.click(back(reader));
-    await waitFor(() => expect(focusedPosition()).toBe("0"));
+    await waitFor(() => expect(top).toBe(0));
     expect(back(reader)).toBeDisabled();
+    expect(forward(reader)).toBeEnabled();
+    await user.click(forward(reader));
+    await waitFor(() => expect(top).toBe(3));
   });
 
   it("jumps within a long normalized book to text that is not loaded yet, and Back returns", async () => {
