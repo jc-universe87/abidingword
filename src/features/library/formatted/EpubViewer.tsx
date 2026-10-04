@@ -44,6 +44,8 @@ export function EpubViewer({ sourceId, structure, start, jumpTo, onLink, locatio
   const [failed, setFailed] = useState(false);
   const [seen, setSeen] = useState(jumpTo?.nonce ?? 0);
   const applied = useRef(-1);
+  // Set when a link was followed from the keyboard: the place it leads to takes focus if the page it was in is gone.
+  const focusArrival = useRef(false);
   // Bumped when a page's content has been drawn, so a wanted place is looked for again (see below).
   const [, setDrawn] = useState(0);
   const onDrawn = useCallback(() => setDrawn((n) => n + 1), []);
@@ -106,6 +108,19 @@ export function EpubViewer({ sourceId, structure, start, jumpTo, onLink, locatio
     } else {
       view.scrollTop = Math.max(0, -offset);
     }
+    if (focusArrival.current) {
+      focusArrival.current = false;
+      // Only when focus was lost with the old page (a link in the same page keeps it).
+      if (!document.activeElement || document.activeElement === document.body) {
+        const spot = target ?? view;
+        // A temporary stop, not a permanent one: ordinary text does not become a tab stop.
+        if (spot !== view && !spot.hasAttribute("tabindex")) {
+          spot.setAttribute("tabindex", "-1");
+          spot.addEventListener("blur", () => spot.removeAttribute("tabindex"), { once: true });
+        }
+        spot.focus({ preventScroll: true });
+      }
+    }
   });
 
   // Where the view is, on request: the last element with an id at or above the top of the view, and how far it is from it.
@@ -135,6 +150,7 @@ export function EpubViewer({ sourceId, structure, start, jumpTo, onLink, locatio
   const go = (to: number) => {
     const target = structure[to];
     if (!target) return;
+    focusArrival.current = false;
     setRequest((r) => ({ place: { item: target.id, fragment: null, offset: 0 }, nonce: r.nonce + 1 }));
   };
 
@@ -146,6 +162,7 @@ export function EpubViewer({ sourceId, structure, start, jumpTo, onLink, locatio
   const follow = useCallback(
     (target: EpubLinkTarget) => {
       const from = locationRef.current?.() ?? { item: wantedItem, fragment: null, offset: 0 };
+      focusArrival.current = target.keyboard === true;
       onLinkRef.current(target, from);
     },
     [locationRef, wantedItem],

@@ -219,6 +219,42 @@ describe("Contents, links and Back / Forward in the Original view", () => {
     await waitFor(() => expect(host.shadowRoot!.getElementById("r1")!.getBoundingClientRect().top).toBe(0));
   });
 
+  it("keeps keyboard focus in the page when a link from the keyboard leads to another part", async () => {
+    const { api, engine } = setup();
+    const { user, reader } = await openPane(api, engine);
+    const doc = within(await original(user, reader));
+    const host = await within(reader).findByTestId("epub-page");
+    const link = doc.getByRole("link", { name: "chapter two" });
+    link.focus();
+    await user.keyboard("{Enter}");
+    await waitFor(() => expect(part(reader)).toBe("Part 2 of 3"));
+    const newHost = await within(reader).findByTestId("epub-page");
+    // Focus is on the element the link names, in the new part: not on the body, not at the app's start.
+    await waitFor(() => expect(newHost.shadowRoot!.activeElement?.id).toBe("sec"));
+    expect(document.activeElement).toBe(newHost);
+    expect(host.isConnected && host !== newHost ? host.shadowRoot!.activeElement : null).toBeNull();
+    // The destination is a stop only while it has focus: ordinary text does not become a tab stop.
+    await user.tab();
+    expect(newHost.shadowRoot!.querySelector("#sec")!.hasAttribute("tabindex")).toBe(false);
+    // (Where Tab goes next is checked in the real runtime: jsdom's tab order does not enter shadow roots.)
+    // Back and Forward are the same as ever.
+    await user.click(back(reader));
+    await waitFor(() => expect(part(reader)).toBe("Part 1 of 3"));
+    await user.click(forward(reader));
+    await waitFor(() => expect(part(reader)).toBe("Part 2 of 3"));
+  });
+
+  it("does not move focus for a link followed with the pointer", async () => {
+    const { api, engine } = setup();
+    const { user, reader } = await openPane(api, engine);
+    const doc = within(await original(user, reader));
+    await user.click(doc.getByRole("link", { name: "chapter two" }));
+    await waitFor(() => expect(part(reader)).toBe("Part 2 of 3"));
+    const host = await within(reader).findByTestId("epub-page");
+    await waitFor(() => expect(host.shadowRoot!.querySelector("#sec")).not.toBeNull());
+    expect(host.shadowRoot!.activeElement).toBeNull();
+  });
+
   it("follows a link within the same part to the element it names", async () => {
     const { api, engine } = setup();
     const { user, reader } = await openPane(api, engine);

@@ -82,6 +82,8 @@ function propsOf(el: EpubElement): Record<string, unknown> {
 export interface EpubLinkTarget {
   item: string;
   id: string | null;
+  /** Followed from the keyboard (not a pointer click). */
+  keyboard?: boolean;
 }
 
 interface Context {
@@ -99,9 +101,10 @@ function renderNode(node: EpubNode, key: number, ctx: Context): ReactNode {
     if (!target || typeof target.item !== "string") return children;
     // Never an address: the reader decides where the link goes.
     props.href = "#";
-    props.onClick = (event: { preventDefault(): void }) => {
+    props.onClick = (event: { preventDefault(): void; detail: number }) => {
       event.preventDefault();
-      ctx.onLink({ item: target.item, id: typeof target.id === "string" ? target.id : null });
+      // Enter on a link is a click with no click count; a pointer click counts at least one.
+      ctx.onLink({ item: target.item, id: typeof target.id === "string" ? target.id : null, keyboard: event.detail === 0 });
     };
   }
   if (node.t === "table") {
