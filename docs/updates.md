@@ -89,7 +89,7 @@ Three jobs:
 |---|---|---|
 | `gate` | none | automatic runs: confirms the CI run succeeded, was a **push** to **`main`** of this repository, and that its commit is still the newest on `main`; outputs the exact SHA |
 | `build` | none | checks out that SHA → version → NSIS installer built with the updater overlay → artifact |
-| `publish` (environment `windows-test-updates`) | signing key, updates-repo token | checks out the same SHA, signs the installer, writes `latest.json`, checks it is newer, re-confirms the SHA is still the newest `main` commit, publishes, then verifies the pointer |
+| `publish` (environment `windows-test-updates`) | signing key, updates-repo token | checks out the same SHA, signs the installer, writes `latest.json`, checks it is newer, re-confirms the SHA is still the newest `main` commit, publishes, then confirms the upload through GitHub's API |
 
 Signing secrets are only passed to the single signing step; the token only to
 the publishing step. No step sees both.
@@ -116,6 +116,18 @@ CI completed are published. If `main` has moved on by the time a run starts
 nothing, because the newer commit's own CI run publishes instead; an older
 commit therefore can never overwrite a newer one. Publishes are serialized
 (`concurrency: windows-test-update`).
+
+**Verifying the upload.** GitHub's download CDN can keep serving the previous
+`latest.json` for several minutes after the asset is replaced, so a publish is
+confirmed through the **API**, which is current: the `test-channel` release's
+`latest.json` is downloaded by asset id and must be exactly the manifest this
+run wrote (`scripts/updater.mjs verify-release`), and `test-v<version>` must
+hold the full installer (same size as the one signed) and its `.sig`. The API
+calls use the job token, which only reads the public updates repository. The
+public download URL, the one installed apps read, is checked afterwards **for the
+record only**: if the CDN has not refreshed yet the run still succeeds and its
+summary says so. The summary lists the source commit, version, release tag and
+the `latest.json` version.
 
 **Failure behaviour.** A publish failure shows as a failed *Publish Windows
 test update* run only. CI and the code on `main` are unaffected, nothing in the
