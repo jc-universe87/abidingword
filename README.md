@@ -66,8 +66,9 @@ personal source library:
   (EPUB, Markdown)
 - library search with provenance, as a third search scope beside
   Scripture and Studies
-- "Sources mentioning this passage" in the Sources pane, found from the
-  Bible references in each source
+- the Sources pane lists the sources for the passage being read, found from
+  the Bible references in each source (v0.9 adds section headings and groups
+  them by source)
 - findings can cite a library passage; citations survive removal of the
   source as a record
 - a licence status per source (by default: my own copy, not to be shared)
@@ -81,6 +82,15 @@ the Sources pane has the same Reading | Original switch, so the PDF can be
 inspected without leaving Scripture and the Study; the full reader is an
 optional expansion that keeps the place, and its Back button stays in a header
 that does not scroll away. See [`docs/formatted-source-viewer.md`](docs/formatted-source-viewer.md).
+
+Passage-aware sources (v0.9, branch `feature/passage-aware-sources-v0.9`, not
+yet merged): the Sources pane groups what fits the passage being read by source
+and says why: "Mentions John 15:5", "Section on John 15:1–11" (a heading of an
+EPUB, Word or Markdown source names the passage, and the section below it
+belongs to it) or "Within section on …". Deterministic only: no AI and no
+similarity matching; the links are built when a source is imported (and, once,
+for an existing library at startup, after the usual backup). See
+[`docs/passage-aware-sources-v0.9.md`](docs/passage-aware-sources-v0.9.md).
 
 **Not yet, planned for later phases:** OCR and transcription, concordance
 and original-language tools, AI assistance, sync, integrations and MCP.
@@ -114,6 +124,8 @@ what is deliberately not built yet, [`docs/product-backlog.md`](docs/product-bac
 | Scripture v0.2 | complete | canon, references, reader, Bible import, annotations, search |
 | Studies v0.3 | complete (tag `studies-v0.3`) | study types, findings, templates, relations, study search |
 | Scripture annotations v0.5 | release candidate (`feature/scripture-annotations-v0.5`, not merged) | verse and phrase highlights in five colours, notes, bookmarks, the annotation inspector, the Marks view; PDF Original view and Contents for PDF and EPUB |
+| Formatted sources v0.8 | complete (milestone commit `ecced8a`) | formatted EPUB and DOCX Original views, DOCX import, Reading ↔ Original mapping, source navigation and history, web links in the system browser |
+| Passage-aware sources v0.9 | first checkpoint (`feature/passage-aware-sources-v0.9`, not merged) | sources grouped by passage with the reason for each place; section links from headings (EPUB, Word, Markdown); deterministic, no AI |
 | Library v0.4 | in development (`feature/library-v0.4`) | PDF/EPUB/Markdown/text import, provenance, library search, passage mentions, finding citations |
 
 ## Supported platforms
