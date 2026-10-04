@@ -15,6 +15,14 @@ export function parseVersion(version: string): { major: number; minor: number; p
 export function compareVersions(a: string, b: string): -1 | 0 | 1;
 export function chooseBase(defaultBase: string, current: { version: string } | null): string;
 export function devVersion(base: string, runNumber: number | string): string;
+export function verifyRelease(input: {
+  version: string;
+  expected: Record<string, unknown>;
+  published: Record<string, unknown> | null;
+  assets: { name: string; size: number; state?: string }[];
+  installerSize: number;
+}): void;
+export function assetsOf(releaseOrAssets: { assets?: { name: string; size: number; state?: string }[] } | { name: string; size: number; state?: string }[]): { name: string; size: number; state?: string }[];
 export function assertNewer(version: string, current: { version: string } | null): void;
 export function overlayConfig(channel: Channel, version: string): Record<string, unknown>;
 export function buildManifest(input: { channel: Channel; version: string; notes?: string; signature: string; pubDate?: string }): Record<string, unknown>;

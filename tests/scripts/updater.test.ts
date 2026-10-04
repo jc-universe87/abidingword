@@ -1,7 +1,11 @@
-import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   assertNewer,
+  assetsOf,
   buildManifest,
   chooseBase,
   compareVersions,
@@ -13,6 +17,7 @@ import {
   readChannel,
   releaseTag,
   validateChannel,
+  verifyRelease,
   type Channel,
 } from "../../scripts/updater.mjs";
 
@@ -72,6 +77,80 @@ describe("automatic test-build versions", () => {
     expect(() => assertNewer(next, published)).not.toThrow();
     const afterHandBump = devVersion(chooseBase("0.5.0", { version: "0.6.0-dev.2" }), 15);
     expect(() => assertNewer(afterHandBump, { version: "0.6.0-dev.2" })).not.toThrow();
+  });
+});
+
+describe("verifying a finished publish (from GitHub's API, not the download cache)", () => {
+  const version = "0.5.0-dev.14";
+  const name = installerName(version);
+  const expected = buildManifest({ channel, version, notes: "n", signature: "SIG==", pubDate: "2026-01-01T00:00:00Z" });
+  const assets = [
+    { name, size: 1234, state: "uploaded" },
+    { name: `${name}.sig`, size: 460, state: "uploaded" },
+  ];
+  const ok = { version, expected, published: structuredClone(expected), assets, installerSize: 1234 };
+
+  it("accepts the manifest this run wrote and a fully uploaded installer and signature", () => {
+    expect(() => verifyRelease(ok)).not.toThrow();
+    // Key order in the downloaded JSON does not matter.
+    const reordered = JSON.parse(JSON.stringify(expected, ["platforms", "windows-x86_64", "url", "signature", "pub_date", "notes", "version"]));
+    expect(() => verifyRelease({ ...ok, published: reordered })).not.toThrow();
+  });
+
+  it("refuses a pointer that still offers the previous build", () => {
+    const stale = { ...(expected as object), version: "0.5.0-dev.13" };
+    expect(() => verifyRelease({ ...ok, published: stale })).toThrow(/offers 0\.5\.0-dev\.13, not 0\.5\.0-dev\.14/);
+    expect(() => verifyRelease({ ...ok, published: null })).toThrow(/offers nothing/);
+  });
+
+  it("refuses a pointer whose content is not the manifest this run wrote", () => {
+    const tampered = structuredClone(expected) as { platforms: Record<string, { signature: string }> };
+    tampered.platforms["windows-x86_64"]!.signature = "OTHER==";
+    expect(() => verifyRelease({ ...ok, published: tampered })).toThrow(/not the manifest this run wrote/);
+  });
+
+  it("refuses a missing, short or unfinished installer or signature", () => {
+    expect(() => verifyRelease({ ...ok, assets: [assets[1]!] })).toThrow(/has no Abiding-Word_0\.5\.0-dev\.14_x64-setup\.exe/);
+    expect(() => verifyRelease({ ...ok, assets: [assets[0]!] })).toThrow(/\.sig/);
+    expect(() => verifyRelease({ ...ok, assets: [{ ...assets[0]!, size: 99 }, assets[1]!] })).toThrow(/99 bytes/);
+    expect(() => verifyRelease({ ...ok, assets: [{ ...assets[0]!, state: "starter" }, assets[1]!] })).toThrow(/not fully uploaded/);
+  });
+
+  it("takes the asset list from a whole release or from a list", () => {
+    expect(assetsOf({ assets })).toEqual(assets);
+    expect(assetsOf(assets)).toEqual(assets);
+    expect(assetsOf({})).toEqual([]);
+  });
+
+  it("runs from the command line the way the workflow runs it", () => {
+    const dir = mkdtempSync(join(tmpdir(), "verify-release-"));
+    try {
+      const file = (n: string, content: string) => {
+        writeFileSync(join(dir, n), content);
+        return join(dir, n);
+      };
+      const installer = file(name, "x".repeat(1234));
+      const run = (published: unknown) =>
+        spawnSync(
+          process.execPath,
+          [
+            "scripts/updater.mjs",
+            "verify-release",
+            "--version", version,
+            "--expected", file("latest.json", JSON.stringify(expected)),
+            "--published", file("published.json", JSON.stringify(published)),
+            "--assets", file("release.json", JSON.stringify({ assets })),
+            "--installer", installer,
+          ],
+          { encoding: "utf8" },
+        );
+      expect(run(expected).status).toBe(0);
+      const stale = run({ ...(expected as object), version: "0.5.0-dev.13" });
+      expect(stale.status).toBe(1);
+      expect(stale.stderr).toMatch(/updater: .*offers 0\.5\.0-dev\.13/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
 
@@ -226,6 +305,30 @@ describe("committed configuration", () => {
       }
       expect(wf).not.toMatch(/github\.event\.workflow_run\.(head_commit|display_title|pull_requests)/);
       expect(wf).not.toMatch(/github\.head_ref/);
+    });
+
+    it("confirms a publish through GitHub's API, and lets only that confirmation fail the run", () => {
+      const publish = job("publish");
+      const steps = publish.split(/\n {6}- /);
+      const step = (title: string) => steps.find((s) => s.includes(`name: ${title}`)) ?? "";
+      const api = step("Confirm the upload through GitHub's API");
+      const cdn = step("Check the public download URL (informational)");
+      const summary = step("Summary");
+      // The API confirmation reads releases with the job token (no secret) and can fail the run.
+      expect(api).toContain("GH_TOKEN: ${{ github.token }}");
+      expect(api).not.toContain("secrets.");
+      expect(api).toContain("releases/assets/$id");
+      expect(api).toContain("verify-release");
+      expect(api).toMatch(/exit 1/);
+      // The public (CDN) check is for the record only: it can never fail the run.
+      expect(cdn).toContain("continue-on-error: true");
+      expect(cdn).not.toMatch(/exit 1|exit [2-9]/);
+      expect(cdn).toContain("endpointFor");
+      // The sign and publish steps themselves are untouched by the verification.
+      expect(publish.indexOf("name: Publish (installer first")).toBeLessThan(publish.indexOf(api.slice(0, 40)));
+      // The summary reports the four facts.
+      for (const fact of ["Source commit", "Version", "Release tag", "latest.json"]) expect(summary).toContain(fact);
+      expect(summary).toContain("(GitHub API)");
     });
 
     it("keeps one publish at a time and the version from the run number", () => {

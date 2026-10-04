@@ -10,7 +10,8 @@
 //   node scripts/updater.mjs manifest --version V --installer FILE --sig FILE --out FILE [--notes TEXT]
 //   node scripts/updater.mjs check-newer --version V [--current FILE]
 //   node scripts/updater.mjs choose-version --run N --default X.Y.Z [--base X.Y.Z] [--current FILE]   (prints the version)
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+//   node scripts/updater.mjs verify-release --version V --expected FILE --published FILE --assets FILE --installer FILE
+import { readFileSync, writeFileSync, existsSync, statSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -111,6 +112,50 @@ export function devVersion(base, runNumber) {
   return `${base}-dev.${runNumber}`;
 }
 
+/**
+ * Checks, from what GitHub's API reports (not from the download CDN, which
+ * can serve a stale file for minutes), that a publish really landed:
+ *   - the `latest.json` now held by the channel pointer is exactly the manifest
+ *     this run wrote (same JSON), so it offers `version`;
+ *   - the versioned release holds the installer (same size as the one signed)
+ *     and its signature file, both fully uploaded.
+ * `assets` is the `assets` array of the versioned release (name, size, state).
+ * Throws a plain-language Error naming the first thing that is wrong.
+ */
+export function verifyRelease({ version, expected, published, assets, installerSize }) {
+  parseVersion(version);
+  if (published?.version !== version) {
+    throw new Error(`The channel's latest.json offers ${published?.version ?? "nothing"}, not ${version}.`);
+  }
+  if (JSON.stringify(sortKeys(published)) !== JSON.stringify(sortKeys(expected))) {
+    throw new Error("The channel's latest.json is not the manifest this run wrote.");
+  }
+  const name = installerName(version);
+  for (const wanted of [name, `${name}.sig`]) {
+    const asset = (assets ?? []).find((a) => a.name === wanted);
+    if (!asset) throw new Error(`The release ${releaseTag(version)} has no ${wanted}.`);
+    if (asset.state !== undefined && asset.state !== "uploaded") {
+      throw new Error(`${wanted} in ${releaseTag(version)} is not fully uploaded (state: ${asset.state}).`);
+    }
+    if (wanted === name && asset.size !== installerSize) {
+      throw new Error(`${wanted} in ${releaseTag(version)} is ${asset.size} bytes, but the signed installer is ${installerSize}.`);
+    }
+  }
+}
+
+/** The asset list of a release as returned by the API, or an already extracted list. */
+export function assetsOf(releaseOrAssets) {
+  return Array.isArray(releaseOrAssets) ? releaseOrAssets : (releaseOrAssets?.assets ?? []);
+}
+
+function sortKeys(value) {
+  if (Array.isArray(value)) return value.map(sortKeys);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, sortKeys(value[key])]));
+  }
+  return value;
+}
+
 /** Refuses a version that would not be seen as an update by the version already published. */
 export function assertNewer(version, current) {
   if (current && compareVersions(version, current.version) <= 0) {
@@ -193,8 +238,17 @@ function main(argv) {
     const current = f.current && existsSync(f.current) ? JSON.parse(readFileSync(f.current, "utf8")) : null;
     const base = f.base || chooseBase(need("default"), current);
     process.stdout.write(`${devVersion(base, need("run"))}\n`);
+  } else if (command === "verify-release") {
+    const json = (name) => JSON.parse(readFileSync(need(name), "utf8"));
+    verifyRelease({
+      version: need("version"),
+      expected: json("expected"),
+      published: json("published"),
+      assets: assetsOf(json("assets")),
+      installerSize: statSync(need("installer")).size,
+    });
   } else {
-    throw new Error("Usage: updater.mjs overlay | manifest | check-newer | choose-version");
+    throw new Error("Usage: updater.mjs overlay | manifest | check-newer | choose-version | verify-release");
   }
 }
 
