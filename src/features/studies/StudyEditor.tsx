@@ -39,6 +39,9 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   const detailsId = useId();
   const [showDetails, setShowDetails] = useState(false);
   const [capturing, setCapturing] = useState(false);
+  // What the user has typed but the saved copy may not hold yet (block id -> has writing).
+  const [typed, setTyped] = useState<Record<string, boolean>>({});
+  const onContent = useCallback((blockId: string, has: boolean) => setTyped((prev) => (prev[blockId] === has ? prev : { ...prev, [blockId]: has })), []);
   const [newSection, setNewSection] = useState<string | null>(null);
   const toggle = useRef<HTMLButtonElement>(null);
   const article = useRef<HTMLElement>(null);
@@ -81,7 +84,7 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   const { study } = detail.data;
   const current = detail.data;
   // Nothing of the user's yet: no findings and no writing in any section.
-  const blank = (findings.data ?? []).length === 0 && sections.every((sec) => sec.blocks.every((b) => !b.content.trim()));
+  const blank = (findings.data ?? []).length === 0 && sections.every((sec) => sec.blocks.every((b) => !(typed[b.id] ?? b.content.trim().length > 0)));
   const updateSection = (section: StudySection) =>
     detail.setData({ ...current, sections: sections.map((s) => (s.id === section.id ? section : s)) });
 
@@ -186,6 +189,8 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
           }}
           onRevealScripture={onRevealScripture}
           reveal={section.id === newSection}
+          typed={typed}
+          onContent={onContent}
         />
       ))}
       {error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{error}</p>}

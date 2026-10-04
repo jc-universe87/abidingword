@@ -85,12 +85,18 @@ templates are untouched; this is presentation only.
   title instead of inheriting the previous list's scroll position.
 - **Related studies** with several entries sit in one wrapping line.
 
+### Polish: live empty state
+
+The "Start your study" prompt and a section's guidance follow what is typed
+right now, not what has been saved: each writing area reports whether it has
+text as the user types, and the page combines that with the saved content.
+Autosave is unchanged and nothing is saved or reloaded earlier because of it.
+Clearing the text brings the prompt and guidance back.
+
 ### Known limits (not done in Phase 2)
 
 - Block-level move/delete icons inside sections still appear on hover/focus.
 - The Add action is at the top of the study only; in a very long study the
   user scrolls up to add a note.
-- "Empty study" and section guidance follow the saved content on load and
-  update when the study is reopened, not while typing.
 - Findings still appear above the sections rather than beside the section
   they belong to.

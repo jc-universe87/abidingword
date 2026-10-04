@@ -24,6 +24,8 @@ interface BlockEditorProps {
   isFirst: boolean;
   isLast: boolean;
   onMove: (delta: -1 | 1) => void;
+  /** Tells the page whether this block has writing in it right now (before it is saved). */
+  onContent?: (blockId: string, hasContent: boolean) => void;
 }
 
 /**
@@ -31,7 +33,7 @@ interface BlockEditorProps {
  * saves itself. Deliberately not a rich-text editor in v0.1.
  */
 export function BlockEditor(props: BlockEditorProps) {
-  const { block, sectionTitle, placeholder, onDeleted, onRevealScripture, isFirst, isLast, onMove } = props;
+  const { block, sectionTitle, placeholder, onDeleted, onRevealScripture, isFirst, isLast, onMove, onContent } = props;
   const { t } = useTranslation();
   const api = useApi();
   const [text, setText] = useState(block.content);
@@ -78,6 +80,7 @@ export function BlockEditor(props: BlockEditorProps) {
         aria-label={t("studies.blocks.fieldLabel", { section: sectionTitle, type })}
         onChange={(e) => {
           setText(e.target.value);
+          onContent?.(block.id, e.target.value.trim().length > 0);
           schedule(e.target.value);
         }}
         onBlur={flush}

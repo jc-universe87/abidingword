@@ -22,12 +22,15 @@ interface SectionEditorProps {
   onRevealScripture: () => void;
   /** A section just added: bring it into view and focus its heading. */
   reveal?: boolean;
+  /** Blocks whose writing differs from the saved copy: id -> has content now. */
+  typed: Record<string, boolean>;
+  onContent: (blockId: string, hasContent: boolean) => void;
 }
 
 const tool = "inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong disabled:opacity-40";
 
 export function SectionEditor(props: SectionEditorProps) {
-  const { section, isFirst, isLast, hasFindings, onChange, onMove, onDeleted, onRevealScripture, reveal = false } = props;
+  const { section, isFirst, isLast, hasFindings, onChange, onMove, onDeleted, onRevealScripture, reveal = false, typed, onContent } = props;
   const { t } = useTranslation();
   const api = useApi();
   const { track, settled } = useSaveTracker();
@@ -48,7 +51,7 @@ export function SectionEditor(props: SectionEditorProps) {
   const headingId = `section-${section.id}`;
   const title = sectionTitle(section);
   // Guidance is for a section with nothing in it yet; once there is writing it is out of the way.
-  const guidance = section.blocks.some((b) => b.content.trim()) ? null : sectionGuidance(section);
+  const guidance = section.blocks.some((b) => typed[b.id] ?? b.content.trim().length > 0) ? null : sectionGuidance(section);
 
   const addBlock = async (blockType: BlockType) => {
     setError(null);
@@ -199,6 +202,7 @@ export function SectionEditor(props: SectionEditorProps) {
             sectionTitle={title}
             placeholder={index === 0 ? t("studies.blocks.placeholder") : ""}
             onDeleted={removeBlock}
+            onContent={onContent}
             onRevealScripture={onRevealScripture}
             isFirst={index === 0}
             isLast={index === section.blocks.length - 1}
