@@ -23,6 +23,8 @@ interface EpubViewerProps {
   jumpTo?: (EpubPlace & { nonce: number }) | null;
   /** A link in the page was followed. */
   onLink: (target: EpubLinkTarget, from: EpubPlace) => void;
+  /** A link to the web was clicked: open it outside the app. Not history, not a jump. Absent: web links are plain text. */
+  onExternal?: (url: string) => void;
   /** Filled with a way to ask where the view is now, for the reader's history. */
   locationRef: React.MutableRefObject<(() => EpubPlace) | null>;
 }
@@ -35,7 +37,7 @@ interface EpubViewerProps {
  * a place to read the source as published; search, citations and Scripture
  * links stay with the extracted text.
  */
-export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, onLink, locationRef }: EpubViewerProps) {
+export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, onLink, onExternal, locationRef }: EpubViewerProps) {
   const { t } = useTranslation();
   const api = useApi();
   const scroller = useRef<HTMLDivElement>(null);
@@ -167,6 +169,11 @@ export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, 
   useEffect(() => {
     onLinkRef.current = onLink;
   });
+  const onExternalRef = useRef(onExternal);
+  useEffect(() => {
+    onExternalRef.current = onExternal;
+  });
+  const external = useCallback((url: string) => onExternalRef.current?.(url), []);
   const follow = useCallback(
     (target: EpubLinkTarget) => {
       const from = locationRef.current?.() ?? { item: wantedItem, fragment: null, offset: 0 };
@@ -207,7 +214,7 @@ export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, 
             {current.missingImages > 0 && (
               <p className="m-0 mx-auto max-w-[46rem] px-6 pt-3 text-[0.875rem] text-text-muted">{t("library.formatted.missingImages", { count: current.missingImages })}</p>
             )}
-            <EpubDocument key={current.id} item={current} onLink={follow} tableLabel={t("library.formatted.table")} onRoot={onRoot} onDrawn={onDrawn} />
+            <EpubDocument key={current.id} item={current} onLink={follow} onExternal={onExternal ? external : undefined} tableLabel={t("library.formatted.table")} onRoot={onRoot} onDrawn={onDrawn} />
           </>
         )}
       </div>

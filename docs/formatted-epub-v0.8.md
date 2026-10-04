@@ -1,6 +1,6 @@
 # Formatted EPUB Original view (v0.8, Phase 1)
 
-Status: in review. Branch `feature/formatted-epub-v0.8`, not merged.
+Status: part of v0.8.
 
 An EPUB now has the same **Reading | Original** switch as a PDF.
 *Reading* is the extracted text (search, citations, provenance: unchanged).
@@ -57,7 +57,9 @@ and *the app*, drawn in three places:
      as written. Only a few ARIA roles, derived from `epub:type`.
    - Links: internal ones become targets (document id, element id); web,
      `javascript:`, paths leaving the book, and documents outside the reading
-     order become plain text. Nothing is ever opened.
+     order become plain text. A link to the web is kept only as a checked
+     `http(s)` address that opens in the system browser on a click: see
+     [Links to the web](#links-to-the-web-v08-closure). Nothing is opened by the page.
    - Images: only files inside the book, found by archive path (a path
      climbing out of the book is refused), of five image types, ≤ 6 MB each and
      40 MB per document, sent as `data:` URLs. Remote, missing or oversized
@@ -126,6 +128,44 @@ Links are anchors reachable by Tab and Enter; tables that scroll are focusable
 groups; the toolbar buttons and Back / Forward are buttons. Focus is never
 trapped (no iframe). The page has a visible focus ring in a fixed colour.
 
+## Links to the web (v0.8 closure)
+
+A formatted EPUB or DOCX page can contain a link to the web, and a deliberate
+click on it opens the address in the **system's default browser**. The rule is
+one function (`safe_external_url`, shared by both formats) and is checked three
+times:
+
+1. **Core.** Only an explicit `http://` or `https://` address becomes an external
+   link: plain ASCII, with a host (letters, digits, dots, hyphens; optional
+   numeric port), no user name or password (`user@host` is refused), no spaces,
+   control characters, backslashes or markup characters, at most 2,048
+   characters. It crosses to the interface as a separate field of the safe tree
+   (`x`, next to the internal target `l`), never as an `href`. Everything else
+   keeps its words and is not a link: `javascript:`, `data:`, `file:`, `blob:`,
+   `ftp:`, `mailto:`, `tel:` and any custom scheme, protocol-relative `//host/…`,
+   relative or escaping paths, malformed or oversized addresses. A DOCX address
+   comes from an `External` hyperlink relationship or a `HYPERLINK "…"` field;
+   such a relationship is never read as a package path. In an EPUB it is an
+   `<a href>`.
+2. **Interface.** The renderer re-checks the address (`safeExternalUrl`) and only
+   then draws an actionable link. Its `href` is `#` (the address is shown as the
+   tooltip), so there is no middle-click or context-menu route out of the
+   reader; a click or Enter hands the checked address to the app.
+3. **Tauri.** The app uses the official `tauri-plugin-opener` with the single
+   permission `opener:allow-open-url`, scoped to `https://*` and `http://*`. The
+   page cannot reach it (it has no code); other schemes are refused by the
+   permission even if something asked.
+
+Opening is never automatic: nothing opens on import, render, scrolling or focus.
+The click opens the browser and **nothing else changes**: the reader stays at the
+same document and place, there is no Back / Forward entry, no web content is
+embedded (no iframe, no second web view) and the web view never navigates. If
+the system cannot open the address, a plain translated notice appears ("The link
+could not be opened."); the log keeps the host only (never the path or query)
+and no system message is shown. Links inside the document (bookmarks, notes,
+chapters) are unaffected: they navigate inside Abiding Word and use the history.
+Reading-view links and references are unchanged.
+
 ## Fallback
 
 If the structure cannot be read (or the book has no text) there is simply no
@@ -149,7 +189,9 @@ are far smaller. Images are the dominant payload (base64 over IPC).
   fonts. `@media` blocks are dropped.
 - Fixed-layout and vertical-writing (`writing-mode`) books are shown as
   ordinary flowing text.
-- Web links are inert text (nothing in the app opens addresses from a source).
+- Only `http` and `https` addresses open (in the system browser, on a click);
+  other schemes stay plain text. IDN addresses must be written in ASCII
+  (punycode / percent-encoding) in the book to be recognised.
 - No page numbers or pagination, no text-size control, no annotation.
 - Visually reviewed in Chromium (light, dark, pane, full reader, narrow
   window); Windows (WebView2) and WebKitGTK were not available here.

@@ -24,6 +24,7 @@ const c1: EpubItem = {
     el("table", [el("caption", ["Cap"]), el("thead", [el("tr", [el("th", ["Head"], { scope: "col" })])]), el("tbody", [el("tr", [el("td", ["Cell"])])])]),
     el("figure", [el("img", [], { src: PIXEL, alt: "A small picture" }), el("figcaption", ["Caption"])]),
     el("p", ["The middle paragraph."], { id: "mid" }),
+    el("p", ["Read ", { t: "a", c: ["the web page"], x: "https://example.org/page" }, "."]),
   ],
 };
 

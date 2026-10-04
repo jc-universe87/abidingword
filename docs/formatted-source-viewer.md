@@ -267,7 +267,9 @@ the same sanitised tree the EPUB view uses, drawn by the same renderer in an
 isolated shadow root. Contents are the document's headings; Back / Forward are the
 one reader history. See [`formatted-docx-v0.8.md`](formatted-docx-v0.8.md) for the
 architecture, what is supported and ignored, the security boundary and the
-limits.
+limits. A link to the web (`http`/`https` only) opens in the system browser on a click and
+is not history; see the "Links to the web" section of
+[`formatted-epub-v0.8.md`](formatted-epub-v0.8.md).
 
 ## Future: navigating long books
 

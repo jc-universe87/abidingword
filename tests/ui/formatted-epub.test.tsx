@@ -255,6 +255,20 @@ describe("Contents, links and Back / Forward in the Original view", () => {
     expect(host.shadowRoot!.activeElement).toBeNull();
   });
 
+  it("opens a link to the web in the system browser, as a link and not as history", async () => {
+    const { api, engine } = setup();
+    const { user, reader } = await openPane(api, engine);
+    const doc = within(await original(user, reader));
+    await user.click(doc.getByRole("link", { name: "the web page" }));
+    await waitFor(() => expect(api.state.library.openedLinks).toEqual(["https://example.org/page"]));
+    expect(part(reader)).toBe("Part 1 of 3");
+    expect(back(reader)).toBeDisabled();
+    // A link inside the book still goes through the reader, not the opener.
+    await user.click(doc.getByRole("link", { name: "chapter two" }));
+    await waitFor(() => expect(part(reader)).toBe("Part 2 of 3"));
+    expect(api.state.library.openedLinks).toHaveLength(1);
+  });
+
   it("follows a link within the same part to the element it names", async () => {
     const { api, engine } = setup();
     const { user, reader } = await openPane(api, engine);

@@ -21,6 +21,7 @@ use quick_xml::events::{BytesStart, Event};
 use quick_xml::Reader;
 
 use super::epub::{read_entry, unescape};
+use super::epub_view::safe_external_url;
 use super::{
     language_name, split_long, ExtractionStatus, FoundMetadata, ImportedDocument, NewSegment,
     SourceImportAdapter,
@@ -296,6 +297,8 @@ pub(super) enum Inline {
     Bookmark(String),
     /// Opens a link to a bookmark; ended by `LinkEnd`.
     LinkStart(String),
+    /// Opens a link to the web: an address already checked by `safe_external_url`; ended by `LinkEnd`.
+    WebStart(String),
     LinkEnd,
 }
 
@@ -1213,15 +1216,27 @@ fn parse_para(reader: &mut Reader<&[u8]>, ctx: &Ctx) -> Para {
                                 .and_then(|r| r.target.strip_prefix('#').map(str::to_string))
                         })
                     });
+                    let web = || {
+                        attr(&e, "r:id").and_then(|id| {
+                            ctx.rels.get(&id).and_then(|r| safe_external_url(&r.target))
+                        })
+                    };
                     match anchor {
                         Some(a) => inlines.push(Inline::LinkStart(a)),
-                        // A link to the web: its text is shown, nothing is linked.
-                        None => inlines.push(Inline::LinkStart(String::new())),
+                        // A link to the web (http or https only); anything else keeps its text and is not a link.
+                        None => match web() {
+                            Some(url) => inlines.push(Inline::WebStart(url)),
+                            None => inlines.push(Inline::LinkStart(String::new())),
+                        },
                     }
                 }
                 "w:fldSimple" => {
-                    let anchor = attr(&e, "w:instr").and_then(|i| hyperlink_anchor(&i));
-                    inlines.push(Inline::LinkStart(anchor.unwrap_or_default()));
+                    let instr = attr(&e, "w:instr").unwrap_or_default();
+                    match (hyperlink_anchor(&instr), hyperlink_web(&instr)) {
+                        (Some(anchor), _) => inlines.push(Inline::LinkStart(anchor)),
+                        (None, Some(url)) => inlines.push(Inline::WebStart(url)),
+                        (None, None) => inlines.push(Inline::LinkStart(String::new())),
+                    }
                 }
                 "w:bookmarkStart" => {
                     if let Some(name) = attr(&e, "w:name").filter(|n| !n.starts_with("_GoBack")) {
@@ -1262,6 +1277,21 @@ fn parse_para(reader: &mut Reader<&[u8]>, ctx: &Ctx) -> Para {
 }
 
 /// `HYPERLINK \l "name"`: an internal link; anything else is not one.
+/// `HYPERLINK "https://…"`: a link to the web, if the address passes the one
+/// rule for external links; anything else is not one.
+fn hyperlink_web(instr: &str) -> Option<String> {
+    let t = instr.trim();
+    if !t.to_ascii_uppercase().starts_with("HYPERLINK") {
+        return None;
+    }
+    let rest = t[9..].trim_start();
+    let candidate = match rest.strip_prefix('"') {
+        Some(quoted) => quoted.split('"').next()?,
+        None => rest.split_whitespace().next()?,
+    };
+    safe_external_url(candidate)
+}
+
 fn hyperlink_anchor(instr: &str) -> Option<String> {
     let t = instr.trim();
     if !t.to_ascii_uppercase().starts_with("HYPERLINK") {
@@ -1346,6 +1376,10 @@ fn parse_run(
                                 f.link = true;
                                 *open_links += 1;
                                 pending.push(Inline::LinkStart(anchor));
+                            } else if let Some(url) = hyperlink_web(&f.instr) {
+                                f.link = true;
+                                *open_links += 1;
+                                pending.push(Inline::WebStart(url));
                             }
                         }
                     }

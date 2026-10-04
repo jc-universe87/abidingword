@@ -637,13 +637,13 @@ fn pictures_come_from_the_package_and_nothing_else() {
 }
 
 #[test]
-fn links_lead_to_bookmarks_and_the_web_is_left_inert() {
+fn links_lead_to_bookmarks_and_a_web_link_is_a_checked_external_target() {
     let bytes = sample();
     let item = part(&bytes, "d0");
     let links = tag(&item.nodes, "a");
     let leads: Vec<(String, String)> = links
         .iter()
-        .filter(|a| !a.a.contains_key("role"))
+        .filter(|a| !a.a.contains_key("role") && a.l.is_some())
         .map(|a| {
             (
                 text_of(&a.c),
@@ -665,20 +665,146 @@ fn links_lead_to_bookmarks_and_the_web_is_left_inert() {
             ("by a field".to_string(), "d0#bm-chapter_one".to_string()),
         ]
     );
-    // The web link, and a link to a bookmark that is not there, keep their text and are not links.
+    // The web link is an external target: a checked address, no place in the document.
+    let web: Vec<&&El> = links.iter().filter(|a| a.x.is_some()).collect();
+    assert_eq!(web.len(), 1);
+    assert_eq!(web[0].x.as_deref(), Some("https://example.org/"));
+    assert!(web[0].l.is_none());
+    assert_eq!(text_of(&web[0].c), "to the web");
+    // A link to a bookmark that is not there keeps its text and is not a link.
     let all = text_of(&item.nodes);
-    assert!(all.contains("to the web") && all.contains("to nowhere"));
-    assert!(
-        find(&item.nodes, &|e| e.t == "span"
-            && e.a.get("id").is_some_and(|i| i == "bm-chapter_one"))
-        .len()
-            == 1
-    );
-    // Nothing carries an address of its own.
+    assert!(all.contains("to nowhere"));
+    assert!(links.iter().all(|a| text_of(&a.c) != "to nowhere"));
+    // Nothing carries an href: the interface decides how a link is followed.
     assert!(links.iter().all(|a| !a.a.contains_key("href")));
-    assert!(!serde_json::to_string(&item)
-        .unwrap()
-        .contains("example.org"));
+    assert!(!serde_json::to_string(&item).unwrap().contains("href"));
+}
+
+/// A document with one link per address, each through a relationship.
+fn links_to(targets: &[&str]) -> EpubItem {
+    let mut body = String::new();
+    let mut rels = String::new();
+    for (i, target) in targets.iter().enumerate() {
+        body.push_str(&format!(
+            r#"<w:p><w:hyperlink r:id="rL{i}"><w:r><w:t>link{i}</w:t></w:r></w:hyperlink></w:p>"#
+        ));
+        let escaped = target.replace('&', "&amp;").replace('"', "&quot;");
+        rels.push_str(&format!(
+            r#"<Relationship Id="rL{i}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="{escaped}" TargetMode="External"/>"#
+        ));
+    }
+    part(&build(&body, &rels, &[]), "d0")
+}
+
+fn external(item: &EpubItem) -> Vec<(String, String)> {
+    tag(&item.nodes, "a")
+        .iter()
+        .filter_map(|a| a.x.clone().map(|x| (text_of(&a.c), x)))
+        .collect()
+}
+
+#[test]
+fn only_explicit_http_and_https_addresses_become_external_links() {
+    let ok = [
+        "https://example.org/",
+        "http://example.org/a/b?x=1&y=2#frag",
+        "HTTPS://Example.ORG/Path",
+        "https://sub.example.org:8443/x",
+        "http://192.168.0.1/",
+        "https://example.org/a%20b",
+        "  https://example.org/trimmed  ",
+    ];
+    let accepted = external(&links_to(&ok));
+    assert_eq!(accepted.len(), ok.len(), "{accepted:?}");
+    assert_eq!(accepted[6].1, "https://example.org/trimmed");
+
+    let refused = [
+        "javascript:alert(1)",
+        "JaVaScRiPt:alert(1)",
+        "data:text/html,<script>alert(1)</script>",
+        "file:///etc/passwd",
+        "blob:https://example.org/uuid",
+        "ftp://example.org/file",
+        "mailto:someone@example.org",
+        "tel:+10000000",
+        "vbscript:x",
+        "custom-scheme://open?x=1",
+        "ms-word:ofe|u|https://example.org/x.docx",
+        "//example.org/protocol-relative",
+        "/absolute/path",
+        "../../../etc/passwd",
+        "relative/page.html",
+        "example.org",
+        "https://",
+        "https:///nohost",
+        "http://:80/",
+        "https://exa mple.org/",
+        "https://example.org/a b",
+        "https://user:pass@example.org/",
+        "https://example.org@evil.example/",
+        "https://example.org\\evil.example/",
+        "https://exa\tmple.org/",
+        "https://example.org/\u{0}",
+        "https://example.org/<script>",
+        "https://example.org/\"quote",
+        "https://ex..ample.org/",
+        "https://-example.org/",
+        "https://example.org:port/",
+        "https://example.org:123456/",
+        "https://exämple.org/",
+        "https://example.org/ünïcode",
+        "http:example.org",
+        "https:\\\\example.org",
+        "",
+        "   ",
+    ];
+    let item = links_to(&refused);
+    assert!(external(&item).is_empty(), "{:?}", external(&item));
+    // Their words stay as plain text, and nothing became an internal link either.
+    let all = text_of(&item.nodes);
+    for i in 0..refused.len() {
+        assert!(all.contains(&format!("link{i}")), "link{i}'s text stays");
+    }
+    assert!(tag(&item.nodes, "a").is_empty());
+
+    // An address longer than the limit is refused.
+    let long = format!("https://example.org/{}", "a".repeat(2100));
+    assert!(external(&links_to(&[&long])).is_empty());
+}
+
+#[test]
+fn an_external_relationship_is_never_read_as_a_package_path() {
+    // A hyperlink to a relative or escaping target through an External relationship is not an internal link or a picture path.
+    let item = links_to(&["media/pic.png", "../../../etc/passwd", "#chapter_one"]);
+    assert!(tag(&item.nodes, "a").is_empty());
+    // A link to a bookmark (anchor) is still internal, in the same document.
+    let bytes = sample();
+    let item = part(&bytes, "d0");
+    assert!(tag(&item.nodes, "a")
+        .iter()
+        .any(|a| a.l.as_ref().is_some_and(|l| l.item == "d0")));
+}
+
+#[test]
+fn a_hyperlink_field_to_the_web_is_an_external_link() {
+    let body = r#"<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText xml:space="preserve"> HYPERLINK "https://example.org/field" </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>complex field</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r>
+<w:fldSimple w:instr=" HYPERLINK &quot;http://example.org/simple&quot; "><w:r><w:t>simple field</w:t></w:r></w:fldSimple>
+<w:fldSimple w:instr=" HYPERLINK &quot;javascript:alert(1)&quot; "><w:r><w:t>script field</w:t></w:r></w:fldSimple></w:p>"#;
+    let item = part(&build(body, "", &[]), "d0");
+    assert_eq!(
+        external(&item),
+        vec![
+            (
+                "complex field".to_string(),
+                "https://example.org/field".to_string()
+            ),
+            (
+                "simple field".to_string(),
+                "http://example.org/simple".to_string()
+            ),
+        ]
+    );
+    assert!(text_of(&item.nodes).contains("script field"));
 }
 
 #[test]

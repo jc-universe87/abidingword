@@ -188,12 +188,14 @@ fn nothing_in_a_book_can_run_load_or_navigate() {
         "svg text",
         "steal",
         "/etc/passwd",
-        "http://",
-        "https://",
         "url(",
     ] {
         assert!(!all.contains(bad), "{bad} must not survive: {all}");
     }
+    // The one web address that survives is the safe link, as a checked address (never an href).
+    assert_eq!(all.matches("http").count(), 1, "{all}");
+    assert!(all.contains(r#""x":"https://example.org/page""#), "{all}");
+    assert!(!all.contains("href"));
     let tags: Vec<&str> = elements(&one).iter().map(|e| e.t).collect();
     for banned in [
         "script", "style", "iframe", "object", "embed", "form", "input", "button", "svg", "link",
@@ -304,7 +306,15 @@ fn links_lead_only_to_places_in_the_book() {
         "the note's own backlink"
     );
     let all = json(&one);
-    for hidden in ["script link", "web link", "outside"] {
+    // A link to the web is an external target, not a place in the book.
+    let web = elements(&one)
+        .into_iter()
+        .find(|e| e.x.is_some())
+        .expect("the web link is kept as an external link");
+    assert_eq!(web.x.as_deref(), Some("https://example.org/page"));
+    assert!(web.l.is_none());
+    assert_eq!(text_of(&web.c), "web link");
+    for hidden in ["script link", "outside"] {
         let link_text: Vec<String> = links.iter().map(|e| text_of(&e.c)).collect();
         assert!(
             !link_text.iter().any(|t| t == hidden),
@@ -431,4 +441,44 @@ fn rows_written_straight_inside_a_table_get_a_body() {
             .all(|c| matches!(c, Node::El(e) if e.t == "tbody")),
         "{table:?}"
     );
+}
+
+#[test]
+fn a_book_s_web_links_follow_the_same_rule_as_a_document_s() {
+    let accepted = [
+        "https://example.org/",
+        "http://example.org/a?b=1#c",
+        "HTTPS://Example.ORG/x",
+    ];
+    let refused = [
+        "javascript:alert(1)",
+        "data:text/html,x",
+        "file:///etc/passwd",
+        "ftp://example.org/",
+        "mailto:a@example.org",
+        "custom://x",
+        "//example.org/x",
+        "https://user@example.org/",
+        "https://exa mple.org/",
+        "https://",
+        "../../x.html",
+    ];
+    let mut body = String::new();
+    for (i, href) in accepted.iter().chain(refused.iter()).enumerate() {
+        body.push_str(&format!(r#"<p><a href="{href}">w{i}</a></p>"#));
+    }
+    let chapters = [fixtures::EpubChapter {
+        file: "c.xhtml",
+        xhtml_body: &body,
+    }];
+    let bytes = fixtures::epub("<dc:title>Links</dc:title>", &chapters, &[0]);
+    let one = item(&bytes, "c0");
+    let external: Vec<String> = elements(&one).iter().filter_map(|e| e.x.clone()).collect();
+    assert_eq!(external, accepted.to_vec());
+    // Everything else keeps its words and is not a link.
+    let all = text_of(&one.nodes);
+    for i in 0..accepted.len() + refused.len() {
+        assert!(all.contains(&format!("w{i}")));
+    }
+    assert!(elements(&one).iter().all(|e| e.t != "a" || e.x.is_some()));
 }

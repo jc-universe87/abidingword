@@ -7,6 +7,7 @@ import { useLoad } from "@/hooks/useLoad";
 import { formatNumber } from "@/i18n/format";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
+import { hostOf } from "@/lib/externalLink";
 import type { PdfPlace } from "@/lib/pdfEngine";
 import type { ContentsItem, SegmentWindow, SourceLink, SourceSegment } from "@/types/library";
 import { formatLabel, licenceLabel, locatorLabel, sourceTypeLabel } from "./labels";
@@ -64,6 +65,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const source = useLoad(useCallback(() => api.libraryGetSource(sourceId), [api, sourceId]));
   const [window, setWindow] = useState<SegmentWindow | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // A web link the system could not open: shown above the formatted view, which has no body to show `error` in.
+  const [linkFailed, setLinkFailed] = useState(false);
   const target = useRef<HTMLElement | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -512,20 +515,38 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     )
   ) : null;
 
+  // A web link in the formatted view: opened outside the app, on the click. It is neither a jump nor history.
+  const openExternal = (url: string) => {
+    setLinkFailed(false);
+    api.openExternalLink(url).catch((e: unknown) => {
+      // Technical detail goes to the log (the host only, never the path or query); the person sees a plain notice.
+      void api.logError(`A web link could not be opened (${hostOf(url)}): ${e instanceof Error ? e.message : String(e)}`).catch(() => undefined);
+      setLinkFailed(true);
+    });
+  };
+
   const historyButtons = <HistoryButtons history={history} onBack={goBack} onForward={goForward} />;
   const epubViewer =
     showOriginal && isEpubView ? (
       epub.status === "ready" && epub.items.length > 0 ? (
-        <EpubViewer
-          key={sourceId}
-          sourceId={sourceId}
-          kind={viewKind === "docx" ? "docx" : "epub"}
-          structure={epub.items}
-          start={epubOpen ?? epubStart ?? { item: epub.items[0]!.id, fragment: null, offset: 0 }}
-          jumpTo={epubJump}
-          onLink={(target, from) => jumpTo({ item: target.item, fragment: target.id }, from)}
-          locationRef={epubNow}
-        />
+        <>
+          {linkFailed && (
+            <div className="shrink-0 px-3 pt-2">
+              <Notice tone="error">{t("library.formatted.linkFailed")}</Notice>
+            </div>
+          )}
+          <EpubViewer
+            key={sourceId}
+            sourceId={sourceId}
+            kind={viewKind === "docx" ? "docx" : "epub"}
+            structure={epub.items}
+            start={epubOpen ?? epubStart ?? { item: epub.items[0]!.id, fragment: null, offset: 0 }}
+            jumpTo={epubJump}
+            onLink={(target, from) => jumpTo({ item: target.item, fragment: target.id }, from)}
+            onExternal={openExternal}
+            locationRef={epubNow}
+          />
+        </>
       ) : (
         <p className="m-0 p-6 text-text-muted">{t("library.original.loading")}</p>
       )

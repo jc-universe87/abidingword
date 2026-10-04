@@ -113,6 +113,22 @@ one.push(el("figure", [el("img", [], { src: DOCX_PIXEL, alt: "A small picture", 
 b1.mark("bm-middle");
 one.push(el("span", [], { id: "bm-middle" }));
 one.push(b1.seg("The middle paragraph.", (id) => el("p", ["The middle paragraph."], { id })));
+// Links to the web: one safe address, and ones the interface must refuse even if sent.
+one.push(
+  b1.seg("Visit the web page, or not a script or an ftp site.", (id) => ({
+    t: "p",
+    a: { id },
+    c: [
+      "Visit ",
+      { t: "a", c: ["the web page"], x: "https://example.org/page?q=1&r=2" },
+      ", or ",
+      { t: "a", c: ["a script"], x: "javascript:alert(1)" },
+      " or ",
+      { t: "a", c: ["an ftp site"], x: "ftp://example.org/file" },
+      ".",
+    ],
+  })),
+);
 one.push(el("hr", [], { class: "aw-pagebreak", role: "doc-pagebreak" }));
 
 const b2 = builder(b1.count(), "Chapter Two");

@@ -219,7 +219,7 @@ Reading and Original views, and **Back / Forward** reading history — see
 - **PDF:** following links that leave the document (web links are shown to
   nobody today), named actions such as "next page", and links inside
   Reading's extracted text.
-- **EPUB:** web links (inert today), embedded fonts, fixed-layout and
+- **EPUB:** embedded fonts, fixed-layout and
   vertical-writing books, inline SVG/MathML, a text-size control, and
   annotations on the formatted view.
 - **History** beyond one reading session (it is kept in memory only, per
@@ -227,7 +227,9 @@ Reading and Original views, and **Back / Forward** reading history — see
 - **DOCX:** headers and footers, text boxes and shapes, charts and equations,
   heading numbers from multilevel lists, other number formats, table widths and
   borders, links inside Reading's text, caching the parsed document between
-  parts, and the EPUB items above that apply (web links, text size, annotations).
+  parts, and the EPUB items above that apply (text size, annotations). Web links
+  open in the system browser (`http`/`https` only) in both formatted views;
+  `mailto:` and other schemes stay blocked until deliberately designed.
 - **Generated contents:** deriving a table of contents from headings for a
   source that has none — a possible later fallback, **not** current
   behaviour; today a source without contents simply shows none.

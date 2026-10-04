@@ -205,6 +205,8 @@ export interface EpubElement {
   c?: EpubNode[];
   /** A link to another place in the same book. */
   l?: { item: string; id?: string };
+  /** A link to the web: an address the core has already checked (http or https). Opened only on a click. */
+  x?: string;
 }
 
 /** One reading-order document of an EPUB, sanitised by the core. */

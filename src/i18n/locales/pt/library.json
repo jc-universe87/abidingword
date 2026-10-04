@@ -173,6 +173,7 @@
     "partOf": "Parte {{part}} de {{total}}",
     "failed": "A vista original deste livro não pode ser mostrada. A leitura continua disponível.",
     "failedDocument": "A vista original deste documento não pode ser mostrada. A leitura continua disponível.",
+    "linkFailed": "Não foi possível abrir o link.",
     "table": "Tabela",
     "missingImages_one": "{{count}} imagem não pôde ser mostrada.",
     "missingImages_many": "{{count}} de imagens não puderam ser mostradas.",

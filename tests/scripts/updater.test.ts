@@ -113,9 +113,15 @@ describe("committed configuration", () => {
     expect(read("src-tauri/updater/test-channel.json")).not.toMatch(/secret key|PRIVATE/i);
   });
 
-  it("grants the window only the updater permissions it needs, and no wider CSP", () => {
+  it("grants the window only the permissions it needs (updater, the open dialog, and opening http(s) links), and no wider CSP", () => {
     const capability = JSON.parse(read("src-tauri/capabilities/default.json"));
-    expect(capability.permissions).toEqual(["core:default", "dialog:allow-open", "updater:default"]);
+    expect(capability.permissions).toEqual([
+      "core:default",
+      "dialog:allow-open",
+      "updater:default",
+      // A clicked web link opens in the default browser: only http and https, and no other opener permission.
+      { identifier: "opener:allow-open-url", allow: [{ url: "https://*" }, { url: "http://*" }] },
+    ]);
     const csp: string = JSON.parse(read("src-tauri/tauri.conf.json")).app.security.csp;
     expect(csp).toContain("connect-src ipc: http://ipc.localhost");
     expect(csp).not.toMatch(/https?:\/\/(?!ipc\.localhost)/);

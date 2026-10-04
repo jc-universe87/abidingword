@@ -1,6 +1,6 @@
 # Formatted DOCX Original view (v0.8, Phase 2)
 
-Status: in review. Branch `feature/formatted-epub-v0.8`, not merged.
+Status: part of v0.8.
 
 A Word document (`.docx`) can now be added to the library and has the same
 **Reading | Original** switch as a PDF or EPUB. *Reading* is the extracted
@@ -130,9 +130,9 @@ A DOCX is **untrusted**, and the boundary is the same three places as for EPUB:
    external (`TargetMode="External"`), has a scheme, a backslash or a NUL, or
    climbs above the package root is refused. An absolute in-package path
    (`/word/media/x.png`) is allowed; `/../x` is not. Pictures need a known type
-   and ≤ 6 MB each (40 MB per part). External hyperlinks, `javascript:` links,
+   and ≤ 6 MB each (40 MB per part). Hyperlinks other than a checked `http(s)` address (see below), `javascript:` links,
    linked-not-embedded pictures and remote images are never loaded or opened:
-   a hyperlink keeps its text and is not a link; a picture is replaced by its
+   any other hyperlink keeps its text and is not a link; a picture is replaced by its
    description and counted ("1 picture could not be shown").
 3. **No HTML is parsed by the interface, and a shadow root isolates the style**
    (shared with EPUB): React builds elements one by one from allow-lists (tags,
@@ -215,7 +215,9 @@ huge documents prove slow.
 - Numbering formats other than decimal, letters and Roman numerals show decimal.
 - Table widths and borders are the reader's own; cell shading is only kept when
   light.
-- Web links are inert text, as everywhere in the app.
+- Only `http` and `https` addresses open (in the system browser, on a click);
+  other schemes stay plain text; see [Links to the web](formatted-epub-v0.8.md#links-to-the-web-v08-closure).
+  Non-ASCII addresses must be percent-encoded / punycode in the file to open.
 - A picture needs one of the five image types: EMF/WMF/TIFF/BMP pictures are shown
   as their description.
 - Links inside Reading's text (the EPUB Reading links) are not provided for DOCX.

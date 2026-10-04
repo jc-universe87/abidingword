@@ -270,6 +270,84 @@ describe("links, notes and Back / Forward in a Word document", () => {
   });
 });
 
+describe("links to the web in a Word document", () => {
+  const ADDRESS = "https://example.org/page?q=1&r=2";
+  const opened = (api: MemoryApi) => api.state.library.openedLinks;
+
+  it("shows a safe web address as a link, and only that one", async () => {
+    const { api, engine } = setup();
+    const { user, reader } = await openPane(api, engine);
+    const doc = within(await original(user, reader));
+    const link = doc.getByRole("link", { name: "the web page" });
+    expect(link).toHaveAttribute("href", "#"); // never the address itself
+    expect(link).toHaveAttribute("title", ADDRESS);
+    // An address the interface will not open is plain text, whatever the core sent.
+    expect(doc.queryByRole("link", { name: "a script" })).not.toBeInTheDocument();
+    expect(doc.queryByRole("link", { name: "an ftp site" })).not.toBeInTheDocument();
+    expect(doc.getByText(/ a script /)).toBeInTheDocument();
+    expect(opened(api)).toEqual([]); // nothing is opened by drawing
+  });
+
+  it("opens the exact address in the system browser on a click, and leaves the reader where it was", async () => {
+    const { api, engine } = setup();
+    const { user, reader } = await openPane(api, engine);
+    const doc = within(await original(user, reader));
+    const hash = window.location.hash;
+    await user.click(doc.getByRole("link", { name: "the web page" }));
+    await waitFor(() => expect(opened(api)).toEqual([ADDRESS]));
+    expect(part(reader)).toBe("Part 1 of 3");
+    expect(back(reader)).toBeDisabled(); // no history entry
+    expect(forward(reader)).toBeDisabled();
+    expect(window.location.hash).toBe(hash);
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    // Still the same page, and it still works.
+    await user.click(doc.getByRole("link", { name: "part two" }));
+    await waitFor(() => expect(part(reader)).toBe("Part 2 of 3"));
+    expect(opened(api)).toEqual([ADDRESS]);
+  });
+
+  it("can be opened from the keyboard", async () => {
+    const { api, engine } = setup();
+    const { user, reader } = await openPane(api, engine);
+    const doc = within(await original(user, reader));
+    doc.getByRole("link", { name: "the web page" }).focus();
+    await user.keyboard("{Enter}");
+    await waitFor(() => expect(opened(api)).toEqual([ADDRESS]));
+    expect(back(reader)).toBeDisabled();
+    expect(part(reader)).toBe("Part 1 of 3");
+  });
+
+  it("does not use the opener for a link inside the document", async () => {
+    const { api, engine } = setup();
+    const { user, reader } = await openPane(api, engine);
+    const doc = within(await original(user, reader));
+    await user.click(doc.getByRole("link", { name: "part two" }));
+    await waitFor(() => expect(part(reader)).toBe("Part 2 of 3"));
+    expect(opened(api)).toEqual([]);
+    expect(back(reader)).toBeEnabled();
+  });
+
+  it("stays usable, says so simply and logs only the host when the system cannot open it", async () => {
+    const { api, engine } = setup();
+    api.state.library.openLinkFails = true;
+    const log = vi.spyOn(api, "logError");
+    const { user, reader } = await openPane(api, engine);
+    const doc = within(await original(user, reader));
+    const hash = window.location.hash;
+    await user.click(doc.getByRole("link", { name: "the web page" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("The link could not be opened.");
+    expect(screen.queryByText(/synthetic/)).not.toBeInTheDocument();
+    await waitFor(() => expect(log).toHaveBeenCalled());
+    const line = String(log.mock.calls[0]![0]);
+    expect(line).toContain("example.org");
+    expect(line).not.toContain("q=1");
+    expect(window.location.hash).toBe(hash);
+    expect(part(reader)).toBe("Part 1 of 3");
+    await user.click(doc.getByRole("link", { name: "part two" }));
+    await waitFor(() => expect(part(reader)).toBe("Part 2 of 3"));
+  });
+});
+
 describe("moving between Reading and Original in a Word document", () => {
   it("does not record the switch as a jump", async () => {
     const { api, engine } = setup();
@@ -372,11 +450,11 @@ describe("mapping a Word document's segments", () => {
   const structure = FORMATTED_DOCX.formatted!.structure;
 
   it("places a segment at its own paragraph, and finds a paragraph's segment", () => {
-    const at = DOCX_PARTS.d0 + 1;
+    const at = DOCX_PARTS.d0 + 1; // the second text of the second part
     expect(placeOfPosition(structure, at)).toEqual({ item: "d1", fragment: `p${at}`, offset: 0 });
     expect(placeOfPosition(structure, 0)).toEqual({ item: "d0", fragment: null, offset: 0 });
     expect(positionOfPlace(structure, { item: "d1", fragment: `p${at}` })).toBe(at);
-    expect(positionOfPlace(structure, { item: "d0", fragment: "bm-middle" })).toBe(DOCX_PARTS.d0 - 1);
+    expect(positionOfPlace(structure, { item: "d0", fragment: "bm-middle" })).toBe(structure[0]!.anchors["bm-middle"]);
     expect(positionOfPlace(structure, { item: "notes", fragment: "en3" })).toBe(DOCX_PARTS.d0 + DOCX_PARTS.d1 + 1);
   });
 });

@@ -4,6 +4,8 @@
 import { localizeError } from "@/i18n/messages";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { safeExternalUrl } from "./externalLink";
 import type {
   AppInfo,
   AppSettings,
@@ -141,6 +143,8 @@ export interface Api {
   libraryDocxStructure(id: string): Promise<EpubStructureItem[]>;
   /** One part of a DOCX, sanitised by the core into the same tree as an EPUB document. */
   libraryDocxItem(id: string, item: string): Promise<EpubItem>;
+  /** Opens an http(s) address in the system's default browser. Only for an explicit click; anything else is refused. */
+  openExternalLink(url: string): Promise<void>;
   libraryOriginalInfo(id: string): Promise<OriginalInfo>;
   /** A bounded range of a source's original file (never the whole file). */
   libraryOriginalRead(id: string, offset: number, length: number): Promise<Uint8Array>;
@@ -289,6 +293,11 @@ export const tauriApi: Api = {
   librarySourceLinks: (id) => call("library_source_links", { id }),
   libraryEpubStructure: (id) => call("library_epub_structure", { id }),
   libraryEpubItem: (id, item) => call("library_epub_item", { id, item }),
+  openExternalLink: async (url) => {
+    const safe = safeExternalUrl(url);
+    if (!safe) throw new ApiError("invalidInput", "This kind of link is not opened.");
+    await openUrl(safe);
+  },
   libraryDocxStructure: (id) => call("library_docx_structure", { id }),
   libraryDocxItem: (id, item) => call("library_docx_item", { id, item }),
   libraryOriginalInfo: (id) => call("library_original_info", { id }),

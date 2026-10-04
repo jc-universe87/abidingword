@@ -91,6 +91,9 @@ export interface MemoryApi extends Api {
       mentions: { sourceId: string; segmentId: string; reference: ScriptureRef; matchedText: string }[];
       /** What the next "choose a file" dialog returns (null = cancelled). */
       nextChosenFile: string | null;
+      /** Web addresses handed to the system browser (never really opened in tests), and whether opening fails. */
+      openedLinks: string[];
+      openLinkFails: boolean;
       pending: { preview: SourceImportPreview; fixture: SourceFixture } | null;
     };
   };
@@ -208,7 +211,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     passages: [],
     nextChosenFiles: null,
     pendingPreview: null,
-    library: { sources: [], segments: [], mentions: [], nextChosenFile: null, pending: null },
+    library: { sources: [], segments: [], mentions: [], nextChosenFile: null, openedLinks: [], openLinkFails: false, pending: null },
     findings: [],
     relations: [],
     templates: BUILTIN_TEMPLATES.map((t) => ({
@@ -1033,6 +1036,10 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const found = formattedOf.get(sourceId)?.items[item];
       if (!found) throw new ApiError("invalidInput", "The original of this source can’t be opened.");
       return found;
+    },
+    openExternalLink: async (url) => {
+      library.openedLinks.push(url);
+      if (library.openLinkFails) throw new Error("synthetic: the system could not open the link");
     },
     libraryDocxStructure: async (sourceId) => {
       liveSource(sourceId);

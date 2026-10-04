@@ -166,6 +166,7 @@
     "partOf": "Teil {{part}} von {{total}}",
     "failed": "Die Originalansicht dieses Buches kann nicht angezeigt werden. Die Leseansicht funktioniert weiterhin.",
     "failedDocument": "Die Originalansicht dieses Dokuments kann nicht angezeigt werden. Die Leseansicht funktioniert weiterhin.",
+    "linkFailed": "Der Link konnte nicht geöffnet werden.",
     "table": "Tabelle",
     "missingImages_one": "{{count}} Bild konnte nicht angezeigt werden.",
     "missingImages_other": "{{count}} Bilder konnten nicht angezeigt werden."

@@ -37,6 +37,7 @@ pub fn updates_configured(app: &AppHandle) -> bool {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             if updates_configured(app.handle()) {
                 app.handle()

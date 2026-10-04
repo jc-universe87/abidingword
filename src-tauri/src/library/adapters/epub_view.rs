@@ -86,6 +86,10 @@ pub struct El {
     /// Present on a link to another place in the book.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub l: Option<LinkTarget>,
+    /// Present on a link to the web: an address already checked by
+    /// [`safe_external_url`] (http or https only). Never both this and `l`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub x: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -207,6 +211,52 @@ struct Resources<'a, 'b> {
 
 /// An `href` as a link target inside the book, or None (external, scripted,
 /// leaving the book, or not a reading-order document).
+/// The one rule for a link that leaves the document: an explicit `http://` or
+/// `https://` address, plain ASCII, with a host, no user name, no spaces,
+/// control characters, backslashes or markup characters, and a bounded length.
+/// Anything else (another scheme, `//host/…`, a relative path, a malformed or
+/// oversized address) is not an external link and gives None. Shared by every
+/// formatted view, so what the interface may open is decided in one place.
+pub(super) fn safe_external_url(raw: &str) -> Option<String> {
+    let url = raw.trim();
+    if url.len() > 2048 {
+        return None;
+    }
+    let lower = url.to_ascii_lowercase();
+    let rest = if lower.starts_with("https://") {
+        &url[8..]
+    } else if lower.starts_with("http://") {
+        &url[7..]
+    } else {
+        return None;
+    };
+    if !url.bytes().all(|b| {
+        (0x21..0x7f).contains(&b)
+            && !matches!(
+                b,
+                b'\\' | b'<' | b'>' | b'"' | b'{' | b'}' | b'|' | b'^' | b'`'
+            )
+    }) {
+        return None;
+    }
+    let authority = rest.split(['/', '?', '#']).next().unwrap_or("");
+    let (host, port) = match authority.rsplit_once(':') {
+        Some((h, p)) => (h, Some(p)),
+        None => (authority, None),
+    };
+    let host_ok = !host.is_empty()
+        && host.len() <= 253
+        && host
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'.' || b == b'-')
+        && !host.starts_with(['.', '-'])
+        && !host.ends_with('-')
+        && !host.contains("..");
+    let port_ok =
+        port.is_none_or(|p| !p.is_empty() && p.len() <= 5 && p.bytes().all(|b| b.is_ascii_digit()));
+    (host_ok && port_ok).then(|| url.to_string())
+}
+
 fn link_for(res: &Resources, href: &str) -> Option<LinkTarget> {
     let href = href.trim();
     let (path, fragment) = if let Some(fragment) = href.strip_prefix('#') {
@@ -436,6 +486,7 @@ fn with_body(children: Vec<Node>) -> Vec<Node> {
                 a: BTreeMap::new(),
                 c: std::mem::take(rows),
                 l: None,
+                x: None,
             }));
         }
     };
@@ -675,9 +726,12 @@ fn stylesheet(e: &BytesStart, res: &mut Resources) {
 fn element(tag: &'static str, name: &str, e: &BytesStart, res: &mut Resources) -> Option<El> {
     let mut attrs = clean_attrs(tag, e, false);
     let mut link = None;
+    let mut external = None;
     let mut tag = tag;
     if tag == "a" {
         match attr_value(e, "href") {
+            // A link to the web is kept only as a checked http(s) address; the interface opens it on a click.
+            Some(href) if safe_external_url(&href).is_some() => external = safe_external_url(&href),
             Some(href) => match link_for(res, &href) {
                 Some(target) => link = Some(target),
                 None => {
@@ -720,6 +774,7 @@ fn element(tag: &'static str, name: &str, e: &BytesStart, res: &mut Resources) -
                     a: stand_in,
                     c: Vec::new(),
                     l: None,
+                    x: None,
                 };
                 if !alt.trim().is_empty() {
                     el.c.push(Node::Text(alt));
@@ -734,6 +789,7 @@ fn element(tag: &'static str, name: &str, e: &BytesStart, res: &mut Resources) -
         a: attrs,
         c: Vec::new(),
         l: link,
+        x: external,
     })
 }
 

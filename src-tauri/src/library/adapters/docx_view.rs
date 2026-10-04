@@ -115,6 +115,7 @@ fn el(t: &'static str, attrs: Vec<(&'static str, String)>, c: Vec<Node>) -> El {
         a: attrs.into_iter().collect(),
         c,
         l: None,
+        x: None,
     }
 }
 
@@ -462,6 +463,12 @@ impl View<'_> {
                         a
                     });
                     stack.push((link, Vec::new()));
+                    None
+                }
+                Inline::WebStart(url) => {
+                    let mut a = el("a", Vec::new(), Vec::new());
+                    a.x = Some(url.clone());
+                    stack.push((Some(a), Vec::new()));
                     None
                 }
                 Inline::LinkEnd => {

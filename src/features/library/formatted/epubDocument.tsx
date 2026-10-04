@@ -1,5 +1,6 @@
 import { createElement, memo, useCallback, useLayoutEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { safeExternalUrl } from "@/lib/externalLink";
 import type { EpubElement, EpubItem, EpubNode } from "@/types/library";
 
 /**
@@ -88,6 +89,8 @@ export interface EpubLinkTarget {
 
 interface Context {
   onLink: (target: EpubLinkTarget) => void;
+  /** Opens a web address (checked again here) in the system browser; without it a web link is plain text. */
+  onExternal?: (url: string) => void;
   tableLabel: string;
 }
 
@@ -98,14 +101,27 @@ function renderNode(node: EpubNode, key: number, ctx: Context): ReactNode {
   const props: Record<string, unknown> = { key, ...propsOf(node) };
   if (node.t === "a") {
     const target = node.l;
-    if (!target || typeof target.item !== "string") return children;
-    // Never an address: the reader decides where the link goes.
-    props.href = "#";
-    props.onClick = (event: { preventDefault(): void; detail: number }) => {
-      event.preventDefault();
-      // Enter on a link is a click with no click count; a pointer click counts at least one.
-      ctx.onLink({ item: target.item, id: typeof target.id === "string" ? target.id : null, keyboard: event.detail === 0 });
-    };
+    const web = !target && ctx.onExternal ? safeExternalUrl(node.x) : null;
+    if (web) {
+      // A link to the web: a link in name only. The href is never the address (so no middle-click or
+      // context-menu route out of the reader); a click hands the checked address to the system browser.
+      props.href = "#";
+      props.title = web;
+      props.onClick = (event: { preventDefault(): void }) => {
+        event.preventDefault();
+        ctx.onExternal?.(web);
+      };
+    } else if (!target || typeof target.item !== "string") {
+      return children;
+    } else {
+      // Never an address: the reader decides where the link goes.
+      props.href = "#";
+      props.onClick = (event: { preventDefault(): void; detail: number }) => {
+        event.preventDefault();
+        // Enter on a link is a click with no click count; a pointer click counts at least one.
+        ctx.onLink({ item: target.item, id: typeof target.id === "string" ? target.id : null, keyboard: event.detail === 0 });
+      };
+    }
   }
   if (node.t === "table") {
     // A table wider than the page scrolls within itself, and can be reached by keyboard.
@@ -163,6 +179,8 @@ const GUARD_CSS = `
 interface EpubDocumentProps {
   item: EpubItem;
   onLink: (target: EpubLinkTarget) => void;
+  /** Opens a web address in the system browser; absent: web links are plain text. */
+  onExternal?: (url: string) => void;
   tableLabel: string;
   /** Receives the page's shadow root (null when it goes), so the reader can find places in it. */
   onRoot?: (root: ShadowRoot | null) => void;
@@ -171,7 +189,7 @@ interface EpubDocumentProps {
 }
 
 /** One page of the book, in a shadow root of its own. */
-export const EpubDocument = memo(function EpubDocument({ item, onLink, tableLabel, onRoot, onDrawn }: EpubDocumentProps) {
+export const EpubDocument = memo(function EpubDocument({ item, onLink, onExternal, tableLabel, onRoot, onDrawn }: EpubDocumentProps) {
   const [shadow, setShadow] = useState<ShadowRoot | null>(null);
   useLayoutEffect(() => {
     if (shadow) onDrawn?.();
@@ -194,7 +212,7 @@ export const EpubDocument = memo(function EpubDocument({ item, onLink, tableLabe
     void _id; // the body's id is not a place of the page
     return rest;
   }, [item.root]);
-  const body = useMemo(() => renderEpubNodes(item.nodes, { onLink, tableLabel }), [item.nodes, onLink, tableLabel]);
+  const body = useMemo(() => renderEpubNodes(item.nodes, { onLink, onExternal, tableLabel }), [item.nodes, onLink, onExternal, tableLabel]);
   const className = ["aw-doc", typeof bodyProps.className === "string" ? bodyProps.className : ""].join(" ").trim();
   return (
     <div ref={attach} data-testid="epub-page">

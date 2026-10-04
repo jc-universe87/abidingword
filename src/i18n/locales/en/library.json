@@ -166,6 +166,7 @@
     "partOf": "Part {{part}} of {{total}}",
     "failed": "This book’s original view can’t be shown. Reading still works.",
     "failedDocument": "This document’s original view can’t be shown. Reading still works.",
+    "linkFailed": "The link could not be opened.",
     "table": "Table",
     "missingImages_one": "{{count}} picture could not be shown.",
     "missingImages_other": "{{count}} pictures could not be shown."
