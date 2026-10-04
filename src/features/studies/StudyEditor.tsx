@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { useScripture } from "@/features/scripture/ScriptureContext";
@@ -15,7 +15,7 @@ import { sectionTitle } from "./builtinText";
 import { studyTypeLabel } from "./labels";
 import { RelatedStudies } from "./RelatedStudies";
 import { SectionEditor } from "./SectionEditor";
-import { StudyHeader } from "./StudyHeader";
+import { StudyDetailsPanel } from "./StudyDetails";
 import { StudyPassages } from "./StudyPassages";
 
 interface StudyEditorProps {
@@ -34,6 +34,11 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   const detail = useLoad(useCallback(() => api.studyGet(studyId), [api, studyId]));
   const findings = useLoad(useCallback(() => api.findingList(studyId), [api, studyId]));
   const templates = useLoad(useCallback(() => api.templateList(), [api]));
+  const passages = useLoad(useCallback(() => api.studyPassageList(studyId), [api, studyId]));
+  const relations = useLoad(useCallback(() => api.studyRelationList(studyId), [api, studyId]));
+  const detailsId = useId();
+  const [showDetails, setShowDetails] = useState(false);
+  const toggle = useRef<HTMLButtonElement>(null);
   const rename = useCallback((title: string) => api.studyUpdate({ id: studyId, title }), [api, studyId]);
   const [error, setError] = useState<string | null>(null);
   const missing = detail.error?.kind === "notFound";
@@ -96,37 +101,67 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
 
   return (
     <article className="flex flex-col gap-6">
-      <header id="study-overview" className="scroll-mt-4 flex flex-col gap-3">
-        <p className="caps-label m-0">{studyTypeLabel(t, study.studyType)}</p>
+      <header
+        id="study-overview"
+        className="scroll-mt-4 flex flex-col gap-3"
+        onKeyDown={(e) => {
+          if (e.key === "Escape" && showDetails) {
+            e.stopPropagation();
+            setShowDetails(false);
+            toggle.current?.focus();
+          }
+        }}
+      >
         <EditableTitle key={study.id} label={t("studies.editor.titleLabel")} value={study.title} onSave={rename} />
-        <StudyHeader
-          study={study}
-          findings={findings.data ?? []}
-          templates={templates.data ?? []}
-          onChanged={(s) => detail.setData({ ...current, study: s })}
-          onDuplicated={(id) => onOpenStudy({ id, projectId: study.projectId })}
-        />
-        <StudyPassages studyId={study.id} onReveal={onRevealScripture} />
-        <RelatedStudies studyId={study.id} onOpen={onOpenStudy} />
-        <SaveStatusLine />
-        <nav aria-label={t("studies.editor.contents")}>
-          <ul className="m-0 flex list-none flex-wrap gap-x-4 gap-y-1 p-0 text-[0.9375rem]">
-            <li>
-              <a href="#study-findings" className="font-medium text-link underline-offset-4 hover:underline">
-                {findings.data && findings.data.length > 0
-                  ? t("studies.editor.findingsLinkCount", { count: findings.data.length })
-                  : t("studies.editor.findingsLink")}
-              </a>
-            </li>
-            {sections.map((section) => (
-              <li key={section.id}>
-                <a href={`#section-anchor-${section.id}`} className="text-link underline-offset-4 hover:underline">
-                  {sectionTitle(section)}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.9375rem] text-text-muted">
+          <span>{studyTypeLabel(t, study.studyType)}</span>
+          <button
+            ref={toggle}
+            type="button"
+            aria-expanded={showDetails}
+            aria-controls={detailsId}
+            onClick={() => setShowDetails(!showDetails)}
+            className="inline-flex min-h-9 items-center gap-1 rounded-aw px-1 hover:text-text-strong"
+          >
+            {showDetails ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
+            {t("studies.header.detailsToggle")}
+          </button>
+          <SaveIndicator />
+        </div>
+        <StudyPassages studyId={study.id} passages={passages.data ?? []} reload={passages.reload} onReveal={onRevealScripture} />
+        <RelatedStudies relations={relations.data ?? []} onOpen={onOpenStudy} />
+        {showDetails && (
+          <StudyDetailsPanel
+            id={detailsId}
+            study={study}
+            findings={findings.data ?? []}
+            templates={templates.data ?? []}
+            passages={passages.data ?? []}
+            relations={relations.data ?? []}
+            reloadPassages={passages.reload}
+            reloadRelations={relations.reload}
+            onChanged={(s) => detail.setData({ ...current, study: s })}
+            onDuplicated={(id) => onOpenStudy({ id, projectId: study.projectId })}
+          />
+        )}
+        {sections.length + 1 >= 3 && (
+          <nav aria-label={t("studies.editor.contents")}>
+            <ul className="m-0 flex list-none flex-wrap gap-x-4 gap-y-1 p-0 text-[0.875rem] text-text-muted">
+              <li>
+                <a href="#study-findings" className="underline-offset-4 hover:text-link hover:underline">
+                  {t("studies.editor.findingsLink")}
                 </a>
               </li>
-            ))}
-          </ul>
-        </nav>
+              {sections.map((section) => (
+                <li key={section.id}>
+                  <a href={`#section-anchor-${section.id}`} className="underline-offset-4 hover:text-link hover:underline">
+                    {sectionTitle(section)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
       </header>
 
       <FindingsPanel
@@ -165,18 +200,25 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   );
 }
 
-function SaveStatusLine() {
+/**
+ * Autosave, mostly out of sight: nothing when idle, a brief "Saving…" or
+ * "Saved" while it happens, and a message that stays when it fails.
+ */
+function SaveIndicator() {
   const { t } = useTranslation();
   const { status } = useSaveTracker();
-  const text = {
-    idle: t("studies.editor.savedAutomatically"),
-    saving: t("common.saving"),
-    saved: t("studies.editor.allSaved"),
-    error: status.state === "error" ? status.message : "",
-  }[status.state];
+  // The "Saved" of one save is put away after a moment (the status object is new for each save).
+  const [expired, setExpired] = useState<unknown>(null);
+  useEffect(() => {
+    if (status.state !== "saved") return;
+    const timer = setTimeout(() => setExpired(status), 2000);
+    return () => clearTimeout(timer);
+  }, [status]);
+  const text =
+    status.state === "saving" ? t("common.saving") : status.state === "saved" && expired !== status ? t("studies.editor.saved") : status.state === "error" ? status.message : "";
   return (
-    <p role="status" className={`m-0 text-[0.9375rem] ${status.state === "error" ? "text-danger" : "text-text-muted"}`}>
+    <span role="status" className={status.state === "error" ? "text-danger" : ""}>
       {text}
-    </p>
+    </span>
   );
 }

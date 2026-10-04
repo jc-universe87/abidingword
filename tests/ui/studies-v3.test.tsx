@@ -37,16 +37,17 @@ describe("creating studies", () => {
     const { user } = await renderApp(api);
     await openProject(user, "John Sermon Series");
 
-    await user.type(newStudy().getByLabelText("Title"), "Remain (μένω)");
-    await user.selectOptions(newStudy().getByLabelText("Type"), "word");
-    expect(newStudy().getByLabelText("Template")).toHaveDisplayValue("Word Study");
-    expect(newStudy().getByText("(optional)")).toBeInTheDocument();
+    await user.click(newStudy().getByRole("button", { name: "Word study" }));
+    await user.type(newStudy().getByLabelText("What would you like to study?"), "Remain (μένω)");
+    expect(newStudy().queryByLabelText("Template")).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Create study" }));
 
     expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("Remain (μένω)");
-    expect(screen.getByText("Word Study", { selector: "p" })).toBeInTheDocument();
+    expect(screen.getByText("Word Study", { selector: "span" })).toBeInTheDocument();
     expect(sectionHeadings()).toEqual(["Word", "Occurrences", "Immediate Contexts", "Semantic Range", "Key Passages", "Theological Significance", "Conclusions"]);
+    await user.click(screen.getByRole("button", { name: "Study details" }));
     expect(screen.getByRole("group", { name: "Word Study details" })).toBeInTheDocument();
+    expect(api.state.studies[0]!.templateId).toBe(api.state.templates.find((t) => t.key === "word-study")!.id);
     expect(api.state.passages).toHaveLength(0);
   });
 
@@ -54,14 +55,13 @@ describe("creating studies", () => {
     const { api } = await withProject();
     const { user } = await renderApp(api);
     await openProject(user, "John Sermon Series");
-    await user.type(newStudy().getByLabelText("Title"), "The True Vine");
-    await user.type(newStudy().getByLabelText(/Passage/), "John 15:1-11");
+    await user.type(newStudy().getByLabelText("What would you like to study?"), "John 15:1-11");
     await user.click(screen.getByRole("button", { name: "Create study" }));
 
-    await screen.findByRole("textbox", { name: "Study title" });
+    expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("John 15:1–11");
     expect(sectionHeadings()[0]).toBe("Text");
     const passages = screen.getByRole("region", { name: "Passages" });
-    expect(await within(passages).findByText("Primary")).toBeInTheDocument();
+    expect(within(passages).queryByText("Primary")).not.toBeInTheDocument();
     expect(within(passages).getByRole("button", { name: "John 15:1–11" })).toBeInTheDocument();
   });
 
@@ -69,12 +69,13 @@ describe("creating studies", () => {
     const { api } = await withProject();
     const { user } = await renderApp(api);
     await openProject(user, "John Sermon Series");
-    await user.type(newStudy().getByLabelText("Title"), "Questions from the youth group");
-    await user.selectOptions(newStudy().getByLabelText("Type"), "custom");
-    expect(newStudy().getByLabelText("Template")).toHaveDisplayValue("No template (one Notes section)");
+    await user.type(newStudy().getByLabelText("What would you like to study?"), "Youth group");
+    await user.click(newStudy().getByRole("button", { name: "More options" }));
+    await user.click(newStudy().getByRole("button", { name: "No template" }));
+    await user.type(newStudy().getByLabelText(/^Title/), "Questions from the youth group");
     await user.click(screen.getByRole("button", { name: "Create study" }));
 
-    await screen.findByRole("textbox", { name: "Study title" });
+    expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("Questions from the youth group");
     expect(sectionHeadings()).toEqual(["Notes"]);
   });
 
@@ -114,7 +115,8 @@ describe("findings", () => {
     await waitFor(() => expect(api.state.findings.map((f) => f.findingType)).toEqual(["observation", "question"]));
     const list = screen.getByRole("list", { name: "Findings" });
     expect(within(list).getByRole("textbox", { name: "Observation text" })).toHaveValue("Abide appears again and again.");
-    expect(screen.getByLabelText("Overview")).toHaveTextContent("2 findings · 1 question");
+    await user.click(screen.getByRole("button", { name: "Study details" }));
+    expect(screen.getByRole("region", { name: "Study details" })).toHaveTextContent("2 findings · 1 question");
   });
 
   it("edits, retypes, filters and deletes findings", async () => {
@@ -231,7 +233,8 @@ describe("templates", () => {
 
     await user.click(await screen.findByRole("button", { name: "Back to workspace" }));
     await openProject(user, "John Sermon Series");
-    await user.type(newStudy().getByLabelText("Title"), "From my template");
+    await user.type(newStudy().getByLabelText("What would you like to study?"), "John 15");
+    await user.click(newStudy().getByRole("button", { name: "My template" }));
     await user.selectOptions(newStudy().getByLabelText("Template"), mine.id);
     await user.click(screen.getByRole("button", { name: "Create study" }));
     await screen.findByRole("textbox", { name: "Study title" });
@@ -247,6 +250,8 @@ describe("related studies and search", () => {
     const { user } = await renderApp(api);
     await openStudy(api, user, "John Sermon Series", "Romans 8");
 
+    expect(screen.queryByRole("region", { name: "Related studies" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Study details" }));
     await user.click(screen.getByRole("button", { name: "+ Link a related study" }));
     const form = screen.getByRole("group", { name: "Link a related study" });
     await user.selectOptions(within(form).getByLabelText("Relation"), "continues");

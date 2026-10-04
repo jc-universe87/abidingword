@@ -41,7 +41,8 @@ describe("study selection and editing", () => {
     const { api, user } = await renderApp(await seed());
 
     await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /Romans Sermon Series/ }));
-    await user.type(await screen.findByLabelText("Title"), "Romans 12:1–2");
+    await user.click(await screen.findByRole("button", { name: "New study" }));
+    await user.type(await screen.findByLabelText("What would you like to study?"), "Romans 12:1-2");
     await user.click(screen.getByRole("button", { name: "Create study" }));
 
     expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("Romans 12:1–2");
@@ -66,7 +67,7 @@ describe("study selection and editing", () => {
       expect(api.state.blocks.some((b) => b.content === "There is therefore now no condemnation.")).toBe(true),
     );
     await waitFor(() => expect(api.state.studies.some((s) => s.title === "Life in the Spirit")).toBe(true));
-    expect(await screen.findByText("All changes saved.")).toBeInTheDocument();
+    expect(await screen.findByText("Saved")).toBeInTheDocument();
   });
 
   it("adds a note to a section", async () => {

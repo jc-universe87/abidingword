@@ -355,17 +355,36 @@
     "breadcrumb": "Fil d’Ariane"
   },
   "newStudy": {
-    "heading": "Nouvelle étude",
+    "heading": "Que souhaitez-vous étudier ?",
     "title": "Titre",
-    "titlePlaceholder": "p. ex. Jean 15:1–11",
-    "type": "Type",
     "template": "Modèle",
     "noTemplate": "Aucun modèle (une seule section Notes)",
     "yourTemplate": "{{name}} (le vôtre)",
-    "passage": "Passage",
     "optional": "(facultatif)",
     "passagePlaceholder": "p. ex. John 15:1-11",
-    "create": "Créer l’étude"
+    "create": "Créer l’étude",
+    "formLabel": "Nouvelle étude",
+    "studyAs": "Approche d’étude",
+    "subjectRequired": "Saisissez ce que vous souhaitez étudier.",
+    "teachingTitle": "{{passage}} — Enseignement",
+    "more": "Plus d’options",
+    "placeholder": {
+      "word": "p. ex. justice, ou δικαιοσύνη",
+      "topical": "p. ex. le pardon",
+      "biblical_theology": "p. ex. le temple",
+      "systematic_theology": "p. ex. la doctrine de la grâce",
+      "custom": "Qu’étudiez-vous ?"
+    },
+    "approach": {
+      "passage": "Étude de passage",
+      "word": "Étude de mot",
+      "topical": "Thème",
+      "teaching": "Préparation d’enseignement",
+      "biblical_theology": "Théologie biblique",
+      "systematic_theology": "Théologie systématique",
+      "custom": "Sans modèle",
+      "mine": "Mon modèle"
+    }
   },
   "list": {
     "filters": "Filtrer les études",
@@ -423,7 +442,8 @@
         "label": "Format",
         "hint": "p. ex. prédication"
       }
-    }
+    },
+    "detailsToggle": "Détails de l’étude"
   },
   "editor": {
     "opening": "Ouverture de l’étude…",
@@ -433,8 +453,8 @@
     "findingsLinkCount": "Éléments d’étude ({{count}})",
     "addSection": "Ajouter une section",
     "newSectionTitle": "Nouvelle section",
-    "savedAutomatically": "Les modifications sont enregistrées automatiquement.",
-    "allSaved": "Toutes les modifications sont enregistrées."
+    "allSaved": "Toutes les modifications sont enregistrées.",
+    "saved": "Enregistré"
   },
   "sections": {
     "rename": "Renommer la section {{title}}",
@@ -507,7 +527,8 @@
     "add": "Ajouter un passage",
     "linkCurrent": "Lier le passage actuel ({{passage}})",
     "inputLabel": "Passage à ajouter",
-    "placeholder": "p. ex. John 15:1-11"
+    "placeholder": "p. ex. John 15:1-11",
+    "addRelated": "Passage lié"
   },
   "relations": {
     "label": "Études liées",

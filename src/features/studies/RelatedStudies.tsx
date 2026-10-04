@@ -5,19 +5,43 @@ import { Button } from "@/design-system/Button";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
-import { RELATION_TYPES, type RelationType } from "@/types/studies";
+import { RELATION_TYPES, type RelationType, type StudyRelation } from "@/types/studies";
 import { relationChoice, relationLabel } from "./labels";
 
 interface Props {
-  studyId: string;
+  /** The study's relations (the caller loads them). */
+  relations: StudyRelation[];
   onOpen: (study: { id: string; projectId: string }) => void;
 }
 
-/** Links from this study to others: the start of long-term study memory. */
-export function RelatedStudies({ studyId, onOpen }: Props) {
+/**
+ * Studies this one is linked to, shown only when there are some: a compact
+ * line each, opening that study. Linking and unlinking are in Study details
+ * ([`RelationManager`]); an empty study shows nothing here at all.
+ */
+export function RelatedStudies({ relations, onOpen }: Props) {
+  const { t } = useTranslation();
+  if (relations.length === 0) return null;
+  return (
+    <section aria-label={t("studies.relations.label")}>
+      <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[0.9375rem]">
+        {relations.map((r) => (
+          <li key={r.id} className="flex flex-wrap items-center gap-2">
+            <span className="text-text-muted">{relationLabel(t, r.relationType, r.direction)}</span>
+            <button type="button" onClick={() => onOpen(r.other)} className="min-h-8 font-medium text-link underline-offset-2 hover:underline">
+              {r.other.title}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Link this study to another, and take links away: for Study details. */
+export function RelationManager({ studyId, relations, reload }: { studyId: string; relations: StudyRelation[]; reload: () => void }) {
   const { t } = useTranslation();
   const api = useApi();
-  const relations = useLoad(useCallback(() => api.studyRelationList(studyId), [api, studyId]));
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +49,7 @@ export function RelatedStudies({ studyId, onOpen }: Props) {
     setError(null);
     try {
       await action();
-      relations.reload();
+      reload();
       return true;
     } catch (e) {
       setError(toApiError(e).message);
@@ -33,22 +57,20 @@ export function RelatedStudies({ studyId, onOpen }: Props) {
     }
   };
 
-  const list = relations.data ?? [];
   return (
-    <section aria-label={t("studies.relations.label")} className="flex flex-col gap-2">
-      {list.length > 0 && (
+    <div className="flex flex-col gap-1">
+      <h3 className="m-0 text-[0.875rem] font-medium text-text-muted">{t("studies.relations.label")}</h3>
+      {relations.length > 0 && (
         <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[0.9375rem]">
-          {list.map((r) => (
+          {relations.map((r) => (
             <li key={r.id} className="flex flex-wrap items-center gap-2">
               <span className="text-text-muted">{relationLabel(t, r.relationType, r.direction)}</span>
-              <button type="button" onClick={() => onOpen(r.other)} className="font-medium text-link underline-offset-2 hover:underline">
-                {r.other.title}
-              </button>
+              <span className="font-medium text-text-strong">{r.other.title}</span>
               <button
                 type="button"
-                onClick={() => act(() => api.studyRelationDelete(r.id))}
+                onClick={() => void act(() => api.studyRelationDelete(r.id))}
                 aria-label={t("studies.relations.remove", { title: r.other.title })}
-                className="inline-flex size-8 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary"
+                className="ml-auto inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg"
               >
                 <X className="size-4" aria-hidden="true" />
               </button>
@@ -59,7 +81,7 @@ export function RelatedStudies({ studyId, onOpen }: Props) {
       {adding ? (
         <AddRelation
           studyId={studyId}
-          excluded={new Set([studyId, ...list.map((r) => r.other.id)])}
+          excluded={new Set([studyId, ...relations.map((r) => r.other.id)])}
           onCancel={() => setAdding(false)}
           onAdd={async (to, type) => {
             if (await act(() => api.studyRelationCreate({ fromStudyId: studyId, toStudyId: to, relationType: type }))) setAdding(false);
@@ -73,7 +95,7 @@ export function RelatedStudies({ studyId, onOpen }: Props) {
         </div>
       )}
       {error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{error}</p>}
-    </section>
+    </div>
   );
 }
 

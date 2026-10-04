@@ -353,17 +353,36 @@
     "breadcrumb": "Navigationspfad"
   },
   "newStudy": {
-    "heading": "Neues Bibelstudium",
+    "heading": "Was möchten Sie studieren?",
     "title": "Titel",
-    "titlePlaceholder": "z. B. Johannes 15,1–11",
-    "type": "Art",
     "template": "Vorlage",
     "noTemplate": "Keine Vorlage (ein Abschnitt „Notizen“)",
     "yourTemplate": "{{name}} (eigene)",
-    "passage": "Bibelstelle",
     "optional": "(optional)",
     "passagePlaceholder": "z. B. John 15:1-11",
-    "create": "Bibelstudium erstellen"
+    "create": "Bibelstudium erstellen",
+    "formLabel": "Neues Studium",
+    "studyAs": "Art des Studiums",
+    "subjectRequired": "Geben Sie ein, was Sie studieren möchten.",
+    "teachingTitle": "{{passage}} – Lehre",
+    "more": "Weitere Optionen",
+    "placeholder": {
+      "word": "z. B. Gerechtigkeit oder δικαιοσύνη",
+      "topical": "z. B. Vergebung",
+      "biblical_theology": "z. B. der Tempel",
+      "systematic_theology": "z. B. die Lehre von der Gnade",
+      "custom": "Was studieren Sie?"
+    },
+    "approach": {
+      "passage": "Textstudium",
+      "word": "Wortstudium",
+      "topical": "Thema",
+      "teaching": "Lehrvorbereitung",
+      "biblical_theology": "Biblische Theologie",
+      "systematic_theology": "Systematische Theologie",
+      "custom": "Keine Vorlage",
+      "mine": "Meine Vorlage"
+    }
   },
   "list": {
     "filters": "Bibelstudien filtern",
@@ -419,7 +438,8 @@
         "label": "Form",
         "hint": "z. B. Predigt"
       }
-    }
+    },
+    "detailsToggle": "Studiendetails"
   },
   "editor": {
     "opening": "Bibelstudium wird geöffnet …",
@@ -429,8 +449,8 @@
     "findingsLinkCount": "Einträge ({{count}})",
     "addSection": "Abschnitt hinzufügen",
     "newSectionTitle": "Neuer Abschnitt",
-    "savedAutomatically": "Änderungen werden automatisch gespeichert.",
-    "allSaved": "Alle Änderungen gespeichert."
+    "allSaved": "Alle Änderungen gespeichert.",
+    "saved": "Gespeichert"
   },
   "sections": {
     "rename": "Abschnitt „{{title}}“ umbenennen",
@@ -503,7 +523,8 @@
     "add": "Bibelstelle hinzufügen",
     "linkCurrent": "Aktuelle Bibelstelle verknüpfen ({{passage}})",
     "inputLabel": "Hinzuzufügende Bibelstelle",
-    "placeholder": "z. B. John 15:1-11"
+    "placeholder": "z. B. John 15:1-11",
+    "addRelated": "Verwandter Text"
   },
   "relations": {
     "label": "Verwandte Bibelstudien",

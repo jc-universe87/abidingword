@@ -355,17 +355,36 @@
     "breadcrumb": "Ruta de navegación"
   },
   "newStudy": {
-    "heading": "Nuevo estudio",
+    "heading": "¿Qué te gustaría estudiar?",
     "title": "Título",
-    "titlePlaceholder": "p. ej. Juan 15:1–11",
-    "type": "Tipo",
     "template": "Plantilla",
     "noTemplate": "Sin plantilla (una sección de Notas)",
     "yourTemplate": "{{name}} (tuya)",
-    "passage": "Pasaje",
     "optional": "(opcional)",
     "passagePlaceholder": "p. ej. John 15:1-11",
-    "create": "Crear estudio"
+    "create": "Crear estudio",
+    "formLabel": "Nuevo estudio",
+    "studyAs": "Enfoque del estudio",
+    "subjectRequired": "Escribe lo que te gustaría estudiar.",
+    "teachingTitle": "{{passage}} — Enseñanza",
+    "more": "Más opciones",
+    "placeholder": {
+      "word": "p. ej. justicia, o δικαιοσύνη",
+      "topical": "p. ej. el perdón",
+      "biblical_theology": "p. ej. el templo",
+      "systematic_theology": "p. ej. la doctrina de la gracia",
+      "custom": "¿Qué estás estudiando?"
+    },
+    "approach": {
+      "passage": "Estudio de pasaje",
+      "word": "Estudio de palabra",
+      "topical": "Tema",
+      "teaching": "Preparación de enseñanza",
+      "biblical_theology": "Teología bíblica",
+      "systematic_theology": "Teología sistemática",
+      "custom": "Sin plantilla",
+      "mine": "Mi plantilla"
+    }
   },
   "list": {
     "filters": "Filtrar estudios",
@@ -423,7 +442,8 @@
         "label": "Formato",
         "hint": "p. ej. sermón"
       }
-    }
+    },
+    "detailsToggle": "Detalles del estudio"
   },
   "editor": {
     "opening": "Abriendo el estudio…",
@@ -433,8 +453,8 @@
     "findingsLinkCount": "Apuntes ({{count}})",
     "addSection": "Añadir sección",
     "newSectionTitle": "Nueva sección",
-    "savedAutomatically": "Los cambios se guardan automáticamente.",
-    "allSaved": "Todos los cambios guardados."
+    "allSaved": "Todos los cambios guardados.",
+    "saved": "Guardado"
   },
   "sections": {
     "rename": "Cambiar el nombre de la sección {{title}}",
@@ -507,7 +527,8 @@
     "add": "Añadir pasaje",
     "linkCurrent": "Vincular el pasaje actual ({{passage}})",
     "inputLabel": "Pasaje que añadir",
-    "placeholder": "p. ej. John 15:1-11"
+    "placeholder": "p. ej. John 15:1-11",
+    "addRelated": "Pasaje relacionado"
   },
   "relations": {
     "label": "Estudios relacionados",

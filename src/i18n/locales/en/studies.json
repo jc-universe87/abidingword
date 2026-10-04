@@ -353,17 +353,36 @@
     "breadcrumb": "Breadcrumb"
   },
   "newStudy": {
-    "heading": "New study",
+    "heading": "What would you like to study?",
     "title": "Title",
-    "titlePlaceholder": "e.g. John 15:1–11",
-    "type": "Type",
     "template": "Template",
     "noTemplate": "No template (one Notes section)",
     "yourTemplate": "{{name}} (yours)",
-    "passage": "Passage",
     "optional": "(optional)",
     "passagePlaceholder": "e.g. John 15:1-11",
-    "create": "Create study"
+    "create": "Create study",
+    "formLabel": "New study",
+    "studyAs": "Study approach",
+    "subjectRequired": "Type what you would like to study.",
+    "teachingTitle": "{{passage}} — Teaching",
+    "more": "More options",
+    "placeholder": {
+      "word": "e.g. righteousness, or δικαιοσύνη",
+      "topical": "e.g. forgiveness",
+      "biblical_theology": "e.g. the temple",
+      "systematic_theology": "e.g. the doctrine of grace",
+      "custom": "What are you studying?"
+    },
+    "approach": {
+      "passage": "Passage study",
+      "word": "Word study",
+      "topical": "Topic",
+      "teaching": "Teaching preparation",
+      "biblical_theology": "Biblical theology",
+      "systematic_theology": "Systematic theology",
+      "custom": "No template",
+      "mine": "My template"
+    }
   },
   "list": {
     "filters": "Filter studies",
@@ -419,7 +438,8 @@
         "label": "Format",
         "hint": "e.g. sermon"
       }
-    }
+    },
+    "detailsToggle": "Study details"
   },
   "editor": {
     "opening": "Opening study…",
@@ -429,8 +449,8 @@
     "findingsLinkCount": "Findings ({{count}})",
     "addSection": "Add section",
     "newSectionTitle": "New section",
-    "savedAutomatically": "Changes are saved automatically.",
-    "allSaved": "All changes saved."
+    "allSaved": "All changes saved.",
+    "saved": "Saved"
   },
   "sections": {
     "rename": "Rename section {{title}}",
@@ -503,7 +523,8 @@
     "add": "Add passage",
     "linkCurrent": "Link current passage ({{passage}})",
     "inputLabel": "Passage to add",
-    "placeholder": "e.g. John 15:1-11"
+    "placeholder": "e.g. John 15:1-11",
+    "addRelated": "Related passage"
   },
   "relations": {
     "label": "Related studies",

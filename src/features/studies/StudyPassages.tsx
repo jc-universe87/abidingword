@@ -1,148 +1,116 @@
-import { useCallback, useId, useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, X } from "lucide-react";
 import { useScripture } from "@/features/scripture/ScriptureContext";
-import { useLoad } from "@/hooks/useLoad";
 import { referenceLabel } from "@/i18n/scripture";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import type { StudyPassage } from "@/types/scripture";
 
+interface PassagesProps {
+  studyId: string;
+  /** The study's passages (primary first or not; the caller loads them). */
+  passages: StudyPassage[];
+  /** Reload them after a change. */
+  reload: () => void;
+}
+
 /**
- * The passages a study is about: at most one primary, any number related.
- * Optional: topical and doctrinal studies may have none. Clicking a
- * passage opens it in the Scripture pane.
+ * What the study is about, as a quiet line under its title: the passage
+ * (and any related ones) as links that open it in Scripture, and one small
+ * action to add another. Which is primary, and taking one away, are not
+ * decisions for the everyday view: see [`PassageManager`] in Study details.
  */
-export function StudyPassages({ studyId, onReveal }: { studyId: string; onReveal: () => void }) {
+export function StudyPassages({ studyId, passages, reload, onReveal }: PassagesProps & { onReveal: () => void }) {
   const { t } = useTranslation();
   const api = useApi();
   const { goTo, currentPassage } = useScripture();
-  const passages = useLoad(useCallback(() => api.studyPassageList(studyId), [api, studyId]));
   const id = useId();
   const [adding, setAdding] = useState(false);
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const act = async (action: () => Promise<unknown>) => {
+  const add = async (reference: () => Promise<string>) => {
     setError(null);
     try {
-      await action();
-      passages.reload();
-      return true;
-    } catch (e) {
-      setError(toApiError(e).message);
-      return false;
-    }
-  };
-
-  const add = async (event: FormEvent) => {
-    event.preventDefault();
-    const ok = await act(async () => {
-      const ref = await api.referenceParse(text);
-      await api.studyPassageAdd({ studyId, reference: ref.canonical });
-    });
-    if (ok) {
+      await api.studyPassageAdd({ studyId, reference: await reference() });
+      reload();
       setText("");
       setAdding(false);
+    } catch (e) {
+      setError(toApiError(e).message);
     }
   };
 
-  const list = passages.data ?? [];
-  const primary = list.find((p) => p.role === "primary");
-  const related = list.filter((p) => p.role === "related");
-  const linked = currentPassage && list.some((p) => p.reference.canonical === currentPassage.canonical);
-
-  const chip = (passage: StudyPassage) => {
-    const label = referenceLabel(passage.reference);
-    return (
-    <span key={passage.id} className="inline-flex items-center rounded-aw border border-border">
-      <button
-        type="button"
-        onClick={() => {
-          goTo(passage.reference);
-          onReveal();
-        }}
-        title={t("studies.passages.open")}
-        className="inline-flex min-h-9 items-center px-3 text-[0.9375rem] font-medium text-link hover:bg-bg-secondary"
-      >
-        {label}
-      </button>
-      {passage.role === "related" && (
-        <button
-          type="button"
-          onClick={() => act(() => api.studyPassageSetRole({ id: passage.id, role: "primary" }))}
-          className="min-h-9 border-l border-border px-2 text-[0.8125rem] text-text-muted hover:bg-bg-secondary"
-          aria-label={t("studies.passages.makePrimaryLabel", { passage: label })}
-        >
-          {t("studies.passages.makePrimary")}
-        </button>
-      )}
-      <button
-        type="button"
-        onClick={() => act(() => api.studyPassageRemove(passage.id))}
-        aria-label={t("studies.passages.remove", { passage: label })}
-        className="inline-flex size-9 items-center justify-center border-l border-border text-text-muted hover:bg-bg-secondary"
-      >
-        <X className="size-4" aria-hidden="true" />
-      </button>
-    </span>
-    );
-  };
+  const primary = passages.find((p) => p.role === "primary");
+  const linked = currentPassage && passages.some((p) => p.reference.canonical === currentPassage.canonical);
+  const quiet = "inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong";
 
   return (
     <section aria-label={t("studies.passages.label")} className="flex flex-col gap-2">
-      {primary && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="w-20 text-[0.875rem] font-medium text-text-muted">{t("studies.passages.primary")}</span>
-          {chip(primary)}
-        </div>
-      )}
-      {related.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="w-20 text-[0.875rem] font-medium text-text-muted">{t("studies.passages.related")}</span>
-          {related.map(chip)}
-        </div>
-      )}
       <div className="flex flex-wrap items-center gap-2">
-        {!adding && (
+        {passages.map((passage) => (
           <button
+            key={passage.id}
             type="button"
-            onClick={() => setAdding(true)}
-            className="inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+            onClick={() => {
+              goTo(passage.reference);
+              onReveal();
+            }}
+            title={t("studies.passages.open")}
+            className={`inline-flex min-h-9 items-center rounded-aw border px-3 text-[0.9375rem] text-link hover:bg-bg-secondary ${
+              passage.id === primary?.id && passages.length > 1 ? "border-border bg-bg-secondary font-semibold" : "border-border-subtle font-medium"
+            }`}
           >
-            <Plus className="size-4" aria-hidden="true" />
-            {list.length === 0 ? t("studies.passages.addFirst") : t("studies.passages.add")}
+            {passage.id === primary?.id && passages.length > 1 && <span className="sr-only">{t("studies.passages.primary")}: </span>}
+            {referenceLabel(passage.reference)}
           </button>
-        )}
-        {currentPassage && !linked && (
-          <button
-            type="button"
-            onClick={() => act(() => api.studyPassageAdd({ studyId, reference: currentPassage.canonical }))}
-            className="inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
-          >
+        ))}
+        {!adding && (
+          <button type="button" onClick={() => setAdding(true)} className={quiet}>
             <Plus className="size-4" aria-hidden="true" />
-            {t("studies.passages.linkCurrent", { passage: referenceLabel(currentPassage) })}
+            {passages.length === 0 ? t("studies.passages.add") : t("studies.passages.addRelated")}
           </button>
         )}
       </div>
       {adding && (
-        <form onSubmit={add} className="flex flex-wrap items-center gap-2" noValidate>
-          <label htmlFor={`${id}-passage`} className="sr-only">{t("studies.passages.inputLabel")}</label>
-          <input
-            id={`${id}-passage`}
-            autoFocus
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => e.key === "Escape" && setAdding(false)}
-            placeholder={t("studies.passages.placeholder")}
-            className="h-9 min-w-0 flex-1 basis-48 rounded-aw border border-border bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted"
-          />
-          <button type="submit" className="h-9 rounded-aw bg-primary px-3 text-[0.9375rem] font-medium text-on-primary hover:bg-primary-hover">
-            {t("common.add")}
-          </button>
-          <button type="button" onClick={() => setAdding(false)} className="h-9 rounded-aw border border-border px-3 text-[0.9375rem]">
-            {t("common.cancel")}
-          </button>
+        <form
+          onSubmit={(e: FormEvent) => {
+            e.preventDefault();
+            void add(async () => (await api.referenceParse(text)).canonical);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              e.stopPropagation();
+              setAdding(false);
+            }
+          }}
+          className="flex flex-col gap-2"
+          noValidate
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <label htmlFor={`${id}-passage`} className="sr-only">{t("studies.passages.inputLabel")}</label>
+            <input
+              id={`${id}-passage`}
+              autoFocus
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder={t("studies.passages.placeholder")}
+              className="h-9 min-w-0 flex-1 basis-48 rounded-aw border border-border bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted"
+            />
+            <button type="submit" className="h-9 rounded-aw bg-primary px-3 text-[0.9375rem] font-medium text-on-primary hover:bg-primary-hover">
+              {t("common.add")}
+            </button>
+            <button type="button" onClick={() => setAdding(false)} className="h-9 rounded-aw border border-border px-3 text-[0.9375rem]">
+              {t("common.cancel")}
+            </button>
+          </div>
+          {currentPassage && !linked && (
+            <button type="button" onClick={() => void add(async () => currentPassage.canonical)} className={`${quiet} self-start`}>
+              <Plus className="size-4" aria-hidden="true" />
+              {t("studies.passages.linkCurrent", { passage: referenceLabel(currentPassage) })}
+            </button>
+          )}
         </form>
       )}
       {error && (
@@ -151,5 +119,67 @@ export function StudyPassages({ studyId, onReveal }: { studyId: string; onReveal
         </p>
       )}
     </section>
+  );
+}
+
+/**
+ * The passages with the things that change them, for Study details: make
+ * a related passage the primary one, or take one away.
+ */
+export function PassageManager({ passages, reload }: Omit<PassagesProps, "studyId">) {
+  const { t } = useTranslation();
+  const api = useApi();
+  const [error, setError] = useState<string | null>(null);
+
+  const act = async (action: () => Promise<unknown>) => {
+    setError(null);
+    try {
+      await action();
+      reload();
+    } catch (e) {
+      setError(toApiError(e).message);
+    }
+  };
+
+  if (passages.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-1">
+      <h3 className="m-0 text-[0.875rem] font-medium text-text-muted">{t("studies.passages.label")}</h3>
+      <ul className="m-0 flex list-none flex-col gap-1 p-0">
+        {passages.map((passage) => {
+          const label = referenceLabel(passage.reference);
+          return (
+            <li key={passage.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.9375rem]">
+              <span className="font-medium text-text-strong">{label}</span>
+              {passage.role === "primary" ? (
+                <span className="text-text-muted">{t("studies.passages.primary")}</span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => void act(() => api.studyPassageSetRole({ id: passage.id, role: "primary" }))}
+                  aria-label={t("studies.passages.makePrimaryLabel", { passage: label })}
+                  className="min-h-9 rounded-aw px-2 text-text-strong underline underline-offset-2 hover:bg-bg"
+                >
+                  {t("studies.passages.makePrimary")}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => void act(() => api.studyPassageRemove(passage.id))}
+                aria-label={t("studies.passages.remove", { passage: label })}
+                className="ml-auto inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg"
+              >
+                <X className="size-4" aria-hidden="true" />
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      {error && (
+        <p role="alert" className="m-0 text-[0.9375rem] text-danger">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }

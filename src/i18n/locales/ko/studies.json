@@ -351,17 +351,36 @@
     "breadcrumb": "현재 위치"
   },
   "newStudy": {
-    "heading": "새 성경공부",
+    "heading": "무엇을 공부하시겠어요?",
     "title": "제목",
-    "titlePlaceholder": "예: 요한복음 15:1–11",
-    "type": "종류",
     "template": "템플릿",
     "noTemplate": "템플릿 없음(메모 섹션 하나)",
     "yourTemplate": "{{name}} (내 템플릿)",
-    "passage": "본문",
     "optional": "(선택 사항)",
     "passagePlaceholder": "예: John 15:1-11",
-    "create": "성경공부 만들기"
+    "create": "성경공부 만들기",
+    "formLabel": "새 연구",
+    "studyAs": "연구 방식",
+    "subjectRequired": "공부하려는 내용을 입력하세요.",
+    "teachingTitle": "{{passage}} — 가르침",
+    "more": "추가 옵션",
+    "placeholder": {
+      "word": "예: 의, 또는 δικαιοσύνη",
+      "topical": "예: 용서",
+      "biblical_theology": "예: 성전",
+      "systematic_theology": "예: 은혜의 교리",
+      "custom": "무엇을 공부하고 있나요?"
+    },
+    "approach": {
+      "passage": "본문 연구",
+      "word": "단어 연구",
+      "topical": "주제",
+      "teaching": "가르침 준비",
+      "biblical_theology": "성경신학",
+      "systematic_theology": "조직신학",
+      "custom": "템플릿 없음",
+      "mine": "내 템플릿"
+    }
   },
   "list": {
     "filters": "성경공부 필터",
@@ -415,7 +434,8 @@
         "label": "형식",
         "hint": "예: 설교"
       }
-    }
+    },
+    "detailsToggle": "연구 세부 정보"
   },
   "editor": {
     "opening": "성경공부를 여는 중…",
@@ -425,8 +445,8 @@
     "findingsLinkCount": "기록 ({{count}})",
     "addSection": "섹션 추가",
     "newSectionTitle": "새 섹션",
-    "savedAutomatically": "변경 사항은 자동으로 저장됩니다.",
-    "allSaved": "모든 변경 사항을 저장했습니다."
+    "allSaved": "모든 변경 사항을 저장했습니다.",
+    "saved": "저장됨"
   },
   "sections": {
     "rename": "{{title}} 섹션 이름 바꾸기",
@@ -499,7 +519,8 @@
     "add": "본문 추가",
     "linkCurrent": "현재 본문 연결({{passage}})",
     "inputLabel": "추가할 본문",
-    "placeholder": "예: John 15:1-11"
+    "placeholder": "예: John 15:1-11",
+    "addRelated": "관련 본문"
   },
   "relations": {
     "label": "관련 성경공부",

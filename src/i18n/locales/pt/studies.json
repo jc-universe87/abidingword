@@ -355,17 +355,36 @@
     "breadcrumb": "Trilha de navegação"
   },
   "newStudy": {
-    "heading": "Novo estudo",
+    "heading": "O que você gostaria de estudar?",
     "title": "Título",
-    "titlePlaceholder": "ex.: João 15:1–11",
-    "type": "Tipo",
     "template": "Modelo",
     "noTemplate": "Sem modelo (uma seção Notas)",
     "yourTemplate": "{{name}} (seu)",
-    "passage": "Passagem",
     "optional": "(opcional)",
     "passagePlaceholder": "ex.: John 15:1-11",
-    "create": "Criar estudo"
+    "create": "Criar estudo",
+    "formLabel": "Novo estudo",
+    "studyAs": "Abordagem do estudo",
+    "subjectRequired": "Digite o que você gostaria de estudar.",
+    "teachingTitle": "{{passage}} — Ensino",
+    "more": "Mais opções",
+    "placeholder": {
+      "word": "ex.: justiça, ou δικαιοσύνη",
+      "topical": "ex.: perdão",
+      "biblical_theology": "ex.: o templo",
+      "systematic_theology": "ex.: a doutrina da graça",
+      "custom": "O que você está estudando?"
+    },
+    "approach": {
+      "passage": "Estudo de passagem",
+      "word": "Estudo de palavra",
+      "topical": "Tema",
+      "teaching": "Preparação de ensino",
+      "biblical_theology": "Teologia bíblica",
+      "systematic_theology": "Teologia sistemática",
+      "custom": "Sem modelo",
+      "mine": "Meu modelo"
+    }
   },
   "list": {
     "filters": "Filtrar estudos",
@@ -423,7 +442,8 @@
         "label": "Formato",
         "hint": "ex.: sermão"
       }
-    }
+    },
+    "detailsToggle": "Detalhes do estudo"
   },
   "editor": {
     "opening": "Abrindo estudo…",
@@ -433,8 +453,8 @@
     "findingsLinkCount": "Registros ({{count}})",
     "addSection": "Adicionar seção",
     "newSectionTitle": "Nova seção",
-    "savedAutomatically": "As alterações são salvas automaticamente.",
-    "allSaved": "Todas as alterações foram salvas."
+    "allSaved": "Todas as alterações foram salvas.",
+    "saved": "Salvo"
   },
   "sections": {
     "rename": "Renomear a seção {{title}}",
@@ -507,7 +527,8 @@
     "add": "Adicionar passagem",
     "linkCurrent": "Vincular a passagem atual ({{passage}})",
     "inputLabel": "Passagem a adicionar",
-    "placeholder": "ex.: John 15:1-11"
+    "placeholder": "ex.: John 15:1-11",
+    "addRelated": "Passagem relacionada"
   },
   "relations": {
     "label": "Estudos relacionados",

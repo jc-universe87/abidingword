@@ -114,7 +114,7 @@ describe("Scripture pane", () => {
 
     await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /John/ }));
     await user.click(await screen.findByRole("button", { name: /The True Vine/ }));
-    await user.click(await screen.findByRole("button", { name: "Add the passage this study is about" }));
+    await user.click(await screen.findByRole("button", { name: "Add passage" }));
     await user.type(screen.getByLabelText("Passage to add"), "John 15:1-11{Enter}");
 
     const link = await screen.findByRole("button", { name: "John 15:1–11" });

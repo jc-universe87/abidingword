@@ -6,21 +6,33 @@ import { useAutosave } from "@/hooks/useAutosave";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import type { Study } from "@/types/domain";
-import { STUDY_STATUSES, type Finding, type StudyDetails, type StudyStatus, type StudyTemplate } from "@/types/studies";
+import { STUDY_STATUSES, type Finding, type StudyDetails, type StudyRelation, type StudyStatus, type StudyTemplate } from "@/types/studies";
+import type { StudyPassage } from "@/types/scripture";
 import { formatDate } from "./format";
+import { PassageManager } from "./StudyPassages";
+import { RelationManager } from "./RelatedStudies";
 import { templateName } from "./builtinText";
 import { statusLabel, studyTypeLabel } from "./labels";
 
-interface StudyHeaderProps {
+interface StudyDetailsProps {
+  id: string;
   study: Study;
   findings: Finding[];
   templates: StudyTemplate[];
+  passages: StudyPassage[];
+  relations: StudyRelation[];
+  reloadPassages: () => void;
+  reloadRelations: () => void;
   onChanged: (study: Study) => void;
   onDuplicated: (studyId: string) => void;
 }
 
-/** Overview line, status, purpose, type details and duplication. */
-export function StudyHeader({ study, findings, templates, onChanged, onDuplicated }: StudyHeaderProps) {
+/**
+ * Everything about a study that is not the study itself: status, kind and
+ * template, purpose, type-specific fields, passage and link management,
+ * duplication. Shown on request, so the page can be about Scripture.
+ */
+export function StudyDetailsPanel({ id, study, findings, templates, passages, relations, reloadPassages, reloadRelations, onChanged, onDuplicated }: StudyDetailsProps) {
   const { t } = useTranslation();
   const api = useApi();
   const [error, setError] = useState<string | null>(null);
@@ -54,57 +66,60 @@ export function StudyHeader({ study, findings, templates, onChanged, onDuplicate
     }
   };
 
+  const facts = [
+    studyTypeLabel(t, study.studyType),
+    template && t("studies.header.template", { name: templateName(template) }),
+    t("studies.header.changed", { date: formatDate(study.updatedAt) }),
+    findings.length > 0 && t("studies.findingCount", { count: findings.length }),
+    questions > 0 && t("studies.header.questionCount", { count: questions }),
+    unresolved > 0 && t("studies.header.unresolvedCount", { count: unresolved }),
+  ]
+    .filter(Boolean)
+    .join(t("common.listSeparator"));
+
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.9375rem] text-text-muted">
-        <label className="flex items-center gap-2">
-          <span className="sr-only">{t("studies.header.status")}</span>
-          <select
-            value={study.status}
-            onChange={(e) => setStatus(e.target.value as StudyStatus)}
-            className="h-9 rounded-aw border border-border bg-bg px-2 text-text-strong"
-          >
-            {STUDY_STATUSES.map((s) => (
-              <option key={s} value={s}>{statusLabel(t, s)}</option>
-            ))}
-          </select>
-        </label>
-        {template && <span>{t("studies.header.template", { name: templateName(template) })}</span>}
-        <span>{t("studies.header.changed", { date: formatDate(study.updatedAt) })}</span>
-        <Button variant="quiet" className="ml-auto min-h-9" onClick={() => setDuplicating(!duplicating)} aria-expanded={duplicating}>
-          <Copy className="size-4" aria-hidden="true" />
-          {t("studies.header.duplicate")}
-        </Button>
-      </div>
+    <section id={id} aria-label={t("studies.header.detailsToggle")} className="flex flex-col gap-4 rounded-aw border border-border-subtle bg-bg-secondary px-4 py-3">
+      <p className="m-0 text-[0.9375rem] text-text-muted">{facts}</p>
 
-      <p className="m-0 text-[0.9375rem]" aria-label={t("studies.header.overview")}>
-        {[
-          findings.length === 0 ? t("studies.header.noFindings") : t("studies.findingCount", { count: findings.length }),
-          questions > 0 && t("studies.header.questionCount", { count: questions }),
-          unresolved > 0 && t("studies.header.unresolvedCount", { count: unresolved }),
-        ]
-          .filter(Boolean)
-          .join(t("common.listSeparator"))}
-      </p>
-
-      {duplicating && (
-        <div role="group" aria-label={t("studies.header.duplicateGroup")} className="flex flex-col gap-2 border-l-[3px] border-accent bg-bg-secondary px-4 py-3">
-          <p className="m-0">{t("studies.header.duplicatePrompt", { title: study.title })}</p>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="primary" onClick={() => duplicate(false)}>{t("studies.header.structureOnly")}</Button>
-            <Button onClick={() => duplicate(true)}>{t("studies.header.structureAndContent")}</Button>
-            <Button variant="quiet" onClick={() => setDuplicating(false)}>{t("common.cancel")}</Button>
-          </div>
-          <p className="m-0 text-[0.875rem] text-text-muted">
-            {t("studies.header.duplicateHelp")}
-          </p>
-        </div>
-      )}
+      <label className="flex flex-col gap-1 sm:max-w-64">
+        <span className="text-[0.875rem] font-medium text-text-muted">{t("studies.header.status")}</span>
+        <select
+          value={study.status}
+          onChange={(e) => setStatus(e.target.value as StudyStatus)}
+          className="h-9 rounded-aw border border-border bg-bg px-2 text-text-strong"
+        >
+          {STUDY_STATUSES.map((s) => (
+            <option key={s} value={s}>{statusLabel(t, s)}</option>
+          ))}
+        </select>
+      </label>
 
       <PurposeField study={study} onChanged={onChanged} />
       <DetailsFields study={study} onChanged={onChanged} />
+      <PassageManager passages={passages} reload={reloadPassages} />
+      <RelationManager studyId={study.id} relations={relations} reload={reloadRelations} />
+
+      <div className="flex flex-col gap-2">
+        <div>
+          <Button variant="quiet" className="min-h-9" onClick={() => setDuplicating(!duplicating)} aria-expanded={duplicating}>
+            <Copy className="size-4" aria-hidden="true" />
+            {t("studies.header.duplicate")}
+          </Button>
+        </div>
+        {duplicating && (
+          <div role="group" aria-label={t("studies.header.duplicateGroup")} className="flex flex-col gap-2 border-l-[3px] border-accent bg-bg px-4 py-3">
+            <p className="m-0">{t("studies.header.duplicatePrompt", { title: study.title })}</p>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="primary" onClick={() => duplicate(false)}>{t("studies.header.structureOnly")}</Button>
+              <Button onClick={() => duplicate(true)}>{t("studies.header.structureAndContent")}</Button>
+              <Button variant="quiet" onClick={() => setDuplicating(false)}>{t("common.cancel")}</Button>
+            </div>
+            <p className="m-0 text-[0.875rem] text-text-muted">{t("studies.header.duplicateHelp")}</p>
+          </div>
+        )}
+      </div>
       {error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{error}</p>}
-    </div>
+    </section>
   );
 }
 
@@ -119,7 +134,7 @@ function PurposeField({ study, onChanged }: { study: Study; onChanged: (s: Study
   const { schedule, flush } = useAutosave(save);
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[0.875rem] font-medium text-text-muted">{t("studies.header.purpose")}</span>
+      <span className="text-[0.875rem] font-medium text-text-muted">{t("studies.header.purpose")} <span className="font-normal">{t("studies.newStudy.optional")}</span></span>
       <textarea
         rows={1}
         value={text}
@@ -155,7 +170,7 @@ function DetailsFields({ study, onChanged }: { study: Study; onChanged: (s: Stud
     onChanged(await api.studyUpdate({ id: study.id, details: values }));
   };
   return (
-    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3" role="group" aria-label={t("studies.header.details", { type: studyTypeLabel(t, study.studyType) })}>
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-2" role="group" aria-label={t("studies.header.details", { type: studyTypeLabel(t, study.studyType) })}>
       {fields.map((field) => (
         <label key={field} className="flex flex-col gap-1">
           <span className="text-[0.875rem] font-medium text-text-muted">{t(`studies.header.detail.${field}.label`)}</span>
