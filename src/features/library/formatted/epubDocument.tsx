@@ -1,4 +1,4 @@
-import { createElement, memo, useCallback, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { createElement, memo, useCallback, useLayoutEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { EpubElement, EpubItem, EpubNode } from "@/types/library";
 
@@ -163,11 +163,16 @@ interface EpubDocumentProps {
   tableLabel: string;
   /** Receives the page's shadow root (null when it goes), so the reader can find places in it. */
   onRoot?: (root: ShadowRoot | null) => void;
+  /** Called once the page's content is in its shadow root (it is drawn a render after the root exists). */
+  onDrawn?: () => void;
 }
 
 /** One page of the book, in a shadow root of its own. */
-export const EpubDocument = memo(function EpubDocument({ item, onLink, tableLabel, onRoot }: EpubDocumentProps) {
+export const EpubDocument = memo(function EpubDocument({ item, onLink, tableLabel, onRoot, onDrawn }: EpubDocumentProps) {
   const [shadow, setShadow] = useState<ShadowRoot | null>(null);
+  useLayoutEffect(() => {
+    if (shadow) onDrawn?.();
+  }, [shadow, onDrawn]);
   const attach = useCallback(
     (host: HTMLDivElement | null) => {
       if (!host) {

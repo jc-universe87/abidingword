@@ -44,6 +44,9 @@ export function EpubViewer({ sourceId, structure, start, jumpTo, onLink, locatio
   const [failed, setFailed] = useState(false);
   const [seen, setSeen] = useState(jumpTo?.nonce ?? 0);
   const applied = useRef(-1);
+  // Bumped when a page's content has been drawn, so a wanted place is looked for again (see below).
+  const [, setDrawn] = useState(0);
+  const onDrawn = useCallback(() => setDrawn((n) => n + 1), []);
   const wantedItem = request.place.item;
 
   // A request from outside (Contents, Back / Forward): adjust during rendering, not in an effect.
@@ -91,7 +94,8 @@ export function EpubViewer({ sourceId, structure, start, jumpTo, onLink, locatio
     const view = scroller.current;
     if (!view || !current || current.id !== request.place.item || applied.current === request.nonce) return;
     const shadow = root.current;
-    if (!shadow) return;
+    // A new page's content is drawn one render after its shadow root exists: wait for it, or the place is not found.
+    if (!shadow || !shadow.querySelector(".aw-doc")) return;
     applied.current = request.nonce;
     const { fragment, offset } = request.place;
     const target = fragment !== null ? shadow.getElementById(fragment) : null;
@@ -178,7 +182,7 @@ export function EpubViewer({ sourceId, structure, start, jumpTo, onLink, locatio
             {current.missingImages > 0 && (
               <p className="m-0 mx-auto max-w-[46rem] px-6 pt-3 text-[0.875rem] text-text-muted">{t("library.formatted.missingImages", { count: current.missingImages })}</p>
             )}
-            <EpubDocument key={current.id} item={current} onLink={follow} tableLabel={t("library.formatted.table")} onRoot={onRoot} />
+            <EpubDocument key={current.id} item={current} onLink={follow} tableLabel={t("library.formatted.table")} onRoot={onRoot} onDrawn={onDrawn} />
           </>
         )}
       </div>

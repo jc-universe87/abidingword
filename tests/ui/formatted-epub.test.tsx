@@ -205,6 +205,20 @@ describe("Contents, links and Back / Forward in the Original view", () => {
     expect(back(reader)).toBeDisabled();
   });
 
+  it("puts a link into another part at the element it names, not at the top of that part", async () => {
+    const { api, engine } = setup();
+    const { user, reader } = await openPane(api, engine);
+    await original(user, reader);
+    await user.click(within(reader).getByRole("button", { name: "Contents" }));
+    await user.click(await screen.findByRole("button", { name: /^Chapter Two/ }));
+    await waitFor(() => expect(part(reader)).toBe("Part 2 of 3"));
+    await user.click(within(await page(reader)).getByRole("link", { name: "the marker" }));
+    await waitFor(() => expect(part(reader)).toBe("Part 1 of 3"));
+    const host = await within(reader).findByTestId("epub-page");
+    // In this test's stand-in layout an element scrolled to the top of the view is at 0.
+    await waitFor(() => expect(host.shadowRoot!.getElementById("r1")!.getBoundingClientRect().top).toBe(0));
+  });
+
   it("follows a link within the same part to the element it names", async () => {
     const { api, engine } = setup();
     const { user, reader } = await openPane(api, engine);
