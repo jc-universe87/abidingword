@@ -71,7 +71,7 @@ async function openFromLibrary(user: User, title: string) {
 
 async function openInPane(user: User, title: string) {
   await user.click(await screen.findByRole("button", { name: /^Verse 4\. Show verse tools/ }));
-  const list = await within(sourcesPane()).findByRole("list", { name: "Sources mentioning John 15:4" });
+  const list = await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:4" });
   await user.click(within(list).getByRole("button", { name: new RegExp(title) }));
   return within(sourcesPane()).findByRole("region", { name: title });
 }

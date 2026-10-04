@@ -35,6 +35,7 @@ import type {
   SourceLink,
   FindingCitation,
   LibraryHit,
+  PassageMatchKind,
   PassageMention,
   Source,
   SourceImportPreview,
@@ -89,6 +90,8 @@ export interface MemoryApi extends Api {
       sources: (Source & { deleted: boolean })[];
       segments: (SourceSegment & { sourceId: string })[];
       mentions: { sourceId: string; segmentId: string; reference: ScriptureRef; matchedText: string }[];
+      /** Links derived from headings: a section's opening place, and the places inside it. */
+      links: { sourceId: string; segmentId: string; origin: "section" | "inherited"; reference: ScriptureRef; matchedText: string; heading: string; openerSegmentId: string }[];
       /** What the next "choose a file" dialog returns (null = cancelled). */
       nextChosenFile: string | null;
       /** Web addresses handed to the system browser (never really opened in tests), and whether opening fails. */
@@ -113,6 +116,12 @@ export interface SourceFixture {
   segments: { text: string; pageNumber?: number; sectionPath?: string }[];
   /** Scripture mentions: segment index, canonical reference, text as written. */
   mentions?: { segment: number; reference: string; matchedText: string }[];
+  /**
+   * Sections whose heading names a passage: the segment the section opens on,
+   * the passage, the reference as written in the heading, the heading, and the
+   * last segment of the section (the segments after the first inherit it).
+   */
+  sections?: { segment: number; reference: string; matchedText: string; heading: string; through?: number }[];
   /** The contents an EPUB carries (segment targets), as the core would return them. */
   contents?: ContentsItem[];
   /** Links in the text that lead elsewhere in the same source, as the core would return them. */
@@ -185,6 +194,21 @@ function overlaps(a: ScriptureRef, b: ScriptureRef): boolean {
   );
 }
 
+/** The same relation the core uses between a link and the passage being read (see library/relevance.rs). */
+function matchKindOf(active: ScriptureRef, link: ScriptureRef): PassageMatchKind | null {
+  if (active.book !== link.book) return null;
+  const lo = (r: ScriptureRef) => r.startChapter * 1000 + (r.startVerse ?? 0);
+  const hi = (r: ScriptureRef) => r.endChapter * 1000 + (r.endVerse ?? 999);
+  const [as, ae, ls, le] = [lo(active), hi(active), lo(link), hi(link)];
+  if (as === ls && ae === le) return "exact";
+  if ((ls <= as && le >= ae) || (as <= ls && ae >= le)) return "contained";
+  if (ls <= ae && le >= as) return "overlap";
+  const chapter = (key: number) => Math.floor(key / 1000);
+  return chapter(ls) <= chapter(ae) && chapter(le) >= chapter(as) ? "chapter" : null;
+}
+
+const KIND_ORDER: PassageMatchKind[] = ["exact", "contained", "overlap", "chapter"];
+
 export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
   const stamp = now();
   const state: MemoryApi["state"] = {
@@ -211,7 +235,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     passages: [],
     nextChosenFiles: null,
     pendingPreview: null,
-    library: { sources: [], segments: [], mentions: [], nextChosenFile: null, openedLinks: [], openLinkFails: false, pending: null },
+    library: { sources: [], segments: [], mentions: [], links: [], nextChosenFile: null, openedLinks: [], openLinkFails: false, pending: null },
     findings: [],
     relations: [],
     templates: BUILTIN_TEMPLATES.map((t) => ({
@@ -413,6 +437,16 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const reference = refFromCanonical(m.reference, bookByCode);
       const segmentId = segmentIds[m.segment];
       if (reference && segmentId) library.mentions.push({ sourceId, segmentId, reference, matchedText: m.matchedText });
+    }
+    for (const s of fixture.sections ?? []) {
+      const reference = refFromCanonical(s.reference, bookByCode);
+      const opener = segmentIds[s.segment];
+      if (!reference || !opener) continue;
+      library.links.push({ sourceId, segmentId: opener, origin: "section", reference, matchedText: s.matchedText, heading: s.heading, openerSegmentId: opener });
+      for (let i = s.segment + 1; i <= (s.through ?? s.segment); i++) {
+        const inside = segmentIds[i];
+        if (inside) library.links.push({ sourceId, segmentId: inside, origin: "inherited", reference, matchedText: s.matchedText, heading: s.heading, openerSegmentId: opener });
+      }
     }
     const pages = fixture.segments.map((x) => x.pageNumber ?? 0);
     const source: Source & { deleted: boolean } = {
@@ -988,6 +1022,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       source.deleted = true;
       library.segments = library.segments.filter((x) => x.sourceId !== sourceId);
       library.mentions = library.mentions.filter((m) => m.sourceId !== sourceId);
+      library.links = library.links.filter((l) => l.sourceId !== sourceId);
       for (const f of state.findings) {
         for (const c of f.sources) if (c.sourceId === sourceId) Object.assign(c, { removed: true, segmentId: null });
       }
@@ -1063,9 +1098,52 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       return originalBytes.slice(offset, offset + length);
     },
     sourceGetPassages: async (sourceId) => library.mentions.filter((m) => m.sourceId === sourceId).map(mention),
-    librarySourcesForPassage: async (reference) => {
-      const range = refFromCanonical(reference, bookByCode);
-      return range ? library.mentions.filter((m) => overlaps(m.reference, range)).map(mention) : [];
+    libraryPassageSources: async (reference) => {
+      const active = refFromCanonical(reference, bookByCode);
+      if (!active) return [];
+      const width = (r: ScriptureRef) => (r.endChapter * 1000 + (r.endVerse ?? 999)) - (r.startChapter * 1000 + (r.startVerse ?? 0));
+      const places = [
+        ...library.mentions.map((m) => ({ sourceId: m.sourceId, segmentId: m.segmentId, origin: "explicit" as const, reference: m.reference, matchedText: m.matchedText, heading: null as string | null })),
+        ...library.links.filter((l) => l.origin === "section").map((l) => ({ sourceId: l.sourceId, segmentId: l.segmentId, origin: "section" as const, reference: l.reference, matchedText: l.matchedText, heading: l.heading as string | null })),
+      ].flatMap((p) => {
+        const kind = matchKindOf(active, p.reference);
+        const source = library.sources.find((s) => s.id === p.sourceId && !s.deleted);
+        return kind && source ? [{ ...p, kind, source, closeness: Math.abs(width(active) - width(p.reference)), rank: p.origin === "section" ? 1 : 2 }] : [];
+      });
+      const bySource = new Map<string, typeof places>();
+      for (const p of places) bySource.set(p.sourceId, [...(bySource.get(p.sourceId) ?? []), p]);
+      const order = (a: (typeof places)[number], b: (typeof places)[number]) =>
+        KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind) || a.closeness - b.closeness || a.rank - b.rank;
+      return [...bySource.values()]
+        .map((list) => {
+          // one place per segment, best first
+          const best = new Map<string, (typeof places)[number]>();
+          for (const p of [...list].sort(order)) if (!best.has(p.segmentId)) best.set(p.segmentId, p);
+          let sorted = [...best.values()];
+          // same-chapter places only for a source with nothing closer (as in the core)
+          if (sorted[0]!.kind !== "chapter") sorted = sorted.filter((p) => p.kind !== "chapter");
+          const source = sorted[0]!.source;
+          return {
+            sorted,
+            group: {
+              sourceId: source.id, sourceTitle: source.title, author: source.author,
+              locations: sorted.slice(0, 3).map((p) => ({
+                segmentId: p.segmentId, locator: find(library.segments, p.segmentId, "segment").locator, origin: p.origin, matchKind: p.kind,
+                reference: p.reference, matchedText: p.matchedText, sectionHeading: p.heading,
+              })),
+              moreLocations: Math.max(0, sorted.length - 3),
+            },
+          };
+        })
+        .sort((a, b) => order(a.sorted[0]!, b.sorted[0]!) || a.group.sourceTitle.localeCompare(b.group.sourceTitle))
+        .map((x) => x.group);
+    },
+    sourceSegmentPassageLinks: async (segmentId) => {
+      const rank = { explicit: 0, section: 1, inherited: 2 } as const;
+      return [
+        ...library.mentions.filter((m) => m.segmentId === segmentId).map((m) => ({ origin: "explicit" as const, reference: m.reference, matchedText: m.matchedText, sectionHeading: null, sectionSegmentId: null })),
+        ...library.links.filter((l) => l.segmentId === segmentId).map((l) => ({ origin: l.origin, reference: l.reference, matchedText: l.matchedText, sectionHeading: l.heading, sectionSegmentId: l.openerSegmentId })),
+      ].sort((a, b) => rank[a.origin] - rank[b.origin]);
     },
     findingSourceAdd: async ({ findingId, segmentId }) => {
       const finding = find(state.findings, findingId, "finding");

@@ -106,10 +106,20 @@
   "pane": {
     "libraryHeading": "Your library",
     "empty": "No sources yet. Add books, articles and your own notes (PDF, EPUB, Word, Markdown or text); they stay on this computer.",
-    "mentioning": "Sources mentioning {{passage}}",
-    "noMentions": "None of your sources mention this passage.",
+    "sourcesFor": "Sources for {{passage}}",
+    "noSources": "No source in your library is linked to this passage.",
+    "noDirect": "Nothing in your library is linked to this exact passage.",
+    "elsewhere": "Elsewhere in {{chapter}}",
+    "moreLocations_one": "{{count}} more place in this source",
+    "moreLocations_other": "{{count}} more places in this source",
     "recent": "Recently added",
     "openLibrary": "Open library"
+  },
+  "passage": {
+    "mentions": "Mentions {{passage}}",
+    "section": "Section on {{passage}}",
+    "within": "Within section on {{passage}}",
+    "linked": "Linked to {{passage}}"
   },
   "citations": {
     "removed": "(removed from library)",

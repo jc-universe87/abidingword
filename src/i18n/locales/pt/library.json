@@ -113,10 +113,21 @@
   "pane": {
     "libraryHeading": "Sua biblioteca",
     "empty": "Ainda não há fontes. Adicione livros, artigos e suas próprias notas (PDF, EPUB, Word, Markdown ou texto); elas ficam neste computador.",
-    "mentioning": "Fontes que mencionam {{passage}}",
-    "noMentions": "Nenhuma das suas fontes menciona esta passagem.",
+    "sourcesFor": "Fontes para {{passage}}",
+    "noSources": "Nenhuma fonte da sua biblioteca está vinculada a esta passagem.",
+    "noDirect": "Nada na sua biblioteca está vinculado a esta passagem exata.",
+    "elsewhere": "Em outras partes de {{chapter}}",
+    "moreLocations_one": "mais {{count}} lugar nesta fonte",
+    "moreLocations_many": "mais {{count}} lugares nesta fonte",
+    "moreLocations_other": "mais {{count}} lugares nesta fonte",
     "recent": "Adicionadas recentemente",
     "openLibrary": "Abrir biblioteca"
+  },
+  "passage": {
+    "mentions": "Menciona {{passage}}",
+    "section": "Seção sobre {{passage}}",
+    "within": "Dentro da seção sobre {{passage}}",
+    "linked": "Vinculado a {{passage}}"
   },
   "citations": {
     "removed": "(removida da biblioteca)",

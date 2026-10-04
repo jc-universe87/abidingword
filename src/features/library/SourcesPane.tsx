@@ -6,8 +6,9 @@ import { useScripture } from "@/features/scripture/ScriptureContext";
 import { useLoad } from "@/hooks/useLoad";
 import { referenceLabel } from "@/i18n/scripture";
 import { useApi } from "@/lib/ApiContext";
-import { locatorLabel } from "./labels";
+import type { ScriptureRef } from "@/types/scripture";
 import { useLibraryNav } from "./LibraryNav";
+import { PassageSourceList } from "./PassageSourceList";
 import { SourceReader, type ReaderPosition } from "./SourceReader";
 
 /** A source open inside the Sources pane (kept by the shell, so it survives leaving the workspace). */
@@ -30,9 +31,11 @@ interface SourcesPaneProps {
 
 /**
  * Sources pane: the personal library beside the study. Shows which sources
- * mention the passage being read (found by the reference detector at
- * import), recent sources, and the way into the full Library. A source
- * opened from the workspace is read here, beside Scripture and the Study.
+ * fit the passage being read (a literal mention, or a section whose heading
+ * names it; both found when the source was imported, so turning a page only
+ * asks the index), grouped by source with the reason for each place, recent
+ * sources, and the way into the full Library. A source opened from the
+ * workspace is read here, beside Scripture and the Study.
  */
 export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesPaneProps = {}) {
   const { t } = useTranslation();
@@ -54,7 +57,24 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
     },
     chapterCount,
   );
-  const mentions = useLoad(useCallback(() => api.librarySourcesForPassage(reference), [api, reference]));
+  const sources = useLoad(useCallback(() => api.libraryPassageSources(reference), [api, reference]));
+  const passageLabel = (ref: ScriptureRef) =>
+    referenceLabel(ref, books.find((b) => b.code === ref.book)?.chapterCount);
+  // Places in the same chapter but not in the passage itself come after, under their own heading.
+  const direct = (sources.data ?? []).filter((g) => g.locations[0]?.matchKind !== "chapter");
+  const nearby = (sources.data ?? []).filter((g) => g.locations[0]?.matchKind === "chapter");
+  const chapterLabel = referenceLabel(
+    {
+      canonical: `${location.book}.${currentPassage?.startChapter ?? location.chapter}`,
+      display: "",
+      book: currentPassage?.book ?? location.book,
+      startChapter: currentPassage?.startChapter ?? location.chapter,
+      startVerse: null,
+      endChapter: currentPassage?.endChapter ?? location.chapter,
+      endVerse: null,
+    },
+    chapterCount,
+  );
   const recent = useLoad(useCallback(() => api.libraryList({}), [api]));
   const empty = recent.data?.length === 0;
 
@@ -107,25 +127,35 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
           <>
             <section aria-labelledby="mentions-heading" className="flex flex-col gap-2">
               <h3 id="mentions-heading" tabIndex={-1} className="m-0 text-[1.0625rem] font-semibold text-text-strong">
-                {t("library.pane.mentioning", { passage: label })}
+                {t("library.pane.sourcesFor", { passage: label })}
               </h3>
-              {mentions.error && <p className="m-0 text-[0.9375rem] text-danger">{mentions.error.message}</p>}
-              {mentions.data?.length === 0 && (
-                <p className="m-0 text-[0.9375rem] text-text-muted">{t("library.pane.noMentions")}</p>
+              {sources.error && <p className="m-0 text-[0.9375rem] text-danger">{sources.error.message}</p>}
+              {sources.data && sources.data.length === 0 && (
+                <p className="m-0 text-[0.9375rem] text-text-muted">{t("library.pane.noSources")}</p>
               )}
-              {mentions.data && mentions.data.length > 0 && (
-                <ul aria-label={t("library.pane.mentioning", { passage: label })} className="m-0 flex list-none flex-col p-0">
-                  {mentions.data.map((m) => (
-                    <li key={`${m.segmentId}-${m.matchedText}`} className="border-t border-border-subtle">
-                      <button type="button" onClick={() => openSource(m.sourceId, m.segmentId)} className="flex w-full flex-col items-start gap-0.5 py-2 text-left hover:bg-bg-secondary">
-                        <span className="font-semibold text-text-strong"><cite className="not-italic">{m.sourceTitle}</cite></span>
-                        <span className="text-[0.875rem] text-text-muted">
-                          {[m.author, locatorLabel(t, m.locator), t("library.quoted", { text: m.matchedText })].filter(Boolean).join(t("common.listSeparator"))}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+              {sources.data && sources.data.length > 0 && direct.length === 0 && (
+                <p className="m-0 text-[0.9375rem] text-text-muted">{t("library.pane.noDirect")}</p>
+              )}
+              {direct.length > 0 && (
+                <PassageSourceList
+                  groups={direct}
+                  label={t("library.pane.sourcesFor", { passage: label })}
+                  passageLabel={passageLabel}
+                  onOpen={openSource}
+                />
+              )}
+              {nearby.length > 0 && (
+                <>
+                  <h4 className="m-0 mt-2 text-[0.9375rem] font-semibold text-text-muted">
+                    {t("library.pane.elsewhere", { chapter: chapterLabel })}
+                  </h4>
+                  <PassageSourceList
+                    groups={nearby}
+                    label={t("library.pane.elsewhere", { chapter: chapterLabel })}
+                    passageLabel={passageLabel}
+                    onOpen={openSource}
+                  />
+                </>
               )}
             </section>
             <section aria-labelledby="recent-heading" className="flex flex-col gap-2">

@@ -99,10 +99,19 @@
   "pane": {
     "libraryHeading": "내 자료실",
     "empty": "아직 자료가 없습니다. 책, 글, 직접 작성한 노트(PDF, EPUB, Word, Markdown 또는 텍스트)를 추가하세요. 모든 자료는 이 컴퓨터에 보관됩니다.",
-    "mentioning": "{{passage}}을(를) 언급하는 자료",
-    "noMentions": "이 본문을 언급하는 자료가 없습니다.",
+    "sourcesFor": "{{passage}} 관련 자료",
+    "noSources": "자료실에 이 본문과 연결된 자료가 없습니다.",
+    "noDirect": "자료실에 이 본문과 정확히 연결된 자료가 없습니다.",
+    "elsewhere": "{{chapter}}의 다른 부분",
+    "moreLocations_other": "이 자료에 {{count}}곳 더 있음",
     "recent": "최근 추가한 자료",
     "openLibrary": "자료실 열기"
+  },
+  "passage": {
+    "mentions": "{{passage}} 언급",
+    "section": "{{passage}} 섹션",
+    "within": "{{passage}} 섹션 안",
+    "linked": "{{passage}}와(과) 연결됨"
   },
   "citations": {
     "removed": "(자료실에서 제거됨)",

@@ -107,6 +107,45 @@ export interface PassageMention {
   reference: ScriptureRef;
 }
 
+/** Why a source segment is linked to a passage (docs/passage-aware-sources-v0.9.md). */
+export type PassageLinkOrigin = "explicit" | "section" | "inherited" | "manual";
+
+/** How a link relates to the passage being read, best first. */
+export type PassageMatchKind = "exact" | "contained" | "overlap" | "chapter";
+
+/** One place in a source that fits the passage being read. */
+export interface PassageLocation {
+  segmentId: string;
+  locator: string;
+  /** "explicit" (mentions it), "section" (a heading names it) or "manual". */
+  origin: PassageLinkOrigin;
+  matchKind: PassageMatchKind;
+  /** The passage the source links this place to. */
+  reference: ScriptureRef;
+  /** The reference as written in the source (the heading, for a section). */
+  matchedText: string;
+  sectionHeading: string | null;
+}
+
+/** A source with the places in it that fit the passage being read, best first. */
+export interface PassageSourceGroup {
+  sourceId: string;
+  sourceTitle: string;
+  author: string | null;
+  locations: PassageLocation[];
+  /** How many further places the source has. */
+  moreLocations: number;
+}
+
+/** Why one segment is linked to Scripture (what it mentions; the section it opens or lies within). */
+export interface SegmentPassageLink {
+  origin: PassageLinkOrigin;
+  reference: ScriptureRef;
+  matchedText: string;
+  sectionHeading: string | null;
+  sectionSegmentId: string | null;
+}
+
 export interface SourceImportPreview {
   previewId: string;
   fileName: string;
