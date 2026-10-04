@@ -208,11 +208,13 @@ development machine.
   secondary compatibility check** at selected checkpoints (text selection
   and other WebKitGTK-specific behaviour, Linux packaging); it is not needed
   for every interface iteration. Linux builds and CI stay supported.
-- **Windows test updates.** An explicitly published, signed test build can
-  be offered to an installed test build of Abiding Word (Settings →
-  Updates, plus a notice after startup). Nothing is published by a push.
-  See [`docs/updates.md`](docs/updates.md) for the channel, the one-time
-  key setup and the version scheme.
+- **Windows test updates.** Every `main` commit whose CI passes is
+  automatically published as a signed Development/Test build that an
+  installed test build of Abiding Word offers (Settings → Updates, plus a
+  notice after startup). Feature branches and pull requests never publish;
+  stable releases are never automatic. See
+  [`docs/updates.md`](docs/updates.md) for the trigger, the channel, the
+  one-time key setup and the version scheme.
 
 On the Windows laptop, either install the `Abiding-Word-Windows-x64`
 artifact, or keep a development clone (one time: clone, install the

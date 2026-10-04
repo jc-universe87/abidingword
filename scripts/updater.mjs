@@ -9,6 +9,7 @@
 //   node scripts/updater.mjs overlay  --version V --out FILE
 //   node scripts/updater.mjs manifest --version V --installer FILE --sig FILE --out FILE [--notes TEXT]
 //   node scripts/updater.mjs check-newer --version V [--current FILE]
+//   node scripts/updater.mjs choose-version --run N --default X.Y.Z [--base X.Y.Z] [--current FILE]   (prints the version)
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -82,6 +83,32 @@ export function compareVersions(a, b) {
   if (x.dev === null) return 1;
   if (y.dev === null) return -1;
   return x.dev < y.dev ? -1 : 1;
+}
+
+/**
+ * The base (X.Y.Z) an automatic test build continues from: the base of the
+ * test build already published when that is newer than `defaultBase`, so a
+ * hand-published higher base is never undercut; otherwise `defaultBase`.
+ */
+export function chooseBase(defaultBase, current) {
+  const fallback = parseVersion(defaultBase);
+  if (fallback.dev !== null) throw new Error(`The default base "${defaultBase}" must be X.Y.Z.`);
+  if (!current) return defaultBase;
+  const published = parseVersion(current.version);
+  if (published.dev === null) return defaultBase;
+  const publishedBase = `${published.major}.${published.minor}.${published.patch}`;
+  return compareVersions(publishedBase, defaultBase) > 0 ? publishedBase : defaultBase;
+}
+
+/**
+ * `X.Y.Z-dev.N` where N is the publish workflow's run number: assigned once
+ * per run, only ever increasing across every trigger of that workflow, so a
+ * new build always compares newer than the previous one for the same base.
+ */
+export function devVersion(base, runNumber) {
+  if (parseVersion(base).dev !== null) throw new Error(`The base "${base}" must be X.Y.Z.`);
+  if (!/^[1-9][0-9]*$/.test(String(runNumber))) throw new Error(`"${runNumber}" is not a run number.`);
+  return `${base}-dev.${runNumber}`;
 }
 
 /** Refuses a version that would not be seen as an update by the version already published. */
@@ -162,8 +189,12 @@ function main(argv) {
   } else if (command === "check-newer") {
     const current = f.current && existsSync(f.current) ? JSON.parse(readFileSync(f.current, "utf8")) : null;
     assertNewer(need("version"), current);
+  } else if (command === "choose-version") {
+    const current = f.current && existsSync(f.current) ? JSON.parse(readFileSync(f.current, "utf8")) : null;
+    const base = f.base || chooseBase(need("default"), current);
+    process.stdout.write(`${devVersion(base, need("run"))}\n`);
   } else {
-    throw new Error("Usage: updater.mjs overlay | manifest | check-newer");
+    throw new Error("Usage: updater.mjs overlay | manifest | check-newer | choose-version");
   }
 }
 
