@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   assertNewer,
   buildManifest,
+  chooseBase,
   compareVersions,
+  devVersion,
   endpointFor,
   installerName,
   installerUrl,
@@ -42,6 +44,34 @@ describe("test-build versions", () => {
     for (const bad of ["0.5", "0.5.0-dev", "0.5.0-abc123", "v0.5.0", "0.5.0-dev.1+sha"]) {
       expect(() => compareVersions(bad, "0.5.0")).toThrow();
     }
+  });
+});
+
+describe("automatic test-build versions", () => {
+  it("is the base plus the run number, and a later run is always newer", () => {
+    expect(devVersion("0.5.0", 14)).toBe("0.5.0-dev.14");
+    expect(devVersion("0.5.0", "100")).toBe("0.5.0-dev.100");
+    expect(compareVersions(devVersion("0.5.0", 14), devVersion("0.5.0", 15))).toBe(-1);
+    expect(compareVersions(devVersion("0.5.0", 99), devVersion("0.5.0", 100))).toBe(-1);
+    for (const bad of ["0", "-1", "1.5", "abc", "", "007"]) expect(() => devVersion("0.5.0", bad)).toThrow(/run number/);
+    expect(() => devVersion("0.5.0-dev.1", 3)).toThrow(/X\.Y\.Z/);
+  });
+
+  it("continues from the published base, never below a higher one published by hand", () => {
+    expect(chooseBase("0.5.0", null)).toBe("0.5.0");
+    expect(chooseBase("0.5.0", { version: "0.5.0-dev.13" })).toBe("0.5.0");
+    expect(chooseBase("0.5.0", { version: "0.6.0-dev.2" })).toBe("0.6.0");
+    expect(chooseBase("0.6.0", { version: "0.5.0-dev.30" })).toBe("0.6.0");
+    expect(chooseBase("0.5.0", { version: "0.7.0" })).toBe("0.5.0"); // a release is not a dev base; check-newer then refuses loudly
+    expect(() => chooseBase("0.5.0-dev.1", null)).toThrow(/X\.Y\.Z/);
+  });
+
+  it("makes the next automatic build newer than the published one", () => {
+    const published = { version: "0.5.0-dev.13" };
+    const next = devVersion(chooseBase("0.5.0", published), 14);
+    expect(() => assertNewer(next, published)).not.toThrow();
+    const afterHandBump = devVersion(chooseBase("0.5.0", { version: "0.6.0-dev.2" }), 15);
+    expect(() => assertNewer(afterHandBump, { version: "0.6.0-dev.2" })).not.toThrow();
   });
 });
 
@@ -125,6 +155,84 @@ describe("committed configuration", () => {
     const csp: string = JSON.parse(read("src-tauri/tauri.conf.json")).app.security.csp;
     expect(csp).toContain("connect-src ipc: http://ipc.localhost");
     expect(csp).not.toMatch(/https?:\/\/(?!ipc\.localhost)/);
+  });
+
+  describe("the publish workflow", () => {
+    const wf = read(".github/workflows/publish-windows-test-update.yml");
+    const job = (name: string) => {
+      const start = wf.indexOf(`\n  ${name}:\n`);
+      expect(start).toBeGreaterThan(-1);
+      const next = wf.slice(start + 1).search(/\n {2}[a-z]+:\n/);
+      return next === -1 ? wf.slice(start) : wf.slice(start, start + 1 + next);
+    };
+
+    it("starts only by hand or after CI succeeded on a push to main", () => {
+      const on = wf.slice(wf.indexOf("\non:\n"), wf.indexOf("\npermissions:"));
+      expect(on).toContain("workflow_dispatch:");
+      expect(on).toMatch(/workflow_run:\s+workflows: \["CI"\]\s+types: \[completed\]\s+branches: \[main\]/);
+      expect(on).not.toMatch(/\bpull_request/);
+      expect(on).not.toMatch(/\n {2}push:/);
+      const gate = job("gate");
+      for (const guard of [
+        "github.event.workflow_run.conclusion == 'success'",
+        "github.event.workflow_run.event == 'push'",
+        "github.event.workflow_run.head_branch == 'main'",
+        "github.event.workflow_run.head_repository.full_name == github.repository",
+      ]) {
+        expect(gate).toContain(guard);
+      }
+    });
+
+    it("publishes the exact commit CI passed on, only while it is still the newest on main", () => {
+      expect(job("gate")).toContain("CI_SHA: ${{ github.event.workflow_run.head_sha }}");
+      expect(job("gate")).toContain('commits/main" --jq .sha');
+      for (const name of ["build", "publish"]) {
+        expect(job(name)).toContain("ref: ${{ needs.gate.outputs.sha }}");
+      }
+      expect(job("publish")).toContain("steps.fresh.outputs.current == 'true'");
+      expect(job("build")).toContain("needs.gate.outputs.proceed == 'true'");
+    });
+
+    it("keeps signing secrets out of every job but publish, and out of the build", () => {
+      expect(wf.match(/secrets\.[A-Z_]+/g)?.sort()).toEqual([
+        "secrets.TAURI_SIGNING_PRIVATE_KEY",
+        "secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD",
+        "secrets.UPDATES_REPO_TOKEN",
+      ]);
+      expect(job("gate")).not.toContain("secrets.");
+      expect(job("build")).not.toContain("secrets.");
+      expect(job("build")).not.toContain("environment:");
+      expect(job("publish")).toContain("environment: windows-test-updates");
+      expect(job("build")).toContain("persist-credentials: false");
+      expect(job("publish")).toContain("persist-credentials: false");
+      expect(job("publish")).toContain("npm ci --ignore-scripts");
+    });
+
+    it("has no step that sees both the signing key and the updates token", () => {
+      const steps = job("publish").split(/\n {6}- /);
+      for (const step of steps) {
+        const sign = /secrets\.TAURI_SIGNING_PRIVATE_KEY/.test(step);
+        const token = /secrets\.UPDATES_REPO_TOKEN/.test(step);
+        expect(sign && token).toBe(false);
+      }
+    });
+
+    it("uses the triggering run's data only as an env value or in the gate's guard, never inside a script", () => {
+      for (const line of wf.split("\n").filter((l) => l.includes("github.event.workflow_run") && !l.trim().startsWith("#"))) {
+        const trimmed = line.trim();
+        const asEnv = /^[A-Z_]+: \$\{\{ github\.event\.workflow_run\.[a-z_]+ \}\}$/.test(trimmed);
+        const asGuard = /^\(?(github\.event_name == 'workflow_run' &&|github\.event\.workflow_run\.[a-z_.]+ == [^ ]+( &&|\)))$/.test(trimmed);
+        expect(asEnv || asGuard, line).toBe(true);
+      }
+      expect(wf).not.toMatch(/github\.event\.workflow_run\.(head_commit|display_title|pull_requests)/);
+      expect(wf).not.toMatch(/github\.head_ref/);
+    });
+
+    it("keeps one publish at a time and the version from the run number", () => {
+      expect(wf).toMatch(/concurrency:\s+group: windows-test-update\s+cancel-in-progress: false/);
+      expect(wf).toContain("choose-version");
+      expect(wf).toContain('RUN_NUMBER: ${{ github.run_number }}');
+    });
   });
 
   it("never mentions a private key value in the workflows or scripts", () => {

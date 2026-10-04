@@ -1,19 +1,37 @@
-# Publishes a SIGNED Windows test update that installed test builds of
-# Abiding Word can offer to their users. Started only by hand (Actions →
-# Publish Windows test update → Run workflow); never by a push or a pull
-# request. Ordinary installers are still made by native-builds.yml.
+# Publishes a SIGNED Windows Development/Test update that installed test builds
+# of Abiding Word offer to their users (docs/updates.md). Ordinary installers
+# are still made by native-builds.yml. This is never a stable release.
 #
-# Two jobs, so that signing secrets never reach the job that compiles this
+# Started in exactly two ways:
+#   1. AUTOMATICALLY, when the normal "CI" workflow has completed
+#      SUCCESSFULLY for a push to `main`. The commit published is the exact
+#      commit CI passed on (github.event.workflow_run.head_sha), and only
+#      while it is still the newest commit on `main`.
+#   2. BY HAND (Actions → Publish Windows test update → Run workflow), for
+#      recovery or a retry. Unchanged.
+# Never by a pull request, a feature branch, or a failed/cancelled CI run.
+#
+# Why `workflow_run` is safe here: GitHub runs a workflow_run workflow from
+# the DEFAULT branch's copy of this file, with the default branch's secrets
+# access, and the triggering CI run's data is only ever read as plain text.
+# Pull-request code is never checked out by this workflow: the guards below
+# accept only a push-event CI run on `main` of this repository (a fork's pull
+# request, even from a branch named "main", is event=pull_request), and the
+# checkout is pinned to that commit's SHA.
+#
+# Three jobs, so that signing secrets never reach the job that compiles this
 # repository's code:
+#   gate     – no secrets. Decides what (if anything) to publish.
 #   build    – no secrets. Builds the NSIS installer with the updater section
 #              added by scripts/updater.mjs.
 #   publish  – signs the finished installer with `tauri signer sign` (the
 #              only step that sees the signing key), writes latest.json and
 #              publishes both to the updates repository named in
-#              src-tauri/updater/test-channel.json.
+#              src-tauri/updater/test-channel.json (the only step that sees
+#              the updates token).
 # The `publish` job runs in the GitHub Environment "windows-test-updates",
-# which holds the secrets; restrict that environment to the branches you
-# publish from (Settings → Environments). See docs/updates.md.
+# which holds the secrets and must allow the `main` branch (Settings →
+# Environments). A failure here never affects CI or the code on `main`.
 name: Publish Windows test update
 
 on:
@@ -27,9 +45,18 @@ on:
         description: "Short release notes shown with the update (optional)"
         required: false
         default: ""
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
+
+env:
+  # The base of automatic builds (X.Y.Z-dev.N). It is raised automatically to
+  # the base of the already published test build when that is newer.
+  DEFAULT_BASE_VERSION: "0.5.0"
 
 # One publish at a time, so latest.json can never go backwards.
 concurrency:
@@ -37,14 +64,61 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  gate:
+    name: Decide what to publish (no secrets)
+    runs-on: ubuntu-latest
+    # Defence in depth: the trigger already filters to `main`.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    outputs:
+      sha: ${{ steps.decide.outputs.sha }}
+      proceed: ${{ steps.decide.outputs.proceed }}
+    steps:
+      - name: Choose the commit
+        id: decide
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_SHA: ${{ github.sha }}
+          CI_SHA: ${{ github.event.workflow_run.head_sha }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "sha=$DISPATCH_SHA" >> "$GITHUB_OUTPUT"
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "Manual run: publishing $DISPATCH_SHA"
+            exit 0
+          fi
+          if ! [[ "$CI_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "CI reported a malformed commit id." >&2
+            exit 1
+          fi
+          tip=$(gh api "repos/$REPO/commits/main" --jq .sha)
+          echo "sha=$CI_SHA" >> "$GITHUB_OUTPUT"
+          if [ "$tip" = "$CI_SHA" ]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "CI passed on $CI_SHA, which is the newest commit on main: publishing it."
+          else
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::CI passed on $CI_SHA but main has moved on to $tip; the newer commit's own CI run publishes instead."
+          fi
+
   build:
     name: Build signed-update installer (no secrets)
+    needs: gate
+    if: needs.gate.outputs.proceed == 'true'
     runs-on: windows-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ needs.gate.outputs.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -58,18 +132,27 @@ jobs:
         id: version
         shell: bash
         env:
-          BASE_VERSION: ${{ inputs.base_version }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_BASE: ${{ inputs.base_version }}
           RUN_NUMBER: ${{ github.run_number }}
         run: |
-          if ! [[ "$BASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "base_version must look like 0.5.0" >&2
-            exit 1
-          fi
-          echo "version=${BASE_VERSION}-dev.${RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          # The version is X.Y.Z-dev.<run number of this workflow>. Run numbers
+          # only ever increase (across manual and automatic runs alike), so the
+          # result is always newer than the previous test build of the same base.
+          endpoint=$(node -e "import('./scripts/updater.mjs').then(m=>console.log(m.endpointFor(m.readChannel())))")
+          curl -fsSL "$endpoint" -o current.json || rm -f current.json
+          args=(--run "$RUN_NUMBER" --default "$DEFAULT_BASE_VERSION")
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then args+=(--base "$INPUT_BASE"); fi
+          if [ -f current.json ]; then args+=(--current current.json); fi
+          version=$(node scripts/updater.mjs choose-version "${args[@]}")
+          echo "Test build version: $version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - run: npm ci
       - name: Updater configuration (fails until the public key and repository are set)
         shell: bash
-        run: node scripts/updater.mjs overlay --version "${{ steps.version.outputs.version }}" --out "$RUNNER_TEMP/updater.conf.json"
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/updater.mjs overlay --version "$VERSION" --out "$RUNNER_TEMP/updater.conf.json"
       - name: Build the NSIS installer
         shell: bash
         run: npx tauri build --bundles nsis --config "$RUNNER_TEMP/updater.conf.json"
@@ -91,14 +174,16 @@ jobs:
 
   publish:
     name: Sign and publish
-    needs: build
+    needs: [gate, build]
     runs-on: ubuntu-latest
     environment: windows-test-updates
     env:
       VERSION: ${{ needs.build.outputs.version }}
+      SHA: ${{ needs.gate.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ needs.gate.outputs.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -124,19 +209,43 @@ jobs:
           test -s "staged/Abiding-Word_${VERSION}_x64-setup.exe.sig"
       - name: Write latest.json
         env:
-          NOTES: ${{ inputs.notes }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_NOTES: ${{ inputs.notes }}
         run: |
+          notes="$INPUT_NOTES"
+          if [ -z "$notes" ] && [ "$EVENT_NAME" = "workflow_run" ]; then
+            notes="Automatic test build of main (${SHA:0:7})."
+          fi
           node scripts/updater.mjs manifest --version "$VERSION" \
             --installer "staged/Abiding-Word_${VERSION}_x64-setup.exe" \
             --sig "staged/Abiding-Word_${VERSION}_x64-setup.exe.sig" \
-            --notes "$NOTES" --out latest.json
+            --notes "$notes" --out latest.json
           cat latest.json
       - name: Check the version is newer than the published one
         run: |
           endpoint=$(node -e "import('./scripts/updater.mjs').then(m=>console.log(m.endpointFor(m.readChannel())))")
           curl -fsSL "$endpoint" -o current.json || rm -f current.json
           node scripts/updater.mjs check-newer --version "$VERSION" --current current.json
+      - name: Confirm this is still the newest commit on main (automatic runs)
+        id: fresh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          tip=$(gh api "repos/$REPO/commits/main" --jq .sha)
+          if [ "$tip" = "$SHA" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "current=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::main moved on to $tip while $SHA was building; nothing is published for $SHA (the newer commit's own CI run publishes instead)."
+          fi
       - name: Publish (installer first, then the channel pointer)
+        if: steps.fresh.outputs.current == 'true'
         env:
           GH_TOKEN: ${{ secrets.UPDATES_REPO_TOKEN }}
         run: |
@@ -146,11 +255,18 @@ jobs:
             echo "The UPDATES_REPO_TOKEN secret is not set in the windows-test-updates environment." >&2
             exit 1
           fi
-          gh release create "test-v${VERSION}" --repo "$repo" --prerelease \
-            --title "Abiding Word ${VERSION} (test build)" \
-            --notes "Development/test build ${VERSION}. Not a stable release." \
-            "staged/Abiding-Word_${VERSION}_x64-setup.exe" \
-            "staged/Abiding-Word_${VERSION}_x64-setup.exe.sig"
+          files=("staged/Abiding-Word_${VERSION}_x64-setup.exe" "staged/Abiding-Word_${VERSION}_x64-setup.exe.sig")
+          # The versioned release may exist from an earlier attempt of this same
+          # run that stopped before the pointer moved; the check above has
+          # already shown that the pointer is not at this version.
+          if gh release view "test-v${VERSION}" --repo "$repo" >/dev/null 2>&1; then
+            gh release upload "test-v${VERSION}" "${files[@]}" --repo "$repo" --clobber
+          else
+            gh release create "test-v${VERSION}" --repo "$repo" --prerelease \
+              --title "Abiding Word ${VERSION} (test build)" \
+              --notes "Development/test build ${VERSION} of source commit ${SHA}. Not a stable release." \
+              "${files[@]}"
+          fi
           if gh release view "$pointer" --repo "$repo" >/dev/null 2>&1; then
             gh release upload "$pointer" latest.json --repo "$repo" --clobber
           else
@@ -159,3 +275,25 @@ jobs:
               --notes "Holds only latest.json, which installed test builds read. Replaced on every test update." \
               latest.json
           fi
+      - name: Verify the channel now offers this build
+        if: steps.fresh.outputs.current == 'true'
+        run: |
+          endpoint=$(node -e "import('./scripts/updater.mjs').then(m=>console.log(m.endpointFor(m.readChannel())))")
+          for attempt in 1 2 3 4 5 6; do
+            if curl -fsSL -H 'Cache-Control: no-cache' "$endpoint" -o published.json &&
+              [ "$(node -p "JSON.parse(require('fs').readFileSync('published.json','utf8')).version")" = "$VERSION" ]; then
+              echo "test-channel/latest.json offers $VERSION"
+              {
+                echo "### Windows test update published"
+                echo "- Source commit: \`$SHA\`"
+                echo "- Version: \`$VERSION\`"
+                echo "- Release tag: \`test-v$VERSION\`"
+                echo "- \`test-channel/latest.json\` version: \`$VERSION\`"
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo "Attempt $attempt: the pointer does not offer $VERSION yet."
+            sleep 10
+          done
+          echo "test-channel/latest.json does not offer $VERSION." >&2
+          exit 1

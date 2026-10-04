@@ -2,8 +2,21 @@
 
 Windows is the primary visual and manual acceptance platform. To avoid
 downloading and running an installer for every iteration, an installed
-**test build** can update itself to a newer, **explicitly published** and
-**signed** test build. Nothing is published by a push or a pull request.
+**test build** can update itself to a newer, **signed** test build.
+
+**Every successful update to `main` automatically publishes a signed
+Development/Test Windows update.** Whenever the normal *CI* workflow passes
+for a commit on `main`, that exact commit is built, signed and published, so
+the installed Windows test build can normally update to the latest green
+`main`. Feature branches, pull requests and failed CI runs never publish, and
+this is **never** a stable release. The manual *Publish Windows test update*
+button remains for recovery.
+
+> **Completion rule (for people and for Claude sessions).** Do not finish a
+> merge or milestone task without checking that the updater channel contains
+> that green `main` commit: report the merged `main` SHA, the `main` CI
+> result, the *Publish Windows test update* run result, the published dev
+> version and whether `test-channel/latest.json` points to it.
 
 Linux/WebKitGTK (Chromebook) remains supported and is checked at selected
 checkpoints; it is not part of this channel and is not needed for every
@@ -62,16 +75,54 @@ artifact and `.sig` file.
 
 ### Workflow: `publish-windows-test-update.yml`
 
-Manual only (`workflow_dispatch`). Two jobs:
+Two ways to start it:
+
+1. **Automatically**: `workflow_run` on the *CI* workflow, `types: [completed]`,
+   `branches: [main]`. Nothing else triggers it.
+2. **By hand** (`workflow_dispatch`): Actions → *Publish Windows test update* →
+   Run workflow, with a base version and optional notes. Use it to retry a
+   failed publish or to publish a chosen ref.
+
+Three jobs:
 
 | Job | Secrets | Does |
 |---|---|---|
-| `build` | none | version → NSIS installer built with the updater overlay → artifact |
-| `publish` (environment `windows-test-updates`) | signing key, updates-repo token | signs the installer, writes `latest.json`, checks it is newer, publishes |
+| `gate` | none | automatic runs: confirms the CI run succeeded, was a **push** to **`main`** of this repository, and that its commit is still the newest on `main`; outputs the exact SHA |
+| `build` | none | checks out that SHA → version → NSIS installer built with the updater overlay → artifact |
+| `publish` (environment `windows-test-updates`) | signing key, updates-repo token | checks out the same SHA, signs the installer, writes `latest.json`, checks it is newer, re-confirms the SHA is still the newest `main` commit, publishes, then verifies the pointer |
 
-Signing secrets are only passed to the single signing step; the token only
-to the publishing step. Pull requests never run it. Restrict the
-`windows-test-updates` environment to the branches you publish from.
+Signing secrets are only passed to the single signing step; the token only to
+the publishing step. No step sees both.
+
+**Why feature branches and pull requests cannot reach the secrets.** A
+`workflow_run` workflow always runs from the **default branch's** copy of the
+file, so a branch or pull request cannot change what runs. It is started only
+by a *CI* run that **succeeded**, whose event is **`push`**, on branch
+**`main`**, of **this** repository (`head_repository.full_name`); a fork's pull
+request is `event: pull_request` and is refused even from a branch named
+`main`. The workflow never checks out pull-request code: it checks out only the
+commit SHA that passed CI on `main`. Values taken from the triggering run reach
+scripts only through `env:`, never by interpolation into a shell command. The
+build job holds no secrets, and the `windows-test-updates` environment holds
+them for the publish job alone. The `windows-test-updates` environment must
+allow the **`main`** branch (Settings → Environments → *Deployment branches*);
+if it does not, the publish job fails with GitHub's environment message.
+
+**Exactness and ordering.** The commit published is
+`github.event.workflow_run.head_sha`: the one CI passed on. CI cancels an
+older run of the same branch when a newer push arrives, so only commits whose
+CI completed are published. If `main` has moved on by the time a run starts
+(gate) or by the time the build finishes (publish), that run publishes
+nothing, because the newer commit's own CI run publishes instead; an older
+commit therefore can never overwrite a newer one. Publishes are serialized
+(`concurrency: windows-test-update`).
+
+**Failure behaviour.** A publish failure shows as a failed *Publish Windows
+test update* run only. CI and the code on `main` are unaffected, nothing in the
+application depends on GitHub Releases, and **Run workflow** retries it. The
+publish step is repeatable: if an earlier attempt created the versioned release
+but stopped before the pointer moved, a retry replaces its files; once the
+pointer offers a version, that version can not be republished (it must be newer).
 
 The existing *Native builds* workflow is unchanged: it still produces
 ordinary unsigned installers for every platform.
@@ -100,11 +151,21 @@ update files cannot be served from it.
 
 ## Version scheme
 
-Test builds are `X.Y.Z-dev.N`, for example `0.5.0-dev.12`.
+Test builds are `X.Y.Z-dev.N`, for example `0.5.0-dev.14`.
 
-- The workflow input is the base version (`0.5.0`); **N is the workflow
-  run number**, which only ever increases, so each publish is newer than the
-  last. SemVer compares `dev.9 < dev.10` numerically and any
+- **N is the run number of the *Publish Windows test update* workflow**
+  (`github.run_number`). It is assigned once per run, only ever increases and is
+  shared by automatic and manual runs of that workflow, so each publish is
+  newer than the last; runs that publish nothing only leave gaps. Git commit
+  hashes are never part of the comparison (the source commit is recorded in the
+  release notes of `test-v<version>`).
+- The **base** (`X.Y.Z`): automatic runs use `DEFAULT_BASE_VERSION` (set at the
+  top of the workflow, currently `0.5.0`) unless the published test build has a
+  higher base, which is then kept (`scripts/updater.mjs choose-version`). A
+  manual run uses the base typed into the input. To move to a new base, run the
+  workflow by hand once with it, and raise `DEFAULT_BASE_VERSION` in a commit.
+- Re-running a failed run keeps its run number, so it publishes the same
+  version. SemVer compares `dev.9 < dev.10` numerically and any
   `X.Y.Z-dev.N` below `X.Y.Z`.
 - The committed version stays `0.1.0` in `package.json`, `Cargo.toml` and
   `tauri.conf.json`; CI injects the build version into the Tauri config
@@ -137,16 +198,18 @@ Nothing in this repository can do these steps for you.
    the `.pub` file, `updatesRepository` = `owner/name`. (The workflow fails
    with a clear message while either is empty.)
 4. **Create the GitHub Environment** `windows-test-updates` (Settings →
-   Environments) in this repository, limit *Deployment branches* to the
-   branches you publish from, and add these **environment secrets**:
+   Environments) in this repository, limit *Deployment branches* to `main`
+   (plus any other branch you will run the manual workflow from), and add
+   these **environment secrets**:
    - `TAURI_SIGNING_PRIVATE_KEY` — the contents of the private key file
    - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` — its password (omit only if none)
    - `UPDATES_REPO_TOKEN` — a fine-grained personal access token limited to
      the updates repository with *Contents: read and write*
-5. **Bootstrap**: run *Publish Windows test update* once, then install the
+5. **Bootstrap**: the first installation needs a published build. Merge to
+   `main` (or run *Publish Windows test update* by hand), then install the
    resulting `…_x64-setup.exe` (from the updates repository's release) on the
-   Windows laptop. That installation is the one that later updates itself.
-   Run the workflow again to publish the next test build.
+   Windows laptop. That installation is the one that later updates itself;
+   every later green `main` is offered to it automatically.
 
 (If this source repository is ever made public, the same repository can host
 the files; set `updatesRepository` to it and use the built-in token.)
@@ -155,8 +218,8 @@ the files; set `updatesRepository` to it and use the built-in token.)
 
 - Install the bootstrap build; Settings → Updates shows its version and
   *Development / test*.
-- Publish a second build; within a minute of starting, or via **Check for
-  updates**, the notice appears; **Later** hides it; **Update now** shows the
+- After the next green `main` is published (no manual step), within a minute of
+  starting, or via **Check for updates**, the notice appears; **Later** hides it; **Update now** shows the
   installer progress, restarts into the new version, and Settings shows the
   new version.
 - With the network off the app starts normally and nothing is reported on

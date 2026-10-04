@@ -244,8 +244,8 @@ Reading and Original views, and **Back / Forward** reading history — see
 `main` plus an **annotated milestone tag** (`studies-v0.3`, `library-v0.4`,
 `scripture-annotations-v0.5`). The normal *Native builds* workflow attaches
 unsigned installers to the tag's run as short-lived workflow artifacts, and the
-only signed distribution is the **test** update channel
-([`updates.md`](updates.md)). There is no stable GitHub Release, no stable
+only signed distribution is the **test** update channel, published
+automatically for every green `main` ([`updates.md`](updates.md)). There is no stable GitHub Release, no stable
 signed installer and no stable update endpoint, and test builds never read one.
 
 A production distribution channel is separate infrastructure work. It should
