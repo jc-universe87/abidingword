@@ -12,6 +12,7 @@ use serde::Serialize;
 /// than allowed to grow without bound.
 pub const MAX_ITEMS: usize = 5_000;
 pub const MAX_DEPTH: usize = 12;
+pub const MAX_LINKS: usize = 50_000;
 const MAX_TITLE_CHARS: usize = 300;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -36,4 +37,19 @@ pub enum ContentsTarget {
 pub fn clean_title(raw: &str) -> String {
     let collapsed = raw.split_whitespace().collect::<Vec<_>>().join(" ");
     collapsed.chars().take(MAX_TITLE_CHARS).collect()
+}
+
+/// A link inside a source's text that leads to another place in the same
+/// source: where it is and where it goes, as positions of the extracted
+/// text. The range counts UTF-16 units of the segment's text, as the
+/// interface does. External links never appear here.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SourceLink {
+    /// The segment the link is in.
+    pub position: i64,
+    pub start: usize,
+    pub end: usize,
+    /// The segment it leads to.
+    pub target: i64,
 }

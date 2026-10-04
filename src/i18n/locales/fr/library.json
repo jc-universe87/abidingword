@@ -157,5 +157,13 @@
     "for": "Sommaire de {{title}}",
     "none": "Aucun sommaire disponible",
     "current": "Section en cours"
+  },
+  "links": {
+    "follow": "Aller à l’endroit lié"
+  },
+  "history": {
+    "group": "Historique de lecture",
+    "back": "Revenir à l’endroit précédent",
+    "forward": "Avancer à l’endroit suivant"
   }
 }

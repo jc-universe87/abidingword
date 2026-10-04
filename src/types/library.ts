@@ -166,3 +166,15 @@ export interface ContentsItem {
   target: ContentsTarget | null;
   children: ContentsItem[];
 }
+
+/**
+ * A link inside a source's extracted text that leads elsewhere in the same
+ * source: the segment it is in (`position`), the range of that segment's text
+ * it covers (UTF-16 units) and the segment it leads to. Internal links only.
+ */
+export interface SourceLink {
+  position: number;
+  start: number;
+  end: number;
+  target: number;
+}

@@ -207,16 +207,22 @@ Cloud providers must not be hard-wired into the internal data model.
 
 ## 4. Formatted sources
 
-Today: PDF **Original** view and **Contents** (the source's own PDF outline or
-EPUB table of contents) — see
-[`formatted-source-viewer.md`](formatted-source-viewer.md). Backlog:
+Today: PDF **Original** view, **Contents** (the source's own PDF outline or
+EPUB table of contents), **internal links and footnotes** in a PDF's Original
+view and in an EPUB's Reading view, and **Back / Forward** reading history —
+see [`formatted-source-viewer.md`](formatted-source-viewer.md) and
+[`source-navigation-v0.7.md`](source-navigation-v0.7.md). Backlog:
 
-- **PDF:** internal hyperlinks and destinations beyond outline entries,
-  footnote/endnote links, back/forward reading history.
-- **EPUB:** a formatted renderer, internal links, chapter navigation beyond
-  Contents, footnotes/endnotes, back/forward history. Contents already
-  navigate the extracted-text Reading view; a renderer could reuse the same
-  tree.
+- **PDF:** following links that leave the document (web links are shown to
+  nobody today), named actions such as "next page", and links inside
+  Reading's extracted text.
+- **EPUB:** a formatted renderer (Original view), and chapter navigation
+  beyond Contents and links. Links and Contents already navigate the
+  extracted-text Reading view; a renderer could reuse the same tree and
+  the same link data.
+- **History** beyond one reading session (it is kept in memory only, per
+  source), and across sources.
+- **DOCX:** formatted viewing, links and footnotes (not started).
 - **Generated contents:** deriving a table of contents from headings for a
   source that has none — a possible later fallback, **not** current
   behaviour; today a source without contents simply shows none.

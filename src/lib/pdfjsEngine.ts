@@ -1,6 +1,6 @@
 import type { ContentsItem } from "@/types/library";
 import type { Api } from "./api";
-import { PdfOutlineError, type OutlineStage, type PdfDocument, type PdfEngine, type PdfPageSize, type PdfRender } from "./pdfEngine";
+import { PdfOutlineError, type OutlineStage, type PdfDocument, type PdfEngine, type PdfLink, type PdfPageSize, type PdfPlace, type PdfRender } from "./pdfEngine";
 
 /**
  * The PDF.js implementation of the viewer's engine.
@@ -223,6 +223,42 @@ export async function resolveOutline(doc: OutlineSource, raw: unknown): Promise<
   return (await resolveOutlineCounted(doc, raw)).items;
 }
 
+/**
+ * Where a destination is: the page's index and, when the destination says so,
+ * how far down it the target is (in PDF user space, measured up from the
+ * bottom). A destination is a name (looked up in the document's name tree) or
+ * an explicit array whose first element is a reference to the page object
+ * (or, in some producers, a plain page index); either way it is resolved with
+ * PDF.js itself, never assumed to hold a page number. Null for anything
+ * unresolvable or out of range. Shared by the contents and by links.
+ */
+export async function resolveDestination(
+  doc: OutlineSource,
+  dest: unknown,
+  indexOf?: (ref: { num: number; gen?: number }) => Promise<number>,
+): Promise<{ index: number; top: number | null } | null> {
+  try {
+    const target = typeof dest === "string" ? await doc.getDestination(dest) : dest;
+    if (!Array.isArray(target) || target.length === 0) return null;
+    const head: unknown = target[0];
+    let index: number;
+    if (typeof head === "number") {
+      index = head;
+    } else if (head && typeof head === "object" && "num" in head) {
+      const ref = head as { num: number; gen?: number };
+      index = indexOf ? await indexOf(ref) : await doc.getPageIndex(ref as never).catch(() => -1);
+    } else {
+      return null;
+    }
+    if (!(Number.isInteger(index) && index >= 0 && index < doc.numPages)) return null;
+    const mode = (target[1] as { name?: string } | null | undefined)?.name;
+    const raw = mode === "XYZ" ? target[3] : mode === "FitH" || mode === "FitBH" ? target[2] : null;
+    return { index, top: typeof raw === "number" && Number.isFinite(raw) ? raw : null };
+  } catch {
+    return null;
+  }
+}
+
 /** As [`resolveOutline`], also counting the entries that had a destination to look up. */
 export async function resolveOutlineCounted(doc: OutlineSource, raw: unknown): Promise<{ items: ContentsItem[]; wanted: number }> {
   const lookups = new Map<string, Promise<number>>();
@@ -239,22 +275,8 @@ export async function resolveOutlineCounted(doc: OutlineSource, raw: unknown): P
   };
 
   const pageOf = async (dest: unknown): Promise<number | null> => {
-    try {
-      const target = typeof dest === "string" ? await doc.getDestination(dest) : dest;
-      if (!Array.isArray(target) || target.length === 0) return null;
-      const head: unknown = target[0];
-      let index: number;
-      if (typeof head === "number") {
-        index = head;
-      } else if (head && typeof head === "object" && "num" in head) {
-        index = await indexOf(head as { num: number; gen?: number });
-      } else {
-        return null;
-      }
-      return Number.isInteger(index) && index >= 0 && index < doc.numPages ? index + 1 : null;
-    } catch {
-      return null;
-    }
+    const found = await resolveDestination(doc, dest, indexOf);
+    return found ? found.index + 1 : null;
   };
 
   // First the shape, with no waiting; then the lookups, a few at a time.
@@ -366,6 +388,42 @@ function wrap(
       }
     },
     outline: () => readOutline(doc),
+    async links(n): Promise<PdfLink[]> {
+      try {
+        const p = await page(n);
+        const viewport = p.getViewport({ scale: 1 });
+        const found: PdfLink[] = [];
+        for (const a of (await p.getAnnotations({ intent: "display" })) as Array<{ subtype?: string; rect?: number[]; dest?: unknown; url?: unknown; unsafeUrl?: unknown }>) {
+          // Only links that point into this document; a web link is not followed here.
+          if (a.subtype !== "Link" || !a.rect || a.rect.length < 4 || a.dest == null || a.url || a.unsafeUrl) continue;
+          const [left, bottom, right, top] = a.rect as [number, number, number, number];
+          const [x1, y1] = viewport.convertToViewportPoint(left, bottom) as [number, number];
+          const [x2, y2] = viewport.convertToViewportPoint(right, top) as [number, number];
+          const width = Math.abs(x2 - x1);
+          const height = Math.abs(y2 - y1);
+          if (width > 0 && height > 0) found.push({ x: Math.min(x1, x2), y: Math.min(y1, y2), width, height, dest: a.dest });
+        }
+        return found;
+      } catch {
+        return [];
+      }
+    },
+    async resolve(dest): Promise<PdfPlace | null> {
+      const found = await resolveDestination(doc, dest);
+      if (!found) return null;
+      let fraction = 0;
+      if (found.top !== null) {
+        try {
+          const view = (await page(found.index + 1)).view;
+          const bottom = view[1] ?? 0;
+          const top = view[3] ?? 0;
+          fraction = top > bottom ? Math.min(1, Math.max(0, (top - found.top) / (top - bottom))) : 0;
+        } catch {
+          fraction = 0;
+        }
+      }
+      return { page: found.index + 1, fraction };
+    },
     release(n) {
       const p = pages.get(n);
       pages.delete(n);

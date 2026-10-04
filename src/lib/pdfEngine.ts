@@ -35,6 +35,26 @@ export class PdfOutlineError extends Error {
   }
 }
 
+/** A place in a PDF: a physical page (1-based) and how far down it (0 = the top, 1 = the bottom). */
+export interface PdfPlace {
+  page: number;
+  fraction: number;
+}
+
+/**
+ * A link on a page that is meant to lead somewhere in the same document: its
+ * area as a rectangle of the page at 100% (PDF points, rotation applied,
+ * origin at the top left), and where it points, kept opaque and resolved only
+ * when followed (see [`PdfDocument.resolve`]).
+ */
+export interface PdfLink {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  dest: unknown;
+}
+
 export interface PdfDocument {
   numPages: number;
   pageSize(page: number): Promise<PdfPageSize>;
@@ -48,6 +68,17 @@ export interface PdfDocument {
    * [`PdfOutlineError`] when it could not be read.
    */
   outline(): Promise<ContentsItem[]>;
+  /**
+   * The links on a page that point inside this document (web links and other
+   * actions are not among them). Best effort: never throws.
+   */
+  links(page: number): Promise<PdfLink[]>;
+  /**
+   * Where a link's destination is, found with the PDF's own destination
+   * data (a name, an explicit destination or a page reference), never
+   * guessed. Null when it leads nowhere inside the document. Never throws.
+   */
+  resolve(dest: unknown): Promise<PdfPlace | null>;
   /** Frees what was kept for a page that is no longer near the screen. */
   release(page: number): void;
   destroy(): Promise<void>;

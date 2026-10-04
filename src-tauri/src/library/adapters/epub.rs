@@ -20,7 +20,9 @@ use super::{
     SourceImportAdapter,
 };
 use crate::error::{AppError, AppResult, UserMessage};
-use crate::library::contents::{clean_title, ContentsItem, ContentsTarget, MAX_DEPTH, MAX_ITEMS};
+use crate::library::contents::{
+    clean_title, ContentsItem, ContentsTarget, SourceLink, MAX_DEPTH, MAX_ITEMS, MAX_LINKS,
+};
 
 pub struct EpubImporter;
 
@@ -37,7 +39,7 @@ impl SourceImportAdapter for EpubImporter {
     }
 
     fn extract(&self, bytes: &[u8], file_name: &str) -> AppResult<ImportedDocument> {
-        read_book(bytes, file_name, false).map(|(document, _)| document)
+        read_book(bytes, file_name, false).map(|book| book.document)
     }
 }
 
@@ -48,9 +50,40 @@ impl SourceImportAdapter for EpubImporter {
 /// the book: anything unreadable simply yields no contents.
 pub fn contents(bytes: &[u8], expected_segments: usize) -> Vec<ContentsItem> {
     match read_book(bytes, "book.epub", true) {
-        Ok((document, items)) if document.segments.len() == expected_segments => items,
+        Ok(book) if book.document.segments.len() == expected_segments => book.items,
         _ => Vec::new(),
     }
+}
+
+/// The links inside the book's text that lead to another place in the same
+/// book: where the link is (segment position and the character range of its
+/// text, in UTF-16 units as the interface counts them) and the segment it
+/// leads to. External links, links to anything outside the reading order and
+/// links to an anchor that does not exist are left out, so a link the
+/// reader shows always has somewhere to go. Empty when the text no longer
+/// matches what was imported. Nothing is stored; it is read from the
+/// managed file each time, like the contents.
+pub fn links(bytes: &[u8], expected_segments: usize) -> Vec<SourceLink> {
+    match read_book(bytes, "book.epub", false) {
+        Ok(book) if book.document.segments.len() == expected_segments => book.links,
+        _ => Vec::new(),
+    }
+}
+
+struct Book {
+    document: ImportedDocument,
+    items: Vec<ContentsItem>,
+    links: Vec<SourceLink>,
+}
+
+/// A link found in a segment, before its target is looked up.
+struct PendingLink {
+    position: usize,
+    start: usize,
+    end: usize,
+    /// The archive path of the document the link is in.
+    doc: String,
+    href: String,
 }
 
 /// Where each spine document's text starts, and where its anchors fall, in
@@ -80,11 +113,20 @@ impl Layout {
     }
 }
 
-fn read_book(
-    bytes: &[u8],
-    file_name: &str,
-    want_contents: bool,
-) -> AppResult<(ImportedDocument, Vec<ContentsItem>)> {
+impl Layout {
+    /// As [`Layout::position`] for a link, but exact: a fragment the document
+    /// does not have leads nowhere (it is not turned into the document's start).
+    fn link_position(&self, path: &str, fragment: Option<&str>) -> Option<i64> {
+        let doc = self.docs.get(path)?;
+        let at = match fragment {
+            Some(f) => *doc.anchors.get(f)?,
+            None => doc.first,
+        };
+        (self.total > 0).then(|| at.min(self.total - 1) as i64)
+    }
+}
+
+fn read_book(bytes: &[u8], file_name: &str, want_contents: bool) -> AppResult<Book> {
     let bad = |why: &str| {
         AppError::Import(
             UserMessage::new(
@@ -111,6 +153,7 @@ fn read_book(
     }
 
     let mut segments = Vec::new();
+    let mut pending: Vec<PendingLink> = Vec::new();
     let mut layout = Layout::default();
     let mut chapters = 0u32;
     for idref in &package.spine {
@@ -150,7 +193,29 @@ fn read_book(
             let names: Vec<&str> = headings.iter().flatten().map(String::as_str).collect();
             let section_path = (!names.is_empty()).then(|| names.join(" › "));
             let heading = headings.iter().rev().flatten().next().cloned();
+            let mut cursor = 0usize;
             for part in split_long(&block.text, MAX_SEGMENT) {
+                // Where this segment sits in the block, to place the block's links in it.
+                let at = block.text[cursor..]
+                    .find(part.as_str())
+                    .map_or(cursor, |i| cursor + i);
+                cursor = at + part.len();
+                let first = block.text[..at].chars().count();
+                let last = first + part.chars().count();
+                for link in &block.links {
+                    let (from, to) = (link.start.max(first), link.end.min(last));
+                    if from < to && pending.len() < MAX_LINKS {
+                        let units =
+                            |n: usize| -> usize { part.chars().take(n).map(char::len_utf16).sum() };
+                        pending.push(PendingLink {
+                            position: segments.len(),
+                            start: units(from - first),
+                            end: units(to - first),
+                            doc: path.clone(),
+                            href: link.href.clone(),
+                        });
+                    }
+                }
                 segments.push(NewSegment {
                     text: part,
                     chapter: chapter.clone(),
@@ -176,8 +241,9 @@ fn read_book(
     } else {
         Vec::new()
     };
-    Ok((
-        ImportedDocument {
+    let links = resolve_links(pending, &layout);
+    Ok(Book {
+        document: ImportedDocument {
             format: "epub",
             metadata: package.metadata,
             segments,
@@ -186,7 +252,38 @@ fn read_book(
             chapter_count: Some(chapters),
         },
         items,
-    ))
+        links,
+    })
+}
+
+/// Looks up where each link leads, by the book's own structure (the archive
+/// path of the document and the anchor in it); never by matching text.
+fn resolve_links(pending: Vec<PendingLink>, layout: &Layout) -> Vec<SourceLink> {
+    pending
+        .into_iter()
+        .filter_map(|link| {
+            let dir = link.doc.rsplit_once('/').map(|(d, _)| d).unwrap_or("");
+            let (path, fragment) = link_target(dir, &link.doc, &link.href)?;
+            let target = layout.link_position(&path, fragment.as_deref())?;
+            Some(SourceLink {
+                position: link.position as i64,
+                start: link.start,
+                end: link.end,
+                target,
+            })
+        })
+        .collect()
+}
+
+/// An `href` found in the document `doc` (in directory `dir`) as an internal
+/// (archive path, fragment): a bare `#id` is in the same document; anything
+/// external, scripted or leaving the book is None (see [`internal_target`]).
+fn link_target(dir: &str, doc: &str, href: &str) -> Option<(String, Option<String>)> {
+    let href = href.trim();
+    if let Some(fragment) = href.strip_prefix('#') {
+        return (!fragment.is_empty()).then(|| (doc.to_string(), Some(percent_decode(fragment))));
+    }
+    internal_target(dir, href)
 }
 
 fn read_entry(archive: &mut zip::ZipArchive<Cursor<&[u8]>>, name: &str) -> Option<String> {
@@ -368,6 +465,83 @@ fn percent_decode(value: &str) -> String {
 struct Block {
     text: String,
     heading_level: Option<usize>,
+    /// Links in the text, as character ranges of `text`.
+    links: Vec<RawLink>,
+}
+
+struct RawLink {
+    start: usize,
+    end: usize,
+    href: String,
+}
+
+struct OpenLink {
+    href: String,
+    start: Option<usize>,
+}
+
+/// The text of the block being read, collapsed as it grows (runs of white
+/// space become one space, none at either end: what `collapse` gives), with
+/// the character ranges of the links inside it.
+#[derive(Default)]
+struct Acc {
+    text: String,
+    chars: usize,
+    pending_space: bool,
+    links: Vec<RawLink>,
+    open: Option<OpenLink>,
+}
+
+impl Acc {
+    fn push_str(&mut self, piece: &str) {
+        for ch in piece.chars() {
+            if ch.is_whitespace() {
+                self.pending_space = true;
+                continue;
+            }
+            if self.pending_space && self.chars > 0 {
+                self.text.push(' ');
+                self.chars += 1;
+            }
+            self.pending_space = false;
+            if let Some(open) = self.open.as_mut() {
+                open.start.get_or_insert(self.chars);
+            }
+            self.text.push(ch);
+            self.chars += 1;
+        }
+    }
+
+    fn open_link(&mut self, href: String) {
+        self.close_link();
+        self.open = Some(OpenLink { href, start: None });
+    }
+
+    fn close_link(&mut self) {
+        if let Some(open) = self.open.take() {
+            if let Some(start) = open.start.filter(|s| *s < self.chars) {
+                self.links.push(RawLink {
+                    start,
+                    end: self.chars,
+                    href: open.href,
+                });
+            }
+        }
+    }
+
+    /// The finished block's text and links. A link still open carries on into the next block.
+    fn take(&mut self) -> (String, Vec<RawLink>) {
+        let carry = self.open.as_ref().map(|o| o.href.clone());
+        self.close_link();
+        let out = (
+            std::mem::take(&mut self.text),
+            std::mem::take(&mut self.links),
+        );
+        self.chars = 0;
+        self.pending_space = false;
+        self.open = carry.map(|href| OpenLink { href, start: None });
+        out
+    }
 }
 
 /// Block-level text of an XHTML document: headings and paragraphs (p, li,
@@ -379,18 +553,18 @@ fn blocks(xhtml: &str) -> (Vec<Block>, Vec<(String, usize)>) {
     let mut out = Vec::new();
     // Elements with an id, and the index of the block they begin in or at.
     let mut anchors: Vec<(String, usize)> = Vec::new();
-    let mut text = String::new();
+    let mut acc = Acc::default();
     let mut heading: Option<usize> = None;
     let mut skip_depth = 0usize;
-    let flush = |out: &mut Vec<Block>, text: &mut String, heading: Option<usize>| {
-        let collapsed = collapse(text);
-        if !collapsed.is_empty() {
+    let flush = |out: &mut Vec<Block>, acc: &mut Acc, heading: Option<usize>| {
+        let (text, links) = acc.take();
+        if !text.is_empty() {
             out.push(Block {
-                text: collapsed,
+                text,
                 heading_level: heading,
+                links,
             });
         }
-        text.clear();
     };
     loop {
         match reader.read_event() {
@@ -399,11 +573,16 @@ fn blocks(xhtml: &str) -> (Vec<Block>, Vec<(String, usize)>) {
                 match name.as_str() {
                     "script" | "style" | "head" => skip_depth += 1,
                     "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => {
-                        flush(&mut out, &mut text, heading);
+                        flush(&mut out, &mut acc, heading);
                         heading = Some((name.as_bytes()[1] - b'0') as usize);
                     }
                     "p" | "li" | "blockquote" | "dd" | "dt" | "pre" | "div" | "section" | "tr" => {
-                        flush(&mut out, &mut text, heading);
+                        flush(&mut out, &mut acc, heading);
+                    }
+                    "a" if skip_depth == 0 => {
+                        if let Some(href) = attr_value(&e, "href") {
+                            acc.open_link(href);
+                        }
                     }
                     _ => {}
                 }
@@ -414,31 +593,32 @@ fn blocks(xhtml: &str) -> (Vec<Block>, Vec<(String, usize)>) {
                 match name.as_str() {
                     "script" | "style" | "head" => skip_depth = skip_depth.saturating_sub(1),
                     "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => {
-                        flush(&mut out, &mut text, heading);
+                        flush(&mut out, &mut acc, heading);
                         heading = None;
                     }
                     "p" | "li" | "blockquote" | "dd" | "dt" | "pre" | "div" | "section" | "tr" => {
-                        flush(&mut out, &mut text, heading);
+                        flush(&mut out, &mut acc, heading);
                     }
+                    "a" => acc.close_link(),
                     _ => {}
                 }
             }
             Ok(Event::Empty(e)) if local_name(e.name().as_ref()).eq_ignore_ascii_case("br") => {
-                text.push(' ')
+                acc.push_str(" ")
             }
             Ok(Event::Empty(e)) => note_anchor(&e, out.len(), &mut anchors),
             // Entities arrive separately (GeneralRef), so text is used as is.
-            Ok(Event::Text(t)) if skip_depth == 0 => text.push_str(&t),
-            Ok(Event::CData(t)) if skip_depth == 0 => text.push_str(&t),
+            Ok(Event::Text(t)) if skip_depth == 0 => acc.push_str(&t),
+            Ok(Event::CData(t)) if skip_depth == 0 => acc.push_str(&t),
             Ok(Event::GeneralRef(r)) if skip_depth == 0 => {
-                text.push_str(&unescape(&format!("&{};", &*r)))
+                acc.push_str(&unescape(&format!("&{};", &*r)))
             }
             Ok(Event::Eof) => break,
             Err(_) => break,
             _ => {}
         }
     }
-    flush(&mut out, &mut text, heading);
+    flush(&mut out, &mut acc, heading);
     (out, anchors)
 }
 

@@ -6,7 +6,7 @@ import { Notice } from "@/design-system/Notice";
 import { formatNumber } from "@/i18n/format";
 import { useApi } from "@/lib/ApiContext";
 import type { ContentsItem } from "@/types/library";
-import type { PdfDocument, PdfPageSize } from "@/lib/pdfEngine";
+import type { PdfDocument, PdfLink, PdfPageSize, PdfPlace } from "@/lib/pdfEngine";
 import { usePdfEngine } from "./PdfEngineContext";
 
 /** 100% is a page at its natural size on a 96 dpi screen. */
@@ -28,7 +28,11 @@ interface PdfViewerProps {
   /** The outline, read from this viewer's own open document (a second chance for Contents, with no second opening). */
   onOutline?: (items: ContentsItem[]) => void;
   /** Go to this page without reopening (zoom is kept). A new `nonce` is a new request. */
-  jumpTo?: { page: number; nonce: number } | null;
+  jumpTo?: { page: number; nonce: number; fraction?: number } | null;
+  /** A link in the document was followed and leads here (a page, and how far down it). */
+  onLink?: (place: PdfPlace) => void;
+  /** Filled with a way to ask where the view is now (page and how far down it), for the reader's history. */
+  locationRef?: React.MutableRefObject<(() => PdfPlace) | null>;
 }
 
 /**
@@ -39,7 +43,7 @@ interface PdfViewerProps {
  * inspect the source; search, citations and Scripture links stay with the
  * extracted text.
  */
-export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutline }: PdfViewerProps) {
+export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutline, onLink, locationRef }: PdfViewerProps) {
   const { t } = useTranslation();
   const api = useApi();
   const engine = usePdfEngine();
@@ -126,17 +130,47 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutli
 
   const total = doc?.numPages ?? 0;
   const goTo = useCallback(
-    (target: number) => {
+    (target: number, fraction = 0) => {
       if (!total) return;
       const n = Math.min(total, Math.max(1, Math.round(target)));
       setPage(n);
       const el = scroller.current?.querySelector<HTMLElement>(`[data-page="${n}"]`);
       if (el && scroller.current) {
         jumped.current = Date.now();
-        scroller.current.scrollTop = el.offsetTop - GAP;
+        const view = scroller.current;
+        const wanted = el.offsetTop - GAP + Math.min(1, Math.max(0, fraction)) * el.offsetHeight;
+        view.scrollTop = wanted;
       }
     },
     [total],
+  );
+
+  // Where the view is, on request: the page at the top of it and how far down that page it starts.
+  useEffect(() => {
+    if (!locationRef) return;
+    locationRef.current = () => {
+      const el = scroller.current;
+      if (!el || el.scrollHeight === 0) return { page, fraction: 0 }; // not laid out (nothing to measure)
+      // The page the viewer says it is on, and how far the top of the view is below that page's top
+      // (outside 0..1 when the view starts above or below it, as at the end of the document).
+      const at = el.querySelector<HTMLElement>(`[data-page="${page}"]`);
+      if (!at || at.offsetHeight <= 0) return { page, fraction: 0 };
+      return { page, fraction: Math.min(2, Math.max(-1, (el.scrollTop - (at.offsetTop - GAP)) / at.offsetHeight)) };
+    };
+    return () => {
+      locationRef.current = null;
+    };
+  }, [locationRef, page]);
+
+  // A link in a page was followed: find where it leads with the PDF's own data. One that leads nowhere
+  // is left alone (the reader stays where it is) and noted in the log, without any document text.
+  const follow = useCallback(
+    async (dest: unknown) => {
+      const place = doc ? await doc.resolve(dest) : null;
+      if (place) onLink?.(place);
+      else void api.logError("A link in the original PDF could not be followed: its destination was not found").catch(() => undefined);
+    },
+    [doc, onLink, api],
   );
 
   // Open at the requested page once the first page's size has laid things out.
@@ -155,7 +189,7 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutli
   useEffect(() => {
     if (!jumpTo || requested.current === jumpTo.nonce || !doc || !sizes[1]) return;
     requested.current = jumpTo.nonce;
-    goTo(jumpTo.page);
+    goTo(jumpTo.page, jumpTo.fraction ?? 0);
   }, [jumpTo, doc, sizes, goTo]);
 
   // Follow the user's own scrolling (not our own jumps).
@@ -318,6 +352,7 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutli
               scale={scaleFor(sizes[n] ?? fallback)}
               onSize={(size) => setSizes((s) => (s[n] ? s : { ...s, [n]: size }))}
               onFailed={fail}
+              onFollow={follow}
             />
           ))}
         </div>
@@ -333,10 +368,11 @@ interface PageViewProps {
   scale: number;
   onSize: (size: PdfPageSize) => void;
   onFailed: (error: unknown) => void;
+  onFollow: (dest: unknown) => void;
 }
 
 /** One page: an empty sheet of the right size until it is near the screen. */
-function PageView({ doc, n, size, scale, onSize, onFailed }: PageViewProps) {
+function PageView({ doc, n, size, scale, onSize, onFailed, onFollow }: PageViewProps) {
   const { t } = useTranslation();
   const sheet = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -351,6 +387,23 @@ function PageView({ doc, n, size, scale, onSize, onFailed }: PageViewProps) {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  // The page's links, kept with the size they were measured against, so their
+  // places are shares of the page itself: they stay on the words at any zoom,
+  // pixel density or pan, with no coordinates of their own to drift.
+  const [layer, setLayer] = useState<{ links: PdfLink[]; page: PdfPageSize } | null>(null);
+  useEffect(() => {
+    if (!near) return;
+    let live = true;
+    void Promise.all([doc.links(n), doc.pageSize(n)]).then(
+      ([links, page]) => live && setLayer({ links, page }),
+      () => undefined,
+    );
+    return () => {
+      live = false;
+      setLayer(null);
+    };
+  }, [near, doc, n]);
 
   const scaleKey = Math.round(scale * 1000);
   useEffect(() => {
@@ -392,6 +445,25 @@ function PageView({ doc, n, size, scale, onSize, onFailed }: PageViewProps) {
     >
       {near && <canvas ref={canvas} className="block" />}
       {near && <div ref={text} className="textLayer absolute inset-0" />}
+      {/* The page is always white, so the link's tint and ring are fixed colours, not the app theme's. */}
+      {near &&
+        layer?.links.map((link, i) => (
+          <button
+            key={i}
+            type="button"
+            data-pdf-link
+            aria-label={t("library.links.follow")}
+            title={t("library.links.follow")}
+            onClick={() => onFollow(link.dest)}
+            className="absolute cursor-pointer rounded-[2px] bg-transparent hover:bg-[rgba(37,99,235,0.14)] focus-visible:bg-[rgba(37,99,235,0.14)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#2563eb]"
+            style={{
+              left: `${(link.x / layer.page.width) * 100}%`,
+              top: `${(link.y / layer.page.height) * 100}%`,
+              width: `${(link.width / layer.page.width) * 100}%`,
+              height: `${(link.height / layer.page.height) * 100}%`,
+            }}
+          />
+        ))}
     </div>
   );
 }

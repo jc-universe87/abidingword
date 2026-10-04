@@ -311,5 +311,31 @@ pub fn library_source_contents(
     ))
 }
 
+/// The links inside an EPUB's text that lead elsewhere in the same book (see
+/// [`adapters::epub::links`]). Anything else gives an empty list.
+#[tauri::command(async)]
+pub fn library_source_links(
+    state: State<'_, AppState>,
+    id: String,
+) -> CommandResult<Vec<contents::SourceLink>> {
+    let core = state.core()?;
+    let (source, record) = core.db.with_conn(|conn| {
+        let source = library::get(conn, &id)?;
+        let record = library::original_record(conn, &id).ok();
+        Ok((source, record))
+    })?;
+    let Some((relative, format)) = record else {
+        return Ok(Vec::new());
+    };
+    if format != "epub" {
+        return Ok(Vec::new());
+    }
+    let bytes = original::read_managed(&core.dirs.sources(), &id, &relative, MAX_CONTENTS_FILE)?;
+    Ok(adapters::epub::links(
+        &bytes,
+        usize::try_from(source.segment_count).unwrap_or(0),
+    ))
+}
+
 /// The largest EPUB read for its contents (matches what import accepts).
 const MAX_CONTENTS_FILE: u64 = 200 * 1024 * 1024;

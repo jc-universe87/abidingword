@@ -238,15 +238,20 @@ Contents are never inferred from fonts, headings or AI.
   - EPUB has no Original view yet, so its contents navigate Reading. A future
     EPUB renderer can reuse the same tree.
 
-## Future: navigating long books (not built)
+## Links, footnotes and Back / Forward (v0.7)
 
-Contents (above) is built. Still to come:
+Built since Contents; the full description is in
+[`source-navigation-v0.7.md`](source-navigation-v0.7.md). In short: links
+inside a PDF's pages (Original view) and inside an EPUB's text (Reading view)
+that lead elsewhere in the same document can be followed, and a Back /
+Forward pair in the reader's header returns to where the reader was.
 
-- **PDF:** clickable internal links and page/destination links beyond
-  outline entries; footnote and endnote links; back/forward
-  reading-location history.
-- **EPUB:** internal hyperlinks; footnote and endnote links; back/forward
-  reading-location history; a formatted EPUB view.
+## Future: navigating long books
+
+Still to come:
+
+- **PDF:** links that leave the document, and named actions.
+- **EPUB:** a formatted EPUB view.
 - **Generated contents** from headings as a fallback for a source that has
   none: a possible later step, not current behaviour.
 

@@ -150,5 +150,13 @@
     "for": "Inhaltsverzeichnis von {{title}}",
     "none": "Kein Inhaltsverzeichnis vorhanden",
     "current": "Aktueller Abschnitt"
+  },
+  "links": {
+    "follow": "Zur verknüpften Stelle springen"
+  },
+  "history": {
+    "group": "Leseverlauf",
+    "back": "Zurück zur vorherigen Stelle",
+    "forward": "Vor zur nächsten Stelle"
   }
 }

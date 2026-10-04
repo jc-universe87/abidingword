@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, List, Maximize2 } from "lucide-react";
+import { ArrowLeft, List, Maximize2, Redo2, Undo2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
 import { formatNumber } from "@/i18n/format";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
-import type { ContentsItem, SegmentWindow, SourceSegment } from "@/types/library";
+import type { PdfPlace } from "@/lib/pdfEngine";
+import type { ContentsItem, SegmentWindow, SourceLink, SourceSegment } from "@/types/library";
 import { formatLabel, licenceLabel, locatorLabel, sourceTypeLabel } from "./labels";
 import { ContentsPanel, useContentsLayout } from "./ContentsPanel";
 import { PdfViewer } from "./PdfViewer";
+import { canGoBack, canGoForward, NO_HISTORY, stepBack, stepForward, visit, type ReaderHistory, type SourceLocation } from "./readerHistory";
 import { currentEntry, useSourceContents } from "./useSourceContents";
 
 export type ReaderMode = "reading" | "original";
@@ -24,6 +26,8 @@ export interface ReaderPosition {
   mode: ReaderMode;
   /** Physical page, or null for a source that has none (or before it is known). */
   page: number | null;
+  /** The Back / Forward history of this reading session, kept while moving between the pane and the full reader. */
+  history?: ReaderHistory;
 }
 
 interface SourceReaderProps {
@@ -74,9 +78,23 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const opener = useRef<HTMLButtonElement>(null);
   const contentsLayout = useContentsLayout(stage, contents.length > 0);
   const [panel, setPanel] = useState<{ currentId: string | null } | null>(null);
-  const [jump, setJump] = useState<{ page: number; nonce: number } | null>(null);
-  // A segment position Reading should scroll to after a contents entry was chosen.
-  const landingPosition = useRef<number | null>(null);
+  const [jump, setJump] = useState<{ page: number; nonce: number; fraction?: number } | null>(null);
+  // A segment position Reading should scroll to after a contents entry or link was chosen.
+  // With an `offset`, the segment is put exactly that far from the top of the view (returning by Back / Forward).
+  const landingPosition = useRef<{ position: number; offset: number | null } | null>(null);
+  const jumps = useRef(0);
+
+  // Back / Forward: deliberate jumps only. Kept in a ref as well as state, so a handler always sees the latest.
+  const [history, setHistory] = useState<ReaderHistory>(initialPosition?.history ?? NO_HISTORY);
+  const historyRef = useRef(history);
+  const commit = (next: ReaderHistory) => {
+    historyRef.current = next;
+    setHistory(next);
+  };
+  // Where the original is, on request (page and how far down it).
+  const pdfNow = useRef<(() => PdfPlace) | null>(null);
+  // The links in an EPUB's text, by the segment they are in.
+  const links = useSourceLinks(source.data);
 
   useEffect(() => {
     let active = true;
@@ -136,8 +154,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   /** Where this reader is now, for the next reader to continue from. */
   const positionNow = (): ReaderPosition =>
     showOriginal
-      ? { mode: "original", page: originalPage.current ?? startPage }
-      : { mode: "reading", page: hasOriginal && window ? readingPage() : null };
+      ? { mode: "original", page: originalPage.current ?? startPage, history: historyRef.current }
+      : { mode: "reading", page: hasOriginal && window ? readingPage() : null, history: historyRef.current };
 
   const choose = async (next: ReaderMode) => {
     if (next === mode) return;
@@ -179,10 +197,17 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       landing.current = null;
     }
     if (landingPosition.current !== null) {
-      const spot = body?.querySelector<HTMLElement>(`[data-seg-position="${landingPosition.current}"]`);
-      // Show the chapter or section heading that precedes the text, too.
-      const before = spot?.previousElementSibling;
-      (before?.hasAttribute("data-section-marker") ? before : spot)?.scrollIntoView?.({ block: "start" });
+      const { position, offset } = landingPosition.current;
+      const spot = body?.querySelector<HTMLElement>(`[data-seg-position="${position}"]`);
+      if (offset !== null) {
+        // Back / Forward: the very place, as far from the top of the view as it was.
+        spot?.scrollIntoView?.({ block: "start" });
+        if (body) body.scrollTop -= offset;
+      } else {
+        // Show the chapter or section heading that precedes the text, too.
+        const before = spot?.previousElementSibling;
+        (before?.hasAttribute("data-section-marker") ? before : spot)?.scrollIntoView?.({ block: "start" });
+      }
       spot?.setAttribute("tabindex", "-1");
       spot?.focus({ preventScroll: true });
       landingPosition.current = null;
@@ -221,8 +246,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   };
 
   /** Reading, at a segment of the extracted text (EPUB). */
-  const goToPosition = async (position: number) => {
-    landingPosition.current = position;
+  const goToPosition = async (position: number, offset: number | null = null) => {
+    landingPosition.current = { position, offset };
     if (window && position >= window.offset && position < window.offset + window.segments.length) {
       setWindow({ ...window });
       return;
@@ -236,17 +261,72 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     }
   };
 
+  /** Where the reader is now, as a place Back and Forward can return to. */
+  const placeNow = (anchor?: number): SourceLocation => {
+    if (showOriginal) {
+      const at = pdfNow.current?.() ?? { page: originalPage.current ?? startPage, fraction: 0 };
+      return { page: at.page, fraction: at.fraction, position: null, offset: 0 };
+    }
+    const body = bodyRef.current;
+    const area = body?.getBoundingClientRect();
+    const all = body ? [...body.querySelectorAll<HTMLElement>("[data-seg-position]")] : [];
+    // The paragraph a link was followed from, if there is one: Back returns to exactly that. Otherwise the top of the view.
+    const top =
+      (anchor !== undefined ? all.find((el) => el.dataset.segPosition === String(anchor)) : undefined) ??
+      all.find((el) => area && el.getBoundingClientRect().bottom > area.top) ??
+      all[0];
+    return {
+      page: hasOriginal && window ? readingPage() : null,
+      fraction: 0,
+      position: top ? Number(top.dataset.segPosition) : null,
+      offset: top && area ? Math.round(top.getBoundingClientRect().top - area.top) : 0,
+    };
+  };
+
+  /** Moves the view to a place, in the mode the reader is in (the mode is never changed by a jump). */
+  const goTo = (place: SourceLocation) => {
+    if (showOriginal) {
+      if (place.page !== null) setJump({ page: place.page, fraction: place.fraction, nonce: ++jumps.current });
+    } else if (place.position !== null) {
+      void goToPosition(place.position, place.offset);
+    } else if (place.page !== null) {
+      void goToPage(place.page);
+    }
+  };
+
+  /** A deliberate jump (a link, a contents entry): Back returns to where the reader was. */
+  const jumpTo = (target: { page?: number; fraction?: number; position?: number }, from?: number) => {
+    // A link that leads outside the text leaves the reader where it is.
+    if (target.position !== undefined && window && (target.position < 0 || target.position >= window.total)) {
+      void api.logError("A link in the source could not be followed: it leads outside the text").catch(() => undefined);
+      return;
+    }
+    const place: SourceLocation = { page: target.page ?? null, fraction: target.fraction ?? 0, position: target.position ?? null, offset: 0 };
+    commit(visit(historyRef.current, placeNow(from), place));
+    if (place.position !== null) void goToPosition(place.position);
+    else goTo(place);
+  };
+
+  const goBack = () => {
+    const step = stepBack(historyRef.current, placeNow());
+    if (!step) return;
+    commit(step.history);
+    goTo(step.to);
+  };
+  const goForward = () => {
+    const step = stepForward(historyRef.current, placeNow());
+    if (!step) return;
+    commit(step.history);
+    goTo(step.to);
+  };
+
   const chooseEntry = (item: ContentsItem) => {
     const target = item.target;
     if (!target) return;
     closeContents();
-    if (target.kind === "page") {
-      // The mode is kept: Original moves its page (zoom unchanged), Reading shows that page's text.
-      if (showOriginal) setJump({ page: target.page, nonce: Date.now() });
-      else void goToPage(target.page);
-    } else {
-      void goToPosition(target.position);
-    }
+    // The mode is kept: Original moves its page (zoom unchanged), Reading shows that page's text.
+    if (target.kind === "page") jumpTo({ page: target.page });
+    else jumpTo({ position: target.position });
   };
 
   const more = async (direction: "earlier" | "later") => {
@@ -316,6 +396,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
                 previous={window.segments[index - 1]}
                 isTarget={segment.id === window.targetSegmentId}
                 targetRef={segment.id === window.targetSegmentId ? target : undefined}
+                links={links.get(segment.position)}
+                onFollow={(position) => jumpTo({ position }, segment.position)}
               />
             ))}
           </div>
@@ -340,10 +422,13 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         }}
         jumpTo={jump}
         onOutline={adoptContents}
+        onLink={(place) => jumpTo({ page: place.page, fraction: place.fraction })}
+        locationRef={pdfNow}
       />
     )
   ) : null;
 
+  const historyButtons = <HistoryButtons history={history} onBack={goBack} onForward={goForward} />;
   const modeSwitch = hasOriginal ? <ModeSwitch mode={mode} onChange={(m) => void choose(m)} /> : null;
   const contentsButton =
     contents.length > 0 ? (
@@ -370,12 +455,13 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
             </Button>
           )}
         </div>
-        {(modeSwitch || contentsButton) && (
-          <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border-subtle px-3 py-1.5">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b border-border-subtle px-3 py-1.5">
+          <div className="flex flex-wrap items-center gap-x-2">
+            {historyButtons}
             {modeSwitch}
-            {contentsButton}
           </div>
-        )}
+          {contentsButton}
+        </div>
         <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
           {showOriginal ? (
             original
@@ -407,6 +493,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         >
           {s?.title}
         </h1>
+        {historyButtons}
         {modeSwitch}
         {contentsButton}
       </div>
@@ -444,7 +531,45 @@ function ModeSwitch({ mode, onChange }: { mode: ReaderMode; onChange: (mode: Rea
   );
 }
 
-function SegmentView({ segment, previous, isTarget, targetRef }: { segment: SourceSegment; previous?: SourceSegment; isTarget: boolean; targetRef?: React.MutableRefObject<HTMLElement | null> }) {
+interface SegmentViewProps {
+  segment: SourceSegment;
+  previous?: SourceSegment;
+  isTarget: boolean;
+  targetRef?: React.MutableRefObject<HTMLElement | null>;
+  /** The links in this segment's text, in order (internal ones only). */
+  links?: SourceLink[];
+  onFollow: (position: number) => void;
+}
+
+/** The segment's text with its links as ordinary inline links: calm, plainly links, wrapping with the text, reachable by keyboard. */
+function linked(text: string, links: SourceLink[] | undefined, title: string, onFollow: (position: number) => void): React.ReactNode {
+  if (!links || links.length === 0) return text;
+  const out: React.ReactNode[] = [];
+  let at = 0;
+  for (const link of links) {
+    if (link.start < at || link.end > text.length || link.start >= link.end) continue; // overlapping or out of range: not shown as a link
+    if (link.start > at) out.push(text.slice(at, link.start));
+    out.push(
+      <a
+        key={`${link.start}-${link.end}`}
+        href="#"
+        title={title}
+        onClick={(event) => {
+          event.preventDefault();
+          onFollow(link.target);
+        }}
+        className="cursor-pointer text-link underline underline-offset-2 hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
+      >
+        {text.slice(link.start, link.end)}
+      </a>,
+    );
+    at = link.end;
+  }
+  if (at < text.length) out.push(text.slice(at));
+  return out;
+}
+
+function SegmentView({ segment, previous, isTarget, targetRef, links, onFollow }: SegmentViewProps) {
   const { t } = useTranslation();
   const page = segment.pageLabel ?? segment.pageNumber;
   const newPage = segment.pageNumber !== null && segment.pageNumber !== previous?.pageNumber;
@@ -469,8 +594,55 @@ function SegmentView({ segment, previous, isTarget, targetRef }: { segment: Sour
         data-seg-position={segment.position}
         className={`m-0 ${isTarget ? "border-l-[3px] border-accent bg-note px-3 py-1" : ""}`}
       >
-        {segment.text}
+        {linked(segment.text, links, t("library.links.follow"), onFollow)}
       </p>
     </>
   );
+}
+
+/** Back / Forward through the places a reader has jumped between: small, never dominant. */
+function HistoryButtons({ history, onBack, onForward }: { history: ReaderHistory; onBack: () => void; onForward: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <div role="group" aria-label={t("library.history.group")} className="flex shrink-0 items-center">
+      <Button variant="quiet" aria-label={t("library.history.back")} title={t("library.history.back")} disabled={!canGoBack(history)} onClick={onBack}>
+        <Undo2 className="size-4" aria-hidden="true" />
+      </Button>
+      <Button variant="quiet" aria-label={t("library.history.forward")} title={t("library.history.forward")} disabled={!canGoForward(history)} onClick={onForward}>
+        <Redo2 className="size-4" aria-hidden="true" />
+      </Button>
+    </div>
+  );
+}
+
+const NO_LINKS = new Map<number, SourceLink[]>();
+
+/**
+ * The links in an EPUB's extracted text, grouped by the segment they are in
+ * (in order along it). Read once per source; a source without links, another
+ * format, or a read that fails gives none, and the text reads as before.
+ */
+function useSourceLinks(source: { id: string; format: string | null } | null | undefined): Map<number, SourceLink[]> {
+  const api = useApi();
+  const [found, setFound] = useState<{ id: string; links: Map<number, SourceLink[]> } | null>(null);
+  const id = source?.id;
+  const isEpub = source?.format === "epub";
+  useEffect(() => {
+    if (!id || !isEpub) return;
+    let active = true;
+    api.librarySourceLinks(id).then(
+      (all) => {
+        if (!active) return;
+        const by = new Map<number, SourceLink[]>();
+        for (const link of all) by.set(link.position, [...(by.get(link.position) ?? []), link]);
+        for (const list of by.values()) list.sort((a, b) => a.start - b.start);
+        setFound({ id, links: by });
+      },
+      (e) => void api.logError(`Links in the source could not be read: ${e instanceof Error ? e.message : String(e)}`).catch(() => undefined),
+    );
+    return () => {
+      active = false;
+    };
+  }, [api, id, isEpub]);
+  return found && found.id === id ? found.links : NO_LINKS;
 }

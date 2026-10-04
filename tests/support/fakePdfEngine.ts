@@ -1,4 +1,4 @@
-import { PdfOutlineError, type PdfDocument, type PdfEngine, type PdfPageSize } from "@/lib/pdfEngine";
+import { PdfOutlineError, type PdfDocument, type PdfEngine, type PdfLink, type PdfPageSize, type PdfPlace } from "@/lib/pdfEngine";
 import type { ContentsItem } from "@/types/library";
 
 export interface FakePdfEngine extends PdfEngine {
@@ -27,6 +27,12 @@ export interface FakePdfEngine extends PdfEngine {
   outlineDelay: number;
   /** Source ids whose outline was read. */
   outlineReads: string[];
+  /** Links on pages (1-based), as the PDF carries them: where they are and the destination they hold. */
+  pageLinks: Record<number, PdfLink[]>;
+  /** What each destination resolves to (a destination missing here leads nowhere). */
+  destinations: Record<string, PdfPlace>;
+  /** Destinations looked up, in order. */
+  resolved: string[];
 }
 
 /** A synthetic PDF renderer for tests: `pages` pages of `size`, no canvas needed. */
@@ -43,6 +49,9 @@ export function createFakePdfEngine({ pages = 5, size = { width: 600, height: 80
     outlineFailures: 0,
     outlineDelay: 0,
     outlineReads: [],
+    pageLinks: {},
+    destinations: {},
+    resolved: [],
     async outline(_api, sourceId) {
       engine.outlineReads.push(sourceId);
       if (engine.outlineDelay) await new Promise((resolve) => setTimeout(resolve, engine.outlineDelay));
@@ -62,6 +71,12 @@ export function createFakePdfEngine({ pages = 5, size = { width: 600, height: 80
         text: async () => undefined,
         // The open document's own outline: independent of the standalone read, which may fail.
         outline: async () => engine.docOutlineItems ?? engine.outlineBySource?.[sourceId] ?? engine.outlineItems,
+        links: async (page) => engine.pageLinks[page] ?? [],
+        resolve: async (dest) => {
+          const key = String(dest);
+          engine.resolved.push(key);
+          return engine.destinations[key] ?? null;
+        },
         release: (page) => {
           engine.released.push(page);
         },

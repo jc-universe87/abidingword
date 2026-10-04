@@ -157,5 +157,13 @@
     "for": "Conteúdo de {{title}}",
     "none": "Nenhum conteúdo disponível",
     "current": "Seção atual"
+  },
+  "links": {
+    "follow": "Ir para o local vinculado"
+  },
+  "history": {
+    "group": "Histórico de leitura",
+    "back": "Voltar ao local anterior",
+    "forward": "Avançar para o local seguinte"
   }
 }

@@ -150,5 +150,13 @@
     "for": "Contents of {{title}}",
     "none": "No contents available",
     "current": "Current section"
+  },
+  "links": {
+    "follow": "Go to the linked place"
+  },
+  "history": {
+    "group": "Reading history",
+    "back": "Back to the previous place",
+    "forward": "Forward to the next place"
   }
 }
