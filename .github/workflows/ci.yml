@@ -39,6 +39,12 @@ jobs:
   rust:
     name: Rust
     runs-on: ubuntu-latest
+    # Debug information is the bulk of the build output and is not needed to
+    # check or test; without it the runner disk no longer fills up while the
+    # build cache is saved.
+    env:
+      CARGO_PROFILE_DEV_DEBUG: "0"
+      CARGO_PROFILE_TEST_DEBUG: "0"
     defaults:
       run:
         working-directory: src-tauri
