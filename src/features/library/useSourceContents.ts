@@ -27,7 +27,7 @@ export function useSourceContents(source: Source | null | undefined): SourceCont
   const engine = usePdfEngine();
   const [found, setFound] = useState<{ id: string; status: Status; items: ContentsItem[] } | null>(null);
   const id = source?.id;
-  const kind = source?.originalView?.kind === "pdf" ? "pdf" : source?.format === "epub" ? "epub" : null;
+  const kind = source?.originalView?.kind === "pdf" ? "pdf" : source?.format === "epub" || source?.format === "docx" ? "epub" : null;
 
   useEffect(() => {
     if (!id || !kind) return;

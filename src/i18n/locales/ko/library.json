@@ -12,6 +12,7 @@
   "format": {
     "pdf": "PDF",
     "epub": "EPUB",
+    "docx": "Word",
     "markdown": "Markdown",
     "text": "일반 텍스트"
   },
@@ -48,7 +49,7 @@
     "language": "언어",
     "allLanguages": "모든 언어",
     "noMatch": "이 조건에 맞는 자료가 없습니다.",
-    "empty": "자료실이 아직 비어 있습니다. PDF, EPUB, Markdown 또는 텍스트 파일을 추가하세요.",
+    "empty": "자료실이 아직 비어 있습니다. PDF, EPUB, Word, Markdown 또는 텍스트 파일을 추가하세요.",
     "listLabel": "자료"
   },
   "remove": {
@@ -62,7 +63,7 @@
   "add": {
     "title": "자료실에 추가",
     "reading": "파일을 읽고 텍스트를 찾는 중…",
-    "intro": "PDF, EPUB, Markdown(.md) 또는 텍스트(.txt) 파일을 선택하세요. Abiding Word는 자료실에 자체 사본을 보관하며 원본 파일은 변경하지 않습니다. 스캔한 PDF는 아직 읽을 수 없습니다.",
+    "intro": "PDF, EPUB, Word(.docx), Markdown(.md) 또는 텍스트(.txt) 파일을 선택하세요. Abiding Word는 자료실에 자체 사본을 보관하며 원본 파일은 변경하지 않습니다. 스캔한 PDF는 아직 읽을 수 없습니다.",
     "choose": "파일 선택…",
     "whatFound": "확인된 내용",
     "extracted": "텍스트를 추출했습니다",
@@ -97,7 +98,7 @@
   },
   "pane": {
     "libraryHeading": "내 자료실",
-    "empty": "아직 자료가 없습니다. 책, 글, 직접 작성한 노트(PDF, EPUB, Markdown 또는 텍스트)를 추가하세요. 모든 자료는 이 컴퓨터에 보관됩니다.",
+    "empty": "아직 자료가 없습니다. 책, 글, 직접 작성한 노트(PDF, EPUB, Word, Markdown 또는 텍스트)를 추가하세요. 모든 자료는 이 컴퓨터에 보관됩니다.",
     "mentioning": "{{passage}}을(를) 언급하는 자료",
     "noMentions": "이 본문을 언급하는 자료가 없습니다.",
     "recent": "최근 추가한 자료",
@@ -157,6 +158,7 @@
     "nextPart": "다음 부분",
     "partOf": "{{total}}개 중 {{part}}번째 부분",
     "failed": "이 책의 원본 보기를 표시할 수 없습니다. 읽기 보기는 계속 사용할 수 있습니다.",
+    "failedDocument": "이 문서의 원본 보기를 표시할 수 없습니다. 읽기 보기는 계속 사용할 수 있습니다.",
     "table": "표",
     "missingImages_other": "그림 {{count}}개를 표시할 수 없습니다."
   }

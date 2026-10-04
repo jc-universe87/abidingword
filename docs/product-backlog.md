@@ -207,13 +207,14 @@ Cloud providers must not be hard-wired into the internal data model.
 
 ## 4. Formatted sources
 
-Today: PDF **Original** view, formatted EPUB **Original** view (v0.8),
-**Contents** (the source's own PDF outline or EPUB table of contents),
+Today: PDF **Original** view, formatted EPUB and DOCX **Original** views (v0.8),
+**Contents** (the source's own PDF outline, EPUB table of contents or DOCX headings),
 **internal links and footnotes** in a PDF's Original view and in an EPUB's
 Reading and Original views, and **Back / Forward** reading history — see
 [`formatted-source-viewer.md`](formatted-source-viewer.md),
 [`source-navigation-v0.7.md`](source-navigation-v0.7.md) and
-[`formatted-epub-v0.8.md`](formatted-epub-v0.8.md). Backlog:
+[`formatted-epub-v0.8.md`](formatted-epub-v0.8.md) and
+[`formatted-docx-v0.8.md`](formatted-docx-v0.8.md). Backlog:
 
 - **PDF:** following links that leave the document (web links are shown to
   nobody today), named actions such as "next page", and links inside
@@ -223,7 +224,10 @@ Reading and Original views, and **Back / Forward** reading history — see
   annotations on the formatted view.
 - **History** beyond one reading session (it is kept in memory only, per
   source), and across sources.
-- **DOCX:** formatted viewing, links and footnotes (not started).
+- **DOCX:** headers and footers, text boxes and shapes, charts and equations,
+  heading numbers from multilevel lists, other number formats, table widths and
+  borders, links inside Reading's text, caching the parsed document between
+  parts, and the EPUB items above that apply (web links, text size, annotations).
 - **Generated contents:** deriving a table of contents from headings for a
   source that has none — a possible later fallback, **not** current
   behaviour; today a source without contents simply shows none.

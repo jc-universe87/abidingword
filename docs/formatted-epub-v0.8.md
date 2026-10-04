@@ -36,7 +36,8 @@ managed EPUB (zip)
 - The package's own **item id** is the only name the interface uses for a
   document. It is looked up in the spine; anything else is refused. There is no
   path from the interface to a file.
-- The seam for another format (the next is DOCX): a format's `originalView.kind`,
+- The seam for another format (DOCX now uses it: see
+  [`formatted-docx-v0.8.md`](formatted-docx-v0.8.md)): a format's `originalView.kind`,
   a pair of core commands (structure, item) and a place type
   (`SourceLocation.item / fragment`). `SourceReader` asks the format for a
   place and a mapping to and from the extracted text; nothing in it is

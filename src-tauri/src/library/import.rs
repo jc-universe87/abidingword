@@ -66,7 +66,7 @@ pub fn stage(path: &Path) -> AppResult<StagedSource> {
                     "library.unsupportedFile",
                     format!(
                         "“{file_name}” is not a kind of file the library can read yet. \
-                         It reads PDF, EPUB, Markdown (.md) and plain text (.txt) files."
+                         It reads PDF, EPUB, Word (.docx), Markdown (.md) and plain text (.txt) files."
                     ),
                 )
                 .with("fileName", &file_name),

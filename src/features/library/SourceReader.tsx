@@ -147,7 +147,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const viewKind = source.data?.originalView?.kind;
   const isPdf = viewKind === "pdf";
   // An EPUB has an Original view unless its structure could not be read or it has no text.
-  const isEpubView = viewKind === "epub" && epub.status !== "failed" && !(epub.status === "ready" && epub.items.length === 0);
+  const isEpubView = (viewKind === "epub" || viewKind === "docx") && epub.status !== "failed" && !(epub.status === "ready" && epub.items.length === 0);
   const hasOriginal = isPdf || isEpubView;
   const targetPage = window?.segments.find((x) => x.id === window.targetSegmentId)?.pageNumber ?? null;
   const startPage = openPage ?? initialPage ?? targetPage ?? 1;
@@ -519,6 +519,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         <EpubViewer
           key={sourceId}
           sourceId={sourceId}
+          kind={viewKind === "docx" ? "docx" : "epub"}
           structure={epub.items}
           start={epubOpen ?? epubStart ?? { item: epub.items[0]!.id, fragment: null, offset: 0 }}
           jumpTo={epubJump}

@@ -74,9 +74,10 @@
   "library": {
     "notUtf8": "“{{fileName}}” não está salvo como texto UTF-8, por isso não pôde ser lido.",
     "badEpub": "Não foi possível ler “{{fileName}}” como livro EPUB.",
+    "badDocx": "Não foi possível ler “{{fileName}}” como documento do Word.",
     "badPdf": "Não foi possível ler “{{fileName}}” como PDF.",
     "passwordProtected": "“{{fileName}}” está protegido por senha. Remova a proteção e importe-o novamente.",
-    "unsupportedFile": "“{{fileName}}” não é um tipo de arquivo que a biblioteca já consiga ler. Ela lê arquivos PDF, EPUB, Markdown (.md) e de texto simples (.txt).",
+    "unsupportedFile": "“{{fileName}}” não é um tipo de arquivo que a biblioteca já consiga ler. Ela lê arquivos PDF, EPUB, Word (.docx), Markdown (.md) e de texto simples (.txt).",
     "tooLarge": "“{{fileName}}” é grande demais para ser importado.",
     "scannedPdf": "Este PDF parece conter páginas digitalizadas. O suporte a OCR ainda não está disponível, por isso o texto não pode ser adicionado.",
     "noText": "Nenhum texto foi encontrado neste arquivo.",

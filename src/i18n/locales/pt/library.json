@@ -12,6 +12,7 @@
   "format": {
     "pdf": "PDF",
     "epub": "EPUB",
+    "docx": "Word",
     "markdown": "Markdown",
     "text": "Texto simples"
   },
@@ -52,7 +53,7 @@
     "language": "Idioma",
     "allLanguages": "Todos os idiomas",
     "noMatch": "Nenhuma fonte corresponde a estes filtros.",
-    "empty": "Ainda não há nada na sua biblioteca. Adicione um arquivo PDF, EPUB, Markdown ou de texto.",
+    "empty": "Ainda não há nada na sua biblioteca. Adicione um arquivo PDF, EPUB, Word, Markdown ou de texto.",
     "listLabel": "Fontes"
   },
   "remove": {
@@ -66,7 +67,7 @@
   "add": {
     "title": "Adicionar à biblioteca",
     "reading": "Lendo o arquivo e localizando o texto…",
-    "intro": "Escolha um arquivo PDF, EPUB, Markdown (.md) ou de texto (.txt). O Abiding Word guarda a própria cópia na sua biblioteca e nunca altera o seu arquivo. PDFs digitalizados ainda não podem ser lidos.",
+    "intro": "Escolha um arquivo PDF, EPUB, Word (.docx), Markdown (.md) ou de texto (.txt). O Abiding Word guarda a própria cópia na sua biblioteca e nunca altera o seu arquivo. PDFs digitalizados ainda não podem ser lidos.",
     "choose": "Escolher um arquivo…",
     "whatFound": "O que foi encontrado",
     "extracted": "Texto extraído com sucesso",
@@ -111,7 +112,7 @@
   },
   "pane": {
     "libraryHeading": "Sua biblioteca",
-    "empty": "Ainda não há fontes. Adicione livros, artigos e suas próprias notas (PDF, EPUB, Markdown ou texto); elas ficam neste computador.",
+    "empty": "Ainda não há fontes. Adicione livros, artigos e suas próprias notas (PDF, EPUB, Word, Markdown ou texto); elas ficam neste computador.",
     "mentioning": "Fontes que mencionam {{passage}}",
     "noMentions": "Nenhuma das suas fontes menciona esta passagem.",
     "recent": "Adicionadas recentemente",
@@ -171,6 +172,7 @@
     "nextPart": "Próxima parte",
     "partOf": "Parte {{part}} de {{total}}",
     "failed": "A vista original deste livro não pode ser mostrada. A leitura continua disponível.",
+    "failedDocument": "A vista original deste documento não pode ser mostrada. A leitura continua disponível.",
     "table": "Tabela",
     "missingImages_one": "{{count}} imagem não pôde ser mostrada.",
     "missingImages_many": "{{count}} de imagens não puderam ser mostradas.",

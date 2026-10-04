@@ -14,6 +14,8 @@ const KEPT = 6;
 
 interface EpubViewerProps {
   sourceId: string;
+  /** Which core builds the pages. */
+  kind?: "epub" | "docx";
   structure: EpubStructureItem[];
   /** Where to open. */
   start: EpubPlace;
@@ -33,7 +35,7 @@ interface EpubViewerProps {
  * a place to read the source as published; search, citations and Scripture
  * links stay with the extracted text.
  */
-export function EpubViewer({ sourceId, structure, start, jumpTo, onLink, locationRef }: EpubViewerProps) {
+export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, onLink, locationRef }: EpubViewerProps) {
   const { t } = useTranslation();
   const api = useApi();
   const scroller = useRef<HTMLDivElement>(null);
@@ -67,7 +69,7 @@ export function EpubViewer({ sourceId, structure, start, jumpTo, onLink, locatio
         active = false;
       };
     }
-    api.libraryEpubItem(sourceId, wantedItem).then(
+    (kind === "docx" ? api.libraryDocxItem(sourceId, wantedItem) : api.libraryEpubItem(sourceId, wantedItem)).then(
       (item) => {
         if (!active) return;
         cache.current.set(item.id, item);
@@ -78,14 +80,14 @@ export function EpubViewer({ sourceId, structure, start, jumpTo, onLink, locatio
       (error: unknown) => {
         if (!active) return;
         // Technical detail goes to the log (the document's id only, never its text); the interface shows its own wording.
-        void api.logError(`Formatted EPUB page could not be shown: ${error instanceof Error ? error.message : String(error)} (source ${sourceId}, page ${wantedItem})`).catch(() => undefined);
+        void api.logError(`Formatted ${kind === "docx" ? "DOCX" : "EPUB"} page could not be shown: ${error instanceof Error ? error.message : String(error)} (source ${sourceId}, page ${wantedItem})`).catch(() => undefined);
         setFailed(true);
       },
     );
     return () => {
       active = false;
     };
-  }, [api, sourceId, wantedItem]);
+  }, [api, kind, sourceId, wantedItem]);
 
   const onRoot = useCallback((shadow: ShadowRoot | null) => {
     root.current = shadow;
@@ -112,7 +114,13 @@ export function EpubViewer({ sourceId, structure, start, jumpTo, onLink, locatio
       focusArrival.current = false;
       // Only when focus was lost with the old page (a link in the same page keeps it).
       if (!document.activeElement || document.activeElement === document.body) {
-        const spot = target ?? view;
+        // An empty marker (a bookmark) is not a place to stand: the block around it, or after it, is.
+        const doc = shadow.querySelector(".aw-doc");
+        let spot: HTMLElement = target ?? view;
+        if (target && target.childNodes.length === 0) {
+          const around = target.parentElement;
+          spot = (around && around !== doc ? around : (target.nextElementSibling as HTMLElement | null)) ?? view;
+        }
         // A temporary stop, not a permanent one: ordinary text does not become a tab stop.
         if (spot !== view && !spot.hasAttribute("tabindex")) {
           spot.setAttribute("tabindex", "-1");
@@ -190,7 +198,7 @@ export function EpubViewer({ sourceId, structure, start, jumpTo, onLink, locatio
       <div ref={scroller} role="region" aria-label={t("library.original.viewerLabel")} tabIndex={0} className="relative min-h-0 flex-1 overflow-auto bg-bg-secondary">
         {failed && (
           <div className="p-6">
-            <Notice tone="error">{t("library.formatted.failed")}</Notice>
+            <Notice tone="error">{kind === "docx" ? t("library.formatted.failedDocument") : t("library.formatted.failed")}</Notice>
           </div>
         )}
         {!failed && !current && <p className="m-0 p-6 text-text-muted">{t("library.original.loading")}</p>}

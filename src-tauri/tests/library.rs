@@ -196,12 +196,41 @@ fn a_broken_or_unsupported_file_is_refused_plainly() {
     let broken = write(temp.path(), "broken.pdf", b"%PDF-1.7 not really");
     assert!(matches!(import::stage(&broken), Err(AppError::Import(_))));
     let docx = write(temp.path(), "notes.docx", b"PK..");
-    match import::stage(&docx) {
+    assert!(matches!(import::stage(&docx), Err(AppError::Import(_))));
+    let rtf = write(temp.path(), "notes.rtf", b"{\\rtf1}");
+    match import::stage(&rtf) {
         Err(AppError::UnsupportedFormat(message)) => {
-            assert!(message.contains("PDF, EPUB, Markdown"))
+            assert!(message.contains("PDF, EPUB, Word"))
         }
         other => panic!("{:?}", other.err()),
     }
+}
+
+// --- DOCX ------------------------------------------------------------------
+
+#[test]
+fn a_docx_is_imported_with_headings_references_and_a_formatted_original() {
+    let body = r#"<w:p><w:pPr><w:outlineLvl w:val="0"/></w:pPr><w:r><w:t>Abiding</w:t></w:r></w:p><w:p><w:r><w:t>See John 15:5 on the vine.</w:t></w:r></w:p>"#;
+    let bytes = fixtures::docx(body, "", &[]);
+    let temp = tempfile::tempdir().unwrap();
+    let path = write(temp.path(), "abiding.docx", &bytes);
+    let staged = import::stage(&path).unwrap();
+    assert_eq!(staged.document.format, "docx");
+    assert_eq!(staged.document.segments.len(), 1);
+    assert_eq!(staged.document.segments[0].locator(), "Abiding");
+    assert_eq!(staged.references[0].1.reference.canonical, "JHN.15.5");
+    with_db(|conn| {
+        let id = commit(conn, &staged, "Abiding")?;
+        let source = library::get(conn, &id)?;
+        assert_eq!(source.format.as_deref(), Some("docx"));
+        assert_eq!(source.original_view.as_ref().map(|v| v.kind), Some("docx"));
+        assert_eq!(source.segment_count, 1);
+        // The managed copy is a document, kept with the other documents.
+        let relative = library::managed_relative_path(&id, &staged);
+        assert!(relative.starts_with("documents/"), "{relative}");
+        assert_eq!(library::original_record(conn, &id)?.1, "docx".to_string());
+        Ok(())
+    });
 }
 
 // --- EPUB ------------------------------------------------------------------

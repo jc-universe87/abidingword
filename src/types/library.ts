@@ -7,12 +7,12 @@ export type SourceType = (typeof SOURCE_TYPES)[number];
 export const LICENCE_STATUSES = ["private", "distributable", "unknown"] as const;
 export type LicenceStatus = (typeof LICENCE_STATUSES)[number];
 
-export type SourceFormat = "pdf" | "epub" | "markdown" | "text";
+export type SourceFormat = "pdf" | "epub" | "docx" | "markdown" | "text";
 
 /** Which in-app viewer shows a source's original file (the format decides). */
 export interface OriginalView {
-  /** "pdf": drawn from the file's own bytes; "epub": pages the core builds (see `EpubItem`). */
-  kind: "pdf" | "epub";
+  /** "pdf": drawn from the file's own bytes; "epub" and "docx": pages the core builds (see `EpubItem`). */
+  kind: "pdf" | "epub" | "docx";
 }
 
 export interface OriginalInfo {

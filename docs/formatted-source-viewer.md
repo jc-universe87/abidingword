@@ -2,8 +2,9 @@
 
 > Status: in development, after the frozen Library v0.4 (`library-v0.4`
 > tag). v0.4 itself had no Original view; this document describes what was
-> added afterwards. PDF has an Original view, and (v0.8) so does EPUB: see
-> [`formatted-epub-v0.8.md`](formatted-epub-v0.8.md).
+> added afterwards. PDF has an Original view, and (v0.8) so do EPUB and DOCX:
+> see [`formatted-epub-v0.8.md`](formatted-epub-v0.8.md) and
+> [`formatted-docx-v0.8.md`](formatted-docx-v0.8.md).
 
 ## The idea
 
@@ -67,7 +68,7 @@ annotations.
   and dragging the page background pans it. A press on the words themselves
   is left alone, so text selection is unchanged. Pane and full reader share
   this code.
-- A source without an original view (Markdown, text, or an EPUB whose
+- A source without an original view (Markdown, text, or an EPUB or DOCX whose
   structure cannot be read) shows no Reading |
   Original switch at all, and Original is never offered for something that
   cannot be shown.
@@ -257,6 +258,17 @@ order, built by the core into a sanitised tree and drawn by the interface in an
 isolated shadow root. See [`formatted-epub-v0.8.md`](formatted-epub-v0.8.md)
 for the architecture, the security boundary and the limits.
 
+## Formatted DOCX (v0.8)
+
+A Word document has the same **Reading | Original** switch. It is read from the
+managed file by the core (there is no Word-specific viewer): headings, text
+styles, lists, tables, pictures, bookmark links, footnotes and endnotes become
+the same sanitised tree the EPUB view uses, drawn by the same renderer in an
+isolated shadow root. Contents are the document's headings; Back / Forward are the
+one reader history. See [`formatted-docx-v0.8.md`](formatted-docx-v0.8.md) for the
+architecture, what is supported and ignored, the security boundary and the
+limits.
+
 ## Future: navigating long books
 
 Still to come:
@@ -301,13 +313,13 @@ versification-aware mapping
 |---|---|
 | PDF | this viewer |
 | EPUB | built (v0.8): sanitised tree, shadow root |
-| DOCX | formatted rendering or conversion |
+| DOCX | built (v0.8): same sanitised tree and renderer as EPUB |
 | HTML | sanitised rich HTML |
 | Markdown | rendered Markdown |
 | TXT | normalised/plain reader |
 | images, scans | page/image viewer with an OCR layer |
 
-`originalView` on a source (`{ kind: "pdf" }` or null) is how the interface
+`originalView` on a source (`{ kind: "pdf" | "epub" | "docx" }` or null) is how the interface
 learns that a viewer exists: from the stored file's format, never from a
 file name.
 

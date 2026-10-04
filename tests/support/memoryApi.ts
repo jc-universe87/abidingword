@@ -114,17 +114,17 @@ export interface SourceFixture {
   contents?: ContentsItem[];
   /** Links in the text that lead elsewhere in the same source, as the core would return them. */
   links?: SourceLink[];
-  /** An EPUB's formatted view (its documents, by id); a source without it has no Original view. */
-  formatted?: { structure: EpubStructureItem[]; items: Record<string, EpubItem> };
+  /** A formatted view (an EPUB's documents or a DOCX's parts, by id); a source without it has no Original view. */
+  formatted?: { kind?: "epub" | "docx"; structure: EpubStructureItem[]; items: Record<string, EpubItem> };
 }
 
 /**
  * What a library file "contains" in tests, by path: "scanned" → a PDF with
- * no text layer; ".docx" → unsupported; anything else → a small PDF.
+ * no text layer; ".rtf" → unsupported; anything else → a small PDF.
  */
 function fixtureForPath(path: string): SourceFixture {
   const name = path.split("/").pop() ?? path;
-  const format = path.endsWith(".epub") ? "epub" : path.endsWith(".md") ? "markdown" : path.endsWith(".txt") ? "text" : "pdf";
+  const format = path.endsWith(".epub") ? "epub" : path.endsWith(".docx") ? "docx" : path.endsWith(".md") ? "markdown" : path.endsWith(".txt") ? "text" : "pdf";
   // PDFs have pages; EPUB and Markdown have chapters or headings.
   const where = (n: number) => (format === "pdf" ? { pageNumber: n } : { sectionPath: `Chapter ${n === 3 ? 2 : 1}` });
   return {
@@ -415,11 +415,11 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     const source: Source & { deleted: boolean } = {
       id: sourceId, title: fixture.title, subtitle: null, author: fixture.author ?? null, publisher: null, edition: null,
       publicationYear: null, isbn: null, doi: null, language: fixture.language ?? null,
-      sourceType: fixture.sourceType ?? (format === "pdf" || format === "epub" ? "book" : "notes"),
+      sourceType: fixture.sourceType ?? (format === "pdf" || format === "epub" ? "book" : format === "docx" ? "document" : "notes"),
       licenceStatus: "private", licence: null, notes: null, format, originalFilename: `${fixture.title}.${format}`,
       extractionStatus: format === "pdf" ? "extracted_text" : "digital_text",
       pageCount: format === "pdf" ? Math.max(0, ...pages) : null,
-      originalView: format === "pdf" ? { kind: "pdf" } : fixture.formatted ? { kind: "epub" } : null, segmentCount: fixture.segments.length,
+      originalView: format === "pdf" ? { kind: "pdf" } : fixture.formatted ? { kind: fixture.formatted.kind ?? "epub" } : null, segmentCount: fixture.segments.length,
       passageCount: fixture.mentions?.length ?? 0, contentHash: `hash-${fixture.title}`, createdAt: t, updatedAt: t,
       deleted: false, ...extra,
     };
@@ -941,8 +941,8 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     libraryGetSource: async (sourceId) => ({ ...liveSource(sourceId) }),
     chooseSourceFile: async () => library.nextChosenFile,
     libraryImportPreview: async (path) => {
-      if (!/\.(pdf|epub|md|markdown|txt)$/i.test(path)) {
-        throw new ApiError("unsupportedFormat", "This kind of file can’t be added to the library. Supported: PDF, EPUB, Markdown (.md) and text (.txt).");
+      if (!/\.(pdf|epub|docx|md|markdown|txt)$/i.test(path)) {
+        throw new ApiError("unsupportedFormat", "This kind of file can’t be added to the library. Supported: PDF, EPUB, Word (.docx), Markdown (.md) and text (.txt).");
       }
       const fixture = fixtureForPath(path);
       const scanned = fixture.segments.length === 0;
@@ -952,7 +952,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         previewId: id(), fileName: path.split("/").pop() ?? path, format: fixture.format ?? "pdf",
         suggestedTitle: fixture.title, suggestedAuthor: fixture.author ?? null, suggestedLanguage: fixture.language ?? null,
         suggestedPublisher: null, suggestedIsbn: null, suggestedType: "book",
-        pageCount: fixture.format === "pdf" ? (scanned ? 12 : 3) : null, chapterCount: fixture.format === "epub" ? 2 : fixture.format === "markdown" ? 1 : null,
+        pageCount: fixture.format === "pdf" ? (scanned ? 12 : 3) : null, chapterCount: fixture.format === "epub" || fixture.format === "docx" ? 2 : fixture.format === "markdown" ? 1 : null,
         segmentCount: fixture.segments.length, referenceCount: fixture.mentions?.length ?? 0,
         extractionStatus: scanned ? "ocr_required" : "extracted_text",
         problem: scanned ? "This PDF appears to contain scanned pages. OCR support is not available yet." : null,
@@ -1029,6 +1029,18 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       return formatted.structure;
     },
     libraryEpubItem: async (sourceId, item) => {
+      liveSource(sourceId);
+      const found = formattedOf.get(sourceId)?.items[item];
+      if (!found) throw new ApiError("invalidInput", "The original of this source can’t be opened.");
+      return found;
+    },
+    libraryDocxStructure: async (sourceId) => {
+      liveSource(sourceId);
+      const formatted = formattedOf.get(sourceId);
+      if (!formatted) throw new ApiError("invalidInput", "This source has no original view.");
+      return formatted.structure;
+    },
+    libraryDocxItem: async (sourceId, item) => {
       liveSource(sourceId);
       const found = formattedOf.get(sourceId)?.items[item];
       if (!found) throw new ApiError("invalidInput", "The original of this source can’t be opened.");

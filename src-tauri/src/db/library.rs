@@ -297,6 +297,7 @@ fn media_type(format: &str) -> &'static str {
     match format {
         "pdf" => "application/pdf",
         "epub" => "application/epub+zip",
+        "docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "markdown" => "text/markdown",
         _ => "text/plain",
     }

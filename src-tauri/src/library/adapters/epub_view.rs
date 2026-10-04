@@ -45,7 +45,7 @@ use crate::error::{AppError, AppResult, UserMessage};
 
 /// The largest image sent to the interface, and the most image data for one document.
 pub const MAX_IMAGE_BYTES: u64 = 6 * 1024 * 1024;
-const MAX_IMAGES_TOTAL: u64 = 40 * 1024 * 1024;
+pub(super) const MAX_IMAGES_TOTAL: u64 = 40 * 1024 * 1024;
 /// The most style sheet text kept for one document.
 const MAX_CSS_BYTES: usize = 1024 * 1024;
 const MAX_RULES: usize = 6_000;
@@ -221,7 +221,7 @@ fn link_for(res: &Resources, href: &str) -> Option<LinkTarget> {
     })
 }
 
-fn image_mime(path: &str) -> Option<&'static str> {
+pub(super) fn image_mime(path: &str) -> Option<&'static str> {
     let lower = path.to_ascii_lowercase();
     match lower.rsplit_once('.').map(|(_, ext)| ext)? {
         "png" => Some("image/png"),
@@ -233,7 +233,7 @@ fn image_mime(path: &str) -> Option<&'static str> {
     }
 }
 
-fn base64(bytes: &[u8]) -> String {
+pub(super) fn base64(bytes: &[u8]) -> String {
     const TABLE: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     let mut out = String::with_capacity(bytes.len().div_ceil(3) * 4);
     for chunk in bytes.chunks(3) {

@@ -12,6 +12,7 @@
   "format": {
     "pdf": "PDF",
     "epub": "EPUB",
+    "docx": "Word",
     "markdown": "Markdown",
     "text": "Plain text"
   },
@@ -50,7 +51,7 @@
     "language": "Language",
     "allLanguages": "All languages",
     "noMatch": "No sources match these filters.",
-    "empty": "Nothing in your library yet. Add a PDF, EPUB, Markdown or text file.",
+    "empty": "Nothing in your library yet. Add a PDF, EPUB, Word, Markdown or text file.",
     "listLabel": "Sources"
   },
   "remove": {
@@ -64,7 +65,7 @@
   "add": {
     "title": "Add to library",
     "reading": "Reading the file and finding its text…",
-    "intro": "Choose a PDF, EPUB, Markdown (.md) or text (.txt) file. Abiding Word keeps its own copy in your library and never changes your file. Scanned PDFs cannot be read yet.",
+    "intro": "Choose a PDF, EPUB, Word (.docx), Markdown (.md) or text (.txt) file. Abiding Word keeps its own copy in your library and never changes your file. Scanned PDFs cannot be read yet.",
     "choose": "Choose a file…",
     "whatFound": "What was found",
     "extracted": "Text extracted successfully",
@@ -104,7 +105,7 @@
   },
   "pane": {
     "libraryHeading": "Your library",
-    "empty": "No sources yet. Add books, articles and your own notes (PDF, EPUB, Markdown or text); they stay on this computer.",
+    "empty": "No sources yet. Add books, articles and your own notes (PDF, EPUB, Word, Markdown or text); they stay on this computer.",
     "mentioning": "Sources mentioning {{passage}}",
     "noMentions": "None of your sources mention this passage.",
     "recent": "Recently added",
@@ -164,6 +165,7 @@
     "nextPart": "Next part",
     "partOf": "Part {{part}} of {{total}}",
     "failed": "This book’s original view can’t be shown. Reading still works.",
+    "failedDocument": "This document’s original view can’t be shown. Reading still works.",
     "table": "Table",
     "missingImages_one": "{{count}} picture could not be shown.",
     "missingImages_other": "{{count}} pictures could not be shown."
