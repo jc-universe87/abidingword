@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowUp, Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { useSaveTracker } from "@/hooks/SaveTracker";
 import { toApiError } from "@/lib/api";
@@ -20,24 +20,39 @@ interface SectionEditorProps {
   onMove: (delta: -1 | 1) => void;
   onDeleted: () => void;
   onRevealScripture: () => void;
+  /** A section just added: bring it into view and focus its heading. */
+  reveal?: boolean;
 }
 
-const tool = "inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40";
+const tool = "inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong disabled:opacity-40";
 
 export function SectionEditor(props: SectionEditorProps) {
-  const { section, isFirst, isLast, hasFindings, onChange, onMove, onDeleted, onRevealScripture } = props;
+  const { section, isFirst, isLast, hasFindings, onChange, onMove, onDeleted, onRevealScripture, reveal = false } = props;
   const { t } = useTranslation();
   const api = useApi();
   const { track, settled } = useSaveTracker();
   const [renaming, setRenaming] = useState(false);
+  const [managing, setManaging] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const manageId = useId();
+  useEffect(() => {
+    if (!reveal) return;
+    const heading = document.getElementById(`section-${section.id}`);
+    heading?.scrollIntoView?.({ block: "start" });
+    heading?.focus({ preventScroll: true });
+  }, [reveal, section.id]);
+  const manageToggle = useRef<HTMLButtonElement>(null);
+  const addToggle = useRef<HTMLButtonElement>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const headingId = `section-${section.id}`;
   const title = sectionTitle(section);
-  const guidance = sectionGuidance(section);
+  // Guidance is for a section with nothing in it yet; once there is writing it is out of the way.
+  const guidance = section.blocks.some((b) => b.content.trim()) ? null : sectionGuidance(section);
 
   const addBlock = async (blockType: BlockType) => {
     setError(null);
+    setAdding(false);
     try {
       const block = await api.studyBlockCreate({ sectionId: section.id, blockType });
       onChange({ ...section, blocks: [...section.blocks, block] });
@@ -94,39 +109,73 @@ export function SectionEditor(props: SectionEditorProps) {
   };
 
   return (
-    <section aria-labelledby={headingId} id={`section-anchor-${section.id}`} className="scroll-mt-4 border-t border-border-subtle pt-6">
+    <section
+      aria-labelledby={headingId}
+      id={`section-anchor-${section.id}`}
+      className="scroll-mt-4 border-t border-border-subtle pt-6"
+      onKeyDown={(e) => {
+        if (e.key !== "Escape") return;
+        if (managing) {
+          e.stopPropagation();
+          setManaging(false);
+          manageToggle.current?.focus();
+        } else if (adding) {
+          e.stopPropagation();
+          setAdding(false);
+          addToggle.current?.focus();
+        }
+      }}
+    >
       {renaming ? (
         <RenameForm initial={title} onSubmit={rename} onCancel={() => setRenaming(false)} />
       ) : (
         <div className="flex items-baseline gap-2">
-          <h2 id={headingId} tabIndex={-1} className="m-0 font-display text-[1.5rem] font-heading text-text-strong">
+          <h2 id={headingId} tabIndex={-1} className="m-0 min-w-0 break-words font-display text-[1.5rem] font-heading text-text-strong">
             {title}
           </h2>
           <button
+            ref={manageToggle}
             type="button"
-            onClick={() => setRenaming(true)}
+            aria-expanded={managing}
+            aria-controls={manageId}
+            aria-label={t("studies.sections.options", { title })}
+            title={t("studies.sections.optionsTooltip")}
+            onClick={() => setManaging(!managing)}
+            className="ml-auto inline-flex size-9 shrink-0 items-center justify-center self-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+          >
+            <MoreHorizontal className="size-4" aria-hidden="true" />
+          </button>
+        </div>
+      )}
+      {managing && !renaming && (
+        <div id={manageId} role="group" aria-label={t("studies.sections.optionsGroup", { title })} className="mt-1 flex flex-wrap items-center gap-1">
+          <button
+            type="button"
+            onClick={() => {
+              setManaging(false);
+              setRenaming(true);
+            }}
             aria-label={t("studies.sections.rename", { title })}
-            title={t("studies.sections.renameTooltip")}
-            className="inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary"
+            className={tool}
           >
             <Pencil className="size-4" aria-hidden="true" />
+            {t("studies.sections.renameTooltip")}
           </button>
-          <span className="ml-auto flex items-center">
-            <button type="button" className={tool} disabled={isFirst} onClick={() => onMove(-1)} aria-label={t("studies.sections.moveUp", { title })}>
-              <ArrowUp className="size-4" aria-hidden="true" />
-            </button>
-            <button type="button" className={tool} disabled={isLast} onClick={() => onMove(1)} aria-label={t("studies.sections.moveDown", { title })}>
-              <ArrowDown className="size-4" aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className={`${tool} hover:text-danger`}
-              onClick={() => void remove(false)}
-              aria-label={t("studies.sections.delete", { title })}
-            >
-              <Trash2 className="size-4" aria-hidden="true" />
-            </button>
-          </span>
+          <button type="button" className={tool} disabled={isFirst} onClick={() => onMove(-1)} aria-label={t("studies.sections.moveUp", { title })}>
+            <ArrowUp className="size-4" aria-hidden="true" />
+          </button>
+          <button type="button" className={tool} disabled={isLast} onClick={() => onMove(1)} aria-label={t("studies.sections.moveDown", { title })}>
+            <ArrowDown className="size-4" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className={`${tool} hover:text-danger`}
+            onClick={() => void remove(false)}
+            aria-label={t("studies.sections.delete", { title })}
+          >
+            <Trash2 className="size-4" aria-hidden="true" />
+            {t("common.delete")}
+          </button>
         </div>
       )}
       {confirmingDelete && (
@@ -142,7 +191,7 @@ export function SectionEditor(props: SectionEditorProps) {
       )}
       {guidance && <p className="mt-1 mb-3 text-[0.9375rem] text-text-muted">{guidance}</p>}
 
-      <div className="flex flex-col gap-1">
+      <div className="mt-2 flex flex-col gap-1">
         {section.blocks.map((block, index) => (
           <BlockEditor
             key={block.id}
@@ -158,12 +207,28 @@ export function SectionEditor(props: SectionEditorProps) {
         ))}
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-1" role="group" aria-label={t("studies.sections.addTo", { title })}>
-        {BLOCK_TYPES.map((type) => (
-          <Button key={type} variant="quiet" className="min-h-9 text-[0.875rem] text-text-muted" onClick={() => addBlock(type)}>
-            {t("studies.blocks.add", { type: blockLabel(t, type) })}
-          </Button>
-        ))}
+      <div className="mt-2 flex flex-wrap items-center gap-1">
+        <button
+          ref={addToggle}
+          type="button"
+          aria-expanded={adding}
+          aria-controls={`${manageId}-add`}
+          aria-label={t("studies.sections.addToggleLabel", { title })}
+          onClick={() => setAdding(!adding)}
+          className={tool}
+        >
+          <Plus className="size-4" aria-hidden="true" />
+          {t("studies.sections.addToggle")}
+        </button>
+        {adding && (
+          <div id={`${manageId}-add`} role="group" aria-label={t("studies.sections.addTo", { title })} className="flex flex-wrap items-center gap-1">
+            {BLOCK_TYPES.map((type) => (
+              <Button key={type} variant="quiet" className="min-h-9 text-[0.875rem] text-text-muted" onClick={() => addBlock(type)}>
+                {t("studies.blocks.add", { type: blockLabel(t, type) })}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
       {error && (
         <p role="alert" className="m-0 mt-2 text-[0.9375rem] text-danger">

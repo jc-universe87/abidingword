@@ -450,11 +450,11 @@
     "titleLabel": "Titre de l’étude",
     "contents": "Contenu de l’étude",
     "findingsLink": "Éléments d’étude",
-    "findingsLinkCount": "Éléments d’étude ({{count}})",
-    "addSection": "Ajouter une section",
     "newSectionTitle": "Nouvelle section",
     "allSaved": "Toutes les modifications sont enregistrées.",
-    "saved": "Enregistré"
+    "saved": "Enregistré",
+    "start": "Commencez votre étude",
+    "contentsToggle": "Sommaire"
   },
   "sections": {
     "rename": "Renommer la section {{title}}",
@@ -467,7 +467,12 @@
     "confirmWithFindings": "Supprimer « {{title}} » et le texte qu’elle contient ? Ses élément d’études restent dans l’étude, rattachés à l’étude entière.",
     "deleteSection": "Supprimer la section",
     "addTo": "Ajouter à {{title}}",
-    "titleLabel": "Titre de la section"
+    "titleLabel": "Titre de la section",
+    "options": "Options de la section {{title}}",
+    "optionsTooltip": "Options de la section",
+    "optionsGroup": "Options de la section {{title}}",
+    "addToggle": "Ajouter…",
+    "addToggleLabel": "Ajouter du contenu à {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}} : {{type}}",
@@ -484,13 +489,9 @@
   "findings": {
     "heading": "Éléments d’étude",
     "addGroup": "Ajouter un élément d’étude",
-    "add": "Ajouter :",
-    "otherKind": "Autre type d’élément",
-    "more": "Plus…",
     "filterGroup": "Afficher les éléments d’étude",
     "all": "Tous ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "empty": "Aucun élément d’étude pour l’instant. Notez vos observations, questions et conclusions au fil de l’étude ; vous pourrez les retrouver plus tard.",
     "listLabel": "Éléments d’étude",
     "writeFirst": "Rédigez d’abord l’élément.",
     "type": "Type",
@@ -498,7 +499,6 @@
     "inLower": "dans",
     "wholeStudy": "Toute l’étude",
     "newLabel": "Nouveau élément d’étude : {{type}}",
-    "newPlaceholder": "Nouveau élément d’étude : {{type}}…",
     "linkCurrent": "Lier le passage actuel ({{passage}})",
     "save": "Enregistrer l’élément",
     "saveHint": "Ctrl+Entrée pour enregistrer",
@@ -513,7 +513,10 @@
     "link": "+ Lier {{passage}}",
     "tags": "Étiquettes",
     "tagsPlaceholder": "p. ex. alliance, prédication",
-    "confirmDelete": "Supprimer ce élément d’étude ({{type}}) ?"
+    "confirmDelete": "Supprimer ce élément d’étude ({{type}}) ?",
+    "writePlaceholder": "Écrivez ici…",
+    "details": "Détails",
+    "detailsFor": "Détails de {{type}} : {{excerpt}}"
   },
   "passages": {
     "label": "Passages",
@@ -593,5 +596,11 @@
     "remove": "Retirer {{title}}",
     "addSection": "Ajouter une section",
     "save": "Enregistrer le modèle"
+  },
+  "add": {
+    "toggle": "Ajouter",
+    "group": "Ajouter à l’étude",
+    "note": "Ajouter un élément",
+    "section": "Ajouter une section"
   }
 }

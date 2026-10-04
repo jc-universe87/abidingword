@@ -173,6 +173,7 @@ describe("switching language in the running app", () => {
     // Same study still open, now in German.
     expect(screen.getByRole("textbox", { name: studiesDe.editor.titleLabel })).toHaveValue("The True Vine");
     const list = await screen.findByRole("list", { name: studiesDe.findings.listLabel });
+    await user.click(within(list).getByRole("button", { name: new RegExp(`^${studiesDe.findings.details}`) }));
     const select = within(list).getByLabelText(studiesDe.findings.typeLabel) as HTMLSelectElement;
     expect(select.value).toBe("question");
     expect(select.selectedOptions[0]!.textContent).toBe(studiesDe.findingType.question);

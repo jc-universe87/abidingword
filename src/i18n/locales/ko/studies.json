@@ -442,11 +442,11 @@
     "titleLabel": "성경공부 제목",
     "contents": "성경공부 내용",
     "findingsLink": "기록",
-    "findingsLinkCount": "기록 ({{count}})",
-    "addSection": "섹션 추가",
     "newSectionTitle": "새 섹션",
     "allSaved": "모든 변경 사항을 저장했습니다.",
-    "saved": "저장됨"
+    "saved": "저장됨",
+    "start": "성경공부를 시작하세요",
+    "contentsToggle": "목차"
   },
   "sections": {
     "rename": "{{title}} 섹션 이름 바꾸기",
@@ -459,7 +459,12 @@
     "confirmWithFindings": "“{{title}}” 섹션과 그 안의 글을 삭제할까요? 이 섹션의 기록은 성경공부 전체에 대한 기록으로 남습니다.",
     "deleteSection": "섹션 삭제",
     "addTo": "{{title}}에 추가",
-    "titleLabel": "섹션 제목"
+    "titleLabel": "섹션 제목",
+    "options": "{{title}} 섹션 옵션",
+    "optionsTooltip": "섹션 옵션",
+    "optionsGroup": "{{title}} 섹션 옵션",
+    "addToggle": "추가…",
+    "addToggleLabel": "{{title}}에 내용 추가"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -476,13 +481,9 @@
   "findings": {
     "heading": "기록",
     "addGroup": "기록 추가",
-    "add": "추가:",
-    "otherKind": "다른 종류의 기록",
-    "more": "더 보기…",
     "filterGroup": "기록 표시",
     "all": "전체 ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "empty": "아직 기록이 없습니다. 성경공부를 하면서 관찰, 질문, 결론을 기록해 두면 나중에도 쉽게 찾을 수 있습니다.",
     "listLabel": "기록",
     "writeFirst": "먼저 기록 내용을 작성하세요.",
     "type": "종류",
@@ -490,7 +491,6 @@
     "inLower": "위치",
     "wholeStudy": "성경공부 전체",
     "newLabel": "새 {{type}}",
-    "newPlaceholder": "새 {{type}}…",
     "linkCurrent": "현재 본문 연결({{passage}})",
     "save": "기록 저장",
     "saveHint": "Ctrl+Enter로 저장",
@@ -505,7 +505,10 @@
     "link": "+ {{passage}} 연결",
     "tags": "태그",
     "tagsPlaceholder": "예: 언약, 설교",
-    "confirmDelete": "이 {{type}} 항목을 삭제할까요?"
+    "confirmDelete": "이 {{type}} 항목을 삭제할까요?",
+    "writePlaceholder": "기록 작성…",
+    "details": "세부 정보",
+    "detailsFor": "{{type}} 세부 정보: {{excerpt}}"
   },
   "passages": {
     "label": "본문",
@@ -581,5 +584,11 @@
     "remove": "{{title}} 제거",
     "addSection": "섹션 추가",
     "save": "템플릿 저장"
+  },
+  "add": {
+    "toggle": "추가",
+    "group": "성경공부에 추가",
+    "note": "기록 추가",
+    "section": "섹션 추가"
   }
 }

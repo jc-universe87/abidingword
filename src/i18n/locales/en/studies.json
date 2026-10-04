@@ -446,11 +446,11 @@
     "titleLabel": "Study title",
     "contents": "Study contents",
     "findingsLink": "Findings",
-    "findingsLinkCount": "Findings ({{count}})",
-    "addSection": "Add section",
     "newSectionTitle": "New section",
     "allSaved": "All changes saved.",
-    "saved": "Saved"
+    "saved": "Saved",
+    "start": "Start your study",
+    "contentsToggle": "Contents"
   },
   "sections": {
     "rename": "Rename section {{title}}",
@@ -463,7 +463,12 @@
     "confirmWithFindings": "Delete “{{title}}” and the writing in it? Its findings stay in the study as findings for the whole study.",
     "deleteSection": "Delete section",
     "addTo": "Add to {{title}}",
-    "titleLabel": "Section title"
+    "titleLabel": "Section title",
+    "options": "Options for section {{title}}",
+    "optionsTooltip": "Section options",
+    "optionsGroup": "Options for section {{title}}",
+    "addToggle": "Add…",
+    "addToggleLabel": "Add content to {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -480,13 +485,9 @@
   "findings": {
     "heading": "Findings",
     "addGroup": "Add a finding",
-    "add": "Add:",
-    "otherKind": "Other kind of finding",
-    "more": "More…",
     "filterGroup": "Show findings",
     "all": "All ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "empty": "No findings yet. Record observations, questions and conclusions as you study; they stay findable later.",
     "listLabel": "Findings",
     "writeFirst": "Write the finding first.",
     "type": "Type",
@@ -494,7 +495,6 @@
     "inLower": "in",
     "wholeStudy": "Whole study",
     "newLabel": "New {{type}}",
-    "newPlaceholder": "New {{type}}…",
     "linkCurrent": "Link current passage ({{passage}})",
     "save": "Save finding",
     "saveHint": "Ctrl+Enter saves",
@@ -509,7 +509,10 @@
     "link": "+ Link {{passage}}",
     "tags": "Tags",
     "tagsPlaceholder": "e.g. covenant, sermon",
-    "confirmDelete": "Delete this {{type}}?"
+    "confirmDelete": "Delete this {{type}}?",
+    "writePlaceholder": "Write a note…",
+    "details": "Details",
+    "detailsFor": "Details for {{type}}: {{excerpt}}"
   },
   "passages": {
     "label": "Passages",
@@ -587,5 +590,11 @@
     "remove": "Remove {{title}}",
     "addSection": "Add section",
     "save": "Save template"
+  },
+  "add": {
+    "toggle": "Add",
+    "group": "Add to this study",
+    "note": "Add note",
+    "section": "Add section"
   }
 }

@@ -1,6 +1,6 @@
 # Study Workspace UX Simplification (v0.6, Phase 1)
 
-Status: in review. Branch `feature/study-workspace-ux-v0.6`, not merged.
+Status: in review (Phase 1 approved; Phase 2 below). Branch `feature/study-workspace-ux-v0.6`, not merged.
 
 ## Principle: the software should disappear
 
@@ -38,8 +38,7 @@ the surface stays simple. This is progressive disclosure, not removal.
   linking and removing are in Study details.
 - **Autosave** is invisible when idle; "Saving…" and "Saved" appear
   briefly; errors stay on screen. Saving itself (SaveTracker) is unchanged.
-- **Contents line** (Findings plus sections) remains, smaller and quieter,
-  and only appears when a study has three or more entries.
+- **Contents** is superseded by Phase 2 (below).
 - **Project page**: project title and studies first; "New study" button when
   studies exist (form hidden until asked, focus returns to the button when
   put away); in an empty project the creation prompt is shown directly.
@@ -50,8 +49,48 @@ No schema, migration, API, StudyType/Template, status, description, details
 JSON, passage role, relation or finding concept was removed or merged. The
 simplification is in the interface only.
 
-## Deferred
+## Phase 2: the study's working area
 
-Redesign of Findings and Sections (Phase 2), including a better contents
-line and how findings relate to sections, is deliberately not part of this
-milestone.
+Same principle, applied to what is under the header. Data model, backend and
+templates are untouched; this is presentation only.
+
+- **One Add action.** A new study (no findings, no writing) says "Start your
+  study" and offers "Add note" and "Add section" side by side. Once there is
+  writing it is a single "Add" that opens the same two choices (Escape closes
+  it and returns focus). The bottom "Add section" button, the five quick-add
+  finding buttons and the "More…" menu are gone. "Note" is the user-facing
+  word for a finding here; each language uses its established term for a
+  generic Finding (docs/i18n.md: Eintrag, 기록, élément d’étude, apunte,
+  registro), not the word reserved for Scripture notes.
+- **Write first, classify second.** "Add note" opens a text box first, with
+  the kind (default Observation, an existing type), section and a "Link
+  current passage" checkbox (unticked: linking is never silent) under it.
+- **Findings in the flow.** No Findings area for a study without findings.
+  Otherwise each note is its text, with its kind as a small label and any
+  linked passages and cited sources beneath. Kind, section, tags, linking,
+  adding sources, move and delete are under each note's **Details**
+  (`aria-expanded`; Escape closes and returns focus). With six or more
+  findings one "Show findings" menu narrows by kind; fewer need none.
+- **Contents** is one quiet control, shown only for a study with five or
+  more sections. It opens a short list (Findings only when there are some);
+  choosing an entry scrolls to the section and moves focus to its heading;
+  Escape closes and restores focus. No permanent link row.
+- **Sections** are a calm heading and their writing. Rename, move and delete
+  are under a section's "…" options; the block types are under one "Add…";
+  a section's guidance shows only while it is empty. A section added from Add
+  is scrolled into view and focused. Existing template sections and block
+  content are unchanged.
+- **Long titles** wrap in full (the title field is an auto-growing text area;
+  Enter finishes it instead of adding a line). A study also opens at its
+  title instead of inheriting the previous list's scroll position.
+- **Related studies** with several entries sit in one wrapping line.
+
+### Known limits (not done in Phase 2)
+
+- Block-level move/delete icons inside sections still appear on hover/focus.
+- The Add action is at the top of the study only; in a very long study the
+  user scrolls up to add a note.
+- "Empty study" and section guidance follow the saved content on load and
+  update when the study is reopened, not while typing.
+- Findings still appear above the sections rather than beside the section
+  they belong to.

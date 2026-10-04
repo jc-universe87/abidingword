@@ -76,6 +76,7 @@ describe("study selection and editing", () => {
     await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /Romans Sermon Series/ }));
     await user.click(await screen.findByRole("button", { name: /Romans 8:1–17/ }));
 
+    await user.click(await screen.findByRole("button", { name: "Add content to Context" }));
     const context = await screen.findByRole("group", { name: "Add to Context" });
     await user.click(within(context).getByRole("button", { name: "+ Note" }));
 

@@ -450,11 +450,11 @@
     "titleLabel": "Título do estudo",
     "contents": "Conteúdo do estudo",
     "findingsLink": "Registros",
-    "findingsLinkCount": "Registros ({{count}})",
-    "addSection": "Adicionar seção",
     "newSectionTitle": "Nova seção",
     "allSaved": "Todas as alterações foram salvas.",
-    "saved": "Salvo"
+    "saved": "Salvo",
+    "start": "Comece seu estudo",
+    "contentsToggle": "Conteúdo"
   },
   "sections": {
     "rename": "Renomear a seção {{title}}",
@@ -467,7 +467,12 @@
     "confirmWithFindings": "Excluir “{{title}}” e o texto que ela contém? Os registros dela permanecem no estudo como registros do estudo inteiro.",
     "deleteSection": "Excluir seção",
     "addTo": "Adicionar a {{title}}",
-    "titleLabel": "Título da seção"
+    "titleLabel": "Título da seção",
+    "options": "Opções da seção {{title}}",
+    "optionsTooltip": "Opções da seção",
+    "optionsGroup": "Opções da seção {{title}}",
+    "addToggle": "Adicionar…",
+    "addToggleLabel": "Adicionar conteúdo a {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -484,13 +489,9 @@
   "findings": {
     "heading": "Registros",
     "addGroup": "Adicionar um registro",
-    "add": "Adicionar:",
-    "otherKind": "Outro tipo de registro",
-    "more": "Mais…",
     "filterGroup": "Mostrar registros",
     "all": "Todos ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "empty": "Ainda não há registros. Anote observações, perguntas e conclusões enquanto estuda; depois você poderá encontrá-las com facilidade.",
     "listLabel": "Registros",
     "writeFirst": "Escreva o registro primeiro.",
     "type": "Tipo",
@@ -498,7 +499,6 @@
     "inLower": "em",
     "wholeStudy": "Estudo inteiro",
     "newLabel": "Nova {{type}}",
-    "newPlaceholder": "Nova {{type}}…",
     "linkCurrent": "Vincular a passagem atual ({{passage}})",
     "save": "Salvar registro",
     "saveHint": "Ctrl+Enter salva",
@@ -513,7 +513,10 @@
     "link": "+ Vincular {{passage}}",
     "tags": "Etiquetas",
     "tagsPlaceholder": "ex.: aliança, sermão",
-    "confirmDelete": "Excluir esta {{type}}?"
+    "confirmDelete": "Excluir esta {{type}}?",
+    "writePlaceholder": "Escreva um registro…",
+    "details": "Detalhes",
+    "detailsFor": "Detalhes de {{type}}: {{excerpt}}"
   },
   "passages": {
     "label": "Passagens",
@@ -593,5 +596,11 @@
     "remove": "Remover {{title}}",
     "addSection": "Adicionar seção",
     "save": "Salvar modelo"
+  },
+  "add": {
+    "toggle": "Adicionar",
+    "group": "Adicionar ao estudo",
+    "note": "Adicionar registro",
+    "section": "Adicionar seção"
   }
 }

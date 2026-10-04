@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAutosave } from "@/hooks/useAutosave";
 
@@ -27,23 +27,41 @@ export function EditableTitle({ label, value, onSave }: EditableTitleProps) {
   );
   const { schedule, flush } = useAutosave(save);
   const blank = !text.trim();
+  const area = useRef<HTMLTextAreaElement>(null);
+
+  // A long title wraps and stays whole; the field grows to fit it.
+  useLayoutEffect(() => {
+    const el = area.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [text]);
 
   return (
     <div>
       <h1 className="m-0">
-        <input
+        <textarea
+          ref={area}
+          rows={1}
           aria-label={label}
           value={text}
           onChange={(e) => {
             setText(e.target.value);
             if (e.target.value.trim()) schedule(e.target.value);
           }}
+          onKeyDown={(e) => {
+            // A title is one line of meaning: Enter finishes it, it does not break it.
+            if (e.key === "Enter") {
+              e.preventDefault();
+              e.currentTarget.blur();
+            }
+          }}
           onBlur={() => {
             if (blank) setText(saved);
             else flush();
           }}
           aria-invalid={blank || undefined}
-          className="w-full rounded-aw border border-transparent bg-transparent px-2 py-1 -mx-2 font-display text-[1.875rem] font-heading leading-tight text-text-strong hover:border-border-subtle focus:border-border"
+          className="block w-full resize-none overflow-hidden break-words rounded-aw border border-transparent bg-transparent px-2 py-1 -mx-2 font-display text-[1.875rem] font-heading leading-tight text-text-strong hover:border-border-subtle focus:border-border"
         />
       </h1>
       {blank && (

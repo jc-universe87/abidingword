@@ -24,9 +24,9 @@ export function RelatedStudies({ relations, onOpen }: Props) {
   if (relations.length === 0) return null;
   return (
     <section aria-label={t("studies.relations.label")}>
-      <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[0.9375rem]">
+      <ul className="m-0 flex list-none flex-wrap gap-x-5 gap-y-1 p-0 text-[0.9375rem]">
         {relations.map((r) => (
-          <li key={r.id} className="flex flex-wrap items-center gap-2">
+          <li key={r.id} className="flex flex-wrap items-center gap-x-2">
             <span className="text-text-muted">{relationLabel(t, r.relationType, r.direction)}</span>
             <button type="button" onClick={() => onOpen(r.other)} className="min-h-8 font-medium text-link underline-offset-2 hover:underline">
               {r.other.title}

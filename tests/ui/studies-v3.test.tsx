@@ -25,6 +25,15 @@ async function openStudy(api: MemoryApi, user: Awaited<ReturnType<typeof renderA
 
 const newStudy = () => within(screen.getByRole("form", { name: "New study" }));
 
+/** The study's one Add action: the two beginnings of a new study, or the Add menu after that. */
+async function addNote(user: Awaited<ReturnType<typeof renderApp>>["user"]) {
+  const study = within(screen.getByRole("main", { name: "Study" }));
+  if (!study.queryByRole("button", { name: "Add note" })) await user.click(study.getByRole("button", { name: "Add" }));
+  await user.click(study.getByRole("button", { name: "Add note" }));
+}
+
+const detailsOf = (list: HTMLElement, name: RegExp) => within(list).getByRole("button", { name: new RegExp(`^Details for ${name.source}`) });
+
 const sectionHeadings = () =>
   within(screen.getByRole("main", { name: "Study" }))
     .getAllByRole("heading", { level: 2 })
@@ -105,11 +114,13 @@ describe("findings", () => {
 
   it("captures an observation and a question quickly", async () => {
     const { api, user } = await inStudy();
-    const add = screen.getByRole("group", { name: "Add a finding" });
-    await user.click(within(add).getByRole("button", { name: "Observation" }));
+    await addNote(user);
+    // Write first; the kind defaults to an observation.
     await user.type(screen.getByLabelText("New observation"), "Abide appears again and again.");
     await user.click(screen.getByRole("button", { name: "Save finding" }));
-    await user.click(within(add).getByRole("button", { name: "Question" }));
+    await waitFor(() => expect(api.state.findings.map((f) => f.findingType)).toEqual(["observation"]));
+    await addNote(user);
+    await user.selectOptions(screen.getByLabelText("Type"), "question");
     await user.type(screen.getByLabelText("New question"), "What is the fruit?{Control>}{Enter}{/Control}");
 
     await waitFor(() => expect(api.state.findings.map((f) => f.findingType)).toEqual(["observation", "question"]));
@@ -134,18 +145,58 @@ describe("findings", () => {
     await user.tab();
     await waitFor(() => expect(api.state.findings[0]!.content).toBe("First, revised"));
 
+    // Kind and the rest are in each note's Details; a few notes need no filter.
+    expect(screen.queryByLabelText("Show findings")).not.toBeInTheDocument();
     const question = within(list).getByRole("article", { name: /Question/ });
+    expect(within(question).queryByLabelText("Finding type")).not.toBeInTheDocument();
+    await user.click(detailsOf(list, /question/));
     await user.selectOptions(within(question).getByLabelText("Finding type"), "unresolved_issue");
     await waitFor(() => expect(api.state.findings[1]!.findingType).toBe("unresolved_issue"));
 
-    const filters = screen.getByRole("group", { name: "Show findings" });
-    await user.click(await within(filters).findByRole("button", { name: "Observations (1)" }));
-    expect(within(list).getAllByRole("article")).toHaveLength(1);
-    await user.click(within(filters).getByRole("button", { name: "All (2)" }));
-
+    await user.click(detailsOf(list, /observation/));
     await user.click(within(list).getByRole("button", { name: "Delete observation" }));
     await user.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Delete" }));
     await waitFor(() => expect(api.state.findings).toHaveLength(1));
+  });
+
+  it("offers one compact filter once there are many findings", async () => {
+    const { api, user } = await inStudy();
+    const studyId = api.state.studies[0]!.id;
+    for (let i = 0; i < 5; i++) await api.findingCreate({ studyId, findingType: "observation", content: `Seen ${i}` });
+    await api.findingCreate({ studyId, findingType: "question", content: "Why?" });
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+    await user.click(screen.getByRole("button", { name: "Back to workspace" }));
+    const list = await screen.findByRole("list", { name: "Findings" });
+    expect(within(list).getAllByRole("article")).toHaveLength(6);
+    await user.selectOptions(screen.getByLabelText("Show findings"), "question");
+    expect(within(list).getAllByRole("article")).toHaveLength(1);
+    await user.selectOptions(screen.getByLabelText("Show findings"), "");
+    expect(within(list).getAllByRole("article")).toHaveLength(6);
+  });
+
+  it("reorders, tags and links from a note's details, and closes them with Escape", async () => {
+    const { api, user } = await inStudy();
+    const studyId = api.state.studies[0]!.id;
+    await api.findingCreate({ studyId, findingType: "observation", content: "First" });
+    await api.findingCreate({ studyId, findingType: "observation", content: "Second" });
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+    await user.click(screen.getByRole("button", { name: "Back to workspace" }));
+    const list = await screen.findByRole("list", { name: "Findings" });
+
+    const toggle = detailsOf(list, /observation: Second/);
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await user.click(within(list).getByRole("button", { name: "Move observation up" }));
+    await waitFor(() => expect([...api.state.findings].sort((a, b) => a.sortOrder - b.sortOrder).map((f) => f.content)).toEqual(["Second", "First"]));
+
+    const tags = within(list).getByLabelText("Tags");
+    await user.type(tags, "vine, fruit");
+    await user.tab();
+    await waitFor(() => expect(api.state.findings.find((f) => f.content === "Second")?.tags).toEqual(["fruit", "vine"]));
+
+    await user.keyboard("{Escape}");
+    expect(within(list).queryByLabelText("Tags")).not.toBeInTheDocument();
   });
 
   it("links the current passage and opens it from the finding", async () => {
@@ -154,8 +205,10 @@ describe("findings", () => {
     await user.type(within(scripture).getByLabelText("Go to passage"), "John 15{Enter}");
     await user.click(await within(scripture).findByRole("button", { name: /^Verse 2\. Show verse tools/ }));
 
-    await user.click(within(screen.getByRole("group", { name: "Add a finding" })).getByRole("button", { name: "Question" }));
-    await user.type(screen.getByLabelText("New question"), "What does fruit mean here?");
+    await addNote(user);
+    await user.type(screen.getByLabelText("New observation"), "What does fruit mean here?");
+    // Linking is explicit: nothing is linked until it is ticked.
+    expect(screen.getByLabelText("Link current passage (John 15:2)")).not.toBeChecked();
     await user.click(screen.getByLabelText("Link current passage (John 15:2)"));
     await user.click(screen.getByRole("button", { name: "Save finding" }));
     await waitFor(() => expect(api.state.findings[0]?.passages[0]?.reference.canonical).toBe("JHN.15.2"));
@@ -176,7 +229,7 @@ describe("findings", () => {
     expect(screen.queryByLabelText("New finding")).toBeNull();
 
     // Writing a finding still says how to save it, where it is written.
-    await user.click(within(screen.getByRole("group", { name: "Add a finding" })).getByRole("button", { name: "Observation" }));
+    await addNote(user);
     expect(await screen.findByLabelText("New observation")).toBeInTheDocument();
     expect(screen.getByText("Ctrl+Enter saves")).toBeInTheDocument();
   });
@@ -191,12 +244,14 @@ describe("sections", () => {
 
     await user.click(screen.getByRole("button", { name: "Add section" }));
     await waitFor(() => expect(sectionHeadings()).toEqual(["Notes", "New section"]));
+    expect(screen.queryByRole("button", { name: "Move section New section up" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Options for section New section" }));
     await user.click(screen.getByRole("button", { name: "Move section New section up" }));
     await waitFor(() => expect(sectionHeadings()).toEqual(["New section", "Notes"]));
-    const nav = screen.getByRole("navigation", { name: "Study contents" });
-    expect(within(nav).getAllByRole("link").map((l) => l.textContent)).toEqual(["Findings", "New section", "Notes"]);
+    expect(screen.queryByRole("navigation", { name: "Study contents" })).not.toBeInTheDocument();
 
     await user.type(screen.getByRole("textbox", { name: "Notes: paragraph" }), "Keep this.");
+    await user.click(screen.getByRole("button", { name: "Options for section Notes" }));
     await user.click(screen.getByRole("button", { name: "Delete section Notes" }));
     const confirm = screen.getByRole("alertdialog", { name: "Delete section Notes?" });
     await user.click(within(confirm).getByRole("button", { name: "Delete section" }));

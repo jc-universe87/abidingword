@@ -1,6 +1,6 @@
-import { forwardRef, useCallback, useId, useRef, useState, type KeyboardEvent } from "react";
+import { forwardRef, useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Trash2, X } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { FindingSources } from "@/features/library/FindingSources";
 import { useScripture } from "@/features/scripture/ScriptureContext";
@@ -13,155 +13,125 @@ import { FINDING_TYPES, type Finding, type FindingType } from "@/types/studies";
 import { sectionTitle } from "./builtinText";
 import { findingInline, findingLabel, findingPlural } from "./labels";
 
-const QUICK: FindingType[] = ["observation", "question", "interpretation", "application", "conclusion"];
+/** Enough findings to be worth narrowing down; fewer need no filter. */
+const FILTER_MIN = 6;
 
 interface FindingsPanelProps {
   studyId: string;
   findings: Finding[];
   sections: StudySection[];
+  /** Whether the "add a note" form is open (opened from the study's one Add action). */
+  capturing: boolean;
+  onCaptureClose: () => void;
   onChanged: () => void;
   onRevealScripture: () => void;
 }
 
 /**
- * Structured findings for a study: quick capture, a type filter and the
- * list itself. Adding an observation should feel like taking a note.
+ * The study's findings, as notes in the flow of the study: nothing at all
+ * until there is one or the user is writing one, then the notes themselves.
+ * Adding is the study's one Add action; kind, section, links and the rest
+ * are in each note's Details.
  */
-export function FindingsPanel({ studyId, findings, sections, onChanged, onRevealScripture }: FindingsPanelProps) {
+export function FindingsPanel({ studyId, findings, sections, capturing, onCaptureClose, onChanged, onRevealScripture }: FindingsPanelProps) {
   const { t } = useTranslation();
   const id = useId();
-  const [capturing, setCapturing] = useState<FindingType | null>(null);
   const [filter, setFilter] = useState<FindingType | null>(null);
   const captureRef = useRef<HTMLTextAreaElement>(null);
 
+  // Writing starts where the user can type.
+  useEffect(() => {
+    if (capturing) captureRef.current?.focus();
+  }, [capturing]);
+
   const counts = new Map<FindingType, number>();
   for (const f of findings) counts.set(f.findingType, (counts.get(f.findingType) ?? 0) + 1);
-  const shown = filter ? findings.filter((f) => f.findingType === filter) : findings;
+  const active = filter && counts.has(filter) ? filter : null;
+  const shown = active ? findings.filter((f) => f.findingType === active) : findings;
+
+  if (findings.length === 0 && !capturing) return null;
 
   return (
-    <section id="study-findings" aria-labelledby={`${id}-title`} className="scroll-mt-4 flex flex-col gap-4 border-t border-border-subtle pt-6">
-      <h2 id={`${id}-title`} className="m-0 font-display text-[1.5rem] font-heading text-text-strong">
-        {t("studies.findings.heading")}
-      </h2>
-
-      <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("studies.findings.addGroup")}>
-        <span className="text-[0.9375rem] text-text-muted">{t("studies.findings.add")}</span>
-        {QUICK.map((type) => (
-          <Button
-            key={type}
-            variant="secondary"
-            className="min-h-9 px-3 text-[0.875rem]"
-            aria-pressed={capturing === type}
-            onClick={() => {
-              setCapturing(type);
-              setTimeout(() => captureRef.current?.focus(), 0);
-            }}
-          >
-            <Plus className="size-3.5" aria-hidden="true" />
-            {findingLabel(t, type)}
-          </Button>
-        ))}
-        <label className="flex items-center">
-          <span className="sr-only">{t("studies.findings.otherKind")}</span>
-          <select
-            value=""
-            onChange={(e) => {
-              if (!e.target.value) return;
-              setCapturing(e.target.value as FindingType);
-              setTimeout(() => captureRef.current?.focus(), 0);
-            }}
-            className="h-9 rounded-aw border border-border bg-bg px-2 text-[0.875rem]"
-          >
-            <option value="">{t("studies.findings.more")}</option>
-            {FINDING_TYPES.filter((type) => !QUICK.includes(type)).map((type) => (
-              <option key={type} value={type}>{findingLabel(t, type)}</option>
-            ))}
-          </select>
-        </label>
-      </div>
+    <section
+      id="study-findings"
+      aria-labelledby={findings.length > 0 ? `${id}-title` : undefined}
+      aria-label={findings.length === 0 ? t("studies.findings.heading") : undefined}
+      className="scroll-mt-4 flex flex-col gap-4 border-t border-border-subtle pt-6"
+    >
+      {findings.length > 0 && (
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+          <h2 id={`${id}-title`} className="m-0 font-display text-[1.375rem] font-heading text-text-strong">
+            {t("studies.findings.heading")}
+          </h2>
+          {findings.length >= FILTER_MIN && (
+            <label className="flex items-center gap-2 text-[0.9375rem] text-text-muted">
+              <span>{t("studies.findings.filterGroup")}</span>
+              <select
+                value={active ?? ""}
+                onChange={(e) => setFilter((e.target.value || null) as FindingType | null)}
+                className="h-9 max-w-full rounded-aw border border-border bg-bg px-2 text-text-strong"
+              >
+                <option value="">{t("studies.findings.all", { count: findings.length })}</option>
+                {FINDING_TYPES.filter((type) => counts.has(type)).map((type) => (
+                  <option key={type} value={type}>
+                    {t("studies.findings.filterType", { type: findingPlural(t, type), count: counts.get(type) })}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+        </div>
+      )}
 
       {capturing && (
         <QuickCapture
           ref={captureRef}
           studyId={studyId}
-          type={capturing}
           sections={sections}
-          onTypeChange={setCapturing}
           onDone={() => {
-            setCapturing(null);
+            onCaptureClose();
             onChanged();
           }}
-          onCancel={() => setCapturing(null)}
+          onCancel={onCaptureClose}
         />
       )}
 
       {findings.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 text-[0.875rem]" role="group" aria-label={t("studies.findings.filterGroup")}>
-          <FilterButton active={filter === null} onClick={() => setFilter(null)} label={t("studies.findings.all", { count: findings.length })} />
-          {FINDING_TYPES.filter((type) => counts.has(type)).map((type) => (
-            <FilterButton
-              key={type}
-              active={filter === type}
-              onClick={() => setFilter(filter === type ? null : type)}
-              label={t("studies.findings.filterType", { type: findingPlural(t, type), count: counts.get(type) })}
+        <ol aria-label={t("studies.findings.listLabel")} className="m-0 flex list-none flex-col gap-5 p-0">
+          {shown.map((finding) => (
+            <FindingItem
+              key={finding.id}
+              finding={finding}
+              sections={sections}
+              order={findings.map((f) => f.id)}
+              canMove={active === null}
+              onChanged={onChanged}
+              onRevealScripture={onRevealScripture}
             />
           ))}
-        </div>
+        </ol>
       )}
-
-      {findings.length === 0 && !capturing && (
-        <p className="m-0 text-[0.9375rem] text-text-muted">
-          {t("studies.findings.empty")}
-        </p>
-      )}
-
-      <ol aria-label={t("studies.findings.listLabel")} className="m-0 flex list-none flex-col gap-3 p-0">
-        {shown.map((finding) => (
-          <FindingItem
-            key={finding.id}
-            finding={finding}
-            sections={sections}
-            order={findings.map((f) => f.id)}
-            canMove={filter === null}
-            onChanged={onChanged}
-            onRevealScripture={onRevealScripture}
-          />
-        ))}
-      </ol>
     </section>
-  );
-}
-
-function FilterButton({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className="min-h-8 rounded-aw border border-border px-2.5 text-text-strong hover:bg-bg-secondary aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-on-primary"
-    >
-      {label}
-    </button>
   );
 }
 
 interface QuickCaptureProps {
   studyId: string;
-  type: FindingType;
   sections: StudySection[];
-  onTypeChange: (type: FindingType) => void;
   onDone: () => void;
   onCancel: () => void;
 }
 
-const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(function QuickCapture(
-  { studyId, type, sections, onTypeChange, onDone, onCancel },
-  ref,
-) {
+/** What a note is until the user says otherwise. */
+const DEFAULT_TYPE: FindingType = "observation";
+
+/** Write first, classify second: the text comes first; kind and place are small choices below it. */
+const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(function QuickCapture({ studyId, sections, onDone, onCancel }, ref) {
   const { t } = useTranslation();
   const api = useApi();
   const { currentPassage } = useScripture();
   const id = useId();
+  const [type, setType] = useState<FindingType>(DEFAULT_TYPE);
   const [text, setText] = useState("");
   const [sectionId, setSectionId] = useState("");
   const [linkPassage, setLinkPassage] = useState(false);
@@ -198,30 +168,14 @@ const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(function
       event.preventDefault();
       void save();
     }
-    if (event.key === "Escape") onCancel();
+    if (event.key === "Escape") {
+      event.stopPropagation();
+      onCancel();
+    }
   };
 
   return (
-    <div className="flex flex-col gap-2 border-l-[3px] border-accent bg-bg-secondary px-4 py-3" onKeyDown={keys}>
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2 text-[0.9375rem]">
-          <span className="font-medium text-text-strong">{t("studies.findings.type")}</span>
-          <select value={type} onChange={(e) => onTypeChange(e.target.value as FindingType)} className="h-9 rounded-aw border border-border bg-bg px-2">
-            {FINDING_TYPES.map((option) => (
-              <option key={option} value={option}>{findingLabel(t, option)}</option>
-            ))}
-          </select>
-        </label>
-        <label className="flex items-center gap-2 text-[0.9375rem]">
-          <span className="text-text-muted">{t("studies.findings.in")}</span>
-          <select value={sectionId} onChange={(e) => setSectionId(e.target.value)} className="h-9 max-w-48 rounded-aw border border-border bg-bg px-2">
-            <option value="">{t("studies.findings.wholeStudy")}</option>
-            {sections.map((s) => (
-              <option key={s.id} value={s.id}>{sectionTitle(s)}</option>
-            ))}
-          </select>
-        </label>
-      </div>
+    <div role="group" aria-label={t("studies.findings.addGroup")} className="flex flex-col gap-3 border-l-[3px] border-accent bg-bg-secondary px-4 py-3" onKeyDown={keys}>
       <label htmlFor={`${id}-text`} className="sr-only">{t("studies.findings.newLabel", { type: findingInline(t, type) })}</label>
       <textarea
         id={`${id}-text`}
@@ -229,15 +183,36 @@ const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(function
         rows={3}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder={t("studies.findings.newPlaceholder", { type: findingInline(t, type) })}
+        placeholder={t("studies.findings.writePlaceholder")}
         className="reading rounded-aw border border-border bg-bg px-3 py-2 text-[1rem] placeholder:text-text-muted"
       />
-      {currentPassage && (
-        <label className="flex items-center gap-2 text-[0.9375rem]">
-          <input type="checkbox" checked={linkPassage} onChange={(e) => setLinkPassage(e.target.checked)} className="size-4 accent-[var(--aw-primary)]" />
-          {t("studies.findings.linkCurrent", { passage: referenceLabel(currentPassage) })}
+      <div className="flex flex-col gap-2 text-[0.9375rem] sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+        <label className="flex items-center gap-2">
+          <span className="text-text-muted">{t("studies.findings.type")}</span>
+          <select value={type} onChange={(e) => setType(e.target.value as FindingType)} className="h-9 min-w-0 rounded-aw border border-border bg-bg px-2">
+            {FINDING_TYPES.map((option) => (
+              <option key={option} value={option}>{findingLabel(t, option)}</option>
+            ))}
+          </select>
         </label>
-      )}
+        {sections.length > 0 && (
+          <label className="flex items-center gap-2">
+            <span className="text-text-muted">{t("studies.findings.in")}</span>
+            <select value={sectionId} onChange={(e) => setSectionId(e.target.value)} className="h-9 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2">
+              <option value="">{t("studies.findings.wholeStudy")}</option>
+              {sections.map((s) => (
+                <option key={s.id} value={s.id}>{sectionTitle(s)}</option>
+              ))}
+            </select>
+          </label>
+        )}
+        {currentPassage && (
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={linkPassage} onChange={(e) => setLinkPassage(e.target.checked)} className="size-4 accent-[var(--aw-primary)]" />
+            {t("studies.findings.linkCurrent", { passage: referenceLabel(currentPassage) })}
+          </label>
+        )}
+      </div>
       {error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{error}</p>}
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="primary" onClick={save} disabled={busy}>{t("studies.findings.save")}</Button>
@@ -261,6 +236,9 @@ function FindingItem({ finding, sections, order, canMove, onChanged, onRevealScr
   const { t } = useTranslation();
   const api = useApi();
   const { goTo, currentPassage } = useScripture();
+  const detailsId = useId();
+  const toggle = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = useState(false);
   const [text, setText] = useState(finding.content);
   const [tags, setTags] = useState(finding.tags.join(", "));
   const [confirming, setConfirming] = useState(false);
@@ -291,60 +269,29 @@ function FindingItem({ finding, sections, order, canMove, onChanged, onRevealScr
   };
   const position = order.indexOf(finding.id);
   const linked = currentPassage && finding.passages.some((p) => p.reference.canonical === currentPassage.canonical);
+  const section = sections.find((s) => s.id === finding.sectionId);
+  const excerpt = finding.content.slice(0, 60);
 
-  const iconButton = "inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40";
+  const field = "h-9 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2";
+  const quiet = "inline-flex min-h-9 items-center rounded-aw px-2 text-text-muted hover:bg-bg-secondary hover:text-text-strong disabled:opacity-40";
 
   return (
     <li>
-      <article aria-label={t("studies.findings.itemLabel", { type: label, excerpt: finding.content.slice(0, 60) })} className="flex flex-col gap-2 border-l-[3px] border-border py-1 pl-4">
-        <div className="flex flex-wrap items-center gap-2 text-[0.875rem]">
-          <label className="flex items-center">
-            <span className="sr-only">{t("studies.findings.typeLabel")}</span>
-            <select
-              value={finding.findingType}
-              onChange={(e) => act(() => api.findingUpdate({ id: finding.id, findingType: e.target.value as FindingType }))}
-              className="h-8 rounded-aw border border-border bg-bg px-1.5 font-semibold text-text-strong"
-            >
-              {FINDING_TYPES.map((option) => (
-                <option key={option} value={option}>{findingLabel(t, option)}</option>
-              ))}
-            </select>
-          </label>
-          <label className="flex items-center gap-1">
-            <span className="text-text-muted">{t("studies.findings.inLower")}</span>
-            <select
-              aria-label={t("studies.findings.section")}
-              value={finding.sectionId ?? ""}
-              onChange={(e) => act(() => api.findingUpdate({ id: finding.id, sectionId: e.target.value }))}
-              className="h-8 max-w-44 rounded-aw border border-border bg-bg px-1.5"
-            >
-              <option value="">{t("studies.findings.wholeStudy")}</option>
-              {sections.map((s) => (
-                <option key={s.id} value={s.id}>{sectionTitle(s)}</option>
-              ))}
-            </select>
-          </label>
-          <span className="ml-auto flex items-center">
-            {canMove && (
-              <>
-                <button type="button" className={iconButton} disabled={position <= 0} onClick={() => move(-1)} aria-label={t("studies.findings.moveUp", { type })}>
-                  <ArrowUp className="size-4" aria-hidden="true" />
-                </button>
-                <button type="button" className={iconButton} disabled={position >= order.length - 1} onClick={() => move(1)} aria-label={t("studies.findings.moveDown", { type })}>
-                  <ArrowDown className="size-4" aria-hidden="true" />
-                </button>
-              </>
-            )}
-            <button
-              type="button"
-              className={`${iconButton} hover:text-danger`}
-              onClick={() => (text.trim() ? setConfirming(true) : act(() => api.findingDelete(finding.id)))}
-              aria-label={t("studies.findings.delete", { type })}
-            >
-              <Trash2 className="size-4" aria-hidden="true" />
-            </button>
-          </span>
-        </div>
+      <article
+        aria-label={t("studies.findings.itemLabel", { type: label, excerpt })}
+        className="flex flex-col gap-1 border-l-[3px] border-border py-1 pl-4"
+        onKeyDown={(e) => {
+          if (e.key === "Escape" && open) {
+            e.stopPropagation();
+            setOpen(false);
+            toggle.current?.focus();
+          }
+        }}
+      >
+        <p className="m-0 text-[0.875rem] font-medium text-text-muted">
+          {label}
+          {section && <span className="font-normal">{t("common.listSeparator")}{sectionTitle(section)}</span>}
+        </p>
 
         <textarea
           aria-label={t("studies.findings.text", { type: label })}
@@ -355,58 +302,29 @@ function FindingItem({ finding, sections, order, canMove, onChanged, onRevealScr
             schedule(e.target.value);
           }}
           onBlur={flush}
-          className="reading w-full resize-y rounded-aw border border-transparent bg-transparent px-2 py-1 text-[1rem] hover:border-border-subtle focus:border-border"
+          className="reading w-full resize-y rounded-aw border border-transparent bg-transparent px-2 py-1 -mx-2 text-[1rem] hover:border-border-subtle focus:border-border"
         />
 
-        <div className="flex flex-wrap items-center gap-2 text-[0.875rem]">
-          {finding.passages.map((p) => (
-            <span key={p.id} className="inline-flex items-center rounded-aw border border-border">
+        {(finding.passages.length > 0 || finding.sources.length > 0) && (
+          <div className="flex flex-wrap items-center gap-2 text-[0.875rem]">
+            {finding.passages.map((p) => (
               <button
+                key={p.id}
                 type="button"
                 onClick={() => {
                   goTo(p.reference);
                   onRevealScripture();
                 }}
-                className="min-h-8 px-2 font-medium text-link hover:bg-bg-secondary"
+                className="min-h-8 rounded-aw border border-border px-2 font-medium text-link hover:bg-bg-secondary"
               >
                 {referenceLabel(p.reference)}
               </button>
-              <button
-                type="button"
-                onClick={() => act(() => api.findingUnlinkPassage(p.id))}
-                aria-label={t("studies.findings.unlink", { passage: referenceLabel(p.reference) })}
-                className="inline-flex size-8 items-center justify-center border-l border-border text-text-muted hover:bg-bg-secondary"
-              >
-                <X className="size-3.5" aria-hidden="true" />
-              </button>
-            </span>
-          ))}
-          {currentPassage && !linked && (
-            <button
-              type="button"
-              onClick={() => act(() => api.findingLinkPassage({ findingId: finding.id, reference: currentPassage.canonical }))}
-              className="min-h-8 rounded-aw px-2 text-text-muted underline-offset-2 hover:text-text-strong hover:underline"
-            >
-              {t("studies.findings.link", { passage: referenceLabel(currentPassage) })}
-            </button>
-          )}
-          <label className="ml-auto flex items-center gap-1.5">
-            <span className="text-text-muted">{t("studies.findings.tags")}</span>
-            <input
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              onBlur={() => {
-                const next = tags.split(",").map((tag) => tag.trim()).filter(Boolean);
-                if (next.join(",") !== finding.tags.join(",")) void act(() => api.findingSetTags({ findingId: finding.id, tags: next }));
-              }}
-              placeholder={t("studies.findings.tagsPlaceholder")}
-              className="h-8 w-44 rounded-aw border border-border-subtle bg-bg px-2 placeholder:text-text-muted"
-            />
-          </label>
-        </div>
-
+            ))}
+          </div>
+        )}
         <FindingSources
           finding={finding}
+          canAdd={open}
           onChanged={onChanged}
           onQuote={
             finding.findingType === "quotation"
@@ -417,6 +335,112 @@ function FindingItem({ finding, sections, order, canMove, onChanged, onRevealScr
               : undefined
           }
         />
+
+        <div>
+          <button
+            ref={toggle}
+            type="button"
+            aria-expanded={open}
+            aria-controls={detailsId}
+            aria-label={t("studies.findings.detailsFor", { type, excerpt })}
+            onClick={() => setOpen(!open)}
+            className={`${quiet} -ml-2 gap-1 text-[0.875rem]`}
+          >
+            {open ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
+            {t("studies.findings.details")}
+          </button>
+        </div>
+
+        {open && (
+          <div id={detailsId} className="flex flex-col gap-3 rounded-aw border border-border-subtle bg-bg-secondary px-3 py-3 text-[0.9375rem]">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+              <label className="flex items-center gap-2">
+                <span className="text-text-muted">{t("studies.findings.typeLabel")}</span>
+                <select
+                  value={finding.findingType}
+                  onChange={(e) => act(() => api.findingUpdate({ id: finding.id, findingType: e.target.value as FindingType }))}
+                  className={field}
+                >
+                  {FINDING_TYPES.map((option) => (
+                    <option key={option} value={option}>{findingLabel(t, option)}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex items-center gap-2">
+                <span className="text-text-muted">{t("studies.findings.section")}</span>
+                <select
+                  value={finding.sectionId ?? ""}
+                  onChange={(e) => act(() => api.findingUpdate({ id: finding.id, sectionId: e.target.value }))}
+                  className={field}
+                >
+                  <option value="">{t("studies.findings.wholeStudy")}</option>
+                  {sections.map((s) => (
+                    <option key={s.id} value={s.id}>{sectionTitle(s)}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex items-center gap-2">
+                <span className="text-text-muted">{t("studies.findings.tags")}</span>
+                <input
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  onBlur={() => {
+                    const next = tags.split(",").map((tag) => tag.trim()).filter(Boolean);
+                    if (next.join(",") !== finding.tags.join(",")) void act(() => api.findingSetTags({ findingId: finding.id, tags: next }));
+                  }}
+                  placeholder={t("studies.findings.tagsPlaceholder")}
+                  className={`${field} w-44`}
+                />
+              </label>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {finding.passages.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => act(() => api.findingUnlinkPassage(p.id))}
+                  aria-label={t("studies.findings.unlink", { passage: referenceLabel(p.reference) })}
+                  className="inline-flex min-h-8 items-center gap-1 rounded-aw border border-border px-2 text-text-muted hover:bg-bg"
+                >
+                  {referenceLabel(p.reference)}
+                  <X className="size-3.5" aria-hidden="true" />
+                </button>
+              ))}
+              {currentPassage && !linked && (
+                <button
+                  type="button"
+                  onClick={() => act(() => api.findingLinkPassage({ findingId: finding.id, reference: currentPassage.canonical }))}
+                  className="min-h-8 rounded-aw px-2 text-text-muted underline-offset-2 hover:text-text-strong hover:underline"
+                >
+                  {t("studies.findings.link", { passage: referenceLabel(currentPassage) })}
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1">
+              {canMove && (
+                <>
+                  <button type="button" className={quiet} disabled={position <= 0} onClick={() => move(-1)} aria-label={t("studies.findings.moveUp", { type })}>
+                    <ArrowUp className="size-4" aria-hidden="true" />
+                  </button>
+                  <button type="button" className={quiet} disabled={position >= order.length - 1} onClick={() => move(1)} aria-label={t("studies.findings.moveDown", { type })}>
+                    <ArrowDown className="size-4" aria-hidden="true" />
+                  </button>
+                </>
+              )}
+              <button
+                type="button"
+                className={`${quiet} ml-auto gap-1 hover:text-danger`}
+                onClick={() => (text.trim() ? setConfirming(true) : act(() => api.findingDelete(finding.id)))}
+                aria-label={t("studies.findings.delete", { type })}
+              >
+                <Trash2 className="size-4" aria-hidden="true" />
+                {t("common.delete")}
+              </button>
+            </div>
+          </div>
+        )}
 
         {confirming && (
           <div role="alertdialog" aria-label={t("studies.findings.confirmDelete", { type })} className="flex flex-wrap items-center gap-2 text-[0.9375rem]">

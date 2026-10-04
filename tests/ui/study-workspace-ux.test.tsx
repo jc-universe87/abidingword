@@ -132,21 +132,6 @@ describe("the study page", () => {
     await waitFor(() => expect(api.state.passages.find((p) => p.reference.canonical === "ROM.8.1-ROM.8.4")?.role).toBe("primary"));
   });
 
-  it("offers a contents line only when the study has enough parts to need one", async () => {
-    const { api } = await withProject([{ title: "The True Vine" }]);
-    const { user } = await renderApp(api);
-    await openStudy(user, /The True Vine/);
-    expect(screen.getByRole("navigation", { name: "Study contents" })).toBeInTheDocument();
-  });
-
-  it("leaves out the contents line for a one-section study", async () => {
-    const { api, project } = await withProject();
-    await api.studyCreate({ projectId: project.id, title: "Loose notes", studyType: "custom", templateId: api.state.templates.find((t) => t.key === "custom")?.id });
-    const { user } = await renderApp(api);
-    await openStudy(user, /Loose notes/);
-    expect(screen.queryByRole("navigation", { name: "Study contents" })).not.toBeInTheDocument();
-  });
-
   it("shows related studies compactly only when there are some", async () => {
     const { api } = await withProject([{ title: "Romans 8" }, { title: "Galatians 4" }]);
     await api.studyRelationCreate({ fromStudyId: api.state.studies[0]!.id, toStudyId: api.state.studies[1]!.id, relationType: "related" });

@@ -12,6 +12,8 @@ import { useLibraryNav } from "./LibraryNav";
 
 interface FindingSourcesProps {
   finding: Finding;
+  /** Offer "Add source" (a finding's details are open); its sources always show. */
+  canAdd?: boolean;
   onChanged: () => void;
   /**
    * Quotation findings only: puts the cited passage's text into the finding.
@@ -21,7 +23,7 @@ interface FindingSourcesProps {
 }
 
 /** A finding's library citations, and "Add source" to cite a passage. */
-export function FindingSources({ finding, onChanged, onQuote }: FindingSourcesProps) {
+export function FindingSources({ finding, canAdd = true, onChanged, onQuote }: FindingSourcesProps) {
   const { t } = useTranslation();
   const api = useApi();
   const { openSource } = useLibraryNav();
@@ -38,6 +40,7 @@ export function FindingSources({ finding, onChanged, onQuote }: FindingSourcesPr
     }
   };
 
+  if (finding.sources.length === 0 && !canAdd && !picking) return null;
   return (
     <div className="flex flex-col gap-2 text-[0.875rem]">
       <div className="flex flex-wrap items-center gap-2">
@@ -69,7 +72,7 @@ export function FindingSources({ finding, onChanged, onQuote }: FindingSourcesPr
             </button>
           </span>
         ))}
-        {!picking && (
+        {!picking && canAdd && (
           <button
             type="button"
             onClick={() => setPicking(true)}

@@ -446,11 +446,11 @@
     "titleLabel": "Titel des Bibelstudiums",
     "contents": "Inhalt des Bibelstudiums",
     "findingsLink": "Einträge",
-    "findingsLinkCount": "Einträge ({{count}})",
-    "addSection": "Abschnitt hinzufügen",
     "newSectionTitle": "Neuer Abschnitt",
     "allSaved": "Alle Änderungen gespeichert.",
-    "saved": "Gespeichert"
+    "saved": "Gespeichert",
+    "start": "Beginnen Sie Ihr Bibelstudium",
+    "contentsToggle": "Inhalt"
   },
   "sections": {
     "rename": "Abschnitt „{{title}}“ umbenennen",
@@ -463,7 +463,12 @@
     "confirmWithFindings": "„{{title}}“ mit dem darin geschriebenen Text löschen? Die Einträge des Abschnitts bleiben als Einträge zum gesamten Bibelstudium erhalten.",
     "deleteSection": "Abschnitt löschen",
     "addTo": "Zu „{{title}}“ hinzufügen",
-    "titleLabel": "Titel des Abschnitts"
+    "titleLabel": "Titel des Abschnitts",
+    "options": "Optionen für Abschnitt {{title}}",
+    "optionsTooltip": "Abschnittsoptionen",
+    "optionsGroup": "Optionen für Abschnitt {{title}}",
+    "addToggle": "Hinzufügen…",
+    "addToggleLabel": "Inhalt zu {{title}} hinzufügen"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -480,13 +485,9 @@
   "findings": {
     "heading": "Einträge",
     "addGroup": "Eintrag hinzufügen",
-    "add": "Hinzufügen:",
-    "otherKind": "Andere Art von Eintrag",
-    "more": "Mehr …",
     "filterGroup": "Einträge anzeigen",
     "all": "Alle ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "empty": "Noch keine Einträge. Halten Sie beim Bibelstudium Beobachtungen, Fragen und Schlussfolgerungen fest; so finden Sie sie später wieder.",
     "listLabel": "Einträge",
     "writeFirst": "Schreiben Sie zuerst den Eintrag.",
     "type": "Art",
@@ -494,7 +495,6 @@
     "inLower": "in",
     "wholeStudy": "Gesamtes Bibelstudium",
     "newLabel": "Neu: {{type}}",
-    "newPlaceholder": "Neu: {{type}} …",
     "linkCurrent": "Aktuelle Bibelstelle verknüpfen ({{passage}})",
     "save": "Eintrag speichern",
     "saveHint": "Strg+Eingabe speichert",
@@ -509,7 +509,10 @@
     "link": "+ {{passage}} verknüpfen",
     "tags": "Schlagwörter",
     "tagsPlaceholder": "z. B. Bund, Predigt",
-    "confirmDelete": "{{type}} löschen?"
+    "confirmDelete": "{{type}} löschen?",
+    "writePlaceholder": "Eintrag schreiben…",
+    "details": "Details",
+    "detailsFor": "Details zu {{type}}: {{excerpt}}"
   },
   "passages": {
     "label": "Bibelstellen",
@@ -587,5 +590,11 @@
     "remove": "„{{title}}“ entfernen",
     "addSection": "Abschnitt hinzufügen",
     "save": "Vorlage speichern"
+  },
+  "add": {
+    "toggle": "Hinzufügen",
+    "group": "Zum Bibelstudium hinzufügen",
+    "note": "Eintrag hinzufügen",
+    "section": "Abschnitt hinzufügen"
   }
 }

@@ -260,6 +260,8 @@ describe("finding citations", () => {
   }
 
   async function cite(user: Awaited<ReturnType<typeof renderApp>>["user"], findings: HTMLElement, query: string) {
+    const details = within(findings).queryByRole("button", { name: /^Details for/, expanded: false });
+    if (details) await user.click(details);
     await user.click(within(findings).getByRole("button", { name: "+ Add source" }));
     await user.type(screen.getByLabelText("Search your library for the passage to cite"), `${query}{Enter}`);
     const choices = await screen.findByRole("list", { name: "Passages to cite" });

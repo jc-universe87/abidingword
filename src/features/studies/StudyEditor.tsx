@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, ChevronRight, Plus } from "lucide-react";
-import { Button } from "@/design-system/Button";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { Notice } from "@/design-system/Notice";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 import { useSaveTracker } from "@/hooks/SaveTracker";
@@ -11,10 +10,11 @@ import { useApi } from "@/lib/ApiContext";
 import type { StudySection } from "@/types/domain";
 import { EditableTitle } from "./EditableTitle";
 import { FindingsPanel } from "./FindingsPanel";
-import { sectionTitle } from "./builtinText";
 import { studyTypeLabel } from "./labels";
 import { RelatedStudies } from "./RelatedStudies";
 import { SectionEditor } from "./SectionEditor";
+import { StudyAdd } from "./StudyAdd";
+import { StudyContents } from "./StudyContents";
 import { StudyDetailsPanel } from "./StudyDetails";
 import { StudyPassages } from "./StudyPassages";
 
@@ -38,7 +38,16 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   const relations = useLoad(useCallback(() => api.studyRelationList(studyId), [api, studyId]));
   const detailsId = useId();
   const [showDetails, setShowDetails] = useState(false);
+  const [capturing, setCapturing] = useState(false);
+  const [newSection, setNewSection] = useState<string | null>(null);
   const toggle = useRef<HTMLButtonElement>(null);
+  const article = useRef<HTMLElement>(null);
+  const openedId = detail.data?.study.id;
+
+  // A study opens at its title, not wherever the list before it was scrolled to.
+  useEffect(() => {
+    for (let el = article.current?.parentElement; el; el = el.parentElement) if (el.scrollTop > 0) el.scrollTop = 0;
+  }, [openedId]);
   const rename = useCallback((title: string) => api.studyUpdate({ id: studyId, title }), [api, studyId]);
   const [error, setError] = useState<string | null>(null);
   const missing = detail.error?.kind === "notFound";
@@ -71,6 +80,8 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
 
   const { study } = detail.data;
   const current = detail.data;
+  // Nothing of the user's yet: no findings and no writing in any section.
+  const blank = (findings.data ?? []).length === 0 && sections.every((sec) => sec.blocks.every((b) => !b.content.trim()));
   const updateSection = (section: StudySection) =>
     detail.setData({ ...current, sections: sections.map((s) => (s.id === section.id ? section : s)) });
 
@@ -92,7 +103,8 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   const addSection = async () => {
     setError(null);
     try {
-      await api.studySectionCreate({ studyId: study.id, title: t("studies.editor.newSectionTitle") });
+      const created = await api.studySectionCreate({ studyId: study.id, title: t("studies.editor.newSectionTitle") });
+      setNewSection(created.id);
       detail.reload();
     } catch (e) {
       setError(toApiError(e).message);
@@ -100,7 +112,7 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   };
 
   return (
-    <article className="flex flex-col gap-6">
+    <article ref={article} className="flex flex-col gap-6">
       <header
         id="study-overview"
         className="scroll-mt-4 flex flex-col gap-3"
@@ -126,6 +138,7 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
             {showDetails ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
             {t("studies.header.detailsToggle")}
           </button>
+          <StudyContents sections={sections} hasFindings={(findings.data ?? []).length > 0} />
           <SaveIndicator />
         </div>
         <StudyPassages studyId={study.id} passages={passages.data ?? []} reload={passages.reload} onReveal={onRevealScripture} />
@@ -144,30 +157,16 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
             onDuplicated={(id) => onOpenStudy({ id, projectId: study.projectId })}
           />
         )}
-        {sections.length + 1 >= 3 && (
-          <nav aria-label={t("studies.editor.contents")}>
-            <ul className="m-0 flex list-none flex-wrap gap-x-4 gap-y-1 p-0 text-[0.875rem] text-text-muted">
-              <li>
-                <a href="#study-findings" className="underline-offset-4 hover:text-link hover:underline">
-                  {t("studies.editor.findingsLink")}
-                </a>
-              </li>
-              {sections.map((section) => (
-                <li key={section.id}>
-                  <a href={`#section-anchor-${section.id}`} className="underline-offset-4 hover:text-link hover:underline">
-                    {sectionTitle(section)}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )}
       </header>
+
+      <StudyAdd empty={blank} onAddNote={() => setCapturing(true)} onAddSection={addSection} />
 
       <FindingsPanel
         studyId={study.id}
         findings={findings.data ?? []}
         sections={sections}
+        capturing={capturing}
+        onCaptureClose={() => setCapturing(false)}
         onChanged={findings.reload}
         onRevealScripture={onRevealScripture}
       />
@@ -186,15 +185,9 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
             findings.reload();
           }}
           onRevealScripture={onRevealScripture}
+          reveal={section.id === newSection}
         />
       ))}
-
-      <div className="border-t border-border-subtle pt-4">
-        <Button onClick={addSection}>
-          <Plus className="size-4" aria-hidden="true" />
-          {t("studies.editor.addSection")}
-        </Button>
-      </div>
       {error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{error}</p>}
     </article>
   );
