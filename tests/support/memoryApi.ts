@@ -30,6 +30,8 @@ import type {
 import { contains, refFromCanonical } from "@/lib/scripture";
 import type {
   ContentsItem,
+  EpubItem,
+  EpubStructureItem,
   SourceLink,
   FindingCitation,
   LibraryHit,
@@ -112,6 +114,8 @@ export interface SourceFixture {
   contents?: ContentsItem[];
   /** Links in the text that lead elsewhere in the same source, as the core would return them. */
   links?: SourceLink[];
+  /** An EPUB's formatted view (its documents, by id); a source without it has no Original view. */
+  formatted?: { structure: EpubStructureItem[]; items: Record<string, EpubItem> };
 }
 
 /**
@@ -388,6 +392,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     s.pageNumber !== null ? `p. ${s.pageNumber}` : (s.sectionPath ?? `¶ ${(s.paragraphIndex ?? 0) + 1}`);
   const contentsOf = new Map<string, ContentsItem[]>();
   const linksOf = new Map<string, SourceLink[]>();
+  const formattedOf = new Map<string, NonNullable<SourceFixture["formatted"]>>();
   const addSource = (fixture: SourceFixture, extra: Partial<Source> = {}): Source => {
     const t = now();
     const sourceId = id();
@@ -414,13 +419,14 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       licenceStatus: "private", licence: null, notes: null, format, originalFilename: `${fixture.title}.${format}`,
       extractionStatus: format === "pdf" ? "extracted_text" : "digital_text",
       pageCount: format === "pdf" ? Math.max(0, ...pages) : null,
-      originalView: format === "pdf" ? { kind: "pdf" } : null, segmentCount: fixture.segments.length,
+      originalView: format === "pdf" ? { kind: "pdf" } : fixture.formatted ? { kind: "epub" } : null, segmentCount: fixture.segments.length,
       passageCount: fixture.mentions?.length ?? 0, contentHash: `hash-${fixture.title}`, createdAt: t, updatedAt: t,
       deleted: false, ...extra,
     };
     library.sources.push(source);
     if (fixture.contents) contentsOf.set(sourceId, fixture.contents);
     if (fixture.links) linksOf.set(sourceId, fixture.links);
+    if (fixture.formatted) formattedOf.set(sourceId, fixture.formatted);
     return source;
   };
   const toSummary = (s: Source): SourceSummary => ({
@@ -1015,6 +1021,18 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     librarySourceLinks: async (sourceId) => {
       liveSource(sourceId);
       return linksOf.get(sourceId) ?? [];
+    },
+    libraryEpubStructure: async (sourceId) => {
+      liveSource(sourceId);
+      const formatted = formattedOf.get(sourceId);
+      if (!formatted) throw new ApiError("invalidInput", "This source has no original view.");
+      return formatted.structure;
+    },
+    libraryEpubItem: async (sourceId, item) => {
+      liveSource(sourceId);
+      const found = formattedOf.get(sourceId)?.items[item];
+      if (!found) throw new ApiError("invalidInput", "The original of this source can’t be opened.");
+      return found;
     },
     libraryOriginalInfo: async (sourceId) => {
       const source = liveSource(sourceId);

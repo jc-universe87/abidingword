@@ -165,5 +165,15 @@
     "group": "Historial de lectura",
     "back": "Volver al lugar anterior",
     "forward": "Avanzar al lugar siguiente"
+  },
+  "formatted": {
+    "previousPart": "Parte anterior",
+    "nextPart": "Parte siguiente",
+    "partOf": "Parte {{part}} de {{total}}",
+    "failed": "No se puede mostrar la vista original de este libro. La lectura sigue disponible.",
+    "table": "Tabla",
+    "missingImages_one": "No se pudo mostrar {{count}} imagen.",
+    "missingImages_many": "No se pudieron mostrar {{count}} de imágenes.",
+    "missingImages_other": "No se pudieron mostrar {{count}} imágenes."
   }
 }

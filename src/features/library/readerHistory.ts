@@ -14,6 +14,10 @@ export interface SourceLocation {
   position: number | null;
   /** How far, in pixels, the top of that segment is below the top of the view (negative: partly scrolled past). */
   offset: number;
+  /** A formatted EPUB's place: its reading-order document and the element in it (null: its top), and that element's distance from the top of the view. */
+  item: string | null;
+  fragment: string | null;
+  itemOffset: number;
 }
 
 export interface ReaderHistory {

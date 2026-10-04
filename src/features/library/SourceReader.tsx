@@ -11,6 +11,9 @@ import type { PdfPlace } from "@/lib/pdfEngine";
 import type { ContentsItem, SegmentWindow, SourceLink, SourceSegment } from "@/types/library";
 import { formatLabel, licenceLabel, locatorLabel, sourceTypeLabel } from "./labels";
 import { ContentsPanel, useContentsLayout } from "./ContentsPanel";
+import { EpubViewer } from "./formatted/EpubViewer";
+import { placeOfPosition, positionOfPlace, type EpubPlace } from "./formatted/epubLocation";
+import { useEpubStructure } from "./formatted/useEpubStructure";
 import { PdfViewer } from "./PdfViewer";
 import { canGoBack, canGoForward, NO_HISTORY, stepBack, stepForward, visit, type ReaderHistory, type SourceLocation } from "./readerHistory";
 import { currentEntry, useSourceContents } from "./useSourceContents";
@@ -28,6 +31,8 @@ export interface ReaderPosition {
   page: number | null;
   /** The Back / Forward history of this reading session, kept while moving between the pane and the full reader. */
   history?: ReaderHistory;
+  /** An EPUB's formatted view: where it is (document and element), to continue there. */
+  place?: SourceLocation;
 }
 
 interface SourceReaderProps {
@@ -95,6 +100,14 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const pdfNow = useRef<(() => PdfPlace) | null>(null);
   // The links in an EPUB's text, by the segment they are in.
   const links = useSourceLinks(source.data);
+  // An EPUB's formatted view: its reading order, where it was told to open, and where it is on request.
+  const epub = useEpubStructure(source.data);
+  const [epubStart] = useState<EpubPlace | null>(
+    initialPosition?.place?.item ? { item: initialPosition.place.item, fragment: initialPosition.place.fragment, offset: initialPosition.place.itemOffset } : null,
+  );
+  const [epubOpen, setEpubOpen] = useState<EpubPlace | null>(null);
+  const [epubJump, setEpubJump] = useState<(EpubPlace & { nonce: number }) | null>(null);
+  const epubNow = useRef<(() => EpubPlace) | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -131,7 +144,11 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     }
   }, [loaded, targetId]);
 
-  const hasOriginal = source.data?.originalView?.kind === "pdf";
+  const viewKind = source.data?.originalView?.kind;
+  const isPdf = viewKind === "pdf";
+  // An EPUB has an Original view unless its structure could not be read or it has no text.
+  const isEpubView = viewKind === "epub" && epub.status !== "failed" && !(epub.status === "ready" && epub.items.length === 0);
+  const hasOriginal = isPdf || isEpubView;
   const targetPage = window?.segments.find((x) => x.id === window.targetSegmentId)?.pageNumber ?? null;
   const startPage = openPage ?? initialPage ?? targetPage ?? 1;
   const showOriginal = mode === "original" && hasOriginal;
@@ -153,15 +170,34 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
 
   /** Where this reader is now, for the next reader to continue from. */
   const positionNow = (): ReaderPosition =>
-    showOriginal
-      ? { mode: "original", page: originalPage.current ?? startPage, history: historyRef.current }
-      : { mode: "reading", page: hasOriginal && window ? readingPage() : null, history: historyRef.current };
+    showOriginal && isEpubView
+      ? { mode: "original", page: null, history: historyRef.current, place: placeNow() }
+      : showOriginal
+        ? { mode: "original", page: originalPage.current ?? startPage, history: historyRef.current }
+        : { mode: "reading", page: isPdf && window ? readingPage() : null, history: historyRef.current };
 
   const choose = async (next: ReaderMode) => {
     if (next === mode) return;
     // A request made in the other view, and a panel that named a place there, are finished.
     setPanel(null);
     setJump(null);
+    setEpubJump(null);
+    if (isEpubView) {
+      // Same place in the other view: the document and element for the text on top, and the other way round.
+      if (next === "original") {
+        const at = topSegment();
+        setEpubOpen(at ? placeOfPosition(epub.items, at.position) : null);
+        setMode("original");
+      } else {
+        const position = (() => {
+          const here = epubNow.current?.();
+          return here ? positionOfPlace(epub.items, here) : null;
+        })();
+        setMode("reading");
+        if (position !== null) void goToPosition(position);
+      }
+      return;
+    }
     if (next === "original") {
       setOpenPage(readingPage());
       setMode("original");
@@ -216,7 +252,11 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
 
   /** The contents entry the reader is in now: by page for a PDF, by segment position otherwise. */
   const currentEntryNow = (): string | null => {
-    if (hasOriginal) return currentEntry(contents, "page", showOriginal ? (originalPage.current ?? startPage) : readingPage());
+    if (isPdf) return currentEntry(contents, "page", showOriginal ? (originalPage.current ?? startPage) : readingPage());
+    if (showOriginal && isEpubView) {
+      const here = epubNow.current?.();
+      return currentEntry(contents, "segment", (here ? positionOfPlace(epub.items, here) : null) ?? 0);
+    }
     const body = bodyRef.current;
     const area = body?.getBoundingClientRect();
     const top = body ? [...body.querySelectorAll<HTMLElement>("[data-seg-position]")].find((el) => area && el.getBoundingClientRect().bottom > area.top) : undefined;
@@ -261,12 +301,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     }
   };
 
-  /** Where the reader is now, as a place Back and Forward can return to. */
-  const placeNow = (anchor?: number): SourceLocation => {
-    if (showOriginal) {
-      const at = pdfNow.current?.() ?? { page: originalPage.current ?? startPage, fraction: 0 };
-      return { page: at.page, fraction: at.fraction, position: null, offset: 0 };
-    }
+  /** The segment on top of the Reading view (or the one a link was followed from), and how far its top is from the top of the view. */
+  const topSegment = (anchor?: number): { position: number; offset: number } | null => {
     const body = bodyRef.current;
     const area = body?.getBoundingClientRect();
     const all = body ? [...body.querySelectorAll<HTMLElement>("[data-seg-position]")] : [];
@@ -275,35 +311,83 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       (anchor !== undefined ? all.find((el) => el.dataset.segPosition === String(anchor)) : undefined) ??
       all.find((el) => area && el.getBoundingClientRect().bottom > area.top) ??
       all[0];
+    if (!top) return null;
+    return { position: Number(top.dataset.segPosition), offset: area ? Math.round(top.getBoundingClientRect().top - area.top) : 0 };
+  };
+
+  /** A formatted EPUB place with both of its faces: document and element, and the matching segment of the text. */
+  const epubPlace = (at: EpubPlace | null, offsetOfText = 0, position?: number | null): SourceLocation => ({
+    page: null,
+    fraction: 0,
+    position: position ?? (at ? positionOfPlace(epub.items, at) : null),
+    offset: offsetOfText,
+    item: at?.item ?? null,
+    fragment: at?.fragment ?? null,
+    itemOffset: at?.offset ?? 0,
+  });
+
+  /** Where the reader is now, as a place Back and Forward can return to. */
+  const placeNow = (anchor?: number | EpubPlace): SourceLocation => {
+    if (showOriginal && isEpubView) {
+      const first = epub.items[0] ? { item: epub.items[0].id, fragment: null, offset: 0 } : null;
+      return epubPlace(typeof anchor === "object" ? anchor : (epubNow.current?.() ?? epubOpen ?? epubStart ?? first));
+    }
+    if (showOriginal) {
+      const at = pdfNow.current?.() ?? { page: originalPage.current ?? startPage, fraction: 0 };
+      return { page: at.page, fraction: at.fraction, position: null, offset: 0, item: null, fragment: null, itemOffset: 0 };
+    }
+    const top = topSegment(typeof anchor === "number" ? anchor : undefined);
+    const text = isEpubView && top ? placeOfPosition(epub.items, top.position) : null;
     return {
-      page: hasOriginal && window ? readingPage() : null,
+      page: isPdf && window ? readingPage() : null,
       fraction: 0,
-      position: top ? Number(top.dataset.segPosition) : null,
-      offset: top && area ? Math.round(top.getBoundingClientRect().top - area.top) : 0,
+      position: top?.position ?? null,
+      offset: top?.offset ?? 0,
+      item: text?.item ?? null,
+      fragment: text?.fragment ?? null,
+      itemOffset: 0,
     };
   };
 
   /** Moves the view to a place, in the mode the reader is in (the mode is never changed by a jump). */
   const goTo = (place: SourceLocation) => {
-    if (showOriginal) {
+    if (showOriginal && isEpubView) {
+      const at: EpubPlace | null =
+        place.item !== null
+          ? { item: place.item, fragment: place.fragment, offset: place.itemOffset }
+          : place.position !== null
+            ? placeOfPosition(epub.items, place.position)
+            : null;
+      if (at) setEpubJump({ ...at, nonce: ++jumps.current });
+    } else if (showOriginal) {
       if (place.page !== null) setJump({ page: place.page, fraction: place.fraction, nonce: ++jumps.current });
     } else if (place.position !== null) {
       void goToPosition(place.position, place.offset);
+    } else if (place.item !== null) {
+      const position = positionOfPlace(epub.items, { item: place.item, fragment: place.fragment });
+      if (position !== null) void goToPosition(position);
     } else if (place.page !== null) {
       void goToPage(place.page);
     }
   };
 
   /** A deliberate jump (a link, a contents entry): Back returns to where the reader was. */
-  const jumpTo = (target: { page?: number; fraction?: number; position?: number }, from?: number) => {
+  const jumpTo = (target: { page?: number; fraction?: number; position?: number; item?: string; fragment?: string | null }, from?: number | EpubPlace) => {
     // A link that leads outside the text leaves the reader where it is.
     if (target.position !== undefined && window && (target.position < 0 || target.position >= window.total)) {
       void api.logError("A link in the source could not be followed: it leads outside the text").catch(() => undefined);
       return;
     }
-    const place: SourceLocation = { page: target.page ?? null, fraction: target.fraction ?? 0, position: target.position ?? null, offset: 0 };
+    let place: SourceLocation;
+    if (isEpubView && target.item !== undefined) {
+      place = epubPlace({ item: target.item, fragment: target.fragment ?? null, offset: 0 });
+    } else if (isEpubView && target.position !== undefined) {
+      place = epubPlace(placeOfPosition(epub.items, target.position), 0, target.position);
+    } else {
+      place = { page: target.page ?? null, fraction: target.fraction ?? 0, position: target.position ?? null, offset: 0, item: null, fragment: null, itemOffset: 0 };
+    }
     commit(visit(historyRef.current, placeNow(from), place));
-    if (place.position !== null) void goToPosition(place.position);
+    if (!showOriginal && place.position !== null) void goToPosition(place.position);
     else goTo(place);
   };
 
@@ -411,7 +495,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
 
   // The original, as its own view under the (never scrolling) header. It
   // mounts as soon as the page to open at is known.
-  const original = showOriginal ? (
+  const original = showOriginal && isPdf ? (
     !window && !error && openPage === null && initialPage === null ? null : (
       <PdfViewer
         key={`${sourceId}-${startPage}`}
@@ -429,6 +513,23 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   ) : null;
 
   const historyButtons = <HistoryButtons history={history} onBack={goBack} onForward={goForward} />;
+  const epubViewer =
+    showOriginal && isEpubView ? (
+      epub.status === "ready" && epub.items.length > 0 ? (
+        <EpubViewer
+          key={sourceId}
+          sourceId={sourceId}
+          structure={epub.items}
+          start={epubOpen ?? epubStart ?? { item: epub.items[0]!.id, fragment: null, offset: 0 }}
+          jumpTo={epubJump}
+          onLink={(target, from) => jumpTo({ item: target.item, fragment: target.id }, from)}
+          locationRef={epubNow}
+        />
+      ) : (
+        <p className="m-0 p-6 text-text-muted">{t("library.original.loading")}</p>
+      )
+    ) : null;
+
   const modeSwitch = hasOriginal ? <ModeSwitch mode={mode} onChange={(m) => void choose(m)} /> : null;
   const contentsButton =
     contents.length > 0 ? (
@@ -464,7 +565,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         </div>
         <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
           {showOriginal ? (
-            original
+            (epubViewer ?? original)
           ) : (
             <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
               <div className="flex flex-col gap-5 px-5 pb-16 pt-5">{body}</div>
@@ -499,7 +600,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       </div>
       <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
         {showOriginal ? (
-          original
+          (epubViewer ?? original)
         ) : (
           <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
             <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-6">{body}</div>

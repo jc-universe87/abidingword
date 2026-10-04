@@ -64,7 +64,7 @@ fn source_from_row(row: &Row) -> rusqlite::Result<Source> {
         original_view: row
             .get::<_, Option<String>>(14)?
             .as_deref()
-            .and_then(original::view_for),
+            .and_then(original::source_view_for),
         segment_count: row.get(18)?,
         passage_count: row.get(19)?,
         content_hash: row.get(20)?,

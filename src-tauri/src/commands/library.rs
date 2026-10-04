@@ -337,5 +337,56 @@ pub fn library_source_links(
     ))
 }
 
+/// Where each reading-order document of an EPUB starts among the extracted
+/// text, and which segment each of its anchors falls in: what the formatted
+/// view needs to move between Reading and Original. EPUB only.
+#[tauri::command(async)]
+pub fn library_epub_structure(
+    state: State<'_, AppState>,
+    id: String,
+) -> CommandResult<Vec<adapters::epub_view::StructureItem>> {
+    let (source, bytes) = epub_bytes(&state, &id)?;
+    Ok(adapters::epub::structure(
+        &bytes,
+        usize::try_from(source.segment_count).unwrap_or(0),
+    ))
+}
+
+/// One reading-order document of an EPUB, sanitised into a tree the
+/// interface renders itself (see `adapters::epub_view`). `item` is an id
+/// from [`library_epub_structure`]; anything else is refused.
+#[tauri::command(async)]
+pub fn library_epub_item(
+    state: State<'_, AppState>,
+    id: String,
+    item: String,
+) -> CommandResult<adapters::epub_view::EpubItem> {
+    let (_, bytes) = epub_bytes(&state, &id)?;
+    Ok(adapters::epub_view::render_item(&bytes, &item)?)
+}
+
+/// The managed EPUB of a source (checked as every managed file is), with its record.
+fn epub_bytes(
+    state: &State<'_, AppState>,
+    id: &str,
+) -> CommandResult<(crate::library::Source, Vec<u8>)> {
+    let core = state.core()?;
+    let (source, record) = core.db.with_conn(|conn| {
+        let source = library::get(conn, id)?;
+        let record = library::original_record(conn, id)?;
+        Ok((source, record))
+    })?;
+    let (relative, format) = record;
+    if format != "epub" {
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "library.originalUnsupported",
+            "This source has no original view.",
+        ))
+        .into());
+    }
+    let bytes = original::read_managed(&core.dirs.sources(), id, &relative, MAX_CONTENTS_FILE)?;
+    Ok((source, bytes))
+}
+
 /// The largest EPUB read for its contents (matches what import accepts).
 const MAX_CONTENTS_FILE: u64 = 200 * 1024 * 1024;

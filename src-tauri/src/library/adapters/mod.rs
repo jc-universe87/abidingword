@@ -9,6 +9,7 @@
 //! adapters producing the same result.
 
 pub mod epub;
+pub mod epub_view;
 pub mod markdown;
 pub mod pdf;
 pub mod text;

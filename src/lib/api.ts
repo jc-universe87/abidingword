@@ -64,6 +64,8 @@ import type {
   CommitSourceImport,
   LibraryResults,
   ContentsItem,
+  EpubItem,
+  EpubStructureItem,
   SourceLink,
   OriginalInfo,
   PassageMention,
@@ -131,6 +133,10 @@ export interface Api {
   librarySourceContents(id: string): Promise<ContentsItem[]>;
   /** The links in an EPUB's text that lead elsewhere in the same book (none for other formats). */
   librarySourceLinks(id: string): Promise<SourceLink[]>;
+  /** For an EPUB's formatted view: where each reading-order document starts among the extracted text. */
+  libraryEpubStructure(id: string): Promise<EpubStructureItem[]>;
+  /** One reading-order document of an EPUB, sanitised by the core. */
+  libraryEpubItem(id: string, item: string): Promise<EpubItem>;
   libraryOriginalInfo(id: string): Promise<OriginalInfo>;
   /** A bounded range of a source's original file (never the whole file). */
   libraryOriginalRead(id: string, offset: number, length: number): Promise<Uint8Array>;
@@ -277,6 +283,8 @@ export const tauriApi: Api = {
   sourceGetSegments: (input) => call("source_get_segments", { input }),
   librarySourceContents: (id) => call("library_source_contents", { id }),
   librarySourceLinks: (id) => call("library_source_links", { id }),
+  libraryEpubStructure: (id) => call("library_epub_structure", { id }),
+  libraryEpubItem: (id, item) => call("library_epub_item", { id, item }),
   libraryOriginalInfo: (id) => call("library_original_info", { id }),
   libraryOriginalRead: async (id, offset, length) =>
     new Uint8Array(await call<ArrayBuffer>("library_original_read", { id, offset, length })),

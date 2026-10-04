@@ -158,5 +158,14 @@
     "group": "Leseverlauf",
     "back": "Zurück zur vorherigen Stelle",
     "forward": "Vor zur nächsten Stelle"
+  },
+  "formatted": {
+    "previousPart": "Vorheriger Teil",
+    "nextPart": "Nächster Teil",
+    "partOf": "Teil {{part}} von {{total}}",
+    "failed": "Die Originalansicht dieses Buches kann nicht angezeigt werden. Die Leseansicht funktioniert weiterhin.",
+    "table": "Tabelle",
+    "missingImages_one": "{{count}} Bild konnte nicht angezeigt werden.",
+    "missingImages_other": "{{count}} Bilder konnten nicht angezeigt werden."
   }
 }

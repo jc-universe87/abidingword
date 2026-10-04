@@ -165,5 +165,15 @@
     "group": "Historique de lecture",
     "back": "Revenir à l’endroit précédent",
     "forward": "Avancer à l’endroit suivant"
+  },
+  "formatted": {
+    "previousPart": "Partie précédente",
+    "nextPart": "Partie suivante",
+    "partOf": "Partie {{part}} sur {{total}}",
+    "failed": "La vue originale de ce livre ne peut pas être affichée. La lecture reste disponible.",
+    "table": "Tableau",
+    "missingImages_one": "{{count}} image n’a pas pu être affichée.",
+    "missingImages_many": "{{count}} d’images n’ont pas pu être affichées.",
+    "missingImages_other": "{{count}} images n’ont pas pu être affichées."
   }
 }
