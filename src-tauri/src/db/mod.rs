@@ -68,7 +68,11 @@ impl Database {
         templates::ensure_builtin(&conn)?;
         // Derived passage links of sources imported before the current
         // derivation (a pure addition; the migration's backup already exists).
-        library::ensure_passage_index(&conn)?;
+        // Derived data never stops the app from opening: a failure is logged and
+        // the rebuild is tried again at the next start.
+        if let Err(error) = library::ensure_passage_index(&conn) {
+            log::warn!("passage links could not be brought up to date: {error}");
+        }
         Ok(Self {
             conn: Mutex::new(conn),
             path,
