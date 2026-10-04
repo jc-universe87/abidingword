@@ -66,6 +66,9 @@ impl Database {
         );
         workspaces::ensure_default(&conn)?;
         templates::ensure_builtin(&conn)?;
+        // Derived passage links of sources imported before the current
+        // derivation (a pure addition; the migration's backup already exists).
+        library::ensure_passage_index(&conn)?;
         Ok(Self {
             conn: Mutex::new(conn),
             path,

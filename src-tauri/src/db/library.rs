@@ -6,6 +6,8 @@
 //! and Scripture links, via triggers and cascades) and the file row.
 //! Citations in findings keep a snapshot of what they cited.
 
+use std::collections::HashMap;
+
 use rusqlite::{params, Connection, OptionalExtension, Row};
 
 use crate::db::{new_id, now, workspaces};
@@ -14,16 +16,26 @@ use crate::error::{AppError, AppResult, UserMessage};
 use crate::library::files::{category, safe_file_name};
 use crate::library::import::StagedSource;
 use crate::library::original;
+use crate::library::relevance::{self, KeyRange, MatchKind};
+use crate::library::sections::{self, DerivedLink, LinkOrigin};
 use crate::library::{
     CommitSourceImport, DuplicateOf, GetSegments, LibraryHit, LibraryResults, LicenceStatus,
-    ListSources, PassageMention, SearchLibrary, SegmentWindow, Source, SourceSegment,
-    SourceSummary, SourceType,
+    ListSources, PassageLocation, PassageMention, PassageSourceGroup, SearchLibrary,
+    SegmentPassageLink, SegmentWindow, Source, SourceSegment, SourceSummary, SourceType,
 };
-use crate::scripture::reference::ScriptureRef;
+use crate::scripture::parser::ReferenceParser;
+use crate::scripture::reference::{verse_key, ScriptureRef};
 
 const SEARCH_PAGE: i64 = 50;
 const SEGMENT_PAGE: i64 = 150;
 const MENTIONS_LIMIT: i64 = 200;
+/// Places shown per source in the Sources pane; the rest are counted.
+pub const LOCATIONS_PER_SOURCE: usize = 3;
+/// Sources shown in the Sources pane for one passage.
+pub const SOURCE_GROUP_LIMIT: usize = 30;
+
+/// (how it relates to the passage, how close in size, origin): smaller is better.
+type Rank = (MatchKind, i64, u8);
 
 fn conversion(index: usize, e: AppError) -> rusqlite::Error {
     rusqlite::Error::FromSqlConversionFailure(index, rusqlite::types::Type::Text, e.into())
@@ -34,7 +46,7 @@ const SOURCE_SELECT: &str = "
            s.isbn, s.doi, s.language, s.source_type, s.licence_status, s.licence, s.notes,
            f.format, f.original_filename, f.extraction_status, f.page_count,
            (SELECT COUNT(*) FROM source_segments g WHERE g.source_id = s.id),
-           (SELECT COUNT(*) FROM source_passages p WHERE p.source_id = s.id),
+           (SELECT COUNT(*) FROM source_passages p WHERE p.source_id = s.id AND p.origin = 'explicit'),
            s.content_hash, s.created_at, s.updated_at
     FROM sources s
     LEFT JOIN source_files f ON f.source_id = s.id AND f.is_primary = 1 AND f.deleted_at IS NULL";
@@ -284,6 +296,11 @@ pub fn commit_import(
             ])?;
         }
     }
+    insert_derived(&tx, source_id, &segment_ids, &staged.sections, &now)?;
+    tx.execute(
+        "UPDATE sources SET passage_index_version = ?2 WHERE id = ?1",
+        params![source_id, sections::INDEX_VERSION],
+    )?;
     tx.commit()?;
     log::info!(
         "source added to library: {} segments, {} Scripture references",
@@ -481,14 +498,16 @@ pub fn search(conn: &Connection, input: &SearchLibrary) -> AppResult<LibraryResu
     })
 }
 
-/// Places in the library that mention a passage (overlapping ranges).
+/// Places in the library whose own text mentions a passage (overlapping
+/// ranges). Literal mentions only; see [`passage_sources`] for what the
+/// Sources pane shows.
 pub fn mentions(conn: &Connection, reference: &ScriptureRef) -> AppResult<Vec<PassageMention>> {
     let mut stmt = conn.prepare(
         "SELECT s.id, s.title, s.author, g.id, g.locator, p.matched_text, p.passage
          FROM source_passages p
          JOIN source_segments g ON g.id = p.segment_id
          JOIN sources s ON s.id = p.source_id AND s.deleted_at IS NULL
-         WHERE p.start_key <= ?2 AND p.end_key >= ?1
+         WHERE p.origin = 'explicit' AND p.start_key <= ?2 AND p.end_key >= ?1
          ORDER BY s.title COLLATE NOCASE, g.position
          LIMIT ?3",
     )?;
@@ -528,7 +547,7 @@ pub fn passages(conn: &Connection, source_id: &str) -> AppResult<Vec<PassageMent
     let mut stmt = conn.prepare(
         "SELECT g.id, g.locator, p.matched_text, p.passage FROM source_passages p
          JOIN source_segments g ON g.id = p.segment_id
-         WHERE p.source_id = ?1 ORDER BY g.position, p.start_offset",
+         WHERE p.source_id = ?1 AND p.origin = 'explicit' ORDER BY g.position, p.start_offset",
     )?;
     let rows = stmt.query_map([source_id], |r| {
         Ok((
@@ -549,6 +568,303 @@ pub fn passages(conn: &Connection, source_id: &str) -> AppResult<Vec<PassageMent
             locator: locator.unwrap_or_default(),
             matched_text,
             reference: ScriptureRef::from_canonical(&passage)?.to_dto(),
+        });
+    }
+    Ok(out)
+}
+
+// --- passage-aware sources (v0.9) ---------------------------------------------
+
+/// Stores derived (section, inherited) links for a source whose segments, in
+/// reading order, have these ids.
+fn insert_derived(
+    conn: &Connection,
+    source_id: &str,
+    segment_ids: &[String],
+    links: &[DerivedLink],
+    now: &str,
+) -> AppResult<()> {
+    let mut insert = conn.prepare(
+        "INSERT INTO source_passages (id, source_id, segment_id, passage, start_key, end_key,
+             matched_text, start_offset, end_offset, created_at, origin, section_segment_id,
+             section_heading)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, NULL, NULL, ?8, ?9, ?10, ?11)",
+    )?;
+    for link in links {
+        let reference = ScriptureRef::from_canonical(&link.canonical)?;
+        insert.execute(params![
+            new_id(),
+            source_id,
+            segment_ids[link.segment_index],
+            reference.canonical(),
+            reference.start_key(),
+            reference.end_key(),
+            link.matched_text,
+            now,
+            link.origin.as_str(),
+            segment_ids[link.opener_index],
+            link.heading,
+        ])?;
+    }
+    Ok(())
+}
+
+/// Rebuilds a source's derived passage links from its stored structure. The
+/// literal mentions, segments, citations and files are not touched, and the
+/// result is the same as at import for the same source. Returns the number of
+/// derived links.
+pub fn reindex_passages(conn: &Connection, source_id: &str) -> AppResult<usize> {
+    let format: Option<String> = conn
+        .query_row(
+            "SELECT format FROM source_files
+             WHERE source_id = ?1 AND is_primary = 1 AND deleted_at IS NULL",
+            [source_id],
+            |r| r.get(0),
+        )
+        .optional()?
+        .flatten();
+    let rows: Vec<(String, Option<String>)> = conn
+        .prepare(
+            "SELECT id, section_path FROM source_segments WHERE source_id = ?1 ORDER BY position",
+        )?
+        .query_map([source_id], |r| Ok((r.get(0)?, r.get(1)?)))?
+        .collect::<Result<_, _>>()?;
+    let links = if format.as_deref().is_some_and(sections::has_sections) {
+        sections::derive(
+            rows.iter().map(|(_, path)| path.as_deref()),
+            ReferenceParser::english(),
+        )
+    } else {
+        Vec::new()
+    };
+    let ids: Vec<String> = rows.into_iter().map(|(id, _)| id).collect();
+    let tx = conn.unchecked_transaction()?;
+    tx.execute(
+        "DELETE FROM source_passages WHERE source_id = ?1 AND origin IN ('section', 'inherited')",
+        [source_id],
+    )?;
+    insert_derived(&tx, source_id, &ids, &links, &now())?;
+    tx.execute(
+        "UPDATE sources SET passage_index_version = ?2 WHERE id = ?1",
+        params![source_id, sections::INDEX_VERSION],
+    )?;
+    tx.commit()?;
+    Ok(links.len())
+}
+
+/// What [`ensure_passage_index`] did.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct PassageIndexReport {
+    pub rebuilt: usize,
+    pub failed: usize,
+}
+
+/// Brings every source's derived passage links up to the current derivation:
+/// sources that existed before v0.9 (and any built by an older rule) are
+/// rebuilt from their stored structure, one transaction each. A source that
+/// fails is logged and left as it was (its literal links keep working) and is
+/// tried again at the next start. Cheap when nothing is out of date.
+pub fn ensure_passage_index(conn: &Connection) -> AppResult<PassageIndexReport> {
+    let stale: Vec<String> = conn
+        .prepare(
+            "SELECT id FROM sources WHERE deleted_at IS NULL AND passage_index_version < ?1
+             ORDER BY created_at, id",
+        )?
+        .query_map([sections::INDEX_VERSION], |r| r.get(0))?
+        .collect::<Result<_, _>>()?;
+    let mut report = PassageIndexReport::default();
+    for id in stale {
+        match reindex_passages(conn, &id) {
+            Ok(_) => report.rebuilt += 1,
+            Err(error) => {
+                report.failed += 1;
+                log::warn!("passage links of source {id} could not be rebuilt: {error}");
+            }
+        }
+    }
+    if report.rebuilt + report.failed > 0 {
+        log::info!(
+            "passage links rebuilt for {} source(s), {} failed",
+            report.rebuilt,
+            report.failed
+        );
+    }
+    Ok(report)
+}
+
+/// The sources that fit a passage, best first, each with its best places.
+///
+/// Reads only indexed links, never source text, so turning a Bible page costs
+/// one range lookup. Candidates are the literal mentions, section headings and
+/// manual links near the passage (its chapters); inherited links are left out
+/// because each is already represented by the section's opening place. Places
+/// are ranked by [`relevance::rank`], one per segment, and grouped by source so
+/// a commentary section reads as one entry, not one card per paragraph.
+pub fn passage_sources(
+    conn: &Connection,
+    reference: &ScriptureRef,
+) -> AppResult<Vec<PassageSourceGroup>> {
+    let active: KeyRange = (reference.start_key(), reference.end_key());
+    let ordinal = reference.book.ordinal;
+    // A link stays inside one book; its chapters are all that can match.
+    let book_start = verse_key(ordinal, 0, 0);
+    let window_start = verse_key(ordinal, reference.start.chapter, 0);
+    let window_end = verse_key(ordinal, reference.end.chapter, 999);
+
+    struct Place {
+        rank: Rank,
+        position: i64,
+        location: PassageLocation,
+    }
+    struct RankedGroup {
+        best: Rank,
+        title_key: String,
+        group: PassageSourceGroup,
+    }
+    struct Group {
+        title: String,
+        author: Option<String>,
+        places: HashMap<String, Place>,
+    }
+    let mut groups: HashMap<String, Group> = HashMap::new();
+
+    let mut stmt = conn.prepare(
+        "SELECT s.id, s.title, s.author, g.id, g.position, g.locator, p.origin, p.passage,
+                p.start_key, p.end_key, p.matched_text, p.section_heading
+         FROM source_passages p
+         JOIN source_segments g ON g.id = p.segment_id
+         JOIN sources s ON s.id = p.source_id AND s.deleted_at IS NULL
+         WHERE p.origin IN ('explicit', 'section', 'manual')
+           AND p.start_key >= ?1 AND p.start_key <= ?3 AND p.end_key >= ?2",
+    )?;
+    let mut rows = stmt.query(params![book_start, window_start, window_end])?;
+    while let Some(row) = rows.next()? {
+        let origin_text: String = row.get(6)?;
+        let Some(origin) = LinkOrigin::parse(&origin_text) else {
+            continue;
+        };
+        let link: KeyRange = (row.get(8)?, row.get(9)?);
+        let Some(rank) = relevance::rank(active, link, origin) else {
+            continue;
+        };
+        let source_id: String = row.get(0)?;
+        let segment_id: String = row.get(3)?;
+        let position: i64 = row.get(4)?;
+        let passage: String = row.get(7)?;
+        let group = groups.entry(source_id).or_insert_with(|| Group {
+            title: row.get(1).unwrap_or_default(),
+            author: row.get(2).unwrap_or_default(),
+            places: HashMap::new(),
+        });
+        let better = group
+            .places
+            .get(&segment_id)
+            .is_none_or(|existing| rank < existing.rank);
+        if better {
+            group.places.insert(
+                segment_id.clone(),
+                Place {
+                    rank,
+                    position,
+                    location: PassageLocation {
+                        segment_id,
+                        locator: row.get::<_, Option<String>>(5)?.unwrap_or_default(),
+                        origin,
+                        match_kind: rank.0,
+                        reference: ScriptureRef::from_canonical(&passage)?.to_dto(),
+                        matched_text: row.get(10)?,
+                        section_heading: row.get(11)?,
+                    },
+                },
+            );
+        }
+    }
+
+    // Each group's places best first (reading order breaks ties), then the
+    // groups by their best place, then title: a total order, so equal input
+    // always gives equal output.
+    let mut ranked: Vec<RankedGroup> = groups
+        .into_iter()
+        .map(|(source_id, group)| {
+            let mut places: Vec<Place> = group.places.into_values().collect();
+            places.sort_by(|a, b| {
+                a.rank
+                    .cmp(&b.rank)
+                    .then(a.position.cmp(&b.position))
+                    .then(a.location.segment_id.cmp(&b.location.segment_id))
+            });
+            let best = places[0].rank;
+            // A place that only shares the chapter is listed for a source that has
+            // nothing closer, not as clutter beside a source's direct places.
+            if best.0 != MatchKind::Chapter {
+                places.retain(|p| p.rank.0 != MatchKind::Chapter);
+            }
+            let more = places.len().saturating_sub(LOCATIONS_PER_SOURCE) as i64;
+            let locations: Vec<PassageLocation> = places
+                .into_iter()
+                .take(LOCATIONS_PER_SOURCE)
+                .map(|p| p.location)
+                .collect();
+            RankedGroup {
+                best,
+                title_key: group.title.to_lowercase(),
+                group: PassageSourceGroup {
+                    source_id,
+                    source_title: group.title,
+                    author: group.author,
+                    locations,
+                    more_locations: more,
+                },
+            }
+        })
+        .collect();
+    ranked.sort_by(|a, b| {
+        a.best
+            .cmp(&b.best)
+            .then(a.title_key.cmp(&b.title_key))
+            .then(a.group.source_id.cmp(&b.group.source_id))
+    });
+    Ok(ranked
+        .into_iter()
+        .take(SOURCE_GROUP_LIMIT)
+        .map(|r| r.group)
+        .collect())
+}
+
+/// Every passage a segment is linked to, and why (for the reader): what it
+/// mentions, the section it opens, and the section it lies within.
+pub fn segment_passage_links(
+    conn: &Connection,
+    segment_id: &str,
+) -> AppResult<Vec<SegmentPassageLink>> {
+    let mut stmt = conn.prepare(
+        "SELECT origin, passage, matched_text, section_heading, section_segment_id
+         FROM source_passages WHERE segment_id = ?1
+         ORDER BY CASE origin WHEN 'manual' THEN 0 WHEN 'explicit' THEN 1 WHEN 'section' THEN 2
+                              ELSE 3 END,
+                  start_offset, start_key, end_key, id",
+    )?;
+    let rows = stmt.query_map([segment_id], |r| {
+        Ok((
+            r.get::<_, String>(0)?,
+            r.get::<_, String>(1)?,
+            r.get::<_, String>(2)?,
+            r.get::<_, Option<String>>(3)?,
+            r.get::<_, Option<String>>(4)?,
+        ))
+    })?;
+    let mut out = Vec::new();
+    for row in rows {
+        let (origin, passage, matched_text, section_heading, section_segment_id) = row?;
+        let Some(origin) = LinkOrigin::parse(&origin) else {
+            continue;
+        };
+        out.push(SegmentPassageLink {
+            origin,
+            reference: ScriptureRef::from_canonical(&passage)?.to_dto(),
+            matched_text,
+            section_heading,
+            section_segment_id,
         });
     }
     Ok(out)

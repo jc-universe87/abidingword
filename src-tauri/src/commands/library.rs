@@ -18,8 +18,8 @@ use crate::filesystem;
 use crate::library::{adapters, contents, import, original};
 use crate::library::{
     AddFindingSource, CommitSourceImport, FindingCitation, GetSegments, LibraryResults,
-    ListSources, PassageMention, SearchLibrary, SegmentWindow, Source, SourceImportPreview,
-    SourceSummary, SourceType,
+    ListSources, PassageMention, PassageSourceGroup, SearchLibrary, SegmentPassageLink,
+    SegmentWindow, Source, SourceImportPreview, SourceSummary, SourceType,
 };
 use crate::scripture::reference::ScriptureRef;
 use crate::state::AppState;
@@ -218,14 +218,25 @@ pub fn source_get_passages(
     state.db(|conn| library::passages(conn, &source_id))
 }
 
-/// Library places mentioning a passage (canonical reference).
+/// The sources that fit a passage (canonical reference), best first, each with
+/// its best places and why they were chosen. Reads indexed links only.
 #[tauri::command(async)]
-pub fn library_sources_for_passage(
+pub fn library_passage_sources(
     state: State<'_, AppState>,
     reference: String,
-) -> CommandResult<Vec<PassageMention>> {
+) -> CommandResult<Vec<PassageSourceGroup>> {
     let reference = ScriptureRef::from_canonical(&reference)?;
-    state.db(|conn| library::mentions(conn, &reference))
+    state.db(|conn| library::passage_sources(conn, &reference))
+}
+
+/// Why a segment is linked to Scripture: what it mentions and the section it
+/// belongs to.
+#[tauri::command(async)]
+pub fn source_segment_passage_links(
+    state: State<'_, AppState>,
+    segment_id: String,
+) -> CommandResult<Vec<SegmentPassageLink>> {
+    state.db(|conn| library::segment_passage_links(conn, &segment_id))
 }
 
 #[tauri::command(async)]

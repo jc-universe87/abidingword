@@ -11,6 +11,7 @@ use std::path::{Path, PathBuf};
 use crate::error::{AppError, AppResult, UserMessage};
 use crate::library::adapters::{adapters, ExtractionStatus, ImportedDocument};
 use crate::library::files::content_hash;
+use crate::library::sections::{self, DerivedLink};
 use crate::scripture::parser::{DetectedReference, ReferenceParser};
 
 /// Largest file accepted (a long PDF book is well under this).
@@ -26,6 +27,9 @@ pub struct StagedSource {
     pub document: ImportedDocument,
     /// Bible references found, by segment index.
     pub references: Vec<(usize, DetectedReference)>,
+    /// Section and inherited passage links derived from the headings (EPUB,
+    /// Word, Markdown); empty for formats without structure.
+    pub sections: Vec<DerivedLink>,
 }
 
 impl StagedSource {
@@ -95,11 +99,22 @@ pub fn stage(path: &Path) -> AppResult<StagedSource> {
         .flat_map(|(i, s)| parser.detect(&s.text).into_iter().map(move |r| (i, r)))
         .collect::<Vec<_>>();
 
+    // Structure, not text: what the headings say the sections are about.
+    let sections = if sections::has_sections(document.format) {
+        sections::derive(
+            document.segments.iter().map(|s| s.section_path.as_deref()),
+            parser,
+        )
+    } else {
+        Vec::new()
+    };
+
     log::info!(
-        "library import staged: {} ({} segments, {} references)",
+        "library import staged: {} ({} segments, {} references, {} section links)",
         adapter.format(),
         document.segments.len(),
-        references.len()
+        references.len(),
+        sections.len()
     );
     Ok(StagedSource {
         id: uuid::Uuid::new_v4().to_string(),
@@ -110,5 +125,6 @@ pub fn stage(path: &Path) -> AppResult<StagedSource> {
         hash: content_hash(&bytes),
         document,
         references,
+        sections,
     })
 }
