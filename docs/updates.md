@@ -89,7 +89,7 @@ Three jobs:
 |---|---|---|
 | `gate` | none | automatic runs: confirms the CI run succeeded, was a **push** to **`main`** of this repository, and that its commit is still the newest on `main`; outputs the exact SHA |
 | `build` | none | checks out that SHA → version → NSIS installer built with the updater overlay → artifact |
-| `publish` (environment `windows-test-updates`) | signing key, updates-repo token | checks out the same SHA, signs the installer, writes `latest.json`, checks it is newer, re-confirms the SHA is still the newest `main` commit, publishes, then verifies the pointer |
+| `publish` (environment `windows-test-updates`) | signing key, updates-repo token | checks out the same SHA, signs the installer, writes `latest.json`, checks it is newer, re-confirms the SHA is still the newest `main` commit, publishes, then verifies the pointer (waits up to 10 minutes: GitHub's download CDN can serve the previous `latest.json` for a few minutes) |
 
 Signing secrets are only passed to the single signing step; the token only to
 the publishing step. No step sees both.

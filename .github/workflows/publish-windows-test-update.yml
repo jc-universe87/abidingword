@@ -279,7 +279,10 @@ jobs:
         if: steps.fresh.outputs.current == 'true'
         run: |
           endpoint=$(node -e "import('./scripts/updater.mjs').then(m=>console.log(m.endpointFor(m.readChannel())))")
-          for attempt in 1 2 3 4 5 6; do
+          # GitHub's download CDN can keep serving the previous latest.json for
+          # a few minutes after the asset was replaced (seen: more than one
+          # minute), so wait up to ten minutes before calling it a failure.
+          for attempt in $(seq 1 20); do
             if curl -fsSL -H 'Cache-Control: no-cache' "$endpoint" -o published.json &&
               [ "$(node -p "JSON.parse(require('fs').readFileSync('published.json','utf8')).version")" = "$VERSION" ]; then
               echo "test-channel/latest.json offers $VERSION"
@@ -293,7 +296,7 @@ jobs:
               exit 0
             fi
             echo "Attempt $attempt: the pointer does not offer $VERSION yet."
-            sleep 10
+            sleep 30
           done
           echo "test-channel/latest.json does not offer $VERSION." >&2
           exit 1
