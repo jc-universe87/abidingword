@@ -16,11 +16,22 @@
 //! Anything else (another chapter, another book) does not match: a whole book
 //! mentioned somewhere would flood the pane.
 //!
-//! Within a kind, the link whose size is nearest to the active passage comes
-//! first (narrower before broader for a single verse; for the chapter kind the
-//! nearer verses). Then the origin: a manual link, then a section heading, then
-//! a literal mention, then an inherited link, so an explicit reference
-//! outranks an inherited one that is otherwise equal.
+//! Within a kind, **evidence of aboutness comes before a passing mention**
+//! (the tier): a manual link or a section heading says the text is *about* a
+//! passage, a literal mention only says it is cited. So a commentary section on
+//! John 15:1–11 outranks a paragraph that happens to say "John 15:5–6" when the
+//! reader is at John 15:5, while a mention of exactly John 15:5 still outranks
+//! the section because the kind (exact) is decided first. The tier does not
+//! apply to the chapter kind, where being nearer is what matters.
+//!
+//! Then the link whose size is nearest to the active passage comes first
+//! (narrower before broader for a single verse; for the chapter kind the nearer
+//! verses). Last the origin (manual, section, mention, inherited), so equal
+//! evidence is ordered the same way every time.
+//!
+//! The source type (book, sermon, notes …) is deliberately not a factor: nothing
+//! in a realistic library showed it improving the order, and a rule such as
+//! "books before notes" would hide a pastor's own sermon on the verse.
 
 use crate::library::sections::LinkOrigin;
 
@@ -85,11 +96,30 @@ fn origin_rank(origin: LinkOrigin) -> u8 {
     }
 }
 
+/// 0 for evidence that the text is about the passage (manual link, section
+/// heading), 1 for a passing mention. Not used for the chapter kind.
+fn tier(kind: MatchKind, origin: LinkOrigin) -> u8 {
+    match (kind, origin) {
+        (MatchKind::Chapter, _) => 0,
+        (_, LinkOrigin::Manual | LinkOrigin::Section) => 0,
+        _ => 1,
+    }
+}
+
 /// Sort key of a link for the active passage (smaller is better), or `None`
-/// when it does not match at all.
-pub fn rank(active: KeyRange, link: KeyRange, origin: LinkOrigin) -> Option<(MatchKind, i64, u8)> {
+/// when it does not match at all: (kind, tier, closeness, origin).
+pub fn rank(
+    active: KeyRange,
+    link: KeyRange,
+    origin: LinkOrigin,
+) -> Option<(MatchKind, u8, i64, u8)> {
     let kind = classify(active, link)?;
-    Some((kind, closeness(kind, active, link), origin_rank(origin)))
+    Some((
+        kind,
+        tier(kind, origin),
+        closeness(kind, active, link),
+        origin_rank(origin),
+    ))
 }
 
 #[cfg(test)]
@@ -195,6 +225,24 @@ mod tests {
         let mention = rank(active, active, LinkOrigin::Explicit).unwrap();
         let manual = rank(active, active, LinkOrigin::Manual).unwrap();
         assert!(manual < section && section < mention);
+    }
+
+    #[test]
+    fn a_section_about_the_passage_outranks_a_nearer_passing_mention_of_the_same_kind() {
+        let active = verses(15, 5, 5);
+        // a paragraph citing John 15:5–6 versus a section on 15:1–11 and one on the chapter
+        let mention = rank(active, verses(15, 5, 6), LinkOrigin::Explicit).unwrap();
+        let section = rank(active, verses(15, 1, 11), LinkOrigin::Section).unwrap();
+        let whole = rank(active, chapter(15), LinkOrigin::Section).unwrap();
+        assert!(section < whole && whole < mention);
+    }
+
+    #[test]
+    fn nearness_not_the_tier_orders_the_same_chapter_kind() {
+        let active = verses(15, 5, 5);
+        let near_mention = rank(active, verses(15, 7, 7), LinkOrigin::Explicit).unwrap();
+        let far_section = rank(active, verses(15, 16, 17), LinkOrigin::Section).unwrap();
+        assert!(near_mention < far_section);
     }
 
     #[test]

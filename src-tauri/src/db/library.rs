@@ -36,7 +36,7 @@ pub const LOCATIONS_PER_SOURCE: usize = 3;
 pub const SOURCE_GROUP_LIMIT: usize = 30;
 
 /// (how it relates to the passage, how close in size, origin): smaller is better.
-type Rank = (MatchKind, i64, u8);
+type Rank = (MatchKind, u8, i64, u8);
 
 fn conversion(index: usize, e: AppError) -> rusqlite::Error {
     rusqlite::Error::FromSqlConversionFailure(index, rusqlite::types::Type::Text, e.into())
@@ -735,10 +735,18 @@ pub fn ensure_passage_index(conn: &Connection) -> AppResult<PassageIndexReport> 
 ///
 /// Reads only indexed links, never source text, so turning a Bible page costs
 /// one range lookup. Candidates are the literal mentions, section headings and
-/// manual links near the passage (its chapters); inherited links are left out
-/// because each is already represented by the section's opening place. Places
-/// are ranked by [`relevance::rank`], one per segment, and grouped by source so
-/// a commentary section reads as one entry, not one card per paragraph.
+/// manual links near the passage (its chapters). A mention also learns which
+/// section its paragraph lies in from that paragraph's inherited link, which is
+/// never listed itself: the section's opening place already stands for it.
+///
+/// Places are ranked by [`relevance::rank`], one per segment, then consolidated
+/// (see [`consolidate`]) so a section, the paragraph that opens it and repeated
+/// mentions of the same passage inside it read as one place. Nothing stored is
+/// removed; this only decides what is shown. Sources are ordered by their best
+/// place; between equal best places, a source with a section or manual link that
+/// fits directly (one that is *about* the passage) comes before one that only
+/// cites it; then title, then id: a total order, so equal input gives equal
+/// output. How many mentions a source has never raises its position.
 pub fn passage_sources(
     conn: &Connection,
     reference: &ScriptureRef,
@@ -750,13 +758,10 @@ pub fn passage_sources(
     let window_start = verse_key(ordinal, reference.start.chapter, 0);
     let window_end = verse_key(ordinal, reference.end.chapter, 999);
 
-    struct Place {
-        rank: Rank,
-        position: i64,
-        location: PassageLocation,
-    }
     struct RankedGroup {
         best: Rank,
+        /// A section or manual link fits the passage directly (not only by chapter).
+        about: bool,
         title_key: String,
         group: PassageSourceGroup,
     }
@@ -764,8 +769,11 @@ pub fn passage_sources(
         title: String,
         author: Option<String>,
         places: HashMap<String, Place>,
+        about: bool,
     }
     let mut groups: HashMap<String, Group> = HashMap::new();
+    // segment -> the segment its section opens on, from the inherited links
+    let mut contexts: HashMap<String, String> = HashMap::new();
 
     let mut stmt = conn.prepare(
         "SELECT s.id, s.title, s.author, g.id, g.position, g.locator, p.origin, p.passage,
@@ -782,19 +790,25 @@ pub fn passage_sources(
         let Some(origin) = LinkOrigin::parse(&origin_text) else {
             continue;
         };
+        let segment_id: String = row.get(3)?;
         let link: KeyRange = (row.get(8)?, row.get(9)?);
         let Some(rank) = relevance::rank(active, link, origin) else {
             continue;
         };
         let source_id: String = row.get(0)?;
-        let segment_id: String = row.get(3)?;
         let position: i64 = row.get(4)?;
         let passage: String = row.get(7)?;
         let group = groups.entry(source_id).or_insert_with(|| Group {
             title: row.get(1).unwrap_or_default(),
             author: row.get(2).unwrap_or_default(),
             places: HashMap::new(),
+            about: false,
         });
+        if rank.0 != MatchKind::Chapter
+            && matches!(origin, LinkOrigin::Section | LinkOrigin::Manual)
+        {
+            group.about = true;
+        }
         let better = group
             .places
             .get(&segment_id)
@@ -805,6 +819,7 @@ pub fn passage_sources(
                 Place {
                     rank,
                     position,
+                    passage: passage.clone(),
                     location: PassageLocation {
                         segment_id,
                         locator: row.get::<_, Option<String>>(5)?.unwrap_or_default(),
@@ -819,25 +834,32 @@ pub fn passage_sources(
         }
     }
 
-    // Each group's places best first (reading order breaks ties), then the
-    // groups by their best place, then title: a total order, so equal input
-    // always gives equal output.
+    // The section each mentioning paragraph lies in, from its inherited link
+    // (one indexed lookup per mention that fits the passage).
+    let mut context_of_segment = conn.prepare(
+        "SELECT section_segment_id FROM source_passages INDEXED BY source_passages_segment
+         WHERE segment_id = ?1 AND origin = 'inherited' LIMIT 1",
+    )?;
+    for group in groups.values() {
+        for place in group.places.values() {
+            if place.location.origin != LinkOrigin::Explicit {
+                continue;
+            }
+            let segment_id = &place.location.segment_id;
+            let opener: Option<Option<String>> = context_of_segment
+                .query_row([segment_id], |r| r.get(0))
+                .optional()?;
+            if let Some(opener) = opener.flatten() {
+                contexts.insert(segment_id.clone(), opener);
+            }
+        }
+    }
+
     let mut ranked: Vec<RankedGroup> = groups
         .into_iter()
         .map(|(source_id, group)| {
-            let mut places: Vec<Place> = group.places.into_values().collect();
-            places.sort_by(|a, b| {
-                a.rank
-                    .cmp(&b.rank)
-                    .then(a.position.cmp(&b.position))
-                    .then(a.location.segment_id.cmp(&b.location.segment_id))
-            });
+            let places = consolidate(group.places.into_values().collect(), &contexts);
             let best = places[0].rank;
-            // A place that only shares the chapter is listed for a source that has
-            // nothing closer, not as clutter beside a source's direct places.
-            if best.0 != MatchKind::Chapter {
-                places.retain(|p| p.rank.0 != MatchKind::Chapter);
-            }
             let more = places.len().saturating_sub(LOCATIONS_PER_SOURCE) as i64;
             let locations: Vec<PassageLocation> = places
                 .into_iter()
@@ -846,6 +868,7 @@ pub fn passage_sources(
                 .collect();
             RankedGroup {
                 best,
+                about: group.about,
                 title_key: group.title.to_lowercase(),
                 group: PassageSourceGroup {
                     source_id,
@@ -860,6 +883,7 @@ pub fn passage_sources(
     ranked.sort_by(|a, b| {
         a.best
             .cmp(&b.best)
+            .then(b.about.cmp(&a.about))
             .then(a.title_key.cmp(&b.title_key))
             .then(a.group.source_id.cmp(&b.group.source_id))
     });
@@ -868,6 +892,65 @@ pub fn passage_sources(
         .take(SOURCE_GROUP_LIMIT)
         .map(|r| r.group)
         .collect())
+}
+
+/// A candidate place in a source, before consolidation.
+struct Place {
+    rank: Rank,
+    position: i64,
+    passage: String,
+    location: PassageLocation,
+}
+
+/// One source's places, best first, without redundancy.
+///
+/// Places are ordered by rank (reading order, then id, break ties). A place is
+/// then dropped when a better one in the *same local context* already shows it:
+///
+/// - the context is the section a paragraph lies in (its opening segment), or
+///   the segment itself outside any section;
+/// - it is dropped when that earlier place is a section or manual link whose
+///   match is at least as good (the section already leads there), or when it
+///   mentions the very same passage as the earlier place (the second "John 15:5"
+///   in the same section adds no place).
+///
+/// A mention that fits the passage *better* than its section, or names a
+/// different passage, stays: it is somewhere else worth going. A source that
+/// matches directly drops its same-chapter places; one that matches only by
+/// chapter keeps them.
+fn consolidate(mut places: Vec<Place>, contexts: &HashMap<String, String>) -> Vec<Place> {
+    places.sort_by(|a, b| {
+        a.rank
+            .cmp(&b.rank)
+            .then(a.position.cmp(&b.position))
+            .then(a.location.segment_id.cmp(&b.location.segment_id))
+    });
+    if places[0].rank.0 != MatchKind::Chapter {
+        places.retain(|p| p.rank.0 != MatchKind::Chapter);
+    }
+    let context_of = |place: &Place| -> String {
+        if place.location.origin == LinkOrigin::Section {
+            return place.location.segment_id.clone();
+        }
+        contexts
+            .get(&place.location.segment_id)
+            .cloned()
+            .unwrap_or_else(|| place.location.segment_id.clone())
+    };
+    let mut kept: Vec<(String, Place)> = Vec::new();
+    for place in places {
+        let context = context_of(&place);
+        let redundant = kept.iter().any(|(c, k)| {
+            *c == context
+                && k.rank.0 <= place.rank.0
+                && (matches!(k.location.origin, LinkOrigin::Section | LinkOrigin::Manual)
+                    || k.passage == place.passage)
+        });
+        if !redundant {
+            kept.push((context, place));
+        }
+    }
+    kept.into_iter().map(|(_, p)| p).collect()
 }
 
 /// Every passage a segment is linked to, and why (for the reader): what it
