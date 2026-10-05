@@ -449,7 +449,7 @@
     "opening": "Bibelstudium wird geöffnet …",
     "titleLabel": "Titel des Bibelstudiums",
     "contents": "Inhalt des Bibelstudiums",
-    "findingsLink": "Einträge",
+    "findingsLink": "Studieneinträge",
     "newSectionTitle": "Neuer Abschnitt",
     "allSaved": "Alle Änderungen gespeichert.",
     "saved": "Gespeichert",
@@ -483,12 +483,12 @@
     "passagesMentioned": "Erwähnte Bibelstellen:"
   },
   "findings": {
-    "heading": "Einträge",
+    "heading": "Studieneinträge",
     "addGroup": "Eintrag hinzufügen",
     "filterGroup": "Einträge anzeigen",
     "all": "Alle ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Einträge",
+    "listLabel": "Studieneinträge",
     "writeFirst": "Schreiben Sie zuerst den Eintrag.",
     "type": "Art",
     "in": "In",
@@ -515,7 +515,8 @@
     "detailsFor": "Details zu {{type}}: {{excerpt}}",
     "kindGroup": "Art des Eintrags",
     "moreTypes": "Weitere Arten",
-    "options": "Optionen"
+    "options": "Optionen",
+    "inSection": "Einträge in {{section}}"
   },
   "passages": {
     "label": "Bibelstellen",

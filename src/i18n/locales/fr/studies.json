@@ -453,7 +453,7 @@
     "opening": "Ouverture de l’étude…",
     "titleLabel": "Titre de l’étude",
     "contents": "Contenu de l’étude",
-    "findingsLink": "Éléments d’étude",
+    "findingsLink": "Éléments de l’étude",
     "newSectionTitle": "Nouvelle section",
     "allSaved": "Toutes les modifications sont enregistrées.",
     "saved": "Enregistré",
@@ -487,12 +487,12 @@
     "passagesMentioned": "Passages mentionnés :"
   },
   "findings": {
-    "heading": "Éléments d’étude",
+    "heading": "Éléments de l’étude",
     "addGroup": "Ajouter un élément d’étude",
     "filterGroup": "Afficher les éléments d’étude",
     "all": "Tous ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Éléments d’étude",
+    "listLabel": "Éléments de l’étude",
     "writeFirst": "Rédigez d’abord l’élément.",
     "type": "Type",
     "in": "Dans",
@@ -519,7 +519,8 @@
     "detailsFor": "Détails de {{type}} : {{excerpt}}",
     "kindGroup": "Type d’élément",
     "moreTypes": "Autres types",
-    "options": "Options"
+    "options": "Options",
+    "inSection": "Éléments d’étude dans {{section}}"
   },
   "passages": {
     "label": "Passages",

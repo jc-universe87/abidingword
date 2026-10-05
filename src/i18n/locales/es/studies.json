@@ -453,7 +453,7 @@
     "opening": "Abriendo el estudio…",
     "titleLabel": "Título del estudio",
     "contents": "Contenido del estudio",
-    "findingsLink": "Apuntes",
+    "findingsLink": "Apuntes del estudio",
     "newSectionTitle": "Nueva sección",
     "allSaved": "Todos los cambios guardados.",
     "saved": "Guardado",
@@ -487,12 +487,12 @@
     "passagesMentioned": "Pasajes mencionados:"
   },
   "findings": {
-    "heading": "Apuntes",
+    "heading": "Apuntes del estudio",
     "addGroup": "Añadir un apunte",
     "filterGroup": "Mostrar apuntes",
     "all": "Todos ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Apuntes",
+    "listLabel": "Apuntes del estudio",
     "writeFirst": "Primero escribe el apunte.",
     "type": "Tipo",
     "in": "En",
@@ -519,7 +519,8 @@
     "detailsFor": "Detalles de {{type}}: {{excerpt}}",
     "kindGroup": "Tipo de apunte",
     "moreTypes": "Más tipos",
-    "options": "Opciones"
+    "options": "Opciones",
+    "inSection": "Apuntes en {{section}}"
   },
   "passages": {
     "label": "Pasajes",

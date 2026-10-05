@@ -445,7 +445,7 @@
     "opening": "성경공부를 여는 중…",
     "titleLabel": "성경공부 제목",
     "contents": "성경공부 내용",
-    "findingsLink": "기록",
+    "findingsLink": "성경공부 기록",
     "newSectionTitle": "새 섹션",
     "allSaved": "모든 변경 사항을 저장했습니다.",
     "saved": "저장됨",
@@ -479,12 +479,12 @@
     "passagesMentioned": "언급된 본문:"
   },
   "findings": {
-    "heading": "기록",
+    "heading": "성경공부 기록",
     "addGroup": "기록 추가",
     "filterGroup": "기록 표시",
     "all": "전체 ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "기록",
+    "listLabel": "성경공부 기록",
     "writeFirst": "먼저 기록 내용을 작성하세요.",
     "type": "종류",
     "in": "위치",
@@ -511,7 +511,8 @@
     "detailsFor": "{{type}} 세부 정보: {{excerpt}}",
     "kindGroup": "기록 종류",
     "moreTypes": "다른 종류",
-    "options": "옵션"
+    "options": "옵션",
+    "inSection": "{{section}}의 기록"
   },
   "passages": {
     "label": "본문",

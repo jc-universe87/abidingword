@@ -21,7 +21,7 @@ describe("study selection and editing", () => {
     const sectionTitles = screen
       .getAllByRole("heading", { level: 2 })
       .map((h) => h.textContent)
-      .filter((t) => t !== "Findings" && t !== "New study");
+      .filter((t) => t !== "Study notes" && t !== "New study");
     expect(sectionTitles).toEqual([
       "Text",
       "Context",

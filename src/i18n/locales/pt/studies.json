@@ -453,7 +453,7 @@
     "opening": "Abrindo estudo…",
     "titleLabel": "Título do estudo",
     "contents": "Conteúdo do estudo",
-    "findingsLink": "Registros",
+    "findingsLink": "Registros do estudo",
     "newSectionTitle": "Nova seção",
     "allSaved": "Todas as alterações foram salvas.",
     "saved": "Salvo",
@@ -487,12 +487,12 @@
     "passagesMentioned": "Passagens mencionadas:"
   },
   "findings": {
-    "heading": "Registros",
+    "heading": "Registros do estudo",
     "addGroup": "Adicionar um registro",
     "filterGroup": "Mostrar registros",
     "all": "Todos ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Registros",
+    "listLabel": "Registros do estudo",
     "writeFirst": "Escreva o registro primeiro.",
     "type": "Tipo",
     "in": "Em",
@@ -519,7 +519,8 @@
     "detailsFor": "Detalhes de {{type}}: {{excerpt}}",
     "kindGroup": "Tipo de registro",
     "moreTypes": "Mais tipos",
-    "options": "Opções"
+    "options": "Opções",
+    "inSection": "Registros em {{section}}"
   },
   "passages": {
     "label": "Passagens",

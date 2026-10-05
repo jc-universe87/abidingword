@@ -449,7 +449,7 @@
     "opening": "Opening study…",
     "titleLabel": "Study title",
     "contents": "Study contents",
-    "findingsLink": "Findings",
+    "findingsLink": "Study notes",
     "newSectionTitle": "New section",
     "allSaved": "All changes saved.",
     "saved": "Saved",
@@ -483,12 +483,12 @@
     "passagesMentioned": "Passages mentioned:"
   },
   "findings": {
-    "heading": "Findings",
+    "heading": "Study notes",
     "addGroup": "Add a finding",
     "filterGroup": "Show findings",
     "all": "All ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Findings",
+    "listLabel": "Study notes",
     "writeFirst": "Write the finding first.",
     "type": "Type",
     "in": "In",
@@ -515,7 +515,8 @@
     "detailsFor": "Details for {{type}}: {{excerpt}}",
     "kindGroup": "Kind of note",
     "moreTypes": "More types",
-    "options": "Options"
+    "options": "Options",
+    "inSection": "Notes in {{section}}"
   },
   "passages": {
     "label": "Passages",

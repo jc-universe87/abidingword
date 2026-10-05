@@ -39,7 +39,7 @@ const sectionHeadings = () =>
   within(screen.getByRole("main", { name: "Study" }))
     .getAllByRole("heading", { level: 2 })
     .map((h) => h.textContent)
-    .filter((t) => t !== "Findings");
+    .filter((t) => t !== "Study notes");
 
 describe("creating studies", () => {
   it("creates a word study with its template and no passage", async () => {
@@ -129,7 +129,7 @@ describe("findings", () => {
     await user.type(screen.getByLabelText("New question"), "What is the fruit?{Control>}{Enter}{/Control}");
 
     await waitFor(() => expect(api.state.findings.map((f) => f.findingType)).toEqual(["observation", "question"]));
-    const list = screen.getByRole("list", { name: "Findings" });
+    const list = screen.getByRole("list", { name: "Study notes" });
     expect(within(list).getByRole("textbox", { name: "Observation text" })).toHaveValue("Abide appears again and again.");
     await user.click(screen.getByRole("button", { name: "Study details" }));
     expect(screen.getByRole("region", { name: "Study details" })).toHaveTextContent("2 findings · 1 question");
@@ -142,7 +142,7 @@ describe("findings", () => {
     await api.findingCreate({ studyId, findingType: "question", content: "Second?" });
     await user.click(screen.getByRole("button", { name: "Settings" }));
     await user.click(screen.getByRole("button", { name: "Back to workspace" }));
-    const list = await screen.findByRole("list", { name: "Findings" });
+    const list = await screen.findByRole("list", { name: "Study notes" });
 
     const text = await within(list).findByRole("textbox", { name: "Observation text" });
     await user.clear(text);
@@ -171,7 +171,7 @@ describe("findings", () => {
     await api.findingCreate({ studyId, findingType: "question", content: "Why?" });
     await user.click(screen.getByRole("button", { name: "Settings" }));
     await user.click(screen.getByRole("button", { name: "Back to workspace" }));
-    const list = await screen.findByRole("list", { name: "Findings" });
+    const list = await screen.findByRole("list", { name: "Study notes" });
     expect(within(list).getAllByRole("article")).toHaveLength(6);
     await user.selectOptions(screen.getByLabelText("Show findings"), "question");
     expect(within(list).getAllByRole("article")).toHaveLength(1);
@@ -186,7 +186,7 @@ describe("findings", () => {
     await api.findingCreate({ studyId, findingType: "observation", content: "Second" });
     await user.click(screen.getByRole("button", { name: "Settings" }));
     await user.click(screen.getByRole("button", { name: "Back to workspace" }));
-    const list = await screen.findByRole("list", { name: "Findings" });
+    const list = await screen.findByRole("list", { name: "Study notes" });
 
     const toggle = detailsOf(list, /observation: Second/);
     expect(toggle).toHaveAttribute("aria-expanded", "false");
@@ -221,7 +221,7 @@ describe("findings", () => {
 
     await user.type(within(scripture).getByLabelText("Go to passage"), "Psalm 23{Enter}");
     await within(scripture).findByRole("heading", { level: 2, name: "Psalm 23" });
-    await user.click(within(screen.getByRole("list", { name: "Findings" })).getByRole("button", { name: "John 15:2" }));
+    await user.click(within(screen.getByRole("list", { name: "Study notes" })).getByRole("button", { name: "John 15:2" }));
     expect(await within(scripture).findByRole("heading", { level: 2, name: "John 15" })).toBeInTheDocument();
   });
 

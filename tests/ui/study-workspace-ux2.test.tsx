@@ -49,7 +49,7 @@ describe("contents", () => {
     const api = await withStudy();
     const user = await open(api);
     await user.click(study().getByRole("button", { name: "Contents" }));
-    expect(within(study().getByRole("navigation", { name: "Study contents" })).queryByRole("button", { name: "Findings" })).not.toBeInTheDocument();
+    expect(within(study().getByRole("navigation", { name: "Study contents" })).queryByRole("button", { name: "Study notes" })).not.toBeInTheDocument();
     await user.keyboard("{Escape}");
     const toggle = study().getByRole("button", { name: "Contents" });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
@@ -67,7 +67,7 @@ describe("a new study", () => {
     expect(study().getByRole("button", { name: "Note" })).toBeInTheDocument();
     expect(study().getByRole("button", { name: "Section" })).toBeInTheDocument();
     expect(study().getByRole("button", { name: "Text block" })).toBeInTheDocument();
-    expect(study().queryByRole("heading", { name: "Findings" })).not.toBeInTheDocument();
+    expect(study().queryByRole("heading", { name: "Study notes" })).not.toBeInTheDocument();
     expect(study().queryByRole("button", { name: "Question" })).not.toBeInTheDocument();
     expect(study().queryByRole("combobox", { name: /More/ })).not.toBeInTheDocument();
     // Template sections are still there, with their writing areas.
@@ -115,7 +115,7 @@ describe("findings and sections in the page", () => {
     const api = await withStudy();
     await api.findingCreate({ studyId: api.state.studies[0]!.id, findingType: "question", content: "What is the fruit?" });
     const user = await open(api);
-    const list = await screen.findByRole("list", { name: "Findings" });
+    const list = await screen.findByRole("list", { name: "Study notes" });
     const note = within(list).getByRole("article");
     expect(within(note).getByRole("textbox", { name: "Question text" })).toHaveValue("What is the fruit?");
     expect(within(note).queryByRole("combobox")).not.toBeInTheDocument();

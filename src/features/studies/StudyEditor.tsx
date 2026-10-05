@@ -8,8 +8,9 @@ import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import type { BlockType, StudySection } from "@/types/domain";
+import type { FindingType } from "@/types/studies";
 import { EditableTitle } from "./EditableTitle";
-import { FindingsPanel } from "./FindingsPanel";
+import { FindingList, FindingsPanel, isStudyNote } from "./FindingsPanel";
 import { RelatedStudies } from "./RelatedStudies";
 import { SectionEditor } from "./SectionEditor";
 import { sectionTitle } from "./builtinText";
@@ -46,6 +47,8 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   // Where the user last worked, and a block just added there: the study's Add puts text blocks there.
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [newBlock, setNewBlock] = useState<string | null>(null);
+  // The kind the findings are narrowed to, in the study's own notes and in every section.
+  const [kindFilter, setKindFilter] = useState<FindingType | null>(null);
   const toggle = useRef<HTMLButtonElement>(null);
   const article = useRef<HTMLElement>(null);
   const openedId = detail.data?.study.id;
@@ -129,6 +132,21 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
     }
   };
 
+  const sectionNotes = (sectionId: string) => {
+    const shown = (findings.data ?? []).filter((f) => f.sectionId === sectionId && (kindFilter === null || f.findingType === kindFilter));
+    if (shown.length === 0) return null;
+    return (
+      <FindingList
+        label={t("studies.findings.inSection", { section: sectionTitle(sections.find((s) => s.id === sectionId)!) })}
+        findings={shown}
+        all={findings.data ?? []}
+        sections={sections}
+        canMove={kindFilter === null}
+        onChanged={findings.reload}
+        onRevealScripture={onRevealScripture}
+      />
+    );
+  };
   const target = sections.find((s) => s.id === activeSection) ?? sections[sections.length - 1];
   const addBlock = async (blockType: BlockType) => {
     if (!target) return;
@@ -168,7 +186,7 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
             {showDetails ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
             {t("studies.header.detailsToggle")}
           </button>
-          <StudyContents sections={sections} hasFindings={(findings.data ?? []).length > 0} />
+          <StudyContents sections={sections} hasFindings={(findings.data ?? []).some((f) => isStudyNote(f, sections))} />
           <SaveIndicator />
         </div>
         <StudyPassages studyId={study.id} title={study.title} passages={passages.data ?? []} reload={passages.reload} onReveal={onRevealScripture} />
@@ -201,6 +219,8 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
         studyId={study.id}
         findings={findings.data ?? []}
         sections={sections}
+        filter={kindFilter}
+        onFilter={setKindFilter}
         capturing={capturing}
         onCaptureClose={() => setCapturing(false)}
         onChanged={findings.reload}
@@ -214,6 +234,7 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
           isFirst={index === 0}
           isLast={index === sections.length - 1}
           hasFindings={(findings.data ?? []).some((f) => f.sectionId === section.id)}
+          notes={sectionNotes(section.id)}
           onChange={updateSection}
           onMove={(delta) => moveSection(section.id, delta)}
           onDeleted={() => {

@@ -154,7 +154,7 @@ describe("one Add action", () => {
     await user.click(main().getByRole("button", { name: "Note" }));
     await user.type(main().getByLabelText("New observation"), "Branches depend on the vine.");
     await user.keyboard("{Control>}{Enter}{/Control}");
-    await screen.findByRole("list", { name: "Findings" });
+    await screen.findByRole("list", { name: "Study notes" });
     expect(main().getByRole("button", { name: "Add" })).toHaveAttribute("aria-expanded", "false");
     expect(main().queryByRole("button", { name: "Text block" })).not.toBeInTheDocument();
   });
@@ -296,5 +296,110 @@ describe("Quick capture", () => {
     await user.keyboard("{Control>}{Enter}{/Control}");
     await waitFor(() => expect(api.state.findings).toHaveLength(1));
     expect(api.state.findings[0]!.sectionId).toBeNull();
+  });
+});
+
+describe("findings in sections", () => {
+  async function withNotes() {
+    const { api, studyId } = await emptyStudy();
+    const sections = (await api.studyGet(studyId)).sections;
+    const context = sections.find((s) => s.title === "Context")!;
+    const exegesis = sections.find((s) => s.title === "Exegesis")!;
+    await api.findingCreate({ studyId, findingType: "observation", content: "Study-wide first." });
+    await api.findingCreate({ studyId, findingType: "interpretation", content: "In context.", sectionId: context.id });
+    await api.findingCreate({ studyId, findingType: "question", content: "In exegesis?", sectionId: exegesis.id });
+    await api.findingCreate({ studyId, findingType: "application", content: "Study-wide second." });
+    return { api, studyId, context, exegesis };
+  }
+
+  it("shows a section's findings in that section, and the rest under Study notes", async () => {
+    const { api } = await withNotes();
+    const { user } = await renderApp(api);
+    await open(user, /The True Vine/);
+
+    const context = main().getByRole("region", { name: "Context" });
+    const inContext = within(context).getByRole("list", { name: "Notes in Context" });
+    expect(within(inContext).getByRole("textbox", { name: "Interpretation text" })).toHaveValue("In context.");
+    expect(within(inContext).getAllByRole("article")).toHaveLength(1);
+    const exegesis = main().getByRole("region", { name: "Exegesis" });
+    expect(within(within(exegesis).getByRole("list", { name: "Notes in Exegesis" })).getByRole("textbox", { name: "Question text" })).toHaveValue("In exegesis?");
+
+    const own = main().getByRole("list", { name: "Study notes" });
+    expect(within(own).getAllByRole("textbox").map((t) => (t as HTMLTextAreaElement).value)).toEqual(["Study-wide first.", "Study-wide second."]);
+    expect(within(own).queryByDisplayValue("In context.")).not.toBeInTheDocument();
+    expect(main().getByRole("heading", { level: 2, name: "Study notes" })).toBeInTheDocument();
+  });
+
+  it("shows no Study notes area when every finding belongs to a section", async () => {
+    const { api, studyId } = await emptyStudy();
+    const context = (await api.studyGet(studyId)).sections.find((s) => s.title === "Context")!;
+    await api.findingCreate({ studyId, findingType: "observation", content: "Only here.", sectionId: context.id });
+    const { user } = await renderApp(api);
+    await open(user, /The True Vine/);
+    expect(main().queryByRole("heading", { name: "Study notes" })).not.toBeInTheDocument();
+    expect(main().queryByRole("list", { name: "Study notes" })).not.toBeInTheDocument();
+    expect(within(main().getByRole("region", { name: "Context" })).getByRole("list", { name: "Notes in Context" })).toBeInTheDocument();
+  });
+
+  it("treats a finding whose section is gone as one of the study's own", async () => {
+    const { api } = await withNotes();
+    api.state.findings.find((f) => f.content === "In exegesis?")!.sectionId = "gone";
+    const { user } = await renderApp(api);
+    await open(user, /The True Vine/);
+    const own = main().getByRole("list", { name: "Study notes" });
+    expect(within(own).getByDisplayValue("In exegesis?")).toBeInTheDocument();
+  });
+
+  it("changes no finding, section or block merely by showing them", async () => {
+    const { api } = await withNotes();
+    const before = JSON.stringify([api.state.findings, api.state.sections, api.state.blocks]);
+    const calls: string[] = [];
+    for (const name of ["findingUpdate", "findingReorder", "findingCreate", "findingDelete", "studyBlockUpdate", "studySectionUpdate"] as const) {
+      const original = api[name] as (...args: unknown[]) => unknown;
+      (api as unknown as Record<string, unknown>)[name] = (...args: unknown[]) => {
+        calls.push(name);
+        return original(...args);
+      };
+    }
+    const { user } = await renderApp(api);
+    await open(user, /The True Vine/);
+    await main().findByRole("list", { name: "Notes in Context" });
+    expect(calls).toEqual([]);
+    expect(JSON.stringify([api.state.findings, api.state.sections, api.state.blocks])).toBe(before);
+  });
+
+  it("reorders within what is shown together and leaves the other findings in their places", async () => {
+    const { api, studyId } = await withNotes();
+    const { user } = await renderApp(api);
+    await open(user, /The True Vine/);
+    const own = main().getByRole("list", { name: "Study notes" });
+    await user.click(within(own).getAllByRole("button", { name: /^Details for/ })[1]!);
+    await user.click(within(own).getByRole("button", { name: /^Move .* up/ }));
+    await waitFor(() => expect(api.state.findings.filter((f) => f.studyId === studyId).sort((a, b) => a.sortOrder - b.sortOrder).map((f) => f.content)).toEqual(["Study-wide second.", "In context.", "In exegesis?", "Study-wide first."]));
+    const shown = within(main().getByRole("list", { name: "Study notes" })).getAllByRole("textbox", { name: / text$/ }).map((t) => (t as HTMLTextAreaElement).value);
+    expect(shown).toEqual(["Study-wide second.", "Study-wide first."]);
+  });
+
+  it("narrows by kind in the study's notes and in every section together", async () => {
+    const { api, studyId, context } = await withNotes();
+    for (const content of ["a", "b"]) await api.findingCreate({ studyId, findingType: "observation", content, sectionId: context.id });
+    const { user } = await renderApp(api);
+    await open(user, /The True Vine/);
+    await user.selectOptions(main().getByRole("combobox", { name: "Show findings" }), "question");
+    expect(within(main().getByRole("region", { name: "Exegesis" })).getByRole("list", { name: "Notes in Exegesis" })).toBeInTheDocument();
+    expect(main().queryByRole("list", { name: "Notes in Context" })).not.toBeInTheDocument();
+    expect(main().queryByDisplayValue("Study-wide first.")).not.toBeInTheDocument();
+  });
+
+  it("offers Study notes in Contents only when the study has notes of its own", async () => {
+    const { api, studyId } = await emptyStudy();
+    // five sections make Contents appear
+    const sections = (await api.studyGet(studyId)).sections;
+    await api.findingCreate({ studyId, findingType: "observation", content: "Here.", sectionId: sections[0]!.id });
+    const { user } = await renderApp(api);
+    await open(user, /The True Vine/);
+    await user.click(main().getByRole("button", { name: "Contents" }));
+    const contents = main().getByRole("navigation", { name: "Study contents" });
+    expect(within(contents).queryByRole("button", { name: "Study notes" })).not.toBeInTheDocument();
   });
 });

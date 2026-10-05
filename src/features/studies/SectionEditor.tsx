@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowDown, ArrowUp, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
@@ -15,6 +15,8 @@ interface SectionEditorProps {
   isLast: boolean;
   /** Whether findings are assigned to this section. */
   hasFindings: boolean;
+  /** The section's findings, shown as notes after its writing (nothing when it has none). */
+  notes?: ReactNode;
   onChange: (section: StudySection) => void;
   onMove: (delta: -1 | 1) => void;
   onDeleted: () => void;
@@ -33,7 +35,7 @@ interface SectionEditorProps {
 const tool = "inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong disabled:opacity-40";
 
 export function SectionEditor(props: SectionEditorProps) {
-  const { section, isFirst, isLast, hasFindings, onChange, onMove, onDeleted, onRevealScripture, reveal = false, onActive, newBlockId, typed, onContent } = props;
+  const { section, isFirst, isLast, hasFindings, notes, onChange, onMove, onDeleted, onRevealScripture, reveal = false, onActive, newBlockId, typed, onContent } = props;
   const { t } = useTranslation();
   const api = useApi();
   const { track, settled } = useSaveTracker();
@@ -199,6 +201,7 @@ export function SectionEditor(props: SectionEditorProps) {
         ))}
       </div>
 
+      {notes && <div className="mt-4">{notes}</div>}
       {error && (
         <p role="alert" className="m-0 mt-2 text-[0.9375rem] text-danger">
           {error}
