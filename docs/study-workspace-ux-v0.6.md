@@ -100,3 +100,8 @@ Clearing the text brings the prompt and guidance back.
   user scrolls up to add a note.
 - Findings still appear above the sections rather than beside the section
   they belong to.
+
+### Resolved in v0.10
+
+The hover-only block controls and findings shown apart from their section are
+resolved in [study-workspace-refinement-v0.10.md](study-workspace-refinement-v0.10.md).
