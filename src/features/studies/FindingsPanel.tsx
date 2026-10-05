@@ -5,6 +5,7 @@ import { Button } from "@/design-system/Button";
 import { FindingSources } from "@/features/library/FindingSources";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 import { useAutosave } from "@/hooks/useAutosave";
+import { readLocal, writeLocal } from "@/lib/storage";
 import { referenceLabel } from "@/i18n/scripture";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
@@ -122,21 +123,41 @@ interface QuickCaptureProps {
   onCancel: () => void;
 }
 
-/** What a note is until the user says otherwise. */
+/** What a note is until the user says otherwise (or has said otherwise before, in this study). */
 const DEFAULT_TYPE: FindingType = "observation";
 
-/** Write first, classify second: the text comes first; kind and place are small choices below it. */
+/** Offered at once; the rest are one step away under "More types". */
+const COMMON_TYPES: FindingType[] = ["observation", "interpretation", "application", "question"];
+
+const lastTypeKey = (studyId: string) => `study.lastFindingType.${studyId}`;
+
+/** The kind last used in this study, if it is still a kind (a per-device convenience, never study data). */
+function lastType(studyId: string): FindingType {
+  const stored = readLocal<string | null>(lastTypeKey(studyId), null);
+  return FINDING_TYPES.find((type) => type === stored) ?? DEFAULT_TYPE;
+}
+
+/**
+ * Write first, classify second: the text comes first; the kind is a row of
+ * four common choices (the rest under "More types"), remembered per study; where
+ * it belongs and linking the passage being read are under "Options".
+ */
 const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(function QuickCapture({ studyId, sections, onDone, onCancel }, ref) {
   const { t } = useTranslation();
   const api = useApi();
   const { currentPassage } = useScripture();
   const id = useId();
-  const [type, setType] = useState<FindingType>(DEFAULT_TYPE);
+  const [type, setType] = useState<FindingType>(() => lastType(studyId));
+  const [more, setMore] = useState(false);
+  const [options, setOptions] = useState(false);
   const [text, setText] = useState("");
   const [sectionId, setSectionId] = useState("");
   const [linkPassage, setLinkPassage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // A kind outside the common four, chosen now or remembered, stays on show.
+  const kinds = more ? [...FINDING_TYPES] : COMMON_TYPES.includes(type) ? COMMON_TYPES : [...COMMON_TYPES, type];
+  const hasOptions = sections.length > 0 || currentPassage !== null;
 
   const save = async () => {
     if (!text.trim()) {
@@ -153,6 +174,7 @@ const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(function
         sectionId: sectionId || undefined,
         passage: linkPassage && currentPassage ? currentPassage.canonical : undefined,
       });
+      writeLocal(lastTypeKey(studyId), type);
       setText("");
       setLinkPassage(false);
       onDone();
@@ -170,12 +192,31 @@ const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(function
     }
     if (event.key === "Escape") {
       event.stopPropagation();
-      onCancel();
+      if (options) {
+        setOptions(false);
+      } else {
+        onCancel();
+      }
     }
   };
 
+  // Arrow keys move through the kinds, as in any radio group.
+  const arrows = (event: KeyboardEvent<HTMLDivElement>) => {
+    const step = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 0;
+    if (!step) return;
+    event.preventDefault();
+    const next = kinds[(kinds.indexOf(type) + step + kinds.length) % kinds.length]!;
+    setType(next);
+    requestAnimationFrame(() => document.getElementById(`${id}-kind-${next}`)?.focus());
+  };
+
+  const pill =
+    "min-h-11 rounded-full border border-border px-4 font-ui text-[0.9375rem] text-text-strong hover:bg-bg " +
+    "aria-checked:border-primary aria-checked:bg-primary aria-checked:text-on-primary";
+  const field = "h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2";
+
   return (
-    <div role="group" aria-label={t("studies.findings.addGroup")} className="flex flex-col gap-3 border-l-[3px] border-accent bg-bg-secondary px-4 py-3" onKeyDown={keys}>
+    <div role="group" aria-label={t("studies.findings.addGroup")} className="@container flex flex-col gap-3 border-l-[3px] border-accent bg-bg-secondary px-4 py-3" onKeyDown={keys}>
       <label htmlFor={`${id}-text`} className="sr-only">{t("studies.findings.newLabel", { type: findingInline(t, type) })}</label>
       <textarea
         id={`${id}-text`}
@@ -186,38 +227,73 @@ const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(function
         placeholder={t("studies.findings.writePlaceholder")}
         className="reading rounded-aw border border-border bg-bg px-3 py-2 text-[1rem] placeholder:text-text-muted"
       />
-      <div className="flex flex-col gap-2 text-[0.9375rem] sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-        <label className="flex items-center gap-2">
-          <span className="text-text-muted">{t("studies.findings.type")}</span>
-          <select value={type} onChange={(e) => setType(e.target.value as FindingType)} className="h-9 min-w-0 rounded-aw border border-border bg-bg px-2">
-            {FINDING_TYPES.map((option) => (
-              <option key={option} value={option}>{findingLabel(t, option)}</option>
-            ))}
-          </select>
-        </label>
-        {sections.length > 0 && (
-          <label className="flex items-center gap-2">
-            <span className="text-text-muted">{t("studies.findings.in")}</span>
-            <select value={sectionId} onChange={(e) => setSectionId(e.target.value)} className="h-9 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2">
-              <option value="">{t("studies.findings.wholeStudy")}</option>
-              {sections.map((s) => (
-                <option key={s.id} value={s.id}>{sectionTitle(s)}</option>
-              ))}
-            </select>
-          </label>
-        )}
-        {currentPassage && (
-          <label className="flex items-center gap-2">
-            <input type="checkbox" checked={linkPassage} onChange={(e) => setLinkPassage(e.target.checked)} className="size-4 accent-[var(--aw-primary)]" />
-            {t("studies.findings.linkCurrent", { passage: referenceLabel(currentPassage) })}
-          </label>
+      <div role="radiogroup" aria-label={t("studies.findings.kindGroup")} className="flex flex-wrap items-center gap-2" onKeyDown={arrows}>
+        {kinds.map((option) => (
+          <button
+            key={option}
+            id={`${id}-kind-${option}`}
+            type="button"
+            role="radio"
+            aria-checked={type === option}
+            tabIndex={type === option ? 0 : -1}
+            onClick={() => setType(option)}
+            className={pill}
+          >
+            {findingLabel(t, option)}
+          </button>
+        ))}
+        {!more && kinds.length < FINDING_TYPES.length && (
+          <button
+            type="button"
+            aria-expanded={more}
+            onClick={() => setMore(true)}
+            className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:text-text-strong"
+          >
+            <ChevronRight className="size-4" aria-hidden="true" />
+            {t("studies.findings.moreTypes")}
+          </button>
         )}
       </div>
+      {hasOptions && (
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            aria-expanded={options}
+            aria-controls={`${id}-options`}
+            onClick={() => setOptions(!options)}
+            className="inline-flex min-h-11 items-center gap-1 self-start rounded-aw px-2 text-[0.9375rem] text-text-muted hover:text-text-strong"
+          >
+            {options ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
+            {t("studies.findings.options")}
+          </button>
+          {options && (
+            <div id={`${id}-options`} className="flex flex-col gap-2 text-[0.9375rem] @md:flex-row @md:flex-wrap @md:items-center @md:gap-4">
+              {sections.length > 0 && (
+                <label className="flex items-center gap-2">
+                  <span className="text-text-muted">{t("studies.findings.in")}</span>
+                  <select value={sectionId} onChange={(e) => setSectionId(e.target.value)} className={field}>
+                    <option value="">{t("studies.findings.wholeStudy")}</option>
+                    {sections.map((s) => (
+                      <option key={s.id} value={s.id}>{sectionTitle(s)}</option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              {currentPassage && (
+                <label className="flex min-h-11 items-center gap-2">
+                  <input type="checkbox" checked={linkPassage} onChange={(e) => setLinkPassage(e.target.checked)} className="size-5 accent-[var(--aw-primary)]" />
+                  {t("studies.findings.linkCurrent", { passage: referenceLabel(currentPassage) })}
+                </label>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       {error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{error}</p>}
       <div className="flex flex-wrap items-center gap-2">
-        <Button variant="primary" onClick={save} disabled={busy}>{t("studies.findings.save")}</Button>
-        <Button onClick={onCancel}>{t("common.cancel")}</Button>
-        <span className="text-[0.875rem] text-text-muted">{t("studies.findings.saveHint")}</span>
+        <Button variant="primary" className="min-h-11" onClick={save} disabled={busy}>{t("studies.findings.save")}</Button>
+        <Button className="min-h-11" onClick={onCancel}>{t("common.cancel")}</Button>
+        <span className="text-[0.9375rem] text-text-muted">{t("studies.findings.saveHint")}</span>
       </div>
     </div>
   );

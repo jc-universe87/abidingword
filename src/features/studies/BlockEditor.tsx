@@ -24,6 +24,8 @@ interface BlockEditorProps {
   isFirst: boolean;
   isLast: boolean;
   onMove: (delta: -1 | 1) => void;
+  /** Just added: put the cursor in it. */
+  autoFocus?: boolean;
   /** Tells the page whether this block has writing in it right now (before it is saved). */
   onContent?: (blockId: string, hasContent: boolean) => void;
 }
@@ -33,7 +35,7 @@ interface BlockEditorProps {
  * saves itself. Deliberately not a rich-text editor in v0.1.
  */
 export function BlockEditor(props: BlockEditorProps) {
-  const { block, sectionTitle, placeholder, onDeleted, onRevealScripture, isFirst, isLast, onMove, onContent } = props;
+  const { block, sectionTitle, placeholder, onDeleted, onRevealScripture, isFirst, isLast, onMove, autoFocus = false, onContent } = props;
   const { t } = useTranslation();
   const api = useApi();
   const [text, setText] = useState(block.content);
@@ -53,6 +55,10 @@ export function BlockEditor(props: BlockEditorProps) {
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
   }, [text]);
+
+  useLayoutEffect(() => {
+    if (autoFocus) area.current?.focus();
+  }, [autoFocus]);
 
   const type = blockInline(t, block.blockType);
 

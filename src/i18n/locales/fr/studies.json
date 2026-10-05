@@ -294,14 +294,14 @@
   },
   "blockType": {
     "paragraph": "Paragraphe",
-    "note": "Note",
+    "note": "Remarque",
     "heading": "Titre",
     "quotation": "Citation",
     "question": "Question"
   },
   "blockTypeInline": {
     "paragraph": "paragraphe",
-    "note": "note",
+    "note": "remarque",
     "heading": "titre",
     "quotation": "citation",
     "question": "question"
@@ -470,13 +470,10 @@
     "confirm": "Supprimer « {{title}} » et le texte qu’elle contient ?",
     "confirmWithFindings": "Supprimer « {{title}} » et le texte qu’elle contient ? Ses élément d’études restent dans l’étude, rattachés à l’étude entière.",
     "deleteSection": "Supprimer la section",
-    "addTo": "Ajouter à {{title}}",
     "titleLabel": "Titre de la section",
     "options": "Options de la section {{title}}",
     "optionsTooltip": "Options de la section",
-    "optionsGroup": "Options de la section {{title}}",
-    "addToggle": "Ajouter…",
-    "addToggleLabel": "Ajouter du contenu à {{title}}"
+    "optionsGroup": "Options de la section {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}} : {{type}}",
@@ -486,7 +483,6 @@
     "moveDown": "Descendre le bloc ({{type}}) dans {{section}}",
     "delete": "Supprimer le bloc ({{type}}) dans {{section}}",
     "deleteTooltip": "Supprimer le bloc ({{type}})",
-    "add": "+ {{type}}",
     "placeholder": "Écrivez ici…",
     "passagesMentioned": "Passages mentionnés :"
   },
@@ -520,7 +516,10 @@
     "confirmDelete": "Supprimer ce élément d’étude ({{type}}) ?",
     "writePlaceholder": "Écrivez ici…",
     "details": "Détails",
-    "detailsFor": "Détails de {{type}} : {{excerpt}}"
+    "detailsFor": "Détails de {{type}} : {{excerpt}}",
+    "kindGroup": "Type d’élément",
+    "moreTypes": "Autres types",
+    "options": "Options"
   },
   "passages": {
     "label": "Passages",
@@ -605,8 +604,11 @@
   "add": {
     "toggle": "Ajouter",
     "group": "Ajouter à l’étude",
-    "note": "Ajouter un élément",
-    "section": "Ajouter une section"
+    "note": "Élément d’étude",
+    "section": "Section",
+    "textBlock": "Bloc de texte",
+    "blockGroup": "Bloc de texte dans {{section}}",
+    "blockIn": "Dans {{section}} :"
   },
   "home": {
     "title": "Études",

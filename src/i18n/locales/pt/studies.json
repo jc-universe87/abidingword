@@ -294,14 +294,14 @@
   },
   "blockType": {
     "paragraph": "Parágrafo",
-    "note": "Nota",
+    "note": "Comentário",
     "heading": "Título",
     "quotation": "Citação",
     "question": "Pergunta"
   },
   "blockTypeInline": {
     "paragraph": "parágrafo",
-    "note": "nota",
+    "note": "comentário",
     "heading": "título",
     "quotation": "citação",
     "question": "pergunta"
@@ -470,13 +470,10 @@
     "confirm": "Excluir “{{title}}” e o texto que ela contém?",
     "confirmWithFindings": "Excluir “{{title}}” e o texto que ela contém? Os registros dela permanecem no estudo como registros do estudo inteiro.",
     "deleteSection": "Excluir seção",
-    "addTo": "Adicionar a {{title}}",
     "titleLabel": "Título da seção",
     "options": "Opções da seção {{title}}",
     "optionsTooltip": "Opções da seção",
-    "optionsGroup": "Opções da seção {{title}}",
-    "addToggle": "Adicionar…",
-    "addToggleLabel": "Adicionar conteúdo a {{title}}"
+    "optionsGroup": "Opções da seção {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -486,7 +483,6 @@
     "moveDown": "Mover {{type}} para baixo em {{section}}",
     "delete": "Excluir {{type}} em {{section}}",
     "deleteTooltip": "Excluir {{type}}",
-    "add": "+ {{type}}",
     "placeholder": "Escreva aqui…",
     "passagesMentioned": "Passagens mencionadas:"
   },
@@ -520,7 +516,10 @@
     "confirmDelete": "Excluir esta {{type}}?",
     "writePlaceholder": "Escreva um registro…",
     "details": "Detalhes",
-    "detailsFor": "Detalhes de {{type}}: {{excerpt}}"
+    "detailsFor": "Detalhes de {{type}}: {{excerpt}}",
+    "kindGroup": "Tipo de registro",
+    "moreTypes": "Mais tipos",
+    "options": "Opções"
   },
   "passages": {
     "label": "Passagens",
@@ -605,8 +604,11 @@
   "add": {
     "toggle": "Adicionar",
     "group": "Adicionar ao estudo",
-    "note": "Adicionar registro",
-    "section": "Adicionar seção"
+    "note": "Registro",
+    "section": "Seção",
+    "textBlock": "Bloco de texto",
+    "blockGroup": "Bloco de texto em {{section}}",
+    "blockIn": "Em {{section}}:"
   },
   "home": {
     "title": "Estudos",

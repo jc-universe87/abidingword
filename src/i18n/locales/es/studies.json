@@ -294,14 +294,14 @@
   },
   "blockType": {
     "paragraph": "Párrafo",
-    "note": "Nota",
+    "note": "Comentario",
     "heading": "Encabezado",
     "quotation": "Cita",
     "question": "Pregunta"
   },
   "blockTypeInline": {
     "paragraph": "párrafo",
-    "note": "nota",
+    "note": "comentario",
     "heading": "encabezado",
     "quotation": "cita",
     "question": "pregunta"
@@ -470,13 +470,10 @@
     "confirm": "¿Eliminar “{{title}}” y el texto que contiene?",
     "confirmWithFindings": "¿Eliminar “{{title}}” y el texto que contiene? Sus apuntes se quedan en el estudio como apuntes del estudio completo.",
     "deleteSection": "Eliminar sección",
-    "addTo": "Añadir a {{title}}",
     "titleLabel": "Título de la sección",
     "options": "Opciones de la sección {{title}}",
     "optionsTooltip": "Opciones de la sección",
-    "optionsGroup": "Opciones de la sección {{title}}",
-    "addToggle": "Añadir…",
-    "addToggleLabel": "Añadir contenido a {{title}}"
+    "optionsGroup": "Opciones de la sección {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -486,7 +483,6 @@
     "moveDown": "Bajar el bloque ({{type}}) en {{section}}",
     "delete": "Eliminar el bloque ({{type}}) en {{section}}",
     "deleteTooltip": "Eliminar el bloque ({{type}})",
-    "add": "+ {{type}}",
     "placeholder": "Escribe aquí…",
     "passagesMentioned": "Pasajes mencionados:"
   },
@@ -520,7 +516,10 @@
     "confirmDelete": "¿Eliminar esta {{type}}?",
     "writePlaceholder": "Escribe un apunte…",
     "details": "Detalles",
-    "detailsFor": "Detalles de {{type}}: {{excerpt}}"
+    "detailsFor": "Detalles de {{type}}: {{excerpt}}",
+    "kindGroup": "Tipo de apunte",
+    "moreTypes": "Más tipos",
+    "options": "Opciones"
   },
   "passages": {
     "label": "Pasajes",
@@ -605,8 +604,11 @@
   "add": {
     "toggle": "Añadir",
     "group": "Añadir al estudio",
-    "note": "Añadir apunte",
-    "section": "Añadir sección"
+    "note": "Apunte",
+    "section": "Sección",
+    "textBlock": "Bloque de texto",
+    "blockGroup": "Bloque de texto en {{section}}",
+    "blockIn": "En {{section}}:"
   },
   "home": {
     "title": "Estudios",

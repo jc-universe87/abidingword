@@ -294,14 +294,14 @@
   },
   "blockType": {
     "paragraph": "Paragraph",
-    "note": "Note",
+    "note": "Remark",
     "heading": "Heading",
     "quotation": "Quotation",
     "question": "Question"
   },
   "blockTypeInline": {
     "paragraph": "paragraph",
-    "note": "note",
+    "note": "remark",
     "heading": "heading",
     "quotation": "quotation",
     "question": "question"
@@ -466,13 +466,10 @@
     "confirm": "Delete “{{title}}” and the writing in it?",
     "confirmWithFindings": "Delete “{{title}}” and the writing in it? Its findings stay in the study as findings for the whole study.",
     "deleteSection": "Delete section",
-    "addTo": "Add to {{title}}",
     "titleLabel": "Section title",
     "options": "Options for section {{title}}",
     "optionsTooltip": "Section options",
-    "optionsGroup": "Options for section {{title}}",
-    "addToggle": "Add…",
-    "addToggleLabel": "Add content to {{title}}"
+    "optionsGroup": "Options for section {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -482,7 +479,6 @@
     "moveDown": "Move {{type}} down in {{section}}",
     "delete": "Delete {{type}} in {{section}}",
     "deleteTooltip": "Delete {{type}}",
-    "add": "+ {{type}}",
     "placeholder": "Write here…",
     "passagesMentioned": "Passages mentioned:"
   },
@@ -516,7 +512,10 @@
     "confirmDelete": "Delete this {{type}}?",
     "writePlaceholder": "Write a note…",
     "details": "Details",
-    "detailsFor": "Details for {{type}}: {{excerpt}}"
+    "detailsFor": "Details for {{type}}: {{excerpt}}",
+    "kindGroup": "Kind of note",
+    "moreTypes": "More types",
+    "options": "Options"
   },
   "passages": {
     "label": "Passages",
@@ -599,8 +598,11 @@
   "add": {
     "toggle": "Add",
     "group": "Add to this study",
-    "note": "Add note",
-    "section": "Add section"
+    "note": "Note",
+    "section": "Section",
+    "textBlock": "Text block",
+    "blockGroup": "Text block in {{section}}",
+    "blockIn": "In {{section}}:"
   },
   "home": {
     "title": "Studies",

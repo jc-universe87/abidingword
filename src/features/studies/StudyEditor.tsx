@@ -7,11 +7,12 @@ import { useSaveTracker } from "@/hooks/SaveTracker";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
-import type { StudySection } from "@/types/domain";
+import type { BlockType, StudySection } from "@/types/domain";
 import { EditableTitle } from "./EditableTitle";
 import { FindingsPanel } from "./FindingsPanel";
 import { RelatedStudies } from "./RelatedStudies";
 import { SectionEditor } from "./SectionEditor";
+import { sectionTitle } from "./builtinText";
 import { StudyAdd } from "./StudyAdd";
 import { StudyContents } from "./StudyContents";
 import { StudyDetailsPanel } from "./StudyDetails";
@@ -42,6 +43,9 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   const [typed, setTyped] = useState<Record<string, boolean>>({});
   const onContent = useCallback((blockId: string, has: boolean) => setTyped((prev) => (prev[blockId] === has ? prev : { ...prev, [blockId]: has })), []);
   const [newSection, setNewSection] = useState<string | null>(null);
+  // Where the user last worked, and a block just added there: the study's Add puts text blocks there.
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [newBlock, setNewBlock] = useState<string | null>(null);
   const toggle = useRef<HTMLButtonElement>(null);
   const article = useRef<HTMLElement>(null);
   const openedId = detail.data?.study.id;
@@ -125,6 +129,19 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
     }
   };
 
+  const target = sections.find((s) => s.id === activeSection) ?? sections[sections.length - 1];
+  const addBlock = async (blockType: BlockType) => {
+    if (!target) return;
+    setError(null);
+    try {
+      const block = await api.studyBlockCreate({ sectionId: target.id, blockType });
+      setNewBlock(block.id);
+      updateSection({ ...target, blocks: [...target.blocks, block] });
+    } catch (e) {
+      setError(toApiError(e).message);
+    }
+  };
+
   return (
     <article ref={article} className="flex flex-col gap-6">
       <header
@@ -172,7 +189,13 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
         )}
       </header>
 
-      <StudyAdd empty={blank} onAddNote={() => setCapturing(true)} onAddSection={addSection} />
+      <StudyAdd
+        empty={blank}
+        targetSection={target ? sectionTitle(target) : null}
+        onAddNote={() => setCapturing(true)}
+        onAddSection={addSection}
+        onAddBlock={addBlock}
+      />
 
       <FindingsPanel
         studyId={study.id}
@@ -199,6 +222,8 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
           }}
           onRevealScripture={onRevealScripture}
           reveal={section.id === newSection}
+          onActive={() => setActiveSection(section.id)}
+          newBlockId={newBlock}
           typed={typed}
           onContent={onContent}
         />

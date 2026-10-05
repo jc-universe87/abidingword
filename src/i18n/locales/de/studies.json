@@ -294,14 +294,14 @@
   },
   "blockType": {
     "paragraph": "Absatz",
-    "note": "Notiz",
+    "note": "Bemerkung",
     "heading": "Überschrift",
     "quotation": "Zitat",
     "question": "Frage"
   },
   "blockTypeInline": {
     "paragraph": "Absatz",
-    "note": "Notiz",
+    "note": "Bemerkung",
     "heading": "Überschrift",
     "quotation": "Zitat",
     "question": "Frage"
@@ -466,13 +466,10 @@
     "confirm": "„{{title}}“ mit dem darin geschriebenen Text löschen?",
     "confirmWithFindings": "„{{title}}“ mit dem darin geschriebenen Text löschen? Die Einträge des Abschnitts bleiben als Einträge zum gesamten Bibelstudium erhalten.",
     "deleteSection": "Abschnitt löschen",
-    "addTo": "Zu „{{title}}“ hinzufügen",
     "titleLabel": "Titel des Abschnitts",
     "options": "Optionen für Abschnitt {{title}}",
     "optionsTooltip": "Abschnittsoptionen",
-    "optionsGroup": "Optionen für Abschnitt {{title}}",
-    "addToggle": "Hinzufügen…",
-    "addToggleLabel": "Inhalt zu {{title}} hinzufügen"
+    "optionsGroup": "Optionen für Abschnitt {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -482,7 +479,6 @@
     "moveDown": "{{type}} in „{{section}}“ nach unten verschieben",
     "delete": "{{type}} in „{{section}}“ löschen",
     "deleteTooltip": "{{type}} löschen",
-    "add": "+ {{type}}",
     "placeholder": "Hier schreiben …",
     "passagesMentioned": "Erwähnte Bibelstellen:"
   },
@@ -516,7 +512,10 @@
     "confirmDelete": "{{type}} löschen?",
     "writePlaceholder": "Eintrag schreiben…",
     "details": "Details",
-    "detailsFor": "Details zu {{type}}: {{excerpt}}"
+    "detailsFor": "Details zu {{type}}: {{excerpt}}",
+    "kindGroup": "Art des Eintrags",
+    "moreTypes": "Weitere Arten",
+    "options": "Optionen"
   },
   "passages": {
     "label": "Bibelstellen",
@@ -599,8 +598,11 @@
   "add": {
     "toggle": "Hinzufügen",
     "group": "Zum Bibelstudium hinzufügen",
-    "note": "Eintrag hinzufügen",
-    "section": "Abschnitt hinzufügen"
+    "note": "Eintrag",
+    "section": "Abschnitt",
+    "textBlock": "Textblock",
+    "blockGroup": "Textblock in {{section}}",
+    "blockIn": "In {{section}}:"
   },
   "home": {
     "title": "Bibelstudien",

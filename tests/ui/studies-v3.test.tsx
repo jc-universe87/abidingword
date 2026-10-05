@@ -29,8 +29,8 @@ const newStudy = () => within(screen.getByRole("form", { name: "New study" }));
 /** The study's one Add action: the two beginnings of a new study, or the Add menu after that. */
 async function addNote(user: Awaited<ReturnType<typeof renderApp>>["user"]) {
   const study = within(screen.getByRole("main", { name: "Study" }));
-  if (!study.queryByRole("button", { name: "Add note" })) await user.click(study.getByRole("button", { name: "Add" }));
-  await user.click(study.getByRole("button", { name: "Add note" }));
+  if (!study.queryByRole("button", { name: "Note" })) await user.click(study.getByRole("button", { name: "Add" }));
+  await user.click(study.getByRole("button", { name: "Note" }));
 }
 
 const detailsOf = (list: HTMLElement, name: RegExp) => within(list).getByRole("button", { name: new RegExp(`^Details for ${name.source}`) });
@@ -125,7 +125,7 @@ describe("findings", () => {
     await user.click(screen.getByRole("button", { name: "Save finding" }));
     await waitFor(() => expect(api.state.findings.map((f) => f.findingType)).toEqual(["observation"]));
     await addNote(user);
-    await user.selectOptions(screen.getByLabelText("Type"), "question");
+    await user.click(screen.getByRole("radio", { name: "Question" }));
     await user.type(screen.getByLabelText("New question"), "What is the fruit?{Control>}{Enter}{/Control}");
 
     await waitFor(() => expect(api.state.findings.map((f) => f.findingType)).toEqual(["observation", "question"]));
@@ -212,7 +212,8 @@ describe("findings", () => {
 
     await addNote(user);
     await user.type(screen.getByLabelText("New observation"), "What does fruit mean here?");
-    // Linking is explicit: nothing is linked until it is ticked.
+    // Linking is explicit: nothing is linked until it is ticked (and the choice is under Options).
+    await user.click(screen.getByRole("button", { name: "Options" }));
     expect(screen.getByLabelText("Link current passage (John 15:2)")).not.toBeChecked();
     await user.click(screen.getByLabelText("Link current passage (John 15:2)"));
     await user.click(screen.getByRole("button", { name: "Save finding" }));
@@ -247,7 +248,8 @@ describe("sections", () => {
     const { user } = await renderApp(api);
     await openStudy(api, user, "John Sermon Series", "Notes study");
 
-    await user.click(screen.getByRole("button", { name: "Add section" }));
+    await user.click(screen.getByRole("button", { name: "Add" }));
+    await user.click(screen.getByRole("button", { name: "Section" }));
     await waitFor(() => expect(sectionHeadings()).toEqual(["Notes", "New section"]));
     expect(screen.queryByRole("button", { name: "Move section New section up" })).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Options for section New section" }));

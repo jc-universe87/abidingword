@@ -294,14 +294,14 @@
   },
   "blockType": {
     "paragraph": "단락",
-    "note": "메모",
+    "note": "참고",
     "heading": "제목",
     "quotation": "인용",
     "question": "질문"
   },
   "blockTypeInline": {
     "paragraph": "단락",
-    "note": "메모",
+    "note": "참고",
     "heading": "제목",
     "quotation": "인용",
     "question": "질문"
@@ -462,13 +462,10 @@
     "confirm": "“{{title}}” 섹션과 그 안의 글을 삭제할까요?",
     "confirmWithFindings": "“{{title}}” 섹션과 그 안의 글을 삭제할까요? 이 섹션의 기록은 성경공부 전체에 대한 기록으로 남습니다.",
     "deleteSection": "섹션 삭제",
-    "addTo": "{{title}}에 추가",
     "titleLabel": "섹션 제목",
     "options": "{{title}} 섹션 옵션",
     "optionsTooltip": "섹션 옵션",
-    "optionsGroup": "{{title}} 섹션 옵션",
-    "addToggle": "추가…",
-    "addToggleLabel": "{{title}}에 내용 추가"
+    "optionsGroup": "{{title}} 섹션 옵션"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -478,7 +475,6 @@
     "moveDown": "{{section}}에서 {{type}} 블록을 아래로 이동",
     "delete": "{{section}}의 {{type}} 블록 삭제",
     "deleteTooltip": "{{type}} 블록 삭제",
-    "add": "+ {{type}}",
     "placeholder": "여기에 작성하세요…",
     "passagesMentioned": "언급된 본문:"
   },
@@ -512,7 +508,10 @@
     "confirmDelete": "이 {{type}} 항목을 삭제할까요?",
     "writePlaceholder": "기록 작성…",
     "details": "세부 정보",
-    "detailsFor": "{{type}} 세부 정보: {{excerpt}}"
+    "detailsFor": "{{type}} 세부 정보: {{excerpt}}",
+    "kindGroup": "기록 종류",
+    "moreTypes": "다른 종류",
+    "options": "옵션"
   },
   "passages": {
     "label": "본문",
@@ -593,8 +592,11 @@
   "add": {
     "toggle": "추가",
     "group": "성경공부에 추가",
-    "note": "기록 추가",
-    "section": "섹션 추가"
+    "note": "기록",
+    "section": "섹션",
+    "textBlock": "텍스트 블록",
+    "blockGroup": "{{section}}에 텍스트 블록 추가",
+    "blockIn": "{{section}}:"
   },
   "home": {
     "title": "성경공부",

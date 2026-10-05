@@ -65,16 +65,19 @@ describe("study selection and editing", () => {
     expect(await screen.findByText("Saved")).toBeInTheDocument();
   });
 
-  it("adds a note to a section", async () => {
+  it("adds a remark to the section being worked in", async () => {
     const api = await seed();
     const { user } = await renderApp(api);
     await user.click(await screen.findByRole("button", { name: /Romans 8:1–17/ }));
 
-    await user.click(await screen.findByRole("button", { name: "Add content to Context" }));
-    const context = await screen.findByRole("group", { name: "Add to Context" });
-    await user.click(within(context).getByRole("button", { name: "+ Note" }));
+    await user.click(await screen.findByRole("textbox", { name: "Context: paragraph" }));
+    await user.click(screen.getByRole("button", { name: "Add" }));
+    await user.click(screen.getByRole("button", { name: "Text block" }));
+    const kinds = screen.getByRole("group", { name: "Text block in Context" });
+    await user.click(within(kinds).getByRole("button", { name: "Remark" }));
 
-    expect(await screen.findByRole("textbox", { name: "Context: note" })).toBeInTheDocument();
+    const remark = await screen.findByRole("textbox", { name: "Context: remark" });
+    await waitFor(() => expect(remark).toHaveFocus());
     expect(api.state.blocks.filter((b) => b.blockType === "note")).toHaveLength(1);
   });
 
