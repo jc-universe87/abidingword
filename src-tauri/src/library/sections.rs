@@ -35,9 +35,15 @@
 
 use crate::scripture::parser::ReferenceParser;
 
-/// Bumped when the derivation changes, so sources built with an older rule are
-/// rebuilt at the next start (`sources.passage_index_version`).
-pub const INDEX_VERSION: i64 = 1;
+/// The version of the whole passage index: how references are found
+/// (`scripture::parser`, by the source's language) and how sections are derived
+/// (this module). Bumped when either changes, so sources indexed by an older
+/// rule are rebuilt at the next start (`sources.passage_index_version`).
+///
+/// * 1 – section and inherited links from headings (English detection only).
+/// * 2 – language-aware detection: explicit and section links are made with the
+///   dictionary of the source's language, and both are rebuilt.
+pub const INDEX_VERSION: i64 = 2;
 
 /// What the importers put between the headings of a `section_path`.
 pub const PATH_SEPARATOR: &str = " › ";

@@ -7,6 +7,7 @@ pub mod contents;
 pub mod files;
 pub mod import;
 pub mod original;
+pub mod passage_index;
 pub mod relevance;
 pub mod sections;
 

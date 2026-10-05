@@ -107,7 +107,7 @@ fn a_text_pdf_keeps_page_provenance() {
             (Some(3), Some(0))
         ]
     );
-    assert_eq!(staged.references.len(), 1);
+    assert_eq!(staged.index.references.len(), 1);
 
     with_db(|conn| {
         let id = commit(conn, &staged, "The Cross")?;
@@ -218,7 +218,7 @@ fn a_docx_is_imported_with_headings_references_and_a_formatted_original() {
     assert_eq!(staged.document.format, "docx");
     assert_eq!(staged.document.segments.len(), 1);
     assert_eq!(staged.document.segments[0].locator(), "Abiding");
-    assert_eq!(staged.references[0].1.reference.canonical, "JHN.15.5");
+    assert_eq!(staged.index.references[0].1.reference.canonical, "JHN.15.5");
     with_db(|conn| {
         let id = commit(conn, &staged, "Abiding")?;
         let source = library::get(conn, &id)?;
@@ -283,7 +283,7 @@ fn an_epub_keeps_metadata_reading_order_and_chapters() {
             .all(|s| s.page_number.is_none()),
         "no invented pages"
     );
-    assert_eq!(staged.references[0].1.reference.canonical, "JAS.1.5");
+    assert_eq!(staged.index.references[0].1.reference.canonical, "JAS.1.5");
 }
 
 // --- Markdown and text -----------------------------------------------------
@@ -304,7 +304,7 @@ fn markdown_and_text_notes_import_with_structure() {
         seen,
         ["Romans Notes › Justification", "Romans Notes › Adoption"]
     );
-    assert_eq!(staged.references.len(), 2);
+    assert_eq!(staged.index.references.len(), 2);
 
     let txt = write(
         temp.path(),
@@ -473,7 +473,7 @@ fn a_failed_import_leaves_nothing_behind() {
     );
     let mut staged = import::stage(&path).unwrap();
     // Corrupt one detected reference so the last step of the transaction fails.
-    staged.references[0].1.reference.canonical = "NOT.A.REFERENCE".into();
+    staged.index.references[0].1.reference.canonical = "NOT.A.REFERENCE".into();
     with_db(|conn| {
         assert!(commit(conn, &staged, "Broken").is_err());
         let count = |table: &str| -> AppResult<i64> {

@@ -83,7 +83,7 @@ pub fn library_import_preview(
         page_count: doc.page_count,
         chapter_count: doc.chapter_count,
         segment_count: doc.segments.len(),
-        reference_count: staged.references.len(),
+        reference_count: staged.index.references.len(),
         extraction_status: doc.extraction_status.as_str(),
         can_import: problem.is_none(),
         problem_code: problem.as_ref().and_then(|p| p.code).map(String::from),

@@ -16,6 +16,7 @@ use crate::error::{AppError, AppResult, UserMessage};
 use crate::library::files::{category, safe_file_name};
 use crate::library::import::StagedSource;
 use crate::library::original;
+use crate::library::passage_index::{self, PassageIndex};
 use crate::library::relevance::{self, KeyRange, MatchKind};
 use crate::library::sections::{self, DerivedLink, LinkOrigin};
 use crate::library::{
@@ -23,7 +24,7 @@ use crate::library::{
     ListSources, PassageLocation, PassageMention, PassageSourceGroup, SearchLibrary,
     SegmentPassageLink, SegmentWindow, Source, SourceSegment, SourceSummary, SourceType,
 };
-use crate::scripture::parser::ReferenceParser;
+use crate::scripture::parser::DetectedReference;
 use crate::scripture::reference::{verse_key, ScriptureRef};
 
 const SEARCH_PAGE: i64 = 50;
@@ -188,6 +189,7 @@ pub fn commit_import(
     }
     let title = validate::title(&input.title, "source")?;
     let author = text(&input.author, 300, "author")?;
+    let language = text(&input.language, 40, "language")?;
     let workspace = workspaces::get_default(conn)?;
     let doc = &staged.document;
     let now = now();
@@ -214,7 +216,7 @@ pub fn commit_import(
             input.publication_year,
             text(&input.isbn, 40, "ISBN")?,
             text(&input.doi, 200, "DOI")?,
-            text(&input.language, 40, "language")?,
+            language,
             input
                 .licence_status
                 .unwrap_or(LicenceStatus::Private)
@@ -275,37 +277,35 @@ pub fn commit_import(
             ])?;
             segment_ids.push(id);
         }
-        let mut link = tx.prepare(
-            "INSERT INTO source_passages (id, source_id, segment_id, passage, start_key, end_key,
-                 matched_text, start_offset, end_offset, created_at)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
-        )?;
-        for (segment_index, found) in &staged.references {
-            let reference = ScriptureRef::from_canonical(&found.reference.canonical)?;
-            link.execute(params![
-                new_id(),
-                source_id,
-                segment_ids[*segment_index],
-                reference.canonical(),
-                reference.start_key(),
-                reference.end_key(),
-                found.text,
-                found.start as i64,
-                found.end as i64,
-                now
-            ])?;
-        }
     }
-    insert_derived(&tx, source_id, &segment_ids, &staged.sections, &now)?;
+    // The passage index is made in the language the person finally chose, not
+    // the one the preview assumed: reuse the preview's only if it is the same.
+    let final_language = passage_index::language_of(language.as_deref(), "library import");
+    let rebuilt;
+    let index = if staged.index.language == final_language {
+        &staged.index
+    } else {
+        rebuilt = passage_index::build(
+            doc.format,
+            doc.segments
+                .iter()
+                .map(|s| (s.text.as_str(), s.section_path.as_deref())),
+            final_language,
+        );
+        &rebuilt
+    };
+    insert_explicit(&tx, source_id, &segment_ids, &index.references, &now)?;
+    insert_derived(&tx, source_id, &segment_ids, &index.sections, &now)?;
     tx.execute(
         "UPDATE sources SET passage_index_version = ?2 WHERE id = ?1",
         params![source_id, sections::INDEX_VERSION],
     )?;
     tx.commit()?;
     log::info!(
-        "source added to library: {} segments, {} Scripture references",
+        "source added to library: {} segments, {} Scripture references, read as {}",
         doc.segments.len(),
-        staged.references.len()
+        index.references.len(),
+        index.language.code()
     );
     get(conn, source_id)
 }
@@ -575,6 +575,38 @@ pub fn passages(conn: &Connection, source_id: &str) -> AppResult<Vec<PassageMent
 
 // --- passage-aware sources (v0.9) ---------------------------------------------
 
+/// Stores the references found in segment text (`origin = 'explicit'`) for a
+/// source whose segments, in reading order, have these ids.
+fn insert_explicit(
+    conn: &Connection,
+    source_id: &str,
+    segment_ids: &[String],
+    references: &[(usize, DetectedReference)],
+    now: &str,
+) -> AppResult<()> {
+    let mut insert = conn.prepare(
+        "INSERT INTO source_passages (id, source_id, segment_id, passage, start_key, end_key,
+             matched_text, start_offset, end_offset, created_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+    )?;
+    for (segment_index, found) in references {
+        let reference = ScriptureRef::from_canonical(&found.reference.canonical)?;
+        insert.execute(params![
+            new_id(),
+            source_id,
+            segment_ids[*segment_index],
+            reference.canonical(),
+            reference.start_key(),
+            reference.end_key(),
+            found.text,
+            found.start as i64,
+            found.end as i64,
+            now
+        ])?;
+    }
+    Ok(())
+}
+
 /// Stores derived (section, inherited) links for a source whose segments, in
 /// reading order, have these ids.
 fn insert_derived(
@@ -609,47 +641,53 @@ fn insert_derived(
     Ok(())
 }
 
-/// Rebuilds a source's derived passage links from its stored structure. The
-/// literal mentions, segments, citations and files are not touched, and the
-/// result is the same as at import for the same source. Returns the number of
-/// derived links.
+/// Rebuilds a source's whole passage index (the references in its text and the
+/// links derived from its headings) from what is stored: its segments and the
+/// language it was filed under. The result is the same as at import for the
+/// same source and language.
+///
+/// Replaces `explicit`, `section` and `inherited` links in one transaction and
+/// touches nothing else: not `manual` links, segments, citations, files or the
+/// source's own details. Returns the number of links stored.
 pub fn reindex_passages(conn: &Connection, source_id: &str) -> AppResult<usize> {
-    let format: Option<String> = conn
-        .query_row(
-            "SELECT format FROM source_files
-             WHERE source_id = ?1 AND is_primary = 1 AND deleted_at IS NULL",
-            [source_id],
-            |r| r.get(0),
-        )
-        .optional()?
-        .flatten();
-    let rows: Vec<(String, Option<String>)> = conn
+    let (label, format): (Option<String>, Option<String>) = conn.query_row(
+        "SELECT s.language,
+                (SELECT f.format FROM source_files f
+                 WHERE f.source_id = s.id AND f.is_primary = 1 AND f.deleted_at IS NULL)
+         FROM sources s WHERE s.id = ?1",
+        [source_id],
+        |r| Ok((r.get(0)?, r.get(1)?)),
+    )?;
+    let rows: Vec<(String, String, Option<String>)> = conn
         .prepare(
-            "SELECT id, section_path FROM source_segments WHERE source_id = ?1 ORDER BY position",
+            "SELECT id, content, section_path FROM source_segments
+             WHERE source_id = ?1 ORDER BY position",
         )?
-        .query_map([source_id], |r| Ok((r.get(0)?, r.get(1)?)))?
+        .query_map([source_id], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))?
         .collect::<Result<_, _>>()?;
-    let links = if format.as_deref().is_some_and(sections::has_sections) {
-        sections::derive(
-            rows.iter().map(|(_, path)| path.as_deref()),
-            ReferenceParser::english(),
-        )
-    } else {
-        Vec::new()
-    };
-    let ids: Vec<String> = rows.into_iter().map(|(id, _)| id).collect();
+    let language = passage_index::language_of(label.as_deref(), "passage index rebuild");
+    let index: PassageIndex = passage_index::build(
+        format.as_deref().unwrap_or(""),
+        rows.iter()
+            .map(|(_, text, path)| (text.as_str(), path.as_deref())),
+        language,
+    );
+    let ids: Vec<String> = rows.into_iter().map(|(id, _, _)| id).collect();
+    let now = now();
     let tx = conn.unchecked_transaction()?;
     tx.execute(
-        "DELETE FROM source_passages WHERE source_id = ?1 AND origin IN ('section', 'inherited')",
+        "DELETE FROM source_passages
+         WHERE source_id = ?1 AND origin IN ('explicit', 'section', 'inherited')",
         [source_id],
     )?;
-    insert_derived(&tx, source_id, &ids, &links, &now())?;
+    insert_explicit(&tx, source_id, &ids, &index.references, &now)?;
+    insert_derived(&tx, source_id, &ids, &index.sections, &now)?;
     tx.execute(
         "UPDATE sources SET passage_index_version = ?2 WHERE id = ?1",
         params![source_id, sections::INDEX_VERSION],
     )?;
     tx.commit()?;
-    Ok(links.len())
+    Ok(index.references.len() + index.sections.len())
 }
 
 /// What [`ensure_passage_index`] did.
@@ -659,9 +697,10 @@ pub struct PassageIndexReport {
     pub failed: usize,
 }
 
-/// Brings every source's derived passage links up to the current derivation:
-/// sources that existed before v0.9 (and any built by an older rule) are
-/// rebuilt from their stored structure, one transaction each. A source that
+/// Brings every source's passage index up to the current derivation: sources
+/// that existed before v0.9, or were indexed by an older rule or in English
+/// before language-aware detection, are rebuilt from what is stored, one
+/// transaction each. A source that
 /// fails is logged and left as it was (its literal links keep working) and is
 /// tried again at the next start. Cheap when nothing is out of date.
 pub fn ensure_passage_index(conn: &Connection) -> AppResult<PassageIndexReport> {

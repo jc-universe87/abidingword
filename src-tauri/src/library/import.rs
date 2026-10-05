@@ -11,8 +11,7 @@ use std::path::{Path, PathBuf};
 use crate::error::{AppError, AppResult, UserMessage};
 use crate::library::adapters::{adapters, ExtractionStatus, ImportedDocument};
 use crate::library::files::content_hash;
-use crate::library::sections::{self, DerivedLink};
-use crate::scripture::parser::{DetectedReference, ReferenceParser};
+use crate::library::passage_index::{self, PassageIndex};
 
 /// Largest file accepted (a long PDF book is well under this).
 const MAX_FILE_BYTES: u64 = 200 * 1024 * 1024;
@@ -25,11 +24,12 @@ pub struct StagedSource {
     pub size: u64,
     pub hash: String,
     pub document: ImportedDocument,
-    /// Bible references found, by segment index.
-    pub references: Vec<(usize, DetectedReference)>,
-    /// Section and inherited passage links derived from the headings (EPUB,
-    /// Word, Markdown); empty for formats without structure.
-    pub sections: Vec<DerivedLink>,
+    /// The passage index for the **preview**: made in the language the file's
+    /// metadata names (English when it names none). It is not what gets stored:
+    /// the commit builds the index again in the language finally chosen
+    /// (`db::library::commit_import`), reusing this one only when that is the
+    /// same language.
+    pub index: PassageIndex,
 }
 
 impl StagedSource {
@@ -91,30 +91,26 @@ pub fn stage(path: &Path) -> AppResult<StagedSource> {
     let bytes = fs::read(path).map_err(|e| AppError::filesystem(path, e))?;
     let document = adapter.extract(&bytes, &file_name)?;
 
-    let parser = ReferenceParser::english();
-    let references = document
-        .segments
-        .iter()
-        .enumerate()
-        .flat_map(|(i, s)| parser.detect(&s.text).into_iter().map(move |r| (i, r)))
-        .collect::<Vec<_>>();
-
-    // Structure, not text: what the headings say the sections are about.
-    let sections = if sections::has_sections(document.format) {
-        sections::derive(
-            document.segments.iter().map(|s| s.section_path.as_deref()),
-            parser,
-        )
-    } else {
-        Vec::new()
-    };
+    // The preview language: what the file says, else English. The person may
+    // still change it before adding the source; the commit decides again.
+    let language =
+        passage_index::language_of(document.metadata.language.as_deref(), "library import");
+    let index = passage_index::build(
+        document.format,
+        document
+            .segments
+            .iter()
+            .map(|s| (s.text.as_str(), s.section_path.as_deref())),
+        language,
+    );
 
     log::info!(
-        "library import staged: {} ({} segments, {} references, {} section links)",
+        "library import staged: {} ({} segments, {} references, {} section links, read as {})",
         adapter.format(),
         document.segments.len(),
-        references.len(),
-        sections.len()
+        index.references.len(),
+        index.sections.len(),
+        language.code()
     );
     Ok(StagedSource {
         id: uuid::Uuid::new_v4().to_string(),
@@ -124,7 +120,6 @@ pub fn stage(path: &Path) -> AppResult<StagedSource> {
         size,
         hash: content_hash(&bytes),
         document,
-        references,
-        sections,
+        index,
     })
 }

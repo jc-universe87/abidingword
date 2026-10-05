@@ -122,12 +122,17 @@ fn an_existing_library_is_backed_up_then_gains_its_section_links_without_reimpor
         let segments: i64 =
             conn.query_row("SELECT COUNT(*) FROM source_segments", [], |r| r.get(0))?;
         assert_eq!(segments, 5);
-        let (origin, offset): (String, i64) = conn.query_row(
-            "SELECT origin, start_offset FROM source_passages WHERE id = 'pass-1'",
+        // (the index is rebuilt in full, so the row is a new one with the same content)
+        let (origin, offset, matched): (String, i64, String) = conn.query_row(
+            "SELECT origin, start_offset, matched_text FROM source_passages
+             WHERE segment_id = 'seg-b' AND origin = 'explicit'",
             [],
-            |r| Ok((r.get(0)?, r.get(1)?)),
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
         )?;
-        assert_eq!((origin.as_str(), offset), ("explicit", 22));
+        assert_eq!(
+            (origin.as_str(), offset, matched.as_str()),
+            ("explicit", 22, "Romans 8:1")
+        );
         let cited = findings::get(conn, F)?;
         assert_eq!(cited.sources.len(), 1);
         assert_eq!(cited.sources[0].segment_id.as_deref(), Some("seg-c"));
