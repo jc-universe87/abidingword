@@ -49,21 +49,17 @@ normal local notation, so that nobody has to learn Abiding Word syntax.
 - Reusable in Go to passage, study creation, Scripture navigation, findings,
   source passage detection, imports and future AI tools.
 
-**Status (v0.9 checkpoint):** the parser is built from a list of
-`AliasDictionary` values, so a language is a reviewed alias table, not a new
-parser. Not done yet: it needs a curated table per language and a decision to
-choose the dictionary from the **source's language** rather than merge all of
-them (short aliases collide across languages, and the capital-letter rule means
-nothing for Korean). Passage-aware sources
-([`passage-aware-sources-v0.9.md`](passage-aware-sources-v0.9.md)) are
-independent of it: when the detector gains a language the existing library is
-re-indexed through the same rebuild path.
+**Status (v0.9):** source-language-aware detection is implemented for English,
+German, Korean, French, Spanish and Portuguese (see
+[`passage-aware-sources-v0.9.md`](passage-aware-sources-v0.9.md)). Remaining:
+Greek and Hebrew forms, tolerance of looser natural phrasing, and use of the
+interface language for typed input.
 
 ### Passage-aware sources: what remains after the first v0.9 checkpoint
 
 Built: section and inherited links from EPUB, Word and Markdown headings;
 ranking and grouping in the Sources pane; deterministic rebuild for existing
-libraries. Backlog: multilingual detection (above); a way to confirm or add a
+libraries. Backlog: Greek/Hebrew detection; a way to confirm or add a
 passage link by hand (the `manual` origin exists, nothing creates it);
 cross-versification mapping; heading references that are not at the heading's
 start or end being treated more cautiously; same-book matches, if they prove

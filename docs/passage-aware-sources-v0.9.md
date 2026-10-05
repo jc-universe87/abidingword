@@ -196,26 +196,62 @@ books and every chapter: about 0.5 ms each.**
 - **Manual links:** the `manual` origin exists in the model and ranking, but there
   is no interface to create one yet.
 
-## Multilingual reference detection (status: next sub-phase)
+## Multilingual reference detection (status: implemented)
 
-`ReferenceParser` already builds from a list of `AliasDictionary` values
-(language + book aliases), so another language is a dictionary, not a new parser.
-It is **not** done in this checkpoint, deliberately:
+References are detected **in the language of the source**, never in the
+interface language and never with merged dictionaries.
 
-- it needs a curated, reviewed alias table per language (English, German, Korean,
-  French, Spanish, Portuguese, plus common Greek and Hebrew forms), including
-  punctuation conventions (`Joh 3,16`, `요한복음 3장 16절`);
-- the detector's capital-letter rule has no meaning for Korean, and short aliases
-  collide across languages ("Am", "Job", "Mark"), so merging all dictionaries into
-  one regex would raise false positives in every language;
-- the right design is to pick the dictionary from the **source's language**
-  (the `language` metadata every source has), never to merge them.
-
-So v0.9 keeps `ReferenceParser::english()` for all sources and documents this as
-the next v0.9 sub-phase, to be done as its own bounded piece with its own
-fixtures. Section links, ranking, grouping and rebuilding are independent of the
-language of a reference: when the detector gains a language, the rebuild path
-(`INDEX_VERSION`) reindexes existing sources without any other change.
+- **Languages:** English, German, Korean, French, Spanish, Portuguese
+  (`scripture::language::ReferenceLanguage`). One normalisation layer accepts the
+  forms metadata and people use: `en`/`en-GB`/`en_US`/`eng`/`English`,
+  `de`/`deu`/`ger`/`Deutsch`/`German`, `ko`/`kor`/`한국어`/`Korean`,
+  `fr`/`fra`/`fre`/`Français`/`French`, `es`/`spa`/`Español`/`Spanish`,
+  `pt`/`pt-BR`/`pt-PT`/`por`/`Português`/`Portuguese` (case and accents ignored).
+- **Parser selection:** `ReferenceParser::for_language` returns one parser per
+  language, built once and cached. `ReferenceParser::english()` remains for typed
+  Scripture navigation. A source with no language, or one outside the six, is read
+  with the English dictionary (logged, never blocks startup or import).
+- **Dictionaries** (`scripture/aliases/`): the 66-book canon, full names,
+  standard abbreviations and numbered-book forms per language, with integrity
+  tests (66 books, no two books share an alias, every alias reachable). Aliases
+  too short or too common to be safe are left out on purpose (for example
+  `Am`, `Job`, `Mark`-like English forms, Korean one-syllable abbreviations that
+  are everyday words, which need chapter *and* verse). The alias and notation
+  tables were written to common abbreviation conventions and checked by
+  tests; they are native-style, **not** a certified linguistic review.
+- **Notation:** English `John 3:16`; German `Joh 3,16`, `Röm 8,1-4`, `1. Kor`;
+  French `Jean 3,16`, `Jn 3,16-18`; Spanish `Juan 3:16` and `3,16`; Portuguese
+  `João 3:16` and `3,16`; ranges accept hyphen, en dash and em dash; accented
+  and unaccented spellings both match unless the unaccented form is a common word
+  (`Rom` the city is not `Röm`; `no_fold` lists).
+- **Korean:** `요한복음 3:16`, `3장 16절`, `3장 16-18절`, `3장`, `3-4장`; no
+  capital-letter rule; a reference must not sit inside a longer Hangul word, a
+  bare number must not be followed by Hangul, and `절` alone is accepted only for
+  one-chapter books.
+- **False positives:** each language requires a capital (or digit) start where its
+  script has one; matches inside longer words, or adjacent to letters, are rejected;
+  negative fixtures cover each language.
+- **Headings** use the same parser (`sections::derive`), so section/inherited
+  links follow the source language too.
+- **Preview vs final language:** the preview reads the file with the language
+  its metadata names (else English), so its `reference_count` is a best estimate.
+  On commit the *final* language the person chose is resolved and the whole
+  passage index (explicit and derived) is computed from it; staged links are reused
+  only when the language is unchanged. The preview count is not recomputed live when
+  the language field is edited (deferred: cheap to add, little value).
+- **Existing libraries:** `INDEX_VERSION` is now 2 and covers explicit **and**
+  section/inherited links. At startup (after the usual backup) a source below
+  version 2 is rebuilt from its stored text and `sources.language` in one
+  transaction; `manual` links are never touched; a failure is logged, leaves that
+  source as it was and is retried next start; a second run changes nothing. No new
+  migration.
+- **Offsets:** UTF-16 offsets are preserved (tested with Hangul, accented Latin,
+  curly quotes, en and em dashes).
+- **Performance note:** regexes use ASCII word boundaries (plus a Unicode
+  neighbour check in Rust) because a Unicode `\b` makes the regex engine fall back
+  to a slow path on any non-ASCII text.
+- **Not done:** Greek and Hebrew (deferred; they fall back to English), versification
+  mapping, semantic matching. Reference detection never runs when turning Bible pages.
 
 ## Tests (all text invented)
 

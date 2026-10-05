@@ -88,7 +88,7 @@ yet merged): the Sources pane groups what fits the passage being read by source
 and says why: "Mentions John 15:5", "Section on John 15:1–11" (a heading of an
 EPUB, Word or Markdown source names the passage, and the section below it
 belongs to it) or "Within section on …". Deterministic only: no AI and no
-similarity matching; the links are built when a source is imported (and, once,
+similarity matching; the links are built, in the source's own language (English, German, Korean, French, Spanish, Portuguese), when a source is imported (and, once,
 for an existing library at startup, after the usual backup). See
 [`docs/passage-aware-sources-v0.9.md`](docs/passage-aware-sources-v0.9.md).
 
@@ -125,7 +125,7 @@ what is deliberately not built yet, [`docs/product-backlog.md`](docs/product-bac
 | Studies v0.3 | complete (tag `studies-v0.3`) | study types, findings, templates, relations, study search |
 | Scripture annotations v0.5 | release candidate (`feature/scripture-annotations-v0.5`, not merged) | verse and phrase highlights in five colours, notes, bookmarks, the annotation inspector, the Marks view; PDF Original view and Contents for PDF and EPUB |
 | Formatted sources v0.8 | complete (milestone commit `ecced8a`) | formatted EPUB and DOCX Original views, DOCX import, Reading ↔ Original mapping, source navigation and history, web links in the system browser |
-| Passage-aware sources v0.9 | first checkpoint (`feature/passage-aware-sources-v0.9`, not merged) | sources grouped by passage with the reason for each place; section links from headings (EPUB, Word, Markdown); deterministic, no AI |
+| Passage-aware sources v0.9 | checkpoint 2: source-language-aware detection (`feature/passage-aware-sources-v0.9`, not merged) | sources grouped by passage with the reason for each place; section links from headings (EPUB, Word, Markdown); deterministic, no AI |
 | Library v0.4 | in development (`feature/library-v0.4`) | PDF/EPUB/Markdown/text import, provenance, library search, passage mentions, finding citations |
 
 ## Supported platforms
