@@ -53,10 +53,12 @@ describe("creating studies", () => {
     await user.click(screen.getByRole("button", { name: "Create study" }));
 
     expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("Remain (μένω)");
-    expect(screen.getByText("Word Study", { selector: "span" })).toBeInTheDocument();
+    // the kind of study is not in the everyday header; it is in Study details
+    expect(screen.queryByText("Word Study", { selector: "span" })).not.toBeInTheDocument();
     expect(sectionHeadings()).toEqual(["Word", "Occurrences", "Immediate Contexts", "Semantic Range", "Key Passages", "Theological Significance", "Conclusions"]);
     await user.click(screen.getByRole("button", { name: "Study details" }));
     expect(screen.getByRole("group", { name: "Word Study details" })).toBeInTheDocument();
+    expect(screen.getByText(/Type: Word Study/)).toBeInTheDocument();
     expect(api.state.studies[0]!.templateId).toBe(api.state.templates.find((t) => t.key === "word-study")!.id);
     expect(api.state.passages).toHaveLength(0);
   });
@@ -72,7 +74,9 @@ describe("creating studies", () => {
     expect(sectionHeadings()[0]).toBe("Text");
     const passages = screen.getByRole("region", { name: "Passages" });
     expect(within(passages).queryByText("Primary")).not.toBeInTheDocument();
-    expect(within(passages).getByRole("button", { name: "John 15:1–11" })).toBeInTheDocument();
+    // the title is the passage: it is not repeated beneath it, and there is still a way to open it
+    expect(within(passages).queryByRole("button", { name: "John 15:1–11" })).not.toBeInTheDocument();
+    expect(within(passages).getByRole("button", { name: "Open in Scripture" })).toBeInTheDocument();
   });
 
   it("creates a custom study with no template and no passage", async () => {

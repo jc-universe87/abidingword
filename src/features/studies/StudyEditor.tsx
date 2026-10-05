@@ -10,7 +10,6 @@ import { useApi } from "@/lib/ApiContext";
 import type { StudySection } from "@/types/domain";
 import { EditableTitle } from "./EditableTitle";
 import { FindingsPanel } from "./FindingsPanel";
-import { studyTypeLabel } from "./labels";
 import { RelatedStudies } from "./RelatedStudies";
 import { SectionEditor } from "./SectionEditor";
 import { StudyAdd } from "./StudyAdd";
@@ -51,7 +50,19 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   useEffect(() => {
     for (let el = article.current?.parentElement; el; el = el.parentElement) if (el.scrollTop > 0) el.scrollTop = 0;
   }, [openedId]);
-  const rename = useCallback((title: string) => api.studyUpdate({ id: studyId, title }), [api, studyId]);
+  // Keep the page's copy of the study current, so what depends on the title (the passage line) follows it.
+  const detailRef = useRef(detail.data);
+  useEffect(() => {
+    detailRef.current = detail.data;
+  }, [detail.data]);
+  const setDetail = detail.setData;
+  const rename = useCallback(
+    async (title: string) => {
+      const study = await api.studyUpdate({ id: studyId, title });
+      if (detailRef.current) setDetail({ ...detailRef.current, study });
+    },
+    [api, studyId, setDetail],
+  );
   const [error, setError] = useState<string | null>(null);
   const missing = detail.error?.kind === "notFound";
 
@@ -129,7 +140,6 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
       >
         <EditableTitle key={study.id} label={t("studies.editor.titleLabel")} value={study.title} onSave={rename} />
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.9375rem] text-text-muted">
-          <span>{studyTypeLabel(t, study.studyType)}</span>
           <button
             ref={toggle}
             type="button"
@@ -144,7 +154,7 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
           <StudyContents sections={sections} hasFindings={(findings.data ?? []).length > 0} />
           <SaveIndicator />
         </div>
-        <StudyPassages studyId={study.id} passages={passages.data ?? []} reload={passages.reload} onReveal={onRevealScripture} />
+        <StudyPassages studyId={study.id} title={study.title} passages={passages.data ?? []} reload={passages.reload} onReveal={onRevealScripture} />
         <RelatedStudies relations={relations.data ?? []} onOpen={onOpenStudy} />
         {showDetails && (
           <StudyDetailsPanel

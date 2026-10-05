@@ -403,7 +403,6 @@
   },
   "header": {
     "status": "Situação",
-    "template": "Modelo: {{name}}",
     "changed": "Alterado em {{date}}",
     "duplicate": "Duplicar…",
     "overview": "Visão geral",
@@ -444,7 +443,11 @@
         "hint": "ex.: sermão"
       }
     },
-    "detailsToggle": "Detalhes do estudo"
+    "detailsToggle": "Detalhes do estudo",
+    "typeLine": "Tipo: {{type}}",
+    "fromTemplate": "A partir do seu modelo: {{name}}",
+    "groupAbout": "Sobre este estudo",
+    "groupCopy": "Copiar"
   },
   "editor": {
     "opening": "Abrindo estudo…",
@@ -532,7 +535,8 @@
     "linkCurrent": "Vincular a passagem atual ({{passage}})",
     "inputLabel": "Passagem a adicionar",
     "placeholder": "ex.: John 15:1-11",
-    "addRelated": "Passagem relacionada"
+    "addRelated": "Passagem relacionada",
+    "openPrimary": "Abrir na Bíblia"
   },
   "relations": {
     "label": "Estudos relacionados",

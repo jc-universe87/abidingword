@@ -6,9 +6,12 @@ import { referenceLabel } from "@/i18n/scripture";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import type { StudyPassage } from "@/types/scripture";
+import { titleIsPassage } from "./format";
 
 interface PassagesProps {
   studyId: string;
+  /** The study's title: when it is the primary passage itself, the passage is not repeated beneath it. */
+  title?: string;
   /** The study's passages (primary first or not; the caller loads them). */
   passages: StudyPassage[];
   /** Reload them after a change. */
@@ -21,7 +24,7 @@ interface PassagesProps {
  * action to add another. Which is primary, and taking one away, are not
  * decisions for the everyday view: see [`PassageManager`] in Study details.
  */
-export function StudyPassages({ studyId, passages, reload, onReveal }: PassagesProps & { onReveal: () => void }) {
+export function StudyPassages({ studyId, title = "", passages, reload, onReveal }: PassagesProps & { onReveal: () => void }) {
   const { t } = useTranslation();
   const api = useApi();
   const { goTo, currentPassage } = useScripture();
@@ -43,13 +46,29 @@ export function StudyPassages({ studyId, passages, reload, onReveal }: PassagesP
   };
 
   const primary = passages.find((p) => p.role === "primary");
+  // The title already says it: no second "John 15:1–11" beneath "John 15:1–11". This looks only at the
+  // study itself, never at what Scripture happens to show, so the pane reads the same wherever it sits.
+  const titled = primary !== undefined && titleIsPassage(title, referenceLabel(primary.reference));
+  const shown = passages.filter((p) => !(titled && p.id === primary?.id));
   const linked = currentPassage && passages.some((p) => p.reference.canonical === currentPassage.canonical);
   const quiet = "inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong";
 
   return (
     <section aria-label={t("studies.passages.label")} className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
-        {passages.map((passage) => (
+        {titled && primary && (
+          <button
+            type="button"
+            onClick={() => {
+              goTo(primary.reference);
+              onReveal();
+            }}
+            className={quiet}
+          >
+            {t("studies.passages.openPrimary")}
+          </button>
+        )}
+        {shown.map((passage) => (
           <button
             key={passage.id}
             type="button"

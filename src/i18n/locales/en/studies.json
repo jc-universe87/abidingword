@@ -401,7 +401,6 @@
   },
   "header": {
     "status": "Status",
-    "template": "Template: {{name}}",
     "changed": "Changed {{date}}",
     "duplicate": "Duplicate…",
     "overview": "Overview",
@@ -440,7 +439,11 @@
         "hint": "e.g. sermon"
       }
     },
-    "detailsToggle": "Study details"
+    "detailsToggle": "Study details",
+    "typeLine": "Type: {{type}}",
+    "fromTemplate": "From your template: {{name}}",
+    "groupAbout": "About this study",
+    "groupCopy": "Copy"
   },
   "editor": {
     "opening": "Opening study…",
@@ -528,7 +531,8 @@
     "linkCurrent": "Link current passage ({{passage}})",
     "inputLabel": "Passage to add",
     "placeholder": "e.g. John 15:1-11",
-    "addRelated": "Related passage"
+    "addRelated": "Related passage",
+    "openPrimary": "Open in Scripture"
   },
   "relations": {
     "label": "Related studies",

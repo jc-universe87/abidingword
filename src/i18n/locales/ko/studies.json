@@ -399,7 +399,6 @@
   },
   "header": {
     "status": "상태",
-    "template": "템플릿: {{name}}",
     "changed": "{{date}} 수정",
     "duplicate": "복제…",
     "overview": "개요",
@@ -436,7 +435,11 @@
         "hint": "예: 설교"
       }
     },
-    "detailsToggle": "연구 세부 정보"
+    "detailsToggle": "연구 세부 정보",
+    "typeLine": "유형: {{type}}",
+    "fromTemplate": "내 템플릿에서: {{name}}",
+    "groupAbout": "이 성경공부 정보",
+    "groupCopy": "복사"
   },
   "editor": {
     "opening": "성경공부를 여는 중…",
@@ -524,7 +527,8 @@
     "linkCurrent": "현재 본문 연결({{passage}})",
     "inputLabel": "추가할 본문",
     "placeholder": "예: John 15:1-11",
-    "addRelated": "관련 본문"
+    "addRelated": "관련 본문",
+    "openPrimary": "성경에서 열기"
   },
   "relations": {
     "label": "관련 성경공부",
