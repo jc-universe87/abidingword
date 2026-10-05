@@ -14,7 +14,6 @@ async function withStudy(title = "The True Vine", extra: { studyType?: "custom" 
 
 async function open(api: ReturnType<typeof createMemoryApi>, width = 1440, title: RegExp = /The True Vine|Loose/) {
   const { user } = await renderApp(api, { width });
-  await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /John Sermon Series/ }));
   await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: title }));
   await screen.findByRole("textbox", { name: "Study title" });
   return user;

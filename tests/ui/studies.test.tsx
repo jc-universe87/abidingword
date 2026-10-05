@@ -14,8 +14,6 @@ async function seed() {
 describe("study selection and editing", () => {
   it("opens a project, selects a study and shows its sections", async () => {
     const { user } = await renderApp(await seed());
-
-    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /Romans Sermon Series/ }));
     const studies = await screen.findByRole("list", { name: "Studies" });
     await user.click(within(studies).getByRole("button", { name: /Romans 8:1–17/ }));
 
@@ -39,8 +37,6 @@ describe("study selection and editing", () => {
 
   it("creates a study inside the open project", async () => {
     const { api, user } = await renderApp(await seed());
-
-    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /Romans Sermon Series/ }));
     await user.click(await screen.findByRole("button", { name: "New study" }));
     await user.type(await screen.findByLabelText("What would you like to study?"), "Romans 12:1-2");
     await user.click(screen.getByRole("button", { name: "Create study" }));
@@ -53,7 +49,6 @@ describe("study selection and editing", () => {
   it("saves section text and the study title automatically", async () => {
     const api = await seed();
     const { user } = await renderApp(api);
-    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /Romans Sermon Series/ }));
     await user.click(await screen.findByRole("button", { name: /Romans 8:1–17/ }));
 
     const observations = await screen.findByRole("textbox", { name: "Observations: paragraph" });
@@ -73,7 +68,6 @@ describe("study selection and editing", () => {
   it("adds a note to a section", async () => {
     const api = await seed();
     const { user } = await renderApp(api);
-    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /Romans Sermon Series/ }));
     await user.click(await screen.findByRole("button", { name: /Romans 8:1–17/ }));
 
     await user.click(await screen.findByRole("button", { name: "Add content to Context" }));
@@ -87,7 +81,6 @@ describe("study selection and editing", () => {
   it("returns to the last open study after a restart", async () => {
     const api = await seed();
     const first = await renderApp(api);
-    await first.user.click(await screen.findByRole("button", { name: /Romans Sermon Series/ }));
     await first.user.click(await screen.findByRole("button", { name: /Romans 8:18–30/ }));
     await screen.findByRole("textbox", { name: "Study title" });
 

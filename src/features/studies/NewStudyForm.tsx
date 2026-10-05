@@ -41,8 +41,9 @@ const pill =
   "aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-on-primary";
 
 interface NewStudyFormProps {
-  projectId: string;
-  onCreated: (studyId: string) => void;
+  /** The project to create in, or a way to find (or make) it when the user has not chosen one. */
+  projectId: string | (() => Promise<string>);
+  onCreated: (study: { id: string; projectId: string }) => void;
   /** Present when the form can be put away again (a project that already has studies). */
   onCancel?: () => void;
   /** Move focus to the main field on arriving (when the user asked for the form). */
@@ -103,7 +104,7 @@ export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false
             ? undefined
             : list.find((template) => template.isBuiltin && template.studyType === approach)?.id;
       const detail = await api.studyCreate({
-        projectId,
+        projectId: typeof projectId === "string" ? projectId : await projectId(),
         title: customTitle.trim() || derived,
         studyType: type,
         templateId,
@@ -111,7 +112,7 @@ export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false
       });
       setSubject("");
       setCustomTitle("");
-      onCreated(detail.study.id);
+      onCreated({ id: detail.study.id, projectId: detail.study.projectId });
     } catch (e) {
       setError(toApiError(e).message);
     } finally {

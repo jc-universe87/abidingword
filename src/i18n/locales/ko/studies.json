@@ -348,7 +348,8 @@
     "titleLabel": "프로젝트 제목",
     "studies": "성경공부",
     "opening": "프로젝트를 여는 중…",
-    "breadcrumb": "현재 위치"
+    "breadcrumb": "현재 위치",
+    "defaultTitle": "내 성경공부"
   },
   "newStudy": {
     "heading": "무엇을 공부하시겠어요?",
@@ -590,5 +591,10 @@
     "group": "성경공부에 추가",
     "note": "기록 추가",
     "section": "섹션 추가"
+  },
+  "home": {
+    "title": "성경공부",
+    "organise": "프로젝트로 정리",
+    "back": "성경공부 목록으로"
   }
 }

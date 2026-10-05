@@ -350,7 +350,8 @@
     "titleLabel": "Projekttitel",
     "studies": "Bibelstudien",
     "opening": "Projekt wird geöffnet …",
-    "breadcrumb": "Navigationspfad"
+    "breadcrumb": "Navigationspfad",
+    "defaultTitle": "Meine Bibelstudien"
   },
   "newStudy": {
     "heading": "Was möchten Sie studieren?",
@@ -596,5 +597,10 @@
     "group": "Zum Bibelstudium hinzufügen",
     "note": "Eintrag hinzufügen",
     "section": "Abschnitt hinzufügen"
+  },
+  "home": {
+    "title": "Bibelstudien",
+    "organise": "In Projekten ordnen",
+    "back": "Zurück zu den Bibelstudien"
   }
 }

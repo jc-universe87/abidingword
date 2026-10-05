@@ -352,7 +352,8 @@
     "titleLabel": "Titre du projet",
     "studies": "Études",
     "opening": "Ouverture du projet…",
-    "breadcrumb": "Fil d’Ariane"
+    "breadcrumb": "Fil d’Ariane",
+    "defaultTitle": "Mes études"
   },
   "newStudy": {
     "heading": "Que souhaitez-vous étudier ?",
@@ -602,5 +603,10 @@
     "group": "Ajouter à l’étude",
     "note": "Ajouter un élément",
     "section": "Ajouter une section"
+  },
+  "home": {
+    "title": "Études",
+    "organise": "Organiser en projets",
+    "back": "Retour aux études"
   }
 }

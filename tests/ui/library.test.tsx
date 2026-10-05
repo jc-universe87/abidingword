@@ -253,7 +253,6 @@ describe("finding citations", () => {
     const study = await api.studyCreate({ projectId: project.id, title: "The True Vine" });
     await api.findingCreate({ studyId: study.study.id, findingType, content });
     const { user } = await renderApp(api, { width });
-    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /John Series/ }));
     await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /The True Vine/ }));
     const findings = await screen.findByRole("list", { name: "Findings" });
     return { api, user, findings };

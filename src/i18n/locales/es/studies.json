@@ -352,7 +352,8 @@
     "titleLabel": "Título del proyecto",
     "studies": "Estudios",
     "opening": "Abriendo el proyecto…",
-    "breadcrumb": "Ruta de navegación"
+    "breadcrumb": "Ruta de navegación",
+    "defaultTitle": "Mis estudios"
   },
   "newStudy": {
     "heading": "¿Qué te gustaría estudiar?",
@@ -602,5 +603,10 @@
     "group": "Añadir al estudio",
     "note": "Añadir apunte",
     "section": "Añadir sección"
+  },
+  "home": {
+    "title": "Estudios",
+    "organise": "Organizar en proyectos",
+    "back": "Volver a Estudios"
   }
 }

@@ -1,24 +1,37 @@
-import { useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Plus } from "lucide-react";
+import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
 import { useApi } from "@/lib/ApiContext";
 import type { Workspace } from "@/types/domain";
 import { CreateForm } from "./CreateForm";
+import { NewStudyForm } from "./NewStudyForm";
 import { StudyList } from "./StudyList";
+import { ensureStudyProject } from "./projects";
 import { studyCountLabel } from "./format";
 
 interface ProjectListProps {
   workspace: Workspace;
+  /** Back to the plain list of studies (when this is the organising view, not the start). */
+  onHome?: () => void;
   onOpenProject: (projectId: string) => void;
   onOpenStudy: (study: { id: string; projectId: string }) => void;
 }
 
-export function ProjectList({ workspace, onOpenProject, onOpenStudy }: ProjectListProps) {
+export function ProjectList({ workspace, onHome, onOpenProject, onOpenStudy }: ProjectListProps) {
   const { t } = useTranslation();
   const api = useApi();
   const projects = useLoad(useCallback(() => api.projectList(workspace.id), [api, workspace.id]));
+
+  // A new study goes into the project last worked in, without asking.
+  const [creating, setCreating] = useState(false);
+  const opener = useRef<HTMLButtonElement>(null);
+  const putAway = () => {
+    setCreating(false);
+    requestAnimationFrame(() => opener.current?.focus());
+  };
 
   const create = async (title: string) => {
     const project = await api.projectCreate({ workspaceId: workspace.id, title });
@@ -33,6 +46,25 @@ export function ProjectList({ workspace, onOpenProject, onOpenStudy }: ProjectLi
           {t("studies.projects.intro")}
         </p>
       </div>
+
+      {onHome && (
+        <div>
+          <Button variant="quiet" onClick={onHome}>
+            {t("studies.home.back")}
+          </Button>
+        </div>
+      )}
+
+      {creating ? (
+        <NewStudyForm projectId={() => ensureStudyProject(api, workspace.id, t)} autoFocus onCancel={putAway} onCreated={onOpenStudy} />
+      ) : (
+        <div>
+          <Button ref={opener} variant="primary" onClick={() => setCreating(true)}>
+            <Plus className="size-4" aria-hidden="true" />
+            {t("studies.newStudy.formLabel")}
+          </Button>
+        </div>
+      )}
 
       <CreateForm
         label={t("studies.projects.newLabel")}

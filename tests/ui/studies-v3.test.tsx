@@ -11,8 +11,9 @@ async function withProject(title = "John Sermon Series") {
   return { api, project };
 }
 
-async function openProject(user: Awaited<ReturnType<typeof renderApp>>["user"], title: string) {
-  await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: new RegExp(title) }));
+// With a single project the Study pane starts on its studies: there is no project to open.
+async function openProject(_user: Awaited<ReturnType<typeof renderApp>>["user"], _title: string) {
+  await screen.findByRole("heading", { level: 1, name: "Studies" });
 }
 
 async function openStudy(api: MemoryApi, user: Awaited<ReturnType<typeof renderApp>>["user"], project: string, study: string) {

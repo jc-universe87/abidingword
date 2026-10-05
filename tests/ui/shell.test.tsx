@@ -18,7 +18,7 @@ describe("application shell", () => {
     const sources = screen.getByRole("complementary", { name: "Sources" });
 
     expect(within(scripture).getByText("No Bible has been added yet.")).toBeInTheDocument();
-    expect(within(study).getByRole("heading", { level: 1, name: "Projects" })).toBeInTheDocument();
+    expect(await within(study).findByRole("heading", { level: 1, name: "Studies" })).toBeInTheDocument();
     expect(await within(sources).findByText(/No sources yet/)).toBeInTheDocument();
     expect(within(sources).getByRole("button", { name: "Add to library…" })).toBeEnabled();
   });

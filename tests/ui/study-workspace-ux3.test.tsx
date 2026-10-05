@@ -12,7 +12,6 @@ async function openStudy(slowSave = true) {
   // A save that never finishes: what is on screen must not wait for it.
   if (slowSave) api.studyBlockUpdate = () => new Promise(() => undefined);
   const { user } = await renderApp(api);
-  await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /John Sermon Series/ }));
   await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /The True Vine/ }));
   await screen.findByRole("textbox", { name: "Study title" });
   return { api, user };

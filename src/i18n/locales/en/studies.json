@@ -350,7 +350,8 @@
     "titleLabel": "Project title",
     "studies": "Studies",
     "opening": "Opening project…",
-    "breadcrumb": "Breadcrumb"
+    "breadcrumb": "Breadcrumb",
+    "defaultTitle": "My studies"
   },
   "newStudy": {
     "heading": "What would you like to study?",
@@ -596,5 +597,10 @@
     "group": "Add to this study",
     "note": "Add note",
     "section": "Add section"
+  },
+  "home": {
+    "title": "Studies",
+    "organise": "Organise in projects",
+    "back": "Back to Studies"
   }
 }

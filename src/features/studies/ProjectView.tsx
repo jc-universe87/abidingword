@@ -12,11 +12,15 @@ import { StudyList } from "./StudyList";
 
 interface ProjectViewProps {
   project: Project;
+  /** The only project: shown as "Studies", with nothing about projects at all. */
+  plain?: boolean;
+  /** A way to the project list, for someone who wants to organise (plain view only). */
+  onProjects?: () => void;
   onProjectChanged: (project: Project) => void;
   onOpenStudy: (study: { id: string; projectId: string }) => void;
 }
 
-export function ProjectView({ project, onProjectChanged, onOpenStudy }: ProjectViewProps) {
+export function ProjectView({ project, plain = false, onProjects, onProjectChanged, onOpenStudy }: ProjectViewProps) {
   const { t } = useTranslation();
   const api = useApi();
   const rename = useCallback(
@@ -35,20 +39,24 @@ export function ProjectView({ project, onProjectChanged, onOpenStudy }: ProjectV
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <p className="caps-label m-0 mb-2">{t("studies.projects.project")}</p>
-        <EditableTitle key={project.id} label={t("studies.projects.titleLabel")} value={project.title} onSave={rename} />
-        <p className="m-0 mt-1 text-[0.9375rem] text-text-muted">
-          {studyCountLabel(t, project.studyCount)}
-        </p>
-      </div>
+      {plain ? (
+        <h1 className="m-0 font-display text-[1.875rem] font-heading text-text-strong">{t("studies.home.title")}</h1>
+      ) : (
+        <div>
+          <p className="caps-label m-0 mb-2">{t("studies.projects.project")}</p>
+          <EditableTitle key={project.id} label={t("studies.projects.titleLabel")} value={project.title} onSave={rename} />
+          <p className="m-0 mt-1 text-[0.9375rem] text-text-muted">
+            {studyCountLabel(t, project.studyCount)}
+          </p>
+        </div>
+      )}
 
       {empty || asked ? (
         <NewStudyForm
           projectId={project.id}
           autoFocus={asked}
           onCancel={empty ? undefined : putAway}
-          onCreated={(id) => onOpenStudy({ id, projectId: project.id })}
+          onCreated={onOpenStudy}
         />
       ) : (
         <div>
@@ -66,6 +74,14 @@ export function ProjectView({ project, onProjectChanged, onOpenStudy }: ProjectV
           </h2>
           <StudyList projectId={project.id} onOpen={(s: StudySummary) => onOpenStudy(s)} />
         </section>
+      )}
+
+      {plain && onProjects && (
+        <div>
+          <Button variant="quiet" onClick={onProjects}>
+            {t("studies.home.organise")}
+          </Button>
+        </div>
       )}
     </div>
   );
