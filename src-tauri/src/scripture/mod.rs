@@ -4,10 +4,12 @@
 //! source document. Everything here is keyed by canonical references that
 //! do not depend on any translation; see docs/scripture-v0.2.md.
 
+pub mod aliases;
 pub mod annotation_data;
 pub mod bundled;
 pub mod canon;
 pub mod import;
+pub mod language;
 pub mod parser;
 pub mod phrase_ranges;
 pub mod reference;
