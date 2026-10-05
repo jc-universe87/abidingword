@@ -253,6 +253,109 @@ interface language and never with merged dictionaries.
 - **Not done:** Greek and Hebrew (deferred; they fall back to English), versification
   mapping, semantic matching. Reference detection never runs when turning Bible pages.
 
+## Suggestion quality
+
+The Sources pane should read as "what in my library is most relevant to this
+passage", not as search results. Everything here is deterministic and explainable;
+it reads only indexed links.
+
+**Ranking.** A place's sort key is `(kind, tier, closeness, origin)`, smaller first
+(`library/relevance.rs`):
+
+1. *kind*: exact, then contained (one range inside the other), then overlap, then
+   same chapter. Decided first, so a mention of exactly John 15:5 outranks a
+   section on John 15:1–11 for a reader at John 15:5.
+2. *tier*: within a kind, evidence that the text is **about** the passage (a
+   section heading, a manual link) before a **passing mention**. A commentary
+   section on John 15:1–11, or a section on the whole chapter, outranks a
+   paragraph that cites "John 15:5–6" in passing. Not applied to the same-chapter
+   kind, where nearness is what matters.
+3. *closeness*: the link nearest in size (narrower before broader for a verse;
+   nearer verses for the chapter kind).
+4. *origin* (manual, section, mention, inherited) so equal evidence always orders
+   the same way.
+
+The earlier order "manual, section, explicit, inherited" was kept as the last step;
+the new tier makes "section beats a passing mention" hold even when the mention is
+slightly closer in size. Origin is never shown to people.
+
+**Source type** (book, sermon, notes …) is deliberately **not** a ranking factor.
+Against the acceptance corpus nothing improved by it, and a rule such as "books
+before notes" would hide a pastor's own sermon on the verse. Revisit only with a
+clear product rule.
+
+**Sources.** One entry per source, ordered by its best place. Between equal best
+places, a source with a section or manual link that fits directly (one that is
+about the passage) comes before one that only cites it; then title, then id (a
+total order, so the same input always gives the same output). How many mentions a
+source has never raises its position: a noisy source cannot flood the list.
+At most 30 sources are shown.
+
+**Consolidation** (display only; nothing stored is deleted). A source's places are
+one per paragraph, best first, then redundant ones are dropped within the same
+local context (the section a paragraph lies in, or the paragraph itself):
+
+- a mention inside a section is dropped when the section place (or an earlier
+  mention of the same passage) is at least as good a fit: "Section on John 15:1–11
+  / Mentions John 15:1–11 / Mentions John 15:1–11" reads as one place;
+- a mention that fits the passage **better** than its section, or names a
+  different passage, is kept: it is somewhere else worth going.
+
+**Grouping.** Each source shows its best three places and a count of the rest;
+the count is of real, distinct places after consolidation. Three was kept: it
+shows a source's section and the closest mentions, and a source with fifty
+mentions still reads as three places and "47 more". Sources that only share the
+chapter are listed apart under "Elsewhere in John 15", after every direct source,
+and a source that matches directly never pads itself with same-chapter places.
+A "show all places" view was left out deliberately (quality, not features).
+
+**Reasons.** "Mentions John 15:5", "Section on John 15:1–11", "Within section on
+John 15:1–11", "Linked to John 15:1–11", in all six languages; no technical
+words reach the screen. Korean now reads "요한복음 15:1–11에 관한 부분" ("part about …")
+instead of the loan word 섹션. The reader's reason line shows each reason once (a
+paragraph that cites John 15:5 three times is explained once), stays small and
+muted under the source text, and is shown only where the place is linked.
+
+**Opening.** A result opens through the same source-reader path as everywhere else
+(segment id, then the source's own history, Reading/Original mapping): a section
+opens at its first paragraph, a mention at that paragraph.
+
+**Language neutrality.** The source language only decides how references are
+*detected*; ranking sees canonical passages. The same structure in English, German
+and Korean ranks identically, and the interface language never changes the order
+(tested).
+
+**Performance** (debug build, large synthetic library of 12,800 segments and
+14,720 links, 168 pane queries): before 0.78 ms per query, after 0.87 ms (one
+extra indexed lookup per mention that fits the passage); rebuild of the 8 sources
+about 0.7 s. No text is scanned and no regex runs when the passage changes.
+
+**Acceptance corpus** (all invented; imported through the real stage/commit/index
+path in `src-tauri/tests/suggestion_quality.rs`): a verse-by-verse commentary
+(section John 15:1–11, subsection John 15:5, a passing John 15:16), a theology
+chapter ("Union with Christ" citing John 15:4–5, no John heading), a sermon
+manuscript (John 15:1–8, a Romans citation), personal notes (John 15:5, John
+15:12), a general guide (John 15), a same-chapter source (John 15:12–17), a control
+("Mark 4 Principles of Leadership"), a German and a Korean source. For John 15:5
+the order is: the commentary's exact subsection; the German and Korean sources
+(an exact mention in a source that also has a section on it); the notes (a bare exact
+mention); the sermon (15:1–8), the guide (chapter); the theology chapter (a passing
+mention of 15:4–5); then the same-chapter source under "Elsewhere".
+
+Known behaviour: "Mark 4 Principles of Leadership" is read as a heading on Mark 4
+(the parser cannot tell it from a heading on that chapter); it never touches John.
+
+### Manual acceptance checklist (Windows, after v0.9 is merged and published)
+
+1. Read John 15:5; the best commentary or study of the verse is first.
+2. Open a section source; it opens at the section's first paragraph with a quiet
+   reason line. Press Back to Sources.
+3. Open an explicit mention; it opens at that paragraph.
+4. Check "Elsewhere in John 15" lists only same-chapter sources, below the direct ones.
+5. Switch the interface language: the order stays, the wording changes.
+6. Narrow the Sources pane: titles wrap, nothing is cut off, keyboard Tab/Enter work.
+7. Check dark mode: reasons readable but quieter than titles; focus ring visible.
+
 ## Tests (all text invented)
 
 - `src-tauri/src/library/sections.rs` (derivation rules), `relevance.rs` (ranking).
@@ -267,6 +370,7 @@ interface language and never with merged dictionaries.
 - `src-tauri/tests/migration_v5.rs`: a real v4 library is backed up, upgraded, its
   section links built from stored structure, nothing lost, and a second start does
   nothing.
+- `src-tauri/tests/suggestion_quality.rs` (20 tests, corpus above) and `tests/ui/passage-suggestion-quality.test.tsx` (10): ranking, consolidation, caps, range edges, language neutrality, opening.
 - `tests/ui/passage-sources.test.tsx` and the updated `library.test.tsx`: grouping,
   reasons, opening in the pane, the reader's reason line, German and Korean.
 - `npm run i18n:check`: every string in all six languages.
