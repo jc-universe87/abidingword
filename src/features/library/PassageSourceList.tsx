@@ -34,7 +34,7 @@ export function PassageSourceList({ groups, label, passageLabel, onOpen }: Passa
               <button
                 type="button"
                 onClick={() => onOpen(group.sourceId, best.segmentId)}
-                className="flex w-full flex-col items-start gap-0.5 py-2 text-left hover:bg-bg-secondary"
+                className="flex w-full flex-col items-start gap-0.5 rounded-sm px-1 py-2 text-left hover:bg-bg-secondary"
               >
                 <span id={titleId} className="font-semibold text-text-strong">
                   <cite className="not-italic">{group.sourceTitle}</cite>
@@ -51,7 +51,7 @@ export function PassageSourceList({ groups, label, passageLabel, onOpen }: Passa
                       <button
                         type="button"
                         onClick={() => onOpen(group.sourceId, place.segmentId)}
-                        className="flex w-full flex-col items-start gap-0 py-1 pl-3 text-left text-[0.875rem] hover:bg-bg-secondary"
+                        className="flex w-full flex-col items-start gap-0 rounded-sm py-1 pl-3 text-left text-[0.875rem] hover:bg-bg-secondary"
                       >
                         <span className="text-text-strong">{locatorLabel(t, place.locator)}</span>
                         <span className="text-text-muted">{reason(place)}</span>

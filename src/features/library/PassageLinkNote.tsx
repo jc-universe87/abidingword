@@ -18,12 +18,21 @@ export function PassageLinkNote({ segmentId }: { segmentId: string }) {
   const { t } = useTranslation();
   const api = useApi();
   const links = useLoad(useCallback(() => api.sourceSegmentPassageLinks(segmentId), [api, segmentId]));
-  const shown = (links.data ?? []).slice(0, MAX_SHOWN);
+  // The same reason twice (a paragraph that cites John 15:5 three times) reads once.
+  const seen = new Set<string>();
+  const shown = (links.data ?? [])
+    .filter((link) => {
+      const key = `${link.origin}-${link.reference.canonical}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, MAX_SHOWN);
   if (shown.length === 0) return null;
   return (
     <ul data-passage-note className="m-0 flex list-none flex-col gap-0 pl-4 pr-3 font-ui text-[0.875rem] text-text-muted">
-      {shown.map((link, index) => (
-        <li key={`${link.origin}-${link.reference.canonical}-${index}`}>
+      {shown.map((link) => (
+        <li key={`${link.origin}-${link.reference.canonical}`}>
           {passageReason(t, link.origin, referenceLabel(link.reference))}
         </li>
       ))}

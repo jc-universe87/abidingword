@@ -109,8 +109,8 @@
   },
   "passage": {
     "mentions": "{{passage}} 언급",
-    "section": "{{passage}} 섹션",
-    "within": "{{passage}} 섹션 안",
+    "section": "{{passage}}에 관한 부분",
+    "within": "{{passage}}에 관한 부분 안",
     "linked": "{{passage}}와(과) 연결됨"
   },
   "citations": {

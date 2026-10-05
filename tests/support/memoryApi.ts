@@ -1098,44 +1098,69 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       return originalBytes.slice(offset, offset + length);
     },
     sourceGetPassages: async (sourceId) => library.mentions.filter((m) => m.sourceId === sourceId).map(mention),
+    // Mirrors db::library::passage_sources and library/relevance.rs: rank = (kind, tier, closeness,
+    // origin); one place per segment; places consolidated per section; sources by best place,
+    // then "about the passage", then title.
     libraryPassageSources: async (reference) => {
       const active = refFromCanonical(reference, bookByCode);
       if (!active) return [];
       const width = (r: ScriptureRef) => (r.endChapter * 1000 + (r.endVerse ?? 999)) - (r.startChapter * 1000 + (r.startVerse ?? 0));
-      const places = [
+      type Place = { sourceId: string; segmentId: string; origin: "explicit" | "section"; reference: ScriptureRef; matchedText: string; heading: string | null };
+      const places: Place[] = [
         ...library.mentions.map((m) => ({ sourceId: m.sourceId, segmentId: m.segmentId, origin: "explicit" as const, reference: m.reference, matchedText: m.matchedText, heading: null as string | null })),
         ...library.links.filter((l) => l.origin === "section").map((l) => ({ sourceId: l.sourceId, segmentId: l.segmentId, origin: "section" as const, reference: l.reference, matchedText: l.matchedText, heading: l.heading as string | null })),
-      ].flatMap((p) => {
+      ];
+      const contextOf = (p: Place) => (p.origin === "section" ? p.segmentId : (library.links.find((l) => l.origin === "inherited" && l.segmentId === p.segmentId)?.openerSegmentId ?? p.segmentId));
+      const scored = places.flatMap((p) => {
         const kind = matchKindOf(active, p.reference);
         const source = library.sources.find((s) => s.id === p.sourceId && !s.deleted);
-        return kind && source ? [{ ...p, kind, source, closeness: Math.abs(width(active) - width(p.reference)), rank: p.origin === "section" ? 1 : 2 }] : [];
+        if (!kind || !source) return [];
+        const tier = kind === "chapter" || p.origin === "explicit" ? (kind === "chapter" ? 0 : 1) : 0;
+        const rank = [KIND_ORDER.indexOf(kind), tier, Math.abs(width(active) - width(p.reference)), p.origin === "section" ? 1 : 2];
+        return [{ ...p, kind, source, rank, position: library.segments.find((x) => x.id === p.segmentId)?.position ?? 0 }];
       });
-      const bySource = new Map<string, typeof places>();
-      for (const p of places) bySource.set(p.sourceId, [...(bySource.get(p.sourceId) ?? []), p]);
-      const order = (a: (typeof places)[number], b: (typeof places)[number]) =>
-        KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind) || a.closeness - b.closeness || a.rank - b.rank;
+      type Scored = (typeof scored)[number];
+      const order = (a: Scored, b: Scored) => {
+        for (let i = 0; i < 4; i++) if (a.rank[i] !== b.rank[i]) return a.rank[i]! - b.rank[i]!;
+        return 0;
+      };
+      const bySource = new Map<string, Scored[]>();
+      for (const p of scored) bySource.set(p.sourceId, [...(bySource.get(p.sourceId) ?? []), p]);
       return [...bySource.values()]
         .map((list) => {
           // one place per segment, best first
-          const best = new Map<string, (typeof places)[number]>();
+          const best = new Map<string, Scored>();
           for (const p of [...list].sort(order)) if (!best.has(p.segmentId)) best.set(p.segmentId, p);
-          let sorted = [...best.values()];
-          // same-chapter places only for a source with nothing closer (as in the core)
+          let sorted = [...best.values()].sort((a, b) => order(a, b) || a.position - b.position);
+          // same-chapter places only for a source with nothing closer
           if (sorted[0]!.kind !== "chapter") sorted = sorted.filter((p) => p.kind !== "chapter");
-          const source = sorted[0]!.source;
+          // consolidate within a section: what an earlier, at-least-as-good place already shows is dropped
+          const kept: { context: string; place: Scored }[] = [];
+          for (const p of sorted) {
+            const context = contextOf(p);
+            const redundant = kept.some(
+              (k) => k.context === context && KIND_ORDER.indexOf(k.place.kind) <= KIND_ORDER.indexOf(p.kind) && (k.place.origin === "section" || k.place.reference.canonical === p.reference.canonical),
+            );
+            if (!redundant) kept.push({ context, place: p });
+          }
+          const final = kept.map((k) => k.place);
+          const source = final[0]!.source;
+          const about = list.some((p) => p.origin === "section" && p.kind !== "chapter");
           return {
-            sorted,
+            final,
+            about,
             group: {
               sourceId: source.id, sourceTitle: source.title, author: source.author,
-              locations: sorted.slice(0, 3).map((p) => ({
+              locations: final.slice(0, 3).map((p) => ({
                 segmentId: p.segmentId, locator: find(library.segments, p.segmentId, "segment").locator, origin: p.origin, matchKind: p.kind,
                 reference: p.reference, matchedText: p.matchedText, sectionHeading: p.heading,
               })),
-              moreLocations: Math.max(0, sorted.length - 3),
+              moreLocations: Math.max(0, final.length - 3),
             },
           };
         })
-        .sort((a, b) => order(a.sorted[0]!, b.sorted[0]!) || a.group.sourceTitle.localeCompare(b.group.sourceTitle))
+        .sort((a, b) => order(a.final[0]!, b.final[0]!) || Number(b.about) - Number(a.about) || a.group.sourceTitle.localeCompare(b.group.sourceTitle))
+        .slice(0, 30)
         .map((x) => x.group);
     },
     sourceSegmentPassageLinks: async (segmentId) => {
