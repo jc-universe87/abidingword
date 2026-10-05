@@ -320,13 +320,6 @@
       "contrasts": "Contraste avec",
       "supports": "Appuyée par",
       "custom": "Liée à"
-    },
-    "choice": {
-      "related": "est liée à",
-      "continues": "prolonge",
-      "contrasts": "contraste avec",
-      "supports": "appuie",
-      "custom": "est reliée à"
     }
   },
   "keepIt": "La conserver",
@@ -399,7 +392,11 @@
     "noMatch": "Aucune étude ne correspond à ces filtres.",
     "empty": "Aucune étude ici pour l’instant.",
     "listLabel": "Études",
-    "changed": "modifiée le {{date}}"
+    "changed": "modifiée le {{date}}",
+    "showArchived_one": "Afficher l’archivée ({{count}})",
+    "showArchived_other": "Afficher les archivées ({{count}})",
+    "hideArchived": "Masquer les archivées",
+    "showArchived_many": "Afficher les archivées ({{count}})"
   },
   "header": {
     "status": "Statut",
@@ -484,7 +481,10 @@
     "delete": "Supprimer le bloc ({{type}}) dans {{section}}",
     "deleteTooltip": "Supprimer le bloc ({{type}})",
     "placeholder": "Écrivez ici…",
-    "passagesMentioned": "Passages mentionnés :"
+    "passagesMentioned": "Passages mentionnés :",
+    "options": "Options du bloc ({{type}}) dans {{section}}",
+    "optionsGroup": "Options du bloc ({{type}}) dans {{section}}",
+    "optionsTooltip": "Options du bloc"
   },
   "findings": {
     "heading": "Éléments de l’étude",
@@ -543,12 +543,12 @@
     "remove": "Retirer le lien vers {{title}}",
     "add": "+ Lier une étude",
     "addGroup": "Lier une étude",
-    "thisStudy": "Cette étude",
-    "relation": "Relation",
-    "target": "Étude à lier",
+    "relation": "Lien",
+    "target": "Étude liée",
     "choose": "Choisir une étude…",
     "option": "{{title}} ({{project}})",
-    "link": "Lier"
+    "link": "Lier",
+    "describe": "Préciser le lien"
   },
   "search": {
     "heading": "Études correspondant à « {{query}} »",

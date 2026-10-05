@@ -1,6 +1,6 @@
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useId, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, MoreHorizontal, Trash2 } from "lucide-react";
 import { useAutosave } from "@/hooks/useAutosave";
 import { useApi } from "@/lib/ApiContext";
 import type { BlockType, StudyBlock } from "@/types/domain";
@@ -40,6 +40,9 @@ export function BlockEditor(props: BlockEditorProps) {
   const api = useApi();
   const [text, setText] = useState(block.content);
   const [confirming, setConfirming] = useState(false);
+  const [managing, setManaging] = useState(false);
+  const manageId = useId();
+  const toggle = useRef<HTMLButtonElement>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const area = useRef<HTMLTextAreaElement>(null);
 
@@ -76,8 +79,20 @@ export function BlockEditor(props: BlockEditorProps) {
     }
   };
 
+  const tool = "inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong disabled:opacity-40";
+  const single = isFirst && isLast;
+
   return (
-    <div className="group relative">
+    <div
+      className="relative"
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && managing) {
+          e.stopPropagation();
+          setManaging(false);
+          toggle.current?.focus();
+        }
+      }}
+    >
       <textarea
         ref={area}
         rows={block.blockType === "heading" ? 1 : 2}
@@ -90,53 +105,57 @@ export function BlockEditor(props: BlockEditorProps) {
           schedule(e.target.value);
         }}
         onBlur={flush}
-        className={`block w-full resize-none overflow-hidden rounded-aw border border-transparent bg-transparent px-3 py-2 pr-12 text-text placeholder:text-text-muted hover:border-border-subtle focus:border-border ${STYLES[block.blockType]}`}
+        className={`block w-full resize-none overflow-hidden rounded-aw border border-transparent border-b-border-subtle bg-transparent px-3 py-2 pr-14 text-text placeholder:text-text-muted hover:border-border-subtle focus:border-border ${STYLES[block.blockType]}`}
       />
-      <div
-        className={`absolute right-1 top-1 flex items-center gap-1 transition-opacity ${
-          confirming ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
-        }`}
+      <button
+        ref={toggle}
+        type="button"
+        aria-expanded={managing}
+        aria-controls={manageId}
+        aria-label={t("studies.blocks.options", { type, section: sectionTitle })}
+        title={t("studies.blocks.optionsTooltip")}
+        onClick={() => setManaging(!managing)}
+        className="absolute right-1 top-0 inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
       >
-        {confirming ? (
-          <span className="flex items-center gap-1 rounded-aw border border-border bg-bg px-2 py-1 text-[0.875rem]">
-            <span>{t("studies.blocks.confirmDelete", { type })}</span>
-            <button type="button" onClick={remove} className="rounded px-2 py-1 font-medium text-danger hover:bg-bg-secondary">
-              {t("common.delete")}
-            </button>
-            {/* Focus lands on the safe choice when the question appears. */}
-            <button
-              type="button"
-              autoFocus
-              onClick={() => setConfirming(false)}
-              className="rounded px-2 py-1 hover:bg-bg-secondary"
-            >
-              {t("common.keep")}
-            </button>
-          </span>
-        ) : (
-          <>
-          {!(isFirst && isLast) && (
+        <MoreHorizontal className="size-4" aria-hidden="true" />
+      </button>
+      {managing && (
+        <div id={manageId} role="group" aria-label={t("studies.blocks.optionsGroup", { type, section: sectionTitle })} className="mt-1 flex flex-wrap items-center gap-1">
+          {!single && (
             <>
-              <button type="button" disabled={isFirst} onClick={() => onMove(-1)} aria-label={t("studies.blocks.moveUp", { type, section: sectionTitle })} className="inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40">
+              <button type="button" disabled={isFirst} onClick={() => onMove(-1)} aria-label={t("studies.blocks.moveUp", { type, section: sectionTitle })} className={tool}>
                 <ArrowUp className="size-4" aria-hidden="true" />
               </button>
-              <button type="button" disabled={isLast} onClick={() => onMove(1)} aria-label={t("studies.blocks.moveDown", { type, section: sectionTitle })} className="inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40">
+              <button type="button" disabled={isLast} onClick={() => onMove(1)} aria-label={t("studies.blocks.moveDown", { type, section: sectionTitle })} className={tool}>
                 <ArrowDown className="size-4" aria-hidden="true" />
               </button>
             </>
           )}
-          <button
-            type="button"
-            onClick={remove}
-            aria-label={t("studies.blocks.delete", { type, section: sectionTitle })}
-            title={t("studies.blocks.deleteTooltip", { type })}
-            className="inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-danger"
-          >
-            <Trash2 className="size-4" aria-hidden="true" />
-          </button>
-          </>
-        )}
-      </div>
+          {confirming ? (
+            <span className="flex flex-wrap items-center gap-1 rounded-aw border border-border bg-bg px-2 py-1 text-[0.9375rem]">
+              <span>{t("studies.blocks.confirmDelete", { type })}</span>
+              <button type="button" onClick={remove} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-bg-secondary">
+                {t("common.delete")}
+              </button>
+              {/* Focus lands on the safe choice when the question appears. */}
+              <button type="button" autoFocus onClick={() => setConfirming(false)} className="min-h-11 rounded px-2 hover:bg-bg-secondary">
+                {t("common.keep")}
+              </button>
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={remove}
+              aria-label={t("studies.blocks.delete", { type, section: sectionTitle })}
+              title={t("studies.blocks.deleteTooltip", { type })}
+              className={`${tool} hover:text-danger`}
+            >
+              <Trash2 className="size-4" aria-hidden="true" />
+              {t("common.delete")}
+            </button>
+          )}
+        </div>
+      )}
       <DetectedReferences text={text} onOpen={onRevealScripture} />
       {deleteError && (
         <p role="alert" className="m-0 px-3 text-[0.9375rem] text-danger">

@@ -87,7 +87,7 @@ export function StudyDetailsPanel({ id, study, findings, templates, passages, re
           {[t("studies.header.typeLine", { type: studyTypeLabel(t, study.studyType) }), own && t("studies.header.fromTemplate", { name: templateName(own) }), facts].filter(Boolean).join(t("common.listSeparator"))}
         </p>
 
-        <label className="flex flex-col gap-1 sm:max-w-64">
+        <label className="flex flex-col gap-1 @md:max-w-64">
           <span className="text-[0.9375rem] font-medium text-text-muted">{t("studies.header.status")}</span>
           <select
             value={study.status}
@@ -143,7 +143,7 @@ function PurposeField({ study, onChanged }: { study: Study; onChanged: (s: Study
   const { schedule, flush } = useAutosave(save);
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[0.875rem] font-medium text-text-muted">{t("studies.header.purpose")} <span className="font-normal">{t("studies.newStudy.optional")}</span></span>
+      <span className="text-[0.9375rem] font-medium text-text-muted">{t("studies.header.purpose")} <span className="font-normal">{t("studies.newStudy.optional")}</span></span>
       <textarea
         rows={1}
         value={text}
@@ -182,13 +182,13 @@ function DetailsFields({ study, onChanged }: { study: Study; onChanged: (s: Stud
     <div className="grid grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-2" role="group" aria-label={t("studies.header.details", { type: studyTypeLabel(t, study.studyType) })}>
       {fields.map((field) => (
         <label key={field} className="flex flex-col gap-1">
-          <span className="text-[0.875rem] font-medium text-text-muted">{t(`studies.header.detail.${field}.label`)}</span>
+          <span className="text-[0.9375rem] font-medium text-text-muted">{t(`studies.header.detail.${field}.label`)}</span>
           <input
             value={values[field] ?? ""}
             placeholder={t(`studies.header.detail.${field}.hint`)}
             onChange={(e) => setValues({ ...values, [field]: e.target.value || null })}
             onBlur={() => void save().catch(() => undefined)}
-            className="h-9 rounded-aw border border-border-subtle bg-transparent px-2 text-[0.9375rem] placeholder:text-text-muted focus:border-border"
+            className="h-11 rounded-aw border border-border-subtle bg-transparent px-2 text-[0.9375rem] placeholder:text-text-muted focus:border-border"
           />
         </label>
       ))}

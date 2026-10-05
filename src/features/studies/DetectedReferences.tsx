@@ -41,7 +41,7 @@ export function DetectedReferences({ text, onOpen }: { text: string; onOpen: () 
   );
   if (unique.length === 0) return null;
   return (
-    <p className="m-0 flex flex-wrap items-center gap-x-3 gap-y-1 px-3 text-[0.875rem] text-text-muted">
+    <p className="m-0 flex flex-wrap items-center gap-x-3 gap-y-1 px-3 text-[0.9375rem] text-text-muted">
       <span>{t("studies.blocks.passagesMentioned")}</span>
       {unique.map((d) => (
         <button

@@ -320,13 +320,6 @@
       "contrasts": "대조됨",
       "supports": "이 연구를 뒷받침함",
       "custom": "연결됨"
-    },
-    "choice": {
-      "related": "관련",
-      "continues": "이어짐",
-      "contrasts": "대조",
-      "supports": "뒷받침",
-      "custom": "연결"
     }
   },
   "keepIt": "유지",
@@ -395,7 +388,9 @@
     "noMatch": "이 조건에 맞는 성경공부가 없습니다.",
     "empty": "아직 성경공부가 없습니다.",
     "listLabel": "성경공부",
-    "changed": "{{date}} 수정"
+    "changed": "{{date}} 수정",
+    "showArchived_other": "보관된 항목 보기 ({{count}})",
+    "hideArchived": "보관된 항목 숨기기"
   },
   "header": {
     "status": "상태",
@@ -476,7 +471,10 @@
     "delete": "{{section}}의 {{type}} 블록 삭제",
     "deleteTooltip": "{{type}} 블록 삭제",
     "placeholder": "여기에 작성하세요…",
-    "passagesMentioned": "언급된 본문:"
+    "passagesMentioned": "언급된 본문:",
+    "options": "{{section}}의 {{type}} 블록 옵션",
+    "optionsGroup": "{{section}}의 {{type}} 블록 옵션",
+    "optionsTooltip": "블록 옵션"
   },
   "findings": {
     "heading": "성경공부 기록",
@@ -535,12 +533,12 @@
     "remove": "{{title}}과(와)의 연결 제거",
     "add": "+ 관련 성경공부 연결",
     "addGroup": "관련 성경공부 연결",
-    "thisStudy": "이 성경공부",
     "relation": "관계",
-    "target": "연결할 성경공부",
+    "target": "관련 성경공부",
     "choose": "성경공부 선택…",
     "option": "{{title}} ({{project}})",
-    "link": "연결"
+    "link": "연결",
+    "describe": "관계 설명하기"
   },
   "search": {
     "heading": "“{{query}}”와 일치하는 성경공부",

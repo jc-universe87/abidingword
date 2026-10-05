@@ -97,6 +97,8 @@ describe("creating studies", () => {
     const { api, project } = await withProject();
     await api.studyCreate({ projectId: project.id, title: "The True Vine", primaryPassage: "JHN.15.1-JHN.15.11" });
     await api.studyCreate({ projectId: project.id, title: "Abiding", studyType: "topical" });
+    // filters are only offered once the list is long enough to need them
+    for (const n of [1, 2, 3, 4]) await api.studyCreate({ projectId: project.id, title: `Passage ${n}`, primaryPassage: "ROM.8.1" });
     const { user } = await renderApp(api);
     await openProject(user, "John Sermon Series");
 
@@ -316,8 +318,11 @@ describe("related studies and search", () => {
     await user.click(screen.getByRole("button", { name: "Study details" }));
     await user.click(screen.getByRole("button", { name: "+ Link a related study" }));
     const form = screen.getByRole("group", { name: "Link a related study" });
-    await user.selectOptions(within(form).getByLabelText("Relation"), "continues");
-    await user.selectOptions(within(form).getByLabelText("Study to link"), api.state.studies[1]!.id);
+    // ordinarily just choose the study; saying how they are related is one step further
+    expect(within(form).queryByLabelText("Relationship")).not.toBeInTheDocument();
+    await user.click(within(form).getByRole("button", { name: "Describe the relationship" }));
+    await user.selectOptions(within(form).getByLabelText("Relationship"), "continues");
+    await user.selectOptions(within(form).getByLabelText("Related study"), api.state.studies[1]!.id);
     await user.click(within(form).getByRole("button", { name: "Link" }));
 
     const related = await screen.findByRole("region", { name: "Related studies" });

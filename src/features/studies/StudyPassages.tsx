@@ -51,7 +51,7 @@ export function StudyPassages({ studyId, title = "", passages, reload, onReveal 
   const titled = primary !== undefined && titleIsPassage(title, referenceLabel(primary.reference));
   const shown = passages.filter((p) => !(titled && p.id === primary?.id));
   const linked = currentPassage && passages.some((p) => p.reference.canonical === currentPassage.canonical);
-  const quiet = "inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong";
+  const quiet = "inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong";
 
   return (
     <section aria-label={t("studies.passages.label")} className="flex flex-col gap-2">
@@ -77,7 +77,7 @@ export function StudyPassages({ studyId, title = "", passages, reload, onReveal 
               onReveal();
             }}
             title={t("studies.passages.open")}
-            className={`inline-flex min-h-9 items-center rounded-aw border px-3 text-[0.9375rem] text-link hover:bg-bg-secondary ${
+            className={`inline-flex min-h-11 items-center rounded-aw border px-3 text-[0.9375rem] text-link hover:bg-bg-secondary ${
               passage.id === primary?.id && passages.length > 1 ? "border-border bg-bg-secondary font-semibold" : "border-border-subtle font-medium"
             }`}
           >
@@ -115,12 +115,12 @@ export function StudyPassages({ studyId, title = "", passages, reload, onReveal 
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={t("studies.passages.placeholder")}
-              className="h-9 min-w-0 flex-1 basis-48 rounded-aw border border-border bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted"
+              className="h-11 min-w-0 flex-1 basis-48 rounded-aw border border-border bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted"
             />
-            <button type="submit" className="h-9 rounded-aw bg-primary px-3 text-[0.9375rem] font-medium text-on-primary hover:bg-primary-hover">
+            <button type="submit" className="h-11 rounded-aw bg-primary px-3 text-[0.9375rem] font-medium text-on-primary hover:bg-primary-hover">
               {t("common.add")}
             </button>
-            <button type="button" onClick={() => setAdding(false)} className="h-9 rounded-aw border border-border px-3 text-[0.9375rem]">
+            <button type="button" onClick={() => setAdding(false)} className="h-11 rounded-aw border border-border px-3 text-[0.9375rem]">
               {t("common.cancel")}
             </button>
           </div>
@@ -163,7 +163,7 @@ export function PassageManager({ passages, reload }: Omit<PassagesProps, "studyI
   if (passages.length === 0) return null;
   return (
     <div className="flex flex-col gap-1">
-      <h3 className="m-0 text-[0.875rem] font-medium text-text-muted">{t("studies.passages.label")}</h3>
+      <h3 className="m-0 text-[0.9375rem] font-medium text-text-muted">{t("studies.passages.label")}</h3>
       <ul className="m-0 flex list-none flex-col gap-1 p-0">
         {passages.map((passage) => {
           const label = referenceLabel(passage.reference);
@@ -177,7 +177,7 @@ export function PassageManager({ passages, reload }: Omit<PassagesProps, "studyI
                   type="button"
                   onClick={() => void act(() => api.studyPassageSetRole({ id: passage.id, role: "primary" }))}
                   aria-label={t("studies.passages.makePrimaryLabel", { passage: label })}
-                  className="min-h-9 rounded-aw px-2 text-text-strong underline underline-offset-2 hover:bg-bg"
+                  className="min-h-11 rounded-aw px-2 text-text-strong underline underline-offset-2 hover:bg-bg"
                 >
                   {t("studies.passages.makePrimary")}
                 </button>
@@ -186,7 +186,7 @@ export function PassageManager({ passages, reload }: Omit<PassagesProps, "studyI
                 type="button"
                 onClick={() => void act(() => api.studyPassageRemove(passage.id))}
                 aria-label={t("studies.passages.remove", { passage: label })}
-                className="ml-auto inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg"
+                className="ml-auto inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg"
               >
                 <X className="size-4" aria-hidden="true" />
               </button>

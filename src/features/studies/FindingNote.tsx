@@ -68,8 +68,8 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
   const section = sections.find((s) => s.id === finding.sectionId);
   const excerpt = finding.content.slice(0, 60);
 
-  const field = "h-9 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2";
-  const quiet = "inline-flex min-h-9 items-center rounded-aw px-2 text-text-muted hover:bg-bg-secondary hover:text-text-strong disabled:opacity-40";
+  const field = "h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2";
+  const quiet = "inline-flex min-h-11 items-center rounded-aw px-2 text-text-muted hover:bg-bg-secondary hover:text-text-strong disabled:opacity-40";
 
   return (
     <li>
@@ -84,7 +84,7 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
           }
         }}
       >
-        <p className="m-0 text-[0.875rem] font-medium text-text-muted">
+        <p className="m-0 text-[0.9375rem] font-medium text-text-muted">
           {label}
           {section && <span className="font-normal">{t("common.listSeparator")}{sectionTitle(section)}</span>}
         </p>
@@ -98,11 +98,11 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
             schedule(e.target.value);
           }}
           onBlur={flush}
-          className="reading w-full resize-y rounded-aw border border-transparent bg-transparent px-2 py-1 -mx-2 text-[1rem] hover:border-border-subtle focus:border-border"
+          className="reading w-full resize-y rounded-aw border border-transparent border-b-border-subtle bg-transparent px-2 py-1 -mx-2 text-[1rem] hover:border-border-subtle focus:border-border"
         />
 
         {(finding.passages.length > 0 || finding.sources.length > 0) && (
-          <div className="flex flex-wrap items-center gap-2 text-[0.875rem]">
+          <div className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
             {finding.passages.map((p) => (
               <button
                 key={p.id}
@@ -111,7 +111,7 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
                   goTo(p.reference);
                   onRevealScripture();
                 }}
-                className="min-h-8 rounded-aw border border-border px-2 font-medium text-link hover:bg-bg-secondary"
+                className="min-h-11 rounded-aw border border-border px-2 font-medium text-link hover:bg-bg-secondary"
               >
                 {referenceLabel(p.reference)}
               </button>
@@ -140,7 +140,7 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
             aria-controls={detailsId}
             aria-label={t("studies.findings.detailsFor", { type, excerpt })}
             onClick={() => setOpen(!open)}
-            className={`${quiet} -ml-2 gap-1 text-[0.875rem]`}
+            className={`${quiet} -ml-2 gap-1 text-[0.9375rem]`}
           >
             {open ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
             {t("studies.findings.details")}
@@ -149,7 +149,7 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
 
         {open && (
           <div id={detailsId} className="flex flex-col gap-3 rounded-aw border border-border-subtle bg-bg-secondary px-3 py-3 text-[0.9375rem]">
-            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <div className="flex flex-col gap-2 @md:flex-row @md:flex-wrap @md:items-center @md:gap-4">
               <label className="flex items-center gap-2">
                 <span className="text-text-muted">{t("studies.findings.typeLabel")}</span>
                 <select
@@ -197,7 +197,7 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
                   type="button"
                   onClick={() => act(() => api.findingUnlinkPassage(p.id))}
                   aria-label={t("studies.findings.unlink", { passage: referenceLabel(p.reference) })}
-                  className="inline-flex min-h-8 items-center gap-1 rounded-aw border border-border px-2 text-text-muted hover:bg-bg"
+                  className="inline-flex min-h-11 items-center gap-1 rounded-aw border border-border px-2 text-text-muted hover:bg-bg"
                 >
                   {referenceLabel(p.reference)}
                   <X className="size-3.5" aria-hidden="true" />
@@ -207,7 +207,7 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
                 <button
                   type="button"
                   onClick={() => act(() => api.findingLinkPassage({ findingId: finding.id, reference: currentPassage.canonical }))}
-                  className="min-h-8 rounded-aw px-2 text-text-muted underline-offset-2 hover:text-text-strong hover:underline"
+                  className="min-h-11 rounded-aw px-2 text-text-muted underline-offset-2 hover:text-text-strong hover:underline"
                 >
                   {t("studies.findings.link", { passage: referenceLabel(currentPassage) })}
                 </button>

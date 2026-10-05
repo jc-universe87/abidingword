@@ -181,7 +181,7 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
             aria-expanded={showDetails}
             aria-controls={detailsId}
             onClick={() => setShowDetails(!showDetails)}
-            className="inline-flex min-h-9 items-center gap-1 rounded-aw px-1 hover:text-text-strong"
+            className="inline-flex min-h-11 items-center gap-1 rounded-aw px-1 hover:text-text-strong"
           >
             {showDetails ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
             {t("studies.header.detailsToggle")}

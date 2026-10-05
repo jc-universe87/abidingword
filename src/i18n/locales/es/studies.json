@@ -320,13 +320,6 @@
       "contrasts": "Contrasta con",
       "supports": "Respaldado por",
       "custom": "Vinculado con"
-    },
-    "choice": {
-      "related": "está relacionado con",
-      "continues": "continúa",
-      "contrasts": "contrasta con",
-      "supports": "respalda",
-      "custom": "está vinculado con"
     }
   },
   "keepIt": "Conservarlo",
@@ -399,7 +392,11 @@
     "noMatch": "Ningún estudio coincide con estos filtros.",
     "empty": "Todavía no hay estudios aquí.",
     "listLabel": "Estudios",
-    "changed": "modificado el {{date}}"
+    "changed": "modificado el {{date}}",
+    "showArchived_one": "Mostrar archivado ({{count}})",
+    "showArchived_other": "Mostrar archivados ({{count}})",
+    "hideArchived": "Ocultar archivados",
+    "showArchived_many": "Mostrar archivados ({{count}})"
   },
   "header": {
     "status": "Estado",
@@ -484,7 +481,10 @@
     "delete": "Eliminar el bloque ({{type}}) en {{section}}",
     "deleteTooltip": "Eliminar el bloque ({{type}})",
     "placeholder": "Escribe aquí…",
-    "passagesMentioned": "Pasajes mencionados:"
+    "passagesMentioned": "Pasajes mencionados:",
+    "options": "Opciones del bloque ({{type}}) en {{section}}",
+    "optionsGroup": "Opciones del bloque ({{type}}) en {{section}}",
+    "optionsTooltip": "Opciones del bloque"
   },
   "findings": {
     "heading": "Apuntes del estudio",
@@ -543,12 +543,12 @@
     "remove": "Quitar el vínculo con {{title}}",
     "add": "+ Vincular un estudio relacionado",
     "addGroup": "Vincular un estudio relacionado",
-    "thisStudy": "Este estudio",
     "relation": "Relación",
-    "target": "Estudio que vincular",
+    "target": "Estudio relacionado",
     "choose": "Elige un estudio…",
     "option": "{{title}} ({{project}})",
-    "link": "Vincular"
+    "link": "Vincular",
+    "describe": "Indicar la relación"
   },
   "search": {
     "heading": "Estudios que coinciden con “{{query}}”",

@@ -403,3 +403,197 @@ describe("findings in sections", () => {
     expect(within(contents).queryByRole("button", { name: "Study notes" })).not.toBeInTheDocument();
   });
 });
+
+describe("the study list", () => {
+  async function withStudies(count: number, archived = 0) {
+    const api = createMemoryApi();
+    const project = await api.projectCreate({ workspaceId: api.state.workspace.id, title: "Series" });
+    for (let n = 1; n <= count; n++) {
+      const detail = await api.studyCreate({ projectId: project.id, title: `Study ${n}`, primaryPassage: "ROM.8.1" });
+      if (n <= archived) await api.studyUpdate({ id: detail.study.id, status: "archived" });
+    }
+    return api;
+  }
+
+  it("offers no filters for a short list, and does not repeat Active on every row", async () => {
+    const api = await withStudies(3);
+    await renderApp(api);
+    const list = await screen.findByRole("list", { name: "Studies" });
+    expect(screen.queryByRole("group", { name: "Filter studies" })).not.toBeInTheDocument();
+    expect(within(list).queryByText(/Active/)).not.toBeInTheDocument();
+  });
+
+  it("offers the filters once the list is long", async () => {
+    const api = await withStudies(6);
+    await renderApp(api);
+    await screen.findByRole("list", { name: "Studies" });
+    const filters = screen.getByRole("group", { name: "Filter studies" });
+    expect(within(filters).getByLabelText("Status")).toBeInTheDocument();
+    expect(within(filters).getByLabelText("Type")).toBeInTheDocument();
+  });
+
+  it("keeps archived studies out of the way, shows them on request, and says Archived on them", async () => {
+    const api = await withStudies(4, 1);
+    const { user } = await renderApp(api);
+    const list = await screen.findByRole("list", { name: "Studies" });
+    expect(within(list).getAllByRole("listitem")).toHaveLength(3);
+    expect(within(list).queryByText(/Archived/)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Show archived (1)" }));
+    expect(within(screen.getByRole("list", { name: "Studies" })).getAllByRole("listitem")).toHaveLength(4);
+    expect(within(screen.getByRole("list", { name: "Studies" })).getByText(/Archived/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Hide archived" }));
+    expect(within(screen.getByRole("list", { name: "Studies" })).getAllByRole("listitem")).toHaveLength(3);
+  });
+
+  it("still finds archived studies through the status filter", async () => {
+    const api = await withStudies(7, 2);
+    const { user } = await renderApp(api);
+    await screen.findByRole("list", { name: "Studies" });
+    await user.selectOptions(within(screen.getByRole("group", { name: "Filter studies" })).getByLabelText("Status"), "archived");
+    await waitFor(() => expect(within(screen.getByRole("list", { name: "Studies" })).getAllByRole("listitem")).toHaveLength(2));
+    expect(screen.queryByRole("button", { name: /Show archived/ })).not.toBeInTheDocument();
+  });
+
+  it("says plainly when everything is archived", async () => {
+    const api = await withStudies(1, 1);
+    const { user } = await renderApp(api);
+    await screen.findByRole("button", { name: "Show archived (1)" });
+    expect(screen.queryByRole("list", { name: "Studies" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Show archived (1)" }));
+    expect(await screen.findByRole("list", { name: "Studies" })).toBeInTheDocument();
+  });
+});
+
+describe("related studies", () => {
+  async function two() {
+    const api = createMemoryApi();
+    const project = await api.projectCreate({ workspaceId: api.state.workspace.id, title: "Series" });
+    await api.studyCreate({ projectId: project.id, title: "Romans 8" });
+    const other = await api.studyCreate({ projectId: project.id, title: "Galatians 4" });
+    return { api, other: other.study.id };
+  }
+
+  it("links a study as simply related, without asking how", async () => {
+    const { api, other } = await two();
+    const { user } = await renderApp(api);
+    await open(user, /Romans 8/);
+    await user.click(screen.getByRole("button", { name: "Study details" }));
+    await user.click(screen.getByRole("button", { name: "+ Link a related study" }));
+    const form = screen.getByRole("group", { name: "Link a related study" });
+    expect(within(form).getByLabelText("Related study")).toBeInTheDocument();
+    expect(within(form).queryByText("This study")).not.toBeInTheDocument();
+    await user.selectOptions(within(form).getByLabelText("Related study"), other);
+    await user.click(within(form).getByRole("button", { name: "Link" }));
+    await waitFor(() => expect(api.state.relations.map((r) => r.relationType)).toEqual(["related"]));
+  });
+
+  it("keeps the kinds of relationship one step away, and Escape steps back", async () => {
+    const { api } = await two();
+    const { user } = await renderApp(api);
+    await open(user, /Romans 8/);
+    await user.click(screen.getByRole("button", { name: "Study details" }));
+    await user.click(screen.getByRole("button", { name: "+ Link a related study" }));
+    const form = screen.getByRole("group", { name: "Link a related study" });
+    await user.click(within(form).getByRole("button", { name: "Describe the relationship" }));
+    const kinds = within(form).getByLabelText("Relationship");
+    expect(within(kinds).getAllByRole("option").map((o) => o.textContent)).toEqual(["Related to", "Continues", "Contrasts with", "Supports", "Linked to"]);
+    await user.keyboard("{Escape}");
+    expect(within(form).queryByLabelText("Relationship")).not.toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Link a related study" })).toBeInTheDocument();
+  });
+});
+
+describe("editable text looks editable before it is touched", () => {
+  it("gives the title, a note and a block a resting underline, not a hover-only border", async () => {
+    const { api, studyId } = await emptyStudy();
+    await api.findingCreate({ studyId, findingType: "observation", content: "Visible." });
+    const { user } = await renderApp(api);
+    const title = await open(user, /The True Vine/);
+    expect(title.className).toContain("border-b-border-subtle");
+    expect(main().getByRole("textbox", { name: "Observation text" }).className).toContain("border-b-border-subtle");
+    expect(main().getByRole("textbox", { name: "Context: paragraph" }).className).toContain("border-b-border-subtle");
+  });
+});
+
+describe("controls for a text block", () => {
+  it("are one visible button, not hover-only, and reachable by keyboard", async () => {
+    const { api } = await emptyStudy();
+    const { user } = await renderApp(api);
+    await open(user, /The True Vine/);
+    const toggle = main().getByRole("button", { name: "Options for paragraph in Context" });
+    expect(toggle.className).not.toContain("opacity-0");
+    expect(toggle.closest("[class*='group-hover']")).toBeNull();
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    // the actions are not there until asked for, then they are plain buttons in the tab order
+    expect(main().queryByRole("button", { name: "Delete paragraph in Context" })).not.toBeInTheDocument();
+    toggle.focus();
+    await user.keyboard("{Enter}");
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    const group = main().getByRole("group", { name: "Options for paragraph in Context" });
+    expect(within(group).getByRole("button", { name: "Delete paragraph in Context" })).not.toHaveAttribute("tabindex", "-1");
+    await user.keyboard("{Escape}");
+    expect(toggle).toHaveFocus();
+    expect(main().queryByRole("group", { name: "Options for paragraph in Context" })).not.toBeInTheDocument();
+  });
+
+  it("move a block and delete it with a question first", async () => {
+    const { api, studyId } = await emptyStudy();
+    const context = (await api.studyGet(studyId)).sections.find((s) => s.title === "Context")!;
+    await api.studyBlockCreate({ sectionId: context.id, blockType: "note" });
+    const { user } = await renderApp(api);
+    await open(user, /The True Vine/);
+    await user.type(main().getByRole("textbox", { name: "Context: remark" }), "A remark.");
+    await user.click(main().getByRole("button", { name: "Options for remark in Context" }));
+    await user.click(main().getByRole("button", { name: "Move remark up in Context" }));
+    await waitFor(() => expect(api.state.blocks.filter((b) => b.sectionId === context.id).sort((a, b) => a.position - b.position)[0]!.blockType).toBe("note"));
+    await user.click(main().getByRole("button", { name: "Delete remark in Context" }));
+    await user.click(await main().findByRole("button", { name: "Keep" }));
+    expect(api.state.blocks.some((b) => b.blockType === "note")).toBe(true);
+  });
+});
+
+describe("pane-aware layout and target sizes", () => {
+  const sources = import.meta.glob("/src/features/studies/*.tsx", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+
+  it("lays out by the pane's own width (container queries), never the window's", () => {
+    const viewport = Object.entries(sources).flatMap(([file, text]) => (text.match(/["'`\s](sm|md|lg|xl|2xl):[\w-]+/g) ?? []).map((m) => `${file}: ${m.trim()}`));
+    expect(viewport).toEqual([]);
+    expect(sources["/src/features/studies/StudyPane.tsx"]).toContain("@container");
+  });
+
+  it("has no hover-only controls and no small touch targets in the Study pane", () => {
+    const problems = Object.entries(sources).flatMap(([file, text]) =>
+      [/opacity-0/, /group-hover:opacity/, /\bmin-h-(8|9)\b/, /\bsize-(8|9)\b/, /["'\s]h-9["'\s]/].filter((re) => re.test(text)).map((re) => `${file}: ${re}`),
+    );
+    expect(problems).toEqual([]);
+  });
+});
+
+describe("six-language coverage of what v0.10 added", () => {
+  const KEYS = [
+    "home.title", "home.organise", "home.back", "projects.defaultTitle",
+    "passages.openPrimary", "header.typeLine", "header.fromTemplate", "header.groupAbout", "header.groupCopy",
+    "add.note", "add.section", "add.textBlock", "add.blockGroup", "add.blockIn",
+    "blockType.note", "blockTypeInline.note", "blocks.options", "blocks.optionsGroup", "blocks.optionsTooltip",
+    "findings.kindGroup", "findings.moreTypes", "findings.options", "findings.heading", "findings.listLabel", "findings.inSection",
+    "editor.findingsLink", "list.hideArchived", "relations.target", "relations.relation", "relations.describe",
+  ];
+
+  it("has every new or changed string in English, German, Korean, French, Spanish and Portuguese", async () => {
+    const files = {
+      en: (await import("@/i18n/locales/en/studies.json")).default,
+      de: (await import("@/i18n/locales/de/studies.json")).default,
+      ko: (await import("@/i18n/locales/ko/studies.json")).default,
+      fr: (await import("@/i18n/locales/fr/studies.json")).default,
+      es: (await import("@/i18n/locales/es/studies.json")).default,
+      pt: (await import("@/i18n/locales/pt/studies.json")).default,
+    } as Record<string, unknown>;
+    const read = (tree: unknown, key: string) => key.split(".").reduce<unknown>((node, part) => (node as Record<string, unknown> | undefined)?.[part], tree);
+    for (const [language, tree] of Object.entries(files)) {
+      for (const key of KEYS) expect(read(tree, key), `${language}: ${key}`).toEqual(expect.any(String));
+    }
+    // Korean is written, not translated word for word
+    expect(read(files.ko, "home.title")).toBe("성경공부");
+    expect(read(files.ko, "list.showArchived_other")).toBe("보관된 항목 보기 ({{count}})");
+  });
+});

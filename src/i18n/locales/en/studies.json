@@ -320,13 +320,6 @@
       "contrasts": "Contrasts with",
       "supports": "Supported by",
       "custom": "Linked from"
-    },
-    "choice": {
-      "related": "is related to",
-      "continues": "continues",
-      "contrasts": "contrasts with",
-      "supports": "supports",
-      "custom": "is linked to"
     }
   },
   "keepIt": "Keep it",
@@ -397,7 +390,10 @@
     "noMatch": "No studies match these filters.",
     "empty": "No studies here yet.",
     "listLabel": "Studies",
-    "changed": "changed {{date}}"
+    "changed": "changed {{date}}",
+    "showArchived_one": "Show archived ({{count}})",
+    "showArchived_other": "Show archived ({{count}})",
+    "hideArchived": "Hide archived"
   },
   "header": {
     "status": "Status",
@@ -480,7 +476,10 @@
     "delete": "Delete {{type}} in {{section}}",
     "deleteTooltip": "Delete {{type}}",
     "placeholder": "Write here…",
-    "passagesMentioned": "Passages mentioned:"
+    "passagesMentioned": "Passages mentioned:",
+    "options": "Options for {{type}} in {{section}}",
+    "optionsGroup": "Options for {{type}} in {{section}}",
+    "optionsTooltip": "Text block options"
   },
   "findings": {
     "heading": "Study notes",
@@ -539,12 +538,12 @@
     "remove": "Remove link to {{title}}",
     "add": "+ Link a related study",
     "addGroup": "Link a related study",
-    "thisStudy": "This study",
-    "relation": "Relation",
-    "target": "Study to link",
+    "relation": "Relationship",
+    "target": "Related study",
     "choose": "Choose a study…",
     "option": "{{title}} ({{project}})",
-    "link": "Link"
+    "link": "Link",
+    "describe": "Describe the relationship"
   },
   "search": {
     "heading": "Studies matching “{{query}}”",

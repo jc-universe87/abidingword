@@ -37,7 +37,7 @@ const MORE: StudyType[] = ["biblical_theology", "systematic_theology", "custom"]
 
 const field = "h-10 min-w-0 rounded-aw border border-border bg-bg px-3 text-base placeholder:text-text-muted";
 const pill =
-  "min-h-9 rounded-full border border-border px-3 font-ui text-[0.9375rem] text-text-strong hover:bg-bg-secondary " +
+  "min-h-11 rounded-full border border-border px-3 font-ui text-[0.9375rem] text-text-strong hover:bg-bg-secondary " +
   "aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-on-primary";
 
 interface NewStudyFormProps {
@@ -174,7 +174,7 @@ export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false
           aria-expanded={more}
           aria-controls={`${id}-more`}
           onClick={() => setMore(!more)}
-          className="inline-flex min-h-9 items-center gap-1 self-start rounded-aw px-1 text-[0.9375rem] text-text-muted hover:text-text-strong"
+          className="inline-flex min-h-11 items-center gap-1 self-start rounded-aw px-1 text-[0.9375rem] text-text-muted hover:text-text-strong"
         >
           {more ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
           {t("studies.newStudy.more")}

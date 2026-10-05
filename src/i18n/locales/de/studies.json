@@ -320,13 +320,6 @@
       "contrasts": "Steht im Gegensatz zu",
       "supports": "Wird gestützt durch",
       "custom": "Verknüpft mit"
-    },
-    "choice": {
-      "related": "ist verwandt mit",
-      "continues": "setzt fort",
-      "contrasts": "steht im Gegensatz zu",
-      "supports": "stützt",
-      "custom": "ist verknüpft mit"
     }
   },
   "keepIt": "Behalten",
@@ -397,7 +390,10 @@
     "noMatch": "Keine Bibelstudien entsprechen diesen Filtern.",
     "empty": "Hier gibt es noch keine Bibelstudien.",
     "listLabel": "Bibelstudien",
-    "changed": "geändert am {{date}}"
+    "changed": "geändert am {{date}}",
+    "showArchived_one": "Archiviertes anzeigen ({{count}})",
+    "showArchived_other": "Archiviertes anzeigen ({{count}})",
+    "hideArchived": "Archiviertes ausblenden"
   },
   "header": {
     "status": "Status",
@@ -480,7 +476,10 @@
     "delete": "{{type}} in „{{section}}“ löschen",
     "deleteTooltip": "{{type}} löschen",
     "placeholder": "Hier schreiben …",
-    "passagesMentioned": "Erwähnte Bibelstellen:"
+    "passagesMentioned": "Erwähnte Bibelstellen:",
+    "options": "Optionen für {{type}} in „{{section}}“",
+    "optionsGroup": "Optionen für {{type}} in „{{section}}“",
+    "optionsTooltip": "Optionen für den Textblock"
   },
   "findings": {
     "heading": "Studieneinträge",
@@ -539,12 +538,12 @@
     "remove": "Verknüpfung mit {{title}} entfernen",
     "add": "+ Verwandtes Bibelstudium verknüpfen",
     "addGroup": "Verwandtes Bibelstudium verknüpfen",
-    "thisStudy": "Dieses Bibelstudium",
     "relation": "Beziehung",
-    "target": "Zu verknüpfendes Bibelstudium",
+    "target": "Verwandtes Bibelstudium",
     "choose": "Bibelstudium auswählen …",
     "option": "{{title}} ({{project}})",
-    "link": "Verknüpfen"
+    "link": "Verknüpfen",
+    "describe": "Beziehung beschreiben"
   },
   "search": {
     "heading": "Bibelstudien mit „{{query}}“",
