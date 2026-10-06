@@ -106,10 +106,20 @@
   "pane": {
     "libraryHeading": "Ihre Bibliothek",
     "empty": "Noch keine Quellen. Fügen Sie Bücher, Artikel und eigene Notizen hinzu (PDF, EPUB, Word, Markdown oder Text); sie bleiben auf diesem Computer.",
-    "mentioning": "Quellen, die {{passage}} erwähnen",
-    "noMentions": "Keine Ihrer Quellen erwähnt diese Bibelstelle.",
+    "sourcesFor": "Quellen zu {{passage}}",
+    "noSources": "Keine Quelle in Ihrer Bibliothek ist mit dieser Bibelstelle verknüpft.",
+    "noDirect": "Nichts in Ihrer Bibliothek ist mit genau dieser Bibelstelle verknüpft.",
+    "elsewhere": "Anderswo in {{chapter}}",
+    "moreLocations_one": "{{count}} weitere Stelle in dieser Quelle",
+    "moreLocations_other": "{{count}} weitere Stellen in dieser Quelle",
     "recent": "Zuletzt hinzugefügt",
     "openLibrary": "Bibliothek öffnen"
+  },
+  "passage": {
+    "mentions": "Erwähnt {{passage}}",
+    "section": "Abschnitt zu {{passage}}",
+    "within": "Innerhalb des Abschnitts zu {{passage}}",
+    "linked": "Verknüpft mit {{passage}}"
   },
   "citations": {
     "removed": "(aus der Bibliothek entfernt)",

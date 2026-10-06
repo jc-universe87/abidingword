@@ -1,5 +1,5 @@
 import type { TFunction } from "i18next";
-import type { FindingCitation, LicenceStatus, SourceFormat, SourceType } from "@/types/library";
+import type { FindingCitation, LicenceStatus, PassageLinkOrigin, SourceFormat, SourceType } from "@/types/library";
 
 // Stored values stay stable; only their labels are translated (docs/i18n.md).
 
@@ -30,4 +30,22 @@ export function locatorLabel(t: TFunction, locator: string | null | undefined, p
 /** "Author, Title, p. 152" — the short citation shown in findings. */
 export function citationText(t: TFunction, c: Pick<FindingCitation, "author" | "title" | "locator">): string {
   return [c.author, c.title, locatorLabel(t, c.locator)].filter(Boolean).join(", ");
+}
+
+/**
+ * Why a place is linked to a passage, in plain words: "Mentions John 15:5",
+ * "Section on John 15:1–11" (a heading names it), "Within section on …"
+ * (inside such a section). The stored origin is never shown as such.
+ */
+export function passageReason(t: TFunction, origin: PassageLinkOrigin, passage: string): string {
+  switch (origin) {
+    case "explicit":
+      return t("library.passage.mentions", { passage });
+    case "section":
+      return t("library.passage.section", { passage });
+    case "inherited":
+      return t("library.passage.within", { passage });
+    default:
+      return t("library.passage.linked", { passage });
+  }
 }

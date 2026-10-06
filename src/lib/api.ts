@@ -71,6 +71,8 @@ import type {
   SourceLink,
   OriginalInfo,
   PassageMention,
+  PassageSourceGroup,
+  SegmentPassageLink,
   SegmentWindow,
   Source,
   SourceImportPreview,
@@ -149,7 +151,10 @@ export interface Api {
   /** A bounded range of a source's original file (never the whole file). */
   libraryOriginalRead(id: string, offset: number, length: number): Promise<Uint8Array>;
   sourceGetPassages(sourceId: string): Promise<PassageMention[]>;
-  librarySourcesForPassage(reference: string): Promise<PassageMention[]>;
+  /** The sources that fit a passage (canonical reference), best first, each with its best places. */
+  libraryPassageSources(reference: string): Promise<PassageSourceGroup[]>;
+  /** Why a segment is linked to Scripture: what it mentions and the section it belongs to. */
+  sourceSegmentPassageLinks(segmentId: string): Promise<SegmentPassageLink[]>;
   findingSourceAdd(input: { findingId: string; segmentId: string }): Promise<Finding>;
   findingSourceRemove(citationId: string): Promise<Finding>;
   studyBlockCreate(input: CreateStudyBlock): Promise<StudyBlock>;
@@ -304,7 +309,8 @@ export const tauriApi: Api = {
   libraryOriginalRead: async (id, offset, length) =>
     new Uint8Array(await call<ArrayBuffer>("library_original_read", { id, offset, length })),
   sourceGetPassages: (sourceId) => call("source_get_passages", { sourceId }),
-  librarySourcesForPassage: (reference) => call("library_sources_for_passage", { reference }),
+  libraryPassageSources: (reference) => call("library_passage_sources", { reference }),
+  sourceSegmentPassageLinks: (segmentId) => call("source_segment_passage_links", { segmentId }),
   findingSourceAdd: (input) => call("finding_source_add", { input }),
   findingSourceRemove: (citationId) => call("finding_source_remove", { citationId }),
   studyBlockCreate: (input) => call("study_block_create", { input }),

@@ -7,6 +7,9 @@ pub mod contents;
 pub mod files;
 pub mod import;
 pub mod original;
+pub mod passage_index;
+pub mod relevance;
+pub mod sections;
 
 use serde::{Deserialize, Serialize};
 
@@ -197,6 +200,50 @@ pub struct PassageMention {
     pub locator: String,
     pub matched_text: String,
     pub reference: ScriptureRefDto,
+}
+
+/// Why a source segment is linked to a passage, for one segment (the reader).
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct SegmentPassageLink {
+    pub origin: sections::LinkOrigin,
+    pub reference: ScriptureRefDto,
+    /// The reference as written in the source (the heading, for a section).
+    pub matched_text: String,
+    /// The defining heading, for a section or inherited link.
+    pub section_heading: Option<String>,
+    /// The first segment of the defining section (where it opens).
+    pub section_segment_id: Option<String>,
+}
+
+/// One place in a source that fits the passage being read.
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct PassageLocation {
+    pub segment_id: String,
+    pub locator: String,
+    /// `explicit` (mentions it), `section` (a heading names it) or `manual`.
+    pub origin: sections::LinkOrigin,
+    /// How the link relates to the passage being read.
+    pub match_kind: relevance::MatchKind,
+    /// The passage the source links this place to.
+    pub reference: ScriptureRefDto,
+    /// The reference as written in the source (the heading, for a section).
+    pub matched_text: String,
+    pub section_heading: Option<String>,
+}
+
+/// A source with the places in it that fit the passage being read, best first.
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct PassageSourceGroup {
+    pub source_id: String,
+    pub source_title: String,
+    pub author: Option<String>,
+    /// The best few places (see `db::library::LOCATIONS_PER_SOURCE`).
+    pub locations: Vec<PassageLocation>,
+    /// How many further places the source has.
+    pub more_locations: i64,
 }
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]

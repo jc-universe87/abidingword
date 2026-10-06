@@ -76,7 +76,11 @@ fn a_studies_database_upgrades_to_the_library_with_a_backup() {
     assert_eq!(migrations::current_version(&copy).unwrap(), 3);
 
     db.with_conn(|conn| {
-        assert_eq!(migrations::current_version(conn)?, 4);
+        // Upgraded all the way to the current schema, not only to v4.
+        assert_eq!(
+            migrations::current_version(conn)?,
+            MIGRATIONS.last().unwrap().version
+        );
         assert_eq!(workspaces::get_default(conn)?.id, W);
         assert_eq!(projects::get(conn, P)?.study_count, 2);
         let s1 = studies::get(conn, S1)?;

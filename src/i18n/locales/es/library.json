@@ -113,10 +113,21 @@
   "pane": {
     "libraryHeading": "Tu biblioteca",
     "empty": "Todavía no hay fuentes. Añade libros, artículos y tus propios apuntes (PDF, EPUB, Word, Markdown o texto); se quedan en este equipo.",
-    "mentioning": "Fuentes que mencionan {{passage}}",
-    "noMentions": "Ninguna de tus fuentes menciona este pasaje.",
+    "sourcesFor": "Fuentes para {{passage}}",
+    "noSources": "Ninguna fuente de tu biblioteca está vinculada a este pasaje.",
+    "noDirect": "Nada en tu biblioteca está vinculado a este pasaje exacto.",
+    "elsewhere": "En otras partes de {{chapter}}",
+    "moreLocations_one": "{{count}} lugar más en esta fuente",
+    "moreLocations_many": "{{count}} lugares más en esta fuente",
+    "moreLocations_other": "{{count}} lugares más en esta fuente",
     "recent": "Añadidas recientemente",
     "openLibrary": "Abrir biblioteca"
+  },
+  "passage": {
+    "mentions": "Menciona {{passage}}",
+    "section": "Sección sobre {{passage}}",
+    "within": "Dentro de la sección sobre {{passage}}",
+    "linked": "Vinculado a {{passage}}"
   },
   "citations": {
     "removed": "(quitada de la biblioteca)",
