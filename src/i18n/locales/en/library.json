@@ -108,8 +108,6 @@
     "empty": "No sources yet. Add books, articles and your own notes (PDF, EPUB, Word, Markdown or text); they stay on this computer.",
     "sourcesFor": "Sources for {{passage}}",
     "noSources": "No source in your library is linked to this passage.",
-    "noDirect": "Nothing in your library is linked to this exact passage.",
-    "elsewhere": "Elsewhere in {{chapter}}",
     "moreLocations_one": "{{count}} more place in this source",
     "moreLocations_other": "{{count}} more places in this source",
     "recent": "Recently added",

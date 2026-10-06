@@ -187,11 +187,10 @@ describe("Library", () => {
     // Who wrote it, where, and why it is here: a plain reason, not "John 15:4" in quotation marks.
     expect(item).toHaveTextContent("J. Example · p. 2Mentions John 15:4");
 
-    // A verse in the same chapter, but not the mentioned one: shown after, under its own heading.
+    // A verse in the same chapter, but not the mentioned one: nothing is offered for sharing a chapter.
     await user.click(await within(scripture).findByRole("button", { name: /^Verse 2\. Show verse tools/ }));
-    expect(await within(sourcesPane()).findByText("Nothing in your library is linked to this exact passage.")).toBeInTheDocument();
-    const elsewhere = await within(sourcesPane()).findByRole("list", { name: "Elsewhere in John 15" });
-    expect(within(elsewhere).getByRole("button", { name: /Notes on the Vine/ })).toHaveTextContent("Mentions John 15:4");
+    expect(await within(sourcesPane()).findByText("No source in your library is linked to this passage.")).toBeInTheDocument();
+    expect(within(sourcesPane()).queryByRole("list", { name: /^Elsewhere in/ })).not.toBeInTheDocument();
     expect(within(sourcesPane()).queryByRole("list", { name: "Sources for John 15:2" })).not.toBeInTheDocument();
 
     await user.click(within(scripture).getByRole("button", { name: /^Verse 4\. Show verse tools/ }));

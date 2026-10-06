@@ -107,19 +107,20 @@ describe("Sources for the passage being read", () => {
     expect(within(list).getByText("2 more places in this source")).toBeInTheDocument();
   });
 
-  it("puts the closest fit first, and never lets a source appear twice", async () => {
+  it("puts a section about the passage before mentions of it, and never lets a source appear twice", async () => {
     const { user } = await renderApp(withLibrary(COMMENTARY, SERMON));
     await readJohn15(user, 5);
     const list = await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:5" });
     const titles = within(list)
       .getAllByRole("button")
       .map((b) => b.textContent ?? "");
-    // the sermon mentions exactly this verse; the commentary's section only contains it
-    expect(titles[0]).toContain("Abiding Sermon Notes");
+    // the commentary's section contains the verse and is about it; the sermon only cites it
+    expect(titles[0]).toContain("A Synthetic Commentary");
+    expect(titles.some((t) => t.includes("Abiding Sermon Notes"))).toBe(true);
     expect(titles.filter((t) => t.includes("A Synthetic Commentary"))).toHaveLength(1);
   });
 
-  it("lists a source that only has places elsewhere in the chapter under its own heading", async () => {
+  it("offers nothing for a source that only has places elsewhere in the chapter", async () => {
     const early: SourceFixture = {
       title: "Notes on the Early Verses",
       format: "markdown",
@@ -128,10 +129,11 @@ describe("Sources for the passage being read", () => {
     };
     const { user } = await renderApp(withLibrary(early));
     await readJohn15(user, 6);
-    expect(await within(sourcesPane()).findByText("Nothing in your library is linked to this exact passage.")).toBeInTheDocument();
-    const elsewhere = within(sourcesPane()).getByRole("list", { name: "Elsewhere in John 15" });
-    expect(within(elsewhere).getByRole("button", { name: /Notes on the Early Verses/ })).toHaveTextContent("Section on John 15:1–3");
-    expect(within(sourcesPane()).queryByRole("list", { name: "Sources for John 15:6" })).not.toBeInTheDocument();
+    // sharing a chapter number is not enough: the pane says so plainly instead of inventing relevance
+    expect(await within(sourcesPane()).findByText("No source in your library is linked to this passage.")).toBeInTheDocument();
+    expect(within(sourcesPane()).queryByText(/Notes on the Early Verses/, { selector: "cite" })).not.toBeInTheDocument();
+    expect(within(sourcesPane()).queryByRole("list", { name: "Elsewhere in John 15" })).not.toBeInTheDocument();
+    expect(within(sourcesPane()).queryByText("Elsewhere in John 15")).not.toBeInTheDocument();
   });
 
   it("says plainly when no source fits", async () => {

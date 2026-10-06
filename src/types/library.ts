@@ -111,7 +111,7 @@ export interface PassageMention {
 export type PassageLinkOrigin = "explicit" | "section" | "inherited" | "manual";
 
 /** How a link relates to the passage being read, best first. */
-export type PassageMatchKind = "exact" | "contained" | "overlap" | "chapter";
+export type PassageMatchKind = "exact" | "contained" | "overlap";
 
 /** One place in a source that fits the passage being read. */
 export interface PassageLocation {
