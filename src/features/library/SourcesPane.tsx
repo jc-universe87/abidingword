@@ -60,21 +60,8 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
   const sources = useLoad(useCallback(() => api.libraryPassageSources(reference), [api, reference]));
   const passageLabel = (ref: ScriptureRef) =>
     referenceLabel(ref, books.find((b) => b.code === ref.book)?.chapterCount);
-  // Places in the same chapter but not in the passage itself come after, under their own heading.
-  const direct = (sources.data ?? []).filter((g) => g.locations[0]?.matchKind !== "chapter");
-  const nearby = (sources.data ?? []).filter((g) => g.locations[0]?.matchKind === "chapter");
-  const chapterLabel = referenceLabel(
-    {
-      canonical: `${location.book}.${currentPassage?.startChapter ?? location.chapter}`,
-      display: "",
-      book: currentPassage?.book ?? location.book,
-      startChapter: currentPassage?.startChapter ?? location.chapter,
-      startVerse: null,
-      endChapter: currentPassage?.endChapter ?? location.chapter,
-      endVerse: null,
-    },
-    chapterCount,
-  );
+  // Only sources that share a verse with the passage are offered (the core never returns a chapter-only match).
+  const direct = sources.data ?? [];
   const recent = useLoad(useCallback(() => api.libraryList({}), [api]));
   const empty = recent.data?.length === 0;
 
@@ -133,9 +120,6 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
               {sources.data && sources.data.length === 0 && (
                 <p className="m-0 text-[0.9375rem] text-text-muted">{t("library.pane.noSources")}</p>
               )}
-              {sources.data && sources.data.length > 0 && direct.length === 0 && (
-                <p className="m-0 text-[0.9375rem] text-text-muted">{t("library.pane.noDirect")}</p>
-              )}
               {direct.length > 0 && (
                 <PassageSourceList
                   groups={direct}
@@ -143,19 +127,6 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
                   passageLabel={passageLabel}
                   onOpen={openSource}
                 />
-              )}
-              {nearby.length > 0 && (
-                <>
-                  <h4 className="m-0 mt-2 text-[0.9375rem] font-semibold text-text-muted">
-                    {t("library.pane.elsewhere", { chapter: chapterLabel })}
-                  </h4>
-                  <PassageSourceList
-                    groups={nearby}
-                    label={t("library.pane.elsewhere", { chapter: chapterLabel })}
-                    passageLabel={passageLabel}
-                    onOpen={openSource}
-                  />
-                </>
               )}
             </section>
             <section aria-labelledby="recent-heading" className="flex flex-col gap-2">

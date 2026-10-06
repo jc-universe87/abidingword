@@ -115,8 +115,6 @@
     "empty": "Aucune source pour l’instant. Ajoutez des livres, des articles et vos propres notes (PDF, EPUB, Word, Markdown ou texte) ; ils restent sur cet ordinateur.",
     "sourcesFor": "Sources pour {{passage}}",
     "noSources": "Aucune source de votre bibliothèque n’est liée à ce passage.",
-    "noDirect": "Rien dans votre bibliothèque n’est lié à ce passage précis.",
-    "elsewhere": "Ailleurs dans {{chapter}}",
     "moreLocations_one": "{{count}} autre endroit dans cette source",
     "moreLocations_many": "{{count}} autres endroits dans cette source",
     "moreLocations_other": "{{count}} autres endroits dans cette source",

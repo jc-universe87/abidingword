@@ -115,8 +115,6 @@
     "empty": "Ainda não há fontes. Adicione livros, artigos e suas próprias notas (PDF, EPUB, Word, Markdown ou texto); elas ficam neste computador.",
     "sourcesFor": "Fontes para {{passage}}",
     "noSources": "Nenhuma fonte da sua biblioteca está vinculada a esta passagem.",
-    "noDirect": "Nada na sua biblioteca está vinculado a esta passagem exata.",
-    "elsewhere": "Em outras partes de {{chapter}}",
     "moreLocations_one": "mais {{count}} lugar nesta fonte",
     "moreLocations_many": "mais {{count}} lugares nesta fonte",
     "moreLocations_other": "mais {{count}} lugares nesta fonte",

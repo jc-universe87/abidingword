@@ -1,8 +1,9 @@
 # Passage-aware sources (v0.9)
 
-**Status: first implementation checkpoint, on `feature/passage-aware-sources-v0.9`
-(not merged).** Branched from the green `main` that already publishes the
-Windows test channel automatically ([`updates.md`](updates.md)).
+**Status: merged to `main` (v0.9), then corrected after the first Windows
+acceptance, which failed on relevance quality** (see "Windows acceptance finding"
+below). The ranking described in the first implementation was **not final**: it is
+replaced by the model in "Suggestion quality". Not tagged until acceptance passes.
 
 When someone reads a Scripture passage, the Sources pane surfaces the Library
 material that is about it. Until v0.8 that meant paragraphs whose own text
@@ -131,24 +132,18 @@ A Synthetic Commentary                         ← one entry, not one card per p
   ├ best place, then up to two more, then "3 more places in this source"
 ```
 
-- **Candidates** are explicit, section and manual links in the chapter(s) of the
-  passage. Inherited links are left out: each is represented by its section's
-  opening place, and they are by far the most numerous.
-- **Ranking** (`library/relevance.rs`, pure functions with tests), best first:
-  exact range → one contains the other → overlap → same chapter. Same book alone is
-  **not** shown (it would flood the pane). Within a kind, the link nearest in size
-  to the passage first (so a narrow section outranks a broad one for a verse; for
-  "same chapter" the nearer verses); then origin: manual, section heading, literal
-  mention, inherited. An explicit reference therefore outranks an inherited one
-  that is otherwise equal, and a section heading outranks a passing mention of the
-  same passage.
+- **Candidates** are explicit, section and manual links that **share a verse** with
+  the passage. Inherited links are left out as places: each is represented by its
+  section's opening place, and they are by far the most numerous (they are read
+  only to learn which section a mention lies in). A link that only shares the
+  chapter is **not** offered.
+- **Ranking** (`library/relevance.rs`, pure functions with tests): by the class
+  below, *about the passage* before *only cites it*. See "Suggestion quality".
 - **Grouping:** one place per segment, a source's best three places, the rest
-  counted; at most 30 sources per passage. A place that only shares the chapter is
-  listed for a source with nothing closer, not as clutter beside its direct places.
-- The pane shows direct matches under "Sources for John 15:5", and sources that
-  only speak to the same chapter under "Elsewhere in John 15". A v0.4–v0.8 pane
-  showed nothing for a verse no source mentioned; it now shows those sources there,
-  quietly, as the ranking brief asked.
+  counted; at most 30 sources per passage.
+- The pane shows what fits under "Sources for John 15:5", and says plainly "No
+  source in your library is linked to this passage" when nothing does. There is no
+  "Elsewhere in John 15" group any more (removed after the Windows acceptance).
 
 Opening a place uses the existing `SourceReader`, navigation and history
 (`openSource(sourceId, segmentId)`): the same segment window, focus handling and
@@ -253,106 +248,164 @@ interface language and never with merged dictionaries.
 - **Not done:** Greek and Hebrew (deferred; they fall back to English), versification
   mapping, semantic matching. Reference detection never runs when turning Bible pages.
 
+## Windows acceptance finding (the first v0.9 ranking failed)
+
+The synthetic corpus passed; a real library did not. Reading John 15:5 on Windows:
+
+- an ESV study Bible's *cross-reference sections* ("Cross-references for Matthew
+  13:23", whose body says "John 15:5") dominated the list, although they are not
+  about John 15:5;
+- a Greek New Testament source with a *book-scale range* ("John 11–21") appeared
+  very high;
+- "Elsewhere in John 15" surfaced John 15:3, 15:8, 15:13: same chapter, not useful
+  for the verse.
+
+Opening, Back and the narrow pane were fine. **Root causes** (checked by replaying
+these shapes, invented, against the shipped code):
+
+1. The match kind decided first, so *an exact citation anywhere* beat *a section
+   about the passage*. A citation inside another passage's section is the usual
+   shape of a cross-reference, and it cites the verse exactly.
+2. An explicit link carried no information about the section it lay in, so a
+   citation under "Matthew 13:23" and one under "John 15:1–11" were identical.
+3. Size was measured by verse-key difference with a chapter's end as verse 999, so a
+   book-scale range was merely "a bit bigger", still *contained*, still high.
+4. A shared chapter number was treated as a (weak) match and shown.
+
+**Parser or ranking?** In every example the parser was *correct*: "Matthew 13:23",
+"Mark 4:20", "John 15:5" and "John 11–21" are real references, stored with the right
+canonical passage. The fault was relevance, so parsing was not touched (a regression
+test pins these shapes, and that prose such as "Saint John arrived, and 15 people
+came" is not joined into a reference). The synthetic suite was insufficient because
+it had no cross-reference sections and no book-scale heading; the new corpus has.
+
+**No AI, no schema change.** Everything remains deterministic and index-only.
+
 ## Suggestion quality
 
-The Sources pane should read as "what in my library is most relevant to this
-passage", not as search results. Everything here is deterministic and explainable;
-it reads only indexed links.
+The Sources pane should read as "what in my library is about this passage", not as
+search results. Precision is preferred to recall.
 
-**Ranking.** A place's sort key is `(kind, tier, closeness, origin)`, smaller first
-(`library/relevance.rs`):
+### Two questions decide where a place goes
 
-1. *kind*: exact, then contained (one range inside the other), then overlap, then
-   same chapter. Decided first, so a mention of exactly John 15:5 outranks a
-   section on John 15:1–11 for a reader at John 15:5.
-2. *tier*: within a kind, evidence that the text is **about** the passage (a
-   section heading, a manual link) before a **passing mention**. A commentary
-   section on John 15:1–11, or a section on the whole chapter, outranks a
-   paragraph that cites "John 15:5–6" in passing. Not applied to the same-chapter
-   kind, where nearness is what matters.
-3. *closeness*: the link nearest in size (narrower before broader for a verse;
-   nearer verses for the chapter kind).
-4. *origin* (manual, section, mention, inherited) so equal evidence always orders
-   the same way.
+**1. Is the text *about* the passage, or does it only *cite* it?** (`Evidence`)
 
-The earlier order "manual, section, explicit, inherited" was kept as the last step;
-the new tier makes "section beats a passing mention" hold even when the mention is
-slightly closer in size. Origin is never shown to people.
+| Evidence | Meaning |
+|---|---|
+| About | a manual link; a section whose heading names the passage; a citation **inside** a section whose heading is about the passage |
+| Neutral | a citation with no passage-bearing heading around it |
+| Cross-reference | a citation inside a section whose heading names a **different** passage |
 
-**Source type** (book, sermon, notes …) is deliberately **not** a ranking factor.
-Against the acceptance corpus nothing improved by it, and a rule such as "books
-before notes" would hide a pastor's own sermon on the verse. Revisit only with a
-clear product rule.
+Which applies to a citation is read from the headings around it: the paragraph's
+own section link or an inherited one (already indexed, no schema change), found with
+one indexed lookup per citation that shares a verse with the passage. A section only
+makes a citation *about* the passage when the section is itself reasonably specific;
+a book-scale heading makes it neutral. The citation stays an explicit link
+(provenance untouched); only its role as a suggestion changes.
 
-**Sources.** One entry per source, ordered by its best place. Between equal best
-places, a source with a section or manual link that fits directly (one that is
-about the passage) comes before one that only cites it; then title, then id (a
-total order, so the same input always gives the same output). How many mentions a
-source has never raises its position: a noisy source cannot flood the list.
-At most 30 sources are shown.
+**2. How specific is the link to the passage?** (`Fit`, by chapters spanned, not raw
+key distance)
 
-**Consolidation** (display only; nothing stored is deleted). A source's places are
-one per paragraph, best first, then redundant ones are dropped within the same
-local context (the section a paragraph lies in, or the paragraph itself):
+| Fit | Example, for John 15:5 |
+|---|---|
+| Exact | John 15:5 |
+| Narrow | John 15:1–11; a verse inside a chapter being read; a pericope crossing a chapter edge |
+| Chapter | John 15 |
+| Overlap | partial overlap without containing it |
+| Wide | John 14–16 (two or three chapters) |
+| Broad | John 11–21, a whole Gospel (four or more chapters) |
 
-- a mention inside a section is dropped when the section place (or an earlier
-  mention of the same passage) is at least as good a fit: "Section on John 15:1–11
-  / Mentions John 15:1–11 / Mentions John 15:1–11" reads as one place;
-- a mention that fits the passage **better** than its section, or names a
-  different passage, is kept: it is somewhere else worth going.
+### The class (smaller is better)
 
-**Grouping.** Each source shows its best three places and a count of the rest;
-the count is of real, distinct places after consolidation. Three was kept: it
-shows a source's section and the closest mentions, and a source with fifty
-mentions still reads as three places and "47 more". Sources that only share the
-chapter are listed apart under "Elsewhere in John 15", after every direct source,
-and a source that matches directly never pads itself with same-chapter places.
-A "show all places" view was left out deliberately (quality, not features).
+| class | what | e.g. for John 15:5 |
+|---|---|---|
+| 0 | a manual link | a link a person confirmed |
+| 1 | about, exact or narrow | a section "John 15:1–11 — The Vine" |
+| 2 | neutral citation, exact or narrow | "John 15:5 describes abiding" |
+| 3 | about, whole chapter or partial overlap | a section "John 15" |
+| 4 | wider, or neutral but broad | John 14–16; a neutral chapter mention |
+| 5 | cross-reference | "Compare John 15:5" under "Matthew 13:23" |
+| 6 | far too broad, whatever the evidence | John 11–21 |
 
-**Reasons.** "Mentions John 15:5", "Section on John 15:1–11", "Within section on
-John 15:1–11", "Linked to John 15:1–11", in all six languages; no technical
-words reach the screen. Korean now reads "요한복음 15:1–11에 관한 부분" ("part about …")
-instead of the loan word 섹션. The reader's reason line shows each reason once (a
-paragraph that cites John 15:5 three times is explained once), stays small and
-muted under the source text, and is shown only where the place is linked.
+Then, within a class: origin (manual, section heading, mention), fit, and the link
+nearest in size. A **section about the passage therefore outranks an exact
+cross-reference**, a neutral exact mention outranks a section on the whole chapter
+(it is closer to the verse), and a book-scale range is last. Nothing here is a
+numeric weight; each rule is a readable function with tests.
 
-**Opening.** A result opens through the same source-reader path as everywhere else
-(segment id, then the source's own history, Reading/Original mapping): a section
-opens at its first paragraph, a mention at that paragraph.
+A link that shares **no verse** with the passage does not match, even in the same
+chapter. The indexed references are all still stored.
 
-**Language neutrality.** The source language only decides how references are
-*detected*; ranking sees canonical passages. The same structure in English, German
-and Korean ranks identically, and the interface language never changes the order
-(tested).
+The source type (book, sermon, notes …) is deliberately not a factor.
 
-**Performance** (debug build, large synthetic library of 12,800 segments and
-14,720 links, 168 pane queries): before 0.78 ms per query, after 0.87 ms (one
-extra indexed lookup per mention that fits the passage); rebuild of the 8 sources
-about 0.7 s. No text is scanned and no regex runs when the passage changes.
+### Sources, consolidation, grouping
 
-**Acceptance corpus** (all invented; imported through the real stage/commit/index
-path in `src-tauri/tests/suggestion_quality.rs`): a verse-by-verse commentary
-(section John 15:1–11, subsection John 15:5, a passing John 15:16), a theology
-chapter ("Union with Christ" citing John 15:4–5, no John heading), a sermon
-manuscript (John 15:1–8, a Romans citation), personal notes (John 15:5, John
-15:12), a general guide (John 15), a same-chapter source (John 15:12–17), a control
-("Mark 4 Principles of Leadership"), a German and a Korean source. For John 15:5
-the order is: the commentary's exact subsection; the German and Korean sources
-(an exact mention in a source that also has a section on it); the notes (a bare exact
-mention); the sermon (15:1–8), the guide (chapter); the theology chapter (a passing
-mention of 15:4–5); then the same-chapter source under "Elsewhere".
+- **Sources:** one entry per source, ordered by its best place; between equal best
+  places a source with a section or manual link that is about the passage comes
+  first; then title, then id (a total order). Many mentions never raise a source.
+- **Consolidation** (display only; nothing stored is deleted): a place is dropped
+  when an earlier place in the same section (or paragraph) is a section or manual
+  link at least as good a fit, or mentions the same passage. A mention that fits
+  better than its section, or names another passage, stays.
+- **Grouping:** at most three places per source with a count of the rest (distinct
+  places after consolidation), at most 30 sources. A source that is all
+  cross-references (a study Bible with a hundred) is still one entry.
+
+### Reasons, reader line, language
+
+Plain words only ("Mentions John 15:5", "Section on John 15:1–11", …); no class,
+evidence or score is shown, and a cross-reference kept low simply reads "Mentions …".
+The reader's reason line, opening, Back and the narrow pane are unchanged. The
+source language decides how references are *detected*; ranking sees canonical
+passages and the interface language never changes the order (tested).
+
+### Acceptance corpus (invented; `src-tauri/tests/source_relevance.rs`)
+
+A: section "John 15:1–11 — The Vine". B: "Cross-references for Matthew 13:23"
+citing John 15:5. C: the same for Mark 4:20. D: section "John 11–21". E: section
+"John 15:12–17". F: a neutral paragraph "John 15:5 describes …". For John 15:5 the
+order is **A, F, B, C, D**; E is not offered. For John 15:1–11: A, F, B, C, D. For
+John 15: A, E, F, B, C, D. For John 15:13: E, then D. Further tests cover a citation
+inside a section about the passage (about, not cross-reference), a book-scale heading
+(its citations are neutral), a study Bible of twenty cross-references, stable order
+and the three languages. The earlier corpus (`suggestion_quality.rs`) was updated
+to the new rules.
+
+### Performance
+
+Debug build, large synthetic library (12,800 segments, 14,720 links, 168 pane
+queries): **0.87 ms per query as merged in v0.9, 0.80–0.92 ms now (three runs)**: unchanged. The lookup is one indexed
+read per citation that shares a verse with the passage; no text is scanned and no
+regex runs when the passage changes.
+
+### Korean interface typography
+
+The Korean UI looked thinner and narrower than the Latin. Hangul was not in the
+bundled Latin UI font, so it fell to whatever the system chose behind
+`system-ui`. Now, for `:lang(ko)` only, the interface stack is Inter (Latin and
+digits), then installed Hangul fonts in a fixed order (Noto Sans KR, Malgun Gothic,
+Apple SD Gothic Neo, Noto Sans CJK KR), then the system's choice, and the interface
+weight is 500 (a face with no 500, such as Malgun Gothic, shows its regular).
+Reading text keeps weight 400; Scripture typography, the Latin stacks and every
+other language are unchanged; no font file is bundled or downloaded. The tests pin
+the stylesheet only: **whether Korean now looks right needs Windows visual
+acceptance.**
 
 Known behaviour: "Mark 4 Principles of Leadership" is read as a heading on Mark 4
 (the parser cannot tell it from a heading on that chapter); it never touches John.
 
-### Manual acceptance checklist (Windows, after v0.9 is merged and published)
+### Manual acceptance checklist (Windows, after the fix is merged and published)
 
-1. Read John 15:5; the best commentary or study of the verse is first.
+1. Read John 15:5: sections and studies that are about it come first; a study
+   Bible's cross-reference sections ("Cross-references for Matthew 13:23") are below
+   them; a book-scale range such as John 11–21 is last.
 2. Open a section source; it opens at the section's first paragraph with a quiet
    reason line. Press Back to Sources.
 3. Open an explicit mention; it opens at that paragraph.
-4. Check "Elsewhere in John 15" lists only same-chapter sources, below the direct ones.
-5. Switch the interface language: the order stays, the wording changes.
+4. Read a verse only another part of the chapter discusses: the pane says plainly
+   that nothing is linked; there is no "Elsewhere" list.
+5. Switch the interface language: the order stays, the wording changes. In Korean,
+   check the interface type against the Latin (weight, width, headings).
 6. Narrow the Sources pane: titles wrap, nothing is cut off, keyboard Tab/Enter work.
 7. Check dark mode: reasons readable but quieter than titles; focus ring visible.
 
@@ -367,6 +420,7 @@ Known behaviour: "Mark 4 Principles of Leadership" is read as a heading on Mark 
   segment; removed sources never appear; citations unaffected; duplicate behaviour
   unchanged; deterministic rebuild; a source that cannot be rebuilt; thousands of
   segments with timings.
+- `src-tauri/tests/source_relevance.rs` (12 tests, the Windows acceptance shapes) and the updated `suggestion_quality.rs`; `tests/ui/korean-typography.test.ts` (stylesheet rules only).
 - `src-tauri/tests/migration_v5.rs`: a real v4 library is backed up, upgraded, its
   section links built from stored structure, nothing lost, and a second start does
   nothing.

@@ -91,18 +91,42 @@ const entryTitles = (list: HTMLElement) =>
     .map((g) => g.querySelector("cite")?.textContent ?? "");
 
 describe("Suggestion quality in the Sources pane", () => {
-  it("lists what fits John 15:5 directly under 'Sources for', and the rest of the chapter apart under 'Elsewhere'", async () => {
+  it("lists what fits John 15:5 under 'Sources for', and nothing that only shares the chapter", async () => {
     const { user } = await renderApp(withLibrary(COMMENTARY, NOTES, LOVE));
     await readJohn15(user, 5);
     const direct = await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:5" });
+    // a section that contains the verse, then a neutral mention of it
     expect(entryTitles(direct)).toEqual(["Vine Commentary", "Personal Notes"]);
-    const elsewhere = within(sourcesPane()).getByRole("list", { name: "Elsewhere in John 15" });
-    expect(entryTitles(elsewhere)).toEqual(["Notes on Love"]);
-    // the same source is never in both
+    // John 15:12–17 only shares the chapter: no "Elsewhere" list, no entry
+    expect(within(sourcesPane()).queryByRole("list", { name: "Elsewhere in John 15" })).not.toBeInTheDocument();
     expect(within(direct).queryByText("Notes on Love")).not.toBeInTheDocument();
   });
 
-  it("puts a section on the exact verse first, then exact mentions (a source that is also about it ahead of a bare mention), then sections that contain it", async () => {
+  it("puts a cross-reference from another passage's section below sources about the passage", async () => {
+    const xref: SourceFixture = {
+      title: "Cross-references Study Bible",
+      format: "markdown",
+      segments: [{ text: "Compare John 15:5.", sectionPath: "Study Bible › Cross-references for Matthew 13:23" }],
+      sections: [{ segment: 0, reference: "MAT.13.23", matchedText: "Matthew 13:23", heading: "Cross-references for Matthew 13:23" }],
+      mentions: [{ segment: 0, reference: "JHN.15.5", matchedText: "John 15:5" }],
+    };
+    const broad: SourceFixture = {
+      title: "Second Half of John",
+      format: "markdown",
+      segments: [{ text: "From the raising of Lazarus.", sectionPath: "John › John 11–21" }],
+      sections: [{ segment: 0, reference: "JHN.11-JHN.21", matchedText: "John 11–21", heading: "John 11–21" }],
+    };
+    const { user } = await renderApp(withLibrary(xref, broad, SERMON, NOTES));
+    await readJohn15(user, 5);
+    const list = await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:5" });
+    // a section on John 15:1–8, then a neutral mention, then the cross-reference, then the book-scale range
+    expect(entryTitles(list)).toEqual(["Sermon Manuscript", "Personal Notes", "Cross-references Study Bible", "Second Half of John"]);
+    // plain words only
+    expect(within(list).getByRole("group", { name: "Cross-references Study Bible" })).toHaveTextContent("Mentions John 15:5");
+    expect(list.textContent).not.toMatch(/cross-reference tier|about|score|specific/i);
+  });
+
+  it("puts a section on the exact verse first, then sections that contain it (nearest first), then mentions", async () => {
     const exactSection: SourceFixture = {
       title: "A Verse Study",
       format: "markdown",
@@ -112,7 +136,7 @@ describe("Suggestion quality in the Sources pane", () => {
     const { user } = await renderApp(withLibrary(SERMON, COMMENTARY, NOTES, exactSection));
     await readJohn15(user, 5);
     const list = await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:5" });
-    expect(entryTitles(list)).toEqual(["A Verse Study", "Vine Commentary", "Personal Notes", "Sermon Manuscript"]);
+    expect(entryTitles(list)).toEqual(["A Verse Study", "Sermon Manuscript", "Vine Commentary", "Personal Notes"]);
   });
 
   it("says why each source fits, in plain words", async () => {
@@ -162,8 +186,8 @@ describe("Suggestion quality in the Sources pane", () => {
     const { user } = await renderApp(withLibrary(COMMENTARY));
     await readJohn15(user, 5);
     const list = await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:5" });
-    // the first place is the paragraph that cites the verse
-    await user.click(within(list).getAllByRole("button")[0]!);
+    // the source's first place is where its section opens; the second is the paragraph that cites the verse
+    await user.click(within(list).getAllByRole("button")[1]!);
     const reader = await within(sourcesPane()).findByRole("region", { name: "Vine Commentary" });
     await waitFor(() => expect(reader.querySelector("[data-target]")).toHaveTextContent("Remaining is dependence"));
     // a paragraph that cites John 15:5 twice is explained once; its section follows
@@ -173,7 +197,7 @@ describe("Suggestion quality in the Sources pane", () => {
     await user.click(within(sourcesPane()).getByRole("button", { name: "Back to Sources" }));
     expect(await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:5" })).toBeInTheDocument();
     // opening again lands in the same place
-    await user.click(within(await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:5" })).getAllByRole("button")[0]!);
+    await user.click(within(await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:5" })).getAllByRole("button")[1]!);
     const again = await within(sourcesPane()).findByRole("region", { name: "Vine Commentary" });
     await waitFor(() => expect(again.querySelector("[data-target]")).toHaveTextContent("Remaining is dependence"));
   });
@@ -191,7 +215,7 @@ describe("Suggestion quality in the Sources pane", () => {
     const { user } = await renderApp(withLibrary(KOREAN, GERMAN, NOTES));
     await readJohn15(user, 5);
     const list = await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:5" });
-    expect(entryTitles(list)).toEqual(["Johanneskommentar", "Personal Notes", "요한복음 묵상"]);
+    expect(entryTitles(list)).toEqual(["요한복음 묵상", "Johanneskommentar", "Personal Notes"]);
     expect(within(list).getByRole("group", { name: "요한복음 묵상" })).toHaveTextContent("Section on John 15:1–11");
     expect(within(list).getByRole("group", { name: "Johanneskommentar" })).toHaveTextContent("Mentions John 15:5");
   });

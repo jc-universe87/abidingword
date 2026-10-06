@@ -114,4 +114,30 @@
     font-size: 1.125rem;
     line-height: 1.65;
   }
+
+  /* The Korean interface is a little heavier (below); reading text keeps its normal weight. */
+  :root:lang(ko) .reading {
+    font-weight: 400;
+  }
+}
+
+@layer base {
+  /* Interface text in Korean: Hangul is not in the bundled Latin UI font, so it
+     fell to whatever the system chose and looked thin and narrow beside the
+     Latin. A weight of 500 is a slightly stronger normal weight (a face that has
+     no 500, Malgun Gothic's, shows its regular). Latin keeps its own weight. */
+  :root:lang(ko) body {
+    font-weight: 500;
+  }
+}
+
+/* Interface font stack for Korean, from installed fonts only (none is bundled or
+   downloaded). Latin letters and digits still come from Inter; Hangul comes from
+   Noto Sans KR where installed, then Windows' Malgun Gothic, macOS's Apple SD Gothic
+   Neo, Noto Sans CJK KR, and only then the system's choice. This is outside any layer
+   on purpose, so that it wins over the token in tokens.css, which every other
+   language keeps untouched. */
+:root:lang(ko) {
+  --aw-font-ui: "Inter", "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans CJK KR", system-ui,
+    -apple-system, "Segoe UI", Roboto, sans-serif;
 }

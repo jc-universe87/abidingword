@@ -17,7 +17,7 @@ use crate::library::files::{category, safe_file_name};
 use crate::library::import::StagedSource;
 use crate::library::original;
 use crate::library::passage_index::{self, PassageIndex};
-use crate::library::relevance::{self, KeyRange, MatchKind};
+use crate::library::relevance::{self, Context, KeyRange, Rank};
 use crate::library::sections::{self, DerivedLink, LinkOrigin};
 use crate::library::{
     CommitSourceImport, DuplicateOf, GetSegments, LibraryHit, LibraryResults, LicenceStatus,
@@ -34,9 +34,6 @@ const MENTIONS_LIMIT: i64 = 200;
 pub const LOCATIONS_PER_SOURCE: usize = 3;
 /// Sources shown in the Sources pane for one passage.
 pub const SOURCE_GROUP_LIMIT: usize = 30;
-
-/// (how it relates to the passage, how close in size, origin): smaller is better.
-type Rank = (MatchKind, u8, i64, u8);
 
 fn conversion(index: usize, e: AppError) -> rusqlite::Error {
     rusqlite::Error::FromSqlConversionFailure(index, rusqlite::types::Type::Text, e.into())
@@ -735,18 +732,24 @@ pub fn ensure_passage_index(conn: &Connection) -> AppResult<PassageIndexReport> 
 ///
 /// Reads only indexed links, never source text, so turning a Bible page costs
 /// one range lookup. Candidates are the literal mentions, section headings and
-/// manual links near the passage (its chapters). A mention also learns which
-/// section its paragraph lies in from that paragraph's inherited link, which is
-/// never listed itself: the section's opening place already stands for it.
+/// manual links that **share a verse** with the passage (a link that only shares
+/// its chapter is not offered: the pane prefers precision to recall).
+///
+/// Whether a literal mention is *about* the passage or only cites it is read from
+/// the headings around it: the mention's paragraph carries the passage links of
+/// the section it lies in (its own section link, or an inherited one), found with
+/// one indexed lookup per matching mention. A mention inside a section about the
+/// passage is about it; inside a section headed with another passage it is a
+/// cross-reference; with no passage heading it is neutral. See
+/// [`relevance`] for the order this gives. Nothing stored is changed.
 ///
 /// Places are ranked by [`relevance::rank`], one per segment, then consolidated
 /// (see [`consolidate`]) so a section, the paragraph that opens it and repeated
-/// mentions of the same passage inside it read as one place. Nothing stored is
-/// removed; this only decides what is shown. Sources are ordered by their best
-/// place; between equal best places, a source with a section or manual link that
-/// fits directly (one that is *about* the passage) comes before one that only
-/// cites it; then title, then id: a total order, so equal input gives equal
-/// output. How many mentions a source has never raises its position.
+/// mentions of the same passage inside it read as one place. Sources are ordered
+/// by their best place; between equal best places, a source with a section or
+/// manual link that is about the passage comes before one that only cites it;
+/// then title, then id: a total order, so equal input gives equal output. How
+/// many mentions a source has never raises its position.
 pub fn passage_sources(
     conn: &Connection,
     reference: &ScriptureRef,
@@ -760,7 +763,7 @@ pub fn passage_sources(
 
     struct RankedGroup {
         best: Rank,
-        /// A section or manual link fits the passage directly (not only by chapter).
+        /// A section or manual link that is about the passage (not merely broad).
         about: bool,
         title_key: String,
         group: PassageSourceGroup,
@@ -772,8 +775,6 @@ pub fn passage_sources(
         about: bool,
     }
     let mut groups: HashMap<String, Group> = HashMap::new();
-    // segment -> the segment its section opens on, from the inherited links
-    let mut contexts: HashMap<String, String> = HashMap::new();
 
     let mut stmt = conn.prepare(
         "SELECT s.id, s.title, s.author, g.id, g.position, g.locator, p.origin, p.passage,
@@ -784,6 +785,13 @@ pub fn passage_sources(
          WHERE p.origin IN ('explicit', 'section', 'manual')
            AND p.start_key >= ?1 AND p.start_key <= ?3 AND p.end_key >= ?2",
     )?;
+    // The passage links of the section a paragraph lies in: its own section link
+    // (an opening paragraph) or an inherited one, with where that section opens.
+    let mut section_links = conn.prepare(
+        "SELECT start_key, end_key, COALESCE(section_segment_id, segment_id)
+         FROM source_passages INDEXED BY source_passages_segment
+         WHERE segment_id = ?1 AND origin IN ('section', 'inherited')",
+    )?;
     let mut rows = stmt.query(params![book_start, window_start, window_end])?;
     while let Some(row) = rows.next()? {
         let origin_text: String = row.get(6)?;
@@ -792,7 +800,25 @@ pub fn passage_sources(
         };
         let segment_id: String = row.get(3)?;
         let link: KeyRange = (row.get(8)?, row.get(9)?);
-        let Some(rank) = relevance::rank(active, link, origin) else {
+        // No shared verse, no place: nothing is looked up for it.
+        let Some(kind) = relevance::kind_of(active, link) else {
+            continue;
+        };
+        let mut opener = segment_id.clone();
+        let mut context = Context::Neutral;
+        if origin == LinkOrigin::Explicit {
+            let mut sections: Vec<KeyRange> = Vec::new();
+            let found = section_links.query_map([&segment_id], |r| {
+                Ok(((r.get(0)?, r.get(1)?), r.get::<_, String>(2)?))
+            })?;
+            for item in found {
+                let (range, section_opener) = item?;
+                sections.push(range);
+                opener = section_opener;
+            }
+            context = relevance::section_context(active, &sections);
+        }
+        let Some(rank) = relevance::rank(active, link, origin, context) else {
             continue;
         };
         let source_id: String = row.get(0)?;
@@ -804,9 +830,7 @@ pub fn passage_sources(
             places: HashMap::new(),
             about: false,
         });
-        if rank.0 != MatchKind::Chapter
-            && matches!(origin, LinkOrigin::Section | LinkOrigin::Manual)
-        {
+        if rank.class <= 3 && matches!(origin, LinkOrigin::Section | LinkOrigin::Manual) {
             group.about = true;
         }
         let better = group
@@ -820,11 +844,12 @@ pub fn passage_sources(
                     rank,
                     position,
                     passage: passage.clone(),
+                    opener,
                     location: PassageLocation {
                         segment_id,
                         locator: row.get::<_, Option<String>>(5)?.unwrap_or_default(),
                         origin,
-                        match_kind: rank.0,
+                        match_kind: kind,
                         reference: ScriptureRef::from_canonical(&passage)?.to_dto(),
                         matched_text: row.get(10)?,
                         section_heading: row.get(11)?,
@@ -834,31 +859,10 @@ pub fn passage_sources(
         }
     }
 
-    // The section each mentioning paragraph lies in, from its inherited link
-    // (one indexed lookup per mention that fits the passage).
-    let mut context_of_segment = conn.prepare(
-        "SELECT section_segment_id FROM source_passages INDEXED BY source_passages_segment
-         WHERE segment_id = ?1 AND origin = 'inherited' LIMIT 1",
-    )?;
-    for group in groups.values() {
-        for place in group.places.values() {
-            if place.location.origin != LinkOrigin::Explicit {
-                continue;
-            }
-            let segment_id = &place.location.segment_id;
-            let opener: Option<Option<String>> = context_of_segment
-                .query_row([segment_id], |r| r.get(0))
-                .optional()?;
-            if let Some(opener) = opener.flatten() {
-                contexts.insert(segment_id.clone(), opener);
-            }
-        }
-    }
-
     let mut ranked: Vec<RankedGroup> = groups
         .into_iter()
         .map(|(source_id, group)| {
-            let places = consolidate(group.places.into_values().collect(), &contexts);
+            let places = consolidate(group.places.into_values().collect());
             let best = places[0].rank;
             let more = places.len().saturating_sub(LOCATIONS_PER_SOURCE) as i64;
             let locations: Vec<PassageLocation> = places
@@ -899,6 +903,8 @@ struct Place {
     rank: Rank,
     position: i64,
     passage: String,
+    /// The segment the section it lies in opens on (itself outside any section).
+    opener: String,
     location: PassageLocation,
 }
 
@@ -907,50 +913,35 @@ struct Place {
 /// Places are ordered by rank (reading order, then id, break ties). A place is
 /// then dropped when a better one in the *same local context* already shows it:
 ///
-/// - the context is the section a paragraph lies in (its opening segment), or
-///   the segment itself outside any section;
+/// - the context is the section a paragraph lies in (where it opens), or the
+///   segment itself outside any section;
 /// - it is dropped when that earlier place is a section or manual link whose
-///   match is at least as good (the section already leads there), or when it
+///   fit is at least as good (the section already leads there), or when it
 ///   mentions the very same passage as the earlier place (the second "John 15:5"
 ///   in the same section adds no place).
 ///
 /// A mention that fits the passage *better* than its section, or names a
-/// different passage, stays: it is somewhere else worth going. A source that
-/// matches directly drops its same-chapter places; one that matches only by
-/// chapter keeps them.
-fn consolidate(mut places: Vec<Place>, contexts: &HashMap<String, String>) -> Vec<Place> {
+/// different passage, stays: it is somewhere else worth going.
+fn consolidate(mut places: Vec<Place>) -> Vec<Place> {
     places.sort_by(|a, b| {
         a.rank
             .cmp(&b.rank)
             .then(a.position.cmp(&b.position))
             .then(a.location.segment_id.cmp(&b.location.segment_id))
     });
-    if places[0].rank.0 != MatchKind::Chapter {
-        places.retain(|p| p.rank.0 != MatchKind::Chapter);
-    }
-    let context_of = |place: &Place| -> String {
-        if place.location.origin == LinkOrigin::Section {
-            return place.location.segment_id.clone();
-        }
-        contexts
-            .get(&place.location.segment_id)
-            .cloned()
-            .unwrap_or_else(|| place.location.segment_id.clone())
-    };
-    let mut kept: Vec<(String, Place)> = Vec::new();
+    let mut kept: Vec<Place> = Vec::new();
     for place in places {
-        let context = context_of(&place);
-        let redundant = kept.iter().any(|(c, k)| {
-            *c == context
-                && k.rank.0 <= place.rank.0
+        let redundant = kept.iter().any(|k| {
+            k.opener == place.opener
+                && k.rank.fit <= place.rank.fit
                 && (matches!(k.location.origin, LinkOrigin::Section | LinkOrigin::Manual)
                     || k.passage == place.passage)
         });
         if !redundant {
-            kept.push((context, place));
+            kept.push(place);
         }
     }
-    kept.into_iter().map(|(_, p)| p).collect()
+    kept
 }
 
 /// Every passage a segment is linked to, and why (for the reader): what it

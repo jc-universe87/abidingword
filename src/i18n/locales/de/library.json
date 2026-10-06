@@ -108,8 +108,6 @@
     "empty": "Noch keine Quellen. Fügen Sie Bücher, Artikel und eigene Notizen hinzu (PDF, EPUB, Word, Markdown oder Text); sie bleiben auf diesem Computer.",
     "sourcesFor": "Quellen zu {{passage}}",
     "noSources": "Keine Quelle in Ihrer Bibliothek ist mit dieser Bibelstelle verknüpft.",
-    "noDirect": "Nichts in Ihrer Bibliothek ist mit genau dieser Bibelstelle verknüpft.",
-    "elsewhere": "Anderswo in {{chapter}}",
     "moreLocations_one": "{{count}} weitere Stelle in dieser Quelle",
     "moreLocations_other": "{{count}} weitere Stellen in dieser Quelle",
     "recent": "Zuletzt hinzugefügt",
