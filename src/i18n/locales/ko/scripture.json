@@ -130,8 +130,8 @@
       "added": "추가한 날짜"
     },
     "contents_other": "책 {{count}}권, {{verses}}절",
-    "confirmRemove": "<strong>{{name}}</strong>을(를) 제거할까요? 이 성경의 본문이 Abiding Word에서 삭제됩니다. 연구, 본문 연결, 메모는 그대로 유지됩니다.",
-    "confirmRemoveManaged": "<strong>{{name}}</strong>을(를) 제거할까요? 이 성경의 본문과 Abiding Word가 보관하던 파일 사본이 함께 삭제됩니다(원본 파일은 그대로 남습니다). 연구, 본문 연결, 메모는 그대로 유지됩니다.",
+    "confirmRemove": "<strong>{{name}}</strong>을(를) 제거할까요? 이 성경의 본문이 Abiding Word에서 삭제됩니다. 성경공부, 본문 연결, 메모는 그대로 유지됩니다.",
+    "confirmRemoveManaged": "<strong>{{name}}</strong>을(를) 제거할까요? 이 성경의 본문과 Abiding Word가 보관하던 파일 사본이 함께 삭제됩니다(원본 파일은 그대로 남습니다). 성경공부, 본문 연결, 메모는 그대로 유지됩니다.",
     "keep": "유지"
   },
   "colors": {
