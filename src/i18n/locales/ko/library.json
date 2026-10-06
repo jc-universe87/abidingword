@@ -102,6 +102,9 @@
     "sourcesFor": "{{passage}} 관련 자료",
     "noSources": "자료실에 이 본문과 연결된 자료가 없습니다.",
     "moreLocations_other": "이 자료에 {{count}}곳 더 있음",
+    "showFewerLocations": "간단히 보기",
+    "loadingLocations": "다른 곳을 불러오는 중…",
+    "locationsFailed": "다른 곳을 불러오지 못했습니다. 다시 시도해 주세요.",
     "recent": "최근 추가한 자료",
     "openLibrary": "자료실 열기"
   },

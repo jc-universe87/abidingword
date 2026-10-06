@@ -9,6 +9,7 @@ import { useApi } from "@/lib/ApiContext";
 import type { ScriptureRef } from "@/types/scripture";
 import { useLibraryNav } from "./LibraryNav";
 import { PassageSourceList } from "./PassageSourceList";
+import { usePassageSourceExpansion } from "./usePassageSourceExpansion";
 import { SourceReader, type ReaderPosition } from "./SourceReader";
 
 /** A source open inside the Sources pane (kept by the shell, so it survives leaving the workspace). */
@@ -58,6 +59,7 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
     chapterCount,
   );
   const sources = useLoad(useCallback(() => api.libraryPassageSources(reference), [api, reference]));
+  const { expansion, toggle } = usePassageSourceExpansion(reference);
   const passageLabel = (ref: ScriptureRef) =>
     referenceLabel(ref, books.find((b) => b.code === ref.book)?.chapterCount);
   // Only sources that share a verse with the passage are offered (the core never returns a chapter-only match).
@@ -126,6 +128,8 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
                   label={t("library.pane.sourcesFor", { passage: label })}
                   passageLabel={passageLabel}
                   onOpen={openSource}
+                  expansion={expansion}
+                  onToggleMore={toggle}
                 />
               )}
             </section>

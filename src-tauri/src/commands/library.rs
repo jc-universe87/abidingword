@@ -18,8 +18,8 @@ use crate::filesystem;
 use crate::library::{adapters, contents, import, original};
 use crate::library::{
     AddFindingSource, CommitSourceImport, FindingCitation, GetSegments, LibraryResults,
-    ListSources, PassageMention, PassageSourceGroup, SearchLibrary, SegmentPassageLink,
-    SegmentWindow, Source, SourceImportPreview, SourceSummary, SourceType,
+    ListSources, PassageLocation, PassageMention, PassageSourceGroup, SearchLibrary,
+    SegmentPassageLink, SegmentWindow, Source, SourceImportPreview, SourceSummary, SourceType,
 };
 use crate::scripture::reference::ScriptureRef;
 use crate::state::AppState;
@@ -227,6 +227,18 @@ pub fn library_passage_sources(
 ) -> CommandResult<Vec<PassageSourceGroup>> {
     let reference = ScriptureRef::from_canonical(&reference)?;
     state.db(|conn| library::passage_sources(conn, &reference))
+}
+
+/// All the places in one source that fit a passage (canonical reference), in the
+/// order the Sources pane ranks them. Reads indexed links only; bounded.
+#[tauri::command(async)]
+pub fn library_passage_source_locations(
+    state: State<'_, AppState>,
+    source_id: String,
+    reference: String,
+) -> CommandResult<Vec<PassageLocation>> {
+    let reference = ScriptureRef::from_canonical(&reference)?;
+    state.db(|conn| library::passage_source_locations(conn, &reference, &source_id))
 }
 
 /// Why a segment is linked to Scripture: what it mentions and the section it

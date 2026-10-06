@@ -130,6 +130,7 @@ A Synthetic Commentary                         ← one entry, not one card per p
   P. Example · Commentary › John 15:1–11 — The True Vine
   Section on John 15:1–11
   ├ best place, then up to two more, then "3 more places in this source"
+  │   (a button: expands inline to the rest; "Show fewer" collapses)
 ```
 
 - **Candidates** are explicit, section and manual links that **share a verse** with
@@ -428,3 +429,20 @@ Known behaviour: "Mark 4 Principles of Leadership" is read as a heading on Mark 
 - `tests/ui/passage-sources.test.tsx` and the updated `library.test.tsx`: grouping,
   reasons, opening in the pane, the reader's reason line, German and Korean.
 - `npm run i18n:check`: every string in all six languages.
+
+
+## Expanding "more places in this source" (second Windows acceptance)
+
+The count is a disclosure button (`aria-expanded`, `aria-controls`; Escape
+collapses and keeps focus on it). Expanding asks the core once for that
+source: `library_passage_source_locations(source_id, reference)` returns every
+place the *same* relevance model accepts (one query path, `collect_places`,
+shared with the pane; same ranking, same consolidation, no same-chapter or
+unrelated places), in the pane's order, so its first three are the places
+already shown. It reads indexed links only, never scans text, and is capped at
+`EXPANDED_LOCATIONS_LIMIT` (200). A wrong or removed source, or one that does
+not fit, gives an empty list. The pane's own query is unchanged and still
+returns three places and a count. The places are cached for the passage being
+read (collapse, re-expand and returning from the reader do not ask again); a
+different passage discards them. Opening a place uses the same
+`openSource(sourceId, segmentId)` path as the first three. No migration.

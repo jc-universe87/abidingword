@@ -728,32 +728,22 @@ pub fn ensure_passage_index(conn: &Connection) -> AppResult<PassageIndexReport> 
     Ok(report)
 }
 
-/// The sources that fit a passage, best first, each with its best places.
-///
-/// Reads only indexed links, never source text, so turning a Bible page costs
-/// one range lookup. Candidates are the literal mentions, section headings and
-/// manual links that **share a verse** with the passage (a link that only shares
-/// its chapter is not offered: the pane prefers precision to recall).
-///
-/// Whether a literal mention is *about* the passage or only cites it is read from
-/// the headings around it: the mention's paragraph carries the passage links of
-/// the section it lies in (its own section link, or an inherited one), found with
-/// one indexed lookup per matching mention. A mention inside a section about the
-/// passage is about it; inside a section headed with another passage it is a
-/// cross-reference; with no passage heading it is neutral. See
-/// [`relevance`] for the order this gives. Nothing stored is changed.
-///
-/// Places are ranked by [`relevance::rank`], one per segment, then consolidated
-/// (see [`consolidate`]) so a section, the paragraph that opens it and repeated
-/// mentions of the same passage inside it read as one place. Sources are ordered
-/// by their best place; between equal best places, a source with a section or
-/// manual link that is about the passage comes before one that only cites it;
-/// then title, then id: a total order, so equal input gives equal output. How
-/// many mentions a source has never raises its position.
-pub fn passage_sources(
+/// A source's places for the passage, one per segment, not yet consolidated.
+struct Group {
+    title: String,
+    author: Option<String>,
+    places: HashMap<String, Place>,
+    about: bool,
+}
+
+/// Every place the relevance model accepts for the passage, grouped by source;
+/// `only_source` limits it to one source. The single home of the relevance
+/// rules for the Sources pane and for expanding a source's places.
+fn collect_places(
     conn: &Connection,
     reference: &ScriptureRef,
-) -> AppResult<Vec<PassageSourceGroup>> {
+    only_source: Option<&str>,
+) -> AppResult<HashMap<String, Group>> {
     let active: KeyRange = (reference.start_key(), reference.end_key());
     let ordinal = reference.book.ordinal;
     // A link stays inside one book; its chapters are all that can match.
@@ -761,30 +751,23 @@ pub fn passage_sources(
     let window_start = verse_key(ordinal, reference.start.chapter, 0);
     let window_end = verse_key(ordinal, reference.end.chapter, 999);
 
-    struct RankedGroup {
-        best: Rank,
-        /// A section or manual link that is about the passage (not merely broad).
-        about: bool,
-        title_key: String,
-        group: PassageSourceGroup,
-    }
-    struct Group {
-        title: String,
-        author: Option<String>,
-        places: HashMap<String, Place>,
-        about: bool,
-    }
     let mut groups: HashMap<String, Group> = HashMap::new();
 
-    let mut stmt = conn.prepare(
+    // The pane's query is left exactly as it was; one source adds an indexed filter.
+    let one_source = if only_source.is_some() {
+        " AND p.source_id = ?4"
+    } else {
+        ""
+    };
+    let mut stmt = conn.prepare(&format!(
         "SELECT s.id, s.title, s.author, g.id, g.position, g.locator, p.origin, p.passage,
                 p.start_key, p.end_key, p.matched_text, p.section_heading
          FROM source_passages p
          JOIN source_segments g ON g.id = p.segment_id
          JOIN sources s ON s.id = p.source_id AND s.deleted_at IS NULL
          WHERE p.origin IN ('explicit', 'section', 'manual')
-           AND p.start_key >= ?1 AND p.start_key <= ?3 AND p.end_key >= ?2",
-    )?;
+           AND p.start_key >= ?1 AND p.start_key <= ?3 AND p.end_key >= ?2{one_source}"
+    ))?;
     // The passage links of the section a paragraph lies in: its own section link
     // (an opening paragraph) or an inherited one, with where that section opens.
     let mut section_links = conn.prepare(
@@ -792,7 +775,10 @@ pub fn passage_sources(
          FROM source_passages INDEXED BY source_passages_segment
          WHERE segment_id = ?1 AND origin IN ('section', 'inherited')",
     )?;
-    let mut rows = stmt.query(params![book_start, window_start, window_end])?;
+    let mut rows = match only_source {
+        Some(id) => stmt.query(params![book_start, window_start, window_end, id])?,
+        None => stmt.query(params![book_start, window_start, window_end])?,
+    };
     while let Some(row) = rows.next()? {
         let origin_text: String = row.get(6)?;
         let Some(origin) = LinkOrigin::parse(&origin_text) else {
@@ -858,6 +844,66 @@ pub fn passage_sources(
             );
         }
     }
+    Ok(groups)
+}
+
+/// The most places one source can list when expanded (a defensive bound).
+pub const EXPANDED_LOCATIONS_LIMIT: usize = 200;
+
+/// All the places in one source that fit the passage, in the order
+/// [`passage_sources`] ranks them (so its first few are the ones it shows),
+/// capped at [`EXPANDED_LOCATIONS_LIMIT`]. Same rules, same consolidation; a
+/// source that does not fit (or does not exist) gives an empty list.
+pub fn passage_source_locations(
+    conn: &Connection,
+    reference: &ScriptureRef,
+    source_id: &str,
+) -> AppResult<Vec<PassageLocation>> {
+    let mut groups = collect_places(conn, reference, Some(source_id))?;
+    let Some(group) = groups.remove(source_id) else {
+        return Ok(Vec::new());
+    };
+    Ok(consolidate(group.places.into_values().collect())
+        .into_iter()
+        .take(EXPANDED_LOCATIONS_LIMIT)
+        .map(|p| p.location)
+        .collect())
+}
+
+/// The sources that fit a passage, best first, each with its best places.
+///
+/// Reads only indexed links, never source text, so turning a Bible page costs
+/// one range lookup. Candidates are the literal mentions, section headings and
+/// manual links that **share a verse** with the passage (a link that only shares
+/// its chapter is not offered: the pane prefers precision to recall).
+///
+/// Whether a literal mention is *about* the passage or only cites it is read from
+/// the headings around it: the mention's paragraph carries the passage links of
+/// the section it lies in (its own section link, or an inherited one), found with
+/// one indexed lookup per matching mention. A mention inside a section about the
+/// passage is about it; inside a section headed with another passage it is a
+/// cross-reference; with no passage heading it is neutral. See
+/// [`relevance`] for the order this gives. Nothing stored is changed.
+///
+/// Places are ranked by [`relevance::rank`], one per segment, then consolidated
+/// (see [`consolidate`]) so a section, the paragraph that opens it and repeated
+/// mentions of the same passage inside it read as one place. Sources are ordered
+/// by their best place; between equal best places, a source with a section or
+/// manual link that is about the passage comes before one that only cites it;
+/// then title, then id: a total order, so equal input gives equal output. How
+/// many mentions a source has never raises its position.
+pub fn passage_sources(
+    conn: &Connection,
+    reference: &ScriptureRef,
+) -> AppResult<Vec<PassageSourceGroup>> {
+    struct RankedGroup {
+        best: Rank,
+        /// A section or manual link that is about the passage (not merely broad).
+        about: bool,
+        title_key: String,
+        group: PassageSourceGroup,
+    }
+    let groups = collect_places(conn, reference, None)?;
 
     let mut ranked: Vec<RankedGroup> = groups
         .into_iter()

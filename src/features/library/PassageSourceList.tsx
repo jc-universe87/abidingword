@@ -1,8 +1,9 @@
-import { useId } from "react";
+import { useId, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { PassageLocation, PassageSourceGroup } from "@/types/library";
 import type { ScriptureRef } from "@/types/scripture";
 import { locatorLabel, passageReason } from "./labels";
+import type { ExpansionState } from "./usePassageSourceExpansion";
 
 interface PassageSourceListProps {
   groups: PassageSourceGroup[];
@@ -11,6 +12,9 @@ interface PassageSourceListProps {
   /** The passage a link points at, written in the interface language. */
   passageLabel: (reference: ScriptureRef) => string;
   onOpen: (sourceId: string, segmentId: string) => void;
+  /** Which sources show their further places. */
+  expansion?: Record<string, ExpansionState>;
+  onToggleMore?: (sourceId: string) => void;
 }
 
 /**
@@ -18,9 +22,17 @@ interface PassageSourceListProps {
  * paragraph), its best place first and why it was chosen, a few more places
  * beneath, and a count of the rest.
  */
-export function PassageSourceList({ groups, label, passageLabel, onOpen }: PassageSourceListProps) {
+export function PassageSourceList({
+  groups,
+  label,
+  passageLabel,
+  onOpen,
+  expansion = {},
+  onToggleMore,
+}: PassageSourceListProps) {
   const { t } = useTranslation();
   const prefix = useId();
+  const controls = useRef<Record<string, HTMLButtonElement | null>>({});
   const reason = (place: PassageLocation) => passageReason(t, place.origin, passageLabel(place.reference));
   return (
     <ul aria-label={label} className="m-0 flex list-none flex-col p-0">
@@ -28,6 +40,9 @@ export function PassageSourceList({ groups, label, passageLabel, onOpen }: Passa
         const [best, ...others] = group.locations;
         if (!best) return null;
         const titleId = `${prefix}-${index}`;
+        const moreId = `${prefix}-${index}-more`;
+        const more = expansion[group.sourceId];
+        const extra = more?.open ? (more.places ?? []).slice(group.locations.length) : [];
         return (
           <li key={group.sourceId} className="border-t border-border-subtle">
             <div role="group" aria-labelledby={titleId}>
@@ -60,10 +75,58 @@ export function PassageSourceList({ groups, label, passageLabel, onOpen }: Passa
                   ))}
                 </ul>
               )}
-              {group.moreLocations > 0 && (
-                <p className="m-0 pb-2 pl-3 text-[0.875rem] text-text-muted">
-                  {t("library.pane.moreLocations", { count: group.moreLocations })}
-                </p>
+              {group.moreLocations > 0 && onToggleMore && (
+                <div
+                  className="pb-2 pl-3"
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape" && more?.open) {
+                      event.stopPropagation();
+                      onToggleMore(group.sourceId);
+                      controls.current[group.sourceId]?.focus();
+                    }
+                  }}
+                >
+                  {extra.length > 0 && (
+                    <ul id={moreId} className="m-0 mb-1 flex list-none flex-col border-l border-border-subtle p-0">
+                      {extra.map((place) => (
+                        <li key={place.segmentId}>
+                          <button
+                            type="button"
+                            onClick={() => onOpen(group.sourceId, place.segmentId)}
+                            className="flex w-full flex-col items-start gap-0 rounded-sm py-1 pl-3 text-left text-[0.875rem] hover:bg-bg-secondary"
+                          >
+                            <span className="text-text-strong">{locatorLabel(t, place.locator)}</span>
+                            <span className="text-text-muted">{reason(place)}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <button
+                    type="button"
+                    ref={(node) => {
+                      controls.current[group.sourceId] = node;
+                    }}
+                    aria-expanded={Boolean(more?.open)}
+                    aria-controls={extra.length > 0 ? moreId : undefined}
+                    onClick={() => onToggleMore(group.sourceId)}
+                    className="rounded-sm text-left text-[0.875rem] text-text-muted underline-offset-2 hover:text-text-strong hover:underline"
+                  >
+                    {more?.open
+                      ? t("library.pane.showFewerLocations")
+                      : t("library.pane.moreLocations", { count: group.moreLocations })}
+                  </button>
+                  {more?.status === "loading" && (
+                    <p role="status" className="m-0 pt-1 text-[0.875rem] text-text-muted">
+                      {t("library.pane.loadingLocations")}
+                    </p>
+                  )}
+                  {more?.status === "error" && (
+                    <p role="alert" className="m-0 pt-1 text-[0.875rem] text-danger">
+                      {t("library.pane.locationsFailed")}
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           </li>
