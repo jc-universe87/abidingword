@@ -301,12 +301,8 @@ And a second line.
             library::passage_sources(conn, &reference("JHN.15.5"))?.len(),
             1
         );
-        assert!(library::passage_sources(conn, &reference("JHN.15.20"))?
-            .iter()
-            .all(|g| g
-                .locations
-                .iter()
-                .all(|l| l.match_kind == MatchKind::Chapter)));
+        // a verse the chapter's sections do not reach has nothing to offer
+        assert!(library::passage_sources(conn, &reference("JHN.15.20"))?.is_empty());
         Ok(())
     });
 }
@@ -484,7 +480,7 @@ fn md(heading: &str, paragraphs: &[&str]) -> String {
 }
 
 #[test]
-fn an_exact_match_outranks_a_containing_section_which_outranks_a_broad_one() {
+fn a_section_about_the_passage_outranks_a_neutral_exact_mention_which_outranks_a_whole_chapter() {
     let temp = tempfile::tempdir().unwrap();
     with_db(|conn| {
         let broad = add(
@@ -515,8 +511,8 @@ fn an_exact_match_outranks_a_containing_section_which_outranks_a_broad_one() {
         assert_eq!(
             order,
             [
-                (exact, MatchKind::Exact),
                 (section, MatchKind::Contained),
+                (exact, MatchKind::Exact),
                 (broad, MatchKind::Contained)
             ]
         );
@@ -525,7 +521,7 @@ fn an_exact_match_outranks_a_containing_section_which_outranks_a_broad_one() {
 }
 
 #[test]
-fn an_overlapping_range_ranks_between_containment_and_the_same_chapter() {
+fn an_overlapping_range_ranks_after_a_containing_one_and_a_chapter_only_range_is_not_offered() {
     let temp = tempfile::tempdir().unwrap();
     with_db(|conn| {
         let same_chapter = add(
@@ -546,7 +542,7 @@ fn an_overlapping_range_ranks_between_containment_and_the_same_chapter() {
             conn,
             temp.path(),
             "c.md",
-            md("John 15:1–11", &["The vine."]).as_bytes(),
+            md("John 15:1–20", &["The vine and more."]).as_bytes(),
             "Contained",
         );
         let other_book = add(
@@ -561,16 +557,18 @@ fn an_overlapping_range_ranks_between_containment_and_the_same_chapter() {
             .iter()
             .map(|g| (g.source_id.clone(), g.locations[0].match_kind))
             .collect();
-        // active 15:5–12: 15:1–11 overlaps (neither contains the other); 15:8–14 overlaps too;
-        // 15:16–17 shares only the chapter; Romans is not shown.
-        assert!(order.iter().all(|(id, _)| *id != other_book));
-        let kinds: Vec<_> = order.iter().map(|(_, k)| *k).collect();
+        // active 15:5–12: 15:1–20 contains it; 15:8–14 overlaps it; 15:16–17 shares only the
+        // chapter, which is not enough to suggest anything; Romans is not shown either.
+        assert!(order
+            .iter()
+            .all(|(id, _)| *id != other_book && *id != same_chapter));
         assert_eq!(
-            kinds,
-            [MatchKind::Overlap, MatchKind::Overlap, MatchKind::Chapter]
+            order,
+            [
+                (contained, MatchKind::Contained),
+                (overlap, MatchKind::Overlap)
+            ]
         );
-        assert_eq!(order[2].0, same_chapter);
-        assert!([&contained, &overlap].contains(&&order[0].0));
         Ok(())
     });
 }
@@ -659,7 +657,7 @@ fn a_commentary_section_is_one_place_not_one_card_per_paragraph() {
 }
 
 #[test]
-fn a_source_with_a_direct_place_does_not_also_list_its_same_chapter_places() {
+fn a_place_that_only_shares_the_chapter_is_never_offered() {
     let temp = tempfile::tempdir().unwrap();
     with_db(|conn| {
         let id = add(
@@ -682,8 +680,8 @@ fn a_source_with_a_direct_place_does_not_also_list_its_same_chapter_places() {
             other[0].locations[0].reference.canonical,
             "JHN.15.12-JHN.15.17"
         );
-        // a source that has nothing closer still appears, for its same-chapter places only
-        let none = add(
+        // a source whose only John 15 place is elsewhere in the chapter has nothing to offer
+        let early = add(
             conn,
             temp.path(),
             "n.md",
@@ -691,9 +689,8 @@ fn a_source_with_a_direct_place_does_not_also_list_its_same_chapter_places() {
             "Early verses",
         );
         let found = library::passage_sources(conn, &reference("JHN.15.9"))?;
-        let early = found.iter().find(|g| g.source_id == none).unwrap();
-        assert_eq!(early.locations[0].match_kind, MatchKind::Chapter);
-        assert!(found.iter().any(|g| g.source_id == id));
+        assert!(found.iter().all(|g| g.source_id != early));
+        let _ = id;
         Ok(())
     });
 }

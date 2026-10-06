@@ -239,22 +239,21 @@ fn for_one_verse_the_best_sources_come_first_in_a_justified_order() {
             [
                 // a section on exactly this verse
                 "Vine Commentary",
-                // an exact mention, in a source that also has a section on it
+                // sections on a short range that contains it, nearest first
+                "Sermon Manuscript",
                 "Johanneskommentar",
                 "요한복음 묵상",
-                // an exact mention and nothing more
+                // a neutral citation of exactly the verse, then of a range around it
                 "Personal Notes",
-                // sections that contain the verse, narrow before broad
-                "Sermon Manuscript",
-                "A Guide to John",
-                // a passing mention of a range that contains it
                 "Systematic Notes",
-                // only the same chapter, last
-                "Notes on Love",
+                // a section on the whole chapter
+                "A Guide to John",
             ]
         );
-        // the unrelated sources never appear
+        // the unrelated sources never appear, and neither does a source that
+        // only has John 15:12–17
         assert!(!titles(&found).contains(&"Management Handbook"));
+        assert!(!titles(&found).contains(&"Notes on Love"));
         Ok(())
     });
 }
@@ -270,10 +269,9 @@ fn for_a_passage_a_section_on_it_leads_and_narrower_beats_broader() {
                 "Vine Commentary",
                 "요한복음 묵상",
                 "Sermon Manuscript",
-                "A Guide to John",
                 "Systematic Notes",
                 "Personal Notes",
-                "Notes on Love",
+                "A Guide to John",
             ]
         );
         assert!(found[..3]
@@ -302,25 +300,25 @@ fn for_a_whole_chapter_the_chapter_source_leads_and_each_source_appears_once() {
 }
 
 #[test]
-fn a_later_part_of_the_chapter_puts_same_chapter_sources_in_their_place() {
+fn a_later_part_of_the_chapter_offers_only_what_reaches_those_verses() {
     with_corpus(|conn, _| {
         let found = show(conn, "JHN.15.12-JHN.15.17");
-        let order = titles(&found);
         assert_eq!(
-            order[0], "Notes on Love",
-            "the section on exactly these verses"
+            titles(&found),
+            [
+                // the section on exactly these verses
+                "Notes on Love",
+                // neutral citations of verses inside them
+                "Personal Notes",
+                "Vine Commentary",
+                // a section on the whole chapter
+                "A Guide to John",
+            ]
         );
-        assert_eq!(order[1], "A Guide to John", "a section on the chapter");
-        // the vine sources only share the chapter: after every direct match
-        let first_chapter_only = found
-            .iter()
-            .position(|g| g.locations[0].match_kind == MatchKind::Chapter)
-            .unwrap();
-        assert!(found[first_chapter_only..]
-            .iter()
-            .all(|g| g.locations[0].match_kind == MatchKind::Chapter));
-        assert!(order[first_chapter_only..].contains(&"Johanneskommentar"));
-        // the commentary's passing mention of John 15:16 is a direct place here
+        // the vine commentary's section on John 15:1–11 shares only the chapter: not offered
+        assert!(!titles(&found).contains(&"Johanneskommentar"));
+        assert!(!titles(&found).contains(&"Sermon Manuscript"));
+        // its passing mention of John 15:16 is a direct place here
         let vine = id_of(&found, "Vine Commentary");
         assert_eq!(vine.locations[0].match_kind, MatchKind::Contained);
         assert_eq!(vine.locations[0].origin, LinkOrigin::Explicit);
@@ -362,10 +360,9 @@ fn a_heading_that_starts_with_a_book_and_number_follows_the_parser_rules() {
 // --- section versus passing mention --------------------------------------------
 
 #[test]
-fn a_section_about_a_passage_outranks_a_passing_mention_of_part_of_it() {
+fn a_section_about_a_passage_outranks_a_neutral_mention_even_of_the_exact_verse() {
     let temp = tempfile::tempdir().unwrap();
     with_corpus(|conn, _| {
-        // an unrelated paragraph citing "John 15:5–6" (contained, narrower) …
         add(
             conn,
             temp.path(),
@@ -376,11 +373,13 @@ fn a_section_about_a_passage_outranks_a_passing_mention_of_part_of_it() {
         );
         let found = show(conn, "JHN.15.5");
         let at = |t: &str| titles(&found).iter().position(|x| *x == t).unwrap();
-        // … comes after the sections that contain the verse (kind equal, tier decides)
+        // a section on a short range that contains the verse comes before every neutral citation …
+        assert!(at("Sermon Manuscript") < at("Personal Notes"));
         assert!(at("Sermon Manuscript") < at("Aside"));
-        assert!(at("A Guide to John") < at("Aside"));
-        // but a mention of exactly the verse still beats a section containing it
-        assert!(at("Personal Notes") < at("Sermon Manuscript"));
+        // … a neutral citation of the exact verse before one of a range around it …
+        assert!(at("Personal Notes") < at("Aside"));
+        // … and all of them before a section on the whole chapter
+        assert!(at("Aside") < at("A Guide to John"));
         Ok(())
     });
 }
@@ -434,10 +433,10 @@ fn the_same_passage_mentioned_twice_in_a_section_is_one_place_and_the_section_le
         add(conn, temp.path(), "a.md", &text, "Source A", "English");
         let found = show(conn, "JHN.15.3");
         assert_eq!(found.len(), 1);
-        // the first mention of exactly this verse, and the section it lies in
+        // the section the verse lies in, then the first mention of exactly this verse
         assert_eq!(found[0].locations.len(), 2, "{}", dump(&found));
-        assert_eq!(found[0].locations[0].match_kind, MatchKind::Exact);
-        assert_eq!(found[0].locations[1].origin, LinkOrigin::Section);
+        assert_eq!(found[0].locations[0].origin, LinkOrigin::Section);
+        assert_eq!(found[0].locations[1].match_kind, MatchKind::Exact);
         assert_eq!(found[0].more_locations, 0);
         Ok(())
     });
@@ -460,8 +459,9 @@ fn distinct_places_are_preserved() {
         assert_eq!(
             kinds,
             [
-                (MatchKind::Exact, LinkOrigin::Explicit),
+                // the section on a short range, then a neutral exact mention, then the whole chapter
                 (MatchKind::Contained, LinkOrigin::Section),
+                (MatchKind::Exact, LinkOrigin::Explicit),
                 (MatchKind::Contained, LinkOrigin::Section),
             ]
         );
@@ -500,15 +500,15 @@ fn a_source_with_fifty_mentions_shows_three_places_and_the_true_remainder() {
             "English",
         );
         let found = show(conn, "JHN.15.5");
-        // the noisy source has the exact mentions, and so it is first; but it is one entry
+        // a section on the passage comes first however many mentions the other source has
         assert_eq!(found.len(), 2);
+        assert_eq!(found[0].source_title, "Focused Commentary");
         let noisy = id_of(&found, "Noisy Notes");
         assert_eq!(noisy.locations.len(), 3);
         // ten distinct verses cycle, so five paragraphs mention verse 5 exactly:
         // only places that add something are counted (the same passage, no section: each is its own segment)
         assert_eq!(noisy.more_locations, 2, "{}", dump(&found));
-        // the focused source is not pushed out of the list, only below an exact mention
-        assert_eq!(found[1].source_title, "Focused Commentary");
+        assert_eq!(found[1].source_title, "Noisy Notes");
         Ok(())
     });
 }
@@ -575,23 +575,34 @@ fn the_place_cap_is_three_and_the_remainder_counts_real_places() {
 }
 
 #[test]
-fn same_chapter_places_never_pad_a_direct_source_and_stay_in_their_own_group() {
+fn same_chapter_places_are_never_offered() {
     with_corpus(|conn, _| {
         let found = show(conn, "JHN.15.5");
-        let vine = id_of(&found, "Vine Commentary");
-        assert!(vine
-            .locations
-            .iter()
-            .all(|l| l.match_kind != MatchKind::Chapter));
-        let love = id_of(&found, "Notes on Love");
-        assert_eq!(love.locations[0].match_kind, MatchKind::Chapter);
-        // direct groups all precede same-chapter ones
-        let mut seen_chapter = false;
+        // the section on John 15:12–17 shares the chapter and nothing else
+        assert!(!titles(&found).contains(&"Notes on Love"));
         for g in &found {
-            let chapter = g.locations[0].match_kind == MatchKind::Chapter;
-            assert!(chapter || !seen_chapter, "{}", dump(&found));
-            seen_chapter |= chapter;
+            for l in &g.locations {
+                // every offered place shares a verse with the passage
+                assert_ne!(
+                    l.reference.canonical,
+                    "JHN.15.12-JHN.15.17",
+                    "{}",
+                    dump(&found)
+                );
+                assert_ne!(l.reference.canonical, "JHN.15.16", "{}", dump(&found));
+            }
         }
+        // the commentary's own places are the two sections that contain the verse
+        let vine = id_of(&found, "Vine Commentary");
+        assert_eq!(vine.locations.len(), 2);
+        // the indexed references are still all there
+        let stored: i64 = conn.query_row(
+            "SELECT COUNT(*) FROM source_passages p JOIN sources s ON s.id = p.source_id
+             WHERE s.title = 'Notes on Love' AND p.origin = 'section'",
+            [],
+            |r| r.get(0),
+        )?;
+        assert_eq!(stored, 1);
         Ok(())
     });
 }
@@ -633,7 +644,7 @@ fn range_relations_are_classified_for_the_pane() {
 }
 
 #[test]
-fn partial_overlap_ranks_below_containment_and_above_the_chapter() {
+fn partial_overlap_ranks_below_containment_and_a_chapter_only_range_is_not_offered() {
     let temp = tempfile::tempdir().unwrap();
     with_db_only(|conn| {
         add(
@@ -661,12 +672,9 @@ fn partial_overlap_ranks_below_containment_and_above_the_chapter() {
             "English",
         );
         let found = show(conn, "JHN.15.1-JHN.15.11");
-        assert_eq!(titles(&found), ["Contains", "Overlap", "Elsewhere"]);
+        assert_eq!(titles(&found), ["Contains", "Overlap"]);
         let kinds: Vec<_> = found.iter().map(|g| g.locations[0].match_kind).collect();
-        assert_eq!(
-            kinds,
-            [MatchKind::Contained, MatchKind::Overlap, MatchKind::Chapter]
-        );
+        assert_eq!(kinds, [MatchKind::Contained, MatchKind::Overlap]);
         Ok(())
     });
 }
