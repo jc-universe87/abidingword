@@ -110,6 +110,9 @@
     "noSources": "No source in your library is linked to this passage.",
     "moreLocations_one": "{{count}} more place in this source",
     "moreLocations_other": "{{count}} more places in this source",
+    "showFewerLocations": "Show fewer",
+    "loadingLocations": "Loading more places…",
+    "locationsFailed": "The other places could not be loaded. Try again.",
     "recent": "Recently added",
     "openLibrary": "Open library"
   },

@@ -169,8 +169,9 @@ describe("Suggestion quality in the Sources pane", () => {
     const { user } = await renderApp(withLibrary(many));
     await readJohn15(user, 5);
     const list = await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:5" });
-    expect(within(list).getAllByRole("button")).toHaveLength(3);
-    expect(within(list).getByText("3 more places in this source")).toBeInTheDocument();
+    // three places, then a control (not plain text) for the rest
+    expect(within(list).getAllByRole("button")).toHaveLength(4);
+    expect(within(list).getByRole("button", { name: "3 more places in this source" })).toHaveAttribute("aria-expanded", "false");
   });
 
   it("opens a section where it begins", async () => {

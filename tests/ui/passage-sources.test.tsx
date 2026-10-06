@@ -103,8 +103,8 @@ describe("Sources for the passage being read", () => {
     const list = await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:5" });
     expect(within(list).getAllByRole("listitem").filter((li) => li.parentElement === list)).toHaveLength(1);
     // three places (the best one on the title, two beneath), not five cards
-    expect(within(list).getAllByRole("button")).toHaveLength(3);
-    expect(within(list).getByText("2 more places in this source")).toBeInTheDocument();
+    expect(within(list).getAllByRole("button")).toHaveLength(4);
+    expect(within(list).getByRole("button", { name: "2 more places in this source" })).toBeInTheDocument();
   });
 
   it("puts a section about the passage before mentions of it, and never lets a source appear twice", async () => {

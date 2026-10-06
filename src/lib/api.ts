@@ -71,6 +71,7 @@ import type {
   SourceLink,
   OriginalInfo,
   PassageMention,
+  PassageLocation,
   PassageSourceGroup,
   SegmentPassageLink,
   SegmentWindow,
@@ -153,6 +154,8 @@ export interface Api {
   sourceGetPassages(sourceId: string): Promise<PassageMention[]>;
   /** The sources that fit a passage (canonical reference), best first, each with its best places. */
   libraryPassageSources(reference: string): Promise<PassageSourceGroup[]>;
+  /** Every place in one source that fits the passage, in the pane's order (bounded). */
+  libraryPassageSourceLocations(sourceId: string, reference: string): Promise<PassageLocation[]>;
   /** Why a segment is linked to Scripture: what it mentions and the section it belongs to. */
   sourceSegmentPassageLinks(segmentId: string): Promise<SegmentPassageLink[]>;
   findingSourceAdd(input: { findingId: string; segmentId: string }): Promise<Finding>;
@@ -310,6 +313,8 @@ export const tauriApi: Api = {
     new Uint8Array(await call<ArrayBuffer>("library_original_read", { id, offset, length })),
   sourceGetPassages: (sourceId) => call("source_get_passages", { sourceId }),
   libraryPassageSources: (reference) => call("library_passage_sources", { reference }),
+  libraryPassageSourceLocations: (sourceId, reference) =>
+    call("library_passage_source_locations", { sourceId, reference }),
   sourceSegmentPassageLinks: (segmentId) => call("source_segment_passage_links", { segmentId }),
   findingSourceAdd: (input) => call("finding_source_add", { input }),
   findingSourceRemove: (citationId) => call("finding_source_remove", { citationId }),

@@ -118,6 +118,9 @@
     "moreLocations_one": "mais {{count}} lugar nesta fonte",
     "moreLocations_many": "mais {{count}} lugares nesta fonte",
     "moreLocations_other": "mais {{count}} lugares nesta fonte",
+    "showFewerLocations": "Mostrar menos",
+    "loadingLocations": "Carregando mais lugares…",
+    "locationsFailed": "Não foi possível carregar os outros lugares. Tente novamente.",
     "recent": "Adicionadas recentemente",
     "openLibrary": "Abrir biblioteca"
   },

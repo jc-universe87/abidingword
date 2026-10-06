@@ -110,6 +110,9 @@
     "noSources": "Keine Quelle in Ihrer Bibliothek ist mit dieser Bibelstelle verknüpft.",
     "moreLocations_one": "{{count}} weitere Stelle in dieser Quelle",
     "moreLocations_other": "{{count}} weitere Stellen in dieser Quelle",
+    "showFewerLocations": "Weniger anzeigen",
+    "loadingLocations": "Weitere Stellen werden geladen …",
+    "locationsFailed": "Die weiteren Stellen konnten nicht geladen werden. Versuchen Sie es erneut.",
     "recent": "Zuletzt hinzugefügt",
     "openLibrary": "Bibliothek öffnen"
   },
