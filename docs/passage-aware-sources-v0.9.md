@@ -1,9 +1,19 @@
 # Passage-aware sources (v0.9)
 
-**Status: merged to `main` (v0.9), then corrected after the first Windows
-acceptance, which failed on relevance quality** (see "Windows acceptance finding"
-below). The ranking described in the first implementation was **not final**: it is
-replaced by the model in "Suggestion quality". Not tagged until acceptance passes.
+**Status: complete. Windows acceptance passed** on the Development/Test build
+`0.5.0-dev.18`, built from the accepted `main` commit
+`7c72bd92a4d0331eb2600764d8c416e654799e83`. The milestone tag
+`passage-aware-sources-v0.9` is created on that commit; pushing it to GitHub is
+**pending** (the push from the development environment was refused by the
+network, so it is to be pushed from a maintainer's clone).
+
+The first Windows acceptance failed on relevance quality (see "Windows
+acceptance finding" below): the ranking described in the first implementation is
+replaced by the model in "Suggestion quality". A second acceptance added the
+expandable "more places in this source". Final behaviour: aboutness-aware,
+deterministic ranking (a section about the passage before a cross-reference from
+another passage's section; book-scale ranges last); no weak same-chapter
+suggestions; every further relevant place in a source can be revealed inline.
 
 When someone reads a Scripture passage, the Sources pane surfaces the Library
 material that is about it. Until v0.8 that meant paragraphs whose own text

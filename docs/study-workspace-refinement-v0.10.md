@@ -1,7 +1,10 @@
 # Study Workspace Refinement (v0.10)
 
 Status: in review. Branch `feature/study-workspace-refinement-v0.10`, started from `main`
-(`0a18c2b`), not merged. No database migration, no backend change.
+(`0a18c2b`); the accepted v0.9 (`main` `7c72bd9`) is merged into it, so it carries
+the final source relevance, the expandable further places and the Korean
+typography. Not merged to `main`. v0.10 itself adds no database migration and no
+backend change.
 
 ## Where this stands
 
@@ -158,6 +161,14 @@ in the model: changed in Study details, shown in lists only when not Active.
 - With several projects the project list is still the start of the pane.
 - Dark mode uses the existing tokens; no new colours were introduced, but it has
   not been reviewed on a real Windows display.
+
+Korean terminology items left for product-owner judgement (not blocking):
+
+- the built-in default section is *노트* (to avoid *메모*, the Scripture note),
+  but *노트* is also the "notes" source type;
+- the Remark block is *참고*, which could be read as "cross-reference" (*참고 구절*);
+- *공부 틀* versus *성경공부 틀* as the long form of Template;
+- *모음* as the short form of *성경공부 모음*.
 
 ## Windows acceptance checklist (after merge to `main` and the automatic test update)
 
