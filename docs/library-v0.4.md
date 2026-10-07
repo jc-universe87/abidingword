@@ -203,9 +203,13 @@ passage in the canon. Each match is stored in `source_passages` with its
 canonical form (`JHN.15.4`), a verse-key range for fast overlap lookups,
 the text as written ("John 15:4") and its position in the segment.
 
-The Sources pane uses this: "Sources mentioning John 15" lists every
-segment whose references overlap the passage or verse being read, and
-opens the source at that segment.
+The Sources pane uses this: it lists the sources whose references overlap
+the passage or verse being read, and opens the source at that place. (v0.4
+listed every such segment. Since v0.9 the pane groups them by source, ranks
+them and also uses section headings: see
+[`passage-aware-sources-v0.9.md`](passage-aware-sources-v0.9.md). The
+literal-mention lookup described here is unchanged and still counts only
+references written in a segment's own text.)
 
 ## Library search
 

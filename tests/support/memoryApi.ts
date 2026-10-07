@@ -35,6 +35,7 @@ import type {
   SourceLink,
   FindingCitation,
   LibraryHit,
+  PassageMatchKind,
   PassageMention,
   Source,
   SourceImportPreview,
@@ -65,6 +66,8 @@ function requireTitle(value: string, what: string): string {
 }
 
 export interface MemoryApi extends Api {
+  /** Calls to libraryPassageSourceLocations, for tests of lazy loading. */
+  libraryLocationsCalls: { sourceId: string; reference: string }[];
   state: {
     info: AppInfo;
     workspace: Workspace;
@@ -89,6 +92,8 @@ export interface MemoryApi extends Api {
       sources: (Source & { deleted: boolean })[];
       segments: (SourceSegment & { sourceId: string })[];
       mentions: { sourceId: string; segmentId: string; reference: ScriptureRef; matchedText: string }[];
+      /** Links derived from headings: a section's opening place, and the places inside it. */
+      links: { sourceId: string; segmentId: string; origin: "section" | "inherited"; reference: ScriptureRef; matchedText: string; heading: string; openerSegmentId: string }[];
       /** What the next "choose a file" dialog returns (null = cancelled). */
       nextChosenFile: string | null;
       /** Web addresses handed to the system browser (never really opened in tests), and whether opening fails. */
@@ -113,6 +118,12 @@ export interface SourceFixture {
   segments: { text: string; pageNumber?: number; sectionPath?: string }[];
   /** Scripture mentions: segment index, canonical reference, text as written. */
   mentions?: { segment: number; reference: string; matchedText: string }[];
+  /**
+   * Sections whose heading names a passage: the segment the section opens on,
+   * the passage, the reference as written in the heading, the heading, and the
+   * last segment of the section (the segments after the first inherit it).
+   */
+  sections?: { segment: number; reference: string; matchedText: string; heading: string; through?: number }[];
   /** The contents an EPUB carries (segment targets), as the core would return them. */
   contents?: ContentsItem[];
   /** Links in the text that lead elsewhere in the same source, as the core would return them. */
@@ -185,6 +196,61 @@ function overlaps(a: ScriptureRef, b: ScriptureRef): boolean {
   );
 }
 
+// --- relevance: a port of library/relevance.rs (keep both in step) -------------------------------
+
+type Fit = "exact" | "narrow" | "chapter" | "overlap" | "wide" | "broad";
+const FITS: Fit[] = ["exact", "narrow", "chapter", "overlap", "wide", "broad"];
+type Context = "neutral" | "about" | "elsewhere";
+
+const loKey = (r: ScriptureRef) => r.startChapter * 1000 + (r.startVerse ?? 0);
+const hiKey = (r: ScriptureRef) => r.endChapter * 1000 + (r.endVerse ?? 999);
+
+function kindOf(active: ScriptureRef, link: ScriptureRef): PassageMatchKind | null {
+  if (active.book !== link.book) return null;
+  const [as, ae, ls, le] = [loKey(active), hiKey(active), loKey(link), hiKey(link)];
+  if (!(ls <= ae && le >= as)) return null;
+  if (as === ls && ae === le) return "exact";
+  if ((ls <= as && le >= ae) || (as <= ls && ae >= le)) return "contained";
+  return "overlap";
+}
+
+function fitOf(active: ScriptureRef, link: ScriptureRef): Fit | null {
+  const kind = kindOf(active, link);
+  if (!kind) return null;
+  if (kind === "exact") return "exact";
+  const [as, ae, ls, le] = [loKey(active), hiKey(active), loKey(link), hiKey(link)];
+  if (as <= ls && ae >= le) return "narrow"; // inside the passage
+  const chapters = link.endChapter - link.startChapter + 1;
+  const wholeStart = ls % 1000 === 0;
+  const wholeEnd = le % 1000 === 999;
+  const scale = chapters === 1 ? (wholeStart && wholeEnd ? "chapter" : "verses") : chapters === 2 && !wholeStart && !wholeEnd ? "verses" : chapters <= 3 ? "wide" : "broad";
+  const encloses = ls <= as && le >= ae;
+  if (scale === "broad") return "broad";
+  if (scale === "wide") return "wide";
+  if (scale === "chapter" && encloses) return "chapter";
+  if (scale === "verses" && encloses) return "narrow";
+  return "overlap";
+}
+
+function contextOf(active: ScriptureRef, sections: ScriptureRef[]): Context {
+  if (sections.length === 0) return "neutral";
+  const fits = sections.flatMap((s) => {
+    const f = fitOf(active, s);
+    return f ? [f] : [];
+  });
+  if (fits.some((f) => FITS.indexOf(f) <= FITS.indexOf("overlap"))) return "about";
+  return fits.length > 0 ? "neutral" : "elsewhere";
+}
+
+function classOf(origin: "explicit" | "section" | "manual", context: Context, fit: Fit): number {
+  if (fit === "broad") return 6;
+  if (origin === "explicit" && context === "elsewhere") return 5;
+  const about = origin === "section" || context === "about";
+  if (origin === "manual") return fit === "wide" ? 4 : 0;
+  if (about) return fit === "exact" || fit === "narrow" ? 1 : fit === "chapter" || fit === "overlap" ? 3 : 4;
+  return fit === "exact" || fit === "narrow" ? 2 : 4;
+}
+
 export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
   const stamp = now();
   const state: MemoryApi["state"] = {
@@ -211,7 +277,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     passages: [],
     nextChosenFiles: null,
     pendingPreview: null,
-    library: { sources: [], segments: [], mentions: [], nextChosenFile: null, openedLinks: [], openLinkFails: false, pending: null },
+    library: { sources: [], segments: [], mentions: [], links: [], nextChosenFile: null, openedLinks: [], openLinkFails: false, pending: null },
     findings: [],
     relations: [],
     templates: BUILTIN_TEMPLATES.map((t) => ({
@@ -414,6 +480,16 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const segmentId = segmentIds[m.segment];
       if (reference && segmentId) library.mentions.push({ sourceId, segmentId, reference, matchedText: m.matchedText });
     }
+    for (const s of fixture.sections ?? []) {
+      const reference = refFromCanonical(s.reference, bookByCode);
+      const opener = segmentIds[s.segment];
+      if (!reference || !opener) continue;
+      library.links.push({ sourceId, segmentId: opener, origin: "section", reference, matchedText: s.matchedText, heading: s.heading, openerSegmentId: opener });
+      for (let i = s.segment + 1; i <= (s.through ?? s.segment); i++) {
+        const inside = segmentIds[i];
+        if (inside) library.links.push({ sourceId, segmentId: inside, origin: "inherited", reference, matchedText: s.matchedText, heading: s.heading, openerSegmentId: opener });
+      }
+    }
     const pages = fixture.segments.map((x) => x.pageNumber ?? 0);
     const source: Source & { deleted: boolean } = {
       id: sourceId, title: fixture.title, subtitle: null, author: fixture.author ?? null, publisher: null, edition: null,
@@ -453,7 +529,73 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     return { id: id(), findingId, sourceId: source.id, segmentId, title: source.title, author: source.author, locator: segment.locator, removed: false };
   };
 
+  // Mirrors db::library::passage_sources and library/relevance.rs: rank = (class, origin, fit,
+  // closeness); a mention's class reads the headings of the section it lies in; links that share no
+  // verse are not offered; one place per segment; places consolidated per section; sources by best
+  // place, then "about the passage", then title. `all` is every place (the expanded list).
+  const rankedSources = (reference: string) => {
+      const active = refFromCanonical(reference, bookByCode);
+      if (!active) return [];
+      const width = (r: ScriptureRef) => hiKey(r) - loKey(r);
+      type Place = { sourceId: string; segmentId: string; origin: "explicit" | "section"; reference: ScriptureRef; matchedText: string; heading: string | null };
+      const places: Place[] = [
+        ...library.mentions.map((m) => ({ sourceId: m.sourceId, segmentId: m.segmentId, origin: "explicit" as const, reference: m.reference, matchedText: m.matchedText, heading: null as string | null })),
+        ...library.links.filter((l) => l.origin === "section").map((l) => ({ sourceId: l.sourceId, segmentId: l.segmentId, origin: "section" as const, reference: l.reference, matchedText: l.matchedText, heading: l.heading as string | null })),
+      ];
+      const sectionLinksOf = (segmentId: string) => library.links.filter((l) => l.segmentId === segmentId);
+      const openerOf = (p: Place) => (p.origin === "section" ? p.segmentId : (sectionLinksOf(p.segmentId).at(-1)?.openerSegmentId ?? p.segmentId));
+      const scored = places.flatMap((p) => {
+        const kind = kindOf(active, p.reference);
+        const fit = fitOf(active, p.reference);
+        const source = library.sources.find((s) => s.id === p.sourceId && !s.deleted);
+        if (!kind || !fit || !source) return [];
+        const context = p.origin === "explicit" ? contextOf(active, sectionLinksOf(p.segmentId).map((l) => l.reference)) : "neutral";
+        const rank = [classOf(p.origin, context, fit), p.origin === "section" ? 1 : 2, FITS.indexOf(fit), Math.abs(width(active) - width(p.reference))];
+        return [{ ...p, kind, fit, source, rank, opener: openerOf(p), position: library.segments.find((x) => x.id === p.segmentId)?.position ?? 0 }];
+      });
+      type Scored = (typeof scored)[number];
+      const order = (a: Scored, b: Scored) => {
+        for (let i = 0; i < 4; i++) if (a.rank[i] !== b.rank[i]) return a.rank[i]! - b.rank[i]!;
+        return 0;
+      };
+      const bySource = new Map<string, Scored[]>();
+      for (const p of scored) bySource.set(p.sourceId, [...(bySource.get(p.sourceId) ?? []), p]);
+      return [...bySource.values()]
+        .map((list) => {
+          // one place per segment, best first
+          const best = new Map<string, Scored>();
+          for (const p of [...list].sort(order)) if (!best.has(p.segmentId)) best.set(p.segmentId, p);
+          const sorted = [...best.values()].sort((a, b) => order(a, b) || a.position - b.position);
+          // consolidate within a section: what an earlier, at-least-as-good place already shows is dropped
+          const kept: Scored[] = [];
+          for (const p of sorted) {
+            const redundant = kept.some((k) => k.opener === p.opener && FITS.indexOf(k.fit) <= FITS.indexOf(p.fit) && (k.origin === "section" || k.reference.canonical === p.reference.canonical));
+            if (!redundant) kept.push(p);
+          }
+          const source = kept[0]!.source;
+          const about = list.some((p) => p.origin === "section" && p.rank[0]! <= 3);
+          return {
+            kept,
+            about,
+            all: kept.map((p) => ({
+              segmentId: p.segmentId, locator: find(library.segments, p.segmentId, "segment").locator, origin: p.origin, matchKind: p.kind,
+              reference: p.reference, matchedText: p.matchedText, sectionHeading: p.heading,
+            })),
+            group: {
+              sourceId: source.id, sourceTitle: source.title, author: source.author,
+              locations: kept.slice(0, 3).map((p) => ({
+                segmentId: p.segmentId, locator: find(library.segments, p.segmentId, "segment").locator, origin: p.origin, matchKind: p.kind,
+                reference: p.reference, matchedText: p.matchedText, sectionHeading: p.heading,
+              })),
+              moreLocations: Math.max(0, kept.length - 3),
+            },
+          };
+        })
+        .sort((a, b) => order(a.kept[0]!, b.kept[0]!) || Number(b.about) - Number(a.about) || a.group.sourceTitle.localeCompare(b.group.sourceTitle))
+        .slice(0, 30);
+  };
   const api: MemoryApi = {
+    libraryLocationsCalls: [],
     state,
     appInfo: async () => state.info,
     logError: async () => undefined,
@@ -988,6 +1130,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       source.deleted = true;
       library.segments = library.segments.filter((x) => x.sourceId !== sourceId);
       library.mentions = library.mentions.filter((m) => m.sourceId !== sourceId);
+      library.links = library.links.filter((l) => l.sourceId !== sourceId);
       for (const f of state.findings) {
         for (const c of f.sources) if (c.sourceId === sourceId) Object.assign(c, { removed: true, segmentId: null });
       }
@@ -1063,9 +1206,21 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       return originalBytes.slice(offset, offset + length);
     },
     sourceGetPassages: async (sourceId) => library.mentions.filter((m) => m.sourceId === sourceId).map(mention),
-    librarySourcesForPassage: async (reference) => {
-      const range = refFromCanonical(reference, bookByCode);
-      return range ? library.mentions.filter((m) => overlaps(m.reference, range)).map(mention) : [];
+    // Mirrors db::library::passage_sources and library/relevance.rs: rank = (class, origin, fit,
+    // closeness); a mention's class reads the headings of the section it lies in; links that share no
+    // verse are not offered; one place per segment; places consolidated per section; sources by best
+    // place, then "about the passage", then title.
+    libraryPassageSources: async (reference) => rankedSources(reference).map((x) => x.group),
+    libraryPassageSourceLocations: async (sourceId, reference) => {
+      api.libraryLocationsCalls.push({ sourceId, reference });
+      return rankedSources(reference).find((x) => x.group.sourceId === sourceId)?.all.slice(0, 200) ?? [];
+    },
+    sourceSegmentPassageLinks: async (segmentId) => {
+      const rank = { explicit: 0, section: 1, inherited: 2 } as const;
+      return [
+        ...library.mentions.filter((m) => m.segmentId === segmentId).map((m) => ({ origin: "explicit" as const, reference: m.reference, matchedText: m.matchedText, sectionHeading: null, sectionSegmentId: null })),
+        ...library.links.filter((l) => l.segmentId === segmentId).map((l) => ({ origin: l.origin, reference: l.reference, matchedText: l.matchedText, sectionHeading: l.heading, sectionSegmentId: l.openerSegmentId })),
+      ].sort((a, b) => rank[a.origin] - rank[b.origin]);
     },
     findingSourceAdd: async ({ findingId, segmentId }) => {
       const finding = find(state.findings, findingId, "finding");

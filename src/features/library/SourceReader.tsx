@@ -11,6 +11,7 @@ import { hostOf } from "@/lib/externalLink";
 import type { PdfPlace } from "@/lib/pdfEngine";
 import type { ContentsItem, SegmentWindow, SourceLink, SourceSegment } from "@/types/library";
 import { formatLabel, licenceLabel, locatorLabel, sourceTypeLabel } from "./labels";
+import { PassageLinkNote } from "./PassageLinkNote";
 import { ContentsPanel, useContentsLayout } from "./ContentsPanel";
 import { EpubViewer } from "./formatted/EpubViewer";
 import { placeOfPosition, positionOfPlace, type EpubPlace } from "./formatted/epubLocation";
@@ -719,6 +720,7 @@ function SegmentView({ segment, previous, isTarget, targetRef, links, onFollow }
       >
         {linked(segment.text, links, t("library.links.follow"), onFollow)}
       </p>
+      {isTarget && <PassageLinkNote segmentId={segment.id} />}
     </>
   );
 }

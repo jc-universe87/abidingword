@@ -51,7 +51,7 @@ async function openFromLibrary(user: User, title = "Notes on the Vine") {
 /** Opens the Vine notes in the Sources pane at the passage that mentions John 15:4 (page 3). */
 async function openCitationInPane(user: User) {
   await user.click(await screen.findByRole("button", { name: /^Verse 4\. Show verse tools/ }));
-  const list = await within(sourcesPane()).findByRole("list", { name: "Sources mentioning John 15:4" });
+  const list = await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:4" });
   await user.click(within(list).getByRole("button", { name: /Notes on the Vine/ }));
   return within(sourcesPane()).findByRole("region", { name: "Notes on the Vine" });
 }

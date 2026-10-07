@@ -175,22 +175,27 @@ describe("Library", () => {
     expect(screen.getByLabelText("Search the library", { selector: "input:not([type=search])" })).toHaveValue("fruitfulness");
   });
 
-  it("shows sources mentioning the passage being read and opens them there", async () => {
+  it("shows the sources for the passage being read, with why, and opens them there", async () => {
     const api = withLibrary(VINE_NOTES);
     const { user } = await renderApp(api);
-    expect(await within(sourcesPane()).findByText("None of your sources mention this passage.")).toBeInTheDocument();
+    expect(await within(sourcesPane()).findByText("No source in your library is linked to this passage.")).toBeInTheDocument();
 
     const scripture = screen.getByRole("complementary", { name: "Scripture" });
     await user.type(within(scripture).getByLabelText("Go to passage"), "John 15{Enter}");
-    const mentions = await within(sourcesPane()).findByRole("list", { name: "Sources mentioning John 15" });
-    const item = within(mentions).getByRole("button", { name: /Notes on the Vine/ });
-    expect(item).toHaveTextContent("J. Example · p. 2 · “John 15:4”");
+    const found = await within(sourcesPane()).findByRole("list", { name: "Sources for John 15" });
+    const item = within(found).getByRole("button", { name: /Notes on the Vine/ });
+    // Who wrote it, where, and why it is here: a plain reason, not "John 15:4" in quotation marks.
+    expect(item).toHaveTextContent("J. Example · p. 2Mentions John 15:4");
 
-    // A verse outside the mentioned range shows nothing.
+    // A verse in the same chapter, but not the mentioned one: nothing is offered for sharing a chapter.
     await user.click(await within(scripture).findByRole("button", { name: /^Verse 2\. Show verse tools/ }));
-    expect(await within(sourcesPane()).findByText("None of your sources mention this passage.")).toBeInTheDocument();
+    expect(await within(sourcesPane()).findByText("No source in your library is linked to this passage.")).toBeInTheDocument();
+    expect(within(sourcesPane()).queryByRole("list", { name: /^Elsewhere in/ })).not.toBeInTheDocument();
+    expect(within(sourcesPane()).queryByRole("list", { name: "Sources for John 15:2" })).not.toBeInTheDocument();
+
     await user.click(within(scripture).getByRole("button", { name: /^Verse 4\. Show verse tools/ }));
-    const verse = await within(sourcesPane()).findByRole("list", { name: "Sources mentioning John 15:4" });
+    const verse = await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:4" });
+    expect(within(sourcesPane()).queryByRole("list", { name: /^Elsewhere in/ })).not.toBeInTheDocument();
     await user.click(within(verse).getByRole("button", { name: /Notes on the Vine/ }));
 
     // The source opens inside the Sources pane; the workspace stays.
@@ -199,15 +204,17 @@ describe("Library", () => {
     expect(within(reader).getByText("p. 2")).toBeInTheDocument();
     await waitFor(() => expect(reader.querySelector("[data-target]")).toHaveTextContent("John 15:4"));
     expect(reader.querySelector("[data-target]")).toHaveFocus();
+    // ... and the place says why it was linked
+    expect(await within(reader).findByText("Mentions John 15:4")).toBeInTheDocument();
     expect(screen.getByRole("main", { name: "Study" })).toBeInTheDocument();
     expect(screen.getByRole("complementary", { name: "Scripture" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 1, name: "Notes on the Vine" })).not.toBeInTheDocument();
 
     // Back returns to the overview for the same passage.
     await user.click(within(reader).getByRole("button", { name: "Back to Sources" }));
-    expect(await within(sourcesPane()).findByRole("list", { name: "Sources mentioning John 15:4" })).toBeInTheDocument();
+    expect(await within(sourcesPane()).findByRole("list", { name: "Sources for John 15:4" })).toBeInTheDocument();
     expect(within(sourcesPane()).queryByRole("region", { name: "Notes on the Vine" })).not.toBeInTheDocument();
-    expect(within(sourcesPane()).getByRole("heading", { name: "Sources mentioning John 15:4" })).toHaveFocus();
+    expect(within(sourcesPane()).getByRole("heading", { name: "Sources for John 15:4" })).toHaveFocus();
   });
 
   it("opens a recently added source in the pane, and in the full reader on request", async () => {
