@@ -44,7 +44,7 @@ describe("workspace layout", () => {
     await user.click(screen.getByRole("button", { name: "Move Study pane left" }));
     expect(paneOrder()).toEqual(["sources", "study", "scripture"]);
     // Every pane keeps its meaning and content wherever it is.
-    expect(screen.getByRole("main", { name: "Study" })).toContainElement(screen.getByRole("heading", { level: 1, name: "Projects" }));
+    expect(screen.getByRole("main", { name: "Study" })).toContainElement(screen.getByRole("heading", { level: 1, name: "Studies" }));
     expect(screen.getAllByRole("complementary").map((p) => p.id)).toEqual(["pane-sources", "pane-scripture"]);
 
     await restart(api);

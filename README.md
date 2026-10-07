@@ -83,8 +83,7 @@ inspected without leaving Scripture and the Study; the full reader is an
 optional expansion that keeps the place, and its Back button stays in a header
 that does not scroll away. See [`docs/formatted-source-viewer.md`](docs/formatted-source-viewer.md).
 
-Passage-aware sources (v0.9, branch `feature/passage-aware-sources-v0.9`, not
-yet merged): the Sources pane groups what fits the passage being read by source
+Passage-aware sources (v0.9, complete): the Sources pane groups what fits the passage being read by source
 and says why: "Mentions John 15:5", "Section on John 15:1–11" (a heading of an
 EPUB, Word or Markdown source names the passage, and the section below it
 belongs to it) or "Within section on …". Deterministic only: no AI and no
@@ -125,7 +124,7 @@ what is deliberately not built yet, [`docs/product-backlog.md`](docs/product-bac
 | Studies v0.3 | complete (tag `studies-v0.3`) | study types, findings, templates, relations, study search |
 | Scripture annotations v0.5 | release candidate (`feature/scripture-annotations-v0.5`, not merged) | verse and phrase highlights in five colours, notes, bookmarks, the annotation inspector, the Marks view; PDF Original view and Contents for PDF and EPUB |
 | Formatted sources v0.8 | complete (milestone commit `ecced8a`) | formatted EPUB and DOCX Original views, DOCX import, Reading ↔ Original mapping, source navigation and history, web links in the system browser |
-| Passage-aware sources v0.9 | checkpoint 2: source-language-aware detection (`feature/passage-aware-sources-v0.9`, not merged) | sources grouped by passage with the reason for each place; section links from headings (EPUB, Word, Markdown); deterministic, no AI |
+| Passage-aware sources v0.9 | complete; Windows acceptance passed (`main` `7c72bd9`, test build `0.5.0-dev.18`; tag `passage-aware-sources-v0.9` to be pushed) | sources grouped by passage with the reason for each place; section links from headings (EPUB, Word, Markdown); aboutness-aware ranking; expandable further places; deterministic, no AI |
 | Library v0.4 | in development (`feature/library-v0.4`) | PDF/EPUB/Markdown/text import, provenance, library search, passage mentions, finding citations |
 
 ## Supported platforms

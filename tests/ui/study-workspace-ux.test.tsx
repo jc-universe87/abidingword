@@ -14,8 +14,9 @@ async function withProject(studies: Array<{ title: string; primaryPassage?: stri
   return { api, project };
 }
 
-async function openProject(user: User) {
-  await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /John Sermon Series/ }));
+// With a single project the Study pane starts on its studies: there is no project to open.
+async function openProject(_user: User) {
+  await screen.findByRole("heading", { level: 1, name: "Studies" });
 }
 
 async function openStudy(user: User, title: RegExp) {

@@ -11,8 +11,9 @@ async function withProject(title = "John Sermon Series") {
   return { api, project };
 }
 
-async function openProject(user: Awaited<ReturnType<typeof renderApp>>["user"], title: string) {
-  await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: new RegExp(title) }));
+// With a single project the Study pane starts on its studies: there is no project to open.
+async function openProject(_user: Awaited<ReturnType<typeof renderApp>>["user"], _title: string) {
+  await screen.findByRole("heading", { level: 1, name: "Studies" });
 }
 
 async function openStudy(api: MemoryApi, user: Awaited<ReturnType<typeof renderApp>>["user"], project: string, study: string) {
@@ -28,8 +29,8 @@ const newStudy = () => within(screen.getByRole("form", { name: "New study" }));
 /** The study's one Add action: the two beginnings of a new study, or the Add menu after that. */
 async function addNote(user: Awaited<ReturnType<typeof renderApp>>["user"]) {
   const study = within(screen.getByRole("main", { name: "Study" }));
-  if (!study.queryByRole("button", { name: "Add note" })) await user.click(study.getByRole("button", { name: "Add" }));
-  await user.click(study.getByRole("button", { name: "Add note" }));
+  if (!study.queryByRole("button", { name: "Note" })) await user.click(study.getByRole("button", { name: "Add" }));
+  await user.click(study.getByRole("button", { name: "Note" }));
 }
 
 const detailsOf = (list: HTMLElement, name: RegExp) => within(list).getByRole("button", { name: new RegExp(`^Details for ${name.source}`) });
@@ -38,7 +39,7 @@ const sectionHeadings = () =>
   within(screen.getByRole("main", { name: "Study" }))
     .getAllByRole("heading", { level: 2 })
     .map((h) => h.textContent)
-    .filter((t) => t !== "Findings");
+    .filter((t) => t !== "Study notes");
 
 describe("creating studies", () => {
   it("creates a word study with its template and no passage", async () => {
@@ -52,10 +53,12 @@ describe("creating studies", () => {
     await user.click(screen.getByRole("button", { name: "Create study" }));
 
     expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("Remain (μένω)");
-    expect(screen.getByText("Word Study", { selector: "span" })).toBeInTheDocument();
+    // the kind of study is not in the everyday header; it is in Study details
+    expect(screen.queryByText("Word Study", { selector: "span" })).not.toBeInTheDocument();
     expect(sectionHeadings()).toEqual(["Word", "Occurrences", "Immediate Contexts", "Semantic Range", "Key Passages", "Theological Significance", "Conclusions"]);
     await user.click(screen.getByRole("button", { name: "Study details" }));
     expect(screen.getByRole("group", { name: "Word Study details" })).toBeInTheDocument();
+    expect(screen.getByText(/Type: Word Study/)).toBeInTheDocument();
     expect(api.state.studies[0]!.templateId).toBe(api.state.templates.find((t) => t.key === "word-study")!.id);
     expect(api.state.passages).toHaveLength(0);
   });
@@ -71,7 +74,9 @@ describe("creating studies", () => {
     expect(sectionHeadings()[0]).toBe("Text");
     const passages = screen.getByRole("region", { name: "Passages" });
     expect(within(passages).queryByText("Primary")).not.toBeInTheDocument();
-    expect(within(passages).getByRole("button", { name: "John 15:1–11" })).toBeInTheDocument();
+    // the title is the passage: it is not repeated beneath it, and there is still a way to open it
+    expect(within(passages).queryByRole("button", { name: "John 15:1–11" })).not.toBeInTheDocument();
+    expect(within(passages).getByRole("button", { name: "Open in Scripture" })).toBeInTheDocument();
   });
 
   it("creates a custom study with no template and no passage", async () => {
@@ -92,6 +97,8 @@ describe("creating studies", () => {
     const { api, project } = await withProject();
     await api.studyCreate({ projectId: project.id, title: "The True Vine", primaryPassage: "JHN.15.1-JHN.15.11" });
     await api.studyCreate({ projectId: project.id, title: "Abiding", studyType: "topical" });
+    // filters are only offered once the list is long enough to need them
+    for (const n of [1, 2, 3, 4]) await api.studyCreate({ projectId: project.id, title: `Passage ${n}`, primaryPassage: "ROM.8.1" });
     const { user } = await renderApp(api);
     await openProject(user, "John Sermon Series");
 
@@ -120,11 +127,11 @@ describe("findings", () => {
     await user.click(screen.getByRole("button", { name: "Save finding" }));
     await waitFor(() => expect(api.state.findings.map((f) => f.findingType)).toEqual(["observation"]));
     await addNote(user);
-    await user.selectOptions(screen.getByLabelText("Type"), "question");
+    await user.click(screen.getByRole("radio", { name: "Question" }));
     await user.type(screen.getByLabelText("New question"), "What is the fruit?{Control>}{Enter}{/Control}");
 
     await waitFor(() => expect(api.state.findings.map((f) => f.findingType)).toEqual(["observation", "question"]));
-    const list = screen.getByRole("list", { name: "Findings" });
+    const list = screen.getByRole("list", { name: "Study notes" });
     expect(within(list).getByRole("textbox", { name: "Observation text" })).toHaveValue("Abide appears again and again.");
     await user.click(screen.getByRole("button", { name: "Study details" }));
     expect(screen.getByRole("region", { name: "Study details" })).toHaveTextContent("2 findings · 1 question");
@@ -137,7 +144,7 @@ describe("findings", () => {
     await api.findingCreate({ studyId, findingType: "question", content: "Second?" });
     await user.click(screen.getByRole("button", { name: "Settings" }));
     await user.click(screen.getByRole("button", { name: "Back to workspace" }));
-    const list = await screen.findByRole("list", { name: "Findings" });
+    const list = await screen.findByRole("list", { name: "Study notes" });
 
     const text = await within(list).findByRole("textbox", { name: "Observation text" });
     await user.clear(text);
@@ -166,7 +173,7 @@ describe("findings", () => {
     await api.findingCreate({ studyId, findingType: "question", content: "Why?" });
     await user.click(screen.getByRole("button", { name: "Settings" }));
     await user.click(screen.getByRole("button", { name: "Back to workspace" }));
-    const list = await screen.findByRole("list", { name: "Findings" });
+    const list = await screen.findByRole("list", { name: "Study notes" });
     expect(within(list).getAllByRole("article")).toHaveLength(6);
     await user.selectOptions(screen.getByLabelText("Show findings"), "question");
     expect(within(list).getAllByRole("article")).toHaveLength(1);
@@ -181,7 +188,7 @@ describe("findings", () => {
     await api.findingCreate({ studyId, findingType: "observation", content: "Second" });
     await user.click(screen.getByRole("button", { name: "Settings" }));
     await user.click(screen.getByRole("button", { name: "Back to workspace" }));
-    const list = await screen.findByRole("list", { name: "Findings" });
+    const list = await screen.findByRole("list", { name: "Study notes" });
 
     const toggle = detailsOf(list, /observation: Second/);
     expect(toggle).toHaveAttribute("aria-expanded", "false");
@@ -207,7 +214,8 @@ describe("findings", () => {
 
     await addNote(user);
     await user.type(screen.getByLabelText("New observation"), "What does fruit mean here?");
-    // Linking is explicit: nothing is linked until it is ticked.
+    // Linking is explicit: nothing is linked until it is ticked (and the choice is under Options).
+    await user.click(screen.getByRole("button", { name: "Options" }));
     expect(screen.getByLabelText("Link current passage (John 15:2)")).not.toBeChecked();
     await user.click(screen.getByLabelText("Link current passage (John 15:2)"));
     await user.click(screen.getByRole("button", { name: "Save finding" }));
@@ -215,7 +223,7 @@ describe("findings", () => {
 
     await user.type(within(scripture).getByLabelText("Go to passage"), "Psalm 23{Enter}");
     await within(scripture).findByRole("heading", { level: 2, name: "Psalm 23" });
-    await user.click(within(screen.getByRole("list", { name: "Findings" })).getByRole("button", { name: "John 15:2" }));
+    await user.click(within(screen.getByRole("list", { name: "Study notes" })).getByRole("button", { name: "John 15:2" }));
     expect(await within(scripture).findByRole("heading", { level: 2, name: "John 15" })).toBeInTheDocument();
   });
 
@@ -242,7 +250,8 @@ describe("sections", () => {
     const { user } = await renderApp(api);
     await openStudy(api, user, "John Sermon Series", "Notes study");
 
-    await user.click(screen.getByRole("button", { name: "Add section" }));
+    await user.click(screen.getByRole("button", { name: "Add" }));
+    await user.click(screen.getByRole("button", { name: "Section" }));
     await waitFor(() => expect(sectionHeadings()).toEqual(["Notes", "New section"]));
     expect(screen.queryByRole("button", { name: "Move section New section up" })).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Options for section New section" }));
@@ -309,8 +318,11 @@ describe("related studies and search", () => {
     await user.click(screen.getByRole("button", { name: "Study details" }));
     await user.click(screen.getByRole("button", { name: "+ Link a related study" }));
     const form = screen.getByRole("group", { name: "Link a related study" });
-    await user.selectOptions(within(form).getByLabelText("Relation"), "continues");
-    await user.selectOptions(within(form).getByLabelText("Study to link"), api.state.studies[1]!.id);
+    // ordinarily just choose the study; saying how they are related is one step further
+    expect(within(form).queryByLabelText("Relationship")).not.toBeInTheDocument();
+    await user.click(within(form).getByRole("button", { name: "Describe the relationship" }));
+    await user.selectOptions(within(form).getByLabelText("Relationship"), "continues");
+    await user.selectOptions(within(form).getByLabelText("Related study"), api.state.studies[1]!.id);
     await user.click(within(form).getByRole("button", { name: "Link" }));
 
     const related = await screen.findByRole("region", { name: "Related studies" });

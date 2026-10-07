@@ -294,14 +294,14 @@
   },
   "blockType": {
     "paragraph": "Parágrafo",
-    "note": "Nota",
+    "note": "Comentário",
     "heading": "Título",
     "quotation": "Citação",
     "question": "Pergunta"
   },
   "blockTypeInline": {
     "paragraph": "parágrafo",
-    "note": "nota",
+    "note": "comentário",
     "heading": "título",
     "quotation": "citação",
     "question": "pergunta"
@@ -320,13 +320,6 @@
       "contrasts": "Contrasta com",
       "supports": "Apoiado por",
       "custom": "Vinculado a"
-    },
-    "choice": {
-      "related": "está relacionado a",
-      "continues": "continua",
-      "contrasts": "contrasta com",
-      "supports": "apoia",
-      "custom": "está vinculado a"
     }
   },
   "keepIt": "Manter",
@@ -352,7 +345,8 @@
     "titleLabel": "Título do projeto",
     "studies": "Estudos",
     "opening": "Abrindo projeto…",
-    "breadcrumb": "Trilha de navegação"
+    "breadcrumb": "Trilha de navegação",
+    "defaultTitle": "Meus estudos"
   },
   "newStudy": {
     "heading": "O que você gostaria de estudar?",
@@ -398,11 +392,14 @@
     "noMatch": "Nenhum estudo corresponde a estes filtros.",
     "empty": "Ainda não há estudos aqui.",
     "listLabel": "Estudos",
-    "changed": "alterado em {{date}}"
+    "changed": "alterado em {{date}}",
+    "showArchived_one": "Mostrar arquivado ({{count}})",
+    "showArchived_other": "Mostrar arquivados ({{count}})",
+    "hideArchived": "Ocultar arquivados",
+    "showArchived_many": "Mostrar arquivados ({{count}})"
   },
   "header": {
     "status": "Situação",
-    "template": "Modelo: {{name}}",
     "changed": "Alterado em {{date}}",
     "duplicate": "Duplicar…",
     "overview": "Visão geral",
@@ -443,13 +440,17 @@
         "hint": "ex.: sermão"
       }
     },
-    "detailsToggle": "Detalhes do estudo"
+    "detailsToggle": "Detalhes do estudo",
+    "typeLine": "Tipo: {{type}}",
+    "fromTemplate": "A partir do seu modelo: {{name}}",
+    "groupAbout": "Sobre este estudo",
+    "groupCopy": "Copiar"
   },
   "editor": {
     "opening": "Abrindo estudo…",
     "titleLabel": "Título do estudo",
     "contents": "Conteúdo do estudo",
-    "findingsLink": "Registros",
+    "findingsLink": "Registros do estudo",
     "newSectionTitle": "Nova seção",
     "allSaved": "Todas as alterações foram salvas.",
     "saved": "Salvo",
@@ -466,13 +467,10 @@
     "confirm": "Excluir “{{title}}” e o texto que ela contém?",
     "confirmWithFindings": "Excluir “{{title}}” e o texto que ela contém? Os registros dela permanecem no estudo como registros do estudo inteiro.",
     "deleteSection": "Excluir seção",
-    "addTo": "Adicionar a {{title}}",
     "titleLabel": "Título da seção",
     "options": "Opções da seção {{title}}",
     "optionsTooltip": "Opções da seção",
-    "optionsGroup": "Opções da seção {{title}}",
-    "addToggle": "Adicionar…",
-    "addToggleLabel": "Adicionar conteúdo a {{title}}"
+    "optionsGroup": "Opções da seção {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -482,17 +480,19 @@
     "moveDown": "Mover {{type}} para baixo em {{section}}",
     "delete": "Excluir {{type}} em {{section}}",
     "deleteTooltip": "Excluir {{type}}",
-    "add": "+ {{type}}",
     "placeholder": "Escreva aqui…",
-    "passagesMentioned": "Passagens mencionadas:"
+    "passagesMentioned": "Passagens mencionadas:",
+    "options": "Opções de {{type}} em {{section}}",
+    "optionsGroup": "Opções de {{type}} em {{section}}",
+    "optionsTooltip": "Opções do bloco"
   },
   "findings": {
-    "heading": "Registros",
+    "heading": "Registros do estudo",
     "addGroup": "Adicionar um registro",
     "filterGroup": "Mostrar registros",
     "all": "Todos ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Registros",
+    "listLabel": "Registros do estudo",
     "writeFirst": "Escreva o registro primeiro.",
     "type": "Tipo",
     "in": "Em",
@@ -516,7 +516,11 @@
     "confirmDelete": "Excluir esta {{type}}?",
     "writePlaceholder": "Escreva um registro…",
     "details": "Detalhes",
-    "detailsFor": "Detalhes de {{type}}: {{excerpt}}"
+    "detailsFor": "Detalhes de {{type}}: {{excerpt}}",
+    "kindGroup": "Tipo de registro",
+    "moreTypes": "Mais tipos",
+    "options": "Opções",
+    "inSection": "Registros em {{section}}"
   },
   "passages": {
     "label": "Passagens",
@@ -531,19 +535,20 @@
     "linkCurrent": "Vincular a passagem atual ({{passage}})",
     "inputLabel": "Passagem a adicionar",
     "placeholder": "ex.: John 15:1-11",
-    "addRelated": "Passagem relacionada"
+    "addRelated": "Passagem relacionada",
+    "openPrimary": "Abrir na Bíblia"
   },
   "relations": {
     "label": "Estudos relacionados",
     "remove": "Remover o vínculo com {{title}}",
     "add": "+ Vincular um estudo relacionado",
     "addGroup": "Vincular um estudo relacionado",
-    "thisStudy": "Este estudo",
     "relation": "Relação",
-    "target": "Estudo a vincular",
+    "target": "Estudo relacionado",
     "choose": "Escolha um estudo…",
     "option": "{{title}} ({{project}})",
-    "link": "Vincular"
+    "link": "Vincular",
+    "describe": "Indicar a relação"
   },
   "search": {
     "heading": "Estudos que correspondem a “{{query}}”",
@@ -600,7 +605,15 @@
   "add": {
     "toggle": "Adicionar",
     "group": "Adicionar ao estudo",
-    "note": "Adicionar registro",
-    "section": "Adicionar seção"
+    "note": "Registro",
+    "section": "Seção",
+    "textBlock": "Bloco de texto",
+    "blockGroup": "Bloco de texto em {{section}}",
+    "blockIn": "Em {{section}}:"
+  },
+  "home": {
+    "title": "Estudos",
+    "organise": "Organizar em projetos",
+    "back": "Voltar a Estudos"
   }
 }

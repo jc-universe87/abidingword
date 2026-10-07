@@ -164,7 +164,6 @@ describe("switching language in the running app", () => {
     const study = await api.studyCreate({ projectId: project.id, title: "The True Vine" });
     await api.findingCreate({ studyId: study.study.id, findingType: "question", content: "What is the fruit?" });
     const { user } = await renderApp(api);
-    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /John/ }));
     await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /The True Vine/ }));
     await screen.findByRole("textbox", { name: "Study title" });
 

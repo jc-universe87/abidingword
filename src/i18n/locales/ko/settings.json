@@ -5,7 +5,7 @@
     "appearance": "화면",
     "language": "언어",
     "bibleTexts": "성경 번역본",
-    "templates": "성경공부 템플릿",
+    "templates": "성경공부 틀",
     "about": "이 설치 정보",
     "planned": "향후 버전에서 제공 예정"
   },
@@ -16,7 +16,7 @@
   "theme": {
     "legend": "테마",
     "light": "밝게",
-    "lightHint": "따뜻한 아이보리색, 낮 시간 연구에 알맞습니다.",
+    "lightHint": "따뜻한 아이보리색, 낮 시간 공부에 알맞습니다.",
     "dark": "어둡게",
     "darkHint": "짙은 숲 녹색, 어두운 곳에서 눈이 편안합니다.",
     "system": "컴퓨터 설정 따르기",

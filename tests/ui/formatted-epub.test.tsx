@@ -337,9 +337,8 @@ describe("Contents, links and Back / Forward in the Original view", () => {
     const cited = (await api.sourceGetSegments({ sourceId: source.id, offset: 0, limit: 1 })).segments[0]!;
     await api.findingSourceAdd({ findingId: finding.id, segmentId: cited.id });
     const { user } = await renderApp(api, { pdfEngine: engine, width: 700 });
-    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /John Series/ }));
     await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /The True Vine/ }));
-    await user.click(await within(await screen.findByRole("list", { name: "Findings" })).findByTitle("Open this source at the cited place"));
+    await user.click(await within(await screen.findByRole("list", { name: "Study notes" })).findByTitle("Open this source at the cited place"));
     const full = await screen.findByRole("main");
     await user.click(await within(full).findByRole("button", { name: "Original" }));
     await within(full).findByTestId("epub-page");

@@ -2,7 +2,7 @@
   "builtin": {
     "templates": {
       "biblical-theology-study": {
-        "name": "성경신학 연구",
+        "name": "성경신학",
         "description": "하나의 주제를 약속에서 성취까지 성경 전체의 이야기 흐름을 따라 추적합니다.",
         "sections": {
           "theme": {
@@ -40,12 +40,12 @@
         }
       },
       "passage-study": {
-        "name": "본문 연구",
-        "description": "한 본문을 깊이 연구하여 본문 자체에서 가르침까지 나아갑니다.",
+        "name": "본문 공부",
+        "description": "한 본문을 깊이 살펴보며 본문 자체에서 가르침까지 나아갑니다.",
         "sections": {
           "text": {
             "title": "본문",
-            "guidance": "연구하는 본문과 번역에 관한 참고 사항."
+            "guidance": "공부하는 본문과 번역에 관한 참고 사항."
           },
           "context": {
             "title": "문맥",
@@ -82,12 +82,12 @@
         }
       },
       "systematic-theology-study": {
-        "name": "조직신학 연구",
-        "description": "하나의 교리를 성경, 교회의 증언, 여러 견해를 통해 연구합니다.",
+        "name": "조직신학",
+        "description": "하나의 교리를 성경과 교회의 증언, 여러 견해를 통해 살펴봅니다.",
         "sections": {
           "doctrine": {
             "title": "교리",
-            "guidance": "연구하는 교리를 쉽고 분명하게 진술합니다."
+            "guidance": "공부하는 교리를 쉽고 분명하게 진술합니다."
           },
           "key-texts": {
             "title": "핵심 성경 본문",
@@ -166,7 +166,7 @@
         }
       },
       "topical-study": {
-        "name": "주제 연구",
+        "name": "주제별 성경공부",
         "description": "하나의 질문이나 주제를 성경 전체에 걸쳐 살펴봅니다.",
         "sections": {
           "topic": {
@@ -204,12 +204,12 @@
         }
       },
       "word-study": {
-        "name": "단어 연구",
+        "name": "단어 공부",
         "description": "한 단어를 성경 전체에서 추적하여 쓰임새에서 의미와 무게까지 살펴봅니다.",
         "sections": {
           "word": {
             "title": "단어",
-            "guidance": "연구하는 단어, 원어 형태, 그리고 번역본들이 옮긴 방식."
+            "guidance": "공부하는 단어, 원어 형태, 그리고 번역본들이 옮긴 방식."
           },
           "occurrences": {
             "title": "용례",
@@ -238,17 +238,17 @@
         }
       }
     },
-    "defaultSection": "메모",
+    "defaultSection": "노트",
     "copyTitle": "{{title}} (사본)"
   },
   "studyType": {
-    "passage": "본문 연구",
-    "word": "단어 연구",
-    "topical": "주제 연구",
-    "biblical_theology": "성경신학 연구",
-    "systematic_theology": "조직신학 연구",
+    "passage": "본문 공부",
+    "word": "단어 공부",
+    "topical": "주제별 성경공부",
+    "biblical_theology": "성경신학",
+    "systematic_theology": "조직신학",
     "teaching": "가르침 / 설교",
-    "custom": "사용자 지정 성경공부"
+    "custom": "직접 구성한 성경공부"
   },
   "status": {
     "active": "진행 중",
@@ -294,14 +294,14 @@
   },
   "blockType": {
     "paragraph": "단락",
-    "note": "메모",
+    "note": "참고",
     "heading": "제목",
     "quotation": "인용",
     "question": "질문"
   },
   "blockTypeInline": {
     "paragraph": "단락",
-    "note": "메모",
+    "note": "참고",
     "heading": "제목",
     "quotation": "인용",
     "question": "질문"
@@ -316,17 +316,10 @@
     },
     "incoming": {
       "related": "관련됨",
-      "continues": "이 연구를 이어 감",
+      "continues": "이 성경공부를 이어 감",
       "contrasts": "대조됨",
-      "supports": "이 연구를 뒷받침함",
+      "supports": "이 성경공부를 뒷받침함",
       "custom": "연결됨"
-    },
-    "choice": {
-      "related": "관련",
-      "continues": "이어짐",
-      "contrasts": "대조",
-      "supports": "뒷받침",
-      "custom": "연결"
     }
   },
   "keepIt": "유지",
@@ -335,32 +328,33 @@
   "studyCount_other": "성경공부 {{count}}개",
   "findingCount_other": "기록 {{count}}개",
   "projects": {
-    "title": "프로젝트",
-    "intro": "프로젝트는 서로 관련된 성경공부를 한데 모읍니다. 설교 시리즈, 성경공부 과정, 하나의 교리 등을 묶을 수 있습니다.",
-    "newLabel": "새 프로젝트",
+    "title": "성경공부 모음",
+    "intro": "성경공부 모음은 서로 관련된 성경공부를 한데 묶어 줍니다. 설교 시리즈, 성경공부 과정, 특정 성경책, 하나의 교리 등으로 묶을 수 있습니다.",
+    "newLabel": "새 성경공부 모음",
     "newPlaceholder": "예: 로마서 설교 시리즈",
-    "create": "프로젝트 만들기",
-    "loading": "프로젝트를 불러오는 중…",
-    "empty": "아직 프로젝트가 없습니다. 위에서 첫 프로젝트를 만드세요.",
-    "listLabel": "프로젝트",
+    "create": "모음 만들기",
+    "loading": "성경공부 모음을 불러오는 중…",
+    "empty": "아직 성경공부 모음이 없습니다. 위에서 첫 모음을 만드세요.",
+    "listLabel": "성경공부 모음",
     "allStudies": "모든 성경공부",
-    "project": "프로젝트",
-    "titleLabel": "프로젝트 제목",
+    "project": "성경공부 모음",
+    "titleLabel": "모음 이름",
     "studies": "성경공부",
-    "opening": "프로젝트를 여는 중…",
-    "breadcrumb": "현재 위치"
+    "opening": "성경공부 모음을 여는 중…",
+    "breadcrumb": "현재 위치",
+    "defaultTitle": "내 성경공부"
   },
   "newStudy": {
     "heading": "무엇을 공부하시겠어요?",
     "title": "제목",
-    "template": "템플릿",
-    "noTemplate": "템플릿 없음(메모 섹션 하나)",
-    "yourTemplate": "{{name}} (내 템플릿)",
+    "template": "공부 틀",
+    "noTemplate": "빈 성경공부(노트 부분 하나)",
+    "yourTemplate": "{{name}} (내 공부 틀)",
     "optional": "(선택 사항)",
     "passagePlaceholder": "예: John 15:1-11",
     "create": "성경공부 만들기",
-    "formLabel": "새 연구",
-    "studyAs": "연구 방식",
+    "formLabel": "새 성경공부",
+    "studyAs": "공부 방법",
     "subjectRequired": "공부하려는 내용을 입력하세요.",
     "teachingTitle": "{{passage}} — 가르침",
     "more": "추가 옵션",
@@ -372,20 +366,20 @@
       "custom": "무엇을 공부하고 있나요?"
     },
     "approach": {
-      "passage": "본문 연구",
-      "word": "단어 연구",
-      "topical": "주제",
+      "passage": "본문 공부",
+      "word": "단어 공부",
+      "topical": "주제별 성경공부",
       "teaching": "가르침 준비",
       "biblical_theology": "성경신학",
       "systematic_theology": "조직신학",
-      "custom": "템플릿 없음",
-      "mine": "내 템플릿"
+      "custom": "빈 성경공부",
+      "mine": "내 공부 틀"
     }
   },
   "list": {
     "filters": "성경공부 필터",
-    "project": "프로젝트",
-    "allProjects": "모든 프로젝트",
+    "project": "성경공부 모음",
+    "allProjects": "모든 모음",
     "type": "종류",
     "allTypes": "모든 종류",
     "status": "상태",
@@ -394,11 +388,12 @@
     "noMatch": "이 조건에 맞는 성경공부가 없습니다.",
     "empty": "아직 성경공부가 없습니다.",
     "listLabel": "성경공부",
-    "changed": "{{date}} 수정"
+    "changed": "{{date}} 수정",
+    "showArchived_other": "보관된 항목 보기 ({{count}})",
+    "hideArchived": "보관된 항목 숨기기"
   },
   "header": {
     "status": "상태",
-    "template": "템플릿: {{name}}",
     "changed": "{{date}} 수정",
     "duplicate": "복제…",
     "overview": "개요",
@@ -406,13 +401,13 @@
     "questionCount_other": "질문 {{count}}개",
     "unresolvedCount_other": "미해결 문제 {{count}}개",
     "duplicateGroup": "이 성경공부 복제",
-    "duplicatePrompt": "이 프로젝트에 “{{title}}”의 사본을 만듭니다.",
-    "structureOnly": "구조만",
-    "structureAndContent": "구조와 내용",
-    "duplicateHelp": "‘구조만’은 섹션만 복사합니다. ‘구조와 내용’을 선택하면 작성한 글, 기록, 본문도 함께 복사됩니다. 성경 구절에 단 메모는 해당 절에 속하므로 복제되지 않습니다.",
+    "duplicatePrompt": "같은 모음 안에 “{{title}}”의 사본을 만듭니다.",
+    "structureOnly": "구성만",
+    "structureAndContent": "구성과 내용",
+    "duplicateHelp": "‘구성만’은 부분 구성만 복사합니다. ‘구성과 내용’을 선택하면 작성한 글, 기록, 본문도 함께 복사됩니다. 성경 구절에 단 메모는 해당 절에 속하므로 복제되지 않습니다.",
     "purpose": "목적",
     "purposePlaceholder": "무엇을 이해하거나 준비하려고 하나요?",
-    "details": "{{type}} 세부 정보",
+    "details": "{{type}} 정보",
     "detail": {
       "lemma": {
         "label": "단어",
@@ -435,56 +430,59 @@
         "hint": "예: 설교"
       }
     },
-    "detailsToggle": "연구 세부 정보"
+    "detailsToggle": "성경공부 정보",
+    "typeLine": "종류: {{type}}",
+    "fromTemplate": "내 공부 틀에서 시작함: {{name}}",
+    "groupAbout": "이 성경공부에 관하여",
+    "groupCopy": "복사"
   },
   "editor": {
     "opening": "성경공부를 여는 중…",
     "titleLabel": "성경공부 제목",
     "contents": "성경공부 내용",
-    "findingsLink": "기록",
-    "newSectionTitle": "새 섹션",
+    "findingsLink": "성경공부 기록",
+    "newSectionTitle": "새 부분",
     "allSaved": "모든 변경 사항을 저장했습니다.",
     "saved": "저장됨",
     "start": "성경공부를 시작하세요",
     "contentsToggle": "목차"
   },
   "sections": {
-    "rename": "{{title}} 섹션 이름 바꾸기",
-    "renameTooltip": "섹션 이름 바꾸기",
-    "moveUp": "{{title}} 섹션을 위로 이동",
-    "moveDown": "{{title}} 섹션을 아래로 이동",
-    "delete": "{{title}} 섹션 삭제",
-    "confirmLabel": "{{title}} 섹션을 삭제할까요?",
-    "confirm": "“{{title}}” 섹션과 그 안의 글을 삭제할까요?",
-    "confirmWithFindings": "“{{title}}” 섹션과 그 안의 글을 삭제할까요? 이 섹션의 기록은 성경공부 전체에 대한 기록으로 남습니다.",
-    "deleteSection": "섹션 삭제",
-    "addTo": "{{title}}에 추가",
-    "titleLabel": "섹션 제목",
-    "options": "{{title}} 섹션 옵션",
-    "optionsTooltip": "섹션 옵션",
-    "optionsGroup": "{{title}} 섹션 옵션",
-    "addToggle": "추가…",
-    "addToggleLabel": "{{title}}에 내용 추가"
+    "rename": "{{title}} 부분 이름 바꾸기",
+    "renameTooltip": "부분 이름 바꾸기",
+    "moveUp": "{{title}} 부분을 위로 이동",
+    "moveDown": "{{title}} 부분을 아래로 이동",
+    "delete": "{{title}} 부분 삭제",
+    "confirmLabel": "{{title}} 부분을 삭제할까요?",
+    "confirm": "“{{title}}” 부분과 그 안의 글을 삭제할까요?",
+    "confirmWithFindings": "“{{title}}” 부분과 그 안의 글을 삭제할까요? 이 부분의 기록은 성경공부 전체에 대한 기록으로 남습니다.",
+    "deleteSection": "부분 삭제",
+    "titleLabel": "부분 제목",
+    "options": "{{title}} 부분 옵션",
+    "optionsTooltip": "부분 옵션",
+    "optionsGroup": "{{title}} 부분 옵션"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
-    "confirmDelete": "이 {{type}} 블록을 삭제할까요?",
-    "deleteFailed": "이 블록을 삭제하지 못했습니다. 다시 시도해 주세요.",
-    "moveUp": "{{section}}에서 {{type}} 블록을 위로 이동",
-    "moveDown": "{{section}}에서 {{type}} 블록을 아래로 이동",
-    "delete": "{{section}}의 {{type}} 블록 삭제",
-    "deleteTooltip": "{{type}} 블록 삭제",
-    "add": "+ {{type}}",
+    "confirmDelete": "이 {{type}}을(를) 삭제할까요?",
+    "deleteFailed": "이 글을 삭제하지 못했습니다. 다시 시도해 주세요.",
+    "moveUp": "{{section}}에서 {{type}}을(를) 위로 이동",
+    "moveDown": "{{section}}에서 {{type}}을(를) 아래로 이동",
+    "delete": "{{section}}의 {{type}} 삭제",
+    "deleteTooltip": "{{type}} 삭제",
     "placeholder": "여기에 작성하세요…",
-    "passagesMentioned": "언급된 본문:"
+    "passagesMentioned": "언급된 본문:",
+    "options": "{{section}}의 {{type}} 옵션",
+    "optionsGroup": "{{section}}의 {{type}} 옵션",
+    "optionsTooltip": "글 옵션"
   },
   "findings": {
-    "heading": "기록",
+    "heading": "성경공부 기록",
     "addGroup": "기록 추가",
     "filterGroup": "기록 표시",
     "all": "전체 ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "기록",
+    "listLabel": "성경공부 기록",
     "writeFirst": "먼저 기록 내용을 작성하세요.",
     "type": "종류",
     "in": "위치",
@@ -496,7 +494,7 @@
     "saveHint": "Ctrl+Enter로 저장",
     "itemLabel": "{{type}}: {{excerpt}}",
     "typeLabel": "기록 종류",
-    "section": "섹션",
+    "section": "부분",
     "moveUp": "{{type}} 위로 이동",
     "moveDown": "{{type}} 아래로 이동",
     "delete": "{{type}} 삭제",
@@ -508,7 +506,11 @@
     "confirmDelete": "이 {{type}} 항목을 삭제할까요?",
     "writePlaceholder": "기록 작성…",
     "details": "세부 정보",
-    "detailsFor": "{{type}} 세부 정보: {{excerpt}}"
+    "detailsFor": "{{type}} 세부 정보: {{excerpt}}",
+    "kindGroup": "기록 종류",
+    "moreTypes": "다른 종류",
+    "options": "옵션",
+    "inSection": "{{section}}의 기록"
   },
   "passages": {
     "label": "본문",
@@ -523,19 +525,20 @@
     "linkCurrent": "현재 본문 연결({{passage}})",
     "inputLabel": "추가할 본문",
     "placeholder": "예: John 15:1-11",
-    "addRelated": "관련 본문"
+    "addRelated": "관련 본문",
+    "openPrimary": "성경에서 열기"
   },
   "relations": {
     "label": "관련 성경공부",
     "remove": "{{title}}과(와)의 연결 제거",
     "add": "+ 관련 성경공부 연결",
     "addGroup": "관련 성경공부 연결",
-    "thisStudy": "이 성경공부",
     "relation": "관계",
-    "target": "연결할 성경공부",
+    "target": "관련 성경공부",
     "choose": "성경공부 선택…",
     "option": "{{title}} ({{project}})",
-    "link": "연결"
+    "link": "연결",
+    "describe": "관계 설명하기"
   },
   "search": {
     "heading": "“{{query}}”와 일치하는 성경공부",
@@ -545,50 +548,58 @@
     "results": "성경공부 검색 결과",
     "location": {
       "study": "제목 또는 목적",
-      "section": "섹션 제목",
+      "section": "부분 제목",
       "studyText": "성경공부 내용",
       "finding": "기록",
       "findingType": "기록: {{type}}"
     }
   },
   "templates": {
-    "intro": "템플릿은 새 성경공부에 사용할 섹션을 제공합니다. 템플릿을 바꿔도 이미 그 템플릿으로 만든 성경공부는 바뀌지 않습니다.",
-    "listLabel": "성경공부 템플릿",
-    "sectionCount_other": "섹션 {{count}}개",
+    "intro": "공부 틀은 새 성경공부에 사용할 부분 구성을 제공합니다. 공부 틀을 바꿔도 이미 그 틀로 만든 성경공부는 바뀌지 않습니다.",
+    "listLabel": "성경공부 틀",
+    "sectionCount_other": "부분 {{count}}개",
     "builtIn": "기본 제공",
-    "duplicateCustomise": "복제하여 사용자 지정",
+    "duplicateCustomise": "복제하여 내 공부 틀 만들기",
     "edit": "{{name}} 편집",
     "duplicate": "{{name}} 복제",
     "delete": "{{name}} 삭제",
     "confirmLabel": "{{name}}을(를) 삭제할까요?",
-    "confirm": "“{{name}}” 템플릿을 삭제할까요? 이미 이 템플릿으로 만든 성경공부에는 영향이 없습니다.",
-    "deleteTemplate": "템플릿 삭제",
-    "new": "새 템플릿…"
+    "confirm": "“{{name}}” 공부 틀을 삭제할까요? 이미 이 틀로 만든 성경공부에는 영향이 없습니다.",
+    "deleteTemplate": "공부 틀 삭제",
+    "new": "새 공부 틀…"
   },
   "templateEditor": {
-    "opening": "템플릿을 여는 중…",
+    "opening": "공부 틀을 여는 중…",
     "back": "설정으로 돌아가기",
-    "editTitle": "템플릿 편집",
-    "newTitle": "새 템플릿",
+    "editTitle": "공부 틀 편집",
+    "newTitle": "새 공부 틀",
     "name": "이름",
     "description": "설명",
     "meantFor": "용도",
-    "sections": "섹션",
-    "sectionsList": "템플릿 섹션",
-    "sectionTitle": "섹션 {{number}} 제목",
-    "sectionGuidance": "섹션 {{number}} 안내",
-    "guidancePlaceholder": "섹션 아래에 표시할 안내(선택 사항)",
-    "untitledSection": "섹션",
+    "sections": "부분",
+    "sectionsList": "공부 틀의 부분",
+    "sectionTitle": "부분 {{number}} 제목",
+    "sectionGuidance": "부분 {{number}} 안내",
+    "guidancePlaceholder": "부분 아래에 표시할 안내(선택 사항)",
+    "untitledSection": "부분",
     "moveUp": "{{title}} 위로 이동",
     "moveDown": "{{title}} 아래로 이동",
     "remove": "{{title}} 제거",
-    "addSection": "섹션 추가",
-    "save": "템플릿 저장"
+    "addSection": "부분 추가",
+    "save": "공부 틀 저장"
   },
   "add": {
     "toggle": "추가",
     "group": "성경공부에 추가",
-    "note": "기록 추가",
-    "section": "섹션 추가"
+    "note": "기록",
+    "section": "부분",
+    "textBlock": "글",
+    "blockGroup": "{{section}}에 글 추가",
+    "blockIn": "{{section}}:"
+  },
+  "home": {
+    "title": "성경공부",
+    "organise": "성경공부 모음으로 정리",
+    "back": "성경공부 목록으로"
   }
 }

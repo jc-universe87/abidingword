@@ -67,8 +67,6 @@ export function StudyDetailsPanel({ id, study, findings, templates, passages, re
   };
 
   const facts = [
-    studyTypeLabel(t, study.studyType),
-    template && t("studies.header.template", { name: templateName(template) }),
     t("studies.header.changed", { date: formatDate(study.updatedAt) }),
     findings.length > 0 && t("studies.findingCount", { count: findings.length }),
     questions > 0 && t("studies.header.questionCount", { count: questions }),
@@ -76,32 +74,43 @@ export function StudyDetailsPanel({ id, study, findings, templates, passages, re
   ]
     .filter(Boolean)
     .join(t("common.listSeparator"));
+  // Built-in templates are an implementation detail; only the user's own say where a study came from.
+  const own = template && !template.isBuiltin ? template : null;
+  const group = "flex flex-col gap-3";
+  const heading = "m-0 text-[0.9375rem] font-semibold text-text-strong";
 
   return (
-    <section id={id} aria-label={t("studies.header.detailsToggle")} className="flex flex-col gap-4 rounded-aw border border-border-subtle bg-bg-secondary px-4 py-3">
-      <p className="m-0 text-[0.9375rem] text-text-muted">{facts}</p>
+    <section id={id} aria-label={t("studies.header.detailsToggle")} className="flex flex-col gap-6 rounded-aw border border-border-subtle bg-bg-secondary px-4 py-4">
+      <div role="group" aria-labelledby={`${id}-about`} className={group}>
+        <h3 id={`${id}-about`} className={heading}>{t("studies.header.groupAbout")}</h3>
+        <p className="m-0 text-[0.9375rem] text-text-muted">
+          {[t("studies.header.typeLine", { type: studyTypeLabel(t, study.studyType) }), own && t("studies.header.fromTemplate", { name: templateName(own) }), facts].filter(Boolean).join(t("common.listSeparator"))}
+        </p>
 
-      <label className="flex flex-col gap-1 sm:max-w-64">
-        <span className="text-[0.875rem] font-medium text-text-muted">{t("studies.header.status")}</span>
-        <select
-          value={study.status}
-          onChange={(e) => setStatus(e.target.value as StudyStatus)}
-          className="h-9 rounded-aw border border-border bg-bg px-2 text-text-strong"
-        >
-          {STUDY_STATUSES.map((s) => (
-            <option key={s} value={s}>{statusLabel(t, s)}</option>
-          ))}
-        </select>
-      </label>
+        <label className="flex flex-col gap-1 @md:max-w-64">
+          <span className="text-[0.9375rem] font-medium text-text-muted">{t("studies.header.status")}</span>
+          <select
+            value={study.status}
+            onChange={(e) => setStatus(e.target.value as StudyStatus)}
+            className="h-11 rounded-aw border border-border bg-bg px-2 text-text-strong"
+          >
+            {STUDY_STATUSES.map((s) => (
+              <option key={s} value={s}>{statusLabel(t, s)}</option>
+            ))}
+          </select>
+        </label>
 
-      <PurposeField study={study} onChanged={onChanged} />
-      <DetailsFields study={study} onChanged={onChanged} />
+        <PurposeField study={study} onChanged={onChanged} />
+        <DetailsFields study={study} onChanged={onChanged} />
+      </div>
+
       <PassageManager passages={passages} reload={reloadPassages} />
       <RelationManager studyId={study.id} relations={relations} reload={reloadRelations} />
 
-      <div className="flex flex-col gap-2">
+      <div role="group" aria-labelledby={`${id}-copy`} className={group}>
+        <h3 id={`${id}-copy`} className={heading}>{t("studies.header.groupCopy")}</h3>
         <div>
-          <Button variant="quiet" className="min-h-9" onClick={() => setDuplicating(!duplicating)} aria-expanded={duplicating}>
+          <Button variant="quiet" className="min-h-11" onClick={() => setDuplicating(!duplicating)} aria-expanded={duplicating}>
             <Copy className="size-4" aria-hidden="true" />
             {t("studies.header.duplicate")}
           </Button>
@@ -114,7 +123,7 @@ export function StudyDetailsPanel({ id, study, findings, templates, passages, re
               <Button onClick={() => duplicate(true)}>{t("studies.header.structureAndContent")}</Button>
               <Button variant="quiet" onClick={() => setDuplicating(false)}>{t("common.cancel")}</Button>
             </div>
-            <p className="m-0 text-[0.875rem] text-text-muted">{t("studies.header.duplicateHelp")}</p>
+            <p className="m-0 text-[0.9375rem] text-text-muted">{t("studies.header.duplicateHelp")}</p>
           </div>
         )}
       </div>
@@ -134,7 +143,7 @@ function PurposeField({ study, onChanged }: { study: Study; onChanged: (s: Study
   const { schedule, flush } = useAutosave(save);
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[0.875rem] font-medium text-text-muted">{t("studies.header.purpose")} <span className="font-normal">{t("studies.newStudy.optional")}</span></span>
+      <span className="text-[0.9375rem] font-medium text-text-muted">{t("studies.header.purpose")} <span className="font-normal">{t("studies.newStudy.optional")}</span></span>
       <textarea
         rows={1}
         value={text}
@@ -173,13 +182,13 @@ function DetailsFields({ study, onChanged }: { study: Study; onChanged: (s: Stud
     <div className="grid grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-2" role="group" aria-label={t("studies.header.details", { type: studyTypeLabel(t, study.studyType) })}>
       {fields.map((field) => (
         <label key={field} className="flex flex-col gap-1">
-          <span className="text-[0.875rem] font-medium text-text-muted">{t(`studies.header.detail.${field}.label`)}</span>
+          <span className="text-[0.9375rem] font-medium text-text-muted">{t(`studies.header.detail.${field}.label`)}</span>
           <input
             value={values[field] ?? ""}
             placeholder={t(`studies.header.detail.${field}.hint`)}
             onChange={(e) => setValues({ ...values, [field]: e.target.value || null })}
             onBlur={() => void save().catch(() => undefined)}
-            className="h-9 rounded-aw border border-border-subtle bg-transparent px-2 text-[0.9375rem] placeholder:text-text-muted focus:border-border"
+            className="h-11 rounded-aw border border-border-subtle bg-transparent px-2 text-[0.9375rem] placeholder:text-text-muted focus:border-border"
           />
         </label>
       ))}

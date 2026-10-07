@@ -7,12 +7,13 @@ import { useSaveTracker } from "@/hooks/SaveTracker";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
-import type { StudySection } from "@/types/domain";
+import type { BlockType, StudySection } from "@/types/domain";
+import type { FindingType } from "@/types/studies";
 import { EditableTitle } from "./EditableTitle";
-import { FindingsPanel } from "./FindingsPanel";
-import { studyTypeLabel } from "./labels";
+import { FindingList, FindingsPanel, isStudyNote } from "./FindingsPanel";
 import { RelatedStudies } from "./RelatedStudies";
 import { SectionEditor } from "./SectionEditor";
+import { sectionTitle } from "./builtinText";
 import { StudyAdd } from "./StudyAdd";
 import { StudyContents } from "./StudyContents";
 import { StudyDetailsPanel } from "./StudyDetails";
@@ -43,6 +44,11 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   const [typed, setTyped] = useState<Record<string, boolean>>({});
   const onContent = useCallback((blockId: string, has: boolean) => setTyped((prev) => (prev[blockId] === has ? prev : { ...prev, [blockId]: has })), []);
   const [newSection, setNewSection] = useState<string | null>(null);
+  // Where the user last worked, and a block just added there: the study's Add puts text blocks there.
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [newBlock, setNewBlock] = useState<string | null>(null);
+  // The kind the findings are narrowed to, in the study's own notes and in every section.
+  const [kindFilter, setKindFilter] = useState<FindingType | null>(null);
   const toggle = useRef<HTMLButtonElement>(null);
   const article = useRef<HTMLElement>(null);
   const openedId = detail.data?.study.id;
@@ -51,7 +57,19 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   useEffect(() => {
     for (let el = article.current?.parentElement; el; el = el.parentElement) if (el.scrollTop > 0) el.scrollTop = 0;
   }, [openedId]);
-  const rename = useCallback((title: string) => api.studyUpdate({ id: studyId, title }), [api, studyId]);
+  // Keep the page's copy of the study current, so what depends on the title (the passage line) follows it.
+  const detailRef = useRef(detail.data);
+  useEffect(() => {
+    detailRef.current = detail.data;
+  }, [detail.data]);
+  const setDetail = detail.setData;
+  const rename = useCallback(
+    async (title: string) => {
+      const study = await api.studyUpdate({ id: studyId, title });
+      if (detailRef.current) setDetail({ ...detailRef.current, study });
+    },
+    [api, studyId, setDetail],
+  );
   const [error, setError] = useState<string | null>(null);
   const missing = detail.error?.kind === "notFound";
 
@@ -114,6 +132,34 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
     }
   };
 
+  const sectionNotes = (sectionId: string) => {
+    const shown = (findings.data ?? []).filter((f) => f.sectionId === sectionId && (kindFilter === null || f.findingType === kindFilter));
+    if (shown.length === 0) return null;
+    return (
+      <FindingList
+        label={t("studies.findings.inSection", { section: sectionTitle(sections.find((s) => s.id === sectionId)!) })}
+        findings={shown}
+        all={findings.data ?? []}
+        sections={sections}
+        canMove={kindFilter === null}
+        onChanged={findings.reload}
+        onRevealScripture={onRevealScripture}
+      />
+    );
+  };
+  const target = sections.find((s) => s.id === activeSection) ?? sections[sections.length - 1];
+  const addBlock = async (blockType: BlockType) => {
+    if (!target) return;
+    setError(null);
+    try {
+      const block = await api.studyBlockCreate({ sectionId: target.id, blockType });
+      setNewBlock(block.id);
+      updateSection({ ...target, blocks: [...target.blocks, block] });
+    } catch (e) {
+      setError(toApiError(e).message);
+    }
+  };
+
   return (
     <article ref={article} className="flex flex-col gap-6">
       <header
@@ -129,22 +175,21 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
       >
         <EditableTitle key={study.id} label={t("studies.editor.titleLabel")} value={study.title} onSave={rename} />
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.9375rem] text-text-muted">
-          <span>{studyTypeLabel(t, study.studyType)}</span>
           <button
             ref={toggle}
             type="button"
             aria-expanded={showDetails}
             aria-controls={detailsId}
             onClick={() => setShowDetails(!showDetails)}
-            className="inline-flex min-h-9 items-center gap-1 rounded-aw px-1 hover:text-text-strong"
+            className="inline-flex min-h-11 items-center gap-1 rounded-aw px-1 hover:text-text-strong"
           >
             {showDetails ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
             {t("studies.header.detailsToggle")}
           </button>
-          <StudyContents sections={sections} hasFindings={(findings.data ?? []).length > 0} />
+          <StudyContents sections={sections} hasFindings={(findings.data ?? []).some((f) => isStudyNote(f, sections))} />
           <SaveIndicator />
         </div>
-        <StudyPassages studyId={study.id} passages={passages.data ?? []} reload={passages.reload} onReveal={onRevealScripture} />
+        <StudyPassages studyId={study.id} title={study.title} passages={passages.data ?? []} reload={passages.reload} onReveal={onRevealScripture} />
         <RelatedStudies relations={relations.data ?? []} onOpen={onOpenStudy} />
         {showDetails && (
           <StudyDetailsPanel
@@ -162,12 +207,20 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
         )}
       </header>
 
-      <StudyAdd empty={blank} onAddNote={() => setCapturing(true)} onAddSection={addSection} />
+      <StudyAdd
+        empty={blank}
+        targetSection={target ? sectionTitle(target) : null}
+        onAddNote={() => setCapturing(true)}
+        onAddSection={addSection}
+        onAddBlock={addBlock}
+      />
 
       <FindingsPanel
         studyId={study.id}
         findings={findings.data ?? []}
         sections={sections}
+        filter={kindFilter}
+        onFilter={setKindFilter}
         capturing={capturing}
         onCaptureClose={() => setCapturing(false)}
         onChanged={findings.reload}
@@ -181,6 +234,7 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
           isFirst={index === 0}
           isLast={index === sections.length - 1}
           hasFindings={(findings.data ?? []).some((f) => f.sectionId === section.id)}
+          notes={sectionNotes(section.id)}
           onChange={updateSection}
           onMove={(delta) => moveSection(section.id, delta)}
           onDeleted={() => {
@@ -189,6 +243,8 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
           }}
           onRevealScripture={onRevealScripture}
           reveal={section.id === newSection}
+          onActive={() => setActiveSection(section.id)}
+          newBlockId={newBlock}
           typed={typed}
           onContent={onContent}
         />

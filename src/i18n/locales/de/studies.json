@@ -294,14 +294,14 @@
   },
   "blockType": {
     "paragraph": "Absatz",
-    "note": "Notiz",
+    "note": "Bemerkung",
     "heading": "Überschrift",
     "quotation": "Zitat",
     "question": "Frage"
   },
   "blockTypeInline": {
     "paragraph": "Absatz",
-    "note": "Notiz",
+    "note": "Bemerkung",
     "heading": "Überschrift",
     "quotation": "Zitat",
     "question": "Frage"
@@ -320,13 +320,6 @@
       "contrasts": "Steht im Gegensatz zu",
       "supports": "Wird gestützt durch",
       "custom": "Verknüpft mit"
-    },
-    "choice": {
-      "related": "ist verwandt mit",
-      "continues": "setzt fort",
-      "contrasts": "steht im Gegensatz zu",
-      "supports": "stützt",
-      "custom": "ist verknüpft mit"
     }
   },
   "keepIt": "Behalten",
@@ -350,7 +343,8 @@
     "titleLabel": "Projekttitel",
     "studies": "Bibelstudien",
     "opening": "Projekt wird geöffnet …",
-    "breadcrumb": "Navigationspfad"
+    "breadcrumb": "Navigationspfad",
+    "defaultTitle": "Meine Bibelstudien"
   },
   "newStudy": {
     "heading": "Was möchten Sie studieren?",
@@ -396,11 +390,13 @@
     "noMatch": "Keine Bibelstudien entsprechen diesen Filtern.",
     "empty": "Hier gibt es noch keine Bibelstudien.",
     "listLabel": "Bibelstudien",
-    "changed": "geändert am {{date}}"
+    "changed": "geändert am {{date}}",
+    "showArchived_one": "Archiviertes anzeigen ({{count}})",
+    "showArchived_other": "Archiviertes anzeigen ({{count}})",
+    "hideArchived": "Archiviertes ausblenden"
   },
   "header": {
     "status": "Status",
-    "template": "Vorlage: {{name}}",
     "changed": "Geändert am {{date}}",
     "duplicate": "Duplizieren …",
     "overview": "Überblick",
@@ -439,13 +435,17 @@
         "hint": "z. B. Predigt"
       }
     },
-    "detailsToggle": "Studiendetails"
+    "detailsToggle": "Studiendetails",
+    "typeLine": "Art: {{type}}",
+    "fromTemplate": "Aus Ihrer Vorlage: {{name}}",
+    "groupAbout": "Über dieses Bibelstudium",
+    "groupCopy": "Kopieren"
   },
   "editor": {
     "opening": "Bibelstudium wird geöffnet …",
     "titleLabel": "Titel des Bibelstudiums",
     "contents": "Inhalt des Bibelstudiums",
-    "findingsLink": "Einträge",
+    "findingsLink": "Studieneinträge",
     "newSectionTitle": "Neuer Abschnitt",
     "allSaved": "Alle Änderungen gespeichert.",
     "saved": "Gespeichert",
@@ -462,13 +462,10 @@
     "confirm": "„{{title}}“ mit dem darin geschriebenen Text löschen?",
     "confirmWithFindings": "„{{title}}“ mit dem darin geschriebenen Text löschen? Die Einträge des Abschnitts bleiben als Einträge zum gesamten Bibelstudium erhalten.",
     "deleteSection": "Abschnitt löschen",
-    "addTo": "Zu „{{title}}“ hinzufügen",
     "titleLabel": "Titel des Abschnitts",
     "options": "Optionen für Abschnitt {{title}}",
     "optionsTooltip": "Abschnittsoptionen",
-    "optionsGroup": "Optionen für Abschnitt {{title}}",
-    "addToggle": "Hinzufügen…",
-    "addToggleLabel": "Inhalt zu {{title}} hinzufügen"
+    "optionsGroup": "Optionen für Abschnitt {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -478,17 +475,19 @@
     "moveDown": "{{type}} in „{{section}}“ nach unten verschieben",
     "delete": "{{type}} in „{{section}}“ löschen",
     "deleteTooltip": "{{type}} löschen",
-    "add": "+ {{type}}",
     "placeholder": "Hier schreiben …",
-    "passagesMentioned": "Erwähnte Bibelstellen:"
+    "passagesMentioned": "Erwähnte Bibelstellen:",
+    "options": "Optionen für {{type}} in „{{section}}“",
+    "optionsGroup": "Optionen für {{type}} in „{{section}}“",
+    "optionsTooltip": "Optionen für den Textblock"
   },
   "findings": {
-    "heading": "Einträge",
+    "heading": "Studieneinträge",
     "addGroup": "Eintrag hinzufügen",
     "filterGroup": "Einträge anzeigen",
     "all": "Alle ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Einträge",
+    "listLabel": "Studieneinträge",
     "writeFirst": "Schreiben Sie zuerst den Eintrag.",
     "type": "Art",
     "in": "In",
@@ -512,7 +511,11 @@
     "confirmDelete": "{{type}} löschen?",
     "writePlaceholder": "Eintrag schreiben…",
     "details": "Details",
-    "detailsFor": "Details zu {{type}}: {{excerpt}}"
+    "detailsFor": "Details zu {{type}}: {{excerpt}}",
+    "kindGroup": "Art des Eintrags",
+    "moreTypes": "Weitere Arten",
+    "options": "Optionen",
+    "inSection": "Einträge in {{section}}"
   },
   "passages": {
     "label": "Bibelstellen",
@@ -527,19 +530,20 @@
     "linkCurrent": "Aktuelle Bibelstelle verknüpfen ({{passage}})",
     "inputLabel": "Hinzuzufügende Bibelstelle",
     "placeholder": "z. B. John 15:1-11",
-    "addRelated": "Verwandter Text"
+    "addRelated": "Verwandter Text",
+    "openPrimary": "In der Bibel öffnen"
   },
   "relations": {
     "label": "Verwandte Bibelstudien",
     "remove": "Verknüpfung mit {{title}} entfernen",
     "add": "+ Verwandtes Bibelstudium verknüpfen",
     "addGroup": "Verwandtes Bibelstudium verknüpfen",
-    "thisStudy": "Dieses Bibelstudium",
     "relation": "Beziehung",
-    "target": "Zu verknüpfendes Bibelstudium",
+    "target": "Verwandtes Bibelstudium",
     "choose": "Bibelstudium auswählen …",
     "option": "{{title}} ({{project}})",
-    "link": "Verknüpfen"
+    "link": "Verknüpfen",
+    "describe": "Beziehung beschreiben"
   },
   "search": {
     "heading": "Bibelstudien mit „{{query}}“",
@@ -594,7 +598,15 @@
   "add": {
     "toggle": "Hinzufügen",
     "group": "Zum Bibelstudium hinzufügen",
-    "note": "Eintrag hinzufügen",
-    "section": "Abschnitt hinzufügen"
+    "note": "Eintrag",
+    "section": "Abschnitt",
+    "textBlock": "Textblock",
+    "blockGroup": "Textblock in {{section}}",
+    "blockIn": "In {{section}}:"
+  },
+  "home": {
+    "title": "Bibelstudien",
+    "organise": "In Projekten ordnen",
+    "back": "Zurück zu den Bibelstudien"
   }
 }

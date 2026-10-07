@@ -294,14 +294,14 @@
   },
   "blockType": {
     "paragraph": "Párrafo",
-    "note": "Nota",
+    "note": "Comentario",
     "heading": "Encabezado",
     "quotation": "Cita",
     "question": "Pregunta"
   },
   "blockTypeInline": {
     "paragraph": "párrafo",
-    "note": "nota",
+    "note": "comentario",
     "heading": "encabezado",
     "quotation": "cita",
     "question": "pregunta"
@@ -320,13 +320,6 @@
       "contrasts": "Contrasta con",
       "supports": "Respaldado por",
       "custom": "Vinculado con"
-    },
-    "choice": {
-      "related": "está relacionado con",
-      "continues": "continúa",
-      "contrasts": "contrasta con",
-      "supports": "respalda",
-      "custom": "está vinculado con"
     }
   },
   "keepIt": "Conservarlo",
@@ -352,7 +345,8 @@
     "titleLabel": "Título del proyecto",
     "studies": "Estudios",
     "opening": "Abriendo el proyecto…",
-    "breadcrumb": "Ruta de navegación"
+    "breadcrumb": "Ruta de navegación",
+    "defaultTitle": "Mis estudios"
   },
   "newStudy": {
     "heading": "¿Qué te gustaría estudiar?",
@@ -398,11 +392,14 @@
     "noMatch": "Ningún estudio coincide con estos filtros.",
     "empty": "Todavía no hay estudios aquí.",
     "listLabel": "Estudios",
-    "changed": "modificado el {{date}}"
+    "changed": "modificado el {{date}}",
+    "showArchived_one": "Mostrar archivado ({{count}})",
+    "showArchived_other": "Mostrar archivados ({{count}})",
+    "hideArchived": "Ocultar archivados",
+    "showArchived_many": "Mostrar archivados ({{count}})"
   },
   "header": {
     "status": "Estado",
-    "template": "Plantilla: {{name}}",
     "changed": "Modificado el {{date}}",
     "duplicate": "Duplicar…",
     "overview": "Resumen",
@@ -443,13 +440,17 @@
         "hint": "p. ej. sermón"
       }
     },
-    "detailsToggle": "Detalles del estudio"
+    "detailsToggle": "Detalles del estudio",
+    "typeLine": "Tipo: {{type}}",
+    "fromTemplate": "Desde tu plantilla: {{name}}",
+    "groupAbout": "Acerca de este estudio",
+    "groupCopy": "Copiar"
   },
   "editor": {
     "opening": "Abriendo el estudio…",
     "titleLabel": "Título del estudio",
     "contents": "Contenido del estudio",
-    "findingsLink": "Apuntes",
+    "findingsLink": "Apuntes del estudio",
     "newSectionTitle": "Nueva sección",
     "allSaved": "Todos los cambios guardados.",
     "saved": "Guardado",
@@ -466,13 +467,10 @@
     "confirm": "¿Eliminar “{{title}}” y el texto que contiene?",
     "confirmWithFindings": "¿Eliminar “{{title}}” y el texto que contiene? Sus apuntes se quedan en el estudio como apuntes del estudio completo.",
     "deleteSection": "Eliminar sección",
-    "addTo": "Añadir a {{title}}",
     "titleLabel": "Título de la sección",
     "options": "Opciones de la sección {{title}}",
     "optionsTooltip": "Opciones de la sección",
-    "optionsGroup": "Opciones de la sección {{title}}",
-    "addToggle": "Añadir…",
-    "addToggleLabel": "Añadir contenido a {{title}}"
+    "optionsGroup": "Opciones de la sección {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -482,17 +480,19 @@
     "moveDown": "Bajar el bloque ({{type}}) en {{section}}",
     "delete": "Eliminar el bloque ({{type}}) en {{section}}",
     "deleteTooltip": "Eliminar el bloque ({{type}})",
-    "add": "+ {{type}}",
     "placeholder": "Escribe aquí…",
-    "passagesMentioned": "Pasajes mencionados:"
+    "passagesMentioned": "Pasajes mencionados:",
+    "options": "Opciones del bloque ({{type}}) en {{section}}",
+    "optionsGroup": "Opciones del bloque ({{type}}) en {{section}}",
+    "optionsTooltip": "Opciones del bloque"
   },
   "findings": {
-    "heading": "Apuntes",
+    "heading": "Apuntes del estudio",
     "addGroup": "Añadir un apunte",
     "filterGroup": "Mostrar apuntes",
     "all": "Todos ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Apuntes",
+    "listLabel": "Apuntes del estudio",
     "writeFirst": "Primero escribe el apunte.",
     "type": "Tipo",
     "in": "En",
@@ -516,7 +516,11 @@
     "confirmDelete": "¿Eliminar esta {{type}}?",
     "writePlaceholder": "Escribe un apunte…",
     "details": "Detalles",
-    "detailsFor": "Detalles de {{type}}: {{excerpt}}"
+    "detailsFor": "Detalles de {{type}}: {{excerpt}}",
+    "kindGroup": "Tipo de apunte",
+    "moreTypes": "Más tipos",
+    "options": "Opciones",
+    "inSection": "Apuntes en {{section}}"
   },
   "passages": {
     "label": "Pasajes",
@@ -531,19 +535,20 @@
     "linkCurrent": "Vincular el pasaje actual ({{passage}})",
     "inputLabel": "Pasaje que añadir",
     "placeholder": "p. ej. John 15:1-11",
-    "addRelated": "Pasaje relacionado"
+    "addRelated": "Pasaje relacionado",
+    "openPrimary": "Abrir en la Biblia"
   },
   "relations": {
     "label": "Estudios relacionados",
     "remove": "Quitar el vínculo con {{title}}",
     "add": "+ Vincular un estudio relacionado",
     "addGroup": "Vincular un estudio relacionado",
-    "thisStudy": "Este estudio",
     "relation": "Relación",
-    "target": "Estudio que vincular",
+    "target": "Estudio relacionado",
     "choose": "Elige un estudio…",
     "option": "{{title}} ({{project}})",
-    "link": "Vincular"
+    "link": "Vincular",
+    "describe": "Indicar la relación"
   },
   "search": {
     "heading": "Estudios que coinciden con “{{query}}”",
@@ -600,7 +605,15 @@
   "add": {
     "toggle": "Añadir",
     "group": "Añadir al estudio",
-    "note": "Añadir apunte",
-    "section": "Añadir sección"
+    "note": "Apunte",
+    "section": "Sección",
+    "textBlock": "Bloque de texto",
+    "blockGroup": "Bloque de texto en {{section}}",
+    "blockIn": "En {{section}}:"
+  },
+  "home": {
+    "title": "Estudios",
+    "organise": "Organizar en proyectos",
+    "back": "Volver a Estudios"
   }
 }

@@ -33,7 +33,7 @@ export function StudyContents({ sections, hasFindings }: StudyContentsProps) {
     document.getElementById(heading)?.focus({ preventScroll: true });
   };
 
-  const item = "flex min-h-9 w-full items-center rounded-aw px-2 text-left text-[0.9375rem] text-text-strong hover:bg-bg-secondary";
+  const item = "flex min-h-11 w-full items-center rounded-aw px-2 text-left text-[0.9375rem] text-text-strong hover:bg-bg-secondary";
   return (
     <div
       className="relative"
@@ -51,7 +51,7 @@ export function StudyContents({ sections, hasFindings }: StudyContentsProps) {
         aria-expanded={open}
         aria-controls={id}
         onClick={() => setOpen(!open)}
-        className="inline-flex min-h-9 items-center gap-1 rounded-aw px-1 text-[0.9375rem] text-text-muted hover:text-text-strong"
+        className="inline-flex min-h-11 items-center gap-1 rounded-aw px-1 text-[0.9375rem] text-text-muted hover:text-text-strong"
       >
         {open ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
         {t("studies.editor.contentsToggle")}

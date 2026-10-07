@@ -1,14 +1,13 @@
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowUp, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { useSaveTracker } from "@/hooks/SaveTracker";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
-import { BLOCK_TYPES, type BlockType, type StudySection } from "@/types/domain";
+import type { StudySection } from "@/types/domain";
 import { BlockEditor } from "./BlockEditor";
 import { sectionGuidance, sectionTitle } from "./builtinText";
-import { blockLabel } from "./labels";
 
 interface SectionEditorProps {
   section: StudySection;
@@ -16,27 +15,32 @@ interface SectionEditorProps {
   isLast: boolean;
   /** Whether findings are assigned to this section. */
   hasFindings: boolean;
+  /** The section's findings, shown as notes after its writing (nothing when it has none). */
+  notes?: ReactNode;
   onChange: (section: StudySection) => void;
   onMove: (delta: -1 | 1) => void;
   onDeleted: () => void;
   onRevealScripture: () => void;
   /** A section just added: bring it into view and focus its heading. */
   reveal?: boolean;
+  /** The user is working in this section (focus entered it): the study's Add puts a text block here. */
+  onActive: () => void;
+  /** A block just added from the study's Add: focus it. */
+  newBlockId: string | null;
   /** Blocks whose writing differs from the saved copy: id -> has content now. */
   typed: Record<string, boolean>;
   onContent: (blockId: string, hasContent: boolean) => void;
 }
 
-const tool = "inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong disabled:opacity-40";
+const tool = "inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong disabled:opacity-40";
 
 export function SectionEditor(props: SectionEditorProps) {
-  const { section, isFirst, isLast, hasFindings, onChange, onMove, onDeleted, onRevealScripture, reveal = false, typed, onContent } = props;
+  const { section, isFirst, isLast, hasFindings, notes, onChange, onMove, onDeleted, onRevealScripture, reveal = false, onActive, newBlockId, typed, onContent } = props;
   const { t } = useTranslation();
   const api = useApi();
   const { track, settled } = useSaveTracker();
   const [renaming, setRenaming] = useState(false);
   const [managing, setManaging] = useState(false);
-  const [adding, setAdding] = useState(false);
   const manageId = useId();
   useEffect(() => {
     if (!reveal) return;
@@ -45,24 +49,12 @@ export function SectionEditor(props: SectionEditorProps) {
     heading?.focus({ preventScroll: true });
   }, [reveal, section.id]);
   const manageToggle = useRef<HTMLButtonElement>(null);
-  const addToggle = useRef<HTMLButtonElement>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const headingId = `section-${section.id}`;
   const title = sectionTitle(section);
   // Guidance is for a section with nothing in it yet; once there is writing it is out of the way.
   const guidance = section.blocks.some((b) => typed[b.id] ?? b.content.trim().length > 0) ? null : sectionGuidance(section);
-
-  const addBlock = async (blockType: BlockType) => {
-    setError(null);
-    setAdding(false);
-    try {
-      const block = await api.studyBlockCreate({ sectionId: section.id, blockType });
-      onChange({ ...section, blocks: [...section.blocks, block] });
-    } catch (e) {
-      setError(toApiError(e).message);
-    }
-  };
 
   const removeBlock = (blockId: string) =>
     onChange({ ...section, blocks: section.blocks.filter((b) => b.id !== blockId) });
@@ -116,16 +108,13 @@ export function SectionEditor(props: SectionEditorProps) {
       aria-labelledby={headingId}
       id={`section-anchor-${section.id}`}
       className="scroll-mt-4 border-t border-border-subtle pt-6"
+      onFocusCapture={onActive}
       onKeyDown={(e) => {
         if (e.key !== "Escape") return;
         if (managing) {
           e.stopPropagation();
           setManaging(false);
           manageToggle.current?.focus();
-        } else if (adding) {
-          e.stopPropagation();
-          setAdding(false);
-          addToggle.current?.focus();
         }
       }}
     >
@@ -144,7 +133,7 @@ export function SectionEditor(props: SectionEditorProps) {
             aria-label={t("studies.sections.options", { title })}
             title={t("studies.sections.optionsTooltip")}
             onClick={() => setManaging(!managing)}
-            className="ml-auto inline-flex size-9 shrink-0 items-center justify-center self-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+            className="ml-auto inline-flex size-11 shrink-0 items-center justify-center self-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
           >
             <MoreHorizontal className="size-4" aria-hidden="true" />
           </button>
@@ -204,6 +193,7 @@ export function SectionEditor(props: SectionEditorProps) {
             onDeleted={removeBlock}
             onContent={onContent}
             onRevealScripture={onRevealScripture}
+            autoFocus={block.id === newBlockId}
             isFirst={index === 0}
             isLast={index === section.blocks.length - 1}
             onMove={(delta) => moveBlock(block.id, delta)}
@@ -211,29 +201,7 @@ export function SectionEditor(props: SectionEditorProps) {
         ))}
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-1">
-        <button
-          ref={addToggle}
-          type="button"
-          aria-expanded={adding}
-          aria-controls={`${manageId}-add`}
-          aria-label={t("studies.sections.addToggleLabel", { title })}
-          onClick={() => setAdding(!adding)}
-          className={tool}
-        >
-          <Plus className="size-4" aria-hidden="true" />
-          {t("studies.sections.addToggle")}
-        </button>
-        {adding && (
-          <div id={`${manageId}-add`} role="group" aria-label={t("studies.sections.addTo", { title })} className="flex flex-wrap items-center gap-1">
-            {BLOCK_TYPES.map((type) => (
-              <Button key={type} variant="quiet" className="min-h-9 text-[0.875rem] text-text-muted" onClick={() => addBlock(type)}>
-                {t("studies.blocks.add", { type: blockLabel(t, type) })}
-              </Button>
-            ))}
-          </div>
-        )}
-      </div>
+      {notes && <div className="mt-4">{notes}</div>}
       {error && (
         <p role="alert" className="m-0 mt-2 text-[0.9375rem] text-danger">
           {error}

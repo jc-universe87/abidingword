@@ -14,7 +14,6 @@ async function withStudy(title = "The True Vine", extra: { studyType?: "custom" 
 
 async function open(api: ReturnType<typeof createMemoryApi>, width = 1440, title: RegExp = /The True Vine|Loose/) {
   const { user } = await renderApp(api, { width });
-  await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /John Sermon Series/ }));
   await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: title }));
   await screen.findByRole("textbox", { name: "Study title" });
   return user;
@@ -50,7 +49,7 @@ describe("contents", () => {
     const api = await withStudy();
     const user = await open(api);
     await user.click(study().getByRole("button", { name: "Contents" }));
-    expect(within(study().getByRole("navigation", { name: "Study contents" })).queryByRole("button", { name: "Findings" })).not.toBeInTheDocument();
+    expect(within(study().getByRole("navigation", { name: "Study contents" })).queryByRole("button", { name: "Study notes" })).not.toBeInTheDocument();
     await user.keyboard("{Escape}");
     const toggle = study().getByRole("button", { name: "Contents" });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
@@ -63,9 +62,12 @@ describe("a new study", () => {
     const api = await withStudy();
     await open(api);
     expect(study().getByText("Start your study")).toBeInTheDocument();
-    expect(study().getByRole("button", { name: "Add note" })).toBeInTheDocument();
-    expect(study().getByRole("button", { name: "Add section" })).toBeInTheDocument();
-    expect(study().queryByRole("heading", { name: "Findings" })).not.toBeInTheDocument();
+    // one Add action, with its choices showing for a new study
+    expect(study().getByRole("button", { name: "Add" })).toHaveAttribute("aria-expanded", "true");
+    expect(study().getByRole("button", { name: "Note" })).toBeInTheDocument();
+    expect(study().getByRole("button", { name: "Section" })).toBeInTheDocument();
+    expect(study().getByRole("button", { name: "Text block" })).toBeInTheDocument();
+    expect(study().queryByRole("heading", { name: "Study notes" })).not.toBeInTheDocument();
     expect(study().queryByRole("button", { name: "Question" })).not.toBeInTheDocument();
     expect(study().queryByRole("combobox", { name: /More/ })).not.toBeInTheDocument();
     // Template sections are still there, with their writing areas.
@@ -78,7 +80,7 @@ describe("a new study", () => {
   it("turns into a single Add menu once there is writing, and Add opens the same choices", async () => {
     const api = await withStudy();
     const user = await open(api);
-    await user.click(study().getByRole("button", { name: "Add note" }));
+    await user.click(study().getByRole("button", { name: "Note" }));
     await user.type(study().getByLabelText("New observation"), "Branches depend on the vine.");
     await user.click(study().getByRole("button", { name: "Save finding" }));
     await waitFor(() => expect(api.state.findings).toHaveLength(1));
@@ -88,19 +90,19 @@ describe("a new study", () => {
     const add = study().getByRole("button", { name: "Add" });
     expect(add).toHaveAttribute("aria-expanded", "false");
     await user.click(add);
-    expect(study().getByRole("button", { name: "Add note" })).toBeInTheDocument();
+    expect(study().getByRole("button", { name: "Note" })).toBeInTheDocument();
     await user.keyboard("{Escape}");
     expect(add).toHaveFocus();
     await user.click(add);
-    await user.click(study().getByRole("button", { name: "Add section" }));
+    await user.click(study().getByRole("button", { name: "Section" }));
     await waitFor(() => expect(api.state.sections.some((s) => s.title === "New section")).toBe(true));
   });
 
   it("keeps the kind changeable while writing, and links a passage only when asked", async () => {
     const api = await withStudy();
     const user = await open(api);
-    await user.click(study().getByRole("button", { name: "Add note" }));
-    await user.selectOptions(study().getByLabelText("Type"), "application");
+    await user.click(study().getByRole("button", { name: "Note" }));
+    await user.click(study().getByRole("radio", { name: "Application" }));
     await user.type(study().getByLabelText("New application"), "Stay close.");
     await user.click(study().getByRole("button", { name: "Save finding" }));
     await waitFor(() => expect(api.state.findings[0]?.findingType).toBe("application"));
@@ -113,7 +115,7 @@ describe("findings and sections in the page", () => {
     const api = await withStudy();
     await api.findingCreate({ studyId: api.state.studies[0]!.id, findingType: "question", content: "What is the fruit?" });
     const user = await open(api);
-    const list = await screen.findByRole("list", { name: "Findings" });
+    const list = await screen.findByRole("list", { name: "Study notes" });
     const note = within(list).getByRole("article");
     expect(within(note).getByRole("textbox", { name: "Question text" })).toHaveValue("What is the fruit?");
     expect(within(note).queryByRole("combobox")).not.toBeInTheDocument();
@@ -146,8 +148,11 @@ describe("findings and sections in the page", () => {
     await user.keyboard("{Escape}");
     expect(options).toHaveFocus();
 
-    await user.click(within(section).getByRole("button", { name: "Add content to Text" }));
-    await user.click(within(section).getByRole("button", { name: "+ Note" }));
+    // text blocks are added from the study's one Add, into the section last worked in
+    await user.click(within(section).getByRole("textbox", { name: /^Text: paragraph/ }));
+    await user.click(study().getByRole("button", { name: "Add" }));
+    await user.click(study().getByRole("button", { name: "Text block" }));
+    await user.click(within(study().getByRole("group", { name: "Text block in Text" })).getByRole("button", { name: "Remark" }));
     await waitFor(() => expect(api.state.blocks.filter((b) => b.blockType === "note")).toHaveLength(1));
   });
 });

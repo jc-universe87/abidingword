@@ -111,8 +111,6 @@ describe("Scripture pane", () => {
     await api.studyCreate({ projectId: project.id, title: "The True Vine" });
     const { user } = await renderApp(api);
     await heading();
-
-    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /John/ }));
     await user.click(await screen.findByRole("button", { name: /The True Vine/ }));
     await user.click(await screen.findByRole("button", { name: "Add passage" }));
     await user.type(screen.getByLabelText("Passage to add"), "John 15:1-11{Enter}");
@@ -132,7 +130,6 @@ describe("references in study text", () => {
     await api.studyCreate({ projectId: project.id, title: "Adoption" });
     const { user } = await renderApp(api);
     await heading();
-    await user.click(within(await screen.findByRole("list", { name: "Projects" })).getByRole("button", { name: /Romans/ }));
     await user.click(await screen.findByRole("button", { name: /Adoption/ }));
 
     await user.type(await screen.findByRole("textbox", { name: "Observations: paragraph" }), "Compare Rom 8:1-2 here.");

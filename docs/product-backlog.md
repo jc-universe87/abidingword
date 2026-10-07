@@ -14,21 +14,14 @@ natural input; advanced options hidden until useful.
 
 ## Future UX and input items
 
-### Simplify Study creation (UX)
+### Simplify Study creation (UX) — shipped in v0.6, refined in v0.10
 
-Study creation currently asks for both a **study type** and a **template**.
-Both are useful internal concepts but are too rigid and repetitive as separate
-mandatory choices. Future direction: the user chooses *what they want to do*,
-not internal metadata.
-
-> What would you like to study?  
-> **[ Bible passage or reference ]**  
-> then simple choices such as *Passage study*, *Word study*, *Topic*,
-> *Teaching preparation*, *My template*.
-
-Internally the study may still store type, template id, purpose, status and
-metadata; they need not each be a separate UI decision. The data concepts are
-**not** merged merely to simplify the screen: simple UI over expressive
+Done in v0.6 ([study-workspace-ux-v0.6.md](study-workspace-ux-v0.6.md)): "What would
+you like to study?", with approaches (Passage study, Word study, Topic, Teaching
+preparation, My template) and a derived title; type and template are one choice.
+v0.10 ([study-workspace-refinement-v0.10.md](study-workspace-refinement-v0.10.md))
+removes the last prerequisite: a project is made automatically ("My studies") when
+needed. The data concepts remain separate internally: simple UI over expressive
 internals.
 
 ### Multilingual, natural Bible references (input)
@@ -65,6 +58,29 @@ cross-versification mapping; heading references that are not at the heading's
 start or end being treated more cautiously; same-book matches, if they prove
 useful; PDF sections if the importer ever finds trustworthy headings.
 
+### Scripture links inside Library sources (backlog, not built)
+
+Bible references detected in Library sources become actionable.
+
+- **Where first:** the Reading (normalised text) view. Later the formatted EPUB
+  and DOCX views, where reliable text anchoring exists. The PDF Original view only
+  where the visible text can be mapped reliably; never guess coordinates.
+- **Detection:** the deterministic, source-language parser decides the canonical
+  reference (the interface language is independent). No AI.
+- **Interaction:** click or select a detected reference → **Open in Bible** →
+  the Scripture pane goes to that canonical passage.
+- **State rule (critical):** this changes only the *current Scripture view*. It
+  must **never** change the Study's primary passage. Three things stay separate:
+  the Study's primary passage, the Scripture pane's current location, and the
+  Scripture navigation history.
+- **Navigation:** ordinary Scripture Back/Forward history. When a Study has a
+  primary passage and Scripture is elsewhere, an explicit **Back to {main
+  passage}** returns straight to it, separate from generic Back.
+  Example: primary John 15:1–11; the source cites Romans 6:1–11; Open in Bible →
+  Scripture shows Romans 6:1–11, the Study still says John 15:1–11, and "Back to
+  John 15:1–11" returns there.
+- **Later, perhaps:** Add as related passage; Copy reference.
+
 ### From the user's own materials to templates
 
 The user may bring their own Bible-study, sermon or teaching materials.
@@ -79,36 +95,24 @@ reflection prompts, audience/application sections.
 - The original material is never silently restructured or overwritten, and
   stays separate from the resulting template.
 
-### Study workspace UX simplification (high priority)
+### Study workspace UX simplification — main work shipped in v0.6; v0.10 refines the rest
 
-The Study / Project workspace currently shows too many internal concepts at
-once: title, active/status, template, type, empty-findings messages,
-purpose/goal, primary passage, related passages, linked items and studies,
-text blocks and several Add controls. User feedback: too cluttered.
+The principle stands: show only what the user needs at the current moment, so that
+the person is studying Scripture, not operating the Study data model.
 
-**Rule: show only what the user needs at the current moment.** The workspace
-should be redesigned around progressive disclosure. The first impression is:
-what passage or topic is being studied, the study content itself, and the next
-natural action. Internal metadata stays available but largely leaves the
-normal study surface.
+**Shipped in v0.6:** title edited in place; type and template chosen together at
+creation; status, purpose, template and passage management moved into Study details;
+related passages as a quiet action; related studies, findings and Contents only when
+present; one Add action; findings as notes in the flow.
 
-- **Title**: derived automatically where sensible, editable in place, not a
-  permanent form field.
-- **Type / template**: may stay separate internally, but should not be two
-  separate conceptual decisions in normal use. Chosen mainly at creation and
-  hidden afterwards unless the user wants to change or customise.
-- **Status**: not prominent; move to Study details/settings if needed.
-- **Purpose / goal**: optional; reveal only when genuinely useful (e.g.
-  teaching preparation).
-- **Primary passage**: no redundant form field when it is already obvious.
-- **Related passages**: a quiet "+ Related passage" action; existing ones
-  shown compactly.
-- **Links, related studies, findings**: hidden until present or requested.
-- **Adding content**: avoid several competing Add buttons; one obvious action
-  can reveal the relevant content types.
+**Refined in v0.10:** no project needed before a first study; the passage not
+repeated when the title is the passage; the type out of the header; Details grouped;
+one Add that also covers text blocks; the Note block renamed Remark; faster note
+capture; findings shown in their sections; visible edit and block controls; 44px
+targets and pane-aware layout; a calmer study list and relation picker.
 
-Core test: *the user should be studying Scripture, not operating the Study
-data model.* (See the principle in [`concept.md`](concept.md) §3a.)
+**Still open:** an Add reachable from the middle of a long study; project
+organisation for people with many projects; a real-display dark-mode review.
 
 ### Document annotations and ink (future milestone)
 

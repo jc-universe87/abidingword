@@ -294,14 +294,14 @@
   },
   "blockType": {
     "paragraph": "Paragraphe",
-    "note": "Note",
+    "note": "Remarque",
     "heading": "Titre",
     "quotation": "Citation",
     "question": "Question"
   },
   "blockTypeInline": {
     "paragraph": "paragraphe",
-    "note": "note",
+    "note": "remarque",
     "heading": "titre",
     "quotation": "citation",
     "question": "question"
@@ -320,13 +320,6 @@
       "contrasts": "Contraste avec",
       "supports": "Appuyée par",
       "custom": "Liée à"
-    },
-    "choice": {
-      "related": "est liée à",
-      "continues": "prolonge",
-      "contrasts": "contraste avec",
-      "supports": "appuie",
-      "custom": "est reliée à"
     }
   },
   "keepIt": "La conserver",
@@ -352,7 +345,8 @@
     "titleLabel": "Titre du projet",
     "studies": "Études",
     "opening": "Ouverture du projet…",
-    "breadcrumb": "Fil d’Ariane"
+    "breadcrumb": "Fil d’Ariane",
+    "defaultTitle": "Mes études"
   },
   "newStudy": {
     "heading": "Que souhaitez-vous étudier ?",
@@ -398,11 +392,14 @@
     "noMatch": "Aucune étude ne correspond à ces filtres.",
     "empty": "Aucune étude ici pour l’instant.",
     "listLabel": "Études",
-    "changed": "modifiée le {{date}}"
+    "changed": "modifiée le {{date}}",
+    "showArchived_one": "Afficher l’archivée ({{count}})",
+    "showArchived_other": "Afficher les archivées ({{count}})",
+    "hideArchived": "Masquer les archivées",
+    "showArchived_many": "Afficher les archivées ({{count}})"
   },
   "header": {
     "status": "Statut",
-    "template": "Modèle : {{name}}",
     "changed": "Modifiée le {{date}}",
     "duplicate": "Dupliquer…",
     "overview": "Vue d’ensemble",
@@ -443,13 +440,17 @@
         "hint": "p. ex. prédication"
       }
     },
-    "detailsToggle": "Détails de l’étude"
+    "detailsToggle": "Détails de l’étude",
+    "typeLine": "Type : {{type}}",
+    "fromTemplate": "À partir de votre modèle : {{name}}",
+    "groupAbout": "À propos de cette étude",
+    "groupCopy": "Copier"
   },
   "editor": {
     "opening": "Ouverture de l’étude…",
     "titleLabel": "Titre de l’étude",
     "contents": "Contenu de l’étude",
-    "findingsLink": "Éléments d’étude",
+    "findingsLink": "Éléments de l’étude",
     "newSectionTitle": "Nouvelle section",
     "allSaved": "Toutes les modifications sont enregistrées.",
     "saved": "Enregistré",
@@ -466,13 +467,10 @@
     "confirm": "Supprimer « {{title}} » et le texte qu’elle contient ?",
     "confirmWithFindings": "Supprimer « {{title}} » et le texte qu’elle contient ? Ses élément d’études restent dans l’étude, rattachés à l’étude entière.",
     "deleteSection": "Supprimer la section",
-    "addTo": "Ajouter à {{title}}",
     "titleLabel": "Titre de la section",
     "options": "Options de la section {{title}}",
     "optionsTooltip": "Options de la section",
-    "optionsGroup": "Options de la section {{title}}",
-    "addToggle": "Ajouter…",
-    "addToggleLabel": "Ajouter du contenu à {{title}}"
+    "optionsGroup": "Options de la section {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}} : {{type}}",
@@ -482,17 +480,19 @@
     "moveDown": "Descendre le bloc ({{type}}) dans {{section}}",
     "delete": "Supprimer le bloc ({{type}}) dans {{section}}",
     "deleteTooltip": "Supprimer le bloc ({{type}})",
-    "add": "+ {{type}}",
     "placeholder": "Écrivez ici…",
-    "passagesMentioned": "Passages mentionnés :"
+    "passagesMentioned": "Passages mentionnés :",
+    "options": "Options du bloc ({{type}}) dans {{section}}",
+    "optionsGroup": "Options du bloc ({{type}}) dans {{section}}",
+    "optionsTooltip": "Options du bloc"
   },
   "findings": {
-    "heading": "Éléments d’étude",
+    "heading": "Éléments de l’étude",
     "addGroup": "Ajouter un élément d’étude",
     "filterGroup": "Afficher les éléments d’étude",
     "all": "Tous ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Éléments d’étude",
+    "listLabel": "Éléments de l’étude",
     "writeFirst": "Rédigez d’abord l’élément.",
     "type": "Type",
     "in": "Dans",
@@ -516,7 +516,11 @@
     "confirmDelete": "Supprimer ce élément d’étude ({{type}}) ?",
     "writePlaceholder": "Écrivez ici…",
     "details": "Détails",
-    "detailsFor": "Détails de {{type}} : {{excerpt}}"
+    "detailsFor": "Détails de {{type}} : {{excerpt}}",
+    "kindGroup": "Type d’élément",
+    "moreTypes": "Autres types",
+    "options": "Options",
+    "inSection": "Éléments d’étude dans {{section}}"
   },
   "passages": {
     "label": "Passages",
@@ -531,19 +535,20 @@
     "linkCurrent": "Lier le passage actuel ({{passage}})",
     "inputLabel": "Passage à ajouter",
     "placeholder": "p. ex. John 15:1-11",
-    "addRelated": "Passage lié"
+    "addRelated": "Passage lié",
+    "openPrimary": "Ouvrir dans la Bible"
   },
   "relations": {
     "label": "Études liées",
     "remove": "Retirer le lien vers {{title}}",
     "add": "+ Lier une étude",
     "addGroup": "Lier une étude",
-    "thisStudy": "Cette étude",
-    "relation": "Relation",
-    "target": "Étude à lier",
+    "relation": "Lien",
+    "target": "Étude liée",
     "choose": "Choisir une étude…",
     "option": "{{title}} ({{project}})",
-    "link": "Lier"
+    "link": "Lier",
+    "describe": "Préciser le lien"
   },
   "search": {
     "heading": "Études correspondant à « {{query}} »",
@@ -600,7 +605,15 @@
   "add": {
     "toggle": "Ajouter",
     "group": "Ajouter à l’étude",
-    "note": "Ajouter un élément",
-    "section": "Ajouter une section"
+    "note": "Élément d’étude",
+    "section": "Section",
+    "textBlock": "Bloc de texte",
+    "blockGroup": "Bloc de texte dans {{section}}",
+    "blockIn": "Dans {{section}} :"
+  },
+  "home": {
+    "title": "Études",
+    "organise": "Organiser en projets",
+    "back": "Retour aux études"
   }
 }

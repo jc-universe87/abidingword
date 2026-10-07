@@ -41,11 +41,6 @@ export function relationLabel(t: TFunction, type: RelationType, direction: "outg
   return t(`studies.relation.${direction}.${type}`);
 }
 
-/** The relation as chosen when linking: "This study … is related to …". */
-export function relationChoice(t: TFunction, type: RelationType): string {
-  return t(`studies.relation.choice.${type}`);
-}
-
 /** Whether a study type is normally about one passage. */
 export function isPassageCentred(type: StudyType): boolean {
   return type === "passage" || type === "teaching";
