@@ -19,8 +19,10 @@ use crate::library::{adapters, contents, import, original};
 use crate::library::{
     AddFindingSource, CommitSourceImport, FindingCitation, GetSegments, LibraryResults,
     ListSources, PassageLocation, PassageMention, PassageSourceGroup, SearchLibrary,
-    SegmentPassageLink, SegmentWindow, Source, SourceImportPreview, SourceSummary, SourceType,
+    SegmentPassageLink, SegmentWindow, Source, SourceImportPreview, SourceReference, SourceSummary,
+    SourceType,
 };
+use crate::scripture::parser::DetectedReference;
 use crate::scripture::reference::ScriptureRef;
 use crate::state::AppState;
 
@@ -239,6 +241,28 @@ pub fn library_passage_source_locations(
 ) -> CommandResult<Vec<PassageLocation>> {
     let reference = ScriptureRef::from_canonical(&reference)?;
     state.db(|conn| library::passage_source_locations(conn, &reference, &source_id))
+}
+
+/// The Scripture references written in a source's text, with where each is in
+/// its segment (v0.11, the Reading view's "Open in Bible"). From the stored
+/// index; nothing is parsed again.
+#[tauri::command(async)]
+pub fn library_source_references(
+    state: State<'_, AppState>,
+    id: String,
+) -> CommandResult<Vec<SourceReference>> {
+    state.db(|conn| library::source_references(conn, &id))
+}
+
+/// The Scripture references in pieces of a source's drawn text (a formatted
+/// page's text nodes), read in the source's own language (v0.11).
+#[tauri::command(async)]
+pub fn library_detect_references(
+    state: State<'_, AppState>,
+    id: String,
+    texts: Vec<String>,
+) -> CommandResult<Vec<Vec<DetectedReference>>> {
+    state.db(|conn| library::detect_in_source(conn, &id, &texts))
 }
 
 /// Why a segment is linked to Scripture: what it mentions and the section it

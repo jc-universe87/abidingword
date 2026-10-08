@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useScripture } from "@/features/scripture/ScriptureContext";
 import { useTranslation } from "react-i18next";
 import { AddBibleView } from "@/features/scripture/AddBibleView";
 import { ScripturePane } from "@/features/scripture/ScripturePane";
@@ -32,6 +33,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
   // is still open after a visit to the full reader, Settings or the Library.
   const [paneSource, setPaneSource] = useState<PaneSource | null>(null);
   const layout = useWorkspaceLayout();
+  const { goTo } = useScripture();
   const { open, setOpen } = layout;
 
   const addBible = () => {
@@ -69,8 +71,19 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
         setReturnTo(view);
         setView("addSource");
       },
+      // A reference read in a source: Scripture goes there; nothing about a Study changes.
+      // From the full reader the source moves into the Sources pane, at the same place, beside Scripture.
+      openInBible: (reference, position) => {
+        goTo(reference);
+        if (!open.scripture) setOpen("scripture", true);
+        if (view === "source" && reading) {
+          if (!open.sources) setOpen("sources", true);
+          setPaneSource((current) => ({ sourceId: reading.sourceId, segmentId: reading.segmentId, position, opener: null, key: (current?.key ?? 0) + 1 }));
+          setView("workspace");
+        }
+      },
     }),
-    [view, reading?.from, open.sources, setOpen],
+    [view, reading, open.sources, open.scripture, setOpen, goTo],
   );
 
   return (

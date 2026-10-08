@@ -134,7 +134,7 @@ describe("Back to the Study's primary passage", () => {
 
   it("appears only away from the primary passage, returns straight to it, and differs from Back", async () => {
     const { api, vineId } = await withStudies();
-    const before = JSON.stringify(api.state.studyPassages ?? null);
+    const before = JSON.stringify(api.state.passages);
     const { user } = await renderApp(api);
     await user.click(await screen.findByRole("button", { name: /The True Vine/ }));
     expect(await within(pane()).findByText(/showing John 15:1–11/)).toBeInTheDocument();
@@ -161,7 +161,7 @@ describe("Back to the Study's primary passage", () => {
     const passages = await api.studyPassageList(vineId);
     expect(passages.find((p) => p.role === "primary")?.reference.canonical).toBe("JHN.15.1-JHN.15.11");
     expect(passages).toHaveLength(1);
-    expect(JSON.stringify(api.state.studyPassages ?? null)).toBe(before);
+    expect(JSON.stringify(api.state.passages)).toBe(before);
   });
 
   it("follows the Study that is open", async () => {

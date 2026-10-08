@@ -108,6 +108,8 @@ pub fn run() {
             commands::library::source_get_passages,
             commands::library::library_passage_sources,
             commands::library::library_passage_source_locations,
+            commands::library::library_source_references,
+            commands::library::library_detect_references,
             commands::library::source_segment_passage_links,
             commands::library::finding_source_add,
             commands::library::finding_source_remove,

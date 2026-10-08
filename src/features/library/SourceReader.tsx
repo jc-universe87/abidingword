@@ -9,9 +9,12 @@ import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { hostOf } from "@/lib/externalLink";
 import type { PdfPlace } from "@/lib/pdfEngine";
-import type { ContentsItem, SegmentWindow, SourceLink, SourceSegment } from "@/types/library";
+import type { ContentsItem, SegmentWindow, SourceLink, SourceReference, SourceSegment } from "@/types/library";
+import type { ScriptureRef } from "@/types/scripture";
 import { formatLabel, licenceLabel, locatorLabel, sourceTypeLabel } from "./labels";
+import { useLibraryNav } from "./LibraryNav";
 import { PassageLinkNote } from "./PassageLinkNote";
+import { ScriptureReference } from "./ScriptureReference";
 import { ContentsPanel, useContentsLayout } from "./ContentsPanel";
 import { EpubViewer } from "./formatted/EpubViewer";
 import { placeOfPosition, positionOfPlace, type EpubPlace } from "./formatted/epubLocation";
@@ -104,6 +107,9 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const pdfNow = useRef<(() => PdfPlace) | null>(null);
   // The links in an EPUB's text, by the segment they are in.
   const links = useSourceLinks(source.data);
+  // The Scripture references written in the text, by segment (from the stored index).
+  const references = useSourceReferences(source.data?.id);
+  const { openInBible } = useLibraryNav();
   // An EPUB's formatted view: its reading order, where it was told to open, and where it is on request.
   const epub = useEpubStructure(source.data);
   const [epubStart] = useState<EpubPlace | null>(
@@ -485,7 +491,9 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
                 isTarget={segment.id === window.targetSegmentId}
                 targetRef={segment.id === window.targetSegmentId ? target : undefined}
                 links={links.get(segment.position)}
+                references={references.get(segment.position)}
                 onFollow={(position) => jumpTo({ position }, segment.position)}
+                onOpenInBible={(reference) => openInBible(reference, positionNow())}
               />
             ))}
           </div>
@@ -662,38 +670,68 @@ interface SegmentViewProps {
   targetRef?: React.MutableRefObject<HTMLElement | null>;
   /** The links in this segment's text, in order (internal ones only). */
   links?: SourceLink[];
+  /** The Scripture references in this segment's text, in order. */
+  references?: SourceReference[];
   onFollow: (position: number) => void;
+  onOpenInBible: (reference: ScriptureRef) => void;
 }
 
-/** The segment's text with its links as ordinary inline links: calm, plainly links, wrapping with the text, reachable by keyboard. */
-function linked(text: string, links: SourceLink[] | undefined, title: string, onFollow: (position: number) => void): React.ReactNode {
-  if (!links || links.length === 0) return text;
+/**
+ * The segment's text with its links as ordinary inline links (calm, plainly links, wrapping with the
+ * text, reachable by keyboard) and its Scripture references as quiet "Open in Bible" actions. Text
+ * between them is kept exactly. A span that overlaps one before it, or runs past the text, is shown as
+ * plain text; a reference inside a link is left to the link (no control inside another).
+ */
+function linked(
+  text: string,
+  links: SourceLink[] | undefined,
+  references: SourceReference[] | undefined,
+  title: string,
+  onFollow: (position: number) => void,
+  onOpenInBible: (reference: ScriptureRef) => void,
+): React.ReactNode {
+  if ((!links || links.length === 0) && (!references || references.length === 0)) return text;
+  type Span = { start: number; end: number; link?: SourceLink; reference?: SourceReference };
+  const spans: Span[] = [
+    ...(links ?? []).map((link): Span => ({ start: link.start, end: link.end, link })),
+    ...(references ?? []).map((reference): Span => ({ start: reference.start, end: reference.end, reference })),
+  ].sort((a, b) => a.start - b.start || (a.link ? -1 : 1) - (b.link ? -1 : 1));
   const out: React.ReactNode[] = [];
   let at = 0;
-  for (const link of links) {
-    if (link.start < at || link.end > text.length || link.start >= link.end) continue; // overlapping or out of range: not shown as a link
-    if (link.start > at) out.push(text.slice(at, link.start));
-    out.push(
-      <a
-        key={`${link.start}-${link.end}`}
-        href="#"
-        title={title}
-        onClick={(event) => {
-          event.preventDefault();
-          onFollow(link.target);
-        }}
-        className="cursor-pointer text-link underline underline-offset-2 hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
-      >
-        {text.slice(link.start, link.end)}
-      </a>,
-    );
-    at = link.end;
+  for (const span of spans) {
+    if (span.start < at || span.end > text.length || span.start >= span.end) continue;
+    if (span.start > at) out.push(text.slice(at, span.start));
+    const written = text.slice(span.start, span.end);
+    if (span.link) {
+      const target = span.link.target;
+      out.push(
+        <a
+          key={`l${span.start}-${span.end}`}
+          href="#"
+          title={title}
+          onClick={(event) => {
+            event.preventDefault();
+            onFollow(target);
+          }}
+          className="cursor-pointer text-link underline underline-offset-2 hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
+        >
+          {written}
+        </a>,
+      );
+    } else if (span.reference) {
+      out.push(
+        <ScriptureReference key={`r${span.start}-${span.end}`} reference={span.reference.reference} onOpen={onOpenInBible}>
+          {written}
+        </ScriptureReference>,
+      );
+    }
+    at = span.end;
   }
   if (at < text.length) out.push(text.slice(at));
   return out;
 }
 
-function SegmentView({ segment, previous, isTarget, targetRef, links, onFollow }: SegmentViewProps) {
+function SegmentView({ segment, previous, isTarget, targetRef, links, references, onFollow, onOpenInBible }: SegmentViewProps) {
   const { t } = useTranslation();
   const page = segment.pageLabel ?? segment.pageNumber;
   const newPage = segment.pageNumber !== null && segment.pageNumber !== previous?.pageNumber;
@@ -718,7 +756,7 @@ function SegmentView({ segment, previous, isTarget, targetRef, links, onFollow }
         data-seg-position={segment.position}
         className={`m-0 ${isTarget ? "border-l-[3px] border-accent bg-note px-3 py-1" : ""}`}
       >
-        {linked(segment.text, links, t("library.links.follow"), onFollow)}
+        {linked(segment.text, links, references, t("library.links.follow"), onFollow, onOpenInBible)}
       </p>
       {isTarget && <PassageLinkNote segmentId={segment.id} />}
     </>
@@ -741,6 +779,34 @@ function HistoryButtons({ history, onBack, onForward }: { history: ReaderHistory
 }
 
 const NO_LINKS = new Map<number, SourceLink[]>();
+const NO_REFERENCES = new Map<number, SourceReference[]>();
+
+/**
+ * The Scripture references written in a source's text, grouped by segment
+ * (in order along it): read once per source from the stored index, never by
+ * parsing the text again. A read that fails gives none, and the text reads as before.
+ */
+function useSourceReferences(sourceId: string | undefined): Map<number, SourceReference[]> {
+  const api = useApi();
+  const [found, setFound] = useState<{ id: string; references: Map<number, SourceReference[]> } | null>(null);
+  useEffect(() => {
+    if (!sourceId) return;
+    let active = true;
+    api.librarySourceReferences(sourceId).then(
+      (all) => {
+        if (!active) return;
+        const by = new Map<number, SourceReference[]>();
+        for (const r of all) by.set(r.position, [...(by.get(r.position) ?? []), r]);
+        setFound({ id: sourceId, references: by });
+      },
+      (e) => void api.logError(`Scripture references in the source could not be read: ${e instanceof Error ? e.message : String(e)}`).catch(() => undefined),
+    );
+    return () => {
+      active = false;
+    };
+  }, [api, sourceId]);
+  return found && found.id === sourceId ? found.references : NO_REFERENCES;
+}
 
 /**
  * The links in an EPUB's extracted text, grouped by the segment they are in

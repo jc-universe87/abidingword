@@ -22,7 +22,8 @@ use crate::library::sections::{self, DerivedLink, LinkOrigin};
 use crate::library::{
     CommitSourceImport, DuplicateOf, GetSegments, LibraryHit, LibraryResults, LicenceStatus,
     ListSources, PassageLocation, PassageMention, PassageSourceGroup, SearchLibrary,
-    SegmentPassageLink, SegmentWindow, Source, SourceSegment, SourceSummary, SourceType,
+    SegmentPassageLink, SegmentWindow, Source, SourceReference, SourceSegment, SourceSummary,
+    SourceType,
 };
 use crate::scripture::parser::DetectedReference;
 use crate::scripture::reference::{verse_key, ScriptureRef};
@@ -568,6 +569,83 @@ pub fn passages(conn: &Connection, source_id: &str) -> AppResult<Vec<PassageMent
         });
     }
     Ok(out)
+}
+
+/// The most references [`source_references`] returns for one source: far more
+/// than any real book has, but a bound on what one call can carry.
+pub const SOURCE_REFERENCES_LIMIT: i64 = 20_000;
+
+/// The Scripture references written in a source's text, with where each is in
+/// its segment, in reading order (v0.11). Only literal (explicit) links have a
+/// place in the text; section and inherited links do not. Rows whose offsets
+/// are missing or empty are left out rather than guessed. An unknown or removed
+/// source gives an error, as the reader's other reads do.
+pub fn source_references(conn: &Connection, source_id: &str) -> AppResult<Vec<SourceReference>> {
+    get(conn, source_id)?;
+    let mut stmt = conn.prepare(
+        "SELECT g.position, p.start_offset, p.end_offset, p.passage FROM source_passages p
+         INDEXED BY source_passages_source
+         JOIN source_segments g ON g.id = p.segment_id
+         WHERE p.source_id = ?1 AND p.origin = 'explicit'
+           AND p.start_offset IS NOT NULL AND p.end_offset > p.start_offset
+         ORDER BY g.position, p.start_offset, p.end_offset
+         LIMIT ?2",
+    )?;
+    let rows = stmt.query_map(params![source_id, SOURCE_REFERENCES_LIMIT], |r| {
+        Ok((
+            r.get::<_, i64>(0)?,
+            r.get::<_, i64>(1)?,
+            r.get::<_, i64>(2)?,
+            r.get::<_, String>(3)?,
+        ))
+    })?;
+    let mut out = Vec::new();
+    for row in rows {
+        let (position, start, end, passage) = row?;
+        let Ok(reference) = ScriptureRef::from_canonical(&passage) else {
+            continue;
+        };
+        out.push(SourceReference {
+            position,
+            start,
+            end,
+            reference: reference.to_dto(),
+        });
+    }
+    Ok(out)
+}
+
+/// The most texts, and characters in each, that [`detect_in_source`] reads in
+/// one call: a drawn page of a formatted source, comfortably.
+pub const DETECT_TEXTS_LIMIT: usize = 5_000;
+pub const DETECT_TEXT_CHARS: usize = 20_000;
+
+/// The Scripture references in pieces of a source's drawn text (the text nodes
+/// of a formatted EPUB or Word page), read in **the source's language**, as at
+/// import (v0.11). One list per text, in the same order; texts beyond the
+/// limits are read as empty. Deterministic: the same parser as the index.
+pub fn detect_in_source(
+    conn: &Connection,
+    source_id: &str,
+    texts: &[String],
+) -> AppResult<Vec<Vec<DetectedReference>>> {
+    let source = get(conn, source_id)?;
+    let language = passage_index::language_of(source.language.as_deref(), &source.title);
+    let parser = crate::scripture::parser::ReferenceParser::for_language(language);
+    Ok(texts
+        .iter()
+        .enumerate()
+        .map(|(i, text)| {
+            if i >= DETECT_TEXTS_LIMIT
+                || text.chars().count() > DETECT_TEXT_CHARS
+                || !text.chars().any(|c| c.is_ascii_digit())
+            {
+                Vec::new()
+            } else {
+                parser.detect(text)
+            }
+        })
+        .collect())
 }
 
 // --- passage-aware sources (v0.9) ---------------------------------------------

@@ -202,6 +202,20 @@ pub struct PassageMention {
     pub reference: ScriptureRefDto,
 }
 
+/// A Scripture reference written in a segment's text, where it is (v0.11): what
+/// the Reading view turns into an "Open in Bible" action. Read from the stored
+/// index (`source_passages`, explicit links), never by parsing again.
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct SourceReference {
+    /// The segment's position in the source.
+    pub position: i64,
+    /// UTF-16 offsets into the segment's text, end exclusive.
+    pub start: i64,
+    pub end: i64,
+    pub reference: ScriptureRefDto,
+}
+
 /// Why a source segment is linked to a passage, for one segment (the reader).
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]

@@ -212,6 +212,14 @@ export interface ContentsItem {
  * source: the segment it is in (`position`), the range of that segment's text
  * it covers (UTF-16 units) and the segment it leads to. Internal links only.
  */
+/** A Scripture reference written in a segment's text, and where (UTF-16 offsets, end exclusive). v0.11. */
+export interface SourceReference {
+  position: number;
+  start: number;
+  end: number;
+  reference: ScriptureRef;
+}
+
 export interface SourceLink {
   position: number;
   start: number;
