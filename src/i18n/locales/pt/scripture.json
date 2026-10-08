@@ -207,5 +207,11 @@
       "wholeVerse": "Versículo inteiro",
       "show": "Mostrar na Bíblia"
     }
+  },
+  "history": {
+    "group": "Histórico da Bíblia",
+    "back": "Voltar",
+    "forward": "Avançar",
+    "backToStudy": "Voltar para {{passage}}"
   }
 }

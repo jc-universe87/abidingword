@@ -194,5 +194,11 @@
       "wholeVerse": "Whole verse",
       "show": "Show in the Bible"
     }
+  },
+  "history": {
+    "group": "Scripture history",
+    "back": "Back",
+    "forward": "Forward",
+    "backToStudy": "Back to {{passage}}"
   }
 }

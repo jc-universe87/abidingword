@@ -181,5 +181,10 @@
     "table": "Table",
     "missingImages_one": "{{count}} picture could not be shown.",
     "missingImages_other": "{{count}} pictures could not be shown."
+  },
+  "scriptureRef": {
+    "label": "{{passage}} (Scripture reference)",
+    "actions": "Actions for {{passage}}",
+    "open": "Open in Bible"
   }
 }

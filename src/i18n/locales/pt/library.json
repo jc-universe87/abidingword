@@ -190,5 +190,10 @@
     "missingImages_one": "{{count}} imagem não pôde ser mostrada.",
     "missingImages_many": "{{count}} de imagens não puderam ser mostradas.",
     "missingImages_other": "{{count}} imagens não puderam ser mostradas."
+  },
+  "scriptureRef": {
+    "label": "{{passage}} (referência bíblica)",
+    "actions": "Ações para {{passage}}",
+    "open": "Abrir na Bíblia"
   }
 }

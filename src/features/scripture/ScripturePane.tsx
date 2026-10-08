@@ -5,6 +5,7 @@ import { Button } from "@/design-system/Button";
 import { ChapterReader } from "./ChapterReader";
 import { MarksView } from "./MarksView";
 import { PassageNav } from "./PassageNav";
+import { ScriptureHistoryBar } from "./ScriptureHistoryBar";
 import { useScripture } from "./ScriptureContext";
 import { SearchResultsView } from "./SearchResultsView";
 
@@ -82,6 +83,7 @@ export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
                 ))}
               </div>
               <div hidden={view !== "bible"} className={view === "bible" ? "flex flex-col gap-5" : "hidden"}>
+                <ScriptureHistoryBar />
                 <PassageNav />
                 <div className="border-t border-border-subtle pt-5">
                   <ChapterReader translation={translation} />

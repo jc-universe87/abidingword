@@ -31,7 +31,7 @@ interface StudyEditorProps {
 export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, onRevealScripture }: StudyEditorProps) {
   const { t } = useTranslation();
   const api = useApi();
-  const { goTo } = useScripture();
+  const { goTo, setStudyPassage } = useScripture();
   const detail = useLoad(useCallback(() => api.studyGet(studyId), [api, studyId]));
   const findings = useLoad(useCallback(() => api.findingList(studyId), [api, studyId]));
   const templates = useLoad(useCallback(() => api.templateList(), [api]));
@@ -76,6 +76,14 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   useEffect(() => {
     if (missing) onMissing();
   }, [missing, onMissing]);
+
+  // While this Study is open, Scripture knows its primary passage (for "Back to …").
+  // Read from the Study's passages; navigation never writes it.
+  const passageList = passages.data;
+  useEffect(() => {
+    if (passageList) setStudyPassage(passageList.find((p) => p.role === "primary")?.reference ?? null);
+  }, [passageList, setStudyPassage]);
+  useEffect(() => () => setStudyPassage(null), [setStudyPassage]);
 
   // Opened by the user: bring Scripture to the primary passage, once.
   const revealed = useRef(false);

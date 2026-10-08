@@ -1,9 +1,10 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import i18n from "@/i18n";
 import { useApi } from "@/lib/ApiContext";
 import { chapterRef, hasVerses, refFromCanonical } from "@/lib/scripture";
 import type { AppSettings } from "@/types/domain";
 import type { BibleTranslation, BookInfo, ScriptureRef, SearchResults } from "@/types/scripture";
+import { canGoBack, canGoForward, goBack, goForward, startHistory, visit, type ScriptureHistory } from "./scriptureHistory";
 
 /**
  * The active Scripture passage, shared by the whole app: the Scripture pane
@@ -47,6 +48,19 @@ interface ScriptureValue {
   search: ScriptureSearch | null;
   setTranslation: (id: string) => void;
   goTo: (ref: ScriptureRef) => void;
+  /** The passage the pane is showing now (a chapter, or the passage last gone to). */
+  current: ScriptureRef;
+  /** Back / Forward through the passages the pane has shown (session only). */
+  canGoBack: boolean;
+  canGoForward: boolean;
+  back: () => void;
+  forward: () => void;
+  /**
+   * The primary passage of the Study that is open, if any: what "Back to …"
+   * returns to. Set by the open Study; never written by navigation.
+   */
+  studyPassage: ScriptureRef | null;
+  setStudyPassage: (ref: ScriptureRef | null) => void;
   goToChapter: (book: string, chapter: number) => void;
   /** Parses typed text; throws an ApiError with a plain message if invalid. */
   navigateText: (text: string) => Promise<ScriptureRef>;
@@ -81,6 +95,18 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
   const [navigationId, setNavigationId] = useState(0);
   const [selectedVerse, setSelectedVerse] = useState<ScriptureRef | null>(null);
   const [search, setSearch] = useState<ScriptureSearch | null>(null);
+  const [studyPassage, setStudyPassage] = useState<ScriptureRef | null>(null);
+  // Where the pane has been. The ref holds the latest value so a navigation
+  // made in the same tick as another still sees the one before it.
+  const [history, setHistoryState] = useState<ScriptureHistory>(() => {
+    const info = bookByCode.get(saved?.book ?? DEFAULT_LOCATION.book);
+    return startHistory(saved ?? chapterRef(DEFAULT_LOCATION.book, info?.name ?? DEFAULT_LOCATION.book, DEFAULT_LOCATION.chapter, info?.chapterCount ?? 50));
+  });
+  const historyRef = useRef(history);
+  const setHistory = useCallback((next: ScriptureHistory) => {
+    historyRef.current = next;
+    setHistoryState(next);
+  }, []);
 
   // Falls back to the first installed Bible if the saved one was removed
   // (removal also clears the saved setting in the native core).
@@ -102,7 +128,8 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
     [persist],
   );
 
-  const goTo = useCallback(
+  // Shows a passage; how it is recorded in the history is the caller's business.
+  const show = useCallback(
     (ref: ScriptureRef) => {
       setLocation({ book: ref.book, chapter: ref.startChapter });
       setSelection(hasVerses(ref) || ref.startChapter !== ref.endChapter ? ref : null);
@@ -113,6 +140,28 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
     },
     [persist],
   );
+
+  const goTo = useCallback(
+    (ref: ScriptureRef) => {
+      setHistory(visit(historyRef.current, ref));
+      show(ref);
+    },
+    [setHistory, show],
+  );
+
+  const back = useCallback(() => {
+    const next = goBack(historyRef.current);
+    if (next === historyRef.current) return;
+    setHistory(next);
+    show(next.current);
+  }, [setHistory, show]);
+
+  const forward = useCallback(() => {
+    const next = goForward(historyRef.current);
+    if (next === historyRef.current) return;
+    setHistory(next);
+    show(next.current);
+  }, [setHistory, show]);
 
   const goToChapter = useCallback(
     (book: string, chapter: number) => {
@@ -164,6 +213,9 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
   );
   const currentPassage = selectedVerse ?? selection;
 
+  const current = history.current;
+  const backAvailable = canGoBack(history);
+  const forwardAvailable = canGoForward(history);
   const value = useMemo<ScriptureValue>(
     () => ({
       books,
@@ -179,13 +231,20 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
       search,
       setTranslation,
       goTo,
+      current,
+      canGoBack: backAvailable,
+      canGoForward: forwardAvailable,
+      back,
+      forward,
+      studyPassage,
+      setStudyPassage,
       goToChapter,
       navigateText,
       reloadTranslations,
       runSearch,
       closeSearch,
     }),
-    [books, bookByCode, translations, translation, location, selection, selectedVerse, selectVerse, currentPassage, navigationId, search, setTranslation, goTo, goToChapter, navigateText, reloadTranslations, runSearch, closeSearch],
+    [books, bookByCode, translations, translation, location, selection, selectedVerse, selectVerse, currentPassage, navigationId, search, setTranslation, goTo, current, backAvailable, forwardAvailable, back, forward, studyPassage, goToChapter, navigateText, reloadTranslations, runSearch, closeSearch],
   );
 
   return <ScriptureContext.Provider value={value}>{children}</ScriptureContext.Provider>;

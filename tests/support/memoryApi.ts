@@ -162,6 +162,7 @@ const bookByCode = new Map(BOOKS.map((b) => [b.code, b]));
 const ALIASES: Record<string, string> = {
   john: "JHN", jn: "JHN", romans: "ROM", rom: "ROM", psalm: "PSA", psalms: "PSA", ps: "PSA",
   genesis: "GEN", "1 cor": "1CO", "1 corinthians": "1CO",
+  galatians: "GAL", gal: "GAL", ephesians: "EPH", eph: "EPH",
 };
 
 /** A deliberately small stand-in for the native English parser. */
