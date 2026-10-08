@@ -10,7 +10,6 @@ use abiding_word_lib::db::{library, Database};
 use abiding_word_lib::error::AppResult;
 use abiding_word_lib::library::import;
 use abiding_word_lib::library::{CommitSourceImport, GetSegments};
-use abiding_word_lib::scripture::reference::ScriptureRef;
 use rusqlite::Connection;
 
 fn add(

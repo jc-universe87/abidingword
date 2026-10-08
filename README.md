@@ -126,6 +126,7 @@ what is deliberately not built yet, [`docs/product-backlog.md`](docs/product-bac
 | Formatted sources v0.8 | complete (milestone commit `ecced8a`; tag `formatted-sources-v0.8` to be pushed) | formatted EPUB and DOCX Original views, DOCX import, Reading ↔ Original mapping, source navigation and history, web links in the system browser |
 | Passage-aware sources v0.9 | complete; Windows acceptance passed (`main` `7c72bd9`, test build `0.5.0-dev.18`; tag `passage-aware-sources-v0.9` to be pushed) | sources grouped by passage with the reason for each place; section links from headings (EPUB, Word, Markdown); aboutness-aware ranking; expandable further places; deterministic, no AI |
 | Study workspace refinement v0.10 | complete; Windows acceptance passed (`main` `3d50656`, test build `0.5.0-dev.19`; tag `study-workspace-refinement-v0.10` to be pushed) | default project, quieter header and details, one Add, simpler quick capture, findings in their sections, visible controls, pane-aware layout; Korean terminology (성경공부, 성경공부 모음, 공부 틀, 부분) |
+| Scripture links v0.11 | in review (`feature/scripture-links-v0.11`, not merged) | references in sources open in the Bible (Reading, formatted EPUB and Word); Scripture Back / Forward and Back to the Study's passage; no migration |
 | Library v0.4 | in development (`feature/library-v0.4`) | PDF/EPUB/Markdown/text import, provenance, library search, passage mentions, finding citations |
 
 ## Supported platforms
