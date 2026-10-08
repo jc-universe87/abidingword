@@ -554,6 +554,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
             onLink={(target, from) => jumpTo({ item: target.item, fragment: target.id }, from)}
             onExternal={openExternal}
             locationRef={epubNow}
+            onOpenInBible={(reference) => openInBible(reference, positionNow())}
           />
         </>
       ) : (

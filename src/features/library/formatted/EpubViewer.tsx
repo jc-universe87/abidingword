@@ -6,7 +6,8 @@ import { Notice } from "@/design-system/Notice";
 import { formatNumber } from "@/i18n/format";
 import { useApi } from "@/lib/ApiContext";
 import type { EpubItem, EpubStructureItem } from "@/types/library";
-import { EpubDocument, type EpubLinkTarget } from "./epubDocument";
+import type { DetectedReference, ScriptureRef } from "@/types/scripture";
+import { EpubDocument, pageTexts, type EpubLinkTarget } from "./epubDocument";
 import type { EpubPlace } from "./epubLocation";
 
 /** Pages kept after being read, so going back to one is immediate. */
@@ -27,6 +28,8 @@ interface EpubViewerProps {
   onExternal?: (url: string) => void;
   /** Filled with a way to ask where the view is now, for the reader's history. */
   locationRef: React.MutableRefObject<(() => EpubPlace) | null>;
+  /** "Open in Bible" on a Scripture reference in the page. Absent: references are plain text. */
+  onOpenInBible?: (reference: ScriptureRef) => void;
 }
 
 /**
@@ -34,15 +37,20 @@ interface EpubViewerProps {
  * time, continuously scrolled, in a light sheet (like a PDF page), under the
  * reader's own toolbar. Moving between documents, following a link or
  * choosing Contents keeps the reader's state: only the page changes. This is
- * a place to read the source as published; search, citations and Scripture
- * links stay with the extracted text.
+ * a place to read the source as published; search and citations stay with the
+ * extracted text. Scripture references in the page's text are found by the core,
+ * in the source's language, one page at a time, and drawn as "Open in Bible".
  */
-export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, onLink, onExternal, locationRef }: EpubViewerProps) {
+export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, onLink, onExternal, locationRef, onOpenInBible }: EpubViewerProps) {
   const { t } = useTranslation();
   const api = useApi();
   const scroller = useRef<HTMLDivElement>(null);
   const root = useRef<ShadowRoot | null>(null);
   const cache = useRef(new Map<string, EpubItem>());
+  // The Scripture references in each kept page's text, by text; found once per page.
+  const referenceCache = useRef(new Map<string, Map<string, DetectedReference[]>>());
+  const [pageReferences, setPageReferences] = useState<{ id: string; found: Map<string, DetectedReference[]> } | null>(null);
+  const linksScripture = onOpenInBible !== undefined;
   const [request, setRequest] = useState<{ place: EpubPlace; nonce: number }>({ place: start, nonce: 0 });
   const [current, setCurrent] = useState<EpubItem | null>(null);
   const [failed, setFailed] = useState(false);
@@ -90,6 +98,39 @@ export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, 
       active = false;
     };
   }, [api, kind, sourceId, wantedItem]);
+
+  // Find the Scripture references in the page shown (once per page; a failure leaves the text plain).
+  const currentId = current?.id;
+  const currentNodes = current?.nodes;
+  useEffect(() => {
+    if (!linksScripture || !currentId || !currentNodes) return;
+    let active = true;
+    const kept = referenceCache.current.get(currentId);
+    if (kept) {
+      queueMicrotask(() => active && setPageReferences({ id: currentId, found: kept }));
+      return () => {
+        active = false;
+      };
+    }
+    const texts = pageTexts(currentNodes);
+    if (texts.length === 0) return;
+    api.libraryDetectReferences(sourceId, texts).then(
+      (lists) => {
+        const found = new Map<string, DetectedReference[]>();
+        lists.forEach((list, i) => {
+          const text = texts[i];
+          if (text !== undefined && list.length > 0) found.set(text, list);
+        });
+        referenceCache.current.set(currentId, found);
+        while (referenceCache.current.size > KEPT) referenceCache.current.delete(referenceCache.current.keys().next().value as string);
+        if (active) setPageReferences({ id: currentId, found });
+      },
+      (error: unknown) => void api.logError(`Scripture references in a formatted page could not be found: ${error instanceof Error ? error.message : String(error)}`).catch(() => undefined),
+    );
+    return () => {
+      active = false;
+    };
+  }, [api, sourceId, linksScripture, currentId, currentNodes]);
 
   const onRoot = useCallback((shadow: ShadowRoot | null) => {
     root.current = shadow;
@@ -174,6 +215,11 @@ export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, 
     onExternalRef.current = onExternal;
   });
   const external = useCallback((url: string) => onExternalRef.current?.(url), []);
+  const onOpenInBibleRef = useRef(onOpenInBible);
+  useEffect(() => {
+    onOpenInBibleRef.current = onOpenInBible;
+  });
+  const scripture = useCallback((reference: ScriptureRef) => onOpenInBibleRef.current?.(reference), []);
   const follow = useCallback(
     (target: EpubLinkTarget) => {
       const from = locationRef.current?.() ?? { item: wantedItem, fragment: null, offset: 0 };
@@ -214,7 +260,11 @@ export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, 
             {current.missingImages > 0 && (
               <p className="m-0 mx-auto max-w-[46rem] px-6 pt-3 text-[0.875rem] text-text-muted">{t("library.formatted.missingImages", { count: current.missingImages })}</p>
             )}
-            <EpubDocument key={current.id} item={current} onLink={follow} onExternal={onExternal ? external : undefined} tableLabel={t("library.formatted.table")} onRoot={onRoot} onDrawn={onDrawn} />
+            <EpubDocument key={current.id} item={current} onLink={follow} onExternal={onExternal ? external : undefined} tableLabel={t("library.formatted.table")} onRoot={onRoot}
+              onDrawn={onDrawn}
+              references={pageReferences?.id === current.id ? pageReferences.found : undefined}
+              onScripture={linksScripture ? scripture : undefined}
+            />
           </>
         )}
       </div>

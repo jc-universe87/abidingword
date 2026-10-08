@@ -227,6 +227,16 @@ fn a_long_source_answers_quickly() {
         println!("source_references: {} references in {took:?}", found.len());
         assert_eq!(found.len(), 6000);
         assert!(took < std::time::Duration::from_secs(2));
+        // A large drawn page: a thousand pieces of text, read in one call.
+        let page: Vec<String> = (0..1000)
+            .map(|n| format!("Piece {n}: see John 15:{} and Romans 6:1-4.", n % 20 + 1))
+            .collect();
+        let started = std::time::Instant::now();
+        let lists = library::detect_in_source(conn, &id, &page)?;
+        let took = started.elapsed();
+        println!("detect_in_source: {} pieces in {took:?}", page.len());
+        assert!(lists.iter().all(|l| l.len() == 2));
+        assert!(took < std::time::Duration::from_secs(2));
         Ok(())
     });
 }
