@@ -1,10 +1,11 @@
 # Study Workspace Refinement (v0.10)
 
-Status: in review. Branch `feature/study-workspace-refinement-v0.10`, started from `main`
-(`0a18c2b`); the accepted v0.9 (`main` `7c72bd9`) is merged into it, so it carries
-the final source relevance, the expandable further places and the Korean
-typography. Not merged to `main`. v0.10 itself adds no database migration and no
-backend change.
+**Status: complete. Windows acceptance passed** on the Development/Test build
+`0.5.0-dev.19`, built from the accepted `main` commit
+`3d506563095074146a383b940c245400736a3b14` (which also carries the accepted v0.9).
+The milestone tag `study-workspace-refinement-v0.10` is created on that commit;
+pushing it to GitHub is **pending** (to be pushed from a maintainer's clone).
+v0.10 adds no database migration and no backend change.
 
 ## Where this stands
 
@@ -162,13 +163,9 @@ in the model: changed in Study details, shown in lists only when not Active.
 - Dark mode uses the existing tokens; no new colours were introduced, but it has
   not been reviewed on a real Windows display.
 
-Korean terminology items left for product-owner judgement (not blocking):
-
-- the built-in default section is *노트* (to avoid *메모*, the Scripture note),
-  but *노트* is also the "notes" source type;
-- the Remark block is *참고*, which could be read as "cross-reference" (*참고 구절*);
-- *공부 틀* versus *성경공부 틀* as the long form of Template;
-- *모음* as the short form of *성경공부 모음*.
+Korean terms accepted in the v0.10 Windows acceptance: the default section *노트*
+(not *메모*, the Scripture note), the Remark block *참고*, *공부 틀* for Template,
+and *모음* as the short form of *성경공부 모음*.
 
 ## Windows acceptance checklist (after merge to `main` and the automatic test update)
 
