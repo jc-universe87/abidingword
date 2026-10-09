@@ -152,6 +152,47 @@ fn german_false_positives_are_avoided() {
 }
 
 #[test]
+fn german_mal_is_maleachi_only_with_a_capital_and_a_verse() {
+    // v0.11 acceptance: "Mal 4,3" was not found because "Mal" is also a German word.
+    assert_eq!(
+        found(De, "Mal 4,3"),
+        [("Mal 4,3".to_string(), "MAL.4.3".to_string())]
+    );
+    assert_eq!(canon(De, "Mal 3,1-5"), ["MAL.3.1-MAL.3.5"]);
+    assert_eq!(canon(De, "Mal 3,1–5"), ["MAL.3.1-MAL.3.5"]);
+    assert_eq!(canon(De, "Mal 3:1"), ["MAL.3.1"]);
+    assert_eq!(canon(De, "Mal. 4,5"), ["MAL.4.5"]);
+    assert_eq!(
+        canon(De, "Vgl. Mal 4,3 und Joh 3,16."),
+        ["MAL.4.3", "JHN.3.16"]
+    );
+    // the ordinary word is never a reference
+    none(
+        De,
+        &[
+            "Mal 4", // a chapter alone is not enough for this alias
+            "Mal 4 war genug.",
+            "Mal 5 Minuten warten.",
+            "Mal 3, 1 Stunde später", // comma and space: a sentence, not a verse
+            "mal sehen",
+            "Lass uns mal sehen, ob 4 Leute kommen.",
+            "noch mal 4 Dinge",
+            "noch mal 4,3 Liter",     // lower case
+            "Einmal 4,3 Liter",       // inside a word
+            "Mal 9,3 gibt es nicht.", // Maleachi has four chapters
+        ],
+    );
+    // the full name still needs no verse
+    assert_eq!(canon(De, "Maleachi 4"), ["MAL.4"]);
+    assert_eq!(canon(De, "Maleachi 4,3"), ["MAL.4.3"]);
+    // the other languages are unchanged
+    assert_eq!(canon(En, "Mal 4:3"), ["MAL.4.3"]);
+    assert_eq!(canon(Fr, "Mal 4"), ["MAL.4"]);
+    none(Es, &["Mal 4,3", "Mal 5 días seguidos."]);
+    none(Pt, &["Mal 4,3"]);
+}
+
+#[test]
 fn german_offsets_are_utf16_units() {
     let text = "„Größe“ – so Röm 8,28 – bleibt.";
     let found = ReferenceParser::for_language(De).detect(text);

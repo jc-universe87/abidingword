@@ -3,14 +3,17 @@
 //! `Joh 3:16` is accepted too.
 //!
 //! Left out on purpose, because they are ordinary German words or too likely to
-//! be read as one: Am (Amos; "Am 3. Mai"), Mi (Micha; Mittwoch), Hi (Hiob),
-//! Mal (Maleachi; "Mal 5 Minuten"). The books are still found by their full names.
+//! be read as one: Am (Amos; "Am 3. Mai"), Mi (Micha; Mittwoch), Hi (Hiob).
+//! The books are still found by their full names.
+//! "Mal" (Maleachi) is the one such word that is accepted, and only with a
+//! capital M and a verse: "Mal 4,3" and "Mal 3,1-5" are Maleachi, but "mal 4,3",
+//! "Mal 4" and "Mal 5 Minuten" are not ([`Strictness::Verse`]); "Maleachi 4" is.
 //! Only the umlaut spelling "Röm" counts for Römer: "Rom" is the city.
 //! Roman numerals ("I Kor") are not used for numbered books: German writes 1., 2., 3.
 
-use super::{comma_syntax, latin, Row};
+use super::{book, comma_syntax, latin, Row};
 use crate::scripture::language::ReferenceLanguage;
-use crate::scripture::parser::AliasDictionary;
+use crate::scripture::parser::{AliasDictionary, AliasEntry, Strictness};
 
 const ROWS: &[Row] = &[
     ("GEN", &["genesis", "gen", "1 mose", "1 mo"]),
@@ -83,10 +86,22 @@ const ROWS: &[Row] = &[
 
 pub fn dictionary() -> AliasDictionary {
     // "1. Kor", "1.Kor", "1 Kor", "1Kor"
-    latin(
+    let mut dictionary = latin(
         ReferenceLanguage::De,
         ROWS,
         false,
         comma_syntax(r"\.?\s*", &["röm"]),
-    )
+    );
+    // Ordinary words that count only with a verse (see the module notes).
+    for (code, alias) in VERSE_ONLY {
+        dictionary.entries.push(AliasEntry {
+            alias: (*alias).to_string(),
+            book: book(code),
+            strictness: Strictness::Verse,
+        });
+    }
+    dictionary
 }
+
+/// Unnumbered books only: the alias is used as written.
+const VERSE_ONLY: &[(&str, &str)] = &[("MAL", "mal")];

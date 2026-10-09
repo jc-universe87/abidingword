@@ -33,8 +33,9 @@ use crate::scripture::reference::{Point, ScriptureRef, ScriptureRefDto};
 /// How much of a reference an alias must be written with to count.
 ///
 /// Full names are safe anywhere. A short abbreviation that is also an
-/// ordinary word (Korean 시, 요, 갈…) is only trusted with a verse, so
-/// "요 3:16" is John but "요 3개" is not.
+/// ordinary word (Korean 시, 요, 갈…; German Mal) is only trusted with a verse,
+/// so "요 3:16" is John but "요 3개" is not, and "Mal 4,3" is Malachi but
+/// "Mal 4" is not.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Strictness {
     /// A chapter alone is enough (`요한복음 3`).
@@ -403,12 +404,19 @@ impl ReferenceParser {
                 {
                     return false;
                 }
-                !self.syntax.require_capital
+                let capital = !self.syntax.require_capital
                     || book
                         .as_str()
                         .chars()
                         .next()
-                        .is_some_and(|c| c.is_uppercase() || c.is_ascii_digit())
+                        .is_some_and(|c| c.is_uppercase() || c.is_ascii_digit());
+                // Latin scripts have no chapter unit, so an alias that is also an
+                // ordinary word (German "Mal") needs its verse: "Mal 4,3", never "Mal 4".
+                capital
+                    && match target.strictness {
+                        Strictness::Full => true,
+                        Strictness::Unit | Strictness::Verse => caps.name("v1").is_some(),
+                    }
             }
             Grammar::Korean => {
                 // Stands on its own: not inside a longer word, not followed by more digits.

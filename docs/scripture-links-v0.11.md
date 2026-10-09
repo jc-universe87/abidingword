@@ -7,6 +7,24 @@ focus fix below). The milestone tag `scripture-links-v0.11` is created on that
 commit; pushing it to GitHub is **pending** (to be pushed from a maintainer's
 clone). **No database migration.** Deterministic only: no AI.
 
+### Windows acceptance notes (`0.5.0-dev.22`)
+
+- **Reading view links: accepted.** References in Reading are actionable in
+  every format; Open in Bible, Back / Forward and Back to the Study's primary
+  passage behave as designed, and the primary passage is never changed.
+- **EPUB and Word (DOCX) Original links: accepted.**
+- Keyboard and focus, Korean and the interface strings: accepted.
+- **PDF Original is non-interactive, intentionally.** pdf.js draws the page as
+  positioned text runs, and there is no exact mapping from those runs to the
+  imported text, so no reference positions can be known. Guessed overlays are
+  not drawn. This is a deliberate v0.11 limitation, **not a failed feature**:
+  the Reading view is the PDF path for Scripture links (see *Supported views*).
+- **German "Mal" (Maleachi): fixed after acceptance** on
+  `fix/v0.11-german-malachi`. "Mal 4,3" was not recognised because "Mal" was
+  left out of the German dictionary on purpose (it is an ordinary word: "mal
+  sehen", "Mal 5 Minuten"). It is now accepted under a narrow rule, see
+  *Language*.
+
 Contents focus (fixed with v0.11): choosing a Contents entry in Reading moves
 focus to the paragraph it lands on and keeps it there; closing the panel no
 longer takes focus back to the Contents button a frame later.
@@ -91,6 +109,18 @@ merged). "John 3:16", "Joh 3,16", "Jean 3,16", "Juan 3:16", "João 3:16" and
 "요한복음 3장 16절" resolve to the same canonical passage; how it is labelled
 follows the interface language.
 
+German **"Mal"** (Maleachi) is the one abbreviation that is also an ordinary
+word and is still accepted, under the strictest rule the parser has
+(`Strictness::Verse`, the rule Korean uses for its one-syllable
+abbreviations): it counts only with a **capital M** and a **verse**, standing
+on its own. "Mal 4,3", "Mal 3,1-5", "Mal 3:1" and "Mal. 4,5" are Maleachi;
+"Mal 4" (a chapter alone), "Mal 5 Minuten", "mal sehen", "noch mal 4 Dinge",
+"noch mal 4,3 Liter" (lower case), "Einmal 4,3" (inside a word),
+"Mal 3, 1 Stunde" (comma and space) and "Mal 9,3" (no such chapter) are not.
+For a whole chapter write "Maleachi 4". Every other alias, and the other
+languages, are unchanged. A German sentence that begins "Mal 2,5 …" with a
+decimal number would still be read as Maleachi 2:5; that is accepted as rare.
+
 ## Supported views
 
 | View | How | Notes |
@@ -126,7 +156,7 @@ backToStudy}` and `library.scriptureRef.{label, actions, open}` (Korean:
 
 ## Known limits
 
-- PDF Original: no Scripture links (see above).
+- PDF Original: no Scripture links, intentionally (no exact text-position mapping; no guessed overlays; Reading is the PDF path).
 - In formatted pages, a reference split across formatting is not linked.
 - Only Open in Bible; no "add as related passage" yet.
 - History is per session and is not shared with the reader's own history.

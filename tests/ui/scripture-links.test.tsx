@@ -163,4 +163,25 @@ describe("References written in other languages", () => {
       await waitFor(() => expect(within(scripture()).getByText(/showing Romans 6:1–4/)).toBeInTheDocument());
     });
   }
+
+  it("Deutsch: “Mal 4,3” opens Malachi 4:3 and the word “mal” stays text", async () => {
+    // v0.11 acceptance: the German abbreviation of Maleachi (verse required).
+    const text = "Vergleiche Mal 4,3 – lass uns mal sehen.";
+    const fixture: SourceFixture = {
+      title: "Maleachi auf Deutsch",
+      format: "text",
+      language: "Deutsch",
+      segments: [{ text }],
+      mentions: [{ segment: 0, reference: "MAL.4.3", matchedText: "Mal 4,3" }],
+    };
+    const { user } = await renderApp(withLibrary(fixture));
+    const reader = await openSource(user, "Maleachi auf Deutsch");
+    const ref = await reference(reader, "Malachi 4:3");
+    expect(ref).toHaveTextContent("Mal 4,3");
+    expect(ref.closest("p")!.textContent).toBe(text);
+    expect(within(reader).getAllByRole("button", { name: /\(Scripture reference\)$/ })).toHaveLength(1);
+    await user.click(ref);
+    await user.click(within(reader).getByRole("menuitem", { name: "Open in Bible" }));
+    await waitFor(() => expect(within(scripture()).getByText(/showing Malachi 4:3/)).toBeInTheDocument());
+  });
 });
