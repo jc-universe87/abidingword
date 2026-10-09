@@ -286,6 +286,9 @@ describe("Contents for an EPUB", () => {
     await user.click(within(nav).getByRole("button", { name: "Part A" }));
     await waitFor(() => expect(scrolled.at(-1)?.dataset.segPosition ?? scrolled.at(-1)?.nextElementSibling?.getAttribute("data-seg-position")).toBe("3"));
     expect(document.activeElement).toHaveTextContent("Chapter two, deeper, see John 15:4.");
+    // and keeps it: closing the panel does not take it back to the Contents button a frame later
+    await act(async () => new Promise((resolve) => setTimeout(resolve, 50)));
+    expect(document.activeElement).toHaveTextContent("Chapter two, deeper, see John 15:4.");
     expect(panel()).toBeNull();
     expect(engine.outlineReads).toEqual([]); // an EPUB never goes through the PDF engine
   });
@@ -375,7 +378,11 @@ describe("Contents panel keyboard and focus", () => {
     await user.keyboard("{Enter}");
     await waitFor(() => expect(scrolled.at(-1)).toHaveTextContent("Chapter Two"));
     await waitFor(() => expect(panel()).toBeNull());
-    await waitFor(() => expect(opener).toHaveFocus());
+    // A jump in Reading focuses the paragraph it lands on (docs/source-navigation-v0.7.md), never
+    // the Contents button, whatever the timing: wait a frame so a late refocus would show.
+    await act(async () => new Promise((resolve) => setTimeout(resolve, 50)));
+    expect(document.activeElement?.getAttribute("data-seg-position")).not.toBeNull();
+    expect(opener).not.toHaveFocus();
     await user.click(opener);
     screen.getByRole("button", { name: "Chapter Three" }).focus();
     await user.keyboard(" ");
