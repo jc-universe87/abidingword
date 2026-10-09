@@ -91,8 +91,8 @@ similarity matching; the links are built, in the source's own language (English,
 for an existing library at startup, after the usual backup). See
 [`docs/passage-aware-sources-v0.9.md`](docs/passage-aware-sources-v0.9.md).
 
-**Not yet, planned for later phases:** OCR and transcription, concordance
-and original-language tools, AI assistance, sync, integrations and MCP.
+**Not yet, planned for later phases:** OCR and transcription, lemma and
+morphology (original-language) tools, AI assistance, sync, integrations and MCP.
 
 ## Architecture in brief
 
@@ -127,6 +127,7 @@ what is deliberately not built yet, [`docs/product-backlog.md`](docs/product-bac
 | Passage-aware sources v0.9 | complete; Windows acceptance passed (`main` `7c72bd9`, test build `0.5.0-dev.18`; tag `passage-aware-sources-v0.9` to be pushed) | sources grouped by passage with the reason for each place; section links from headings (EPUB, Word, Markdown); aboutness-aware ranking; expandable further places; deterministic, no AI |
 | Study workspace refinement v0.10 | complete; Windows acceptance passed (`main` `3d50656`, test build `0.5.0-dev.19`; tag `study-workspace-refinement-v0.10` to be pushed) | default project, quieter header and details, one Add, simpler quick capture, findings in their sections, visible controls, pane-aware layout; Korean terminology (성경공부, 성경공부 모음, 공부 틀, 부분) |
 | Scripture links v0.11 | complete; Windows acceptance passed (`main` `99118d5`, test build `0.5.0-dev.22`; tag `scripture-links-v0.11` to be pushed) | references in sources open in the Bible (Reading, formatted EPUB and Word); Scripture Back / Forward and Back to the Study's passage; PDF Original not linked; no migration |
+| Concordance v0.12 | in review (`feature/concordance-v0.12`, not merged) | word and phrase occurrences in one Bible, by book; Find occurrences from a word study; surface forms only, no lemma or morphology; no migration |
 | Library v0.4 | in development (`feature/library-v0.4`) | PDF/EPUB/Markdown/text import, provenance, library search, passage mentions, finding citations |
 
 ## Supported platforms

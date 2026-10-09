@@ -211,6 +211,7 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
             reloadRelations={relations.reload}
             onChanged={(s) => detail.setData({ ...current, study: s })}
             onDuplicated={(id) => onOpenStudy({ id, projectId: study.projectId })}
+            onRevealScripture={onRevealScripture}
           />
         )}
       </header>

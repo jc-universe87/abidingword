@@ -428,13 +428,17 @@
       "teachingFormat": {
         "label": "형식",
         "hint": "예: 설교"
+      },
+      "translation": {
+        "label": "성경"
       }
     },
     "detailsToggle": "성경공부 정보",
     "typeLine": "종류: {{type}}",
     "fromTemplate": "내 공부 틀에서 시작함: {{name}}",
     "groupAbout": "이 성경공부에 관하여",
-    "groupCopy": "복사"
+    "groupCopy": "복사",
+    "findOccurrences": "용례 찾기"
   },
   "editor": {
     "opening": "성경공부를 여는 중…",

@@ -94,6 +94,43 @@ export interface SearchResults {
   truncated: boolean;
 }
 
+/** Concordance (v0.12): a word, or words together. */
+export type ConcordanceMode = "word" | "phrase";
+
+export interface ConcordanceQuery {
+  translationId: string;
+  query: string;
+  mode: ConcordanceMode;
+  /** Only this book's verses (the counts stay for the whole Bible). */
+  book?: string;
+}
+
+export interface ConcordanceHit {
+  reference: ScriptureRef;
+  text: string;
+  /** Where the query is in `text` (UTF-16 offsets, end exclusive). */
+  matches: [number, number][];
+}
+
+export interface ConcordanceBook {
+  code: string;
+  name: string;
+  verses: number;
+  occurrences: number;
+}
+
+export interface ConcordanceResult {
+  query: string;
+  mode: ConcordanceMode;
+  translationId: string;
+  verses: number;
+  occurrences: number;
+  books: ConcordanceBook[];
+  /** Every matching verse when there are few (or the book asked for); otherwise empty. */
+  hits: ConcordanceHit[];
+  hitsComplete: boolean;
+}
+
 export interface DetectedReference {
   text: string;
   /** UTF-16 offsets, as JavaScript string indexes. */

@@ -3,7 +3,7 @@ import i18n from "@/i18n";
 import { useApi } from "@/lib/ApiContext";
 import { chapterRef, hasVerses, refFromCanonical } from "@/lib/scripture";
 import type { AppSettings } from "@/types/domain";
-import type { BibleTranslation, BookInfo, ScriptureRef, SearchResults } from "@/types/scripture";
+import type { BibleTranslation, BookInfo, ConcordanceMode, ScriptureRef, SearchResults } from "@/types/scripture";
 import { canGoBack, canGoForward, goBack, goForward, startHistory, visit, type ScriptureHistory } from "./scriptureHistory";
 
 /**
@@ -61,12 +61,23 @@ interface ScriptureValue {
    */
   studyPassage: ScriptureRef | null;
   setStudyPassage: (ref: ScriptureRef | null) => void;
+  /** The last request to show the concordance (e.g. from a word study); a new `nonce` is a new request. */
+  concordanceRequest: ConcordanceRequest | null;
+  openConcordance: (request: Omit<ConcordanceRequest, "nonce">) => void;
   goToChapter: (book: string, chapter: number) => void;
   /** Parses typed text; throws an ApiError with a plain message if invalid. */
   navigateText: (text: string) => Promise<ScriptureRef>;
   reloadTranslations: () => Promise<BibleTranslation[]>;
   runSearch: (input: Pick<ScriptureSearch, "query" | "currentOnly" | "book">) => Promise<void>;
   closeSearch: () => void;
+}
+
+export interface ConcordanceRequest {
+  query: string;
+  mode: ConcordanceMode;
+  /** The translation to look in; the one being read when absent. */
+  translationId?: string | null;
+  nonce: number;
 }
 
 const ScriptureContext = createContext<ScriptureValue | null>(null);
@@ -96,6 +107,12 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
   const [selectedVerse, setSelectedVerse] = useState<ScriptureRef | null>(null);
   const [search, setSearch] = useState<ScriptureSearch | null>(null);
   const [studyPassage, setStudyPassage] = useState<ScriptureRef | null>(null);
+  const [concordanceRequest, setConcordanceRequest] = useState<ConcordanceRequest | null>(null);
+  const openConcordance = useCallback(
+    (request: Omit<ConcordanceRequest, "nonce">) =>
+      setConcordanceRequest((current) => ({ ...request, nonce: (current?.nonce ?? 0) + 1 })),
+    [],
+  );
   // Where the pane has been. The ref holds the latest value so a navigation
   // made in the same tick as another still sees the one before it.
   const [history, setHistoryState] = useState<ScriptureHistory>(() => {
@@ -238,13 +255,15 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
       forward,
       studyPassage,
       setStudyPassage,
+      concordanceRequest,
+      openConcordance,
       goToChapter,
       navigateText,
       reloadTranslations,
       runSearch,
       closeSearch,
     }),
-    [books, bookByCode, translations, translation, location, selection, selectedVerse, selectVerse, currentPassage, navigationId, search, setTranslation, goTo, current, backAvailable, forwardAvailable, back, forward, studyPassage, goToChapter, navigateText, reloadTranslations, runSearch, closeSearch],
+    [books, bookByCode, translations, translation, location, selection, selectedVerse, selectVerse, currentPassage, navigationId, search, setTranslation, goTo, current, backAvailable, forwardAvailable, back, forward, studyPassage, concordanceRequest, openConcordance, goToChapter, navigateText, reloadTranslations, runSearch, closeSearch],
   );
 
   return <ScriptureContext.Provider value={value}>{children}</ScriptureContext.Provider>;

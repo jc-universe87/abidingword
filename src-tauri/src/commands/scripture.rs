@@ -2,6 +2,7 @@ use tauri::State;
 
 use super::CommandResult;
 use crate::db::bibles;
+use crate::scripture::concordance::{self, ConcordanceQuery, ConcordanceResult};
 use crate::scripture::parser::{DetectedReference, ReferenceParser};
 use crate::scripture::reference::{ScriptureRef, ScriptureRefDto};
 use crate::scripture::{
@@ -41,6 +42,15 @@ pub fn scripture_search(
     input: SearchScripture,
 ) -> CommandResult<SearchResults> {
     state.db(|conn| bibles::search(conn, &input))
+}
+
+/// Where a word or phrase occurs in one translation (v0.12 concordance).
+#[tauri::command(async)]
+pub fn scripture_concordance(
+    state: State<'_, AppState>,
+    input: ConcordanceQuery,
+) -> CommandResult<ConcordanceResult> {
+    state.db(|conn| concordance::search(conn, &input))
 }
 
 #[tauri::command(async)]

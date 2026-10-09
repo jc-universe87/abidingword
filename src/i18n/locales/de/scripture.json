@@ -193,12 +193,33 @@
       "bookmark": "Lesezeichen",
       "wholeVerse": "Ganzer Vers",
       "show": "In der Bibel anzeigen"
-    }
+    },
+    "concordance": "Konkordanz"
   },
   "history": {
     "group": "Verlauf der Bibel",
     "back": "Zurück",
     "forward": "Vorwärts",
     "backToStudy": "Zurück zu {{passage}}"
+  },
+  "concordance": {
+    "queryLabel": "Wort oder Wendung",
+    "modeLabel": "Suchen nach",
+    "mode": {
+      "word": "Wort",
+      "phrase": "Wendung"
+    },
+    "bible": "Bibel",
+    "find": "Suchen",
+    "hint": "Findet die Wörter so, wie diese Bibel sie schreibt.",
+    "looking": "Wird gesucht …",
+    "occurrences_one": "{{formatted}} Vorkommen",
+    "occurrences_other": "{{formatted}} Vorkommen",
+    "verses_one": "in {{formatted}} Vers",
+    "verses_other": "in {{formatted}} Versen",
+    "none": "„{{query}}“ kommt in dieser Bibel nicht vor.",
+    "books": "Bücher",
+    "bookCount": "{{book}} ({{formatted}})",
+    "open": "{{passage}} in der Bibel öffnen"
   }
 }

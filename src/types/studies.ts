@@ -40,6 +40,8 @@ export interface StudyDetails {
   lemma?: string | null;
   originalLanguage?: string | null;
   lexicalId?: string | null;
+  /** Word study (v0.12): the translation its occurrences are looked up in. */
+  translationId?: string | null;
   audience?: string | null;
   duration?: string | null;
   teachingFormat?: string | null;

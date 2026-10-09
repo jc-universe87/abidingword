@@ -35,6 +35,8 @@ import type {
   BundledBibleInfo,
   ChapterText,
   CommitImport,
+  ConcordanceQuery,
+  ConcordanceResult,
   CreateAnnotation,
   MarksPage,
   MarksQuery,
@@ -175,6 +177,8 @@ export interface Api {
   scriptureGetChapter(input: { translationId: string; book: string; chapter: number }): Promise<ChapterText>;
   scriptureGetPassage(input: { translationId: string; reference: string }): Promise<PassageText>;
   scriptureSearch(input: SearchScripture): Promise<SearchResults>;
+  /** Where a word or phrase occurs in one translation (v0.12). */
+  scriptureConcordance(input: ConcordanceQuery): Promise<ConcordanceResult>;
   referenceParse(text: string): Promise<ScriptureRef>;
   referenceDetect(text: string): Promise<DetectedReference[]>;
 
@@ -335,6 +339,7 @@ export const tauriApi: Api = {
   scriptureGetChapter: (input) => call("scripture_get_chapter", { input }),
   scriptureGetPassage: (input) => call("scripture_get_passage", { input }),
   scriptureSearch: (input) => call("scripture_search", { input }),
+  scriptureConcordance: (input) => call("scripture_concordance", { input }),
   referenceParse: (text) => call("scripture_reference_parse", { text }),
   referenceDetect: (text) => call("scripture_reference_detect", { text }),
 

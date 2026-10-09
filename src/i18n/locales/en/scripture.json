@@ -193,12 +193,33 @@
       "bookmark": "Bookmark",
       "wholeVerse": "Whole verse",
       "show": "Show in the Bible"
-    }
+    },
+    "concordance": "Concordance"
   },
   "history": {
     "group": "Scripture history",
     "back": "Back",
     "forward": "Forward",
     "backToStudy": "Back to {{passage}}"
+  },
+  "concordance": {
+    "queryLabel": "Word or phrase",
+    "modeLabel": "Look for",
+    "mode": {
+      "word": "Word",
+      "phrase": "Phrase"
+    },
+    "bible": "Bible",
+    "find": "Find",
+    "hint": "Finds the words as this Bible writes them.",
+    "looking": "Looking…",
+    "occurrences_one": "{{formatted}} occurrence",
+    "occurrences_other": "{{formatted}} occurrences",
+    "verses_one": "in {{formatted}} verse",
+    "verses_other": "in {{formatted}} verses",
+    "none": "“{{query}}” does not occur in this Bible.",
+    "books": "Books",
+    "bookCount": "{{book}} ({{formatted}})",
+    "open": "Open {{passage}} in the Bible"
   }
 }

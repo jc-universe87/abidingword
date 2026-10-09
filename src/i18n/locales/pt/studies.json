@@ -438,13 +438,17 @@
       "teachingFormat": {
         "label": "Formato",
         "hint": "ex.: sermão"
+      },
+      "translation": {
+        "label": "Bíblia"
       }
     },
     "detailsToggle": "Detalhes do estudo",
     "typeLine": "Tipo: {{type}}",
     "fromTemplate": "A partir do seu modelo: {{name}}",
     "groupAbout": "Sobre este estudo",
-    "groupCopy": "Copiar"
+    "groupCopy": "Copiar",
+    "findOccurrences": "Encontrar ocorrências"
   },
   "editor": {
     "opening": "Abrindo estudo…",

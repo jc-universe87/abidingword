@@ -67,6 +67,16 @@ changed. Still open: Scripture links in the PDF Original view (needs a reliable
 text mapping; never guessed positions); references split across formatting in
 formatted pages; further actions (Add as related passage, Copy reference).
 
+### Concordance — surface forms shipped in v0.12 (in review); lemma and morphology open
+
+See [`concordance-v0.12.md`](concordance-v0.12.md): Word and Phrase occurrences
+in one Bible, by book, with per-script normalisation (Latin accents kept,
+Greek accents and Hebrew points ignored), opened in Scripture with Back, and
+**Find occurrences** from a word study. **Not built:** lemma or morphology
+search, Strong's or other lexical identifiers, lexicons, interlinear, OSIS /
+USX import, comparison across translations. These need an importer that keeps
+token data (the USFM importer drops `\w` attributes today).
+
 ### From the user's own materials to templates
 
 The user may bring their own Bible-study, sermon or teaching materials.

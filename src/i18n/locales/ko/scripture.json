@@ -180,12 +180,31 @@
       "bookmark": "책갈피",
       "wholeVerse": "구절 전체",
       "show": "성경에서 보기"
-    }
+    },
+    "concordance": "용례 찾기"
   },
   "history": {
     "group": "성경 이동 기록",
     "back": "뒤로",
     "forward": "앞으로",
     "backToStudy": "{{passage}}(으)로 돌아가기"
+  },
+  "concordance": {
+    "queryLabel": "단어 또는 구절",
+    "modeLabel": "찾을 방식",
+    "mode": {
+      "word": "단어",
+      "phrase": "구절"
+    },
+    "bible": "성경",
+    "find": "찾기",
+    "hint": "이 성경에 쓰인 형태 그대로 찾습니다.",
+    "looking": "찾는 중…",
+    "occurrences_other": "용례 {{formatted}}회",
+    "verses_other": "{{formatted}}개 절",
+    "none": "이 성경에는 “{{query}}”이(가) 나오지 않습니다.",
+    "books": "성경책",
+    "bookCount": "{{book}} ({{formatted}})",
+    "open": "성경에서 {{passage}} 열기"
   }
 }
