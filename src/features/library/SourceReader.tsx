@@ -99,6 +99,9 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   // Back / Forward: deliberate jumps only. Kept in a ref as well as state, so a handler always sees the latest.
   const [history, setHistory] = useState<ReaderHistory>(initialPosition?.history ?? NO_HISTORY);
   const historyRef = useRef(history);
+  // Closing the panel gives focus back to its button, a frame later. A jump that lands
+  // on a paragraph cancels that, so the place chosen keeps focus whatever the timing.
+  const refocusOpener = useRef<number | null>(null);
   const commit = (next: ReaderHistory) => {
     historyRef.current = next;
     setHistory(next);
@@ -255,6 +258,10 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         (before?.hasAttribute("data-section-marker") ? before : spot)?.scrollIntoView?.({ block: "start" });
       }
       spot?.setAttribute("tabindex", "-1");
+      if (spot && refocusOpener.current !== null) {
+        cancelAnimationFrame(refocusOpener.current);
+        refocusOpener.current = null;
+      }
       spot?.focus({ preventScroll: true });
       landingPosition.current = null;
     }
@@ -276,7 +283,11 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const openContents = () => setPanel({ currentId: currentEntryNow() });
   const closeContents = () => {
     setPanel(null);
-    requestAnimationFrame(() => opener.current?.focus({ preventScroll: true }));
+    if (refocusOpener.current !== null) cancelAnimationFrame(refocusOpener.current);
+    refocusOpener.current = requestAnimationFrame(() => {
+      refocusOpener.current = null;
+      opener.current?.focus({ preventScroll: true });
+    });
   };
 
   /** Reading, at a physical page: stay in Reading and show that page's text. */
