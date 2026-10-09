@@ -99,6 +99,9 @@ pub struct StudyDetails {
     pub original_language: Option<String>,
     /// Word study: a lexicon identifier, once lexical data exists.
     pub lexical_id: Option<String>,
+    /// Word study (v0.12): the Bible translation its occurrences are looked
+    /// up in. A reference only: no occurrence is copied into the study.
+    pub translation_id: Option<String>,
     /// Teaching study.
     pub audience: Option<String>,
     pub duration: Option<String>,

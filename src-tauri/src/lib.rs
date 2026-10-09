@@ -120,6 +120,7 @@ pub fn run() {
             commands::scripture::scripture_get_chapter,
             commands::scripture::scripture_get_passage,
             commands::scripture::scripture_search,
+            commands::scripture::scripture_concordance,
             commands::scripture::scripture_reference_parse,
             commands::scripture::scripture_reference_detect,
             commands::bibles::bible_list,
