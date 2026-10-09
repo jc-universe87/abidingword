@@ -212,6 +212,9 @@ fn index_can_narrow(tokens: &[String]) -> bool {
     })
 }
 
+/// A matching verse: its key, its text and where the query is in it.
+type Found = (i64, String, Vec<(usize, usize)>);
+
 fn split_key(key: i64) -> (u8, u16, u16) {
     (
         (key / 1_000_000) as u8,
@@ -254,7 +257,7 @@ pub fn search(conn: &Connection, input: &ConcordanceQuery) -> AppResult<Concorda
     };
 
     let mut by_book: BTreeMap<u8, (usize, usize)> = BTreeMap::new();
-    let mut found: Vec<(i64, String, Vec<(usize, usize)>)> = Vec::new();
+    let mut found: Vec<Found> = Vec::new();
     for (key, text) in rows {
         let matches = find(&text, &wanted);
         if matches.is_empty() {
