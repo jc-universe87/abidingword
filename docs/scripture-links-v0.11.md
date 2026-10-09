@@ -1,7 +1,15 @@
 # Scripture links in Library sources (v0.11)
 
-Status: in review. Branch `feature/scripture-links-v0.11`, from `main`
-`50093d5`. Not merged. **No database migration.** Deterministic only: no AI.
+**Status: complete. Windows acceptance passed** on the Development/Test build
+`0.5.0-dev.22`, built from the accepted `main` commit
+`99118d526eb6c2bba79d6f3cac23b1a537b8e772` (the v0.11 merge plus the Contents
+focus fix below). The milestone tag `scripture-links-v0.11` is created on that
+commit; pushing it to GitHub is **pending** (to be pushed from a maintainer's
+clone). **No database migration.** Deterministic only: no AI.
+
+Contents focus (fixed with v0.11): choosing a Contents entry in Reading moves
+focus to the paragraph it lands on and keeps it there; closing the panel no
+longer takes focus back to the Contents button a frame later.
 
 v0.9 went from a Scripture passage to the Library sources about it. v0.11 goes
 the other way: a Bible reference written in a source becomes a bridge back

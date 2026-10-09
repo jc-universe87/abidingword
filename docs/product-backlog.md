@@ -58,7 +58,7 @@ cross-versification mapping; heading references that are not at the heading's
 start or end being treated more cautiously; same-book matches, if they prove
 useful; PDF sections if the importer ever finds trustworthy headings.
 
-### Scripture links inside Library sources — built in v0.11 (in review)
+### Scripture links inside Library sources — shipped in v0.11
 
 See [`scripture-links-v0.11.md`](scripture-links-v0.11.md): references in the
 Reading view and in formatted EPUB / Word pages offer **Open in Bible**;
