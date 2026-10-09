@@ -433,13 +433,17 @@
       "teachingFormat": {
         "label": "Format",
         "hint": "e.g. sermon"
+      },
+      "translation": {
+        "label": "Bible"
       }
     },
     "detailsToggle": "Study details",
     "typeLine": "Type: {{type}}",
     "fromTemplate": "From your template: {{name}}",
     "groupAbout": "About this study",
-    "groupCopy": "Copy"
+    "groupCopy": "Copy",
+    "findOccurrences": "Find occurrences"
   },
   "editor": {
     "opening": "Opening study…",

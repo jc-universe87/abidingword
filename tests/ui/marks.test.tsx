@@ -68,7 +68,8 @@ describe("Bible and Marks", () => {
     await user.click(switchTo("Marks"));
     expect(switchTo("Marks")).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("heading", { level: 2, name: "Marks" })).toBeInTheDocument();
-    expect(within(view()).getAllByRole("button")).toHaveLength(2);
+    // Bible, Marks and (v0.12) Concordance: still one plain switch
+    expect(within(view()).getAllByRole("button").map((b) => b.textContent)).toEqual(["Bible", "Marks", "Concordance"]);
     await user.click(switchTo("Bible"));
     expect(screen.queryByRole("heading", { level: 2, name: "Marks" })).toBeNull();
     expect(within(pane()).getByRole("heading", { level: 2, name: /John 15/ })).toBeInTheDocument();
@@ -308,6 +309,7 @@ describe("keyboard, narrow panes and structure", () => {
   it("reaches the switch, filters, search and every mark with Tab, and opens one with Enter", async () => {
     const user = await openMarks(await seeded());
     switchTo("Marks").focus();
+    await user.tab(); // Concordance (v0.12), the last of the switch
     await user.tab();
     expect(kind("All")).toHaveFocus();
     await user.tab();

@@ -433,13 +433,17 @@
       "teachingFormat": {
         "label": "Form",
         "hint": "z. B. Predigt"
+      },
+      "translation": {
+        "label": "Bibel"
       }
     },
     "detailsToggle": "Studiendetails",
     "typeLine": "Art: {{type}}",
     "fromTemplate": "Aus Ihrer Vorlage: {{name}}",
     "groupAbout": "Über dieses Bibelstudium",
-    "groupCopy": "Kopieren"
+    "groupCopy": "Kopieren",
+    "findOccurrences": "Vorkommen finden"
   },
   "editor": {
     "opening": "Bibelstudium wird geöffnet …",

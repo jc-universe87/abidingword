@@ -206,12 +206,35 @@
       "bookmark": "Marcador",
       "wholeVerse": "Versículo completo",
       "show": "Mostrar en la Biblia"
-    }
+    },
+    "concordance": "Concordancia"
   },
   "history": {
     "group": "Historial de la Biblia",
     "back": "Atrás",
     "forward": "Adelante",
     "backToStudy": "Volver a {{passage}}"
+  },
+  "concordance": {
+    "queryLabel": "Palabra o frase",
+    "modeLabel": "Buscar",
+    "mode": {
+      "word": "Palabra",
+      "phrase": "Frase"
+    },
+    "bible": "Biblia",
+    "find": "Buscar",
+    "hint": "Encuentra las palabras tal como esta Biblia las escribe.",
+    "looking": "Buscando…",
+    "occurrences_one": "{{formatted}} aparición",
+    "occurrences_many": "{{formatted}} apariciones",
+    "occurrences_other": "{{formatted}} apariciones",
+    "verses_one": "en {{formatted}} versículo",
+    "verses_many": "en {{formatted}} versículos",
+    "verses_other": "en {{formatted}} versículos",
+    "none": "«{{query}}» no aparece en esta Biblia.",
+    "books": "Libros",
+    "bookCount": "{{book}} ({{formatted}})",
+    "open": "Abrir {{passage}} en la Biblia"
   }
 }

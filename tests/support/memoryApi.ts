@@ -68,6 +68,8 @@ function requireTitle(value: string, what: string): string {
 export interface MemoryApi extends Api {
   /** Calls to libraryPassageSourceLocations, for tests of lazy loading. */
   libraryLocationsCalls: { sourceId: string; reference: string }[];
+  /** Calls to scriptureConcordance, for tests. */
+  concordanceCalls: { translationId: string; query: string; mode: string; book?: string }[];
   /** Calls to libraryDetectReferences (how many texts each), for tests of formatted pages. */
   detectCalls: number[];
   state: {
@@ -106,6 +108,8 @@ export interface MemoryApi extends Api {
   };
   /** Installs a fixture Bible directly (test setup). */
   installFixtureBible(shortName: string, wording: string): BibleTranslation;
+  /** Sets one verse's text in an installed fixture Bible (test setup). */
+  setVerseText(bibleId: string, canonical: string, text: string): void;
   /** Adds a source to the library directly (test setup). */
   installFixtureSource(fixture: SourceFixture): Source;
 }
@@ -188,6 +192,30 @@ function parseForTests(text: string): ScriptureRef {
   const ref = refFromCanonical(canonical, bookByCode);
   if (!ref) throw new ApiError("invalidReference", "Invalid reference.");
   return ref;
+}
+
+// Concordance, as the core does it (src-tauri/src/scripture/concordance.rs).
+const GREEK = /[\u0370-\u03FF\u1F00-\u1FFF]/;
+const HEBREW = /[\u0590-\u05FF\uFB1D-\uFB4F]/;
+function concordanceForm(token: string): string {
+  const lower = token.normalize("NFC").toLowerCase();
+  if (GREEK.test(lower)) return lower.normalize("NFD").replace(/\p{M}/gu, "").replace(/ς/g, "σ").normalize("NFC");
+  if (HEBREW.test(lower)) return lower.normalize("NFD").replace(/\p{M}/gu, "").normalize("NFC");
+  return lower;
+}
+function concordanceTokens(text: string): { start: number; end: number; form: string }[] {
+  return [...text.matchAll(/[\p{L}\p{N}\p{M}]+/gu)].map((m) => ({ start: m.index, end: m.index + m[0].length, form: concordanceForm(m[0]) }));
+}
+function concordanceFind(text: string, wanted: string[]): [number, number][] {
+  const toks = concordanceTokens(text);
+  const out: [number, number][] = [];
+  for (let i = 0; i + wanted.length <= toks.length; ) {
+    if (wanted.every((w, k) => toks[i + k]!.form === w)) {
+      out.push([toks[i]!.start, toks[i + wanted.length - 1]!.end]);
+      i += wanted.length;
+    } else i += 1;
+  }
+  return out;
 }
 
 function overlaps(a: ScriptureRef, b: ScriptureRef): boolean {
@@ -599,6 +627,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
   };
   const api: MemoryApi = {
     libraryLocationsCalls: [],
+    concordanceCalls: [],
     detectCalls: [],
     state,
     appInfo: async () => state.info,
@@ -926,6 +955,38 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         );
       return { hits, truncated: false };
     },
+    scriptureConcordance: async ({ translationId, query, mode, book }) => {
+      api.concordanceCalls.push({ translationId, query, mode, book });
+      const wanted = concordanceTokens(query.slice(0, 200)).map((t) => t.form);
+      if (wanted.length === 0) throw new ApiError("invalidInput", "Type a word to look for.");
+      if (mode === "word" && wanted.length > 1) throw new ApiError("invalidInput", "That is more than one word. Choose Phrase to look for words together.");
+      if (!state.bibles.some((b) => b.id === translationId)) throw new ApiError("notFound", "This Bible could not be found.");
+      const verses = [...(state.text.get(translationId)?.values() ?? [])].flat().sort((a, b) => {
+        const ka = refFromCanonical(a.canonical, bookByCode);
+        const kb = refFromCanonical(b.canonical, bookByCode);
+        const ord = (r: ScriptureRef | null) => (r ? (bookByCode.get(r.book)?.ordinal ?? 0) * 1e6 + r.startChapter * 1e3 + (r.startVerse ?? 0) : 0);
+        return ord(ka) - ord(kb);
+      });
+      const found = verses.flatMap((v) => {
+        const matches = concordanceFind(v.text, wanted);
+        const reference = refFromCanonical(v.canonical, bookByCode);
+        return matches.length && reference ? [{ reference, text: v.text, matches }] : [];
+      });
+      const books = new Map<string, { verses: number; occurrences: number }>();
+      for (const h of found) {
+        const b = books.get(h.reference.book) ?? { verses: 0, occurrences: 0 };
+        books.set(h.reference.book, { verses: b.verses + 1, occurrences: b.occurrences + h.matches.length });
+      }
+      const listed = book ? found.filter((h) => h.reference.book === book) : found.length <= 200 ? found : [];
+      return {
+        query, mode, translationId,
+        verses: found.length,
+        occurrences: found.reduce((n, h) => n + h.matches.length, 0),
+        books: [...books.entries()].map(([code, c]) => ({ code, name: bookByCode.get(code)?.name ?? code, ...c })),
+        hits: listed,
+        hitsComplete: Boolean(book) || found.length <= 200,
+      };
+    },
     referenceParse: async (text) => parseForTests(text),
     referenceDetect: async (text) => {
       const found = [];
@@ -1078,6 +1139,16 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       state.passages = state.passages.filter((p) => p.id !== passageId);
     },
     installFixtureBible: (shortName, wording) => addBible({ name: `Fixture ${shortName}`, shortName }, wording),
+    setVerseText: (bibleId, canonical, text) => {
+      const chapters = state.text.get(bibleId);
+      if (!chapters) throw new Error(`No fixture Bible ${bibleId}`);
+      const [book, chapter, verse] = canonical.split(".");
+      const key = `${book}|${Number(chapter)}`;
+      const list = chapters.get(key) ?? [];
+      const existing = list.find((v) => v.canonical === canonical);
+      if (existing) existing.text = text;
+      else chapters.set(key, [...list, { canonical, chapter: Number(chapter), verse: Number(verse), text }].sort((a, b) => a.verse - b.verse));
+    },
     installFixtureSource: (fixture) => addSource(fixture),
 
     libraryList: async ({ sourceType, language }) =>

@@ -206,12 +206,35 @@
       "bookmark": "Signet",
       "wholeVerse": "Verset entier",
       "show": "Afficher dans la Bible"
-    }
+    },
+    "concordance": "Concordance"
   },
   "history": {
     "group": "Historique de la Bible",
     "back": "Précédent",
     "forward": "Suivant",
     "backToStudy": "Revenir à {{passage}}"
+  },
+  "concordance": {
+    "queryLabel": "Mot ou expression",
+    "modeLabel": "Rechercher",
+    "mode": {
+      "word": "Mot",
+      "phrase": "Expression"
+    },
+    "bible": "Bible",
+    "find": "Rechercher",
+    "hint": "Trouve les mots tels que cette Bible les écrit.",
+    "looking": "Recherche…",
+    "occurrences_one": "{{formatted}} occurrence",
+    "occurrences_many": "{{formatted}} occurrences",
+    "occurrences_other": "{{formatted}} occurrences",
+    "verses_one": "dans {{formatted}} verset",
+    "verses_many": "dans {{formatted}} versets",
+    "verses_other": "dans {{formatted}} versets",
+    "none": "« {{query}} » n’apparaît pas dans cette Bible.",
+    "books": "Livres",
+    "bookCount": "{{book}} ({{formatted}})",
+    "open": "Ouvrir {{passage}} dans la Bible"
   }
 }

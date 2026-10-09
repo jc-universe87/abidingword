@@ -5,6 +5,7 @@ import { Button } from "@/design-system/Button";
 import { useAutosave } from "@/hooks/useAutosave";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
+import { useScripture } from "@/features/scripture/ScriptureContext";
 import type { Study } from "@/types/domain";
 import { STUDY_STATUSES, type Finding, type StudyDetails, type StudyRelation, type StudyStatus, type StudyTemplate } from "@/types/studies";
 import type { StudyPassage } from "@/types/scripture";
@@ -25,6 +26,8 @@ interface StudyDetailsProps {
   reloadRelations: () => void;
   onChanged: (study: Study) => void;
   onDuplicated: (studyId: string) => void;
+  /** Brings the Scripture pane into view (to show a word's occurrences). */
+  onRevealScripture?: () => void;
 }
 
 /**
@@ -32,7 +35,7 @@ interface StudyDetailsProps {
  * template, purpose, type-specific fields, passage and link management,
  * duplication. Shown on request, so the page can be about Scripture.
  */
-export function StudyDetailsPanel({ id, study, findings, templates, passages, relations, reloadPassages, reloadRelations, onChanged, onDuplicated }: StudyDetailsProps) {
+export function StudyDetailsPanel({ id, study, findings, templates, passages, relations, reloadPassages, reloadRelations, onChanged, onDuplicated, onRevealScripture }: StudyDetailsProps) {
   const { t } = useTranslation();
   const api = useApi();
   const [error, setError] = useState<string | null>(null);
@@ -101,7 +104,7 @@ export function StudyDetailsPanel({ id, study, findings, templates, passages, re
         </label>
 
         <PurposeField study={study} onChanged={onChanged} />
-        <DetailsFields study={study} onChanged={onChanged} />
+        <DetailsFields study={study} onChanged={onChanged} onRevealScripture={onRevealScripture} />
       </div>
 
       <PassageManager passages={passages} reload={reloadPassages} />
@@ -168,15 +171,24 @@ const DETAIL_FIELDS: Partial<Record<Study["studyType"], DetailKey[]>> = {
 };
 
 /** A few optional fields that only some study types use. */
-function DetailsFields({ study, onChanged }: { study: Study; onChanged: (s: Study) => void }) {
+function DetailsFields({ study, onChanged, onRevealScripture }: { study: Study; onChanged: (s: Study) => void; onRevealScripture?: () => void }) {
   const { t } = useTranslation();
   const api = useApi();
+  const { translations, translation, openConcordance } = useScripture();
   const fields = DETAIL_FIELDS[study.studyType];
   const [values, setValues] = useState<StudyDetails>(study.details);
   if (!fields) return null;
-  const save = async () => {
-    if (JSON.stringify(values) === JSON.stringify(study.details)) return;
-    onChanged(await api.studyUpdate({ id: study.id, details: values }));
+  const save = async (next: StudyDetails = values) => {
+    if (JSON.stringify(next) === JSON.stringify(study.details)) return;
+    onChanged(await api.studyUpdate({ id: study.id, details: next }));
+  };
+  // A word study's occurrences: looked up in the concordance, never copied into the study.
+  const word = (values.lemma ?? "").trim();
+  const bibleId = values.translationId && translations.some((b) => b.id === values.translationId) ? values.translationId : (translation?.id ?? "");
+  const findOccurrences = () => {
+    void save().catch(() => undefined);
+    openConcordance({ query: word, mode: /\s/.test(word) ? "phrase" : "word", translationId: bibleId || null });
+    onRevealScripture?.();
   };
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-2" role="group" aria-label={t("studies.header.details", { type: studyTypeLabel(t, study.studyType) })}>
@@ -188,10 +200,41 @@ function DetailsFields({ study, onChanged }: { study: Study; onChanged: (s: Stud
             placeholder={t(`studies.header.detail.${field}.hint`)}
             onChange={(e) => setValues({ ...values, [field]: e.target.value || null })}
             onBlur={() => void save().catch(() => undefined)}
+            dir={field === "lemma" ? "auto" : undefined}
             className="h-11 rounded-aw border border-border-subtle bg-transparent px-2 text-[0.9375rem] placeholder:text-text-muted focus:border-border"
           />
         </label>
       ))}
+      {study.studyType === "word" && translations.length > 0 && (
+        <div className="col-span-full flex flex-wrap items-end gap-2">
+          {translations.length > 1 && (
+            <label className="flex flex-col gap-1">
+              <span className="text-[0.9375rem] font-medium text-text-muted">{t("studies.header.detail.translation.label")}</span>
+              <select
+                value={bibleId}
+                onChange={(e) => {
+                  const next = { ...values, translationId: e.target.value };
+                  setValues(next);
+                  void save(next).catch(() => undefined);
+                }}
+                className="h-11 rounded-aw border border-border bg-bg px-2 text-text-strong"
+              >
+                {translations.map((b) => (
+                  <option key={b.id} value={b.id}>{b.shortName}</option>
+                ))}
+              </select>
+            </label>
+          )}
+          <button
+            type="button"
+            disabled={!word}
+            onClick={findOccurrences}
+            className="h-11 rounded-aw border border-border px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-bg-secondary disabled:opacity-50"
+          >
+            {t("studies.header.findOccurrences")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

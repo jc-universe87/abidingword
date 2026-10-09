@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { PaneHeader } from "@/design-system/PaneHeader";
 import { Button } from "@/design-system/Button";
 import { ChapterReader } from "./ChapterReader";
+import { ConcordanceView } from "./ConcordanceView";
 import { MarksView } from "./MarksView";
 import { PassageNav } from "./PassageNav";
 import { ScriptureHistoryBar } from "./ScriptureHistoryBar";
@@ -12,11 +13,11 @@ import { SearchResultsView } from "./SearchResultsView";
 /** The Scripture pane: a local passage reader over installed translations. */
 export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
   const { t } = useTranslation();
-  const { translations, translation, setTranslation, search, goTo, navigationId } = useScripture();
+  const { translations, translation, setTranslation, search, goTo, navigationId, concordanceRequest } = useScripture();
   // Bible is the default; Marks is a second view of the same pane. The Bible
   // stays mounted underneath, so coming back finds the reading place, the open
   // verse tools and the scroll position as they were.
-  const [view, setView] = useState<"bible" | "marks">("bible");
+  const [view, setView] = useState<"bible" | "marks" | "concordance">("bible");
   const scroller = useRef<HTMLDivElement>(null);
   const bibleScroll = useRef(0);
   // Going to a passage by any route (a search result, a chapter button, a mark)
@@ -26,7 +27,13 @@ export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
     setSeenNavigation(navigationId);
     if (view !== "bible") setView("bible");
   }
-  const choose = (next: "bible" | "marks") => {
+  // A word study asked for its occurrences: show the concordance.
+  const [seenConcordance, setSeenConcordance] = useState(concordanceRequest?.nonce ?? 0);
+  if (concordanceRequest && concordanceRequest.nonce !== seenConcordance) {
+    setSeenConcordance(concordanceRequest.nonce);
+    if (view !== "concordance") setView("concordance");
+  }
+  const choose = (next: "bible" | "marks" | "concordance") => {
     if (next === view) return;
     if (view === "bible") bibleScroll.current = scroller.current?.scrollTop ?? 0;
     setView(next);
@@ -70,7 +77,7 @@ export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
           ) : (
             <>
               <div role="group" aria-label={t("scripture.marks.viewLabel")} className="flex self-start rounded-aw border border-border p-0.5">
-                {(["bible", "marks"] as const).map((v) => (
+                {(["bible", "marks", "concordance"] as const).map((v) => (
                   <button
                     key={v}
                     type="button"
@@ -88,6 +95,10 @@ export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
                 <div className="border-t border-border-subtle pt-5">
                   <ChapterReader translation={translation} />
                 </div>
+              </div>
+              {/* Kept while elsewhere, so the occurrences found are still there on coming back. */}
+              <div hidden={view !== "concordance"} className={view === "concordance" ? "" : "hidden"}>
+                <ConcordanceView />
               </div>
               {view === "marks" && (
                 <MarksView

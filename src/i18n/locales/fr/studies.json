@@ -438,13 +438,17 @@
       "teachingFormat": {
         "label": "Format",
         "hint": "p. ex. prédication"
+      },
+      "translation": {
+        "label": "Bible"
       }
     },
     "detailsToggle": "Détails de l’étude",
     "typeLine": "Type : {{type}}",
     "fromTemplate": "À partir de votre modèle : {{name}}",
     "groupAbout": "À propos de cette étude",
-    "groupCopy": "Copier"
+    "groupCopy": "Copier",
+    "findOccurrences": "Trouver les occurrences"
   },
   "editor": {
     "opening": "Ouverture de l’étude…",
