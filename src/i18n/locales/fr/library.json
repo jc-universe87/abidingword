@@ -190,5 +190,10 @@
     "missingImages_one": "{{count}} image n’a pas pu être affichée.",
     "missingImages_many": "{{count}} d’images n’ont pas pu être affichées.",
     "missingImages_other": "{{count}} images n’ont pas pu être affichées."
+  },
+  "scriptureRef": {
+    "label": "{{passage}} (référence biblique)",
+    "actions": "Actions pour {{passage}}",
+    "open": "Ouvrir dans la Bible"
   }
 }

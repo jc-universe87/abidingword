@@ -69,6 +69,7 @@ import type {
   EpubItem,
   EpubStructureItem,
   SourceLink,
+  SourceReference,
   OriginalInfo,
   PassageMention,
   PassageLocation,
@@ -138,6 +139,10 @@ export interface Api {
   librarySourceContents(id: string): Promise<ContentsItem[]>;
   /** The links in an EPUB's text that lead elsewhere in the same book (none for other formats). */
   librarySourceLinks(id: string): Promise<SourceLink[]>;
+  /** The Scripture references written in a source's text, with their places (stored index). */
+  librarySourceReferences(id: string): Promise<SourceReference[]>;
+  /** The Scripture references in pieces of a source's drawn text, read in the source's language. */
+  libraryDetectReferences(id: string, texts: string[]): Promise<DetectedReference[][]>;
   /** For an EPUB's formatted view: where each reading-order document starts among the extracted text. */
   libraryEpubStructure(id: string): Promise<EpubStructureItem[]>;
   /** One reading-order document of an EPUB, sanitised by the core. */
@@ -299,6 +304,8 @@ export const tauriApi: Api = {
   sourceGetSegments: (input) => call("source_get_segments", { input }),
   librarySourceContents: (id) => call("library_source_contents", { id }),
   librarySourceLinks: (id) => call("library_source_links", { id }),
+  librarySourceReferences: (id) => call("library_source_references", { id }),
+  libraryDetectReferences: (id, texts) => call("library_detect_references", { id, texts }),
   libraryEpubStructure: (id) => call("library_epub_structure", { id }),
   libraryEpubItem: (id, item) => call("library_epub_item", { id, item }),
   openExternalLink: async (url) => {

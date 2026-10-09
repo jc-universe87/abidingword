@@ -207,5 +207,11 @@
       "wholeVerse": "Verset entier",
       "show": "Afficher dans la Bible"
     }
+  },
+  "history": {
+    "group": "Historique de la Bible",
+    "back": "Précédent",
+    "forward": "Suivant",
+    "backToStudy": "Revenir à {{passage}}"
   }
 }

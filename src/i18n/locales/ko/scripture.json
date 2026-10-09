@@ -181,5 +181,11 @@
       "wholeVerse": "구절 전체",
       "show": "성경에서 보기"
     }
+  },
+  "history": {
+    "group": "성경 이동 기록",
+    "back": "뒤로",
+    "forward": "앞으로",
+    "backToStudy": "{{passage}}(으)로 돌아가기"
   }
 }

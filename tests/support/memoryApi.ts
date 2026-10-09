@@ -68,6 +68,8 @@ function requireTitle(value: string, what: string): string {
 export interface MemoryApi extends Api {
   /** Calls to libraryPassageSourceLocations, for tests of lazy loading. */
   libraryLocationsCalls: { sourceId: string; reference: string }[];
+  /** Calls to libraryDetectReferences (how many texts each), for tests of formatted pages. */
+  detectCalls: number[];
   state: {
     info: AppInfo;
     workspace: Workspace;
@@ -162,6 +164,7 @@ const bookByCode = new Map(BOOKS.map((b) => [b.code, b]));
 const ALIASES: Record<string, string> = {
   john: "JHN", jn: "JHN", romans: "ROM", rom: "ROM", psalm: "PSA", psalms: "PSA", ps: "PSA",
   genesis: "GEN", "1 cor": "1CO", "1 corinthians": "1CO",
+  galatians: "GAL", gal: "GAL", ephesians: "EPH", eph: "EPH",
 };
 
 /** A deliberately small stand-in for the native English parser. */
@@ -596,6 +599,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
   };
   const api: MemoryApi = {
     libraryLocationsCalls: [],
+    detectCalls: [],
     state,
     appInfo: async () => state.info,
     logError: async () => undefined,
@@ -1163,6 +1167,27 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     librarySourceContents: async (sourceId) => {
       liveSource(sourceId);
       return contentsOf.get(sourceId) ?? [];
+    },
+    // As the core: where each stored mention is in its segment's text (the n-th time it is written there).
+    librarySourceReferences: async (sourceId) => {
+      liveSource(sourceId);
+      const out: { position: number; start: number; end: number; reference: ScriptureRef }[] = [];
+      const from = new Map<string, number>();
+      for (const m of library.mentions.filter((x) => x.sourceId === sourceId)) {
+        const segment = library.segments.find((s) => s.id === m.segmentId);
+        if (!segment) continue;
+        const key = `${m.segmentId}|${m.matchedText}`;
+        const start = segment.text.indexOf(m.matchedText, from.get(key) ?? 0);
+        if (start < 0) continue;
+        from.set(key, start + m.matchedText.length);
+        out.push({ position: segment.position, start, end: start + m.matchedText.length, reference: m.reference });
+      }
+      return out.sort((a, b) => a.position - b.position || a.start - b.start);
+    },
+    libraryDetectReferences: async (sourceId, texts) => {
+      liveSource(sourceId);
+      api.detectCalls.push(texts.length);
+      return Promise.all(texts.map((text) => api.referenceDetect(text)));
     },
     librarySourceLinks: async (sourceId) => {
       liveSource(sourceId);

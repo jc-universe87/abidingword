@@ -58,28 +58,14 @@ cross-versification mapping; heading references that are not at the heading's
 start or end being treated more cautiously; same-book matches, if they prove
 useful; PDF sections if the importer ever finds trustworthy headings.
 
-### Scripture links inside Library sources (backlog, not built)
+### Scripture links inside Library sources — built in v0.11 (in review)
 
-Bible references detected in Library sources become actionable.
-
-- **Where first:** the Reading (normalised text) view. Later the formatted EPUB
-  and DOCX views, where reliable text anchoring exists. The PDF Original view only
-  where the visible text can be mapped reliably; never guess coordinates.
-- **Detection:** the deterministic, source-language parser decides the canonical
-  reference (the interface language is independent). No AI.
-- **Interaction:** click or select a detected reference → **Open in Bible** →
-  the Scripture pane goes to that canonical passage.
-- **State rule (critical):** this changes only the *current Scripture view*. It
-  must **never** change the Study's primary passage. Three things stay separate:
-  the Study's primary passage, the Scripture pane's current location, and the
-  Scripture navigation history.
-- **Navigation:** ordinary Scripture Back/Forward history. When a Study has a
-  primary passage and Scripture is elsewhere, an explicit **Back to {main
-  passage}** returns straight to it, separate from generic Back.
-  Example: primary John 15:1–11; the source cites Romans 6:1–11; Open in Bible →
-  Scripture shows Romans 6:1–11, the Study still says John 15:1–11, and "Back to
-  John 15:1–11" returns there.
-- **Later, perhaps:** Add as related passage; Copy reference.
+See [`scripture-links-v0.11.md`](scripture-links-v0.11.md): references in the
+Reading view and in formatted EPUB / Word pages offer **Open in Bible**;
+Scripture has Back / Forward and **Back to {main passage}**; the Study is never
+changed. Still open: Scripture links in the PDF Original view (needs a reliable
+text mapping; never guessed positions); references split across formatting in
+formatted pages; further actions (Add as related passage, Copy reference).
 
 ### From the user's own materials to templates
 

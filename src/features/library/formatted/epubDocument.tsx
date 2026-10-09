@@ -2,6 +2,8 @@ import { createElement, memo, useCallback, useLayoutEffect, useMemo, useState, t
 import { createPortal } from "react-dom";
 import { safeExternalUrl } from "@/lib/externalLink";
 import type { EpubElement, EpubItem, EpubNode } from "@/types/library";
+import type { DetectedReference, ScriptureRef } from "@/types/scripture";
+import { ScriptureReference, type ScriptureReferenceClasses } from "../ScriptureReference";
 
 /**
  * A formatted EPUB page, drawn by the interface from the tree the core built
@@ -13,6 +15,10 @@ import type { EpubElement, EpubItem, EpubNode } from "@/types/library";
  *   behind the core's own).
  * - Text is text. A link is an ordinary anchor whose click is handled by the
  *   reader (it never navigates the web view); nothing is ever opened.
+ * - A Scripture reference found in a piece of text (by the core, in the
+ *   source's language) is drawn around that same text as a quiet "Open in
+ *   Bible" action (v0.11). The file is never changed, and text inside a link
+ *   is left to the link.
  * - The page's style lives in a shadow root of its own: the book's CSS cannot
  *   reach anything outside it, and the app's styles do not reach in. The page
  *   is always a light sheet, like a PDF page, whatever the app's theme.
@@ -92,12 +98,57 @@ interface Context {
   /** Opens a web address (checked again here) in the system browser; without it a web link is plain text. */
   onExternal?: (url: string) => void;
   tableLabel: string;
+  /** Scripture references found in pieces of the page's text, by that text. */
+  references?: Map<string, DetectedReference[]>;
+  onScripture?: (reference: ScriptureRef) => void;
+  /** Inside a link: its text stays plain (no control inside another). */
+  inLink?: boolean;
+}
+
+/** The look of a Scripture reference on the page (the page has its own styles, in its shadow root). */
+const PAGE_REFERENCE_CLASSES: ScriptureReferenceClasses = { wrap: "aw-sref", trigger: "aw-sref-trigger", menu: "aw-sref-menu", item: "aw-sref-item" };
+
+/** A piece of text with its Scripture references as actions; everything between them kept exactly. */
+function textWithReferences(text: string, found: DetectedReference[], onScripture: (reference: ScriptureRef) => void): ReactNode {
+  const out: ReactNode[] = [];
+  let at = 0;
+  for (const ref of [...found].sort((a, b) => a.start - b.start)) {
+    if (ref.start < at || ref.end > text.length || ref.start >= ref.end) continue;
+    if (ref.start > at) out.push(text.slice(at, ref.start));
+    out.push(
+      <ScriptureReference key={`${ref.start}-${ref.end}`} reference={ref.reference} onOpen={onScripture} classes={PAGE_REFERENCE_CLASSES}>
+        {text.slice(ref.start, ref.end)}
+      </ScriptureReference>,
+    );
+    at = ref.end;
+  }
+  if (at < text.length) out.push(text.slice(at));
+  return out;
+}
+
+/** The pieces of a page's text that may hold a Scripture reference (not inside a link; once each). */
+export function pageTexts(nodes: EpubNode[]): string[] {
+  const out = new Set<string>();
+  const walk = (node: EpubNode, inLink: boolean) => {
+    if (typeof node === "string") {
+      if (!inLink && /\d/.test(node)) out.add(node);
+      return;
+    }
+    if (!node || typeof node !== "object") return;
+    for (const child of node.c ?? []) walk(child, inLink || node.t === "a");
+  };
+  for (const node of nodes) walk(node, false);
+  return [...out];
 }
 
 function renderNode(node: EpubNode, key: number, ctx: Context): ReactNode {
-  if (typeof node === "string") return node;
+  if (typeof node === "string") {
+    const found = !ctx.inLink && ctx.onScripture ? ctx.references?.get(node) : undefined;
+    return found && found.length > 0 && ctx.onScripture ? textWithReferences(node, found, ctx.onScripture) : node;
+  }
   if (!node || typeof node !== "object" || typeof node.t !== "string" || !TAGS.has(node.t)) return null;
-  const children = VOID.has(node.t) ? undefined : (node.c ?? []).map((child, i) => renderNode(child, i, ctx));
+  const inner = node.t === "a" && !ctx.inLink ? { ...ctx, inLink: true } : ctx;
+  const children = VOID.has(node.t) ? undefined : (node.c ?? []).map((child, i) => renderNode(child, i, inner));
   const props: Record<string, unknown> = { key, ...propsOf(node) };
   if (node.t === "a") {
     const target = node.l;
@@ -164,6 +215,17 @@ const BASE_CSS = `
 .aw-doc .aw-missing-image { display: inline-block; padding: 0.15em 0.5em; border: 1px dashed #999; color: #555; font-size: 0.9em; }
 .aw-table-scroll { overflow-x: auto; max-width: 100%; margin: 1em 0; }
 .aw-table-scroll table { margin: 0; }
+.aw-sref { position: relative; display: inline; }
+.aw-sref-trigger { all: unset; display: inline; cursor: pointer; text-decoration: underline dotted 1px; text-underline-offset: 3px; }
+.aw-sref-trigger:hover { text-decoration-style: solid; }
+.aw-sref-trigger:focus-visible { outline: 2px solid ${FOCUS}; outline-offset: 1px; border-radius: 2px; }
+.aw-sref-trigger[aria-expanded="true"] { background: #fbf3d8; }
+.aw-sref-menu { position: absolute; left: 0; top: 100%; z-index: 5; margin-top: 4px; display: flex; flex-direction: column; min-width: max-content;
+  padding: 4px; background: #fff; border: 1px solid #c9c3b6; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.aw-sref-item { all: unset; box-sizing: border-box; min-height: 2.5rem; padding: 0 0.75rem; display: flex; align-items: center; white-space: nowrap; cursor: pointer;
+  font-family: system-ui, sans-serif; font-size: 0.9375rem; color: #1d1b17; border-radius: 4px; }
+.aw-sref-item:hover { background: #f4f0e8; }
+.aw-sref-item:focus-visible { outline: 2px solid ${FOCUS}; outline-offset: 1px; }
 `;
 
 /** Last of all: whatever a book says, a page stays inside the reader. */
@@ -186,10 +248,13 @@ interface EpubDocumentProps {
   onRoot?: (root: ShadowRoot | null) => void;
   /** Called once the page's content is in its shadow root (it is drawn a render after the root exists). */
   onDrawn?: () => void;
+  /** Scripture references found in the page's text, by text; drawn as "Open in Bible" actions. */
+  references?: Map<string, DetectedReference[]>;
+  onScripture?: (reference: ScriptureRef) => void;
 }
 
 /** One page of the book, in a shadow root of its own. */
-export const EpubDocument = memo(function EpubDocument({ item, onLink, onExternal, tableLabel, onRoot, onDrawn }: EpubDocumentProps) {
+export const EpubDocument = memo(function EpubDocument({ item, onLink, onExternal, tableLabel, onRoot, onDrawn, references, onScripture }: EpubDocumentProps) {
   const [shadow, setShadow] = useState<ShadowRoot | null>(null);
   useLayoutEffect(() => {
     if (shadow) onDrawn?.();
@@ -212,7 +277,10 @@ export const EpubDocument = memo(function EpubDocument({ item, onLink, onExterna
     void _id; // the body's id is not a place of the page
     return rest;
   }, [item.root]);
-  const body = useMemo(() => renderEpubNodes(item.nodes, { onLink, onExternal, tableLabel }), [item.nodes, onLink, onExternal, tableLabel]);
+  const body = useMemo(
+    () => renderEpubNodes(item.nodes, { onLink, onExternal, tableLabel, references, onScripture }),
+    [item.nodes, onLink, onExternal, tableLabel, references, onScripture],
+  );
   const className = ["aw-doc", typeof bodyProps.className === "string" ? bodyProps.className : ""].join(" ").trim();
   return (
     <div ref={attach} data-testid="epub-page">
