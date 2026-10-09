@@ -146,6 +146,34 @@ fn each_language_stores_where_its_references_are() {
 }
 
 #[test]
+fn a_german_source_links_mal_4_3_to_maleachi_but_not_the_word_mal() {
+    // v0.11 acceptance: a German source citing "Mal 4,3" showed no link.
+    with_db(|conn, dir| {
+        let text = "Vergleiche Mal 4,3 und Mal 3,1-5. Lass uns mal sehen; noch mal 4 Dinge.\n";
+        let id = add(conn, dir, "mal.txt", text, "Maleachi", "Deutsch");
+        let found = library::source_references(conn, &id)?;
+        let canonicals: Vec<&str> = found
+            .iter()
+            .map(|r| r.reference.canonical.as_str())
+            .collect();
+        assert_eq!(canonicals, ["MAL.4.3", "MAL.3.1-MAL.3.5"]);
+        let segments = texts(conn, &id);
+        let written: Vec<String> = found
+            .iter()
+            .map(|r| slice16(&segments[r.position as usize], r.start, r.end))
+            .collect();
+        assert_eq!(written, ["Mal 4,3", "Mal 3,1-5"]);
+        // Drawn (EPUB/DOCX) text of the same source is read the same way.
+        let pieces = vec!["Siehe Mal 4,3.".to_string(), "Mal 4 war genug.".to_string()];
+        let drawn = library::detect_in_source(conn, &id, &pieces)?;
+        assert_eq!(drawn[0].len(), 1);
+        assert_eq!(drawn[0][0].reference.canonical, "MAL.4.3");
+        assert!(drawn[1].is_empty());
+        Ok(())
+    });
+}
+
+#[test]
 fn section_links_have_no_place_in_the_text_and_are_not_returned() {
     with_db(|conn, dir| {
         let id = add(
