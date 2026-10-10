@@ -1,5 +1,8 @@
 # Formatted EPUB Original view (v0.8, Phase 1)
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Reading or Original?](guide/05-library.md#reading-or-original)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 Status: part of v0.8.
 
 An EPUB now has the same **Reading | Original** switch as a PDF.

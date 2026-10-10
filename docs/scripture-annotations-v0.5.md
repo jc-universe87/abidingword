@@ -1,5 +1,8 @@
 # Abiding Word — Scripture Reading & Annotation v0.5
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Highlights, notes and bookmarks](guide/03-highlights-notes-bookmarks.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 > Status: **release candidate (Phase 7).** Everything below marked
 > *(implemented)* is built and tested; the sections under "Not in v0.5" are
 > future work. Implemented: typed annotation data, phrase anchors,

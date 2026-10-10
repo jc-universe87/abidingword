@@ -1,5 +1,8 @@
 # Abiding Word — Studies v0.3 implementation notes
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Studies](guide/04-studies.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 How the Study becomes the primary object of work (Phase 3 in
 [`architecture.md`](architecture.md) §58). The frozen
 [`architecture.md`](architecture.md) and [`concept.md`](concept.md) remain

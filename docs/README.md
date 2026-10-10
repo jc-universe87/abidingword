@@ -1,0 +1,46 @@
+# Abiding Word — documentation map
+
+> [!TIP]
+> **Looking for how to use Abiding Word?** Start with the
+> **[User Guide](guide/README.md)**. It explains everything in plain language,
+> with pictures. The rest of this page is for developers and anyone curious
+> about how Abiding Word was designed and built.
+
+## For everyone
+
+| Document | What it is |
+|---|---|
+| [User Guide](guide/README.md) | How to use Abiding Word, step by step |
+
+## For developers
+
+| Document | What it is |
+|---|---|
+| [developers.md](developers.md) | Building, testing and releasing; repository layout; milestone status |
+| [concept.md](concept.md) | The original vision: why Abiding Word exists and what it should become. |
+| [architecture.md](architecture.md) | How the program is built: the desktop shell, the data store and how the parts talk to each other. |
+| [i18n.md](i18n.md) | How the six interface languages work, with the terminology guide for translators. |
+| [updates.md](updates.md) | How test versions are built, signed and delivered as automatic updates. |
+| [product-backlog.md](product-backlog.md) | Ideas and features deliberately left for later. |
+
+## The record of each version
+
+Each version of Abiding Word has a technical record of what was built and why.
+They are kept as written at the time.
+
+| Document | In plain words |
+|---|---|
+| [foundation-v0.1.md](foundation-v0.1.md) | v0.1: the empty workspace, the data folder, and safe upgrades with automatic backups. |
+| [scripture-v0.2.md](scripture-v0.2.md) | v0.2: the Bible reader, references like “Rom 8:1-17”, adding Bibles and Bible search. |
+| [studies-v0.3.md](studies-v0.3.md) | v0.3: study kinds, templates, study notes, related studies and study search. |
+| [library-v0.4.md](library-v0.4.md) | v0.4: adding your own books and documents, exact page and section references, library search, citations. |
+| [scripture-annotations-v0.5.md](scripture-annotations-v0.5.md) | v0.5: highlights in five colours, notes, bookmarks and the Marks list. |
+| [study-workspace-ux-v0.6.md](study-workspace-ux-v0.6.md) | v0.6: a simpler study screen that starts with “What would you like to study?”. |
+| [source-navigation-v0.7.md](source-navigation-v0.7.md) | v0.7: following links and footnotes inside books, with Back and Forward. |
+| [formatted-source-viewer.md](formatted-source-viewer.md) | The Reading and Original views for PDF, EPUB and Word files. |
+| [formatted-epub-v0.8.md](formatted-epub-v0.8.md) | v0.8: e-books shown with their original formatting. |
+| [formatted-docx-v0.8.md](formatted-docx-v0.8.md) | v0.8: Word documents added to the library and shown with their original formatting. |
+| [passage-aware-sources-v0.9.md](passage-aware-sources-v0.9.md) | v0.9: the Sources pane lists the books about your passage and says why. |
+| [study-workspace-refinement-v0.10.md](study-workspace-refinement-v0.10.md) | v0.10: projects made optional, one Add button, quicker study notes, a tidier layout. |
+| [scripture-links-v0.11.md](scripture-links-v0.11.md) | v0.11: click a Bible reference in a book to open it, and find your way back. |
+| [concordance-v0.12.md](concordance-v0.12.md) | v0.12: every place a word appears in a Bible, by book. |

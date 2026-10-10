@@ -1,5 +1,8 @@
 # Abiding Word — Product backlog and principles
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[What's ready, and what's coming](../README.md#whats-ready-and-whats-coming)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 > **BACKLOG / FUTURE.** Nothing in this document is built, scheduled or
 > promised. It records product-owner decisions so that today's code does not
 > make them harder later. The frozen [`architecture.md`](architecture.md) and
@@ -67,7 +70,7 @@ changed. Still open: Scripture links in the PDF Original view (needs a reliable
 text mapping; never guessed positions); references split across formatting in
 formatted pages; further actions (Add as related passage, Copy reference).
 
-### Concordance — surface forms shipped in v0.12 (in review); lemma and morphology open
+### Concordance — surface forms shipped in v0.12 (merged; Windows acceptance in progress); lemma and morphology open
 
 See [`concordance-v0.12.md`](concordance-v0.12.md): Word and Phrase occurrences
 in one Bible, by book, with per-script normalisation (Latin accents kept,

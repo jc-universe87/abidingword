@@ -1,5 +1,8 @@
 # Abiding Word — Scripture v0.2 implementation notes
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Reading the Bible](guide/02-reading-the-bible.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 > Studies v0.3 extends study passages with primary/related roles and adds
 > passage-linked findings; see [`studies-v0.3.md`](studies-v0.3.md).
 

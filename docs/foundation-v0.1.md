@@ -1,5 +1,8 @@
 # Abiding Word — Foundation v0.1 implementation notes
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Getting started](guide/01-getting-started.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 > Foundation is frozen as of the hardening commit (integrity check and
 > pre-migration backup). Later milestones build on it without changing it;
 > Scripture is described in [`scripture-v0.2.md`](scripture-v0.2.md),

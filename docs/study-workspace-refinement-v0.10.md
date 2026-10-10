@@ -1,10 +1,13 @@
 # Study Workspace Refinement (v0.10)
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Studies](guide/04-studies.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 **Status: complete. Windows acceptance passed** on the Development/Test build
 `0.5.0-dev.19`, built from the accepted `main` commit
 `3d506563095074146a383b940c245400736a3b14` (which also carries the accepted v0.9).
-The milestone tag `study-workspace-refinement-v0.10` is created on that commit;
-pushing it to GitHub is **pending** (to be pushed from a maintainer's clone).
+The milestone tag `study-workspace-refinement-v0.10` is created on that commit
+and is on GitHub.
 v0.10 adds no database migration and no backend change.
 
 ## Where this stands

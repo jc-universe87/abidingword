@@ -1,5 +1,8 @@
 # Abiding Word — Windows test updates
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Updates](guide/08-settings-updates-backups.md#updates)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 Windows is the primary visual and manual acceptance platform. To avoid
 downloading and running an installer for every iteration, an installed
 **test build** can update itself to a newer, **signed** test build.

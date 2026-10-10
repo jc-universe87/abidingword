@@ -1,11 +1,12 @@
 # Passage-aware sources (v0.9)
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Books for the passage you are reading](guide/05-library.md#books-for-the-passage-you-are-reading)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 **Status: complete. Windows acceptance passed** on the Development/Test build
 `0.5.0-dev.18`, built from the accepted `main` commit
 `7c72bd92a4d0331eb2600764d8c416e654799e83`. The milestone tag
-`passage-aware-sources-v0.9` is created on that commit; pushing it to GitHub is
-**pending** (the push from the development environment was refused by the
-network, so it is to be pushed from a maintainer's clone).
+`passage-aware-sources-v0.9` is created on that commit and is on GitHub.
 
 The first Windows acceptance failed on relevance quality (see "Windows
 acceptance finding" below): the ranking described in the first implementation is

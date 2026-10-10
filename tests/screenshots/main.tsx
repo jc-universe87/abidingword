@@ -1,0 +1,193 @@
+// The documentation screenshot harness (see vite.config.ts and capture.mjs).
+// The real interface, an in-memory library written for the guide, and the
+// public-domain World English Bible. Nothing here ships with the app.
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "@fontsource/inter/400.css";
+import "@fontsource/inter/500.css";
+import "@fontsource/inter/600.css";
+import "@fontsource/noto-serif/400.css";
+import "@fontsource/noto-serif/400-italic.css";
+import "@fontsource/noto-serif/600.css";
+import "@/design-system/index.css";
+import i18n from "@/i18n";
+import { App } from "@/app/App";
+import type { VerseText } from "@/types/scripture";
+import { createMemoryApi, type MemoryApi } from "../support/memoryApi";
+import { createMemoryUpdater } from "../support/memoryUpdater";
+
+const params = new URLSearchParams(location.search);
+
+async function seed(api: MemoryApi) {
+  // The World English Bible, installed as the reading Bible.
+  const chapters = (await (await fetch("/web.json")).json()) as Record<string, VerseText[]>;
+  const web = api.installFixtureBible("WEB", "web");
+  Object.assign(web, {
+    name: "World English Bible",
+    publisher: "eBible.org",
+    licenseType: "Public Domain",
+    copyrightNotice: "The World English Bible is in the Public Domain.",
+    isBuiltin: true,
+    bookCount: 66,
+    verseCount: Object.values(chapters).reduce((n, list) => n + list.length, 0),
+  });
+  api.state.text.set(web.id, new Map(Object.entries(chapters)));
+  api.state.settings.scriptureTranslationId = web.id;
+  api.state.settings.scripturePassage = params.get("passage") ?? "JHN.15";
+  api.state.settings.theme = params.get("theme") === "dark" ? "dark" : "light";
+
+  // Collections and studies (sample content written for this guide).
+  const workspaceId = api.state.workspace.id;
+  const john = await api.projectCreate({ workspaceId, title: "Gospel of John", description: "A slow walk through John’s Gospel." });
+  const romans = await api.projectCreate({ workspaceId, title: "Romans sermon series", description: "Preparing a twelve-week series." });
+
+  const vine = await api.studyCreate({
+    projectId: john.id,
+    title: "Abiding in the Vine",
+    studyType: "passage",
+    templateKey: "passage-study",
+    primaryPassage: "JHN.15.1-JHN.15.11",
+    description: "What it means to remain in Christ, from Jesus’ last words to his disciples.",
+  });
+  const write = async (sectionTitle: string, ...paragraphs: string[]) => {
+    const section = vine.sections.find((s) => s.title === sectionTitle);
+    if (!section) return;
+    const [first, ...rest] = paragraphs;
+    const block = section.blocks[0];
+    if (block && first) await api.studyBlockUpdate({ id: block.id, content: first });
+    for (const content of rest) await api.studyBlockCreate({ sectionId: section.id, blockType: "paragraph", content });
+  };
+  await write("Text", "Jesus speaks to his disciples on the night before the cross. The picture is simple: a vine, its branches and a gardener.");
+  await write(
+    "Context",
+    "These chapters are one long evening conversation. Jesus has washed the disciples’ feet and is preparing them for his departure.",
+  );
+  await write(
+    "Observations",
+    "The word “remain” comes again and again in verses 4 to 10.",
+    "The branch does not produce fruit by effort; it bears fruit because it stays joined to the vine.",
+  );
+  const observations = vine.sections.find((s) => s.title === "Observations");
+  const application = vine.sections.find((s) => s.title === "Application");
+  await api.findingCreate({
+    studyId: vine.study.id,
+    findingType: "observation",
+    sectionId: observations?.id,
+    passage: "JHN.15.4-JHN.15.5",
+    content: "Fruit comes from remaining in Jesus, not from trying harder.",
+  });
+  await api.findingCreate({
+    studyId: vine.study.id,
+    findingType: "question",
+    sectionId: observations?.id,
+    passage: "JHN.15.7",
+    content: "What does it look like for his words to remain in me day by day?",
+  });
+  await api.findingCreate({
+    studyId: vine.study.id,
+    findingType: "application",
+    sectionId: application?.id,
+    content: "Begin each morning with a short passage before anything else.",
+  });
+  await api.studyPassageAdd({ studyId: vine.study.id, reference: "GAL.5.22-GAL.5.23", role: "related" });
+
+  await api.studyCreate({ projectId: john.id, title: "Abide (μένω) — word study", studyType: "word", templateKey: "word-study", primaryPassage: "JHN.15.4" });
+  await api.studyCreate({ projectId: john.id, title: "The Good Shepherd", studyType: "teaching", templateKey: "teaching-study", primaryPassage: "JHN.10.1-JHN.10.18" });
+  await api.studyCreate({ projectId: romans.id, title: "No condemnation", studyType: "passage", templateKey: "passage-study", primaryPassage: "ROM.8.1-ROM.8.11" });
+
+  // Marks on John 15.
+  await api.annotationCreate({ reference: "JHN.15.5", kind: "highlight", color: "amber", translationId: web.id });
+  await api.annotationCreate({ reference: "JHN.15.9", kind: "highlight", color: "green", translationId: web.id });
+  await api.annotationCreate({
+    reference: "JHN.15.7",
+    kind: "note",
+    translationId: web.id,
+    content: "Prayer grows out of abiding: when his words live in me, they shape what I ask for.",
+  });
+  await api.annotationCreate({ reference: "JHN.15.11", kind: "bookmark", translationId: web.id });
+
+  // A small library (own words; no copyrighted text).
+  api.installFixtureSource({
+    title: "Notes on Abiding",
+    author: "Study group notes",
+    format: "markdown",
+    language: "English",
+    segments: [
+      { text: "John 15:1–11 — The True Vine", sectionPath: "The True Vine" },
+      { text: "Jesus does not ask the branches to produce fruit; he asks them to remain. As John 15:5 says, apart from him we can do nothing.", sectionPath: "The True Vine" },
+      { text: "Remaining is not anxious striving. Romans 8:1 reminds us there is no condemnation for those who are in Christ.", sectionPath: "The True Vine" },
+      { text: "The fruit he produces is described in Galatians 5:22–23: love, joy, peace and more.", sectionPath: "Fruit" },
+    ],
+    mentions: [
+      { segment: 1, reference: "JHN.15.5", matchedText: "John 15:5" },
+      { segment: 2, reference: "ROM.8.1", matchedText: "Romans 8:1" },
+      { segment: 3, reference: "GAL.5.22-GAL.5.23", matchedText: "Galatians 5:22–23" },
+    ],
+    sections: [{ segment: 0, reference: "JHN.15.1-JHN.15.11", matchedText: "John 15:1–11", heading: "John 15:1–11 — The True Vine", through: 2 }],
+  });
+  api.installFixtureSource({
+    title: "Sermon outline: The True Vine",
+    author: "Sample sermon",
+    format: "docx",
+    language: "English",
+    segments: [
+      { text: "1. The Vine (John 15:1) — Jesus is the true vine; the Father tends it." },
+      { text: "2. The branches (John 15:5) — we live by staying joined to him." },
+      { text: "3. The fruit (John 15:8) — a life that shows the Father’s glory." },
+    ],
+    mentions: [
+      { segment: 0, reference: "JHN.15.1", matchedText: "John 15:1" },
+      { segment: 1, reference: "JHN.15.5", matchedText: "John 15:5" },
+      { segment: 2, reference: "JHN.15.8", matchedText: "John 15:8" },
+    ],
+  });
+  api.installFixtureSource({
+    title: "Andachten zum Johannesevangelium",
+    author: "Beispieltext",
+    format: "text",
+    language: "Deutsch",
+    segments: [{ text: "Vergleiche Joh 15,5 und Mal 4,3. Lass uns mal sehen, was das für den Alltag bedeutet." }],
+    mentions: [
+      { segment: 0, reference: "JHN.15.5", matchedText: "Joh 15,5" },
+      { segment: 0, reference: "MAL.4.3", matchedText: "Mal 4,3" },
+    ],
+  });
+  api.installFixtureSource({
+    title: "A Short Guide to Bible Study",
+    author: "Sample handbook",
+    format: "pdf",
+    language: "English",
+    segments: [
+      { text: "Read the passage slowly, more than once. Notice repeated words, like “remain” in John 15:4–10.", pageNumber: 12 },
+      { text: "Ask what the passage meant to its first readers before asking what it means today.", pageNumber: 13 },
+    ],
+    mentions: [{ segment: 0, reference: "JHN.15.4-JHN.15.10", matchedText: "John 15:4–10" }],
+  });
+}
+
+async function start() {
+  const api = createMemoryApi({
+    version: "0.5.0-dev.26",
+    updatesEnabled: true,
+    dataDirectory: "C:\\Users\\You\\AppData\\Roaming\\Abiding Word",
+    databasePath: "C:\\Users\\You\\AppData\\Roaming\\Abiding Word\\database\\abiding-word.db",
+    logDirectory: "C:\\Users\\You\\AppData\\Roaming\\Abiding Word\\logs",
+  });
+  if (params.get("empty") !== "1") await seed(api);
+  await i18n.changeLanguage(params.get("lang") ?? "en");
+  // Wider side panes for close-ups (layout preferences live in browser storage).
+  for (const pane of ["scriptureWidth", "sourcesWidth"]) {
+    const width = params.get(pane);
+    if (width) localStorage.setItem(`abiding-word.layout.${pane}`, width);
+  }
+  (window as unknown as { api: MemoryApi }).api = api;
+  const root = document.getElementById("root");
+  if (!root) throw new Error("Missing #root element");
+  createRoot(root).render(
+    <StrictMode>
+      <App api={api} updater={createMemoryUpdater()} />
+    </StrictMode>,
+  );
+}
+
+void start();
