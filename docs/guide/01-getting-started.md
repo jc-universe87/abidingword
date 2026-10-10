@@ -60,16 +60,12 @@ These Bibles come with Abiding Word. All of them are free for everyone to use:
 | **Lutherbibel 1912** | Deutsch | Public domain |
 | **Schlachter-Bibel 1951** | Deutsch | Creative Commons (free, with credit to the Genfer Bibelgesellschaft) |
 | **Elberfelder 1905** (unrevised) | Deutsch | Public domain |
+| **성경전서 개역한글판** (KRV, 1961) | 한국어 | Copyright expired; free to use (Korean Bible Society) |
 | **Louis Segond 1910** | Français | Public domain |
 | **Reina-Valera 1909** | Español | Public domain |
 | **Bíblia Livre** | Português | Creative Commons (free, with credit to its translators) |
 
 You can add as many as you like and switch between them at any time.
-
-> [!NOTE]
-> **Korean:** a free Korean Bible is planned. The freely licensed Korean text
-> we found is missing part of 1 Peter, so it is not included until a complete
-> copy is available. You can already add a Korean Bible file of your own.
 
 > [!TIP]
 > **Have another Bible?** If you have a Bible file of your own (in the common

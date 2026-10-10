@@ -38,6 +38,7 @@ describe("adding and managing Bibles", () => {
       "Add Lutherbibel 1912",
       "Add Schlachter-Bibel 1951",
       "Add Elberfelder 1905 (unrevidiert)",
+      "Add 성경전서 개역한글판",
       "Add Louis Segond 1910",
       "Add Santa Biblia — Reina Valera 1909",
       "Add Bíblia Livre",
@@ -62,6 +63,18 @@ describe("adding and managing Bibles", () => {
       expect(names.slice(0, 3)).toEqual(["Lutherbibel 1912", "Schlachter-Bibel 1951", "Elberfelder 1905 (unrevidiert)"]);
       expect(names).toContain("Berean Standard Bible");
       expect(names).not.toContain("World English Bible"); // already added
+    } finally {
+      await i18n.changeLanguage("en");
+    }
+  });
+
+  it("offers the Korean Bible first for a Korean interface", async () => {
+    await i18n.changeLanguage("ko");
+    try {
+      const { user } = await renderApp();
+      await user.click(screen.getAllByRole("button", { name: /성경 추가/ })[0]!);
+      const items = await screen.findAllByRole("listitem");
+      expect(items[0]!.querySelector("strong")?.textContent).toBe("성경전서 개역한글판");
     } finally {
       await i18n.changeLanguage("en");
     }

@@ -131,7 +131,7 @@ Object.assign(scenes, {
     await page.close();
   },
   async "add-bible"() {
-    const page = await open("empty=1");
+    const page = await open("empty=1", { height: 1180 });
     await page.getByRole("button", { name: "Add a Bible…" }).first().click();
     await page.waitForTimeout(800);
     await shot(page, "add-bible");

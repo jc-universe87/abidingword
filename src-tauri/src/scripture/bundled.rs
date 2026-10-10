@@ -80,6 +80,17 @@ pub static BUNDLED: &[BundledBible] = &[
         copyright_notice: "Die unrevidierte Elberfelder Bibel 1905 ist gemeinfrei (Public Domain). Imported from eBible.org's USFM edition (deuelo); footnotes and cross-references are omitted, the wording is unchanged.",
     },
     BundledBible {
+        id: "kor1961",
+        resource: "kor1961_usfm.zip",
+        name: "성경전서 개역한글판",
+        short_name: "KRV",
+        language: "한국어",
+        language_code: "ko",
+        publisher: "대한성서공회 (Korean Bible Society)",
+        license_type: "Public Domain",
+        copyright_notice: "성경전서 개역한글판 © 대한성서공회 1961. 저작재산권 보호기간이 지나 자유롭게 사용할 수 있습니다 (대한성서공회 저작권 FAQ); 본문은 변경 없이 수록했습니다. Text from the Korean Bible Society's online edition, wording unchanged.",
+    },
+    BundledBible {
         id: "fraLSG",
         resource: "fraLSG_usfm.zip",
         name: "Louis Segond 1910",

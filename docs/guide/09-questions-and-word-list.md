@@ -43,11 +43,11 @@ not to replace Scripture or your own thinking. The plan is that it will:
 <details>
 <summary><strong>Which Bibles can I use?</strong></summary>
 
-Eight free Bibles come with Abiding Word: the **Berean Standard Bible** and
+Nine free Bibles come with Abiding Word: the **Berean Standard Bible** and
 the **World English Bible** (English); the **Lutherbibel 1912**, the
 **Schlachter-Bibel 1951** and the unrevised **Elberfelder 1905** (Deutsch);
-**Louis Segond 1910** (Français); **Reina-Valera 1909** (Español); and the
-**Bíblia Livre** (Português). See [Add a Bible](01-getting-started.md#add-a-bible).
+**성경전서 개역한글판** (한국어); **Louis Segond 1910** (Français);
+**Reina-Valera 1909** (Español); and the **Bíblia Livre** (Português). See [Add a Bible](01-getting-started.md#add-a-bible).
 
 You can also add any other Bible you have as a file in the common **USFM**
 format (often a `.zip` download from a Bible publisher or from eBible.org).

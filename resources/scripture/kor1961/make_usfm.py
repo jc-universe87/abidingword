@@ -43,7 +43,7 @@ def chapter(code: str, number: int):
         flags=re.S,
     )
     items = []
-    token = re.compile(r'<font class="smallTitle">(.*?)</font><br|<span class="number">(\d+)(?:&nbsp;|\s)*</span>', re.S)
+    token = re.compile(r'<font class="smallTitle">(.*?)</font><br|<span class="number">(\d+(?:-\d+)?)(?:&nbsp;|\s)*</span>', re.S)
     matches = list(token.finditer(body))
     for i, m in enumerate(matches):
         if m.group(1) is not None:
@@ -55,7 +55,8 @@ def chapter(code: str, number: int):
         end = matches[i + 1].start() if i + 1 < len(matches) else len(body)
         text = clean(body[m.end():end])
         text = re.sub(r"\s*\x01([^\x03]*)\x03", lambda n: f" \\f + \\fr {number}:{m.group(2)} \\ft {n.group(1)}\\f*", text)
-        items.append(("verse", int(m.group(2)), re.sub(r"[ ]{2,}", " ", text).strip()))
+        # a few verses are joined in this translation and numbered as a range ("4-5")
+        items.append(("verse", m.group(2), re.sub(r"[ ]{2,}", " ", text).strip()))
     return items
 
 
@@ -77,7 +78,11 @@ for index, (code, count) in enumerate(chapters, start=1):
                     lines += ["\\p"]
                     opened = True
                 lines += [f"\\v {item[1]} {item[2]}"]
-        numbers = [it[1] for it in items if it[0] == "verse"]
+        numbers = []
+        for it in items:
+            if it[0] == "verse":
+                lo, _, hi = it[1].partition("-")
+                numbers += list(range(int(lo), int(hi or lo) + 1))
         if numbers != list(range(1, len(numbers) + 1)):
             report.append(f"{code} {c}: verse numbers {numbers}")
     with open(f"{out}/{index + (1 if index > 39 else 0):02d}-{code}kor1961.usfm", "w", encoding="utf-8") as f:

@@ -720,6 +720,38 @@ fn every_bundled_bible_is_recorded_and_imports_cleanly() {
     }
 }
 
+#[test]
+fn the_korean_bible_has_the_verses_other_copies_lacked() {
+    // 개역한글 from the Korean Bible Society's own text: eBible.org's copy
+    // lacked these verses (resources/scripture/kor1961/SOURCE.md).
+    let zip = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../resources/scripture/kor1961/kor1961_usfm.zip");
+    let staged = import::stage(&[zip], ImportOrigin::Bundled { id: "kor1961" }).unwrap();
+    let books = &staged.content.books;
+    let verse =
+        |book: u8, chapter: u16, verse: u16| books[&book].chapters[&chapter].verses[&verse].clone();
+    assert!(
+        verse(1, 30, 43).starts_with("이에 그 사람이 심히 풍부하여"),
+        "{}",
+        verse(1, 30, 43)
+    );
+    assert_eq!(
+        verse(19, 118, 29),
+        "여호와께 감사하라 그는 선하시며 그 인자하심이 영원함이로다"
+    );
+    assert!(verse(60, 5, 14).starts_with("너희는 사랑의 입맞춤으로 피차 문안하라"));
+    assert_eq!(
+        verse(43, 3, 16),
+        "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 저를 믿는 자마다 멸망치 않고 영생을 얻게 하려 하심이니라"
+    );
+    // Psalm titles are kept; the translator's notes stay in the file, not in the verse.
+    assert_eq!(
+        books[&19].chapters[&8].superscription.as_deref(),
+        Some("다윗의 시, 영장으로 깃딧에 맞춘 노래")
+    );
+    assert!(!verse(19, 8, 5).contains("하나님"), "{}", verse(19, 8, 5));
+}
+
 // --- the bundled World English Bible ----------------------------------------
 
 #[test]

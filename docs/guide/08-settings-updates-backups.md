@@ -43,7 +43,7 @@ notes and Bibles stay exactly as they are.
 </p>
 
 - **Add a Bible…** adds one of the free Bibles included with Abiding Word
-  (English, German, French, Spanish, Portuguese) or a Bible file you own (see
+  (English, German, Korean, French, Spanish, Portuguese) or a Bible file you own (see
   [Getting started](01-getting-started.md#add-a-bible)).
 - **Details** shows a Bible's publisher, licence and contents.
 - **Remove…** removes a Bible. Your notes and highlights are kept with their
