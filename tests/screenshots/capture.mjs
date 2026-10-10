@@ -131,10 +131,19 @@ Object.assign(scenes, {
     await page.close();
   },
   async "add-bible"() {
-    const page = await open("empty=1", { height: 1180 });
+    const page = await open("empty=1");
     await page.getByRole("button", { name: "Add a Bible…" }).first().click();
     await page.waitForTimeout(800);
     await shot(page, "add-bible");
+    await page.close();
+  },
+  async "add-bible-confirm"() {
+    const page = await open("empty=1");
+    await page.getByRole("button", { name: "Add a Bible…" }).first().click();
+    await page.getByRole("combobox", { name: "Choose a Bible" }).selectOption({ label: "Berean Standard Bible (BSB)" });
+    await page.getByRole("button", { name: "Add…" }).click();
+    await page.getByRole("dialog").waitFor();
+    await shot(page, "add-bible-confirm");
     await page.close();
   },
   async findings() {

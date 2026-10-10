@@ -44,12 +44,24 @@ thing to fix.
 ## Add a Bible
 
 1. Click **Add a Bible…** on the left.
-2. Under *Included with Abiding Word*, choose a Bible and click its **Add**
-   button. Bibles in the language you use Abiding Word in are listed first.
+2. Under *Included with Abiding Word*, open the **Choose a Bible** list and
+   pick one. The list is grouped by language, and Bibles in the language you
+   use Abiding Word in come first.
+3. Click **Add…**.
 
 <p align="center">
-  <img src="images/add-bible.png" alt="The 'Add a Bible' screen listing the Bibles included with Abiding Word, and an option to choose your own Bible files" width="760">
+  <img src="images/add-bible.png" alt="The 'Add a Bible' screen with the 'Choose a Bible' list showing the Berean Standard Bible, an Add button, and an option to choose your own Bible files" width="760">
 </p>
+
+4. A small window asks you to confirm, showing the Bible's language and
+   licence. Click **Continue** (or **Cancel** if you picked the wrong one).
+
+<p align="center">
+  <img src="images/add-bible-confirm.png" alt="The confirmation window: 'Add Berean Standard Bible?' with its language, licence, Cancel and Continue" width="760">
+</p>
+
+5. Abiding Word checks every book, chapter and verse and shows what it found.
+   Click **Add this Bible** to finish.
 
 These Bibles come with Abiding Word. All of them are free for everyone to use:
 

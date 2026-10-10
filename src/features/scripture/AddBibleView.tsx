@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 
 import { Trans, useTranslation } from "react-i18next";
 import { AlertTriangle, ArrowLeft, Check, CircleX } from "lucide-react";
 import { Button } from "@/design-system/Button";
+import { Dialog } from "@/design-system/Dialog";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
@@ -9,7 +10,7 @@ import { useApi } from "@/lib/ApiContext";
 import { formatNumber } from "@/i18n/format";
 import { localizeMessage } from "@/i18n/messages";
 import { bookName } from "@/i18n/scripture";
-import type { BibleTranslation, ImportIssue, ImportPreview } from "@/types/scripture";
+import type { BibleTranslation, BundledBibleInfo, ImportIssue, ImportPreview } from "@/types/scripture";
 import { useScripture } from "./ScriptureContext";
 
 type Step =
@@ -130,34 +131,81 @@ export function AddBibleView({ onClose }: { onClose: () => void }) {
 function ChooseStep({ onBundled, onFiles }: { onBundled: (id: string) => void; onFiles: () => void }) {
   const { t, i18n } = useTranslation();
   const api = useApi();
+  const selectId = useId();
   const bundled = useLoad(useCallback(() => api.bibleBundledList(), [api]));
-  // The Bibles in the interface language come first; otherwise the core's order is kept.
+  // Grouped by language, the interface language's group first; otherwise the core's order is kept.
   const language = (i18n.resolvedLanguage ?? i18n.language ?? "en").split("-")[0];
-  const available = (bundled.data ?? [])
-    .filter((b) => !b.installed)
-    .map((bible, index) => ({ bible, index }))
-    .sort((a, b) => Number(b.bible.languageCode === language) - Number(a.bible.languageCode === language) || a.index - b.index)
-    .map(({ bible }) => bible);
+  const groups: { code: string; name: string; bibles: BundledBibleInfo[] }[] = [];
+  for (const bible of (bundled.data ?? []).filter((b) => !b.installed)) {
+    let group = groups.find((g) => g.code === bible.languageCode);
+    if (!group) {
+      group = { code: bible.languageCode, name: bible.language, bibles: [] };
+      groups.push(group);
+    }
+    group.bibles.push(bible);
+  }
+  groups.sort((a, b) => Number(b.code === language) - Number(a.code === language));
+  const available = groups.flatMap((g) => g.bibles);
+  const [chosenId, setChosenId] = useState<string | null>(null);
+  const chosen = available.find((b) => b.id === chosenId) ?? available[0];
+  const [confirming, setConfirming] = useState(false);
   return (
     <div className="flex flex-col gap-8">
-      {available.length > 0 && (
-        <section className="flex flex-col gap-3 border-t border-border-subtle pt-6">
+      {chosen && (
+        <section className="flex flex-col items-start gap-3 border-t border-border-subtle pt-6">
           <h2 className="m-0 text-[1.125rem] font-semibold text-text-strong">{t("scripture.addBible.included")}</h2>
-          <ul className="m-0 flex list-none flex-col p-0">
-            {available.map((bible) => (
-              <li key={bible.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-border-subtle py-3 last:border-b-0">
-                <p className="m-0">
-                  <strong>{bible.name}</strong> ({bible.shortName})
-                  <span className="block text-[0.9375rem] text-text-muted">
-                    {[bible.language, bible.licenseType].join(t("common.listSeparator"))}
-                  </span>
-                </p>
-                <Button variant="primary" onClick={() => onBundled(bible.id)}>
-                  {t("scripture.addBible.addNamed", { name: bible.name })}
-                </Button>
-              </li>
-            ))}
-          </ul>
+          <label htmlFor={selectId} className="font-medium">
+            {t("scripture.addBible.chooseLabel")}
+          </label>
+          <div className="flex w-full flex-wrap items-center gap-2">
+            <select
+              id={selectId}
+              value={chosen.id}
+              onChange={(e) => setChosenId(e.target.value)}
+              className="h-10 min-w-0 flex-1 rounded-aw border border-border bg-bg px-3"
+            >
+              {groups.map((group) => (
+                <optgroup key={group.code} label={group.name}>
+                  {group.bibles.map((bible) => (
+                    <option key={bible.id} value={bible.id}>
+                      {bible.name} ({bible.shortName})
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+            <Button variant="primary" onClick={() => setConfirming(true)}>
+              {t("scripture.addBible.addSelected")}
+            </Button>
+          </div>
+          <p className="m-0 text-[0.9375rem] text-text-muted">{[chosen.language, chosen.licenseType].join(t("common.listSeparator"))}</p>
+          {confirming && (
+            <Dialog
+              title={t("scripture.addBible.confirmTitle", { name: chosen.name })}
+              onClose={() => setConfirming(false)}
+              actions={
+                <>
+                  <Button onClick={() => setConfirming(false)}>{t("common.cancel")}</Button>
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      setConfirming(false);
+                      onBundled(chosen.id);
+                    }}
+                  >
+                    {t("scripture.addBible.confirmContinue")}
+                  </Button>
+                </>
+              }
+            >
+              <p className="m-0">
+                <strong>{chosen.name}</strong> ({chosen.shortName})
+              </p>
+              <p className="m-0">{t("scripture.addBible.confirmLanguage", { language: chosen.language })}</p>
+              <p className="m-0">{t("scripture.addBible.licence", { licence: chosen.licenseType })}</p>
+              <p className="m-0 text-text-muted">{t("scripture.addBible.confirmBody")}</p>
+            </Dialog>
+          )}
         </section>
       )}
       <section className="flex flex-col items-start gap-2 border-t border-border-subtle pt-6">

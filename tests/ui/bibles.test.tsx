@@ -9,7 +9,10 @@ describe("adding and managing Bibles", () => {
     const { api, user } = await renderApp();
     const scripture = screen.getByRole("complementary", { name: "Scripture" });
     await user.click(within(scripture).getByRole("button", { name: "Add a Bible…" }));
-    await user.click(await screen.findByRole("button", { name: "Add World English Bible" }));
+    await user.selectOptions(await screen.findByRole("combobox", { name: "Choose a Bible" }), "World English Bible (WEB)");
+    await user.click(screen.getByRole("button", { name: "Add…" }));
+    const dialog = screen.getByRole("dialog", { name: "Add World English Bible?" });
+    await user.click(within(dialog).getByRole("button", { name: "Continue" }));
 
     expect(await screen.findByRole("heading", { level: 1, name: "New Bible" })).toBeInTheDocument();
     expect(screen.getByLabelText("Name")).toHaveValue("World English Bible");
@@ -26,29 +29,55 @@ describe("adding and managing Bibles", () => {
     expect(within(pane).getByRole("combobox", { name: "Translation" })).toHaveDisplayValue("WEB");
   });
 
-  it("offers every included Bible in one list, the interface language's first", async () => {
+  it("offers the included Bibles in one drop-down, grouped by language", async () => {
     const { user } = await renderApp();
     await user.click(screen.getByRole("button", { name: "Add a Bible…" }));
-    const included = await screen.findByRole("heading", { level: 2, name: "Included with Abiding Word" });
-    const list = within(included.closest("section")!).getByRole("list");
-    const offered = within(list).getAllByRole("button").map((b) => b.textContent);
-    expect(offered).toEqual([
-      "Add Berean Standard Bible",
-      "Add World English Bible",
-      "Add Lutherbibel 1912",
-      "Add Schlachter-Bibel 1951",
-      "Add Elberfelder 1905 (unrevidiert)",
-      "Add 성경전서 개역한글판",
-      "Add Louis Segond 1910",
-      "Add Santa Biblia — Reina Valera 1909",
-      "Add Bíblia Livre",
+    const select = await screen.findByRole("combobox", { name: "Choose a Bible" });
+    const groups = within(select).getAllByRole("group").map((g) => g.getAttribute("label"));
+    expect(groups).toEqual(["English", "Deutsch", "한국어", "Français", "Español", "Português"]);
+    expect(within(select).getAllByRole("option").map((o) => o.textContent)).toEqual([
+      "Berean Standard Bible (BSB)",
+      "World English Bible (WEB)",
+      "Lutherbibel 1912 (LUT1912)",
+      "Schlachter-Bibel 1951 (SCH1951)",
+      "Elberfelder 1905 (unrevidiert) (ELB1905)",
+      "성경전서 개역한글판 (KRV)",
+      "Louis Segond 1910 (LSG)",
+      "Santa Biblia — Reina Valera 1909 (RV1909)",
+      "Bíblia Livre (BLIVRE)",
     ]);
-    // the heading is not repeated for each Bible
-    expect(screen.getAllByRole("heading", { name: "Included with Abiding Word" })).toHaveLength(1);
-    expect(within(list).getByText(/Português · CC BY 4\.0/)).toBeInTheDocument();
+    // the first Bible in the interface language is chosen; its language and licence are shown
+    expect(select).toHaveDisplayValue("Berean Standard Bible (BSB)");
+    expect(screen.getByText("English · Public Domain")).toBeInTheDocument();
+    await user.selectOptions(select, "Bíblia Livre (BLIVRE)");
+    expect(screen.getByText("Português · CC BY 4.0")).toBeInTheDocument();
   });
 
-  it("puts the German Bible first for a German interface, and keeps offering the others once one is added", async () => {
+  it("asks for confirmation in a dialog, and Cancel or Escape adds nothing", async () => {
+    const { api, user } = await renderApp();
+    await user.click(screen.getByRole("button", { name: "Add a Bible…" }));
+    await user.selectOptions(await screen.findByRole("combobox", { name: "Choose a Bible" }), "Lutherbibel 1912 (LUT1912)");
+    const add = screen.getByRole("button", { name: "Add…" });
+    await user.click(add);
+    let dialog = screen.getByRole("dialog", { name: "Add Lutherbibel 1912?" });
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+    expect(within(dialog).getByText("Language: Deutsch")).toBeInTheDocument();
+    expect(within(dialog).getByText("Licence: Public Domain")).toBeInTheDocument();
+    // focus starts in the dialog, on Cancel
+    expect(within(dialog).getByRole("button", { name: "Cancel" })).toHaveFocus();
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(add).toHaveFocus();
+
+    await user.click(add);
+    dialog = screen.getByRole("dialog", { name: "Add Lutherbibel 1912?" });
+    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(api.state.pendingPreview).toBeNull();
+    expect(screen.getByRole("heading", { level: 1, name: "Add a Bible" })).toBeInTheDocument();
+  });
+
+  it("chooses the German Bible first for a German interface, and leaves out what is already added", async () => {
     const api = createMemoryApi();
     api.installFixtureBible("WEB", "web").isBuiltin = true;
     await i18n.changeLanguage("de");
@@ -56,25 +85,23 @@ describe("adding and managing Bibles", () => {
       const { user } = await renderApp(api);
       await user.click(screen.getByRole("button", { name: "Einstellungen" }));
       await user.click(await screen.findByRole("button", { name: /Bibel hinzufügen/ }));
-      const included = await screen.findByRole("heading", { level: 2, name: "In Abiding Word enthalten" });
-      const names = within(included.closest("section")!)
-        .getAllByRole("listitem")
-        .map((item) => item.querySelector("strong")?.textContent);
-      expect(names.slice(0, 3)).toEqual(["Lutherbibel 1912", "Schlachter-Bibel 1951", "Elberfelder 1905 (unrevidiert)"]);
-      expect(names).toContain("Berean Standard Bible");
-      expect(names).not.toContain("World English Bible"); // already added
+      const select = await screen.findByRole("combobox", { name: "Bibel auswählen" });
+      expect(within(select).getAllByRole("group")[0]).toHaveAttribute("label", "Deutsch");
+      expect(select).toHaveDisplayValue("Lutherbibel 1912 (LUT1912)");
+      const options = within(select).getAllByRole("option").map((o) => o.textContent);
+      expect(options).toContain("Berean Standard Bible (BSB)");
+      expect(options).not.toContain("World English Bible (WEB)"); // already added
     } finally {
       await i18n.changeLanguage("en");
     }
   });
 
-  it("offers the Korean Bible first for a Korean interface", async () => {
+  it("chooses the Korean Bible first for a Korean interface", async () => {
     await i18n.changeLanguage("ko");
     try {
       const { user } = await renderApp();
       await user.click(screen.getAllByRole("button", { name: /성경 추가/ })[0]!);
-      const items = await screen.findAllByRole("listitem");
-      expect(items[0]!.querySelector("strong")?.textContent).toBe("성경전서 개역한글판");
+      expect(await screen.findByRole("combobox", { name: "성경 선택" })).toHaveDisplayValue("성경전서 개역한글판 (KRV)");
     } finally {
       await i18n.changeLanguage("en");
     }
