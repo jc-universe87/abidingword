@@ -40,9 +40,10 @@ path: **read the Word → understand it → teach it**.
   no cloud. Your studies belong to you.
 - **Three panes side by side:** the Bible on the left, your study in the
   middle, and your own books on the right.
-- **Nothing is guessed.** Abiding Word uses no artificial intelligence. When
-  it shows that a book mentions John 15:5, it is because the book really says
-  "John 15:5".
+- **Nothing is guessed.** When Abiding Word shows that a book mentions
+  John 15:5, it is because the book really says "John 15:5". The current
+  version uses no artificial intelligence. Optional AI assistance is planned
+  for later (see the [questions](09-questions-and-word-list.md)).
 - **Six languages:** English, Deutsch, 한국어, Français, Español and Português.
 
 > [!NOTE]

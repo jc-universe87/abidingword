@@ -25,9 +25,18 @@ one folder on your computer (see [Backups](08-settings-updates-backups.md#backup
 <details>
 <summary><strong>Does Abiding Word use artificial intelligence?</strong></summary>
 
-No. Everything it shows can be traced to something real: a verse in a Bible,
-a page or heading in a book, something you wrote. When it says a book
-"mentions John 15:5", the book really contains that reference.
+**Not yet, but it is planned.** In this version, everything it shows can be
+traced to something real: a verse in a Bible, a page or heading in a book,
+something you wrote. When it says a book "mentions John 15:5", the book really
+contains that reference.
+
+Optional **AI assistance** is planned for a later version, to help you study,
+not to replace Scripture or your own thinking. The plan is that it will:
+
+- be **optional**, and appear beside your work rather than take it over;
+- always show **where its answers come from** (the verse, the book, the page);
+- when books disagree, show who says what instead of blending them into one answer;
+- keep AI-written text clearly marked, separate from your own writing and from quotations.
 
 </details>
 

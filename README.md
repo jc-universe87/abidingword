@@ -13,7 +13,7 @@
   <img alt="Windows" src="https://img.shields.io/badge/Windows-test%20version-1f3a2e">
   <img alt="Works offline" src="https://img.shields.io/badge/works-offline-b8862f">
   <img alt="Six languages" src="https://img.shields.io/badge/languages-EN%20%C2%B7%20DE%20%C2%B7%20KO%20%C2%B7%20FR%20%C2%B7%20ES%20%C2%B7%20PT-6b3a2a">
-  <img alt="No AI" src="https://img.shields.io/badge/AI-none-555">
+  <img alt="AI assistance: planned" src="https://img.shields.io/badge/AI%20assistance-planned-555">
 </p>
 
 <p align="center">
@@ -88,8 +88,9 @@ Bibles too.
 <td valign="top">
 
 ### 🔒 Yours, and private
-No account, no cloud, no internet needed, and no artificial intelligence.
-Nothing is guessed: every link points to something that is really there.
+No account, no cloud and no internet needed. Nothing is guessed: every link
+points to something that is really there. Optional AI assistance is planned,
+and it will always show its sources and never replace Scripture.
 
 <img src="docs/guide/images/workspace-dark.png" alt="The workspace in the dark theme" width="360">
 
@@ -121,7 +122,7 @@ step by step, with pictures.
 |---|---|
 | ✅ **Ready** | Bible reading with several translations · highlights, notes and bookmarks · studies with templates, sections and study notes · projects · your own library (PDF, EPUB, Word, Markdown, text) · books matched to the passage you read · clickable Bible references in six languages · concordance · search across Bible, studies and library · light and dark themes · six interface languages · automatic test updates |
 | 🛠️ **Next** | Clickable Bible references and highlights directly on PDF pages |
-| 🌱 **Later** | Reading scanned books · dictionary forms for Greek and Hebrew words · sharing and syncing between your own devices |
+| 🌱 **Later** | Optional AI study assistance, always pointing to its sources · reading scanned books · dictionary forms for Greek and Hebrew words · sharing and syncing between your own devices |
 
 ## Documentation
 
