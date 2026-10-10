@@ -41,6 +41,7 @@ pub fn bible_bundled_list(state: State<'_, AppState>) -> CommandResult<Vec<Bundl
                     name: b.name,
                     short_name: b.short_name,
                     language: b.language,
+                    language_code: b.language_code,
                     license_type: b.license_type,
                     installed: bibles::find_builtin(conn, &bundled_resource_name(b.resource))?
                         .is_some(),

@@ -128,25 +128,38 @@ export function AddBibleView({ onClose }: { onClose: () => void }) {
 }
 
 function ChooseStep({ onBundled, onFiles }: { onBundled: (id: string) => void; onFiles: () => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const api = useApi();
   const bundled = useLoad(useCallback(() => api.bibleBundledList(), [api]));
-  const available = (bundled.data ?? []).filter((b) => !b.installed);
+  // The Bibles in the interface language come first; otherwise the core's order is kept.
+  const language = (i18n.resolvedLanguage ?? i18n.language ?? "en").split("-")[0];
+  const available = (bundled.data ?? [])
+    .filter((b) => !b.installed)
+    .map((bible, index) => ({ bible, index }))
+    .sort((a, b) => Number(b.bible.languageCode === language) - Number(a.bible.languageCode === language) || a.index - b.index)
+    .map(({ bible }) => bible);
   return (
     <div className="flex flex-col gap-8">
-      {available.map((bible) => (
-        <section key={bible.id} className="flex flex-col items-start gap-2 border-t border-border-subtle pt-6">
+      {available.length > 0 && (
+        <section className="flex flex-col gap-3 border-t border-border-subtle pt-6">
           <h2 className="m-0 text-[1.125rem] font-semibold text-text-strong">{t("scripture.addBible.included")}</h2>
-          <p className="m-0">
-            <strong>{bible.name}</strong> ({bible.shortName})
-            {t("common.listSeparator")}
-            {[bible.language, bible.licenseType].join(t("common.listSeparator"))}
-          </p>
-          <Button variant="primary" onClick={() => onBundled(bible.id)}>
-            {t("scripture.addBible.addNamed", { name: bible.name })}
-          </Button>
+          <ul className="m-0 flex list-none flex-col p-0">
+            {available.map((bible) => (
+              <li key={bible.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-border-subtle py-3 last:border-b-0">
+                <p className="m-0">
+                  <strong>{bible.name}</strong> ({bible.shortName})
+                  <span className="block text-[0.9375rem] text-text-muted">
+                    {[bible.language, bible.licenseType].join(t("common.listSeparator"))}
+                  </span>
+                </p>
+                <Button variant="primary" onClick={() => onBundled(bible.id)}>
+                  {t("scripture.addBible.addNamed", { name: bible.name })}
+                </Button>
+              </li>
+            ))}
+          </ul>
         </section>
-      ))}
+      )}
       <section className="flex flex-col items-start gap-2 border-t border-border-subtle pt-6">
         <h2 className="m-0 text-[1.125rem] font-semibold text-text-strong">{t("scripture.addBible.ownTitle")}</h2>
         <p className="m-0 text-text-muted">

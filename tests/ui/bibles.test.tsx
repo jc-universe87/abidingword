@@ -1,5 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import i18n from "@/i18n";
 import { createMemoryApi } from "../support/memoryApi";
 import { renderApp } from "../support/render";
 
@@ -23,6 +24,45 @@ describe("adding and managing Bibles", () => {
     expect(api.state.bibles.map((b) => b.shortName)).toEqual(["WEB"]);
     const pane = await screen.findByRole("complementary", { name: "Scripture" });
     expect(within(pane).getByRole("combobox", { name: "Translation" })).toHaveDisplayValue("WEB");
+  });
+
+  it("offers every included Bible in one list, the interface language's first", async () => {
+    const { user } = await renderApp();
+    await user.click(screen.getByRole("button", { name: "Add a Bible…" }));
+    const included = await screen.findByRole("heading", { level: 2, name: "Included with Abiding Word" });
+    const list = within(included.closest("section")!).getByRole("list");
+    const offered = within(list).getAllByRole("button").map((b) => b.textContent);
+    expect(offered).toEqual([
+      "Add Berean Standard Bible",
+      "Add World English Bible",
+      "Add Lutherbibel 1912",
+      "Add Louis Segond 1910",
+      "Add Santa Biblia — Reina Valera 1909",
+      "Add Bíblia Livre",
+    ]);
+    // the heading is not repeated for each Bible
+    expect(screen.getAllByRole("heading", { name: "Included with Abiding Word" })).toHaveLength(1);
+    expect(within(list).getByText(/Português · CC BY 4\.0/)).toBeInTheDocument();
+  });
+
+  it("puts the German Bible first for a German interface, and keeps offering the others once one is added", async () => {
+    const api = createMemoryApi();
+    api.installFixtureBible("WEB", "web").isBuiltin = true;
+    await i18n.changeLanguage("de");
+    try {
+      const { user } = await renderApp(api);
+      await user.click(screen.getByRole("button", { name: "Einstellungen" }));
+      await user.click(await screen.findByRole("button", { name: /Bibel hinzufügen/ }));
+      const included = await screen.findByRole("heading", { level: 2, name: "In Abiding Word enthalten" });
+      const names = within(included.closest("section")!)
+        .getAllByRole("listitem")
+        .map((item) => item.querySelector("strong")?.textContent);
+      expect(names[0]).toBe("Lutherbibel 1912");
+      expect(names).toContain("Berean Standard Bible");
+      expect(names).not.toContain("World English Bible"); // already added
+    } finally {
+      await i18n.changeLanguage("en");
+    }
   });
 
   it("will not add a Bible with problems, and says why", async () => {

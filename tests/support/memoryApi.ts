@@ -1001,9 +1001,16 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     },
 
     bibleList: async () => [...state.bibles].sort((a, b) => a.name.localeCompare(b.name)),
-    bibleBundledList: async () => [
-      { id: "engwebp", name: "World English Bible", shortName: "WEB", language: "English", licenseType: "Public Domain", installed: state.bibles.some((b) => b.isBuiltin) },
-    ],
+    // As the core lists them (src-tauri/src/scripture/bundled.rs).
+    bibleBundledList: async () =>
+      [
+        { id: "engbsb", name: "Berean Standard Bible", shortName: "BSB", language: "English", languageCode: "en", licenseType: "Public Domain" },
+        { id: "engwebp", name: "World English Bible", shortName: "WEB", language: "English", languageCode: "en", licenseType: "Public Domain" },
+        { id: "deu1912", name: "Lutherbibel 1912", shortName: "LUT1912", language: "Deutsch", languageCode: "de", licenseType: "Public Domain" },
+        { id: "fraLSG", name: "Louis Segond 1910", shortName: "LSG", language: "Français", languageCode: "fr", licenseType: "Public Domain" },
+        { id: "spaRV1909", name: "Santa Biblia — Reina Valera 1909", shortName: "RV1909", language: "Español", languageCode: "es", licenseType: "Public Domain" },
+        { id: "porbr2018", name: "Bíblia Livre", shortName: "BLIVRE", language: "Português", languageCode: "pt", licenseType: "CC BY 4.0" },
+      ].map((b) => ({ ...b, installed: state.bibles.some((i) => i.isBuiltin && i.shortName === b.shortName) })),
     chooseBibleFiles: async () => state.nextChosenFiles,
     bibleImportPreview: async ({ bundled, paths }) => {
       if (paths?.some((p) => p.endsWith(".pdf"))) {

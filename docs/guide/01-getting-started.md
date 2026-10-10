@@ -44,14 +44,30 @@ thing to fix.
 ## Add a Bible
 
 1. Click **Add a Bible…** on the left.
-2. Under *Included with Abiding Word*, click **Add World English Bible**.
+2. Under *Included with Abiding Word*, choose a Bible and click its **Add**
+   button. Bibles in the language you use Abiding Word in are listed first.
 
 <p align="center">
-  <img src="images/add-bible.png" alt="The 'Add a Bible' screen with the included World English Bible and an option to choose your own Bible files" width="760">
+  <img src="images/add-bible.png" alt="The 'Add a Bible' screen listing the Bibles included with Abiding Word, and an option to choose your own Bible files" width="760">
 </p>
 
-The **World English Bible** (WEB) comes with Abiding Word. It is a modern
-English translation that is free for everyone to use.
+These Bibles come with Abiding Word. All of them are free for everyone to use:
+
+| Bible | Language | Licence |
+|---|---|---|
+| **Berean Standard Bible** (BSB) | English | Public domain |
+| **World English Bible** (WEB) | English | Public domain |
+| **Lutherbibel 1912** | Deutsch | Public domain |
+| **Louis Segond 1910** | Français | Public domain |
+| **Reina-Valera 1909** | Español | Public domain |
+| **Bíblia Livre** | Português | Creative Commons (free, with credit to its translators) |
+
+You can add as many as you like and switch between them at any time.
+
+> [!NOTE]
+> **Korean:** a free Korean Bible is planned. The freely licensed Korean text
+> we found is missing part of 1 Peter, so it is not included until a complete
+> copy is available. You can already add a Korean Bible file of your own.
 
 > [!TIP]
 > **Have another Bible?** If you have a Bible file of your own (in the common

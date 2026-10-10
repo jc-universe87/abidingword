@@ -103,8 +103,10 @@ and it will always show its sources and never replace Scripture.
 1. **Download** the newest Windows test version from the
    [download page](https://github.com/jc-universe87/abidingword-updates/releases)
    (the file ending in `_x64-setup.exe`) and install it.
-2. **Add the Bible** that comes with it: click **Add a Bible…** → **Add World
-   English Bible**.
+2. **Add a Bible:** click **Add a Bible…** and choose one of the free Bibles
+   that come with it: the Berean Standard Bible or World English Bible
+   (English), Luther 1912 (Deutsch), Louis Segond (Français), Reina-Valera
+   (Español) or Bíblia Livre (Português).
 3. **Start your first study:** type a passage such as `John 15:1-11` and click
    **Create study**.
 
@@ -120,7 +122,7 @@ step by step, with pictures.
 
 | | |
 |---|---|
-| ✅ **Ready** | Bible reading with several translations · highlights, notes and bookmarks · studies with templates, sections and study notes · projects · your own library (PDF, EPUB, Word, Markdown, text) · books matched to the passage you read · clickable Bible references in six languages · concordance · search across Bible, studies and library · light and dark themes · six interface languages · automatic test updates |
+| ✅ **Ready** | Bible reading, with six free Bibles included (English, German, French, Spanish, Portuguese) · highlights, notes and bookmarks · studies with templates, sections and study notes · projects · your own library (PDF, EPUB, Word, Markdown, text) · books matched to the passage you read · clickable Bible references in six languages · concordance · search across Bible, studies and library · light and dark themes · six interface languages · automatic test updates |
 | 🛠️ **Next** | Clickable Bible references and highlights directly on PDF pages |
 | 🌱 **Later** | Optional AI study assistance, always pointing to its sources · reading scanned books · dictionary forms for Greek and Hebrew words · sharing and syncing between your own devices |
 
@@ -136,5 +138,6 @@ step by step, with pictures.
 
 The Abiding Word name, logomark and brand assets are not covered by any
 software licence in this repository. The fonts (Inter, Noto Serif) are SIL
-Open Font License families. The included World English Bible is in the public
-domain.
+Open Font License families. The included Bibles are in the public domain,
+except the Bíblia Livre (Creative Commons Attribution 4.0); each one's source
+and licence are recorded in [`resources/scripture/`](resources/scripture/README.md).

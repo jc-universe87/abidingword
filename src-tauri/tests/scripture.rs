@@ -649,6 +649,76 @@ fn studies_link_to_passages_optionally() {
     });
 }
 
+// --- every Bible shipped with the app ---------------------------------------
+
+/// The file's SHA-256, as SOURCE.md records it.
+fn sha256_hex(path: &Path) -> String {
+    use sha2::{Digest, Sha256};
+    let bytes = std::fs::read(path).unwrap();
+    Sha256::digest(&bytes)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
+}
+
+#[test]
+fn every_bundled_bible_is_recorded_and_imports_cleanly() {
+    use abiding_word_lib::scripture::bundled::BUNDLED;
+    let resources = Path::new(env!("CARGO_MANIFEST_DIR")).join("../resources/scripture");
+    let config =
+        std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("tauri.conf.json"))
+            .unwrap();
+    for bible in BUNDLED {
+        let folder = resources.join(bible.id);
+        let zip = folder.join(bible.resource);
+        // Shipped exactly as recorded: the licence statement and checksum are kept beside it.
+        let source = std::fs::read_to_string(folder.join("SOURCE.md"))
+            .unwrap_or_else(|_| panic!("{}: SOURCE.md missing", bible.id));
+        assert!(
+            source.contains(&sha256_hex(&zip)),
+            "{}: checksum differs from SOURCE.md",
+            bible.id
+        );
+        assert!(
+            folder.join("copr.htm").exists(),
+            "{}: publisher's copr.htm missing",
+            bible.id
+        );
+        assert!(
+            config.contains(&format!(
+                "\"../resources/scripture/{}/{}\": \"scripture/{}\"",
+                bible.id, bible.resource, bible.resource
+            )),
+            "{}: not in tauri.conf.json resources",
+            bible.id
+        );
+
+        let staged = import::stage(&[zip], ImportOrigin::Bundled { id: bible.id }).unwrap();
+        let preview = staged.preview(Default::default());
+        let errors: Vec<_> = preview
+            .issues
+            .iter()
+            .filter(|i| i.severity == Severity::Error)
+            .collect();
+        assert!(errors.is_empty(), "{}: {errors:#?}", bible.id);
+        assert_eq!(preview.book_count, 66, "{}", bible.id);
+        assert_eq!(preview.chapter_count, 1189, "{}", bible.id);
+        assert!(
+            (30_900..31_250).contains(&preview.verse_count),
+            "{}: {}",
+            bible.id,
+            preview.verse_count
+        );
+        let john_3_16 = &staged.content.books[&43].chapters[&3].verses[&16];
+        assert!(john_3_16.chars().count() > 40, "{}: {john_3_16}", bible.id);
+        assert!(
+            !john_3_16.contains('\\') && !john_3_16.contains('|'),
+            "{}: markup left: {john_3_16}",
+            bible.id
+        );
+    }
+}
+
 // --- the bundled World English Bible ----------------------------------------
 
 #[test]

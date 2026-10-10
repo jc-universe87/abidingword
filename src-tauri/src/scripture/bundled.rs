@@ -18,20 +18,79 @@ pub struct BundledBible {
     pub copyright_notice: &'static str,
 }
 
-pub static BUNDLED: &[BundledBible] = &[BundledBible {
-    id: "engwebp",
-    resource: "engwebp_usfm.zip",
-    name: "World English Bible",
-    short_name: "WEB",
-    language: "English",
-    language_code: "en",
-    publisher: "eBible.org",
-    license_type: "Public Domain",
-    copyright_notice: "The World English Bible is in the Public Domain. \
+/// Listed in the order they are offered (the interface language's Bibles come
+/// first on screen; see AddBibleView). Each has resources/scripture/<id>/SOURCE.md.
+pub static BUNDLED: &[BundledBible] = &[
+    BundledBible {
+        id: "engbsb",
+        resource: "engbsb_usfm.zip",
+        name: "Berean Standard Bible",
+        short_name: "BSB",
+        language: "English",
+        language_code: "en",
+        publisher: "eBible.org",
+        license_type: "Public Domain",
+        copyright_notice: "The Berean Standard Bible is in the Public Domain. Imported from eBible.org's USFM edition (engbsb); footnotes and cross-references are omitted, the wording is unchanged.",
+    },
+    BundledBible {
+        id: "engwebp",
+        resource: "engwebp_usfm.zip",
+        name: "World English Bible",
+        short_name: "WEB",
+        language: "English",
+        language_code: "en",
+        publisher: "eBible.org",
+        license_type: "Public Domain",
+        copyright_notice: "The World English Bible is in the Public Domain. \
         \u{201c}World English Bible\u{201d} is a trademark of eBible.org. \
         Imported from eBible.org's USFM edition (engwebp); footnotes, \
         cross-references and Strong's numbers are omitted, the wording is unchanged.",
-}];
+    },
+    BundledBible {
+        id: "deu1912",
+        resource: "deu1912_usfm.zip",
+        name: "Lutherbibel 1912",
+        short_name: "LUT1912",
+        language: "Deutsch",
+        language_code: "de",
+        publisher: "eBible.org",
+        license_type: "Public Domain",
+        copyright_notice: "Die Lutherbibel 1912 ist gemeinfrei (Public Domain). Imported from eBible.org's USFM edition (deu1912); footnotes and cross-references are omitted, the wording is unchanged.",
+    },
+    BundledBible {
+        id: "fraLSG",
+        resource: "fraLSG_usfm.zip",
+        name: "Louis Segond 1910",
+        short_name: "LSG",
+        language: "Français",
+        language_code: "fr",
+        publisher: "eBible.org",
+        license_type: "Public Domain",
+        copyright_notice: "Cette Bible est dans le domaine public. This Bible is in the Public Domain. Imported from eBible.org's USFM edition (fraLSG); footnotes and cross-references are omitted, the wording is unchanged.",
+    },
+    BundledBible {
+        id: "spaRV1909",
+        resource: "spaRV1909_usfm.zip",
+        name: "Santa Biblia — Reina Valera 1909",
+        short_name: "RV1909",
+        language: "Español",
+        language_code: "es",
+        publisher: "eBible.org",
+        license_type: "Public Domain",
+        copyright_notice: "Reina Valera 1909: dominio público (Public Domain). Imported from eBible.org's USFM edition (spaRV1909); footnotes and cross-references are omitted, the wording is unchanged.",
+    },
+    BundledBible {
+        id: "porbr2018",
+        resource: "porbr2018_usfm.zip",
+        name: "Bíblia Livre",
+        short_name: "BLIVRE",
+        language: "Português",
+        language_code: "pt",
+        publisher: "eBible.org",
+        license_type: "CC BY 4.0",
+        copyright_notice: "Bíblia Livre (BLIVRE), Copyright © Diego Santos, Mario Sérgio, e Marco Teles, http://sites.google.com/site/biblialivre/ - fevereiro de 2018. Licença Creative Commons Atribuição 4.0 Brasil (http://creativecommons.org/licenses/by/4.0/br/). Imported from eBible.org's USFM edition (porbr2018); footnotes and cross-references are omitted, the wording is unchanged.",
+    },
+];
 
 pub fn by_id(id: &str) -> Option<&'static BundledBible> {
     BUNDLED.iter().find(|b| b.id == id)

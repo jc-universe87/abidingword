@@ -42,8 +42,9 @@ notes and Bibles stay exactly as they are.
   <img src="images/bible-texts.png" alt="Bible Texts: the World English Bible with Details and Remove buttons, and 'Add a Bible…'" width="660">
 </p>
 
-- **Add a Bible…** adds the included World English Bible or a Bible file you
-  own (see [Getting started](01-getting-started.md#add-a-bible)).
+- **Add a Bible…** adds one of the free Bibles included with Abiding Word
+  (English, German, French, Spanish, Portuguese) or a Bible file you own (see
+  [Getting started](01-getting-started.md#add-a-bible)).
 - **Details** shows a Bible's publisher, licence and contents.
 - **Remove…** removes a Bible. Your notes and highlights are kept with their
   verses.
