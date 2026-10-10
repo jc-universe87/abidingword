@@ -679,9 +679,10 @@ fn every_bundled_bible_is_recorded_and_imports_cleanly() {
             "{}: checksum differs from SOURCE.md",
             bible.id
         );
+        // The publisher's own licence statement, kept beside the file.
         assert!(
-            folder.join("copr.htm").exists(),
-            "{}: publisher's copr.htm missing",
+            folder.join("copr.htm").exists() || folder.join("copyright-statement.txt").exists(),
+            "{}: publisher's licence statement missing",
             bible.id
         );
         assert!(
