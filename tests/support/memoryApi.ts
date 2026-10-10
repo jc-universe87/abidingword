@@ -1007,6 +1007,8 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         { id: "engbsb", name: "Berean Standard Bible", shortName: "BSB", language: "English", languageCode: "en", licenseType: "Public Domain" },
         { id: "engwebp", name: "World English Bible", shortName: "WEB", language: "English", languageCode: "en", licenseType: "Public Domain" },
         { id: "deu1912", name: "Lutherbibel 1912", shortName: "LUT1912", language: "Deutsch", languageCode: "de", licenseType: "Public Domain" },
+        { id: "deu1951", name: "Schlachter-Bibel 1951", shortName: "SCH1951", language: "Deutsch", languageCode: "de", licenseType: "CC BY 4.0" },
+        { id: "deuelo", name: "Elberfelder 1905 (unrevidiert)", shortName: "ELB1905", language: "Deutsch", languageCode: "de", licenseType: "Public Domain" },
         { id: "fraLSG", name: "Louis Segond 1910", shortName: "LSG", language: "Français", languageCode: "fr", licenseType: "Public Domain" },
         { id: "spaRV1909", name: "Santa Biblia — Reina Valera 1909", shortName: "RV1909", language: "Español", languageCode: "es", licenseType: "Public Domain" },
         { id: "porbr2018", name: "Bíblia Livre", shortName: "BLIVRE", language: "Português", languageCode: "pt", licenseType: "CC BY 4.0" },

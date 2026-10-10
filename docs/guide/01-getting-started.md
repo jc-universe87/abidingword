@@ -58,6 +58,8 @@ These Bibles come with Abiding Word. All of them are free for everyone to use:
 | **Berean Standard Bible** (BSB) | English | Public domain |
 | **World English Bible** (WEB) | English | Public domain |
 | **Lutherbibel 1912** | Deutsch | Public domain |
+| **Schlachter-Bibel 1951** | Deutsch | Creative Commons (free, with credit to the Genfer Bibelgesellschaft) |
+| **Elberfelder 1905** (unrevised) | Deutsch | Public domain |
 | **Louis Segond 1910** | Français | Public domain |
 | **Reina-Valera 1909** | Español | Public domain |
 | **Bíblia Livre** | Português | Creative Commons (free, with credit to its translators) |

@@ -36,6 +36,8 @@ describe("adding and managing Bibles", () => {
       "Add Berean Standard Bible",
       "Add World English Bible",
       "Add Lutherbibel 1912",
+      "Add Schlachter-Bibel 1951",
+      "Add Elberfelder 1905 (unrevidiert)",
       "Add Louis Segond 1910",
       "Add Santa Biblia — Reina Valera 1909",
       "Add Bíblia Livre",
@@ -57,7 +59,7 @@ describe("adding and managing Bibles", () => {
       const names = within(included.closest("section")!)
         .getAllByRole("listitem")
         .map((item) => item.querySelector("strong")?.textContent);
-      expect(names[0]).toBe("Lutherbibel 1912");
+      expect(names.slice(0, 3)).toEqual(["Lutherbibel 1912", "Schlachter-Bibel 1951", "Elberfelder 1905 (unrevidiert)"]);
       expect(names).toContain("Berean Standard Bible");
       expect(names).not.toContain("World English Bible"); // already added
     } finally {
