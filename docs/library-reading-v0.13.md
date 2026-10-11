@@ -125,6 +125,11 @@ evidence: pdf-extract does not report font weight to its drawing callbacks.
 
 ## 3. EPUB character references
 
+> Since v0.13.1: a stray `&` no longer ends a document, and books imported by
+> earlier versions have their text refreshed; see
+> [`reference-context-v0.13.1.md`](reference-context-v0.13.1.md#1-epub-character-references).
+
+
 `src-tauri/src/library/adapters/epub.rs` decodes character references in one
 pass (`unescape`): all 2,125 HTML5 named references
 (`adapters/html_entities.rs`, looked up by binary search), decimal and hex
