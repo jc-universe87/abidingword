@@ -104,6 +104,8 @@ reference and the like are later work.
 
 ## Language
 
+> Since v0.13.2, explicit references are read in every supported language,
+> the source's first; see [`multilingual-references-v0.13.2.md`](multilingual-references-v0.13.2.md).
 > Since v0.13.1, bookless references (`15:4`, `15,4`, `v. 4`) are resolved
 > from the source's own context; see [`reference-context-v0.13.1.md`](reference-context-v0.13.1.md).
 
