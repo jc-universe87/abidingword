@@ -482,3 +482,60 @@ fn a_book_s_web_links_follow_the_same_rule_as_a_document_s() {
     }
     assert!(elements(&one).iter().all(|e| e.t != "a" || e.x.is_some()));
 }
+
+#[test]
+fn character_references_read_the_same_in_reading_and_original() {
+    // XHTML only defines XML's five entities; books use HTML's names and numbers anyway.
+    let chapter = xhtml(
+        r##"<h1>Faith &amp; Works &mdash; Part&nbsp;1</h1>
+<p>&ldquo;Abide in me&rdquo; &bull; <em>&lsquo;remain&rsquo;</em> &#8226; <a href="#n">note&#x2019;s link</a> don&#146;t</p>
+<ul><li>&bull; One &hellip;</li><li>Two &amp;bull; stays text</li><li>• already decoded</li></ul>
+<p id="n">End.</p>"##,
+    );
+    let manifest = format!(r#"<item id="c1" href="ch1.xhtml" {XHTML}/>"#);
+    let bytes = epub_raw_binary(
+        &manifest,
+        r#"<itemref idref="c1"/>"#,
+        &[("OEBPS/ch1.xhtml", chapter.as_bytes())],
+    );
+
+    // Reading: the imported text
+    let imported = EpubImporter.extract(&bytes, "book.epub").unwrap();
+    let reading: Vec<String> = imported.segments.iter().map(|s| s.text.clone()).collect();
+    let all = reading.join("\n");
+    // the heading becomes the segments' heading (provenance), decoded the same way
+    let heading = imported.segments[0].heading.clone().unwrap_or_default();
+    assert!(
+        heading == "Faith & Works — Part\u{a0}1" || heading == "Faith & Works — Part 1",
+        "{heading:?}"
+    );
+    assert!(
+        all.contains("“Abide in me” • ‘remain’ • note’s link don’t"),
+        "{all}"
+    );
+    assert!(all.contains("• One …"), "{all}");
+    assert!(
+        all.contains("Two &bull; stays text"),
+        "an escaped ampersand is decoded once: {all}"
+    );
+    assert!(all.contains("• already decoded"), "{all}");
+    assert!(
+        !all.contains("&bull;\u{20}One") && !all.contains("&ldquo;") && !all.contains("&#"),
+        "{all}"
+    );
+
+    // Original: the formatted view's text, inside emphasis, links and list items
+    let original = text_of(&item(&bytes, "c1").nodes);
+    assert!(
+        original.contains("Faith & Works — Part\u{a0}1"),
+        "{original}"
+    );
+    assert!(
+        original.contains("“Abide in me” • ‘remain’ • note’s link don’t"),
+        "{original}"
+    );
+    assert!(original.contains("• One …"), "{original}");
+    assert!(original.contains("Two &bull; stays text"), "{original}");
+    // still text, never markup
+    assert!(!json(&item(&bytes, "c1")).contains("<em>"));
+}

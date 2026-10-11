@@ -13,6 +13,8 @@ use std::collections::HashMap;
 use std::io::{Cursor, Read};
 
 use quick_xml::events::Event;
+
+use super::html_entities::NAMED;
 use quick_xml::Reader;
 
 use super::{
@@ -595,7 +597,7 @@ impl Acc {
 
 /// Block-level text of an XHTML document: headings and paragraphs (p, li,
 /// blockquote, dd, dt, pre, and text directly in div/section). Tolerant of
-/// imperfect markup; HTML entities outside XML's five are kept as written.
+/// imperfect markup; character references are decoded by [`unescape`].
 fn blocks(xhtml: &str) -> (Vec<Block>, Vec<(String, usize)>) {
     let mut reader = Reader::from_str(xhtml);
     reader.config_mut().check_end_names = false;
@@ -684,47 +686,69 @@ fn note_anchor(
     }
 }
 
-/// XML's five entities, numeric references and a few common HTML ones.
+/// Decodes character references in one pass, as an HTML parser does: every
+/// HTML5 named reference (`&bull;`, `&nbsp;`, `&rdquo;`, …), decimal and hex
+/// references. The output is never scanned again, so `&amp;bull;` becomes the
+/// text "&bull;", not "•". Unknown names and a lone `&` are kept as written.
+/// Numeric references follow the HTML standard: 128–159 are read as
+/// Windows-1252 (what authors meant by `&#146;`), and impossible values (0,
+/// surrogates, beyond Unicode) become U+FFFD. The result is plain text, never
+/// markup.
 pub(super) fn unescape(raw: &str) -> String {
     let mut out = String::with_capacity(raw.len());
     let mut rest = raw;
     while let Some(start) = rest.find('&') {
         out.push_str(&rest[..start]);
         let tail = &rest[start..];
-        let Some(end) = tail.find(';').filter(|e| *e <= 10) else {
+        // The longest HTML5 name has 31 characters; numeric references are shorter.
+        let Some(end) = tail.find(';').filter(|e| (2..=33).contains(e)) else {
             out.push('&');
             rest = &tail[1..];
             continue;
         };
         let entity = &tail[1..end];
-        let decoded = match entity {
-            "amp" => Some('&'),
-            "lt" => Some('<'),
-            "gt" => Some('>'),
-            "quot" => Some('"'),
-            "apos" => Some('\''),
-            "nbsp" => Some(' '),
-            "mdash" => Some('—'),
-            "ndash" => Some('–'),
-            "lsquo" => Some('‘'),
-            "rsquo" => Some('’'),
-            "ldquo" => Some('“'),
-            "rdquo" => Some('”'),
-            "hellip" => Some('…'),
-            e if e.starts_with("#x") || e.starts_with("#X") => u32::from_str_radix(&e[2..], 16)
+        let numeric = |digits: &str, radix: u32| -> Option<char> {
+            if digits.is_empty() || !digits.chars().all(|c| c.is_digit(radix)) {
+                return None;
+            }
+            let code = u32::from_str_radix(digits, radix).unwrap_or(u32::MAX);
+            Some(match code {
+                0x80..=0x9F => windows_1252(code),
+                0 | 0xD800..=0xDFFF | 0x11_0000.. => '\u{FFFD}',
+                _ => char::from_u32(code).unwrap_or('\u{FFFD}'),
+            })
+        };
+        let decoded: Option<std::borrow::Cow<str>> = if let Some(hex) = entity
+            .strip_prefix("#x")
+            .or_else(|| entity.strip_prefix("#X"))
+        {
+            numeric(hex, 16).map(|c| c.to_string().into())
+        } else if let Some(dec) = entity.strip_prefix('#') {
+            numeric(dec, 10).map(|c| c.to_string().into())
+        } else {
+            NAMED
+                .binary_search_by(|(name, _)| (*name).cmp(entity))
                 .ok()
-                .and_then(char::from_u32),
-            e if e.starts_with('#') => e[1..].parse().ok().and_then(char::from_u32),
-            _ => None,
+                .map(|i| NAMED[i].1.into())
         };
         match decoded {
-            Some(c) => out.push(c),
+            Some(text) => out.push_str(&text),
             None => out.push_str(&tail[..=end]),
         }
         rest = &tail[end + 1..];
     }
     out.push_str(rest);
     out
+}
+
+/// The HTML standard's reading of numeric references 128–159 (Windows-1252).
+fn windows_1252(code: u32) -> char {
+    const TABLE: [char; 32] = [
+        '€', '\u{81}', '‚', 'ƒ', '„', '…', '†', '‡', 'ˆ', '‰', 'Š', '‹', 'Œ', '\u{8D}', 'Ž',
+        '\u{8F}', '\u{90}', '‘', '’', '“', '”', '•', '–', '—', '˜', '™', 'š', '›', 'œ', '\u{9D}',
+        'ž', 'Ÿ',
+    ];
+    TABLE[(code - 0x80) as usize]
 }
 
 // --- The book's own contents ---------------------------------------------------
@@ -1028,6 +1052,47 @@ mod tests {
             "A — B ’ &unknown; &"
         );
         assert_eq!(percent_decode("chapter%201.xhtml"), "chapter 1.xhtml");
+    }
+
+    #[test]
+    fn character_references_decode_like_html_once() {
+        // named references from the whole HTML5 list, not only XML's five
+        assert_eq!(
+            unescape("&bull; one &amp; two &mdash; three"),
+            "• one & two — three"
+        );
+        assert_eq!(
+            unescape("&ldquo;Abide&rdquo; &lsquo;in&rsquo; me&hellip;"),
+            "“Abide” ‘in’ me…"
+        );
+        assert_eq!(
+            unescape("a&nbsp;b"),
+            "a\u{a0}b",
+            "a non-breaking space stays one"
+        );
+        assert_eq!(
+            unescape("&CounterClockwiseContourIntegral;"),
+            "∳",
+            "the longest name"
+        );
+        // decimal and hex, either case
+        assert_eq!(unescape("&#8226;&#x2022;&#X2022;"), "•••");
+        // Windows-1252 readings of 128–159, and impossible values
+        assert_eq!(unescape("don&#146;t &#150; &#128;"), "don’t – €");
+        assert_eq!(
+            unescape("&#0;&#xD800;&#1114112;"),
+            "\u{FFFD}\u{FFFD}\u{FFFD}"
+        );
+        // never decoded twice: an escaped ampersand stays text
+        assert_eq!(unescape("&amp;bull; &amp;amp;"), "&bull; &amp;");
+        // already-decoded text and unknown or malformed references are left alone
+        assert_eq!(unescape("• — “quote” 한국어"), "• — “quote” 한국어");
+        assert_eq!(
+            unescape("&unknown; & &; &#; &#xZZ; &bull"),
+            "&unknown; & &; &#; &#xZZ; &bull"
+        );
+        // markup characters come out as text, never as markup to interpret
+        assert_eq!(unescape("&lt;script&gt;"), "<script>");
     }
 
     #[test]
