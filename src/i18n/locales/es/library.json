@@ -195,5 +195,19 @@
     "label": "{{passage}} (referencia bíblica)",
     "actions": "Acciones para {{passage}}",
     "open": "Abrir en la Biblia"
+  },
+  "find": {
+    "button": "Buscar",
+    "open": "Buscar en esta fuente (Ctrl+F)",
+    "label": "Buscar en esta fuente",
+    "placeholder": "Buscar en esta fuente",
+    "searching": "Buscando…",
+    "failed": "No se pudo completar la búsqueda. Inténtelo de nuevo.",
+    "none": "Sin coincidencias",
+    "position": "{{current}} de {{total}}",
+    "positionMore": "{{current}} de más de {{total}}",
+    "previous": "Coincidencia anterior",
+    "next": "Coincidencia siguiente",
+    "close": "Cerrar búsqueda"
   }
 }

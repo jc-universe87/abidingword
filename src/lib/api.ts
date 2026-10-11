@@ -71,6 +71,7 @@ import type {
   EpubItem,
   EpubStructureItem,
   SourceLink,
+  SourceFind,
   SourceReference,
   OriginalInfo,
   PassageMention,
@@ -145,6 +146,8 @@ export interface Api {
   librarySourceReferences(id: string): Promise<SourceReference[]>;
   /** The Scripture references in pieces of a source's drawn text, read in the source's language. */
   libraryDetectReferences(id: string, texts: string[]): Promise<DetectedReference[][]>;
+  /** Where a query occurs in one source's text (case, accents and spacing ignored), in reading order. */
+  librarySourceFind(id: string, query: string): Promise<SourceFind>;
   /** For an EPUB's formatted view: where each reading-order document starts among the extracted text. */
   libraryEpubStructure(id: string): Promise<EpubStructureItem[]>;
   /** One reading-order document of an EPUB, sanitised by the core. */
@@ -310,6 +313,7 @@ export const tauriApi: Api = {
   librarySourceLinks: (id) => call("library_source_links", { id }),
   librarySourceReferences: (id) => call("library_source_references", { id }),
   libraryDetectReferences: (id, texts) => call("library_detect_references", { id, texts }),
+  librarySourceFind: (id, query) => call("library_source_find", { id, query }),
   libraryEpubStructure: (id) => call("library_epub_structure", { id }),
   libraryEpubItem: (id, item) => call("library_epub_item", { id, item }),
   openExternalLink: async (url) => {

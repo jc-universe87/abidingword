@@ -1270,6 +1270,24 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       api.detectCalls.push(texts.length);
       return Promise.all(texts.map((text) => api.referenceDetect(text)));
     },
+    // As the core (library::find): case, accents and whitespace runs ignored, Hangul syllables whole, UTF-16 ranges.
+    librarySourceFind: async (sourceId, query) => {
+      liveSource(sourceId);
+      const needle = foldForFind(query.trim()).chars.join("");
+      const matches: { position: number; pageNumber: number | null; start: number; end: number }[] = [];
+      if (!needle) return { matches, total: 0, truncated: false };
+      for (const segment of segmentsOf(sourceId)) {
+        const { chars, spans } = foldForFind(segment.text);
+        const n = [...needle].length;
+        for (let i = 0; i + n <= chars.length; ) {
+          if (chars.slice(i, i + n).join("") === needle) {
+            matches.push({ position: segment.position, pageNumber: segment.pageNumber ?? null, start: spans[i]![0], end: spans[i + n - 1]![1] });
+            i += n;
+          } else i += 1;
+        }
+      }
+      return { matches, total: matches.length, truncated: false };
+    },
     librarySourceLinks: async (sourceId) => {
       liveSource(sourceId);
       return linksOf.get(sourceId) ?? [];
@@ -1341,4 +1359,29 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     },
   };
   return api;
+}
+
+/** The core's find folding (library::find::fold), for the in-memory librarySourceFind. */
+function foldForFind(text: string): { chars: string[]; spans: [number, number][] } {
+  const chars: string[] = [];
+  const spans: [number, number][] = [];
+  let at = 0;
+  for (const c of text) {
+    const range: [number, number] = [at, at + c.length];
+    at += c.length;
+    if (/\s/u.test(c)) {
+      if (chars[chars.length - 1] === " ") spans[spans.length - 1]![1] = range[1];
+      else {
+        chars.push(" ");
+        spans.push(range);
+      }
+      continue;
+    }
+    const parts = /[\uAC00-\uD7A3]/u.test(c) ? [c] : [...c.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()];
+    for (const f of parts) {
+      chars.push(f === "ς" ? "σ" : f);
+      spans.push(range);
+    }
+  }
+  return { chars, spans };
 }

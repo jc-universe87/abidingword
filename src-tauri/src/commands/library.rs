@@ -19,8 +19,8 @@ use crate::library::{adapters, contents, import, original};
 use crate::library::{
     AddFindingSource, CommitSourceImport, FindingCitation, GetSegments, LibraryResults,
     ListSources, PassageLocation, PassageMention, PassageSourceGroup, SearchLibrary,
-    SegmentPassageLink, SegmentWindow, Source, SourceImportPreview, SourceReference, SourceSummary,
-    SourceType,
+    SegmentPassageLink, SegmentWindow, Source, SourceFind, SourceImportPreview, SourceReference,
+    SourceSummary, SourceType,
 };
 use crate::scripture::parser::DetectedReference;
 use crate::scripture::reference::ScriptureRef;
@@ -252,6 +252,16 @@ pub fn library_source_references(
     id: String,
 ) -> CommandResult<Vec<SourceReference>> {
     state.db(|conn| library::source_references(conn, &id))
+}
+
+/// Where a query occurs in one source's text (v0.13, "Find in this source").
+#[tauri::command(async)]
+pub fn library_source_find(
+    state: State<'_, AppState>,
+    id: String,
+    query: String,
+) -> CommandResult<SourceFind> {
+    state.db(|conn| library::find_in_source(conn, &id, &query))
 }
 
 /// The Scripture references in pieces of a source's drawn text (a formatted

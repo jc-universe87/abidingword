@@ -5,6 +5,7 @@
 pub mod adapters;
 pub mod contents;
 pub mod files;
+pub mod find;
 pub mod import;
 pub mod original;
 pub mod passage_index;
@@ -214,6 +215,30 @@ pub struct SourceReference {
     pub start: i64,
     pub end: i64,
     pub reference: ScriptureRefDto,
+}
+
+/// One place a "Find in this source" query occurs (v0.13).
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct SourceMatch {
+    /// The segment's position in the source.
+    pub position: i64,
+    /// The segment's printed page, where the source has pages.
+    pub page_number: Option<i64>,
+    /// UTF-16 offsets into the segment's text, end exclusive.
+    pub start: i64,
+    pub end: i64,
+}
+
+/// Where a query occurs in one source, in reading order (v0.13). `total`
+/// counts every occurrence up to a bound; `matches` holds the first of them;
+/// `truncated` says the bound was reached and more may exist.
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct SourceFind {
+    pub matches: Vec<SourceMatch>,
+    pub total: i64,
+    pub truncated: bool,
 }
 
 /// Why a source segment is linked to a passage, for one segment (the reader).

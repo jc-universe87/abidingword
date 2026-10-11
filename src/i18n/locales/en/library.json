@@ -186,5 +186,19 @@
     "label": "{{passage}} (Scripture reference)",
     "actions": "Actions for {{passage}}",
     "open": "Open in Bible"
+  },
+  "find": {
+    "button": "Find",
+    "open": "Find in this source (Ctrl+F)",
+    "label": "Find in this source",
+    "placeholder": "Find in this source",
+    "searching": "Searching…",
+    "failed": "The search could not be completed. Try again.",
+    "none": "No matches",
+    "position": "{{current}} of {{total}}",
+    "positionMore": "{{current}} of more than {{total}}",
+    "previous": "Previous match",
+    "next": "Next match",
+    "close": "Close find"
   }
 }

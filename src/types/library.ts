@@ -220,6 +220,21 @@ export interface SourceReference {
   reference: ScriptureRef;
 }
 
+/** One place a "Find in this source" query occurs (v0.13): UTF-16 offsets into the segment's text. */
+export interface SourceMatch {
+  position: number;
+  pageNumber: number | null;
+  start: number;
+  end: number;
+}
+
+/** Where a query occurs in one source, in reading order; `truncated` when more exist than were counted or returned. */
+export interface SourceFind {
+  matches: SourceMatch[];
+  total: number;
+  truncated: boolean;
+}
+
 export interface SourceLink {
   position: number;
   start: number;

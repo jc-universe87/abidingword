@@ -186,5 +186,19 @@
     "label": "{{passage}} (Bibelstelle)",
     "actions": "Aktionen für {{passage}}",
     "open": "In der Bibel öffnen"
+  },
+  "find": {
+    "button": "Suchen",
+    "open": "In dieser Quelle suchen (Strg+F)",
+    "label": "In dieser Quelle suchen",
+    "placeholder": "In dieser Quelle suchen",
+    "searching": "Suche läuft …",
+    "failed": "Die Suche konnte nicht abgeschlossen werden. Bitte erneut versuchen.",
+    "none": "Keine Treffer",
+    "position": "{{current}} von {{total}}",
+    "positionMore": "{{current}} von mehr als {{total}}",
+    "previous": "Vorheriger Treffer",
+    "next": "Nächster Treffer",
+    "close": "Suche schließen"
   }
 }

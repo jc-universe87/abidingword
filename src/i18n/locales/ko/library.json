@@ -177,5 +177,19 @@
     "label": "{{passage}} (성경 구절)",
     "actions": "{{passage}} 작업",
     "open": "성경에서 열기"
+  },
+  "find": {
+    "button": "찾기",
+    "open": "이 자료에서 찾기 (Ctrl+F)",
+    "label": "이 자료에서 찾기",
+    "placeholder": "이 자료에서 찾기",
+    "searching": "찾는 중…",
+    "failed": "검색을 완료하지 못했습니다. 다시 시도하세요.",
+    "none": "일치하는 항목 없음",
+    "position": "{{total}}개 중 {{current}}번째",
+    "positionMore": "{{total}}개 이상 중 {{current}}번째",
+    "previous": "이전 항목",
+    "next": "다음 항목",
+    "close": "찾기 닫기"
   }
 }
