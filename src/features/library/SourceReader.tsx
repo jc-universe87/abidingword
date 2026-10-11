@@ -86,7 +86,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   // Where the original opens; until chosen, the page of the passage opened at.
   const [openPage, setOpenPage] = useState<number | null>(null);
   // The source's own contents (an EPUB's, a PDF's outline), and the panel that shows them.
-  const { items: contents, adopt: adoptContents } = useSourceContents(source.data);
+  const { items: contents, generated: contentsGenerated, adopt: adoptContents } = useSourceContents(source.data);
   const stage = useRef<HTMLDivElement>(null);
   const opener = useRef<HTMLButtonElement>(null);
   const contentsLayout = useContentsLayout(stage, contents.length > 0);
@@ -638,7 +638,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     <FindBar find={finder.find} focusKey={findFocus} onType={finder.type} onSubmit={finder.submit} onStep={finder.step} onClose={closeFind} />
   ) : null;
   const contentsPanel = panel ? (
-    <ContentsPanel id={`${id}-contents`} title={s?.title ?? ""} items={contents} currentId={panel.currentId} layout={contentsLayout} onSelect={chooseEntry} onClose={closeContents} />
+    <ContentsPanel id={`${id}-contents`} title={s?.title ?? ""} items={contents} generated={contentsGenerated} currentId={panel.currentId} layout={contentsLayout} onSelect={chooseEntry} onClose={closeContents} />
   ) : null;
 
   if (inPane) {

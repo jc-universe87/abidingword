@@ -13,8 +13,10 @@ use rusqlite::{params, Connection, OptionalExtension, Row};
 use crate::db::{new_id, now, workspaces};
 use crate::domain::validate::{self, DESCRIPTION_MAX_CHARS};
 use crate::error::{AppError, AppResult, UserMessage};
+use crate::library::contents::ContentsItem;
 use crate::library::files::{category, safe_file_name};
 use crate::library::find;
+use crate::library::generated_contents;
 use crate::library::import::StagedSource;
 use crate::library::original;
 use crate::library::passage_index::{self, PassageIndex};
@@ -614,6 +616,21 @@ pub fn source_references(conn: &Connection, source_id: &str) -> AppResult<Vec<So
         });
     }
     Ok(out)
+}
+
+/// Generated contents from a source's section headings (EPUB, Markdown and
+/// other formats whose text is divided by headings; v0.13). An unknown or
+/// removed source gives an error.
+pub fn generated_contents(conn: &Connection, source_id: &str) -> AppResult<Vec<ContentsItem>> {
+    get(conn, source_id)?;
+    let mut stmt = conn.prepare(
+        "SELECT position, section_path FROM source_segments
+         WHERE source_id = ?1 ORDER BY position",
+    )?;
+    let segments = stmt
+        .query_map(params![source_id], |r| Ok((r.get(0)?, r.get(1)?)))?
+        .collect::<Result<Vec<(i64, Option<String>)>, _>>()?;
+    Ok(generated_contents::from_sections(&segments))
 }
 
 /// The most matches [`find_in_source`] returns, and the most it counts.

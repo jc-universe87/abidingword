@@ -132,6 +132,8 @@ export interface SourceFixture {
   sections?: { segment: number; reference: string; matchedText: string; heading: string; through?: number }[];
   /** The contents an EPUB carries (segment targets), as the core would return them. */
   contents?: ContentsItem[];
+  /** Generated contents (headings found in the source), as the core would return them for a source without its own. */
+  generatedContents?: ContentsItem[];
   /** Links in the text that lead elsewhere in the same source, as the core would return them. */
   links?: SourceLink[];
   /** A formatted view (an EPUB's documents or a DOCX's parts, by id); a source without it has no Original view. */
@@ -491,6 +493,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
   const locator = (s: { pageNumber: number | null; sectionPath: string | null; paragraphIndex: number | null }) =>
     s.pageNumber !== null ? `p. ${s.pageNumber}` : (s.sectionPath ?? `¶ ${(s.paragraphIndex ?? 0) + 1}`);
   const contentsOf = new Map<string, ContentsItem[]>();
+  const generatedOf = new Map<string, ContentsItem[]>();
   const linksOf = new Map<string, SourceLink[]>();
   const formattedOf = new Map<string, NonNullable<SourceFixture["formatted"]>>();
   const addSource = (fixture: SourceFixture, extra: Partial<Source> = {}): Source => {
@@ -535,6 +538,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     };
     library.sources.push(source);
     if (fixture.contents) contentsOf.set(sourceId, fixture.contents);
+    if (fixture.generatedContents) generatedOf.set(sourceId, fixture.generatedContents);
     if (fixture.links) linksOf.set(sourceId, fixture.links);
     if (fixture.formatted) formattedOf.set(sourceId, fixture.formatted);
     return source;
@@ -1248,6 +1252,10 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     librarySourceContents: async (sourceId) => {
       liveSource(sourceId);
       return contentsOf.get(sourceId) ?? [];
+    },
+    libraryGeneratedContents: async (sourceId) => {
+      liveSource(sourceId);
+      return generatedOf.get(sourceId) ?? [];
     },
     // As the core: where each stored mention is in its segment's text (the n-th time it is written there).
     librarySourceReferences: async (sourceId) => {

@@ -99,6 +99,7 @@ pub fn run() {
             commands::library::library_original_info,
             commands::library::library_original_read,
             commands::library::library_source_contents,
+            commands::library::library_generated_contents,
             commands::library::library_source_links,
             commands::library::library_epub_structure,
             commands::library::library_epub_item,

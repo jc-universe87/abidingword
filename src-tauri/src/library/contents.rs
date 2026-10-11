@@ -31,6 +31,8 @@ pub struct ContentsItem {
 pub enum ContentsTarget {
     /// The segment at this position of the source's extracted text.
     Segment { position: i64 },
+    /// A physical page of a PDF (1 = first), for generated contents.
+    Page { page: i64 },
 }
 
 /// A title as shown: whitespace collapsed, bounded.

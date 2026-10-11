@@ -169,7 +169,9 @@
     "close": "Cerrar el contenido",
     "for": "Contenido de {{title}}",
     "none": "No hay contenido disponible",
-    "current": "Sección actual"
+    "current": "Sección actual",
+    "generated": "Índice generado",
+    "generatedNote": "Creado a partir de los títulos encontrados en esta fuente. No forma parte del original."
   },
   "links": {
     "follow": "Ir al lugar enlazado"

@@ -65,6 +65,49 @@ pub fn pdf(pages: &[&[&str]], title: Option<&str>, author: Option<&str>) -> Vec<
     bytes
 }
 
+/// A PDF whose pages hold lines set at given sizes and heights:
+/// `(size, y, text)`, y measured up from the bottom of an A4 page.
+pub fn pdf_styled(pages: &[Vec<(i64, i64, String)>]) -> Vec<u8> {
+    let mut doc = Document::with_version("1.5");
+    let pages_id = doc.new_object_id();
+    let font_id = doc.add_object(dictionary! {
+        "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica", "Encoding" => "WinAnsiEncoding",
+    });
+    let resources_id = doc.add_object(dictionary! { "Font" => dictionary! { "F1" => font_id } });
+    let mut kids = Vec::new();
+    for lines in pages {
+        let mut operations = Vec::new();
+        for (size, y, text) in lines {
+            operations.extend([
+                Operation::new("BT", vec![]),
+                Operation::new("Tf", vec!["F1".into(), (*size).into()]),
+                Operation::new("Td", vec![72.into(), (*y).into()]),
+                Operation::new("Tj", vec![Object::string_literal(text.as_str())]),
+                Operation::new("ET", vec![]),
+            ]);
+        }
+        let content = Content { operations };
+        let content_id = doc.add_object(Stream::new(dictionary! {}, content.encode().unwrap()));
+        let page_id = doc.add_object(dictionary! {
+            "Type" => "Page", "Parent" => pages_id, "Contents" => content_id,
+            "MediaBox" => vec![0.into(), 0.into(), 595.into(), 842.into()],
+        });
+        kids.push(Object::Reference(page_id));
+    }
+    let count = kids.len() as i64;
+    doc.objects.insert(
+        pages_id,
+        Object::Dictionary(dictionary! {
+            "Type" => "Pages", "Kids" => kids, "Count" => count, "Resources" => resources_id,
+        }),
+    );
+    let catalog_id = doc.add_object(dictionary! { "Type" => "Catalog", "Pages" => pages_id });
+    doc.trailer.set("Root", catalog_id);
+    let mut bytes = Vec::new();
+    doc.save_to(&mut bytes).unwrap();
+    bytes
+}
+
 /// An EPUB 3 with the given chapters, listed in `spine_order` (indexes into
 /// `chapters`), so reading order can differ from manifest order.
 pub struct EpubChapter<'a> {

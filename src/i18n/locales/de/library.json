@@ -161,7 +161,9 @@
     "close": "Inhaltsverzeichnis schließen",
     "for": "Inhaltsverzeichnis von {{title}}",
     "none": "Kein Inhaltsverzeichnis vorhanden",
-    "current": "Aktueller Abschnitt"
+    "current": "Aktueller Abschnitt",
+    "generated": "Automatisch erstelltes Inhaltsverzeichnis",
+    "generatedNote": "Aus den Überschriften dieser Quelle erstellt. Es ist nicht Teil des Originals."
   },
   "links": {
     "follow": "Zur verknüpften Stelle springen"

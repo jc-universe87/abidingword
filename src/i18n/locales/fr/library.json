@@ -169,7 +169,9 @@
     "close": "Fermer le sommaire",
     "for": "Sommaire de {{title}}",
     "none": "Aucun sommaire disponible",
-    "current": "Section en cours"
+    "current": "Section en cours",
+    "generated": "Table des matières générée",
+    "generatedNote": "Établie à partir des titres trouvés dans cette source. Elle ne fait pas partie de l’original."
   },
   "links": {
     "follow": "Aller à l’endroit lié"

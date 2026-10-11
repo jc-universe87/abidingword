@@ -6,6 +6,7 @@ pub mod adapters;
 pub mod contents;
 pub mod files;
 pub mod find;
+pub mod generated_contents;
 pub mod import;
 pub mod original;
 pub mod passage_index;

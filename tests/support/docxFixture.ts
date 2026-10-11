@@ -179,7 +179,8 @@ export const FORMATTED_DOCX: SourceFixture = {
   format: "docx",
   language: "English",
   segments: [...b1.segments, ...b2.segments, ...b3.segments].map((s) => ({ text: s.text, sectionPath: s.section || undefined })),
-  contents,
+  // A Word document carries no contents of its own: its headings are generated contents (v0.13).
+  generatedContents: contents,
   formatted: {
     kind: "docx",
     structure,

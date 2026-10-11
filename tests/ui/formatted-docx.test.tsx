@@ -261,7 +261,10 @@ describe("links, notes and Back / Forward in a Word document", () => {
     const { api, engine } = setup();
     const { user, reader } = await openPane(api, engine);
     await original(user, reader);
-    await user.click(within(reader).getByRole("button", { name: "Contents" }));
+    await user.click(await within(reader).findByRole("button", { name: "Contents" }));
+    // made from the headings, and said so
+    expect(await screen.findByRole("heading", { name: "Generated contents" })).toBeInTheDocument();
+    expect(screen.getByText(/not part of the original/)).toBeInTheDocument();
     await user.click(await screen.findByRole("button", { name: /^Chapter Two/ }));
     await waitFor(() => expect(part(reader)).toBe("Part 2 of 3"));
     expect(back(reader)).toBeEnabled();
@@ -362,7 +365,7 @@ describe("moving between Reading and Original in a Word document", () => {
   it("keeps the place when switching, in either direction", async () => {
     const { api, engine } = setup();
     const { user, reader } = await openPane(api, engine);
-    await user.click(within(reader).getByRole("button", { name: "Contents" }));
+    await user.click(await within(reader).findByRole("button", { name: "Contents" }));
     await user.click(await screen.findByRole("button", { name: /^Chapter Two/ }));
     await waitFor(() => expect(readingTop).toBe(DOCX_PARTS.d0));
     await original(user, reader);
