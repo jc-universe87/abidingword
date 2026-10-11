@@ -15,6 +15,7 @@ import { App } from "@/app/App";
 import type { VerseText } from "@/types/scripture";
 import { createMemoryApi, type MemoryApi } from "../support/memoryApi";
 import { createMemoryUpdater } from "../support/memoryUpdater";
+import { minimalPdf } from "../support/minimalPdf";
 
 const params = new URLSearchParams(location.search);
 
@@ -163,6 +164,33 @@ async function seed(api: MemoryApi) {
     ],
     mentions: [{ segment: 0, reference: "JHN.15.4-JHN.15.10", matchedText: "John 15:4–10" }],
   });
+  // The handbook's original: a real PDF (written here), so the Original view draws real pages with PDF.js.
+  const handbook = minimalPdf(
+    Array.from({ length: 13 }, (_, i) => {
+      const page = i + 1;
+      const furniture = [
+        { size: 8, y: 815, text: "A SHORT GUIDE TO BIBLE STUDY" },
+        { size: 9, x: 290, y: 30, text: String(page) },
+      ];
+      if (page === 12)
+        return [
+          ...furniture,
+          { size: 20, y: 740, text: "Chapter 3  Reading Slowly" },
+          { size: 11, y: 690, text: "Read the passage slowly, more than once. Notice repeated words," },
+          { size: 11, y: 674, text: "like “remain” in John 15:4–10." },
+        ];
+      if (page === 13)
+        return [
+          ...furniture,
+          { size: 20, y: 740, text: "Chapter 4  Asking Questions" },
+          { size: 11, y: 690, text: "Ask what the passage meant to its first readers before asking what" },
+          { size: 11, y: 674, text: "it means today." },
+        ];
+      return [...furniture, { size: 11, y: 700, text: `Earlier pages of the handbook (page ${page}).` }];
+    }),
+  );
+  api.libraryOriginalInfo = async () => ({ kind: "pdf", sizeBytes: handbook.length });
+  api.libraryOriginalRead = async (_id, offset, length) => handbook.slice(offset, offset + length);
 }
 
 async function start() {

@@ -223,6 +223,35 @@ Object.assign(scenes, {
     await shot(page, "updates", page.locator("section", { has: heading }).first());
     await page.close();
   },
+  async "pdf-original"() {
+    const page = await open("sourcesWidth=440", { width: 1440, height: 1000 });
+    await page.getByRole("combobox", { name: /Search in/ }).selectOption({ label: "Library" });
+    await page.getByRole("searchbox").first().press("Enter");
+    await page.getByRole("button", { name: /A Short Guide to Bible Study/ }).first().click();
+    await page.getByRole("button", { name: "Original" }).click();
+    await page.getByRole("button", { name: "Open full reader" }).click();
+    const ref = page.locator("[data-pdf-reference] button").first();
+    await ref.waitFor();
+    await page.getByRole("button", { name: "Fit page" }).click();
+    await page.getByRole("button", { name: "Zoom in" }).click();
+    await page.getByRole("button", { name: "Zoom in" }).click();
+    await page.getByRole("button", { name: "Zoom in" }).click();
+    await page.waitForTimeout(1200);
+    await ref.scrollIntoViewIfNeeded();
+    await ref.click();
+    await shot(page, "pdf-original");
+    await page.close();
+  },
+  async "find-in-source"() {
+    const page = await open("sourcesWidth=440", { width: 1600, height: 1000 });
+    await openSource(page, "Notes on Abiding");
+    await sources(page).getByRole("button", { name: "Find", exact: true }).click();
+    await sources(page).getByRole("searchbox", { name: "Find in this source" }).fill("remain");
+    await sources(page).getByRole("searchbox", { name: "Find in this source" }).press("Enter");
+    await page.waitForTimeout(800);
+    await shot(page, "find-in-source", sources(page));
+    await page.close();
+  },
   async "pane-sources-wide"() {
     const page = await open("sourcesWidth=440", { width: 1600, height: 1000 });
     await openStudy(page);
