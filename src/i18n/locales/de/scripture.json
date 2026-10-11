@@ -208,11 +208,11 @@
     "backToStudy": "Zurück zu {{passage}}"
   },
   "concordance": {
-    "queryLabel": "Wort oder Wendung",
+    "queryLabel": "Wort oder Wortfolge",
     "modeLabel": "Suchen nach",
     "mode": {
       "word": "Wort",
-      "phrase": "Wendung"
+      "phrase": "Wortfolge"
     },
     "bible": "Bibel",
     "find": "Suchen",

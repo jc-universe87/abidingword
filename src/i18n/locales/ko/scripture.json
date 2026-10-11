@@ -195,11 +195,11 @@
     "backToStudy": "{{passage}}(으)로 돌아가기"
   },
   "concordance": {
-    "queryLabel": "단어 또는 구절",
+    "queryLabel": "단어 또는 어구",
     "modeLabel": "찾을 방식",
     "mode": {
       "word": "단어",
-      "phrase": "구절"
+      "phrase": "어구"
     },
     "bible": "성경",
     "find": "찾기",

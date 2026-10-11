@@ -221,11 +221,11 @@
     "backToStudy": "Volver a {{passage}}"
   },
   "concordance": {
-    "queryLabel": "Palabra o frase",
+    "queryLabel": "Palabra o secuencia de palabras",
     "modeLabel": "Buscar",
     "mode": {
       "word": "Palabra",
-      "phrase": "Frase"
+      "phrase": "Secuencia de palabras"
     },
     "bible": "Biblia",
     "find": "Buscar",
