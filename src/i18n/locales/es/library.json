@@ -172,7 +172,12 @@
     "none": "No hay contenido disponible",
     "current": "Sección actual",
     "generated": "Índice generado",
-    "generatedNote": "Creado a partir de los títulos encontrados en esta fuente. No forma parte del original."
+    "generatedNote": "Creado a partir de los títulos encontrados en esta fuente. No forma parte del original.",
+    "expand": "Mostrar las subsecciones de {{title}}",
+    "collapse": "Ocultar las subsecciones de {{title}}",
+    "expandAll": "Expandir todo",
+    "collapseAll": "Contraer todo",
+    "containsCurrent": "contiene la sección actual"
   },
   "links": {
     "follow": "Ir al lugar enlazado"

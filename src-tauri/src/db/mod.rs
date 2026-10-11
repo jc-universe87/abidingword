@@ -21,6 +21,7 @@ pub mod studies;
 pub mod study_passages;
 pub mod study_search;
 pub mod templates;
+pub mod text_refresh;
 pub mod workspaces;
 
 use std::path::{Path, PathBuf};

@@ -76,6 +76,9 @@ async function openInPane(user: User, title: string) {
   return within(sourcesPane()).findByRole("region", { name: title });
 }
 
+/** Unfolds a contents entry's subsections (deeper levels start folded). */
+const unfold = async (user: { click: (el: Element) => Promise<void> }, title: string, root: HTMLElement = document.body) =>
+  user.click(within(root).getByRole("button", { name: `Show the subsections of ${title}` }));
 const toggle = () => screen.queryByRole("button", { name: /Contents/ });
 const panel = () => screen.queryByRole("navigation", { name: /^Contents of / });
 
@@ -155,9 +158,20 @@ describe("Contents in the full reader (PDF)", () => {
     const top = within(nav).getAllByRole("list")[0]!;
     const topItems = within(top).getAllByRole("listitem", {}).filter((li) => li.parentElement === top);
     expect(topItems).toHaveLength(2);
-    // Nested lists carry the hierarchy.
+    // Deeper levels start folded; their arrows say so.
     const part = topItems[0]!;
-    expect(within(part).getByRole("button", { name: "Part One: Gardens" })).toBeInTheDocument();
+    // The way to the current entry (page 1: Chapter 1, in Part One) is unfolded, nothing else.
+    expect(within(part).getByRole("button", { name: "Hide the subsections of Part One: Gardens" })).toHaveAttribute("aria-expanded", "true");
+    expect(within(part).getByRole("button", { name: /^Chapter 1: Soil/ })).toHaveAttribute("aria-current", "location");
+    expect(within(part).getByRole("button", { name: "Show the subsections of Chapter 2: Pruning" })).toHaveAttribute("aria-expanded", "false");
+    expect(within(part).queryByRole("button", { name: "Section: Painful but good" })).toBeNull();
+    expect(within(nav).getByRole("button", { name: "Show the subsections of Appendices" })).toHaveAttribute("aria-expanded", "false");
+    // Folding the current entry's branch keeps the place findable on the branch itself.
+    await user.click(within(part).getByRole("button", { name: "Hide the subsections of Part One: Gardens" }));
+    expect(within(part).getByRole("button", { name: /^Part One: Gardens/ })).toHaveTextContent("contains the current section");
+    await user.click(within(nav).getByRole("button", { name: "Expand all" }));
+    expect(within(nav).getByRole("button", { name: "Collapse all" })).toBeInTheDocument();
+    // Nested lists carry the hierarchy.
     const chapter2 = within(part).getByRole("button", { name: "Chapter 2: Pruning" }).closest("li")!;
     expect(within(chapter2).getByRole("button", { name: "Section: Painful but good" })).toBeInTheDocument();
     // A group without a target is text, not a button.
@@ -189,6 +203,7 @@ describe("Contents in the full reader (PDF)", () => {
     const current = screen.getByRole("button", { name: /Section: Painful but good/ });
     expect(current).toHaveAttribute("aria-current", "location"); // deepest entry at or before page 3
     expect(current).toHaveTextContent("Current section");
+    await unfold(user, "Appendices");
     await user.click(screen.getByRole("button", { name: "Appendix A" }));
     expect(screen.getByRole("textbox", { name: "Page number" })).toHaveValue("4");
   });
@@ -218,6 +233,7 @@ describe("Contents in the full reader (PDF)", () => {
     await user.click(await screen.findByRole("button", { name: "Original" }));
     await screen.findByRole("toolbar", { name: "Original document controls" });
     await user.click(screen.getByRole("button", { name: "Contents" }));
+    await unfold(user, "Appendices");
     await user.click(screen.getByRole("button", { name: "Appendix A" }));
     expect(screen.getByRole("textbox", { name: "Page number" })).toHaveValue("4");
     await user.click(screen.getByRole("button", { name: "Reading" }));
@@ -264,6 +280,7 @@ describe("Contents in the Sources pane", () => {
     await user.click(within(sourcesPane()).getByRole("button", { name: "Original" }));
     await within(sourcesPane()).findByRole("toolbar", { name: "Original document controls" });
     await user.click(within(sourcesPane()).getByRole("button", { name: "Contents" }));
+    await unfold(user, "Appendices", sourcesPane());
     await user.click(within(sourcesPane()).getByRole("button", { name: "Appendix A" }));
     expect(within(sourcesPane()).getByRole("textbox", { name: "Page number" })).toHaveValue("4");
   });
@@ -281,6 +298,7 @@ describe("Contents for an EPUB", () => {
     await user.click(screen.getByRole("button", { name: "Contents" }));
     const nav = screen.getByRole("navigation", { name: /^Contents of / });
     const chapter2 = within(nav).getByRole("button", { name: "Chapter Two" }).closest("li")!;
+    await unfold(user, "Chapter Two", nav);
     expect(within(chapter2).getByRole("button", { name: "Part A" })).toBeInTheDocument();
 
     await user.click(within(nav).getByRole("button", { name: "Part A" }));
@@ -374,6 +392,9 @@ describe("Contents panel keyboard and focus", () => {
     const entry = screen.getByRole("button", { name: /^Introduction/ });
     entry.focus();
     await user.tab();
+    // an entry with subsections has its arrow first, then the entry itself
+    expect(screen.getByRole("button", { name: "Show the subsections of Chapter Two" })).toHaveFocus();
+    await user.tab();
     expect(screen.getByRole("button", { name: "Chapter Two" })).toHaveFocus();
     await user.keyboard("{Enter}");
     await waitFor(() => expect(scrolled.at(-1)).toHaveTextContent("Chapter Two"));
@@ -405,6 +426,7 @@ describe("Contents does not leave stale requests behind", () => {
     await user.click(await screen.findByRole("button", { name: "Original" }));
     await screen.findByRole("toolbar", { name: "Original document controls" });
     await user.click(screen.getByRole("button", { name: "Contents" }));
+    await unfold(user, "Appendices");
     await user.click(screen.getByRole("button", { name: "Appendix A" }));
     expect(screen.getByRole("textbox", { name: "Page number" })).toHaveValue("4");
     await user.click(screen.getByRole("button", { name: "Reading" }));

@@ -172,7 +172,12 @@
     "none": "Aucun sommaire disponible",
     "current": "Section en cours",
     "generated": "Table des matières générée",
-    "generatedNote": "Établie à partir des titres trouvés dans cette source. Elle ne fait pas partie de l’original."
+    "generatedNote": "Établie à partir des titres trouvés dans cette source. Elle ne fait pas partie de l’original.",
+    "expand": "Afficher les sous-sections de {{title}}",
+    "collapse": "Masquer les sous-sections de {{title}}",
+    "expandAll": "Tout développer",
+    "collapseAll": "Tout réduire",
+    "containsCurrent": "contient la section actuelle"
   },
   "links": {
     "follow": "Aller à l’endroit lié"

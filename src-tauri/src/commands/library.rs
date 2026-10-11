@@ -272,8 +272,9 @@ pub fn library_detect_references(
     state: State<'_, AppState>,
     id: String,
     texts: Vec<String>,
+    scope: Option<library::DrawnScope>,
 ) -> CommandResult<Vec<Vec<DetectedReference>>> {
-    state.db(|conn| library::detect_in_source(conn, &id, &texts))
+    state.db(|conn| library::detect_in_source(conn, &id, &texts, scope))
 }
 
 /// Why a segment is linked to Scripture: what it mentions and the section it

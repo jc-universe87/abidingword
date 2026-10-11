@@ -72,6 +72,35 @@ describe("the interactive Original PDF", () => {
     expect(screen.getByRole("button", { name: "Original" })).toHaveAttribute("aria-pressed", "true");
   });
 
+  it("links a bookless reference on the page as the imported text resolved it, in Reading and Original", async () => {
+    const api = createMemoryApi();
+    api.installFixtureBible("FXA", "alpha");
+    api.state.settings.scripturePassage = "PSA.23";
+    api.installFixtureSource({
+      title: "Sermon Notes",
+      format: "pdf",
+      language: "English",
+      segments: [{ text: "John 15:1 opens it; then 15:4 says remain.", pageNumber: 1 }],
+      // as the core indexes it: the explicit reference, and the bookless one resolved from it
+      mentions: [
+        { segment: 0, reference: "JHN.15.1", matchedText: "John 15:1" },
+        { segment: 0, reference: "JHN.15.4", matchedText: "15:4" },
+      ],
+    });
+    const engine = createFakePdfEngine({ pages: 2 });
+    engine.pageTexts = { 1: [textItem("John 15:1 opens it; then 15:4 says remain.")], 2: [textItem("Elsewhere 15:4 is just text.")] };
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    await openFromLibrary(user, "Sermon Notes");
+    // Reading: from the stored index
+    expect(await screen.findByRole("button", { name: "John 15:4 (Scripture reference)" })).toHaveTextContent("15:4");
+    await user.click(screen.getByRole("button", { name: "Original" }));
+    const ref = await within(pageSheet(1)).findByRole("button", { name: "John 15:4 (Scripture reference)" });
+    expect(ref).toHaveTextContent("15:4");
+    // the same visible text on a page where the imported text resolved nothing stays plain
+    await waitFor(() => expect(engine.textReads).toContain(2));
+    expect(within(pageSheet(2)).queryByRole("button", { name: /Scripture reference/ })).toBeNull();
+  });
+
   it("says when a page has no text of its own, and only then", async () => {
     const { api, engine } = setup();
     const { user } = await renderApp(api, { pdfEngine: engine });

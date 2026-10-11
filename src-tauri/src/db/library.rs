@@ -282,16 +282,31 @@ pub fn commit_import(
     // The passage index is made in the language the person finally chose, not
     // the one the preview assumed: reuse the preview's only if it is the same.
     let final_language = passage_index::language_of(language.as_deref(), "library import");
+    // ...and for the kind finally chosen: a sermon or lecture may have a main passage.
+    let kind = input
+        .source_type
+        .unwrap_or(SourceType::default_for(doc.format))
+        .as_str();
     let rebuilt;
-    let index = if staged.index.language == final_language {
+    let index = if staged.index.language == final_language
+        && !crate::scripture::parser::MAIN_PASSAGE_KINDS.contains(&kind)
+    {
         &staged.index
     } else {
         rebuilt = passage_index::build(
             doc.format,
-            doc.segments
-                .iter()
-                .map(|s| (s.text.as_str(), s.section_path.as_deref())),
+            doc.segments.iter().map(|s| {
+                (
+                    s.text.as_str(),
+                    s.section_path.as_deref(),
+                    s.page_number.map(i64::from),
+                )
+            }),
             final_language,
+            passage_index::SourceFacts {
+                kind: Some(kind),
+                title: &title,
+            },
         );
         &rebuilt
     };
@@ -695,18 +710,86 @@ pub fn find_in_source(conn: &Connection, source_id: &str, query: &str) -> AppRes
 pub const DETECT_TEXTS_LIMIT: usize = 5_000;
 pub const DETECT_TEXT_CHARS: usize = 20_000;
 
+/// Where drawn text comes from in a source (v0.13.1): the formatted document
+/// covering segments `from..to`, or a PDF page.
+#[derive(Debug, Clone, Copy, Default, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DrawnScope {
+    pub page: Option<i64>,
+    pub from: Option<i64>,
+    pub to: Option<i64>,
+}
+
+/// How the imported text resolved each bookless reference in a part of a source:
+/// visible text → canonical passage, or `None` where the same text resolved to
+/// different passages there (ambiguous, so it is not linked).
+fn resolved_in_scope(
+    conn: &Connection,
+    source_id: &str,
+    scope: DrawnScope,
+) -> AppResult<HashMap<String, Option<String>>> {
+    const SELECT: &str = "SELECT p.matched_text, p.passage FROM source_passages p
+         JOIN source_segments g ON g.id = p.segment_id
+         WHERE p.source_id = ?1 AND p.origin = 'explicit'";
+    let (sql, bounds) = match scope {
+        DrawnScope {
+            page: Some(page), ..
+        } => (format!("{SELECT} AND g.page_number = ?2"), vec![page]),
+        DrawnScope {
+            from: Some(from),
+            to: Some(to),
+            ..
+        } => (
+            format!("{SELECT} AND g.position >= ?2 AND g.position < ?3"),
+            vec![from, to],
+        ),
+        _ => return Ok(HashMap::new()),
+    };
+    let mut out: HashMap<String, Option<String>> = HashMap::new();
+    let mut stmt = conn.prepare(&sql)?;
+    let mut values: Vec<&dyn rusqlite::ToSql> = vec![&source_id];
+    values.extend(bounds.iter().map(|b| b as &dyn rusqlite::ToSql));
+    let rows = stmt.query_map(values.as_slice(), |r| {
+        Ok((r.get::<_, Option<String>>(0)?, r.get::<_, String>(1)?))
+    })?;
+    for row in rows {
+        let (Some(text), passage) = row? else {
+            continue;
+        };
+        out.entry(text)
+            .and_modify(|seen| {
+                if seen.as_deref() != Some(passage.as_str()) {
+                    *seen = None;
+                }
+            })
+            .or_insert(Some(passage));
+    }
+    Ok(out)
+}
+
 /// The Scripture references in pieces of a source's drawn text (the text nodes
-/// of a formatted EPUB or Word page), read in **the source's language**, as at
-/// import (v0.11). One list per text, in the same order; texts beyond the
-/// limits are read as empty. Deterministic: the same parser as the index.
+/// of a formatted EPUB or Word page, or a PDF page's text), read in **the
+/// source's language**, as at import (v0.11). One list per text, in the same
+/// order; texts beyond the limits are read as empty. Deterministic: the same
+/// parser as the index.
+///
+/// Bookless references (`15:4`, `v. 4`; v0.13.1) are never resolved again from
+/// drawn text, whose structure is not known here: with a `scope`, such a
+/// reference is linked only if the imported text of that document or page
+/// resolved the same visible text to one passage, and to no other.
 pub fn detect_in_source(
     conn: &Connection,
     source_id: &str,
     texts: &[String],
+    scope: Option<DrawnScope>,
 ) -> AppResult<Vec<Vec<DetectedReference>>> {
     let source = get(conn, source_id)?;
     let language = passage_index::language_of(source.language.as_deref(), &source.title);
     let parser = crate::scripture::parser::ReferenceParser::for_language(language);
+    let resolved = match scope {
+        Some(scope) => resolved_in_scope(conn, source_id, scope)?,
+        None => HashMap::new(),
+    };
     Ok(texts
         .iter()
         .enumerate()
@@ -715,10 +798,35 @@ pub fn detect_in_source(
                 || text.chars().count() > DETECT_TEXT_CHARS
                 || !text.chars().any(|c| c.is_ascii_digit())
             {
-                Vec::new()
-            } else {
-                parser.detect(text)
+                return Vec::new();
             }
+            let mut found = parser.detect(text);
+            if !resolved.is_empty() {
+                let explicit: Vec<(usize, usize)> =
+                    found.iter().map(|r| (r.start, r.end)).collect();
+                for candidate in parser.bookless_candidates(text) {
+                    let visible = &text[candidate.start..candidate.end];
+                    let start = text[..candidate.start].encode_utf16().count();
+                    let end = start + visible.encode_utf16().count();
+                    if explicit.iter().any(|(s, e)| start < *e && *s < end) {
+                        continue;
+                    }
+                    let Some(Some(canonical)) = resolved.get(visible) else {
+                        continue;
+                    };
+                    let Ok(reference) = ScriptureRef::from_canonical(canonical) else {
+                        continue;
+                    };
+                    found.push(DetectedReference {
+                        text: visible.to_string(),
+                        start,
+                        end,
+                        reference: reference.to_dto(),
+                    });
+                }
+                found.sort_by_key(|r| (r.start, r.end));
+            }
+            found
         })
         .collect())
 }
@@ -800,29 +908,37 @@ fn insert_derived(
 /// touches nothing else: not `manual` links, segments, citations, files or the
 /// source's own details. Returns the number of links stored.
 pub fn reindex_passages(conn: &Connection, source_id: &str) -> AppResult<usize> {
-    let (label, format): (Option<String>, Option<String>) = conn.query_row(
-        "SELECT s.language,
+    let (label, format, title, kind): (Option<String>, Option<String>, String, String) = conn
+        .query_row(
+            "SELECT s.language,
                 (SELECT f.format FROM source_files f
-                 WHERE f.source_id = s.id AND f.is_primary = 1 AND f.deleted_at IS NULL)
+                 WHERE f.source_id = s.id AND f.is_primary = 1 AND f.deleted_at IS NULL),
+                s.title, s.source_type
          FROM sources s WHERE s.id = ?1",
-        [source_id],
-        |r| Ok((r.get(0)?, r.get(1)?)),
-    )?;
-    let rows: Vec<(String, String, Option<String>)> = conn
+            [source_id],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)),
+        )?;
+    let rows: Vec<(String, String, Option<String>, Option<i64>)> = conn
         .prepare(
-            "SELECT id, content, section_path FROM source_segments
+            "SELECT id, content, section_path, page_number FROM source_segments
              WHERE source_id = ?1 ORDER BY position",
         )?
-        .query_map([source_id], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))?
+        .query_map([source_id], |r| {
+            Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?))
+        })?
         .collect::<Result<_, _>>()?;
     let language = passage_index::language_of(label.as_deref(), "passage index rebuild");
     let index: PassageIndex = passage_index::build(
         format.as_deref().unwrap_or(""),
         rows.iter()
-            .map(|(_, text, path)| (text.as_str(), path.as_deref())),
+            .map(|(_, text, path, page)| (text.as_str(), path.as_deref(), *page)),
         language,
+        passage_index::SourceFacts {
+            kind: Some(&kind),
+            title: &title,
+        },
     );
-    let ids: Vec<String> = rows.into_iter().map(|(id, _, _)| id).collect();
+    let ids: Vec<String> = rows.into_iter().map(|(id, _, _, _)| id).collect();
     let now = now();
     let tx = conn.unchecked_transaction()?;
     tx.execute(

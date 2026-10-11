@@ -22,6 +22,12 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::OnceLock;
 
+mod context;
+pub use context::{
+    document_context, ContextTracker, OuterContext, ParagraphReferences, MAIN_PASSAGE_KINDS,
+    OPENING_CHARS, OPENING_PARAGRAPHS, PAGE_LOOKBACK, SECTION_LOOKBACK,
+};
+
 use regex::{Captures, Regex};
 use serde::Serialize;
 

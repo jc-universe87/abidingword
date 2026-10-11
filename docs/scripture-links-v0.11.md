@@ -104,6 +104,10 @@ reference and the like are later work.
 
 ## Language
 
+> Since v0.13.1, bookless references (`15:4`, `15,4`, `v. 4`) are resolved
+> from the source's own context; see [`reference-context-v0.13.1.md`](reference-context-v0.13.1.md).
+
+
 Detection is by the **source's** language (`sources.language`, as confirmed at
 import), never the interface language, with the existing per-language parsers
 (English, German, Korean, French, Spanish, Portuguese; dictionaries are never

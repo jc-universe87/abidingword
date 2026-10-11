@@ -1273,10 +1273,37 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       }
       return out.sort((a, b) => a.position - b.position || a.start - b.start);
     },
-    libraryDetectReferences: async (sourceId, texts) => {
+    // As the core: explicit references in each text; with a scope, a bookless one ("15:4") where the stored
+    // mentions of that part resolved the same visible text to exactly one passage.
+    libraryDetectReferences: async (sourceId, texts, scope) => {
       liveSource(sourceId);
       api.detectCalls.push(texts.length);
-      return Promise.all(texts.map((text) => api.referenceDetect(text)));
+      const inScope = (segmentId: string) => {
+        const segment = library.segments.find((x) => x.id === segmentId);
+        if (!segment || !scope) return false;
+        if (scope.page !== undefined) return segment.pageNumber === scope.page;
+        return scope.from !== undefined && scope.to !== undefined && segment.position >= scope.from && segment.position < scope.to;
+      };
+      const resolved = new Map<string, ScriptureRef | null>();
+      for (const m of library.mentions.filter((x) => x.sourceId === sourceId && !/\p{L}{2}/u.test(x.matchedText) && inScope(x.segmentId))) {
+        const seen = resolved.get(m.matchedText);
+        resolved.set(m.matchedText, seen === undefined || seen?.canonical === m.reference.canonical ? m.reference : null);
+      }
+      return Promise.all(
+        texts.map(async (text) => {
+          const found = await api.referenceDetect(text);
+          for (const [visible, reference] of resolved) {
+            if (!reference) continue;
+            for (let at = text.indexOf(visible); at >= 0; at = text.indexOf(visible, at + visible.length)) {
+              const end = at + visible.length;
+              if (/\d/.test(text[at - 1] ?? "") || /\d/.test(text[end] ?? "")) continue;
+              if (found.some((f) => at < f.end && f.start < end)) continue;
+              found.push({ text: visible, start: at, end, reference });
+            }
+          }
+          return found.sort((a, b) => a.start - b.start);
+        }),
+      );
     },
     // As the core (library::find): case, accents and whitespace runs ignored, Hangul syllables whole, UTF-16 ranges.
     librarySourceFind: async (sourceId, query) => {

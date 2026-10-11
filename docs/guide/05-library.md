@@ -99,7 +99,9 @@ once, use the search box in the app bar (see below).
 ### Contents
 
 **Contents** lists the book's chapters. Click one to go there; the **↶**
-arrow brings you back.
+arrow brings you back. Subsections are folded away so long lists stay short:
+click the small **›** arrow beside a chapter to see its subsections. When you
+open Contents, the chapter you are reading is already unfolded.
 
 Some books have no table of contents of their own. Abiding Word then makes
 one from the book's headings and calls it **Generated contents**, so you

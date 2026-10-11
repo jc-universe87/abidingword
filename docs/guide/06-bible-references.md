@@ -54,6 +54,25 @@ program:
 > a verse, like *Mal 4,3*. That is why, in the picture above, *"mal sehen"* is
 > not underlined.
 
+## References without a book name
+
+Sermons and commentaries often name the book once and then write only the
+numbers: *John 15:1–11* in the title, then *15:4*, *15:5–6* or *v. 4* in the
+text. Abiding Word links these too, **but only when it is clear which book is
+meant**:
+
+- after a reference in a list: *John 15:4; 15:7; 16:1*;
+- in a section whose heading names the passage (*John 15:1–11*): *15:4*,
+  *v. 4*, *vv. 7–8*, *verse 5*;
+- shortly after a reference in the text just before;
+- anywhere in a **sermon** or **lecture** whose title names one passage
+  (choose *Sermon* or *Lecture* as the kind when you add it).
+
+When two different books are in view, or none, the numbers stay plain text.
+Times, prices and decimals (*10:30*, *1:30 pm*, *2,5 km*, *3.14*) are never
+taken for verses. German books use *15,4* and *V. 4*, Korean *15장 4절* and
+*4절*, as each language writes them.
+
 ## Where references work
 
 | Where | Clickable references? |

@@ -164,7 +164,12 @@
     "none": "No contents available",
     "current": "Current section",
     "generated": "Generated contents",
-    "generatedNote": "Made from the headings found in this source. It is not part of the original."
+    "generatedNote": "Made from the headings found in this source. It is not part of the original.",
+    "expand": "Show the subsections of {{title}}",
+    "collapse": "Hide the subsections of {{title}}",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "containsCurrent": "contains the current section"
   },
   "links": {
     "follow": "Go to the linked place"

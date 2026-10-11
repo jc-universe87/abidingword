@@ -97,11 +97,19 @@ pub fn stage(path: &Path) -> AppResult<StagedSource> {
         passage_index::language_of(document.metadata.language.as_deref(), "library import");
     let index = passage_index::build(
         document.format,
-        document
-            .segments
-            .iter()
-            .map(|s| (s.text.as_str(), s.section_path.as_deref())),
+        document.segments.iter().map(|s| {
+            (
+                s.text.as_str(),
+                s.section_path.as_deref(),
+                s.page_number.map(i64::from),
+            )
+        }),
         language,
+        // The preview assumes the format's default kind; the commit decides again.
+        passage_index::SourceFacts {
+            kind: Some(crate::library::SourceType::default_for(document.format).as_str()),
+            title: document.metadata.title.as_deref().unwrap_or(&file_name),
+        },
     );
 
     log::info!(

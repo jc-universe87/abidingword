@@ -34,12 +34,11 @@ use std::collections::{BTreeMap, HashMap};
 use std::io::{Cursor, Read};
 
 use quick_xml::events::{BytesStart, Event};
-use quick_xml::Reader;
 use serde::Serialize;
 
 use super::epub::{
     attr_value, attribute_of, internal_target, local_name, normalise, parse_package,
-    percent_decode, read_entry, unescape, Package, MAX_ENTRY_BYTES,
+    percent_decode, read_entry, tolerant_reader, unescape, Package, MAX_ENTRY_BYTES,
 };
 use crate::error::{AppError, AppResult, UserMessage};
 
@@ -514,8 +513,7 @@ fn push_text(into: &mut Vec<Node>, text: &str) {
 }
 
 fn parse_document(xhtml: &str, res: &mut Resources) -> Parsed {
-    let mut reader = Reader::from_str(xhtml);
-    reader.config_mut().check_end_names = false;
+    let mut reader = tolerant_reader(xhtml);
     let mut root_nodes: Vec<Node> = Vec::new();
     let mut stack: Vec<Open> = Vec::new();
     let mut css = String::new();
