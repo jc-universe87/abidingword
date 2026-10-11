@@ -754,6 +754,21 @@ pub(super) fn unescape(raw: &str) -> String {
     out
 }
 
+/// [`unescape`], for code outside the adapters: every character reference in
+/// `raw` decoded once, never recursively.
+pub fn decode_references_once(raw: &str) -> String {
+    unescape(raw)
+}
+
+/// What an HTML parser reads for a C1 control character U+0080–U+009F (the
+/// Windows-1252 character with that code); any other character is returned as it is.
+pub fn c1_as_windows_1252(c: char) -> char {
+    match c as u32 {
+        code @ 0x80..=0x9F => windows_1252(code),
+        _ => c,
+    }
+}
+
 /// The HTML standard's reading of numeric references 128–159 (Windows-1252).
 fn windows_1252(code: u32) -> char {
     const TABLE: [char; 32] = [
