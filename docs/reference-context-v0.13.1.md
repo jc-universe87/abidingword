@@ -39,8 +39,13 @@ and `dagger` is in its table. Probing the real pipeline found two other defects:
 - `db::text_refresh` re-extracts imported EPUBs from their managed copies,
   once per extraction improvement (settings key `library.extractionVersion`,
   now `2`, checked at startup). Segments are updated **in place**:
-  - a paragraph still present keeps its segment id, so citations keep working
-    (matching ignores what better decoding changes);
+  - a paragraph still present keeps its segment id, so citations keep working.
+    Two paragraphs are the same only if their text is equal after collapsing
+    whitespace (a non-breaking space included) and reading C1 control
+    characters as Windows-1252 (how `&#146;` was stored before), or equal once
+    the references the earlier extraction left literal are decoded **once**.
+    Every other character counts, so different Korean, Greek, Hebrew or
+    accented paragraphs never match;
   - paragraphs lost after a stray `&` are added;
   - paragraphs no longer found are removed (a citation of one keeps its
     quotation and locator);
@@ -134,6 +139,27 @@ alone whenever that context is missing or names more than one passage.
    John 15:4 and `vv. 7–8` to John 15:7–8. A heading of `John 15–16`, or a
    second passage in view, resolves nothing.
 
+**Document main passage.** A whole sermon or lecture often names its passage
+once, in its title, and then writes `15:4` or `v. 5` pages later. Strong
+evidence only:
+
+- the source is filed as a **sermon** or a **lecture**. *Notes* is excluded:
+  it is the default kind of every Markdown and plain-text file, so it says
+  nothing about the content;
+- its title, and its opening title lines, name passages of **exactly one
+  book**. The opening title lines are the first 2 paragraphs, while each is at
+  most 80 characters and does not end with `.`, `!`, `?` or `…`;
+- verse-only shorthand also needs that passage to lie in one chapter.
+
+A second book in that title area, a prose opening, or a reference in the body
+never establishes one. The main passage stands in for a section heading
+wherever the section's own headings name no passage, on every page. It is
+gathered with the other context, so a different book in the same paragraph or
+the paragraphs just before still makes a reference ambiguous, and a section
+heading naming another passage governs its own section. The import commit
+rebuilds the index for sermons and lectures, because the preview assumed the
+format's default kind.
+
 **Context boundaries** (`ContextTracker`):
 
 - **Sources with headings (EPUB, Word, Markdown):**
@@ -144,6 +170,8 @@ alone whenever that context is missing or names more than one passage.
   - Any change of section starts afresh.
 - **Sources without sections (PDF, plain text):** explicit references count
   for the next 2 paragraphs on the same page; a new page starts afresh.
+- **A sermon's or lecture's main passage** (above) counts throughout the
+  document, where no section heading names another passage.
 - The canonical result is always explicit (`JHN.15.4`); the visible text is
   stored as written (`15,4`).
 
@@ -187,9 +215,12 @@ what it repaired.
 ### Known limits
 
 - Chapter-only bookless references (`chapter 16`, `16장`) are not resolved.
-- Context does not cross sections or pages, and does not survive 8
-  paragraphs (2 without sections) without an explicit reference; the
-  section heading lasts for its whole section.
+- Apart from a sermon's or lecture's main passage, context does not cross
+  sections or pages, and does not survive 8 paragraphs (2 without sections)
+  without an explicit reference; the section heading lasts for its whole
+  section.
+- A book, article, document or set of notes gets no document-wide passage,
+  even if its title names one.
 - A reference whose visible text resolved differently in two places of the
   same formatted document (or PDF page) is not linked there.
 - Mid-sentence capitalised words block a following bookless reference, which
@@ -201,7 +232,9 @@ what it repaired.
 ## Tests
 
 - Rust:
-  - `tests/contextual_references.rs` (17): lists, headings, a new book, section
+  - `tests/contextual_references.rs` (24): the document main passage (later
+    pages, kinds, a competing passage, a prose opening, weighing against
+    other books and headings, one chapter for shorthand); lists, headings, a new book, section
     reset, expiry, page bounds, no context, and times, decimals, dates,
     ratios and units in five languages;
   - each language's notation, the sermon case, verse shorthand in all six
@@ -210,7 +243,12 @@ what it repaired.
   - `tests/epub_view.rs`: dagger, numeric, hex, `&amp;dagger;`, unknown names,
     paragraphs, emphasis, links, lists, a stray `&`;
   - `tests/text_refresh.rs`: in-place repair, kept ids, lost paragraphs,
-    re-index, once only, a missing file.
+    re-index, once only, a missing file;
+  - `db::text_refresh` unit tests: the one-pass decoded form matches;
+    different Korean, Greek, Hebrew and accented paragraphs never match;
+    identical Unicode text and spacing differences do;
+  - `tests/source_references.rs`: a PDF sermon's main passage at import and
+    on rebuild.
 - Interface:
   - `tests/ui/source-contents.test.tsx`: folding, the current path unfolded,
     a folded branch holding the current place, Expand all, keyboard;

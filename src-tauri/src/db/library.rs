@@ -282,8 +282,15 @@ pub fn commit_import(
     // The passage index is made in the language the person finally chose, not
     // the one the preview assumed: reuse the preview's only if it is the same.
     let final_language = passage_index::language_of(language.as_deref(), "library import");
+    // ...and for the kind finally chosen: a sermon or lecture may have a main passage.
+    let kind = input
+        .source_type
+        .unwrap_or(SourceType::default_for(doc.format))
+        .as_str();
     let rebuilt;
-    let index = if staged.index.language == final_language {
+    let index = if staged.index.language == final_language
+        && !crate::scripture::parser::MAIN_PASSAGE_KINDS.contains(&kind)
+    {
         &staged.index
     } else {
         rebuilt = passage_index::build(
@@ -296,6 +303,10 @@ pub fn commit_import(
                 )
             }),
             final_language,
+            passage_index::SourceFacts {
+                kind: Some(kind),
+                title: &title,
+            },
         );
         &rebuilt
     };
@@ -897,14 +908,16 @@ fn insert_derived(
 /// touches nothing else: not `manual` links, segments, citations, files or the
 /// source's own details. Returns the number of links stored.
 pub fn reindex_passages(conn: &Connection, source_id: &str) -> AppResult<usize> {
-    let (label, format): (Option<String>, Option<String>) = conn.query_row(
-        "SELECT s.language,
+    let (label, format, title, kind): (Option<String>, Option<String>, String, String) = conn
+        .query_row(
+            "SELECT s.language,
                 (SELECT f.format FROM source_files f
-                 WHERE f.source_id = s.id AND f.is_primary = 1 AND f.deleted_at IS NULL)
+                 WHERE f.source_id = s.id AND f.is_primary = 1 AND f.deleted_at IS NULL),
+                s.title, s.source_type
          FROM sources s WHERE s.id = ?1",
-        [source_id],
-        |r| Ok((r.get(0)?, r.get(1)?)),
-    )?;
+            [source_id],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)),
+        )?;
     let rows: Vec<(String, String, Option<String>, Option<i64>)> = conn
         .prepare(
             "SELECT id, content, section_path, page_number FROM source_segments
@@ -920,6 +933,10 @@ pub fn reindex_passages(conn: &Connection, source_id: &str) -> AppResult<usize> 
         rows.iter()
             .map(|(_, text, path, page)| (text.as_str(), path.as_deref(), *page)),
         language,
+        passage_index::SourceFacts {
+            kind: Some(&kind),
+            title: &title,
+        },
     );
     let ids: Vec<String> = rows.into_iter().map(|(id, _, _, _)| id).collect();
     let now = now();

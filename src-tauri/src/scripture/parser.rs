@@ -24,7 +24,8 @@ use std::sync::OnceLock;
 
 mod context;
 pub use context::{
-    ContextTracker, OuterContext, ParagraphReferences, PAGE_LOOKBACK, SECTION_LOOKBACK,
+    document_context, ContextTracker, OuterContext, ParagraphReferences, MAIN_PASSAGE_KINDS,
+    OPENING_CHARS, OPENING_PARAGRAPHS, PAGE_LOOKBACK, SECTION_LOOKBACK,
 };
 
 use regex::{Captures, Regex};

@@ -428,11 +428,173 @@ fn the_passage_index_stores_contextual_references_with_their_visible_text() {
             None,
         ),
     ];
-    let index = passage_index::build("markdown", segments, En);
+    let index = passage_index::build(
+        "markdown",
+        segments,
+        En,
+        passage_index::SourceFacts::default(),
+    );
     let found: Vec<(usize, &str, &str)> = index
         .references
         .iter()
         .map(|(i, r)| (*i, r.text.as_str(), r.reference.canonical.as_str()))
         .collect();
     assert_eq!(found, [(1, "15:4", "JHN.15.4"), (1, "v. 5", "JHN.15.5")]);
+}
+
+// --- a sermon's or lecture's main passage ---------------------------------------------
+
+/// The references the passage index finds in each paragraph, for a source of this kind and title.
+fn indexed(
+    format: &str,
+    kind: &str,
+    title: &str,
+    items: &[(&str, Option<&str>, Option<i64>)],
+) -> Vec<Found> {
+    let index = passage_index::build(
+        format,
+        items.iter().copied(),
+        En,
+        passage_index::SourceFacts {
+            kind: Some(kind),
+            title,
+        },
+    );
+    let mut out = vec![Found::new(); items.len()];
+    for (i, r) in index.references {
+        out[i].push((r.text, r.reference.canonical));
+    }
+    out
+}
+
+const SERMON: &[(&str, Option<&str>, Option<i64>)] = &[
+    ("John 15:1–11", None, Some(1)),
+    ("Abiding in Christ", None, Some(1)),
+    ("An introduction that names no passage at all, as sermons often begin, before turning to the text itself.", None, Some(1)),
+    ("Much later, 15:4 and v. 5 and then 15:7–8.", None, Some(3)),
+];
+
+#[test]
+fn a_sermon_whose_title_area_names_one_passage_resolves_later_pages() {
+    let found = indexed("pdf", "sermon", "Abiding in Christ", SERMON);
+    assert_eq!(
+        found[3],
+        pairs(&[
+            ("15:4", "JHN.15.4"),
+            ("v. 5", "JHN.15.5"),
+            ("15:7–8", "JHN.15.7-JHN.15.8")
+        ])
+    );
+    // a lecture too, and the title alone is enough
+    let found = indexed("pdf", "lecture", "John 15:1–11: Abiding", &SERMON[2..]);
+    assert_eq!(found[1].len(), 3, "{found:?}");
+}
+
+#[test]
+fn only_sermons_and_lectures_have_a_main_passage() {
+    for kind in ["book", "article", "notes", "document"] {
+        let found = indexed("pdf", kind, "Abiding in Christ", SERMON);
+        assert!(found[3].is_empty(), "{kind}: {found:?}");
+    }
+}
+
+#[test]
+fn a_competing_passage_in_the_title_area_gives_no_main_passage() {
+    let found = indexed(
+        "pdf",
+        "sermon",
+        "Abiding",
+        &[
+            ("John 15:1–11 and Romans 8:1–4", None, Some(1)),
+            ("Later 15:4 here.", None, Some(2)),
+        ],
+    );
+    assert!(found[1].is_empty(), "{found:?}");
+    let found = indexed(
+        "pdf",
+        "sermon",
+        "Romans 8",
+        &[
+            ("John 15:1–11", None, Some(1)),
+            ("Later 15:4 here.", None, Some(2)),
+        ],
+    );
+    assert!(found[1].is_empty(), "{found:?}");
+}
+
+#[test]
+fn a_long_opening_paragraph_is_not_a_title_line() {
+    let found = indexed(
+        "pdf",
+        "sermon",
+        "Sunday Sermon",
+        &[
+            ("A long opening paragraph mentions John 3:16 in passing and goes on and on without end", None, Some(1)),
+            ("Later 15:4 here.", None, Some(2)),
+        ],
+    );
+    assert!(found[1].is_empty(), "{found:?}");
+}
+
+#[test]
+fn a_reference_in_the_body_never_establishes_a_main_passage() {
+    // the opening paragraph is a sentence, not a title line: its reference is incidental
+    let found = indexed(
+        "pdf",
+        "sermon",
+        "Sunday Sermon",
+        &[
+            ("We begin with John 3:16.", None, Some(1)),
+            ("Nothing here.", None, Some(1)),
+            ("Nothing here either.", None, Some(1)),
+            ("Later 15:4 here.", None, Some(2)),
+        ],
+    );
+    assert!(found[3].is_empty(), "{found:?}");
+}
+
+#[test]
+fn the_main_passage_is_still_weighed_against_other_books_and_section_headings() {
+    // another book in the paragraph: ambiguous
+    let found = indexed(
+        "pdf",
+        "sermon",
+        "Abiding",
+        &[
+            ("John 15:1–11", None, Some(1)),
+            ("Romans 8:1 says it; compare 5:8 here.", None, Some(2)),
+        ],
+    );
+    assert_eq!(found[1], pairs(&[("Romans 8:1", "ROM.8.1")]));
+    // a section heading naming another passage governs its own section
+    let found = indexed(
+        "markdown",
+        "sermon",
+        "Abiding",
+        &[
+            ("John 15:1–11", Some("John 15:1–11"), None),
+            ("Here 15:4 is John's.", Some("Abiding"), None),
+            ("Here 8:28 is Paul's.", Some("Abiding › Romans 8"), None),
+        ],
+    );
+    assert_eq!(found[1], pairs(&[("15:4", "JHN.15.4")]));
+    assert_eq!(found[2], pairs(&[("8:28", "ROM.8.28")]));
+}
+
+#[test]
+fn verse_shorthand_needs_the_main_passage_to_lie_in_one_chapter() {
+    let found = indexed(
+        "pdf",
+        "sermon",
+        "Farewell",
+        &[
+            ("John 15–16", None, Some(1)),
+            ("Later 15:4 and v. 5 here.", None, Some(2)),
+        ],
+    );
+    assert_eq!(
+        found[1],
+        pairs(&[("15:4", "JHN.15.4")]),
+        "the book is clear, the chapter of v. 5 is not"
+    );
 }

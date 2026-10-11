@@ -586,6 +586,71 @@ impl ReferenceParser {
     }
 }
 
+/// Kinds of source written around one passage: a sermon or a lecture on its
+/// text. ("notes" is not among them: it is the default kind of every Markdown
+/// and plain-text file, so it says nothing about the content.)
+pub const MAIN_PASSAGE_KINDS: &[&str] = &["sermon", "lecture"];
+/// The opening of a document that can name its main passage: its first
+/// paragraphs while they read as a title or heading line (short, and not ending
+/// as a sentence does).
+pub const OPENING_PARAGRAPHS: usize = 2;
+pub const OPENING_CHARS: usize = 80;
+
+/// Whether an opening paragraph reads as a title line rather than prose.
+fn title_like(text: &str) -> bool {
+    let text = text.trim();
+    !text.is_empty()
+        && text.chars().count() <= OPENING_CHARS
+        && !text.ends_with(['.', '!', '?', '…'])
+}
+
+/// The main passage of a whole document (v0.13.1), from unusually strong
+/// evidence only:
+///
+/// * the source is a sermon or a lecture (as the person filed it), and
+/// * its title, and its opening title lines (the first [`OPENING_PARAGRAPHS`]
+///   paragraphs, while each is at most [`OPENING_CHARS`] characters and does not
+///   end with `.`, `!`, `?` or `…`), name passages of **exactly one book**.
+///
+/// Verse-only shorthand also needs one chapter there. A competing passage of
+/// another book in that title area, or none at all, gives no main passage. A
+/// reference in the body never establishes one.
+pub fn document_context(
+    parser: &ReferenceParser,
+    kind: Option<&str>,
+    title: &str,
+    opening: &[&str],
+) -> OuterContext {
+    if !kind.is_some_and(|k| MAIN_PASSAGE_KINDS.contains(&k)) {
+        return OuterContext::default();
+    }
+    let mut area = vec![title];
+    area.extend(
+        opening
+            .iter()
+            .take(OPENING_PARAGRAPHS)
+            .take_while(|text| title_like(text))
+            .copied(),
+    );
+    let mut context = OuterContext::default();
+    let mut spans_chapters = false;
+    for text in area {
+        for found in parser.detect(text) {
+            if let Ok(reference) = ScriptureRef::from_canonical(&found.reference.canonical) {
+                spans_chapters |= reference.start.chapter != reference.end.chapter;
+                context.add(&reference);
+            }
+        }
+    }
+    if context.books.len() != 1 {
+        return OuterContext::default();
+    }
+    if spans_chapters || context.chapters.len() != 1 {
+        context.chapters.clear();
+    }
+    context
+}
+
 /// Whether text right after a candidate continues a number ("3:16:2", "2,5,7", "3.14").
 fn continues_number(after: &str) -> bool {
     let mut chars = after.chars();
@@ -602,13 +667,21 @@ fn continues_number(after: &str) -> bool {
 ///   [`SECTION_LOOKBACK`] paragraphs of the same section; a new section (any
 ///   change of section path) starts afresh;
 /// * a source without sections (PDF, text): explicit references count for the
-///   next [`PAGE_LOOKBACK`] paragraphs on the same page only.
+///   next [`PAGE_LOOKBACK`] paragraphs on the same page only;
+/// * a sermon or lecture whose title area names one passage
+///   ([`document_context`]): that passage counts throughout the document, on
+///   every page, wherever no section heading names another; it is gathered
+///   with the other context, so a competing book nearby still makes a
+///   reference ambiguous.
 pub struct ContextTracker<'p> {
     parser: &'p ReferenceParser,
     sectioned: bool,
     path: Option<String>,
     page: Option<i64>,
     heading: OuterContext,
+    /// The document's main passage ([`document_context`]): stands in for a
+    /// section heading wherever the section's own headings name no passage.
+    document: OuterContext,
     /// The explicit references of the latest paragraph that had some, and how
     /// many paragraphs ago that was.
     recent: Option<(OuterContext, usize)>,
@@ -622,8 +695,15 @@ impl<'p> ContextTracker<'p> {
             path: None,
             page: None,
             heading: OuterContext::default(),
+            document: OuterContext::default(),
             recent: None,
         }
+    }
+
+    /// The document's main passage, for every paragraph whose section heading names none.
+    pub fn with_document(mut self, document: OuterContext) -> Self {
+        self.document = document;
+        self
     }
 
     /// The references of the next paragraph.
@@ -655,7 +735,11 @@ impl<'p> ContextTracker<'p> {
         } else {
             PAGE_LOOKBACK
         };
-        let mut outer = self.heading.clone();
+        let mut outer = if self.heading.books.is_empty() {
+            self.document.clone()
+        } else {
+            self.heading.clone()
+        };
         if let Some((recent, age)) = &self.recent {
             if *age < limit {
                 outer.merge(recent);

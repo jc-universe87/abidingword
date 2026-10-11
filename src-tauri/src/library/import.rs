@@ -105,6 +105,11 @@ pub fn stage(path: &Path) -> AppResult<StagedSource> {
             )
         }),
         language,
+        // The preview assumes the format's default kind; the commit decides again.
+        passage_index::SourceFacts {
+            kind: Some(crate::library::SourceType::default_for(document.format).as_str()),
+            title: document.metadata.title.as_deref().unwrap_or(&file_name),
+        },
     );
 
     log::info!(

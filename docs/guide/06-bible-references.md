@@ -64,7 +64,9 @@ meant**:
 - after a reference in a list: *John 15:4; 15:7; 16:1*;
 - in a section whose heading names the passage (*John 15:1–11*): *15:4*,
   *v. 4*, *vv. 7–8*, *verse 5*;
-- shortly after a reference in the text just before.
+- shortly after a reference in the text just before;
+- anywhere in a **sermon** or **lecture** whose title names one passage
+  (choose *Sermon* or *Lecture* as the kind when you add it).
 
 When two different books are in view, or none, the numbers stay plain text.
 Times, prices and decimals (*10:30*, *1:30 pm*, *2,5 km*, *3.14*) are never

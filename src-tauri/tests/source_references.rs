@@ -321,3 +321,66 @@ fn drawn_text_links_a_bookless_reference_only_as_the_imported_text_resolved_it()
         Ok(())
     })
 }
+
+#[path = "support/library_fixtures.rs"]
+mod fixtures;
+
+#[test]
+fn a_pdf_sermon_s_main_passage_reaches_its_later_pages_at_import_and_on_rebuild() {
+    use abiding_word_lib::library::SourceType;
+    with_db(|conn, dir| {
+        let mut found = Vec::new();
+        for (file, kind) in [("sermon.pdf", Some(SourceType::Sermon)), ("book.pdf", None)] {
+            // a different file each time: the library refuses an identical one
+            let bytes = fixtures::pdf(
+                &[
+                    &[
+                        "John 15:1-11",
+                        "Abiding in Christ",
+                        "An opening paragraph with no passage in it at all.",
+                    ],
+                    &["Plain text on the second page."],
+                    &["Much later, 15:4 says remain.", file],
+                ],
+                None,
+                None,
+            );
+            let path = dir.join(file);
+            fs::write(&path, &bytes).unwrap();
+            let staged = import::stage(&path).unwrap();
+            let id = abiding_word_lib::db::new_id();
+            let relative = library::managed_relative_path(&id, &staged);
+            library::commit_import(
+                conn,
+                &id,
+                &staged,
+                &CommitSourceImport {
+                    preview_id: staged.id.clone(),
+                    title: "Abiding in Christ".into(),
+                    language: Some("en".into()),
+                    source_type: kind,
+                    ..Default::default()
+                },
+                &relative,
+            )?;
+            let at_import: Vec<String> = library::source_references(conn, &id)?
+                .into_iter()
+                .map(|r| r.reference.canonical)
+                .collect();
+            library::reindex_passages(conn, &id)?;
+            let rebuilt: Vec<String> = library::source_references(conn, &id)?
+                .into_iter()
+                .map(|r| r.reference.canonical)
+                .collect();
+            assert_eq!(at_import, rebuilt, "import and rebuild agree");
+            found.push(rebuilt);
+        }
+        assert_eq!(found[0], ["JHN.15.1-JHN.15.11", "JHN.15.4"], "the sermon");
+        assert_eq!(
+            found[1],
+            ["JHN.15.1-JHN.15.11"],
+            "a book (the default kind) has no main passage"
+        );
+        Ok(())
+    })
+}
