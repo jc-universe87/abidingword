@@ -60,7 +60,7 @@ program:
 |---|---|
 | **Reading** view (every kind of file) | ✅ Yes |
 | **Original** view of EPUB and Word files | ✅ Yes |
-| **Original** view of a PDF | Not yet (planned). Use **Reading**. |
+| **Original** view of a PDF | ✅ Yes (new; not in page headers and footers, sideways or right-to-left text, or scanned pages) |
 
 ---
 

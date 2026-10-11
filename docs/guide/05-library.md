@@ -73,9 +73,38 @@ same book.
 - **Open full reader** gives the book the whole window. Your place is kept.
 - The **↶ ↷** arrows go back and forward through the places you visited in
   the book.
-- **Contents** (for books that have one) jumps to a chapter.
+- **Find** looks for a word inside this book (see below).
+- **Contents** jumps to a chapter.
 - Underlined Bible references can be opened in the Bible. See
   [Bible references in your books](06-bible-references.md).
+
+### Finding a word in this book
+
+Click **Find** (or press **Ctrl+F**) and type a word.
+
+<p align="center">
+  <img src="images/find-in-source.png" alt="Find in 'Notes on Abiding': the word 'remain' typed, '1 of 2', and both places marked in the text" width="440">
+</p>
+
+- Every place the word appears is marked, and the counter says where you are,
+  for example **1 of 2**.
+- Press **Enter** for the next place, **Shift+Enter** for the previous one, or
+  use the small arrows.
+- Capital letters and accents don't matter: *rom* also finds *Röm*.
+- Press **Esc** (or **✕**) to close. Your place in the book stays where it is.
+
+This searches **only the book you have open**. To search all your books at
+once, use the search box in the app bar (see below).
+
+### Contents
+
+**Contents** lists the book's chapters. Click one to go there; the **↶**
+arrow brings you back.
+
+Some books have no table of contents of their own. Abiding Word then makes
+one from the book's headings and calls it **Generated contents**, so you
+always know it was not part of the original book. If the headings are not
+clear enough, it shows none rather than a wrong one.
 
 ### Reading or Original?
 
@@ -86,10 +115,24 @@ PDF, EPUB and Word files have a **Reading | Original** switch:
 | **Reading** | The text, cleanly laid out, with clickable Bible references | Reading and studying |
 | **Original** | The real pages, exactly as the file looks: pictures, columns, footnotes | Checking the original layout |
 
+In the **Original** view of a **PDF**, Bible references on the page are
+underlined too. Click one and choose **Open in Bible**:
+
+<p align="center">
+  <img src="images/pdf-original.png" alt="A PDF page in the Original view: the reference 'John 15:4' underlined, with 'Open in Bible' below it" width="900">
+</p>
+
+- **Find** works here too: it opens the right page and marks the word when it
+  can tell exactly which one it is.
+- A page that is only a picture (a scanned page) says **"Native text
+  unavailable on this page"**. Its words can't be read or clicked.
+- Abiding Word remembers whether you last used **Reading** or **Original** for
+  each book, and opens it that way next time.
+
 > [!NOTE]
-> In the **Original** view of a **PDF**, Bible references can't be clicked
-> yet. Use **Reading** for that. Making PDF pages interactive is planned for a
-> later version.
+> This part of Abiding Word is new and still being tested. Bible references in
+> page headers and footers, and in sideways or right-to-left text, are left
+> unclickable on purpose.
 
 ## Searching your library
 

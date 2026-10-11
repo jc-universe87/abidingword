@@ -124,7 +124,7 @@ step by step, with pictures.
 | | |
 |---|---|
 | ✅ **Ready** | Bible reading, with nine free Bibles included (English, German, Korean, French, Spanish, Portuguese) · highlights, notes and bookmarks · studies with templates, sections and study notes · projects · your own library (PDF, EPUB, Word, Markdown, text) · books matched to the passage you read · clickable Bible references in six languages · concordance · search across Bible, studies and library · light and dark themes · six interface languages · automatic test updates |
-| 🛠️ **Next** | Clickable Bible references and highlights directly on PDF pages |
+| 🛠️ **Next** (being tested) | Find a word inside a book · contents made from a book's headings when it has none · clickable Bible references directly on PDF pages |
 | 🌱 **Later** | Optional AI study assistance, always pointing to its sources · reading scanned books · dictionary forms for Greek and Hebrew words · sharing and syncing between your own devices |
 
 ## Documentation

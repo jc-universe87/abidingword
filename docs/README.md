@@ -44,3 +44,4 @@ They are kept as written at the time.
 | [study-workspace-refinement-v0.10.md](study-workspace-refinement-v0.10.md) | v0.10: projects made optional, one Add button, quicker study notes, a tidier layout. |
 | [scripture-links-v0.11.md](scripture-links-v0.11.md) | v0.11: click a Bible reference in a book to open it, and find your way back. |
 | [concordance-v0.12.md](concordance-v0.12.md) | v0.12: every place a word appears in a Bible, by book. |
+| [library-reading-v0.13.md](library-reading-v0.13.md) | v0.13 (in progress): find in a book, generated contents, and clickable Bible references on PDF pages. |

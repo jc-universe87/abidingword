@@ -42,7 +42,7 @@ what is deliberately not built yet, [`docs/product-backlog.md`](product-backlog.
 | Study workspace refinement v0.10 | complete (tag `study-workspace-refinement-v0.10`) | default project, quieter header, one Add, simpler capture, findings in their sections, pane-aware layout |
 | Scripture links v0.11 | complete (tag `scripture-links-v0.11`); German "Mal" fix merged afterwards (`76145c3`, test build `0.5.0-dev.26`) | references in sources open in the Bible; Scripture Back / Forward and Back to the Study's passage; PDF Original not linked (intentional) |
 | Concordance v0.12 | merged to `main` (`75fe193`); Windows acceptance in progress (test builds `0.5.0-dev.25` and later); not tagged yet | word and phrase occurrences in one Bible, by book; Find occurrences from a word study; surface forms only |
-| Interactive PDF text layer v0.13 | planned | clickable references and highlights on Original PDF pages |
+| Library reading & interactive PDF v0.13 | built on branch `claude/beautiful-curie-vm0eve`; not merged, not tagged, no Windows build yet | Find in this source; generated contents when a source has none; EPUB character references; Scripture references, find marks and a no-text notice on Original PDF pages; view remembered per source |
 
 The detailed record of each milestone is listed in the [documentation map](README.md).
 
