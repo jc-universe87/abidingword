@@ -9,7 +9,7 @@ use std::sync::{Mutex, MutexGuard};
 
 use rusqlite::Connection;
 
-use crate::db::{migrations, Database};
+use crate::db::{migrations, text_refresh, Database};
 use crate::error::{AppError, AppResult, ErrorPayload};
 use crate::filesystem::DataDirs;
 use crate::library::import::StagedSource;
@@ -43,6 +43,14 @@ impl AppState {
             let path = dirs.database_file();
             log::info!("database file: {}", path.display());
             let db = Database::open(&path, &dirs.pre_migration_backups())?;
+            // Imported EPUBs read again where extraction has improved (once per
+            // improvement). Derived text never stops the app from opening.
+            let sources = dirs.sources();
+            if let Err(error) =
+                db.with_conn(|conn| text_refresh::ensure_extracted_text(conn, &sources))
+            {
+                log::warn!("imported EPUB text could not be refreshed: {error}");
+            }
             Ok(Core { dirs, db })
         });
         match &core {

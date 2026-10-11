@@ -539,3 +539,78 @@ fn character_references_read_the_same_in_reading_and_original() {
     // still text, never markup
     assert!(!json(&item(&bytes, "c1")).contains("<em>"));
 }
+
+#[test]
+fn dagger_and_other_references_decode_once_in_reading_and_original() {
+    let chapter = xhtml(
+        r##"<h2>Notes &dagger;</h2>
+<p>Plain &dagger; text, &bull; bullet, &#8224; decimal, &#x2020; hex.</p>
+<p><em>em &dagger;</em> <a href="#n">link &dagger;</a><sup><a href="#n">&dagger;</a></sup></p>
+<ul><li>&dagger; listed</li></ul>
+<p>&amp;dagger; stays &amp; &unknownname; stays</p>
+<p id="n">End.</p>"##,
+    );
+    let manifest = format!(r#"<item id="c1" href="ch1.xhtml" {XHTML}/>"#);
+    let bytes = epub_raw_binary(
+        &manifest,
+        r#"<itemref idref="c1"/>"#,
+        &[("OEBPS/ch1.xhtml", chapter.as_bytes())],
+    );
+    let imported = EpubImporter.extract(&bytes, "book.epub").unwrap();
+    let reading: Vec<String> = imported.segments.iter().map(|s| s.text.clone()).collect();
+    assert_eq!(
+        reading,
+        [
+            "Plain † text, • bullet, † decimal, † hex.",
+            "em † link ††",
+            "† listed",
+            "&dagger; stays & &unknownname; stays",
+            "End.",
+        ]
+    );
+    assert_eq!(imported.segments[0].heading.as_deref(), Some("Notes †"));
+    let original = text_of(&item(&bytes, "c1").nodes);
+    for expected in [
+        "Notes †",
+        "Plain † text, • bullet, † decimal, † hex.",
+        "em †",
+        "link †",
+        "† listed",
+        "&dagger; stays & &unknownname; stays",
+    ] {
+        assert!(original.contains(expected), "{expected:?} in {original:?}");
+    }
+    // text nodes only: a decoded reference never becomes markup
+    assert!(!json(&item(&bytes, "c1")).contains("&dagger;</"));
+}
+
+#[test]
+fn a_stray_ampersand_never_loses_the_rest_of_the_chapter() {
+    let chapter = xhtml(
+        "<p>Q&A with a & b</p><p>&dagger without its semicolon, &#8224 too</p><p>The rest &dagger; is here.</p>",
+    );
+    let manifest = format!(r#"<item id="c1" href="ch1.xhtml" {XHTML}/>"#);
+    let bytes = epub_raw_binary(
+        &manifest,
+        r#"<itemref idref="c1"/>"#,
+        &[("OEBPS/ch1.xhtml", chapter.as_bytes())],
+    );
+    let reading: Vec<String> = EpubImporter
+        .extract(&bytes, "book.epub")
+        .unwrap()
+        .segments
+        .into_iter()
+        .map(|s| s.text)
+        .collect();
+    assert_eq!(
+        reading,
+        [
+            "Q&A with a & b",
+            "&dagger without its semicolon, &#8224 too",
+            "The rest † is here.",
+        ]
+    );
+    let original = text_of(&item(&bytes, "c1").nodes);
+    assert!(original.contains("Q&A with a & b"), "{original}");
+    assert!(original.contains("The rest † is here."), "{original}");
+}

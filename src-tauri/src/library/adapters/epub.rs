@@ -369,6 +369,7 @@ pub(super) fn local_name(name: &str) -> &str {
 
 pub(super) fn attribute_of(xml: &str, element: &str, attribute: &str) -> Option<String> {
     let mut reader = Reader::from_str(xml);
+    reader.config_mut().allow_dangling_amp = true;
     loop {
         match reader.read_event() {
             Ok(Event::Start(e) | Event::Empty(e)) if local_name(e.name().as_ref()) == element => {
@@ -400,6 +401,7 @@ pub(super) struct Package {
 
 pub(super) fn parse_package(opf: &str) -> Package {
     let mut reader = Reader::from_str(opf);
+    reader.config_mut().allow_dangling_amp = true;
     let mut metadata = FoundMetadata::default();
     let mut manifest = HashMap::new();
     let mut spine = Vec::new();
@@ -599,8 +601,7 @@ impl Acc {
 /// blockquote, dd, dt, pre, and text directly in div/section). Tolerant of
 /// imperfect markup; character references are decoded by [`unescape`].
 fn blocks(xhtml: &str) -> (Vec<Block>, Vec<(String, usize)>) {
-    let mut reader = Reader::from_str(xhtml);
-    reader.config_mut().check_end_names = false;
+    let mut reader = tolerant_reader(xhtml);
     let mut out = Vec::new();
     // Elements with an id, and the index of the block they begin in or at.
     let mut anchors: Vec<(String, usize)> = Vec::new();
@@ -684,6 +685,18 @@ fn note_anchor(
             anchors.push((percent_decode(&a.value), block));
         }
     }
+}
+
+/// An XML reader for a book's own files, as forgiving as a browser where that
+/// is safe: end tags need not match, and an `&` that does not begin a complete
+/// reference ("Q&A", "&dagger" without its `;`) is kept as text. Without the
+/// latter the reader stops with an error and the rest of the document is lost.
+pub(super) fn tolerant_reader(xml: &str) -> Reader<&[u8]> {
+    let mut reader = Reader::from_str(xml);
+    let config = reader.config_mut();
+    config.check_end_names = false;
+    config.allow_dangling_amp = true;
+    reader
 }
 
 /// Decodes character references in one pass, as an HTML parser does: every
@@ -897,8 +910,7 @@ fn parse_nav(xhtml: &str) -> Vec<RawItem> {
         List(Vec<RawItem>),
         Item(RawItem),
     }
-    let mut reader = Reader::from_str(xhtml);
-    reader.config_mut().check_end_names = false;
+    let mut reader = tolerant_reader(xhtml);
     let mut in_toc = false;
     let mut stack: Vec<Frame> = Vec::new();
     let mut root = Vec::new();
@@ -965,8 +977,7 @@ fn parse_nav(xhtml: &str) -> Vec<RawItem> {
 
 /// EPUB 2: the NCX `navMap`, nested `navPoint > (navLabel > text, content, navPoint…)`.
 fn parse_ncx(xml: &str) -> Vec<RawItem> {
-    let mut reader = Reader::from_str(xml);
-    reader.config_mut().check_end_names = false;
+    let mut reader = tolerant_reader(xml);
     let mut stack: Vec<RawItem> = Vec::new();
     let mut root = Vec::new();
     let mut in_label = false;
