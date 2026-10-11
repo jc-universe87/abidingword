@@ -288,9 +288,13 @@ pub fn commit_import(
     } else {
         rebuilt = passage_index::build(
             doc.format,
-            doc.segments
-                .iter()
-                .map(|s| (s.text.as_str(), s.section_path.as_deref())),
+            doc.segments.iter().map(|s| {
+                (
+                    s.text.as_str(),
+                    s.section_path.as_deref(),
+                    s.page_number.map(i64::from),
+                )
+            }),
             final_language,
         );
         &rebuilt
@@ -808,21 +812,23 @@ pub fn reindex_passages(conn: &Connection, source_id: &str) -> AppResult<usize> 
         [source_id],
         |r| Ok((r.get(0)?, r.get(1)?)),
     )?;
-    let rows: Vec<(String, String, Option<String>)> = conn
+    let rows: Vec<(String, String, Option<String>, Option<i64>)> = conn
         .prepare(
-            "SELECT id, content, section_path FROM source_segments
+            "SELECT id, content, section_path, page_number FROM source_segments
              WHERE source_id = ?1 ORDER BY position",
         )?
-        .query_map([source_id], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))?
+        .query_map([source_id], |r| {
+            Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?))
+        })?
         .collect::<Result<_, _>>()?;
     let language = passage_index::language_of(label.as_deref(), "passage index rebuild");
     let index: PassageIndex = passage_index::build(
         format.as_deref().unwrap_or(""),
         rows.iter()
-            .map(|(_, text, path)| (text.as_str(), path.as_deref())),
+            .map(|(_, text, path, page)| (text.as_str(), path.as_deref(), *page)),
         language,
     );
-    let ids: Vec<String> = rows.into_iter().map(|(id, _, _)| id).collect();
+    let ids: Vec<String> = rows.into_iter().map(|(id, _, _, _)| id).collect();
     let now = now();
     let tx = conn.unchecked_transaction()?;
     tx.execute(

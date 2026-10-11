@@ -43,7 +43,10 @@ use crate::scripture::parser::ReferenceParser;
 /// * 1 – section and inherited links from headings (English detection only).
 /// * 2 – language-aware detection: explicit and section links are made with the
 ///   dictionary of the source's language, and both are rebuilt.
-pub const INDEX_VERSION: i64 = 2;
+/// * 3 – contextual references (v0.13.1): bookless references such as `15:4`,
+///   `15,4` or `v. 4` resolved from the source's own explicit references
+///   nearby (`scripture::parser::context`).
+pub const INDEX_VERSION: i64 = 3;
 
 /// What the importers put between the headings of a `section_path`.
 pub const PATH_SEPARATOR: &str = " › ";

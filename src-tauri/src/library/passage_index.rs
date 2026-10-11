@@ -15,13 +15,15 @@
 
 use crate::library::sections::{self, DerivedLink};
 use crate::scripture::language::ReferenceLanguage;
-use crate::scripture::parser::{DetectedReference, ReferenceParser};
+use crate::scripture::parser::{ContextTracker, DetectedReference, ReferenceParser};
 
 /// The references and section links of a source, in one language.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PassageIndex {
     pub language: ReferenceLanguage,
-    /// References written in a segment's own text, by segment index.
+    /// References written in a segment's own text, by segment index: explicit
+    /// ones and bookless ones resolved from context (v0.13.1; see
+    /// `scripture::parser::context`), the canonical passage always explicit.
     pub references: Vec<(usize, DetectedReference)>,
     /// Section and inherited links derived from the headings (EPUB, Word,
     /// Markdown); empty for formats without structure.
@@ -29,26 +31,30 @@ pub struct PassageIndex {
 }
 
 /// Builds the index of a source of this `format` from its segments, each given
-/// as (text, section path), in reading order.
+/// as (text, section path, page), in reading order.
 pub fn build<'a, I>(format: &str, segments: I, language: ReferenceLanguage) -> PassageIndex
 where
-    I: IntoIterator<Item = (&'a str, Option<&'a str>)> + Clone,
+    I: IntoIterator<Item = (&'a str, Option<&'a str>, Option<i64>)> + Clone,
 {
     let parser = ReferenceParser::for_language(language);
+    // Context is carried between paragraphs within the source's own structure:
+    // sections where headings divide the text, the page otherwise.
+    let mut tracker = ContextTracker::new(parser, sections::has_sections(format));
     let references = segments
         .clone()
         .into_iter()
         .enumerate()
-        .flat_map(|(index, (text, _))| {
-            parser
-                .detect(text)
+        .flat_map(|(index, (text, path, page))| {
+            tracker
+                .next(text, path, page)
+                .all()
                 .into_iter()
                 .map(move |found| (index, found))
         })
         .collect();
     // Structure, not text: what the headings say the sections are about.
     let sections = if sections::has_sections(format) {
-        sections::derive(segments.into_iter().map(|(_, path)| path), parser)
+        sections::derive(segments.into_iter().map(|(_, path, _)| path), parser)
     } else {
         Vec::new()
     };
@@ -80,15 +86,17 @@ mod tests {
     use super::*;
     use ReferenceLanguage::{De, En, Ko};
 
-    fn segments() -> Vec<(&'static str, Option<&'static str>)> {
+    fn segments() -> Vec<(&'static str, Option<&'static str>, Option<i64>)> {
         vec![
             (
                 "Ein Absatz ohne Stelle.",
                 Some("Kommentar › Joh 15,1–11 — Der wahre Weinstock"),
+                None,
             ),
             (
                 "Siehe auch Röm 8,28.",
                 Some("Kommentar › Joh 15,1–11 — Der wahre Weinstock"),
+                None,
             ),
         ]
     }
