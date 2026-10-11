@@ -161,7 +161,8 @@
     "fitWidth": "Ajustar à largura",
     "fitPage": "Ajustar à página",
     "loading": "Abrindo o original…",
-    "renderFailed": "Não foi possível mostrar o original. Você ainda pode ler o texto extraído."
+    "renderFailed": "Não foi possível mostrar o original. Você ainda pode ler o texto extraído.",
+    "noNativeText": "Texto nativo indisponível nesta página"
   },
   "contents": {
     "title": "Conteúdo",
@@ -169,7 +170,9 @@
     "close": "Fechar o conteúdo",
     "for": "Conteúdo de {{title}}",
     "none": "Nenhum conteúdo disponível",
-    "current": "Seção atual"
+    "current": "Seção atual",
+    "generated": "Sumário gerado",
+    "generatedNote": "Criado a partir dos títulos encontrados nesta fonte. Não faz parte do original."
   },
   "links": {
     "follow": "Ir para o local vinculado"
@@ -195,5 +198,19 @@
     "label": "{{passage}} (referência bíblica)",
     "actions": "Ações para {{passage}}",
     "open": "Abrir na Bíblia"
+  },
+  "find": {
+    "button": "Localizar",
+    "open": "Localizar nesta fonte (Ctrl+F)",
+    "label": "Localizar nesta fonte",
+    "placeholder": "Localizar nesta fonte",
+    "searching": "Pesquisando…",
+    "failed": "Não foi possível concluir a pesquisa. Tente novamente.",
+    "none": "Nenhum resultado",
+    "position": "{{current}} de {{total}}",
+    "positionMore": "{{current}} de mais de {{total}}",
+    "previous": "Resultado anterior",
+    "next": "Próximo resultado",
+    "close": "Fechar localização"
   }
 }

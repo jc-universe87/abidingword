@@ -1,342 +1,146 @@
-# Abiding Word
+<p align="center">
+  <img src="resources/icons/abiding-word-logomark-color.svg" alt="" width="84">
+</p>
 
-**Bible Study Workspace** — *Study with diligence. Teach with love.*
+<h1 align="center">Abiding Word</h1>
 
-Abiding Word is a local-first desktop application for serious Bible study.
-It runs entirely on your own computer: no server, no account, no internet
-connection needed. Your studies are stored in one folder that you own.
+<p align="center">
+  <strong>A Bible study workspace for your own computer</strong><br>
+  <em>Study with diligence. Teach with love.</em>
+</p>
 
-The workflow it is built around: **Word → Understanding → Teaching**.
+<p align="center">
+  <img alt="Windows" src="https://img.shields.io/badge/Windows-test%20version-1f3a2e">
+  <img alt="Works offline" src="https://img.shields.io/badge/works-offline-b8862f">
+  <img alt="Six languages" src="https://img.shields.io/badge/languages-EN%20%C2%B7%20DE%20%C2%B7%20KO%20%C2%B7%20FR%20%C2%B7%20ES%20%C2%B7%20PT-6b3a2a">
+  <img alt="AI assistance: planned" src="https://img.shields.io/badge/AI%20assistance-planned-555">
+</p>
 
-## Status: Library v0.4 in development (on Studies v0.3, Scripture v0.2 and the frozen Foundation v0.1)
+<p align="center">
+  <img src="docs/guide/images/workspace.png" alt="Abiding Word: John 15 on the left, the study 'Abiding in the Vine' in the middle, and related books on the right" width="900">
+</p>
 
-Foundation v0.1 (with its hardening: integrity check and pre-migration
-backup) provides:
+---
 
-- a three-pane workspace: **Scripture | Study | Sources**
-- projects that group studies (e.g. *Romans Sermon Series*)
-- studies created from a passage-study template with nine sections
-  (Text, Context, Observations, Structure, Exegesis, Theology, Application,
-  Audience, Teaching)
-- simple editing with paragraph, note and heading blocks, saved automatically
-- a local SQLite database with versioned migrations
-- settings showing the version and data folder, and a light/dark theme
+## What is Abiding Word?
 
-Scripture v0.2 adds a real, offline Scripture engine:
+Abiding Word helps you study the Bible carefully and prepare to teach it. It
+follows one simple path:
 
-- canonical references (`JHN.15.7`, `ROM.8`) independent of any translation
-- a passage reader with book/chapter navigation, typed references
-  (“Rom 8:1-17”) and translation switching that keeps your place
-- the World English Bible (public domain) included, added by the user
-- importing your own Bibles in USFM (a .zip or .usfm files) through a
-  plain-language verification screen
-- notes, highlights and bookmarks on verses that survive translation changes
-- studies linked to their passages; passages mentioned in study text
-  become links
-- Scripture search (words and exact phrases)
-- Settings → Bible Texts to review and remove Bibles
+<p align="center"><strong>📖 Read the Word &nbsp;→&nbsp; 💡 Understand it &nbsp;→&nbsp; 🗣️ Teach it</strong></p>
 
-Details: [`docs/scripture-v0.2.md`](docs/scripture-v0.2.md).
+The Bible, your study and your own books sit **side by side** on one screen.
+Everything you write is saved automatically, **on your own computer**.
 
-Studies v0.3 makes the study the centre of work:
+## What you can do
 
-- study types: passage, word, topical, biblical theology, systematic
-  theology, teaching/sermon, custom — each with a built-in template
-- structured findings (observations, questions, interpretations,
-  applications, conclusions and more) linked to Scripture, filterable and
-  searchable
-- primary and related passages; opening a study shows its passage
-- your own study templates (duplicate and customise the built-in ones)
-- editable, reorderable sections; quotation and question blocks
-- links between related studies, study status, duplication
-- search across your studies, separate from Scripture search
-- quick capture of findings (Ctrl+Enter saves; the earlier Alt-based global
-  shortcuts were removed after v0.3 and are deferred)
+<table>
+<tr>
+<td width="50%" valign="top">
 
-Details: [`docs/studies-v0.3.md`](docs/studies-v0.3.md).
+### 📖 Read and mark the Bible
+Go to any passage in seconds, switch translations, and highlight, annotate
+and bookmark verses or single words.
 
-Library v0.4 (branch `feature/library-v0.4`, not yet merged) adds a
-personal source library:
+<img src="docs/guide/images/verse-tools.png" alt="Tools for a verse: add note, highlight, bookmark" width="300">
 
-- add PDF (with a text layer), EPUB, Markdown and text files; Abiding Word
-  keeps its own copy and never changes the original
-- a preview before adding: what was found, Bible references detected,
-  scanned PDFs and duplicates explained in plain words
-- exact provenance for every paragraph: page (PDF) or chapter and heading
-  (EPUB, Markdown)
-- library search with provenance, as a third search scope beside
-  Scripture and Studies
-- the Sources pane lists the sources for the passage being read, found from
-  the Bible references in each source (v0.9 adds section headings and groups
-  them by source)
-- findings can cite a library passage; citations survive removal of the
-  source as a record
-- a licence status per source (by default: my own copy, not to be shared)
+</td>
+<td width="50%" valign="top">
 
-No OCR, AI or network access. Details:
-[`docs/library-v0.4.md`](docs/library-v0.4.md).
+### ✍️ Write real studies
+Passage, word, topic and teaching studies with ready-made sections. Capture
+observations, questions and applications as you go.
 
-Since v0.4 (development): a PDF source can be read as extracted text
-(*Reading*) or inspected as the real document in the app (*Original*), and
-the Sources pane has the same Reading | Original switch, so the PDF can be
-inspected without leaving Scripture and the Study; the full reader is an
-optional expansion that keeps the place, and its Back button stays in a header
-that does not scroll away. See [`docs/formatted-source-viewer.md`](docs/formatted-source-viewer.md).
+<img src="docs/guide/images/findings.png" alt="Study notes: an observation and a question, each linked to a verse" width="360">
 
-Passage-aware sources (v0.9, complete): the Sources pane groups what fits the passage being read by source
-and says why: "Mentions John 15:5", "Section on John 15:1–11" (a heading of an
-EPUB, Word or Markdown source names the passage, and the section below it
-belongs to it) or "Within section on …". Deterministic only: no AI and no
-similarity matching; the links are built, in the source's own language (English, German, Korean, French, Spanish, Portuguese), when a source is imported (and, once,
-for an existing library at startup, after the usual backup). See
-[`docs/passage-aware-sources-v0.9.md`](docs/passage-aware-sources-v0.9.md).
+</td>
+</tr>
+<tr>
+<td valign="top">
 
-**Not yet, planned for later phases:** OCR and transcription, lemma and
-morphology (original-language) tools, AI assistance, sync, integrations and MCP.
+### 📚 Keep your library beside the Bible
+Add your own PDFs, e-books, Word documents and notes. Abiding Word shows which
+of them talk about the passage you are reading, and why.
 
-## Architecture in brief
+<img src="docs/guide/images/sources.png" alt="Sources for John 15:1–11 with the reason each book is listed" width="300">
 
-- **Tauri 2** desktop shell (no Electron). The installed app needs no other
-  runtime.
-- **React + TypeScript + Vite + Tailwind CSS** for the interface (`src/`).
-- **Rust** native core (`src-tauri/`) owns the data folder, the SQLite
-  database, migrations, logging and errors.
-- The interface talks to the core only through typed Tauri commands
-  (`project_create`, `study_get`, …). No SQL crosses that boundary.
+</td>
+<td valign="top">
 
-The authoritative baseline is the frozen
-[`docs/concept.md`](docs/concept.md) and
-[`docs/architecture.md`](docs/architecture.md). How this release implements
-it: [`docs/foundation-v0.1.md`](docs/foundation-v0.1.md),
-[`docs/scripture-v0.2.md`](docs/scripture-v0.2.md),
-[`docs/studies-v0.3.md`](docs/studies-v0.3.md) and
-[`docs/library-v0.4.md`](docs/library-v0.4.md). After v0.4 (on the v0.5 branch):
-[`docs/scripture-annotations-v0.5.md`](docs/scripture-annotations-v0.5.md),
-[`docs/formatted-source-viewer.md`](docs/formatted-source-viewer.md) and, for
-what is deliberately not built yet, [`docs/product-backlog.md`](docs/product-backlog.md).
+### 🔗 Follow every reference
+Click a Bible reference in any of your books to open it, and come straight
+back to your study. References are read correctly in six languages.
 
-## Milestones
+<img src="docs/guide/images/scripture-link.png" alt="A German book with 'Mal 4,3' opened through 'Open in Bible'" width="300">
 
-| Milestone | State | Notes |
-|---|---|---|
-| Foundation v0.1 | complete, frozen | shell, data folder, migrations, integrity check, pre-migration backup |
-| Scripture v0.2 | complete | canon, references, reader, Bible import, annotations, search |
-| Studies v0.3 | complete (tag `studies-v0.3`) | study types, findings, templates, relations, study search |
-| Scripture annotations v0.5 | release candidate (`feature/scripture-annotations-v0.5`, not merged) | verse and phrase highlights in five colours, notes, bookmarks, the annotation inspector, the Marks view; PDF Original view and Contents for PDF and EPUB |
-| Formatted sources v0.8 | complete (milestone commit `ecced8a`; tag `formatted-sources-v0.8` to be pushed) | formatted EPUB and DOCX Original views, DOCX import, Reading ↔ Original mapping, source navigation and history, web links in the system browser |
-| Passage-aware sources v0.9 | complete; Windows acceptance passed (`main` `7c72bd9`, test build `0.5.0-dev.18`; tag `passage-aware-sources-v0.9` to be pushed) | sources grouped by passage with the reason for each place; section links from headings (EPUB, Word, Markdown); aboutness-aware ranking; expandable further places; deterministic, no AI |
-| Study workspace refinement v0.10 | complete; Windows acceptance passed (`main` `3d50656`, test build `0.5.0-dev.19`; tag `study-workspace-refinement-v0.10` to be pushed) | default project, quieter header and details, one Add, simpler quick capture, findings in their sections, visible controls, pane-aware layout; Korean terminology (성경공부, 성경공부 모음, 공부 틀, 부분) |
-| Scripture links v0.11 | complete; Windows acceptance passed (`main` `99118d5`, test build `0.5.0-dev.22`; tag `scripture-links-v0.11` to be pushed) | references in sources open in the Bible (Reading, formatted EPUB and Word); Scripture Back / Forward and Back to the Study's passage; PDF Original not linked; no migration |
-| Concordance v0.12 | in review (`feature/concordance-v0.12`, not merged) | word and phrase occurrences in one Bible, by book; Find occurrences from a word study; surface forms only, no lemma or morphology; no migration |
-| Library v0.4 | in development (`feature/library-v0.4`) | PDF/EPUB/Markdown/text import, provenance, library search, passage mentions, finding citations |
+</td>
+</tr>
+<tr>
+<td valign="top">
 
-## Supported platforms
+### 🔎 Concordance
+See every place a word appears, grouped by book. Works with Greek and Hebrew
+Bibles too.
 
-Desktop first: **Linux**, **Windows** and **macOS** (Tauri 2). Development
-and the release builds so far have been done on Debian-family Linux; the
-code has no Linux-only parts, but Windows and macOS builds have not been
-verified yet. A Chromebook works through its Linux development environment,
-which is Debian-based, so the Linux instructions below apply there too.
+<img src="docs/guide/images/concordance.png" alt="Concordance for 'remain': 92 occurrences" width="300">
 
-## Getting started
+</td>
+<td valign="top">
 
-### Prerequisites
+### 🔒 Yours, and private
+No account, no cloud and no internet needed. Nothing is guessed: every link
+points to something that is really there. Optional AI assistance is planned,
+and it will always show its sources and never replace Scripture.
 
-- **Node.js 20.19 or newer** with **npm 10 or newer**. Debian's packaged
-  npm 9.2 cannot install these dependencies; use a Node.js release that
-  ships npm 10, or run `npx -y npm@10 ci` in place of `npm ci`.
-- **Rust** (stable, 1.82 or newer) via [rustup](https://rustup.rs):
+<img src="docs/guide/images/workspace-dark.png" alt="The workspace in the dark theme" width="360">
 
-  ```sh
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-  ```
+</td>
+</tr>
+</table>
 
-- **Platform libraries for Tauri.** On Debian, Ubuntu, Parrot and a
-  Chromebook's Linux environment:
+## Get started
 
-  ```sh
-  sudo apt update
-  sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file \
-    libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
-  ```
+1. **Download** the newest Windows test version from the
+   [download page](https://github.com/jc-universe87/abidingword-updates/releases)
+   (the file ending in `_x64-setup.exe`) and install it.
+2. **Add a Bible:** click **Add a Bible…** and choose one of the free Bibles
+   that come with it: the Berean Standard Bible or World English Bible
+   (English), Luther 1912, Schlachter 1951 or Elberfelder 1905 (Deutsch),
+   개역한글 (한국어), Louis Segond (Français), Reina-Valera (Español) or
+   Bíblia Livre (Português).
+3. **Start your first study:** type a passage such as `John 15:1-11` and click
+   **Create study**.
 
-  For other systems (Fedora, Arch, macOS, Windows) follow the official
-  [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/).
+👉 The **[User Guide](docs/guide/README.md)** walks you through everything,
+step by step, with pictures.
 
-### Clone, install, run
+> [!NOTE]
+> Abiding Word is a **test version** and is still being built. It updates
+> itself when a new test version is ready. Your work is kept safely on your
+> computer (see [Backups](docs/guide/08-settings-updates-backups.md#backups)).
 
-```sh
-git clone https://github.com/<you>/abiding-word.git
-cd abiding-word
-npm ci                                   # exact versions from package-lock.json
-ABIDING_WORD_DATA_DIR="$PWD/.aw-data" npm run tauri dev
-```
+## What's ready, and what's coming
 
-The first Rust build downloads and compiles Tauri and takes a while; later
-builds are incremental. On a machine with little memory, limit parallel
-compilation: `CARGO_BUILD_JOBS=2 npm run tauri dev`.
-
-### Commands
-
-| Task | Command |
+| | |
 |---|---|
-| Install dependencies (from the lockfile) | `npm ci` |
-| Run the desktop app in development | `npm run tauri dev` |
-| Build installers for this platform | `npm run tauri build` (Linux `.deb` only: `npm run tauri build -- --bundles deb`) |
-| Interface tests | `npm test` |
-| Native (Rust) tests | `npm run test:rust` |
-| Type check | `npm run typecheck` |
-| Lint (TypeScript) | `npm run lint` |
-| Lint (Rust, warnings are errors) | `npm run lint:rust` |
-| Everything above except build | `npm run check` |
+| ✅ **Ready** | Bible reading, with nine free Bibles included (English, German, Korean, French, Spanish, Portuguese) · highlights, notes and bookmarks · studies with templates, sections and study notes · projects · your own library (PDF, EPUB, Word, Markdown, text) · books matched to the passage you read · clickable Bible references in six languages · concordance · search across Bible, studies and library · light and dark themes · six interface languages · automatic test updates |
+| 🛠️ **Next** (being tested) | Find a word inside a book · contents made from a book's headings when it has none · clickable Bible references directly on PDF pages |
+| 🌱 **Later** | Optional AI study assistance, always pointing to its sources · reading scanned books · dictionary forms for Greek and Hebrew words · sharing and syncing between your own devices |
 
-Build output lands in `src-tauri/target/release/bundle/`.
+## Documentation
 
-### Development workflow
-
-GitHub is the source of truth; heavy builds run there, not on the
-development machine.
-
-- **Local development.** Clone once, then `git switch <branch>`,
-  `git pull`, `npm run tauri dev`.
-- **Remote validation.** Every push to `main`, `feature/**`, `fix/**` or
-  `chore/**` and every pull request to `main` runs **CI**
-  (`.github/workflows/ci.yml`): *Frontend* (typecheck, lint, tests, build)
-  and *Rust* (format, clippy with warnings as errors, tests).
-- **Test installers.** **Native builds**
-  (`.github/workflows/native-builds.yml`) produces unsigned installers as
-  workflow artifacts, kept 14 days: `Abiding-Word-Windows-x64` (`.msi`,
-  setup `.exe`) and `Abiding-Word-Linux-x64` (`.deb`, `.rpm`, `.AppImage`).
-  It runs on pushes to `main`, on tags, and when started by hand:
-  GitHub → Actions → Native builds → Run workflow → choose the branch.
-  The optional *selection_spike* input sets `VITE_SELECTION_SPIKE=1` for a
-  development check panel on branches that have one; normal builds never
-  set it. A push whose commit message contains `[native-build]` also
-  builds that branch. Download the artifact from the finished run's page.
-  Windows SmartScreen warns about these unsigned installers ("More info →
-  Run anyway"). Artifacts are for testing; annotated tags mark releases.
-- **Platform testing.** CI does not replace trying the real app.
-  **Windows desktop is the primary visual and manual acceptance
-  platform**, and normal test builds reach it through the signed
-  test-update channel below. The **Chromebook (Linux, WebKitGTK) is a
-  secondary compatibility check** at selected checkpoints (text selection
-  and other WebKitGTK-specific behaviour, Linux packaging); it is not needed
-  for every interface iteration. Linux builds and CI stay supported.
-- **Windows test updates.** Every `main` commit whose CI passes is
-  automatically published as a signed Development/Test build that an
-  installed test build of Abiding Word offers (Settings → Updates, plus a
-  notice after startup). Feature branches and pull requests never publish;
-  stable releases are never automatic. See
-  [`docs/updates.md`](docs/updates.md) for the trigger, the channel, the
-  one-time key setup and the version scheme.
-
-On the Windows laptop, either install the `Abiding-Word-Windows-x64`
-artifact, or keep a development clone (one time: clone, install the
-[Tauri prerequisites](https://v2.tauri.app/start/prerequisites/), `npm ci`;
-then `git switch <branch>`, `git pull`, `npm run tauri dev`). No ZIP
-downloads of the repository are needed.
-
-Rules for every contributor, human or agent: work on an explicit feature
-branch; fetch before starting; make focused commits; push normally; CI must
-pass; no unreviewed work directly on `main`; no force-pushing or history
-rewriting unless explicitly authorised; no credentials or tokens in the
-repository. Native acceptance still happens on real target systems.
-
-### Interface languages (i18n)
-
-The interface is available in English, German, Korean, French, Spanish and
-Portuguese (`en`, `de`, `ko`, `fr`, `es`, `pt`), chosen in Settings →
-Language (by default the system language, else English). **All new
-user-facing text must go through i18n** — visible labels, headings,
-buttons, tooltips, dialogs, notices, empty states, user-visible errors,
-placeholders, `aria-label`s and other accessibility text, and colour names
-shown to users — in all six languages. `npm run i18n:check` (also in CI)
-checks that the languages stay aligned and that components contain no
-hard-coded text. How it works, the terminology guide and how to add a
-string: [`docs/i18n.md`](docs/i18n.md).
-
-### Keeping development data separate
-
-`ABIDING_WORD_DATA_DIR` points the app at a different data folder, so
-development and testing never touch your real studies. Use a folder outside
-the repository, or `.aw-data/` inside it (ignored by Git):
-
-```sh
-ABIDING_WORD_DATA_DIR="$PWD/.aw-data" npm run tauri dev
-```
-
-The webview (the embedded browser that draws the window) keeps a few
-interface preferences — pane widths, the last place in the Study pane — in
-its own per-user folder (Linux: `~/.local/share/app.abidingword.desktop/`),
-which `ABIDING_WORD_DATA_DIR` does not change. It holds no study data.
-
-### Never commit private or imported material
-
-Abiding Word is built for the user's own library: Bibles they own,
-commentaries, books, notes. None of that belongs in this repository.
-Do not commit databases, data folders, imported Bibles or books, PDFs,
-EPUBs, personal notes or studies. The only Bible text in the repository is
-the public-domain World English Bible in `resources/scripture/`, with its
-licence and checksum in `SOURCE.md`. Test fixtures are invented text or are
-generated by the tests; any new fixture must say where it came from.
-`.gitignore` blocks the common cases (`*.db`, `.aw-data/`, logs), but it
-cannot know what is private: check `git status` before committing.
-
-## Repository layout
-
-```text
-src/                  React interface
-  app/                startup, shell, error screens
-  layouts/            app bar, three-pane layout
-  features/           scripture, studies, library, settings, ai (empty)
-  design-system/      brand tokens, base styles, shared components
-  hooks/ lib/ types/  data loading and autosave, API boundary, domain types
-src-tauri/            Rust native core
-  src/                commands, db, domain, filesystem, integrations, state
-  migrations/         versioned SQL migrations
-  tests/              database and domain tests
-  icons/              platform icons generated from the brand app icon
-resources/
-  templates/          the six built-in study templates (JSON)
-  scripture/          included Bible texts, each with SOURCE.md (licence)
-  icons/              brand source icons
-docs/                 concept, architecture and per-milestone notes
-tests/                interface tests and test support
-```
-
-## Where your data is stored
-
-| OS | Folder |
+| For | Read |
 |---|---|
-| Linux | `~/.local/share/Abiding Word/` |
-| macOS | `~/Library/Application Support/Abiding Word/` |
-| Windows | `%APPDATA%\Abiding Word\` |
+| 🙋 **Everyone** | The **[User Guide](docs/guide/README.md)**: how to use Abiding Word, in plain language |
+| 🛠️ **Developers and contributors** | **[Developer guide](docs/developers.md)**: building, testing, releasing, and how the code is organised |
+| 🗂️ **Project history** | **[Documentation map](docs/README.md)**: the design and the technical record of each version |
 
-Inside: `database/abiding-word.db` (all studies and the library's text),
-`sources/` (Abiding Word's copies of the files added to the library),
-`backups/` (automatic copies made before a database upgrade), `logs/`, and
-folders reserved for later phases (`indexes/`, `cache/`, `sync/`,
-`exports/`). The exact path is shown in **Settings**.
-To back up everything, copy this folder while the app is closed.
-
-## How migrations work
-
-Each schema change is a numbered SQL file in `src-tauri/migrations/`
-(`0001_initial_schema.sql`, …), compiled into the app. On every start the
-app applies any migrations the database has not yet seen, each in its own
-transaction, and records them in the `schema_versions` table. If one fails,
-it is rolled back, logged and reported on screen, and the app does not open
-the half-updated database. A database made by a newer version is refused.
-Released migration files are never edited; changes always go in a new file.
-
-Before migrating, the app runs SQLite's integrity check and refuses to touch
-a damaged database. When an existing database needs an upgrade, it first
-writes a verified copy to `backups/pre-migration/`; if that fails, nothing
-is changed.
-
-## Brand assets
+## Name and brand
 
 The Abiding Word name, logomark and brand assets are not covered by any
-software licence in this repository. Fonts (Inter, Noto Serif) are SIL Open
-Font License families, bundled into the built app from npm so it works
-offline.
+software licence in this repository. The fonts (Inter, Noto Serif) are SIL
+Open Font License families. The included Bibles are in the public domain,
+except the Schlachter 1951 and the Bíblia Livre (Creative Commons Attribution 4.0)
+and 성경전서 개역한글판 (copyright expired; the Korean Bible Society asks that it
+be kept unaltered and attributed); each one's source
+and licence are recorded in [`resources/scripture/`](resources/scripture/README.md).

@@ -76,6 +76,7 @@ pub struct BundledBibleInfo {
     pub name: &'static str,
     pub short_name: &'static str,
     pub language: &'static str,
+    pub language_code: &'static str,
     pub license_type: &'static str,
     pub installed: bool,
 }

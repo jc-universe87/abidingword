@@ -13,6 +13,8 @@ interface ContentsPanelProps {
   /** The source's title, for the panel's name. */
   title: string;
   items: ContentsItem[];
+  /** The entries were generated from the source's headings, not carried by the source. */
+  generated?: boolean;
   /** The entry the reader is currently in, if known. */
   currentId: string | null;
   layout: ContentsLayout;
@@ -27,7 +29,7 @@ interface ContentsPanelProps {
  * Enter or Space opens one, Escape closes (and, like Close, hands focus
  * back to whatever opened the panel, which the reader does).
  */
-export function ContentsPanel({ id, title, items, currentId, layout, onSelect, onClose }: ContentsPanelProps) {
+export function ContentsPanel({ id, title, items, generated = false, currentId, layout, onSelect, onClose }: ContentsPanelProps) {
   const { t } = useTranslation();
   const heading = useRef<HTMLHeadingElement>(null);
   const root = useRef<HTMLElement>(null);
@@ -58,13 +60,14 @@ export function ContentsPanel({ id, title, items, currentId, layout, onSelect, o
     >
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border-subtle px-3 py-1.5">
         <h3 ref={heading} tabIndex={-1} className="m-0 font-display text-[1.0625rem] font-heading text-text-strong">
-          {t("library.contents.title")}
+          {generated ? t("library.contents.generated") : t("library.contents.title")}
         </h3>
         <Button variant="quiet" aria-label={t("library.contents.close")} title={t("library.contents.close")} onClick={onClose}>
           <X className="size-4" aria-hidden="true" />
         </Button>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-2 py-2">
+        {generated && items.length > 0 && <p className="m-0 px-2 pb-2 text-[0.875rem] text-text-muted">{t("library.contents.generatedNote")}</p>}
         {items.length === 0 ? (
           <p className="m-0 px-2 py-3 text-text-muted">{t("library.contents.none")}</p>
         ) : (

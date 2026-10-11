@@ -12,8 +12,10 @@ use fixtures::{epub_raw, xhtml};
 const XHTML: &str = r#"media-type="application/xhtml+xml""#;
 
 fn position(item: &ContentsItem) -> Option<i64> {
-    item.target
-        .map(|ContentsTarget::Segment { position }| position)
+    match item.target {
+        Some(ContentsTarget::Segment { position }) => Some(position),
+        _ => None,
+    }
 }
 
 fn segments(bytes: &[u8]) -> usize {

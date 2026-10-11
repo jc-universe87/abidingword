@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, List, Maximize2, Redo2, Undo2 } from "lucide-react";
+import { ArrowLeft, List, Maximize2, Redo2, Search, Undo2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
@@ -9,7 +9,7 @@ import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { hostOf } from "@/lib/externalLink";
 import type { PdfPlace } from "@/lib/pdfEngine";
-import type { ContentsItem, SegmentWindow, SourceLink, SourceReference, SourceSegment } from "@/types/library";
+import type { ContentsItem, SegmentWindow, SourceLink, SourceMatch, SourceReference, SourceSegment } from "@/types/library";
 import type { ScriptureRef } from "@/types/scripture";
 import { formatLabel, licenceLabel, locatorLabel, sourceTypeLabel } from "./labels";
 import { useLibraryNav } from "./LibraryNav";
@@ -17,13 +17,32 @@ import { PassageLinkNote } from "./PassageLinkNote";
 import { ScriptureReference } from "./ScriptureReference";
 import { ContentsPanel, useContentsLayout } from "./ContentsPanel";
 import { EpubViewer } from "./formatted/EpubViewer";
+import { activeMatch, FindBar, useSourceFind } from "./FindBar";
 import { placeOfPosition, positionOfPlace, type EpubPlace } from "./formatted/epubLocation";
 import { useEpubStructure } from "./formatted/useEpubStructure";
-import { PdfViewer } from "./PdfViewer";
+import { PdfViewer, type PdfFind } from "./PdfViewer";
 import { canGoBack, canGoForward, NO_HISTORY, stepBack, stepForward, visit, type ReaderHistory, type SourceLocation } from "./readerHistory";
 import { currentEntry, useSourceContents } from "./useSourceContents";
 
 export type ReaderMode = "reading" | "original";
+
+/** The view last chosen for a source (v0.13), kept on this computer only. Never a global default. */
+const modeKey = (sourceId: string) => `abidingword.reader.mode.${sourceId}`;
+function rememberedMode(sourceId: string): ReaderMode | null {
+  try {
+    const value = window.localStorage.getItem(modeKey(sourceId));
+    return value === "reading" || value === "original" ? value : null;
+  } catch {
+    return null;
+  }
+}
+function rememberMode(sourceId: string, mode: ReaderMode) {
+  try {
+    window.localStorage.setItem(modeKey(sourceId), mode);
+  } catch {
+    // Remembering the view is a convenience; without storage the reader opens in Reading.
+  }
+}
 
 /**
  * Where a reader is: which view, and the physical page (PDF) that view is
@@ -74,7 +93,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const target = useRef<HTMLElement | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const [mode, setMode] = useState<ReaderMode>(initialPosition?.mode ?? "reading");
+  const [mode, setMode] = useState<ReaderMode>(() => initialPosition?.mode ?? rememberedMode(sourceId) ?? "reading");
   // The page this reader was told to open at (continuing from another reader).
   const [initialPage] = useState(initialPosition?.page ?? null);
   const startedInOriginal = initialPosition?.mode === "original";
@@ -85,7 +104,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   // Where the original opens; until chosen, the page of the passage opened at.
   const [openPage, setOpenPage] = useState<number | null>(null);
   // The source's own contents (an EPUB's, a PDF's outline), and the panel that shows them.
-  const { items: contents, adopt: adoptContents } = useSourceContents(source.data);
+  const { items: contents, generated: contentsGenerated, adopt: adoptContents } = useSourceContents(source.data);
   const stage = useRef<HTMLDivElement>(null);
   const opener = useRef<HTMLButtonElement>(null);
   const contentsLayout = useContentsLayout(stage, contents.length > 0);
@@ -93,7 +112,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const [jump, setJump] = useState<{ page: number; nonce: number; fraction?: number } | null>(null);
   // A segment position Reading should scroll to after a contents entry or link was chosen.
   // With an `offset`, the segment is put exactly that far from the top of the view (returning by Back / Forward).
-  const landingPosition = useRef<{ position: number; offset: number | null } | null>(null);
+  // With `find`, the current "Find in this source" match is shown instead, and focus stays in the find bar.
+  const landingPosition = useRef<{ position: number; offset: number | null; find?: boolean } | null>(null);
   const jumps = useRef(0);
 
   // Back / Forward: deliberate jumps only. Kept in a ref as well as state, so a handler always sees the latest.
@@ -191,6 +211,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
 
   const choose = async (next: ReaderMode) => {
     if (next === mode) return;
+    rememberMode(sourceId, next);
     // A request made in the other view, and a panel that named a place there, are finished.
     setPanel(null);
     setJump(null);
@@ -244,6 +265,12 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       const spots = body ? [...body.querySelectorAll<HTMLElement>("[data-seg-page]")] : [];
       spots.find((el) => Number(el.dataset.segPage) >= wanted)?.scrollIntoView?.({ block: "start" });
       landing.current = null;
+    }
+    if (landingPosition.current?.find) {
+      // A find match: centred, and the find bar keeps focus (typing and Enter go on there).
+      const mark = body?.querySelector<HTMLElement>("[data-find-active]");
+      (mark ?? body?.querySelector<HTMLElement>(`[data-seg-position="${landingPosition.current.position}"]`))?.scrollIntoView?.({ block: "center" });
+      landingPosition.current = null;
     }
     if (landingPosition.current !== null) {
       const { position, offset } = landingPosition.current;
@@ -306,9 +333,9 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     }
   };
 
-  /** Reading, at a segment of the extracted text (EPUB). */
-  const goToPosition = async (position: number, offset: number | null = null) => {
-    landingPosition.current = { position, offset };
+  /** Reading, at a segment of the extracted text (EPUB). With `find`, at the current find match there. */
+  const goToPosition = async (position: number, offset: number | null = null, find = false) => {
+    landingPosition.current = { position, offset, find };
     if (window && position >= window.offset && position < window.offset + window.segments.length) {
       setWindow({ ...window });
       return;
@@ -425,6 +452,52 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     goTo(step.to);
   };
 
+  // Find in this source (v0.13). Showing a match is not a jump: Back / Forward are left alone.
+  const [finding, setFinding] = useState(false);
+  const [findFocus, setFindFocus] = useState(0);
+  const findOpener = useRef<HTMLButtonElement>(null);
+  const showMatch = (match: SourceMatch) => {
+    if (showOriginal && isEpubView) {
+      const at = placeOfPosition(epub.items, match.position);
+      if (at) setEpubJump({ ...at, nonce: ++jumps.current });
+    } else if (showOriginal) {
+      // The page the match is on; the original has no exact place for it yet.
+      if (match.pageNumber !== null) setJump({ page: match.pageNumber, nonce: ++jumps.current });
+    } else {
+      void goToPosition(match.position, null, true);
+    }
+  };
+  const finder = useSourceFind(sourceId, showMatch);
+  const openFind = () => {
+    setFinding(true);
+    setFindFocus((n) => n + 1);
+  };
+  const closeFind = () => {
+    setFinding(false);
+    finder.clear();
+    requestAnimationFrame(() => findOpener.current?.focus({ preventScroll: true }));
+  };
+  const onReaderKey = (event: React.KeyboardEvent) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "f") {
+      event.preventDefault();
+      openFind();
+    }
+  };
+  // The find marks in each segment, with the current one flagged.
+  const current = activeMatch(finder.find);
+  // In the original PDF: the current match on its page, marked there only if the page's own text agrees.
+  const pdfFind: PdfFind | null = (() => {
+    if (!current || current.pageNumber === null || !finder.find.result) return null;
+    const onPage = finder.find.result.matches.filter((m) => m.pageNumber === current.pageNumber);
+    return { page: current.pageNumber, query: finder.find.searched, index: onPage.indexOf(current), count: onPage.length };
+  })();
+  const findMarks = new Map<number, FindMark[]>();
+  for (const m of finder.find.result?.matches ?? []) {
+    const list = findMarks.get(m.position) ?? [];
+    list.push({ start: m.start, end: m.end, active: m === current });
+    findMarks.set(m.position, list);
+  }
+
   const chooseEntry = (item: ContentsItem) => {
     const target = item.target;
     if (!target) return;
@@ -503,6 +576,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
                 targetRef={segment.id === window.targetSegmentId ? target : undefined}
                 links={links.get(segment.position)}
                 references={references.get(segment.position)}
+                marks={findMarks.get(segment.position)}
                 onFollow={(position) => jumpTo({ position }, segment.position)}
                 onOpenInBible={(reference) => openInBible(reference, positionNow())}
               />
@@ -531,6 +605,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         onOutline={adoptContents}
         onLink={(place) => jumpTo({ page: place.page, fraction: place.fraction })}
         locationRef={pdfNow}
+        onOpenInBible={(reference) => openInBible(reference, positionNow())}
+        find={pdfFind}
       />
     )
   ) : null;
@@ -546,9 +622,13 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   };
 
   const historyButtons = <HistoryButtons history={history} onBack={goBack} onForward={goForward} />;
+  // Opened straight into the original (the view last chosen for this source): at the passage opened at, once it is known.
+  const targetPosition = window?.segments.find((x) => x.id === window.targetSegmentId)?.position;
+  const targetPlace = targetPosition !== undefined && epub.status === "ready" ? placeOfPosition(epub.items, targetPosition) : null;
+  const epubStartKnown = epubOpen !== null || epubStart !== null || !segmentId || window !== null || error !== null;
   const epubViewer =
     showOriginal && isEpubView ? (
-      epub.status === "ready" && epub.items.length > 0 ? (
+      epub.status === "ready" && epub.items.length > 0 && epubStartKnown ? (
         <>
           {linkFailed && (
             <div className="shrink-0 px-3 pt-2">
@@ -560,7 +640,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
             sourceId={sourceId}
             kind={viewKind === "docx" ? "docx" : "epub"}
             structure={epub.items}
-            start={epubOpen ?? epubStart ?? { item: epub.items[0]!.id, fragment: null, offset: 0 }}
+            start={epubOpen ?? epubStart ?? targetPlace ?? { item: epub.items[0]!.id, fragment: null, offset: 0 }}
             jumpTo={epubJump}
             onLink={(target, from) => jumpTo({ item: target.item, fragment: target.id }, from)}
             onExternal={openExternal}
@@ -580,15 +660,23 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         <List className="size-4" aria-hidden="true" /> {t("library.contents.title")}
       </Button>
     ) : null;
+  const findButton = (
+    <Button ref={findOpener} variant="quiet" aria-expanded={finding} title={t("library.find.open")} onClick={() => (finding ? closeFind() : openFind())}>
+      <Search className="size-4" aria-hidden="true" /> {t("library.find.button")}
+    </Button>
+  );
+  const findBar = finding ? (
+    <FindBar find={finder.find} focusKey={findFocus} onType={finder.type} onSubmit={finder.submit} onStep={finder.step} onClose={closeFind} />
+  ) : null;
   const contentsPanel = panel ? (
-    <ContentsPanel id={`${id}-contents`} title={s?.title ?? ""} items={contents} currentId={panel.currentId} layout={contentsLayout} onSelect={chooseEntry} onClose={closeContents} />
+    <ContentsPanel id={`${id}-contents`} title={s?.title ?? ""} items={contents} generated={contentsGenerated} currentId={panel.currentId} layout={contentsLayout} onSelect={chooseEntry} onClose={closeContents} />
   ) : null;
 
   if (inPane) {
     // A column: controls that never scroll away, then Reading (which scrolls
     // inside its own body) or the original (which has its own toolbar and scroller).
     return (
-      <section aria-label={s?.title} className="flex min-h-0 flex-1 flex-col">
+      <section aria-label={s?.title} className="flex min-h-0 flex-1 flex-col" onKeyDown={onReaderKey}>
         <div data-testid="reader-header" className="flex shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b border-border-subtle px-3 py-2">
           <Button variant="quiet" onClick={() => onClose(positionNow())}>
             <ArrowLeft className="size-4" aria-hidden="true" /> {t("library.reader.backToSources")}
@@ -604,8 +692,12 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
             {historyButtons}
             {modeSwitch}
           </div>
-          {contentsButton}
+          <div className="flex flex-wrap items-center gap-x-1">
+            {findButton}
+            {contentsButton}
+          </div>
         </div>
+        {findBar}
         <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
           {showOriginal ? (
             (epubViewer ?? original)
@@ -623,7 +715,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   // The full reader is a column too: a header that never scrolls (Back stays
   // reachable however far the text is scrolled) above the content.
   return (
-    <main aria-labelledby={`${id}-title`} className="flex min-h-0 flex-1 flex-col bg-bg">
+    <main aria-labelledby={`${id}-title`} className="flex min-h-0 flex-1 flex-col bg-bg" onKeyDown={onReaderKey}>
       <div data-testid="reader-header" className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-border bg-bg px-4 py-2">
         <Button variant="quiet" className="shrink-0" onClick={() => onClose(positionNow())}>
           <ArrowLeft className="size-4" aria-hidden="true" /> {t("common.back")}
@@ -639,8 +731,10 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         </h1>
         {historyButtons}
         {modeSwitch}
+        {findButton}
         {contentsButton}
       </div>
+      {findBar}
       <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
         {showOriginal ? (
           (epubViewer ?? original)
@@ -684,8 +778,42 @@ interface SegmentViewProps {
   links?: SourceLink[];
   /** The Scripture references in this segment's text, in order. */
   references?: SourceReference[];
+  /** "Find in this source" matches in this segment's text, in order. */
+  marks?: FindMark[];
   onFollow: (position: number) => void;
   onOpenInBible: (reference: ScriptureRef) => void;
+}
+
+/** A find match in a segment's text (UTF-16 offsets); `active` for the current one. */
+interface FindMark {
+  start: number;
+  end: number;
+  active: boolean;
+}
+
+/** `text.slice(from, to)`, with the find matches in it marked (a match crossing the edges is cut to them). */
+function painted(text: string, from: number, to: number, marks: FindMark[] | undefined): React.ReactNode {
+  if (!marks || marks.length === 0) return text.slice(from, to);
+  const out: React.ReactNode[] = [];
+  let at = from;
+  for (const mark of marks) {
+    const start = Math.max(mark.start, at);
+    const end = Math.min(mark.end, to);
+    if (start >= end) continue;
+    if (start > at) out.push(text.slice(at, start));
+    out.push(
+      <mark
+        key={`f${start}`}
+        data-find-active={mark.active || undefined}
+        className={mark.active ? "rounded-sm bg-hl-amber font-semibold text-text-strong outline outline-2 outline-offset-1 outline-accent" : "rounded-sm bg-hl-amber text-text"}
+      >
+        {text.slice(start, end)}
+      </mark>,
+    );
+    at = end;
+  }
+  if (at < to) out.push(text.slice(at, to));
+  return out.length === 1 ? out[0] : out;
 }
 
 /**
@@ -698,11 +826,12 @@ function linked(
   text: string,
   links: SourceLink[] | undefined,
   references: SourceReference[] | undefined,
+  marks: FindMark[] | undefined,
   title: string,
   onFollow: (position: number) => void,
   onOpenInBible: (reference: ScriptureRef) => void,
 ): React.ReactNode {
-  if ((!links || links.length === 0) && (!references || references.length === 0)) return text;
+  if ((!links || links.length === 0) && (!references || references.length === 0)) return painted(text, 0, text.length, marks);
   type Span = { start: number; end: number; link?: SourceLink; reference?: SourceReference };
   const spans: Span[] = [
     ...(links ?? []).map((link): Span => ({ start: link.start, end: link.end, link })),
@@ -712,8 +841,8 @@ function linked(
   let at = 0;
   for (const span of spans) {
     if (span.start < at || span.end > text.length || span.start >= span.end) continue;
-    if (span.start > at) out.push(text.slice(at, span.start));
-    const written = text.slice(span.start, span.end);
+    if (span.start > at) out.push(<Fragment key={`t${at}`}>{painted(text, at, span.start, marks)}</Fragment>);
+    const written = painted(text, span.start, span.end, marks);
     if (span.link) {
       const target = span.link.target;
       out.push(
@@ -739,11 +868,11 @@ function linked(
     }
     at = span.end;
   }
-  if (at < text.length) out.push(text.slice(at));
+  if (at < text.length) out.push(<Fragment key={`t${at}`}>{painted(text, at, text.length, marks)}</Fragment>);
   return out;
 }
 
-function SegmentView({ segment, previous, isTarget, targetRef, links, references, onFollow, onOpenInBible }: SegmentViewProps) {
+function SegmentView({ segment, previous, isTarget, targetRef, links, references, marks, onFollow, onOpenInBible }: SegmentViewProps) {
   const { t } = useTranslation();
   const page = segment.pageLabel ?? segment.pageNumber;
   const newPage = segment.pageNumber !== null && segment.pageNumber !== previous?.pageNumber;
@@ -768,7 +897,7 @@ function SegmentView({ segment, previous, isTarget, targetRef, links, references
         data-seg-position={segment.position}
         className={`m-0 ${isTarget ? "border-l-[3px] border-accent bg-note px-3 py-1" : ""}`}
       >
-        {linked(segment.text, links, references, t("library.links.follow"), onFollow, onOpenInBible)}
+        {linked(segment.text, links, references, marks, t("library.links.follow"), onFollow, onOpenInBible)}
       </p>
       {isTarget && <PassageLinkNote segmentId={segment.id} />}
     </>

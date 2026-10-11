@@ -1,5 +1,8 @@
 # Abiding Word — Reading and Original (formatted source viewer)
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Reading or Original?](guide/05-library.md#reading-or-original)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 > Status: in development, after the frozen Library v0.4 (`library-v0.4`
 > tag). v0.4 itself had no Original view; this document describes what was
 > added afterwards. PDF has an Original view, and (v0.8) so do EPUB and DOCX:

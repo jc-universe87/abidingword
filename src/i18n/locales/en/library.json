@@ -153,7 +153,8 @@
     "fitWidth": "Fit width",
     "fitPage": "Fit page",
     "loading": "Opening the original…",
-    "renderFailed": "The original could not be shown. You can still read the extracted text."
+    "renderFailed": "The original could not be shown. You can still read the extracted text.",
+    "noNativeText": "Native text unavailable on this page"
   },
   "contents": {
     "title": "Contents",
@@ -161,7 +162,9 @@
     "close": "Close contents",
     "for": "Contents of {{title}}",
     "none": "No contents available",
-    "current": "Current section"
+    "current": "Current section",
+    "generated": "Generated contents",
+    "generatedNote": "Made from the headings found in this source. It is not part of the original."
   },
   "links": {
     "follow": "Go to the linked place"
@@ -186,5 +189,19 @@
     "label": "{{passage}} (Scripture reference)",
     "actions": "Actions for {{passage}}",
     "open": "Open in Bible"
+  },
+  "find": {
+    "button": "Find",
+    "open": "Find in this source (Ctrl+F)",
+    "label": "Find in this source",
+    "placeholder": "Find in this source",
+    "searching": "Searching…",
+    "failed": "The search could not be completed. Try again.",
+    "none": "No matches",
+    "position": "{{current}} of {{total}}",
+    "positionMore": "{{current}} of more than {{total}}",
+    "previous": "Previous match",
+    "next": "Next match",
+    "close": "Close find"
   }
 }

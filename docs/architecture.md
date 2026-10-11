@@ -1,4 +1,7 @@
 # Abiding Word
+
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[the User Guide](guide/README.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
 ## Frozen Technical Architecture & Implementation Plan
 
 ### Status

@@ -1,11 +1,13 @@
 # Scripture links in Library sources (v0.11)
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Bible references in your books](guide/06-bible-references.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 **Status: complete. Windows acceptance passed** on the Development/Test build
 `0.5.0-dev.22`, built from the accepted `main` commit
 `99118d526eb6c2bba79d6f3cac23b1a537b8e772` (the v0.11 merge plus the Contents
 focus fix below). The milestone tag `scripture-links-v0.11` is created on that
-commit; pushing it to GitHub is **pending** (to be pushed from a maintainer's
-clone). **No database migration.** Deterministic only: no AI.
+commit and is on GitHub. **No database migration.** Deterministic only: no AI.
 
 ### Windows acceptance notes (`0.5.0-dev.22`)
 

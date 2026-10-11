@@ -1,6 +1,7 @@
 import type { ContentsItem } from "@/types/library";
 import type { Api } from "./api";
-import { PdfOutlineError, type OutlineStage, type PdfDocument, type PdfEngine, type PdfLink, type PdfPageSize, type PdfPlace, type PdfRender } from "./pdfEngine";
+import { PdfOutlineError, type OutlineStage, type PdfBox, type PdfDocument, type PdfEngine, type PdfLink, type PdfPageSize, type PdfPlace, type PdfRender } from "./pdfEngine";
+import { buildPageText, rangeParts, toPageTextItems } from "./pdfPageText";
 
 /**
  * The PDF.js implementation of the viewer's engine.
@@ -377,14 +378,40 @@ function wrap(
         const p = await page(n);
         container.replaceChildren();
         container.style.setProperty("--total-scale-factor", String(scale));
-        const layer = new pdfjs.TextLayer({
-          textContentSource: p.streamTextContent(),
-          container,
-          viewport: p.getViewport({ scale }),
-        });
+        // The page's text is read once and shared: the text layer draws it, and the page-text map is made from it.
+        const content = await p.getTextContent();
+        const viewport = p.getViewport({ scale });
+        const layer = new pdfjs.TextLayer({ textContentSource: content, container, viewport });
         await layer.render();
+        const items = toPageTextItems(content, p.getViewport({ scale: 1 }));
+        const map = buildPageText(items);
+        // PDF.js keeps one span per text item, in the same order (textDivs[i] draws items[i]).
+        const spans = layer.textDivs as HTMLElement[];
+        return {
+          ...map,
+          boxes(start, end) {
+            const parts = rangeParts(map, start, end);
+            if (!parts || spans.length !== map.starts.length) return [];
+            const page = container.getBoundingClientRect();
+            if (page.width <= 0 || page.height <= 0) return [];
+            const out: PdfBox[] = [];
+            for (const part of parts) {
+              const node = spans[part.item]?.firstChild;
+              if (!node || node.nodeType !== Node.TEXT_NODE) return [];
+              const range = document.createRange();
+              range.setStart(node, part.from);
+              range.setEnd(node, Math.min(part.to, node.textContent?.length ?? 0));
+              for (const r of range.getClientRects()) {
+                if (r.width <= 0 || r.height <= 0) continue;
+                out.push({ x: (r.left - page.left) / page.width, y: (r.top - page.top) / page.height, width: r.width / page.width, height: r.height / page.height });
+              }
+            }
+            return out;
+          },
+        };
       } catch {
         // Selectable text is a convenience; the page itself is already drawn.
+        return null;
       }
     },
     outline: () => readOutline(doc),

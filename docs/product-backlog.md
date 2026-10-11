@@ -1,5 +1,8 @@
 # Abiding Word — Product backlog and principles
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[What's ready, and what's coming](../README.md#whats-ready-and-whats-coming)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 > **BACKLOG / FUTURE.** Nothing in this document is built, scheduled or
 > promised. It records product-owner decisions so that today's code does not
 > make them harder later. The frozen [`architecture.md`](architecture.md) and
@@ -63,11 +66,13 @@ useful; PDF sections if the importer ever finds trustworthy headings.
 See [`scripture-links-v0.11.md`](scripture-links-v0.11.md): references in the
 Reading view and in formatted EPUB / Word pages offer **Open in Bible**;
 Scripture has Back / Forward and **Back to {main passage}**; the Study is never
-changed. Still open: Scripture links in the PDF Original view (needs a reliable
-text mapping; never guessed positions); references split across formatting in
+changed. Scripture links in the PDF Original view are built in v0.13 (branch,
+not yet merged; see [`library-reading-v0.13.md`](library-reading-v0.13.md)):
+placed with PDF.js's own text layer, never guessed. Still open: references in
+right-to-left or vertical PDF text; references split across formatting in
 formatted pages; further actions (Add as related passage, Copy reference).
 
-### Concordance — surface forms shipped in v0.12 (in review); lemma and morphology open
+### Concordance — surface forms shipped in v0.12 (merged; Windows acceptance in progress); lemma and morphology open
 
 See [`concordance-v0.12.md`](concordance-v0.12.md): Word and Phrase occurrences
 in one Bible, by book, with per-script normalisation (Latin accents kept,
@@ -246,9 +251,11 @@ Reading and Original views, and **Back / Forward** reading history — see
   parts, and the EPUB items above that apply (text size, annotations). Web links
   open in the system browser (`http`/`https` only) in both formatted views;
   `mailto:` and other schemes stay blocked until deliberately designed.
-- **Generated contents:** deriving a table of contents from headings for a
-  source that has none — a possible later fallback, **not** current
-  behaviour; today a source without contents simply shows none.
+- **Generated contents:** built in v0.13 (branch, not yet merged): headings of
+  EPUB, Markdown and Word sources, and conservative probable headings of a PDF,
+  always labelled *Generated contents*. Open: bold type as PDF evidence (the
+  extractor does not report weight), a Word document's own TOC field, and
+  find marks drawn inside the EPUB / Word Original views.
 - **PDF Bible:** viewing the original document is distinct from Structured
   Scripture. Future work is verified book/chapter/verse extraction with
   uncertainty/confidence, provenance and versification handling, and **no

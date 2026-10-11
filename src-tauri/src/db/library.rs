@@ -13,7 +13,10 @@ use rusqlite::{params, Connection, OptionalExtension, Row};
 use crate::db::{new_id, now, workspaces};
 use crate::domain::validate::{self, DESCRIPTION_MAX_CHARS};
 use crate::error::{AppError, AppResult, UserMessage};
+use crate::library::contents::ContentsItem;
 use crate::library::files::{category, safe_file_name};
+use crate::library::find;
+use crate::library::generated_contents;
 use crate::library::import::StagedSource;
 use crate::library::original;
 use crate::library::passage_index::{self, PassageIndex};
@@ -22,8 +25,8 @@ use crate::library::sections::{self, DerivedLink, LinkOrigin};
 use crate::library::{
     CommitSourceImport, DuplicateOf, GetSegments, LibraryHit, LibraryResults, LicenceStatus,
     ListSources, PassageLocation, PassageMention, PassageSourceGroup, SearchLibrary,
-    SegmentPassageLink, SegmentWindow, Source, SourceReference, SourceSegment, SourceSummary,
-    SourceType,
+    SegmentPassageLink, SegmentWindow, Source, SourceFind, SourceMatch, SourceReference,
+    SourceSegment, SourceSummary, SourceType,
 };
 use crate::scripture::parser::DetectedReference;
 use crate::scripture::reference::{verse_key, ScriptureRef};
@@ -612,6 +615,78 @@ pub fn source_references(conn: &Connection, source_id: &str) -> AppResult<Vec<So
             reference: reference.to_dto(),
         });
     }
+    Ok(out)
+}
+
+/// Generated contents from a source's section headings (EPUB, Markdown and
+/// other formats whose text is divided by headings; v0.13). An unknown or
+/// removed source gives an error.
+pub fn generated_contents(conn: &Connection, source_id: &str) -> AppResult<Vec<ContentsItem>> {
+    get(conn, source_id)?;
+    let mut stmt = conn.prepare(
+        "SELECT position, section_path FROM source_segments
+         WHERE source_id = ?1 ORDER BY position",
+    )?;
+    let segments = stmt
+        .query_map(params![source_id], |r| Ok((r.get(0)?, r.get(1)?)))?
+        .collect::<Result<Vec<(i64, Option<String>)>, _>>()?;
+    Ok(generated_contents::from_sections(&segments))
+}
+
+/// The most matches [`find_in_source`] returns, and the most it counts.
+pub const FIND_MATCHES_LIMIT: usize = 2_000;
+pub const FIND_COUNT_LIMIT: usize = 10_000;
+/// The longest query [`find_in_source`] accepts, in characters.
+pub const FIND_QUERY_CHARS: usize = 200;
+
+/// Where `query` occurs in one source's text, segment by segment in reading
+/// order (v0.13, "Find in this source"). Matching is [`crate::library::find`]'s:
+/// case, accents and whitespace runs are ignored; nothing is guessed. A blank
+/// query finds nothing. An unknown or removed source gives an error.
+pub fn find_in_source(conn: &Connection, source_id: &str, query: &str) -> AppResult<SourceFind> {
+    get(conn, source_id)?;
+    let folded: Vec<char> = find::fold_query(query);
+    let mut out = SourceFind {
+        matches: Vec::new(),
+        total: 0,
+        truncated: false,
+    };
+    if folded.is_empty() || query.chars().count() > FIND_QUERY_CHARS {
+        return Ok(out);
+    }
+    let mut stmt = conn.prepare(
+        "SELECT position, page_number, content FROM source_segments
+         WHERE source_id = ?1 ORDER BY position",
+    )?;
+    let mut rows = stmt.query(params![source_id])?;
+    let mut counted = 0usize;
+    while let Some(row) = rows.next()? {
+        let position: i64 = row.get(0)?;
+        let page_number: Option<i64> = row.get(1)?;
+        let content: String = row.get(2)?;
+        let left = FIND_COUNT_LIMIT - counted;
+        // one more than may be counted, to know whether the bound was passed
+        for (start, end) in find::occurrences(&content, &folded, left + 1) {
+            if counted == FIND_COUNT_LIMIT {
+                out.truncated = true;
+                break;
+            }
+            counted += 1;
+            if out.matches.len() < FIND_MATCHES_LIMIT {
+                out.matches.push(SourceMatch {
+                    position,
+                    page_number,
+                    start: start as i64,
+                    end: end as i64,
+                });
+            }
+        }
+        if out.truncated {
+            break;
+        }
+    }
+    out.total = counted as i64;
+    out.truncated |= counted > out.matches.len();
     Ok(out)
 }
 

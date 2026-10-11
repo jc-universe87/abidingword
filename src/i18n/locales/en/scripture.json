@@ -2,7 +2,7 @@
   "translation": "Translation",
   "empty": {
     "title": "No Bible has been added yet.",
-    "body": "Add the World English Bible that comes with Abiding Word, or a Bible file you own. Everything stays on this computer and works offline.",
+    "body": "Add one of the free Bibles that come with Abiding Word, or a Bible file you own. Everything stays on this computer and works offline.",
     "addBible": "Add a Bible…"
   },
   "nav": {
@@ -81,7 +81,12 @@
     "done_other": "<strong>{{name}}</strong> is ready to read, with {{count}} books and {{verses}} verses.",
     "readNow": "Read it now",
     "included": "Included with Abiding Word",
-    "addNamed": "Add {{name}}",
+    "chooseLabel": "Choose a Bible",
+    "addSelected": "Add…",
+    "confirmTitle": "Add {{name}}?",
+    "confirmLanguage": "Language: {{language}}",
+    "confirmBody": "Next, Abiding Word checks every book, chapter and verse and shows you what it found. Nothing is added until you confirm.",
+    "confirmContinue": "Continue",
     "ownTitle": "A Bible you own",
     "ownBody": "Choose a Bible in USFM format: a .zip download, or its .usfm files. Abiding Word keeps its own copy and never changes your file.",
     "chooseFiles": "Choose Bible files…",

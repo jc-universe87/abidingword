@@ -38,7 +38,15 @@
       "icons/icon.ico"
     ],
     "resources": {
-      "../resources/scripture/engwebp/engwebp_usfm.zip": "scripture/engwebp_usfm.zip"
+      "../resources/scripture/engbsb/engbsb_usfm.zip": "scripture/engbsb_usfm.zip",
+      "../resources/scripture/engwebp/engwebp_usfm.zip": "scripture/engwebp_usfm.zip",
+      "../resources/scripture/deu1912/deu1912_usfm.zip": "scripture/deu1912_usfm.zip",
+      "../resources/scripture/deu1951/deu1951_usfm.zip": "scripture/deu1951_usfm.zip",
+      "../resources/scripture/deuelo/deuelo_usfm.zip": "scripture/deuelo_usfm.zip",
+      "../resources/scripture/kor1961/kor1961_usfm.zip": "scripture/kor1961_usfm.zip",
+      "../resources/scripture/fraLSG/fraLSG_usfm.zip": "scripture/fraLSG_usfm.zip",
+      "../resources/scripture/spaRV1909/spaRV1909_usfm.zip": "scripture/spaRV1909_usfm.zip",
+      "../resources/scripture/porbr2018/porbr2018_usfm.zip": "scripture/porbr2018_usfm.zip"
     }
   }
 }

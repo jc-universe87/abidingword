@@ -161,7 +161,8 @@
     "fitWidth": "Ajuster à la largeur",
     "fitPage": "Ajuster à la page",
     "loading": "Ouverture de l’original…",
-    "renderFailed": "L’original n’a pas pu être affiché. Vous pouvez toujours lire le texte extrait."
+    "renderFailed": "L’original n’a pas pu être affiché. Vous pouvez toujours lire le texte extrait.",
+    "noNativeText": "Texte natif indisponible sur cette page"
   },
   "contents": {
     "title": "Sommaire",
@@ -169,7 +170,9 @@
     "close": "Fermer le sommaire",
     "for": "Sommaire de {{title}}",
     "none": "Aucun sommaire disponible",
-    "current": "Section en cours"
+    "current": "Section en cours",
+    "generated": "Table des matières générée",
+    "generatedNote": "Établie à partir des titres trouvés dans cette source. Elle ne fait pas partie de l’original."
   },
   "links": {
     "follow": "Aller à l’endroit lié"
@@ -195,5 +198,19 @@
     "label": "{{passage}} (référence biblique)",
     "actions": "Actions pour {{passage}}",
     "open": "Ouvrir dans la Bible"
+  },
+  "find": {
+    "button": "Rechercher",
+    "open": "Rechercher dans cette source (Ctrl+F)",
+    "label": "Rechercher dans cette source",
+    "placeholder": "Rechercher dans cette source",
+    "searching": "Recherche en cours…",
+    "failed": "La recherche n’a pas pu aboutir. Réessayez.",
+    "none": "Aucun résultat",
+    "position": "{{current}} sur {{total}}",
+    "positionMore": "{{current}} sur plus de {{total}}",
+    "previous": "Résultat précédent",
+    "next": "Résultat suivant",
+    "close": "Fermer la recherche"
   }
 }

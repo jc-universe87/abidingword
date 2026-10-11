@@ -1,5 +1,8 @@
 # Study Workspace UX Simplification (v0.6, Phase 1)
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Studies](guide/04-studies.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 Status: in review (Phase 1 approved; Phase 2 below). Branch `feature/study-workspace-ux-v0.6`, not merged.
 
 ## Principle: the software should disappear

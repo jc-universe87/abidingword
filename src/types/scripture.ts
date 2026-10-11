@@ -49,6 +49,8 @@ export interface BundledBibleInfo {
   name: string;
   shortName: string;
   language: string;
+  /** e.g. "de": the interface language's Bibles are offered first. */
+  languageCode: string;
   licenseType: string;
   installed: boolean;
 }

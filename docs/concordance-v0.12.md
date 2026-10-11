@@ -1,7 +1,12 @@
 # Concordance and original-language foundations (v0.12)
 
-Status: in review. Branch `feature/concordance-v0.12`, from `main` `c417846`.
-Not merged. **No database migration.** Deterministic only: no AI, no
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Concordance](guide/07-concordance.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
+Status: merged into `main` (`75fe193`) and published for Windows acceptance
+(test build `0.5.0-dev.25`, and in every later build); acceptance in progress;
+not tagged yet. Built on `feature/concordance-v0.12` from `main` `c417846`.
+**No database migration.** Deterministic only: no AI, no
 embeddings, no semantic similarity.
 
 ## Scope
@@ -20,8 +25,14 @@ installed Bible carries that data yet (see "Original-language status").
 | | EN | DE | KO | FR | ES | PT |
 |---|---|---|---|---|---|---|
 | the tool | Concordance | Konkordanz | 용례 찾기 | Concordance | Concordancia | Concordância |
-| a single word / words together | Word / Phrase | Wort / Wendung | 단어 / 구절 | Mot / Expression | Palabra / Frase | Palavra / Frase |
+| a single word / consecutive words | Word / Phrase | Wort / Wortfolge | 단어 / 어구 | Mot / Suite de mots | Palabra / Secuencia de palabras | Palavra / Sequência de palavras |
+| the query field | Word or phrase | Wort oder Wortfolge | 단어 또는 어구 | Mot ou suite de mots | Palabra o secuencia de palabras | Palavra ou sequência de palavras |
 | the results | occurrences | Vorkommen | 용례 | occurrences | apariciones | ocorrências |
+
+The second mode matches consecutive words, so its name must not suggest a
+Bible passage, an idiom or a sentence: hence *Wortfolge* (not *Wendung*),
+*어구* (not *구절*, which also means a verse or passage), *suite de mots* (not
+*expression*) and *secuencia / sequência de palavras* (not *frase*).
 
 Korean uses *용례 찾기* ("find usages"): *용례* is already the word-study
 term for a word's occurrences; *성구 사전* names a printed concordance and

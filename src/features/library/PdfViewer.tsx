@@ -6,8 +6,11 @@ import { Notice } from "@/design-system/Notice";
 import { formatNumber } from "@/i18n/format";
 import { useApi } from "@/lib/ApiContext";
 import type { ContentsItem } from "@/types/library";
-import type { PdfDocument, PdfLink, PdfPageSize, PdfPlace } from "@/lib/pdfEngine";
+import type { DetectedReference, ScriptureRef } from "@/types/scripture";
+import type { PdfBox, PdfDocument, PdfLink, PdfPageSize, PdfPlace, PdfTextLayer } from "@/lib/pdfEngine";
+import { findOnPage } from "@/lib/pdfPageText";
 import { usePdfEngine } from "./PdfEngineContext";
+import { ScriptureReference, type ScriptureReferenceClasses } from "./ScriptureReference";
 
 /** 100% is a page at its natural size on a 96 dpi screen. */
 const CSS_PER_POINT = 96 / 72;
@@ -33,6 +36,21 @@ interface PdfViewerProps {
   onLink?: (place: PdfPlace) => void;
   /** Filled with a way to ask where the view is now (page and how far down it), for the reader's history. */
   locationRef?: React.MutableRefObject<(() => PdfPlace) | null>;
+  /** Scripture references on the pages become "Open in Bible" actions (v0.13); without it, none are looked for. */
+  onOpenInBible?: (reference: ScriptureRef) => void;
+  /**
+   * The current "Find in this source" match, on its page: the query, and which of that page's
+   * matches it is (`index` of `count`). Marked only if the page's own text has exactly `count`.
+   */
+  find?: PdfFind | null;
+}
+
+/** A find match to mark on a page of the original (see `PdfViewerProps.find`). */
+export interface PdfFind {
+  page: number;
+  query: string;
+  index: number;
+  count: number;
 }
 
 /**
@@ -43,7 +61,7 @@ interface PdfViewerProps {
  * inspect the source; search, citations and Scripture links stay with the
  * extracted text.
  */
-export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutline, onLink, locationRef }: PdfViewerProps) {
+export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutline, onLink, locationRef, onOpenInBible, find }: PdfViewerProps) {
   const { t } = useTranslation();
   const api = useApi();
   const engine = usePdfEngine();
@@ -61,6 +79,36 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutli
   useEffect(() => {
     onOutlineRef.current = onOutline;
   }, [onOutline]);
+  const onOpenInBibleRef = useRef(onOpenInBible);
+  useEffect(() => {
+    onOpenInBibleRef.current = onOpenInBible;
+  }, [onOpenInBible]);
+  const linksScripture = onOpenInBible !== undefined;
+  const openInBible = useCallback((reference: ScriptureRef) => onOpenInBibleRef.current?.(reference), []);
+
+  // The Scripture references on each page, read once per page from its drawn text, in the source's language.
+  const detected = useRef(new Map<number, Promise<DetectedReference[]>>());
+  useEffect(() => {
+    detected.current = new Map();
+  }, [sourceId]);
+  const detect = useCallback(
+    (n: number, text: string): Promise<DetectedReference[]> => {
+      let found = detected.current.get(n);
+      if (!found) {
+        found = api.libraryDetectReferences(sourceId, [text]).then(
+          (all) => all[0] ?? [],
+          (e: unknown) => {
+            detected.current.delete(n);
+            void api.logError(`Scripture references on a PDF page could not be read: ${e instanceof Error ? e.message : String(e)}`).catch(() => undefined);
+            return [];
+          },
+        );
+        detected.current.set(n, found);
+      }
+      return found;
+    },
+    [api, sourceId],
+  );
 
   const fail = useCallback(
     (error: unknown) => {
@@ -353,6 +401,9 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutli
               onSize={(size) => setSizes((s) => (s[n] ? s : { ...s, [n]: size }))}
               onFailed={fail}
               onFollow={follow}
+              detect={linksScripture ? detect : undefined}
+              onOpenInBible={openInBible}
+              find={find && find.page === n ? find : null}
             />
           ))}
         </div>
@@ -369,10 +420,30 @@ interface PageViewProps {
   onSize: (size: PdfPageSize) => void;
   onFailed: (error: unknown) => void;
   onFollow: (dest: unknown) => void;
+  /** Reads the Scripture references in a page's drawn text; absent when references are not linked. */
+  detect?: (n: number, text: string) => Promise<DetectedReference[]>;
+  onOpenInBible: (reference: ScriptureRef) => void;
+  find: PdfFind | null;
 }
 
+/** On the original page (always white), a reference is a fixed-colour dotted underline over the drawn words. */
+const PDF_REFERENCE_CLASSES: ScriptureReferenceClasses = {
+  wrap: "relative block h-full w-full",
+  trigger:
+    "block h-full w-full cursor-pointer rounded-[2px] border-0 border-b-2 border-dotted border-[#2563eb] bg-transparent p-0 text-transparent hover:bg-[rgba(37,99,235,0.14)] focus-visible:bg-[rgba(37,99,235,0.14)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#2563eb] aria-expanded:bg-[rgba(37,99,235,0.18)]",
+  menu: "absolute left-0 top-full z-30 mt-1 flex min-w-max flex-col rounded-aw border border-border bg-surface p-1 font-ui text-text shadow-md",
+  item: "min-h-10 whitespace-nowrap rounded-[4px] px-3 text-left text-[0.9375rem] text-text-strong hover:bg-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary",
+};
+
+const boxStyle = (box: PdfBox): React.CSSProperties => ({
+  left: `${box.x * 100}%`,
+  top: `${box.y * 100}%`,
+  width: `${box.width * 100}%`,
+  height: `${box.height * 100}%`,
+});
+
 /** One page: an empty sheet of the right size until it is near the screen. */
-function PageView({ doc, n, size, scale, onSize, onFailed, onFollow }: PageViewProps) {
+function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onOpenInBible, find }: PageViewProps) {
   const { t } = useTranslation();
   const sheet = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -405,6 +476,8 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow }: PageViewP
     };
   }, [near, doc, n]);
 
+  // The page-text map of the drawn text layer (v0.13): what references and find marks are placed with.
+  const [pageText, setPageText] = useState<PdfTextLayer | null>(null);
   const scaleKey = Math.round(scale * 1000);
   useEffect(() => {
     const target = canvas.current;
@@ -416,12 +489,13 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow }: PageViewP
       () => {
         if (!live) return;
         void doc.pageSize(n).then((real) => live && onSize(real), () => undefined);
-        if (layer) void doc.text(n, layer, scale);
+        if (layer) void doc.text(n, layer, scale).then((map) => live && setPageText(map));
       },
       (e) => live && onFailed(e),
     );
     return () => {
       live = false;
+      setPageText(null);
       job.cancel();
       // Far from the screen: give back the bitmap and what the page kept.
       target.width = 0;
@@ -432,6 +506,39 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow }: PageViewP
     // `scale` is represented by its rounded key so tiny layout jitter does not redraw.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [near, scaleKey, doc, n]);
+
+  // The Scripture references in the page's drawn text, each with its boxes. Only those placed exactly
+  // on usable text are offered: none in a running header or footer, vertical or right-to-left text.
+  // Kept with the page-text map they were placed on, so a redrawn layer never shows stale ones.
+  const [placed, setPlaced] = useState<{ on: PdfTextLayer; list: { reference: DetectedReference; boxes: PdfBox[] }[] } | null>(null);
+  useEffect(() => {
+    if (!pageText || !pageText.hasText || !detect) return;
+    let live = true;
+    void detect(n, pageText.text).then((found) => {
+      if (!live) return;
+      const list = found.map((reference) => ({ reference, boxes: pageText.boxes(reference.start, reference.end) })).filter((r) => r.boxes.length > 0);
+      setPlaced({ on: pageText, list });
+    });
+    return () => {
+      live = false;
+    };
+  }, [pageText, detect, n]);
+  const references = placed && detect && placed.on === pageText ? placed.list : [];
+
+  // The current find match, if this page's own text shows it unambiguously: exactly as many
+  // occurrences as the source's text has on this page. Otherwise the page is shown without a mark.
+  const findBoxes = (() => {
+    if (!find || !pageText) return [];
+    const places = findOnPage(pageText.text, find.query);
+    if (places.length !== find.count) return [];
+    const place = places[find.index];
+    return place ? pageText.boxes(place[0], place[1]) : [];
+  })();
+  const findKey = findBoxes.length > 0 && find ? `${find.query}|${find.index}|${find.count}` : null;
+  const findMark = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (findKey) findMark.current?.scrollIntoView?.({ block: "center", inline: "nearest" });
+  }, [findKey]);
 
   return (
     <div
@@ -464,6 +571,37 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow }: PageViewP
             }}
           />
         ))}
+      {near &&
+        findBoxes.map((box, i) => (
+          <div
+            key={`f${i}`}
+            ref={i === 0 ? findMark : undefined}
+            data-pdf-find
+            aria-hidden="true"
+            className="pointer-events-none absolute rounded-[2px] bg-[rgba(250,204,21,0.45)] outline outline-2 outline-[#b45309]"
+            style={boxStyle(box)}
+          />
+        ))}
+      {near &&
+        references.map(({ reference, boxes }) =>
+          boxes.map((box, i) =>
+            i === 0 ? (
+              <div key={`r${reference.start}`} data-pdf-reference className="absolute" style={boxStyle(box)}>
+                <ScriptureReference reference={reference.reference} onOpen={onOpenInBible} classes={PDF_REFERENCE_CLASSES}>
+                  {reference.text}
+                </ScriptureReference>
+              </div>
+            ) : (
+              // A reference broken over two lines: the rest of it is underlined too, and acted on through its first part.
+              <div key={`r${reference.start}-${i}`} aria-hidden="true" className="pointer-events-none absolute border-b-2 border-dotted border-[#2563eb]" style={boxStyle(box)} />
+            ),
+          ),
+        )}
+      {near && pageText && !pageText.hasText && (
+        <p role="note" className="absolute left-2 top-2 m-0 rounded-[4px] border border-[#d4d4d4] bg-[rgba(255,255,255,0.92)] px-2 py-1 font-ui text-[0.8125rem] text-[#404040]">
+          {t("library.original.noNativeText")}
+        </p>
+      )}
     </div>
   );
 }

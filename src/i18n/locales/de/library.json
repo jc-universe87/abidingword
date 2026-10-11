@@ -153,7 +153,8 @@
     "fitWidth": "Breite anpassen",
     "fitPage": "Seite einpassen",
     "loading": "Das Original wird geöffnet …",
-    "renderFailed": "Das Original konnte nicht angezeigt werden. Der extrahierte Text bleibt lesbar."
+    "renderFailed": "Das Original konnte nicht angezeigt werden. Der extrahierte Text bleibt lesbar.",
+    "noNativeText": "Auf dieser Seite ist kein eigener Text verfügbar"
   },
   "contents": {
     "title": "Inhalt",
@@ -161,7 +162,9 @@
     "close": "Inhaltsverzeichnis schließen",
     "for": "Inhaltsverzeichnis von {{title}}",
     "none": "Kein Inhaltsverzeichnis vorhanden",
-    "current": "Aktueller Abschnitt"
+    "current": "Aktueller Abschnitt",
+    "generated": "Automatisch erstelltes Inhaltsverzeichnis",
+    "generatedNote": "Aus den Überschriften dieser Quelle erstellt. Es ist nicht Teil des Originals."
   },
   "links": {
     "follow": "Zur verknüpften Stelle springen"
@@ -186,5 +189,19 @@
     "label": "{{passage}} (Bibelstelle)",
     "actions": "Aktionen für {{passage}}",
     "open": "In der Bibel öffnen"
+  },
+  "find": {
+    "button": "Suchen",
+    "open": "In dieser Quelle suchen (Strg+F)",
+    "label": "In dieser Quelle suchen",
+    "placeholder": "In dieser Quelle suchen",
+    "searching": "Suche läuft …",
+    "failed": "Die Suche konnte nicht abgeschlossen werden. Bitte erneut versuchen.",
+    "none": "Keine Treffer",
+    "position": "{{current}} von {{total}}",
+    "positionMore": "{{current}} von mehr als {{total}}",
+    "previous": "Vorheriger Treffer",
+    "next": "Nächster Treffer",
+    "close": "Suche schließen"
   }
 }

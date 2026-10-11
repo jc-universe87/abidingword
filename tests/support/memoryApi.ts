@@ -132,6 +132,8 @@ export interface SourceFixture {
   sections?: { segment: number; reference: string; matchedText: string; heading: string; through?: number }[];
   /** The contents an EPUB carries (segment targets), as the core would return them. */
   contents?: ContentsItem[];
+  /** Generated contents (headings found in the source), as the core would return them for a source without its own. */
+  generatedContents?: ContentsItem[];
   /** Links in the text that lead elsewhere in the same source, as the core would return them. */
   links?: SourceLink[];
   /** A formatted view (an EPUB's documents or a DOCX's parts, by id); a source without it has no Original view. */
@@ -491,6 +493,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
   const locator = (s: { pageNumber: number | null; sectionPath: string | null; paragraphIndex: number | null }) =>
     s.pageNumber !== null ? `p. ${s.pageNumber}` : (s.sectionPath ?? `¶ ${(s.paragraphIndex ?? 0) + 1}`);
   const contentsOf = new Map<string, ContentsItem[]>();
+  const generatedOf = new Map<string, ContentsItem[]>();
   const linksOf = new Map<string, SourceLink[]>();
   const formattedOf = new Map<string, NonNullable<SourceFixture["formatted"]>>();
   const addSource = (fixture: SourceFixture, extra: Partial<Source> = {}): Source => {
@@ -535,6 +538,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     };
     library.sources.push(source);
     if (fixture.contents) contentsOf.set(sourceId, fixture.contents);
+    if (fixture.generatedContents) generatedOf.set(sourceId, fixture.generatedContents);
     if (fixture.links) linksOf.set(sourceId, fixture.links);
     if (fixture.formatted) formattedOf.set(sourceId, fixture.formatted);
     return source;
@@ -1001,9 +1005,19 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     },
 
     bibleList: async () => [...state.bibles].sort((a, b) => a.name.localeCompare(b.name)),
-    bibleBundledList: async () => [
-      { id: "engwebp", name: "World English Bible", shortName: "WEB", language: "English", licenseType: "Public Domain", installed: state.bibles.some((b) => b.isBuiltin) },
-    ],
+    // As the core lists them (src-tauri/src/scripture/bundled.rs).
+    bibleBundledList: async () =>
+      [
+        { id: "engbsb", name: "Berean Standard Bible", shortName: "BSB", language: "English", languageCode: "en", licenseType: "Public Domain" },
+        { id: "engwebp", name: "World English Bible", shortName: "WEB", language: "English", languageCode: "en", licenseType: "Public Domain" },
+        { id: "deu1912", name: "Lutherbibel 1912", shortName: "LUT1912", language: "Deutsch", languageCode: "de", licenseType: "Public Domain" },
+        { id: "deu1951", name: "Schlachter-Bibel 1951", shortName: "SCH1951", language: "Deutsch", languageCode: "de", licenseType: "CC BY 4.0" },
+        { id: "deuelo", name: "Elberfelder 1905 (unrevidiert)", shortName: "ELB1905", language: "Deutsch", languageCode: "de", licenseType: "Public Domain" },
+        { id: "kor1961", name: "성경전서 개역한글판", shortName: "KRV", language: "한국어", languageCode: "ko", licenseType: "Public Domain" },
+        { id: "fraLSG", name: "Louis Segond 1910", shortName: "LSG", language: "Français", languageCode: "fr", licenseType: "Public Domain" },
+        { id: "spaRV1909", name: "Santa Biblia — Reina Valera 1909", shortName: "RV1909", language: "Español", languageCode: "es", licenseType: "Public Domain" },
+        { id: "porbr2018", name: "Bíblia Livre", shortName: "BLIVRE", language: "Português", languageCode: "pt", licenseType: "CC BY 4.0" },
+      ].map((b) => ({ ...b, installed: state.bibles.some((i) => i.isBuiltin && i.shortName === b.shortName) })),
     chooseBibleFiles: async () => state.nextChosenFiles,
     bibleImportPreview: async ({ bundled, paths }) => {
       if (paths?.some((p) => p.endsWith(".pdf"))) {
@@ -1239,6 +1253,10 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       liveSource(sourceId);
       return contentsOf.get(sourceId) ?? [];
     },
+    libraryGeneratedContents: async (sourceId) => {
+      liveSource(sourceId);
+      return generatedOf.get(sourceId) ?? [];
+    },
     // As the core: where each stored mention is in its segment's text (the n-th time it is written there).
     librarySourceReferences: async (sourceId) => {
       liveSource(sourceId);
@@ -1259,6 +1277,24 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       liveSource(sourceId);
       api.detectCalls.push(texts.length);
       return Promise.all(texts.map((text) => api.referenceDetect(text)));
+    },
+    // As the core (library::find): case, accents and whitespace runs ignored, Hangul syllables whole, UTF-16 ranges.
+    librarySourceFind: async (sourceId, query) => {
+      liveSource(sourceId);
+      const needle = foldForFind(query.trim()).chars.join("");
+      const matches: { position: number; pageNumber: number | null; start: number; end: number }[] = [];
+      if (!needle) return { matches, total: 0, truncated: false };
+      for (const segment of segmentsOf(sourceId)) {
+        const { chars, spans } = foldForFind(segment.text);
+        const n = [...needle].length;
+        for (let i = 0; i + n <= chars.length; ) {
+          if (chars.slice(i, i + n).join("") === needle) {
+            matches.push({ position: segment.position, pageNumber: segment.pageNumber ?? null, start: spans[i]![0], end: spans[i + n - 1]![1] });
+            i += n;
+          } else i += 1;
+        }
+      }
+      return { matches, total: matches.length, truncated: false };
     },
     librarySourceLinks: async (sourceId) => {
       liveSource(sourceId);
@@ -1331,4 +1367,29 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     },
   };
   return api;
+}
+
+/** The core's find folding (library::find::fold), for the in-memory librarySourceFind. */
+function foldForFind(text: string): { chars: string[]; spans: [number, number][] } {
+  const chars: string[] = [];
+  const spans: [number, number][] = [];
+  let at = 0;
+  for (const c of text) {
+    const range: [number, number] = [at, at + c.length];
+    at += c.length;
+    if (/\s/u.test(c)) {
+      if (chars[chars.length - 1] === " ") spans[spans.length - 1]![1] = range[1];
+      else {
+        chars.push(" ");
+        spans.push(range);
+      }
+      continue;
+    }
+    const parts = /[\uAC00-\uD7A3]/u.test(c) ? [c] : [...c.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()];
+    for (const f of parts) {
+      chars.push(f === "ς" ? "σ" : f);
+      spans.push(range);
+    }
+  }
+  return { chars, spans };
 }

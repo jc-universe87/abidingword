@@ -7,6 +7,7 @@
 
 use std::fs;
 use std::path::PathBuf;
+use std::sync::{Mutex, OnceLock};
 
 use tauri::State;
 
@@ -15,12 +16,12 @@ use crate::db::{findings, library};
 use crate::domain::Finding;
 use crate::error::{AppError, ErrorPayload, UserMessage};
 use crate::filesystem;
-use crate::library::{adapters, contents, import, original};
+use crate::library::{adapters, contents, generated_contents, import, original};
 use crate::library::{
     AddFindingSource, CommitSourceImport, FindingCitation, GetSegments, LibraryResults,
     ListSources, PassageLocation, PassageMention, PassageSourceGroup, SearchLibrary,
-    SegmentPassageLink, SegmentWindow, Source, SourceImportPreview, SourceReference, SourceSummary,
-    SourceType,
+    SegmentPassageLink, SegmentWindow, Source, SourceFind, SourceImportPreview, SourceReference,
+    SourceSummary, SourceType,
 };
 use crate::scripture::parser::DetectedReference;
 use crate::scripture::reference::ScriptureRef;
@@ -254,6 +255,16 @@ pub fn library_source_references(
     state.db(|conn| library::source_references(conn, &id))
 }
 
+/// Where a query occurs in one source's text (v0.13, "Find in this source").
+#[tauri::command(async)]
+pub fn library_source_find(
+    state: State<'_, AppState>,
+    id: String,
+    query: String,
+) -> CommandResult<SourceFind> {
+    state.db(|conn| library::find_in_source(conn, &id, &query))
+}
+
 /// The Scripture references in pieces of a source's drawn text (a formatted
 /// page's text nodes), read in the source's own language (v0.11).
 #[tauri::command(async)]
@@ -348,16 +359,76 @@ pub fn library_source_contents(
     let Some((relative, format)) = record else {
         return Ok(Vec::new());
     };
-    if format != "epub" && format != "docx" {
+    // A DOCX carries no contents of its own; its headings are generated contents.
+    if format != "epub" {
         return Ok(Vec::new());
     }
     let bytes = original::read_managed(&core.dirs.sources(), &id, &relative, MAX_CONTENTS_FILE)?;
     let expected = usize::try_from(source.segment_count).unwrap_or(0);
-    Ok(if format == "docx" {
-        adapters::docx::contents(&bytes, expected)
-    } else {
-        adapters::epub::contents(&bytes, expected)
-    })
+    Ok(adapters::epub::contents(&bytes, expected))
+}
+
+/// Contents made from the source's own structure, for a source that carries
+/// none (v0.13): a DOCX's Word headings, an EPUB's or Markdown file's
+/// headings, a PDF's probable headings (see `library::generated_contents`).
+/// The interface shows them as generated. Empty when nothing is clear enough.
+#[tauri::command(async)]
+pub fn library_generated_contents(
+    state: State<'_, AppState>,
+    id: String,
+) -> CommandResult<Vec<contents::ContentsItem>> {
+    let core = state.core()?;
+    let (source, record) = core.db.with_conn(|conn| {
+        let source = library::get(conn, &id)?;
+        let record = library::original_record(conn, &id).ok();
+        Ok((source, record))
+    })?;
+    match record {
+        Some((relative, format)) if format == "docx" => {
+            let bytes =
+                original::read_managed(&core.dirs.sources(), &id, &relative, MAX_CONTENTS_FILE)?;
+            let expected = usize::try_from(source.segment_count).unwrap_or(0);
+            Ok(adapters::docx::contents(&bytes, expected))
+        }
+        Some((relative, format)) if format == "pdf" => {
+            if let Some(found) = generated_cache_get(&id) {
+                return Ok(found);
+            }
+            let bytes =
+                original::read_managed(&core.dirs.sources(), &id, &relative, MAX_CONTENTS_FILE)?;
+            let found = generated_contents::from_pdf(&bytes);
+            generated_cache_put(&id, &found);
+            Ok(found)
+        }
+        _ => Ok(core
+            .db
+            .with_conn(|conn| library::generated_contents(conn, &id))?),
+    }
+}
+
+/// Generated PDF contents already worked out this session (reading a whole
+/// PDF again for each opening would be slow), a few sources at most.
+type GeneratedCache = Mutex<Vec<(String, Vec<contents::ContentsItem>)>>;
+
+fn generated_cache() -> &'static GeneratedCache {
+    static CACHE: OnceLock<GeneratedCache> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(Vec::new()))
+}
+const GENERATED_CACHE_SOURCES: usize = 8;
+
+fn generated_cache_get(id: &str) -> Option<Vec<contents::ContentsItem>> {
+    let cache = generated_cache().lock().ok()?;
+    cache.iter().find(|(k, _)| k == id).map(|(_, v)| v.clone())
+}
+
+fn generated_cache_put(id: &str, items: &[contents::ContentsItem]) {
+    if let Ok(mut cache) = generated_cache().lock() {
+        cache.retain(|(k, _)| k != id);
+        cache.push((id.to_string(), items.to_vec()));
+        if cache.len() > GENERATED_CACHE_SOURCES {
+            cache.remove(0);
+        }
+    }
 }
 
 /// The links inside an EPUB's text that lead elsewhere in the same book (see

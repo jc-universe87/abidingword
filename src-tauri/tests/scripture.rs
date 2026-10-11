@@ -649,6 +649,109 @@ fn studies_link_to_passages_optionally() {
     });
 }
 
+// --- every Bible shipped with the app ---------------------------------------
+
+/// The file's SHA-256, as SOURCE.md records it.
+fn sha256_hex(path: &Path) -> String {
+    use sha2::{Digest, Sha256};
+    let bytes = std::fs::read(path).unwrap();
+    Sha256::digest(&bytes)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
+}
+
+#[test]
+fn every_bundled_bible_is_recorded_and_imports_cleanly() {
+    use abiding_word_lib::scripture::bundled::BUNDLED;
+    let resources = Path::new(env!("CARGO_MANIFEST_DIR")).join("../resources/scripture");
+    let config =
+        std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("tauri.conf.json"))
+            .unwrap();
+    for bible in BUNDLED {
+        let folder = resources.join(bible.id);
+        let zip = folder.join(bible.resource);
+        // Shipped exactly as recorded: the licence statement and checksum are kept beside it.
+        let source = std::fs::read_to_string(folder.join("SOURCE.md"))
+            .unwrap_or_else(|_| panic!("{}: SOURCE.md missing", bible.id));
+        assert!(
+            source.contains(&sha256_hex(&zip)),
+            "{}: checksum differs from SOURCE.md",
+            bible.id
+        );
+        // The publisher's own licence statement, kept beside the file.
+        assert!(
+            folder.join("copr.htm").exists() || folder.join("copyright-statement.txt").exists(),
+            "{}: publisher's licence statement missing",
+            bible.id
+        );
+        assert!(
+            config.contains(&format!(
+                "\"../resources/scripture/{}/{}\": \"scripture/{}\"",
+                bible.id, bible.resource, bible.resource
+            )),
+            "{}: not in tauri.conf.json resources",
+            bible.id
+        );
+
+        let staged = import::stage(&[zip], ImportOrigin::Bundled { id: bible.id }).unwrap();
+        let preview = staged.preview(Default::default());
+        let errors: Vec<_> = preview
+            .issues
+            .iter()
+            .filter(|i| i.severity == Severity::Error)
+            .collect();
+        assert!(errors.is_empty(), "{}: {errors:#?}", bible.id);
+        assert_eq!(preview.book_count, 66, "{}", bible.id);
+        assert_eq!(preview.chapter_count, 1189, "{}", bible.id);
+        assert!(
+            (30_900..31_250).contains(&preview.verse_count),
+            "{}: {}",
+            bible.id,
+            preview.verse_count
+        );
+        let john_3_16 = &staged.content.books[&43].chapters[&3].verses[&16];
+        assert!(john_3_16.chars().count() > 40, "{}: {john_3_16}", bible.id);
+        assert!(
+            !john_3_16.contains('\\') && !john_3_16.contains('|'),
+            "{}: markup left: {john_3_16}",
+            bible.id
+        );
+    }
+}
+
+#[test]
+fn the_korean_bible_has_the_verses_other_copies_lacked() {
+    // 개역한글 from the Korean Bible Society's own text: eBible.org's copy
+    // lacked these verses (resources/scripture/kor1961/SOURCE.md).
+    let zip = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../resources/scripture/kor1961/kor1961_usfm.zip");
+    let staged = import::stage(&[zip], ImportOrigin::Bundled { id: "kor1961" }).unwrap();
+    let books = &staged.content.books;
+    let verse =
+        |book: u8, chapter: u16, verse: u16| books[&book].chapters[&chapter].verses[&verse].clone();
+    assert!(
+        verse(1, 30, 43).starts_with("이에 그 사람이 심히 풍부하여"),
+        "{}",
+        verse(1, 30, 43)
+    );
+    assert_eq!(
+        verse(19, 118, 29),
+        "여호와께 감사하라 그는 선하시며 그 인자하심이 영원함이로다"
+    );
+    assert!(verse(60, 5, 14).starts_with("너희는 사랑의 입맞춤으로 피차 문안하라"));
+    assert_eq!(
+        verse(43, 3, 16),
+        "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 저를 믿는 자마다 멸망치 않고 영생을 얻게 하려 하심이니라"
+    );
+    // Psalm titles are kept; the translator's notes stay in the file, not in the verse.
+    assert_eq!(
+        books[&19].chapters[&8].superscription.as_deref(),
+        Some("다윗의 시, 영장으로 깃딧에 맞춘 노래")
+    );
+    assert!(!verse(19, 8, 5).contains("하나님"), "{}", verse(19, 8, 5));
+}
+
 // --- the bundled World English Bible ----------------------------------------
 
 #[test]

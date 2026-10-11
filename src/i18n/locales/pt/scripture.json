@@ -2,7 +2,7 @@
   "translation": "Tradução",
   "empty": {
     "title": "Nenhuma Bíblia foi adicionada ainda.",
-    "body": "Adicione a World English Bible que acompanha o Abiding Word ou um arquivo de Bíblia que seja seu. Tudo fica neste computador e funciona sem internet.",
+    "body": "Adicione uma das Bíblias livres que acompanham o Abiding Word ou um arquivo de Bíblia que seja seu. Tudo fica neste computador e funciona sem internet.",
     "addBible": "Adicionar uma Bíblia…"
   },
   "nav": {
@@ -85,7 +85,12 @@
     "done_other": "<strong>{{name}}</strong> está pronta para leitura, com {{count}} livros e {{verses}} versículos.",
     "readNow": "Ler agora",
     "included": "Incluída no Abiding Word",
-    "addNamed": "Adicionar {{name}}",
+    "chooseLabel": "Escolha uma Bíblia",
+    "addSelected": "Adicionar…",
+    "confirmTitle": "Adicionar {{name}}?",
+    "confirmLanguage": "Idioma: {{language}}",
+    "confirmBody": "Em seguida, o Abiding Word verifica cada livro, capítulo e versículo e mostra o que encontrou. Nada é adicionado até você confirmar.",
+    "confirmContinue": "Continuar",
     "ownTitle": "Uma Bíblia que é sua",
     "ownBody": "Escolha uma Bíblia no formato USFM: um arquivo .zip baixado ou os arquivos .usfm. O Abiding Word guarda a própria cópia e nunca altera o seu arquivo.",
     "chooseFiles": "Escolher arquivos da Bíblia…",
@@ -216,11 +221,11 @@
     "backToStudy": "Voltar para {{passage}}"
   },
   "concordance": {
-    "queryLabel": "Palavra ou frase",
+    "queryLabel": "Palavra ou sequência de palavras",
     "modeLabel": "Procurar",
     "mode": {
       "word": "Palavra",
-      "phrase": "Frase"
+      "phrase": "Sequência de palavras"
     },
     "bible": "Bíblia",
     "find": "Procurar",

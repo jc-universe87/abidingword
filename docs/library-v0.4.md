@@ -1,5 +1,8 @@
 # Abiding Word — Library v0.4 implementation notes
 
+> [!NOTE]
+> **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Your library](guide/05-library.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
+
 How the personal source library is built (Phase 4 in
 [`architecture.md`](architecture.md): source ingestion, PDF, EPUB,
 Markdown, metadata, provenance, FTS5, Bible-reference extraction). The
