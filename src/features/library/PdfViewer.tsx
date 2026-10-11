@@ -95,7 +95,7 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutli
     (n: number, text: string): Promise<DetectedReference[]> => {
       let found = detected.current.get(n);
       if (!found) {
-        found = api.libraryDetectReferences(sourceId, [text]).then(
+        found = api.libraryDetectReferences(sourceId, [text], { page: n }).then(
           (all) => all[0] ?? [],
           (e: unknown) => {
             detected.current.delete(n);

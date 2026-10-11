@@ -71,6 +71,7 @@ import type {
   EpubItem,
   EpubStructureItem,
   SourceLink,
+  DrawnScope,
   SourceFind,
   SourceReference,
   OriginalInfo,
@@ -147,7 +148,12 @@ export interface Api {
   /** The Scripture references written in a source's text, with their places (stored index). */
   librarySourceReferences(id: string): Promise<SourceReference[]>;
   /** The Scripture references in pieces of a source's drawn text, read in the source's language. */
-  libraryDetectReferences(id: string, texts: string[]): Promise<DetectedReference[][]>;
+  /**
+   * The Scripture references in pieces of a source's drawn text, read in the source's language. With a
+   * `scope` (the formatted document's segments, or a PDF page), bookless references such as "15:4" are
+   * linked where the imported text of that part resolved them, and only there.
+   */
+  libraryDetectReferences(id: string, texts: string[], scope?: DrawnScope): Promise<DetectedReference[][]>;
   /** Where a query occurs in one source's text (case, accents and spacing ignored), in reading order. */
   librarySourceFind(id: string, query: string): Promise<SourceFind>;
   /** For an EPUB's formatted view: where each reading-order document starts among the extracted text. */
@@ -315,7 +321,7 @@ export const tauriApi: Api = {
   libraryGeneratedContents: (id) => call("library_generated_contents", { id }),
   librarySourceLinks: (id) => call("library_source_links", { id }),
   librarySourceReferences: (id) => call("library_source_references", { id }),
-  libraryDetectReferences: (id, texts) => call("library_detect_references", { id, texts }),
+  libraryDetectReferences: (id, texts, scope) => call("library_detect_references", { id, texts, scope: scope ?? null }),
   librarySourceFind: (id, query) => call("library_source_find", { id, query }),
   libraryEpubStructure: (id) => call("library_epub_structure", { id }),
   libraryEpubItem: (id, item) => call("library_epub_item", { id, item }),

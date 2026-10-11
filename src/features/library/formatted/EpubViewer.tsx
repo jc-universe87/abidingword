@@ -99,6 +99,10 @@ export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, 
     };
   }, [api, kind, sourceId, wantedItem]);
 
+  const structureRef = useRef(structure);
+  useEffect(() => {
+    structureRef.current = structure;
+  }, [structure]);
   // Find the Scripture references in the page shown (once per page; a failure leaves the text plain).
   const currentId = current?.id;
   const currentNodes = current?.nodes;
@@ -114,7 +118,10 @@ export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, 
     }
     const texts = pageTexts(currentNodes);
     if (texts.length === 0) return;
-    api.libraryDetectReferences(sourceId, texts).then(
+    // The document's place among the imported segments: bookless references ("15:4") are linked as the imported text resolved them there.
+    const part = structureRef.current.find((s) => s.id === currentId);
+    const scope = part ? { from: part.startSegment, to: part.startSegment + part.segmentCount } : undefined;
+    api.libraryDetectReferences(sourceId, texts, scope).then(
       (lists) => {
         const found = new Map<string, DetectedReference[]>();
         lists.forEach((list, i) => {

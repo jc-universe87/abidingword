@@ -220,6 +220,13 @@ export interface SourceReference {
   reference: ScriptureRef;
 }
 
+/** Where drawn text comes from: a formatted document's segments (`from` inclusive, `to` exclusive) or a PDF page. */
+export interface DrawnScope {
+  page?: number;
+  from?: number;
+  to?: number;
+}
+
 /** One place a "Find in this source" query occurs (v0.13): UTF-16 offsets into the segment's text. */
 export interface SourceMatch {
   position: number;

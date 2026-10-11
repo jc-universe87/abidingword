@@ -165,7 +165,7 @@ fn a_german_source_links_mal_4_3_to_maleachi_but_not_the_word_mal() {
         assert_eq!(written, ["Mal 4,3", "Mal 3,1-5"]);
         // Drawn (EPUB/DOCX) text of the same source is read the same way.
         let pieces = vec!["Siehe Mal 4,3.".to_string(), "Mal 4 war genug.".to_string()];
-        let drawn = library::detect_in_source(conn, &id, &pieces)?;
+        let drawn = library::detect_in_source(conn, &id, &pieces, None)?;
         assert_eq!(drawn[0].len(), 1);
         assert_eq!(drawn[0][0].reference.canonical, "MAL.4.3");
         assert!(drawn[1].is_empty());
@@ -219,18 +219,18 @@ fn drawn_text_is_read_in_the_sources_language_not_another() {
             String::new(),
             "no digits".to_string(),
         ];
-        let in_de = library::detect_in_source(conn, &de, &pieces)?;
+        let in_de = library::detect_in_source(conn, &de, &pieces, None)?;
         assert_eq!(in_de.len(), 4);
         assert_eq!(in_de[0][0].reference.canonical, "JHN.3.16");
         assert!(in_de[2].is_empty() && in_de[3].is_empty());
-        let in_en = library::detect_in_source(conn, &en, &pieces)?;
+        let in_en = library::detect_in_source(conn, &en, &pieces, None)?;
         assert_eq!(in_en[1][0].reference.canonical, "JHN.3.16");
         // German notation is not English: the English parser does not take "Joh 3,16" as John 3:16.
         assert!(in_en[0].iter().all(|r| r.reference.canonical != "JHN.3.16"));
-        assert!(library::detect_in_source(conn, "no-such-source", &pieces).is_err());
+        assert!(library::detect_in_source(conn, "no-such-source", &pieces, None).is_err());
         // Bounded: too many texts are read as empty, never an error.
         let many = vec!["John 3:16".to_string(); library::DETECT_TEXTS_LIMIT + 3];
-        let out = library::detect_in_source(conn, &en, &many)?;
+        let out = library::detect_in_source(conn, &en, &many, None)?;
         assert_eq!(out.len(), many.len());
         assert!(out[library::DETECT_TEXTS_LIMIT].is_empty());
         Ok(())
@@ -259,11 +259,65 @@ fn a_long_source_answers_quickly() {
             .map(|n| format!("Piece {n}: see John 15:{} and Romans 6:1-4.", n % 20 + 1))
             .collect();
         let started = std::time::Instant::now();
-        let lists = library::detect_in_source(conn, &id, &page)?;
+        let lists = library::detect_in_source(conn, &id, &page, None)?;
         let took = started.elapsed();
         println!("detect_in_source: {} pieces in {took:?}", page.len());
         assert!(lists.iter().all(|l| l.len() == 2));
         assert!(took < std::time::Duration::from_secs(2));
         Ok(())
     });
+}
+
+#[test]
+fn drawn_text_links_a_bookless_reference_only_as_the_imported_text_resolved_it() {
+    use abiding_word_lib::db::library::DrawnScope;
+    with_db(|conn, dir| {
+        let id = add(
+            conn,
+            dir,
+            "sermon.md",
+            "# John 15:1–11\n\nLook at 15:4 here.\n\n# Romans 8\n\nAnd 8:28 there; also 15:4 again.\n",
+            "Sermon",
+            "en",
+        );
+        let pieces = vec![
+            "Look at 15:4 here.".to_string(),
+            "And 8:28 there.".to_string(),
+        ];
+        let canon = |lists: &Vec<Vec<abiding_word_lib::scripture::parser::DetectedReference>>| -> Vec<Vec<String>> {
+            lists
+                .iter()
+                .map(|l| l.iter().map(|r| r.reference.canonical.clone()).collect())
+                .collect()
+        };
+        // the first document only: "15:4" is John's there
+        let first = library::detect_in_source(
+            conn,
+            &id,
+            &pieces,
+            Some(DrawnScope {
+                from: Some(0),
+                to: Some(1),
+                page: None,
+            }),
+        )?;
+        assert_eq!(canon(&first), [vec!["JHN.15.4".to_string()], vec![]]);
+        assert_eq!(first[0][0].text, "15:4");
+        // both: "15:4" was John's in one section and Romans' in the other, so it is not linked
+        let both = library::detect_in_source(
+            conn,
+            &id,
+            &pieces,
+            Some(DrawnScope {
+                from: Some(0),
+                to: Some(2),
+                page: None,
+            }),
+        )?;
+        assert_eq!(canon(&both), [vec![], vec!["ROM.8.28".to_string()]]);
+        // without a scope, bookless references are never linked in drawn text
+        let none = library::detect_in_source(conn, &id, &pieces, None)?;
+        assert_eq!(canon(&none), [Vec::<String>::new(), vec![]]);
+        Ok(())
+    })
 }
