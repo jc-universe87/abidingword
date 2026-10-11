@@ -36,6 +36,13 @@ only in the ways a find box should be:
   syllable;
 - any run of whitespace (a non-breaking space included) counts as one space.
 
+**Deliberately different from the Concordance (v0.12).** Find is forgiving
+document navigation: accents are ignored in every script and a query matches
+inside words (*remain* finds *Remaining*, *romer* finds *Römer*). The
+Concordance is exact Bible occurrence analysis: whole words only, and Latin
+accents stay meaningful (*é* ≠ *e*, *über* ≠ *uber*); only Greek accents and
+Hebrew points are set aside there. Neither is changed to match the other.
+
 A match never spans two segments; matches do not overlap. Ranges are UTF-16
 offsets into the stored segment text (the interface's string offsets).
 
