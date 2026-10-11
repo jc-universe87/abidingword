@@ -16,8 +16,9 @@
 use crate::library::sections::{self, DerivedLink};
 use crate::scripture::language::ReferenceLanguage;
 use crate::scripture::parser::{
-    document_context, ContextTracker, DetectedReference, ReferenceParser, OPENING_PARAGRAPHS,
+    document_context, ContextTracker, DetectedReference, OPENING_PARAGRAPHS,
 };
+use crate::scripture::recognise::Recogniser;
 
 /// The references and section links of a source, in one language.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -51,7 +52,9 @@ pub fn build<'a, I>(
 where
     I: IntoIterator<Item = (&'a str, Option<&'a str>, Option<i64>)> + Clone,
 {
-    let parser = ReferenceParser::for_language(language);
+    // Explicit references in any supported language (the source's first);
+    // shorthand in the source's own language.
+    let recogniser = Recogniser::for_source(language);
     // Context is carried between paragraphs within the source's own structure:
     // sections where headings divide the text, the page otherwise, and a
     // sermon's or lecture's main passage throughout.
@@ -61,9 +64,9 @@ where
         .take(OPENING_PARAGRAPHS)
         .map(|(text, _, _)| text)
         .collect();
-    let document = document_context(parser, facts.kind, facts.title, &opening);
+    let document = document_context(recogniser, facts.kind, facts.title, &opening);
     let mut tracker =
-        ContextTracker::new(parser, sections::has_sections(format)).with_document(document);
+        ContextTracker::new(recogniser, sections::has_sections(format)).with_document(document);
     let references = segments
         .clone()
         .into_iter()
@@ -78,7 +81,7 @@ where
         .collect();
     // Structure, not text: what the headings say the sections are about.
     let sections = if sections::has_sections(format) {
-        sections::derive(segments.into_iter().map(|(_, path, _)| path), parser)
+        sections::derive(segments.into_iter().map(|(_, path, _)| path), recogniser)
     } else {
         Vec::new()
     };
@@ -126,7 +129,7 @@ mod tests {
     }
 
     #[test]
-    fn the_language_decides_what_is_found() {
+    fn explicit_references_are_found_in_any_language_and_shorthand_in_the_sources() {
         let german = build("markdown", segments(), De, SourceFacts::default());
         assert_eq!(german.language, De);
         assert_eq!(german.references.len(), 1);
@@ -136,16 +139,23 @@ mod tests {
             2,
             "a section link and an inherited one"
         );
-        // the same source read as English finds different things
+        // filed as English, the German references are still found (the language is a
+        // priority, not a gate) ...
         let english = build("markdown", segments(), En, SourceFacts::default());
-        assert!(english
-            .references
-            .iter()
-            .all(|(_, r)| r.reference.canonical != "ROM.8.28"));
+        assert_eq!(english.references[0].1.reference.canonical, "ROM.8.28");
         assert!(english
             .sections
             .iter()
-            .all(|l| l.canonical != "JHN.15.1-JHN.15.11"));
+            .any(|l| l.canonical == "JHN.15.1-JHN.15.11"));
+        // ... but shorthand is read in the source's own notation only
+        let shorthand = vec![("Siehe 15,4 dazu.", Some("Joh 15,1–11"), None)];
+        let in_german = build("markdown", shorthand.clone(), De, SourceFacts::default());
+        assert_eq!(in_german.references.len(), 1);
+        let in_english = build("markdown", shorthand, En, SourceFacts::default());
+        assert!(
+            in_english.references.is_empty(),
+            "\"15,4\" is not English notation"
+        );
     }
 
     #[test]

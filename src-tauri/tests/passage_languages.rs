@@ -240,8 +240,8 @@ fn french_spanish_and_portuguese_references_are_stored_canonically() {
 
 #[test]
 fn the_interface_language_plays_no_part() {
-    // Nothing here knows the interface language: a Korean source is read as Korean
-    // and a German one as German, whatever the app is shown in.
+    // Nothing here knows the interface language. Explicit references are found in
+    // every supported language, whatever the source's language or the app's.
     let temp = tempfile::tempdir().unwrap();
     with_db(|conn| {
         let ko = add(
@@ -260,10 +260,17 @@ fn the_interface_language_plays_no_part() {
         );
         let ko_found = library::passages(conn, &ko)?;
         let de_found = library::passages(conn, &de)?;
-        assert_eq!(ko_found.len(), 1);
-        assert_eq!(ko_found[0].matched_text, "요한복음 3:16");
-        assert_eq!(de_found.len(), 1);
-        assert_eq!(de_found[0].matched_text, "Johannes 3,16");
+        let texts = |found: &[abiding_word_lib::library::PassageMention]| -> Vec<String> {
+            let mut t: Vec<String> = found.iter().map(|m| m.matched_text.clone()).collect();
+            t.sort();
+            t
+        };
+        assert_eq!(texts(&ko_found), ["John 3:16", "요한복음 3:16"]);
+        assert_eq!(texts(&de_found), ["Johannes 3,16", "요한복음 3:16"]);
+        assert!(ko_found
+            .iter()
+            .chain(&de_found)
+            .all(|m| m.reference.canonical == "JHN.3.16"));
         Ok(())
     });
 }
@@ -286,12 +293,14 @@ fn an_unknown_or_missing_language_is_indexed_as_english() {
                 .into_iter()
                 .map(|m| (m.matched_text, m.reference.canonical))
                 .collect();
-            // English reads "John 3:16" and the chapter of "Joh 3,16"; never the Korean
+            // English is the priority; the German and Korean references are found whole
+            // ("Joh 3,16", not the English reading "Joh 3")
             assert_eq!(
                 found,
                 [
                     ("John 3:16".to_string(), "JHN.3.16".to_string()),
-                    ("Joh 3".to_string(), "JHN.3".to_string())
+                    ("Joh 3,16".to_string(), "JHN.3.16".to_string()),
+                    ("요한복음 3:16".to_string(), "JHN.3.16".to_string()),
                 ],
                 "{language:?}"
             );
@@ -353,31 +362,39 @@ fn the_preview_reads_the_files_language_and_otherwise_english() {
 fn the_language_chosen_at_commit_decides_not_the_preview() {
     let temp = tempfile::tempdir().unwrap();
     with_db(|conn| {
-        // 1. the file says German; the person says English: English links, nothing stale from German
+        // 1. the file says German; the person says English: the index is made for English
+        //    (the German references are found all the same: a language is a priority, not a gate)
         let staged = import::stage(&write(temp.path(), "de.epub", &german_epub("de"))).unwrap();
         assert_eq!(staged.index.language, De);
         let id = commit(conn, &staged, "Als Englisch abgelegt", Some("English"));
-        assert!(
-            library::mentions(conn, &reference("ROM.8.28"))?.is_empty(),
-            "the German reference of the preview was not stored"
-        );
+        assert_eq!(library::mentions(conn, &reference("ROM.8.28"))?.len(), 1);
         let sections: Vec<_> = index_of(conn, &id)
             .into_iter()
             .filter(|(_, origin, ..)| origin == "section")
             .map(|(_, _, passage, ..)| passage)
             .collect();
-        // read as English, "Joh 15,1–11" names only the chapter: not the German range
-        assert_eq!(sections, ["JHN.15"]);
+        // the whole German range, not the English reading of "Joh 15" alone
+        assert_eq!(sections, ["JHN.15.1-JHN.15.11"]);
+        let language: Option<String> =
+            conn.query_row("SELECT language FROM sources WHERE id = ?1", [&id], |r| {
+                r.get(0)
+            })?;
+        assert_eq!(language.as_deref(), Some("English"));
 
         // 2. the file says nothing; the person says German: German links
         let staged = import::stage(&write(temp.path(), "x.md", GERMAN.as_bytes())).unwrap();
         assert_eq!(staged.index.language, En);
-        assert!(
-            staged.index.references.is_empty(),
-            "English finds nothing in this German text"
+        assert_eq!(
+            staged.index.references.len(),
+            2,
+            "Röm 8,28 and 1. Kor 13,4–7, read as German"
         );
         let id = commit(conn, &staged, "Als Deutsch abgelegt", Some("Deutsch"));
-        assert_eq!(library::mentions(conn, &reference("ROM.8.28"))?.len(), 1);
+        assert_eq!(
+            library::mentions(conn, &reference("ROM.8.28"))?.len(),
+            2,
+            "this source and the first"
+        );
         assert!(
             index_of(conn, &id)
                 .iter()
@@ -392,11 +409,12 @@ fn the_language_chosen_at_commit_decides_not_the_preview() {
         library::reindex_passages(conn, &id)?;
         assert_eq!(index_of(conn, &id), at_import);
 
-        // 4. a blank language at commit is English, even when the file said German
+        // 4. a blank language at commit is English, even when the file said German: the
+        //    explicit references are the same, and the German shorthand is not read
         let staged = import::stage(&write(temp.path(), "z.epub", &german_epub("de-CH"))).unwrap();
         let id = commit(conn, &staged, "Ohne Sprache", None);
-        assert!(index_of(conn, &id).iter().all(|(_, origin, passage, ..)| {
-            !(origin == "section" && passage == "JHN.15.1-JHN.15.11")
+        assert!(index_of(conn, &id).iter().any(|(_, origin, passage, ..)| {
+            origin == "section" && passage == "JHN.15.1-JHN.15.11"
         }));
         Ok(())
     });
@@ -408,19 +426,14 @@ fn the_language_chosen_at_commit_decides_not_the_preview() {
 fn an_index_made_in_english_is_rebuilt_in_the_sources_language_with_both_kinds_of_link() {
     let temp = tempfile::tempdir().unwrap();
     with_db(|conn| {
-        // Indexed before language-aware detection: read as English, filed as German since.
+        // Indexed by an older rule: filed as English, re-filed as German since. An index
+        // made by an older version (version 1) is what is rebuilt.
         let id = add(conn, temp.path(), "joh.md", GERMAN.as_bytes(), None);
+        conn.execute(
+            "DELETE FROM source_passages WHERE source_id = ?1 AND origin = 'explicit'",
+            [&id],
+        )?;
         assert!(library::mentions(conn, &reference("ROM.8.28"))?.is_empty());
-        let english_sections: Vec<_> = index_of(conn, &id)
-            .into_iter()
-            .filter(|(_, origin, ..)| origin == "section")
-            .map(|(_, _, passage, ..)| passage)
-            .collect();
-        assert_eq!(
-            english_sections,
-            ["JHN.15"],
-            "the English reading of the German heading"
-        );
         conn.execute(
             "UPDATE sources SET language = 'Deutsch', passage_index_version = 1 WHERE id = ?1",
             [&id],

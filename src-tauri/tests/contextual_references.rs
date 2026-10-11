@@ -4,7 +4,8 @@
 
 use abiding_word_lib::library::passage_index;
 use abiding_word_lib::scripture::language::ReferenceLanguage::{self, De, En, Es, Fr, Ko, Pt};
-use abiding_word_lib::scripture::parser::{ContextTracker, ReferenceParser};
+use abiding_word_lib::scripture::parser::ContextTracker;
+use abiding_word_lib::scripture::recognise::Recogniser;
 
 /// (visible text, canonical) for each reference found, in order.
 type Found = Vec<(String, String)>;
@@ -14,8 +15,8 @@ fn paragraphs(
     sectioned: bool,
     items: &[(&str, Option<&str>, Option<i64>)],
 ) -> Vec<Found> {
-    let parser = ReferenceParser::for_language(language);
-    let mut tracker = ContextTracker::new(parser, sectioned);
+    let recogniser = Recogniser::for_source(language);
+    let mut tracker = ContextTracker::new(recogniser, sectioned);
     items
         .iter()
         .map(|(text, path, page)| {
@@ -516,10 +517,19 @@ fn a_competing_passage_in_the_title_area_gives_no_main_passage() {
         "Romans 8",
         &[
             ("John 15:1–11", None, Some(1)),
+            ("Filler one.", None, Some(1)),
+            ("Filler two.", None, Some(1)),
+            ("Filler three.", None, Some(1)),
+            ("Filler four.", None, Some(1)),
+            ("Filler five.", None, Some(1)),
+            ("Filler six.", None, Some(1)),
+            ("Filler seven.", None, Some(1)),
+            ("Filler eight.", None, Some(1)),
+            // beyond the opening heading line's reach: only the (ambiguous) document passage is left
             ("Later 15:4 here.", None, Some(2)),
         ],
     );
-    assert!(found[1].is_empty(), "{found:?}");
+    assert!(found[9].is_empty(), "{found:?}");
 }
 
 #[test]

@@ -11,8 +11,10 @@ pub mod canon;
 pub mod concordance;
 pub mod import;
 pub mod language;
+pub mod packs;
 pub mod parser;
 pub mod phrase_ranges;
+pub mod recognise;
 pub mod reference;
 pub mod usfm;
 

@@ -33,7 +33,7 @@
 //! existing library is re-indexed from the stored paths, so both give the same
 //! result for the same source.
 
-use crate::scripture::parser::ReferenceParser;
+use crate::scripture::recognise::Recogniser;
 
 /// The version of the whole passage index: how references are found
 /// (`scripture::parser`, by the source's language) and how sections are derived
@@ -46,7 +46,9 @@ use crate::scripture::parser::ReferenceParser;
 /// * 3 – contextual references (v0.13.1): bookless references such as `15:4`,
 ///   `15,4` or `v. 4` resolved from the source's own explicit references
 ///   nearby (`scripture::parser::context`).
-pub const INDEX_VERSION: i64 = 3;
+/// * 4 – explicit references in every supported language, the source's first
+///   (`scripture::recognise`), and visible heading lines as local context (v0.13.2).
+pub const INDEX_VERSION: i64 = 4;
 
 /// What the importers put between the headings of a `section_path`.
 pub const PATH_SEPARATOR: &str = " › ";
@@ -122,7 +124,7 @@ struct Node {
     references: Vec<Reference>,
 }
 
-fn references_of(heading: &str, parser: &ReferenceParser) -> Vec<Reference> {
+fn references_of(heading: &str, parser: &Recogniser) -> Vec<Reference> {
     let mut seen: Vec<Reference> = Vec::new();
     for found in parser.detect(heading) {
         if seen
@@ -153,7 +155,7 @@ pub fn components(path: &str) -> impl Iterator<Item = &str> {
 /// these section paths, in reading order (`None` for a segment without one).
 pub fn derive<'a>(
     paths: impl IntoIterator<Item = Option<&'a str>>,
-    parser: &ReferenceParser,
+    parser: &Recogniser,
 ) -> Vec<DerivedLink> {
     let mut out = Vec::new();
     // The headings that enclose the segment being read, outermost first.
@@ -210,10 +212,13 @@ mod tests {
     use super::*;
 
     fn run(paths: &[Option<&str>]) -> Vec<(usize, LinkOrigin, usize, String)> {
-        derive(paths.iter().copied(), ReferenceParser::english())
-            .into_iter()
-            .map(|l| (l.segment_index, l.origin, l.opener_index, l.canonical))
-            .collect()
+        derive(
+            paths.iter().copied(),
+            Recogniser::for_source(crate::scripture::language::ReferenceLanguage::En),
+        )
+        .into_iter()
+        .map(|l| (l.segment_index, l.origin, l.opener_index, l.canonical))
+        .collect()
     }
 
     use LinkOrigin::{Inherited as I, Section as S};

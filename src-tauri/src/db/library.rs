@@ -785,7 +785,8 @@ pub fn detect_in_source(
 ) -> AppResult<Vec<Vec<DetectedReference>>> {
     let source = get(conn, source_id)?;
     let language = passage_index::language_of(source.language.as_deref(), &source.title);
-    let parser = crate::scripture::parser::ReferenceParser::for_language(language);
+    let recogniser = crate::scripture::recognise::Recogniser::for_source(language);
+    let parser = recogniser.primary();
     let resolved = match scope {
         Some(scope) => resolved_in_scope(conn, source_id, scope)?,
         None => HashMap::new(),
@@ -800,7 +801,7 @@ pub fn detect_in_source(
             {
                 return Vec::new();
             }
-            let mut found = parser.detect(text);
+            let mut found = recogniser.detect(text);
             if !resolved.is_empty() {
                 let explicit: Vec<(usize, usize)> =
                     found.iter().map(|r| (r.start, r.end)).collect();

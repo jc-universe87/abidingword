@@ -24,8 +24,9 @@ use std::sync::OnceLock;
 
 mod context;
 pub use context::{
-    document_context, ContextTracker, OuterContext, ParagraphReferences, MAIN_PASSAGE_KINDS,
-    OPENING_CHARS, OPENING_PARAGRAPHS, PAGE_LOOKBACK, SECTION_LOOKBACK,
+    document_context, heading_context, ContextTracker, OuterContext, ParagraphReferences,
+    LOCAL_HEADING_SPAN, MAIN_PASSAGE_KINDS, OPENING_CHARS, OPENING_PARAGRAPHS, PAGE_LOOKBACK,
+    SECTION_LOOKBACK,
 };
 
 use regex::{Captures, Regex};
@@ -202,6 +203,35 @@ fn is_roman(token: &str) -> bool {
     matches!(token, "i" | "ii" | "iii")
 }
 
+/// A reference one parser found, before the packs are weighed against each
+/// other (`scripture::recognise`).
+#[derive(Debug, Clone)]
+pub struct RawMatch {
+    /// Byte range in the text.
+    pub start: usize,
+    pub end: usize,
+    pub reference: ScriptureRef,
+    /// The book name as written ("Jn", "Johannes", "요").
+    pub book: String,
+    /// A verse was written (not only implied, as in "Jude 3").
+    pub written_verse: bool,
+    /// Korean: a chapter unit (장, 편) was written.
+    pub chapter_unit: bool,
+    pub language: ReferenceLanguage,
+}
+
+impl RawMatch {
+    /// As a detected reference (UTF-16 offsets).
+    pub fn detected(&self, text: &str) -> DetectedReference {
+        DetectedReference {
+            text: text[self.start..self.end].to_string(),
+            start: utf16_offset(text, self.start),
+            end: utf16_offset(text, self.end),
+            reference: self.reference.to_dto(),
+        }
+    }
+}
+
 /// A reference found inside a longer text.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -302,26 +332,54 @@ impl ReferenceParser {
         }
     }
 
-    /// The parser of one language, built once and shared.
+    /// The parser of one language, built once from its pack and shared.
     pub fn for_language(language: ReferenceLanguage) -> &'static ReferenceParser {
-        static PARSERS: [OnceLock<ReferenceParser>; 6] = [
-            OnceLock::new(),
-            OnceLock::new(),
-            OnceLock::new(),
-            OnceLock::new(),
-            OnceLock::new(),
-            OnceLock::new(),
-        ];
-        let slot = match language {
-            ReferenceLanguage::En => 0,
-            ReferenceLanguage::De => 1,
-            ReferenceLanguage::Ko => 2,
-            ReferenceLanguage::Fr => 3,
-            ReferenceLanguage::Es => 4,
-            ReferenceLanguage::Pt => 5,
-        };
-        PARSERS[slot]
-            .get_or_init(|| ReferenceParser::new(crate::scripture::aliases::dictionary(language)))
+        static PARSERS: OnceLock<Vec<OnceLock<ReferenceParser>>> = OnceLock::new();
+        let parsers = PARSERS.get_or_init(|| {
+            (0..crate::scripture::packs::PACKS.len())
+                .map(|_| OnceLock::new())
+                .collect()
+        });
+        let index = crate::scripture::packs::index_of(language);
+        parsers[index].get_or_init(|| {
+            ReferenceParser::new((crate::scripture::packs::PACKS[index].dictionary)())
+        })
+    }
+
+    /// Every key of this parser's lookup (dictionary keys and the accent-free
+    /// spellings accepted), with its book: for comparing packs.
+    pub fn lookup_entries(&self) -> impl Iterator<Item = (&str, &'static Book)> {
+        self.lookup.iter().map(|(k, t)| (k.as_str(), t.book))
+    }
+
+    /// The references this parser finds in `text`, with byte ranges and the book
+    /// name as written (see [`RawMatch`]). The same candidates as [`Self::detect`].
+    pub fn matches(&self, text: &str) -> Vec<RawMatch> {
+        self.pattern
+            .captures_iter(text)
+            .filter(|caps| self.accepts(text, caps))
+            .filter_map(|caps| {
+                let whole = caps.get(0)?;
+                let reference = self.interpret(&caps).ok()?;
+                let book = caps.name("book")?.as_str().to_string();
+                // A match never ends in white space (the Korean pattern may take a trailing space).
+                let end = whole.start() + whole.as_str().trim_end().len();
+                let chapter_unit =
+                    self.syntax.grammar == Grammar::Korean && korean_parts(&caps).chapter_unit;
+                Some(RawMatch {
+                    start: whole.start(),
+                    end,
+                    reference,
+                    book,
+                    written_verse: caps.name("v1").is_some()
+                        || caps.name("v1k").is_some()
+                        || caps.name("v1c").is_some()
+                        || caps.name("unit").is_some_and(|m| m.as_str() == "절"),
+                    chapter_unit,
+                    language: self.language,
+                })
+            })
+            .collect()
     }
 
     /// The shared English parser (typed navigation, studies and the default
@@ -369,21 +427,12 @@ impl ReferenceParser {
     }
 
     /// Finds valid references in running text, under this language's
-    /// false-positive policy (see the module notes).
+    /// false-positive policy (see the module notes). This language only: a
+    /// source's references are read with every pack by `scripture::recognise`.
     pub fn detect(&self, text: &str) -> Vec<DetectedReference> {
-        self.pattern
-            .captures_iter(text)
-            .filter(|caps| self.accepts(text, caps))
-            .filter_map(|caps| {
-                let whole = caps.get(0)?;
-                let reference = self.interpret(&caps).ok()?;
-                Some(DetectedReference {
-                    text: whole.as_str().to_string(),
-                    start: utf16_offset(text, whole.start()),
-                    end: utf16_offset(text, whole.end()),
-                    reference: reference.to_dto(),
-                })
-            })
+        self.matches(text)
+            .iter()
+            .map(|m| m.detected(text))
             .collect()
     }
 

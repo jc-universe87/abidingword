@@ -209,7 +209,7 @@ fn an_unknown_source_is_an_error_and_a_source_without_references_is_empty() {
 }
 
 #[test]
-fn drawn_text_is_read_in_the_sources_language_not_another() {
+fn drawn_text_is_read_in_every_language_the_sources_first() {
     with_db(|conn, dir| {
         let de = add(conn, dir, "de.txt", "Ein Absatz.\n", "D", "Deutsch");
         let en = add(conn, dir, "en.txt", "A paragraph.\n", "E", "English");
@@ -225,8 +225,16 @@ fn drawn_text_is_read_in_the_sources_language_not_another() {
         assert!(in_de[2].is_empty() && in_de[3].is_empty());
         let in_en = library::detect_in_source(conn, &en, &pieces, None)?;
         assert_eq!(in_en[1][0].reference.canonical, "JHN.3.16");
-        // German notation is not English: the English parser does not take "Joh 3,16" as John 3:16.
-        assert!(in_en[0].iter().all(|r| r.reference.canonical != "JHN.3.16"));
+        // An English source still finds the German reference whole (not the English
+        // reading "Joh 3"): every language is read, the source's first.
+        assert_eq!(in_en[0].len(), 1);
+        assert_eq!(
+            (
+                in_en[0][0].text.as_str(),
+                in_en[0][0].reference.canonical.as_str()
+            ),
+            ("Joh 3,16", "JHN.3.16")
+        );
         assert!(library::detect_in_source(conn, "no-such-source", &pieces, None).is_err());
         // Bounded: too many texts are read as empty, never an error.
         let many = vec!["John 3:16".to_string(); library::DETECT_TEXTS_LIMIT + 3];
