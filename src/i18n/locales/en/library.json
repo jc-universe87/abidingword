@@ -153,7 +153,8 @@
     "fitWidth": "Fit width",
     "fitPage": "Fit page",
     "loading": "Opening the original…",
-    "renderFailed": "The original could not be shown. You can still read the extracted text."
+    "renderFailed": "The original could not be shown. You can still read the extracted text.",
+    "noNativeText": "Native text unavailable on this page"
   },
   "contents": {
     "title": "Contents",

@@ -32,7 +32,7 @@ export const activeMatch = (find: FindState): SourceMatch | null => find.result?
  * pause in typing (or at once on Enter), and stepping moves the current
  * match. `onMatch` is told each time the current match changes, to show it.
  */
-export function useSourceFind(sourceId: string, onMatch: (match: SourceMatch) => void) {
+export function useSourceFind(sourceId: string, onMatch: (match: SourceMatch, find: FindState) => void) {
   const api = useApi();
   const [find, setFind] = useState<FindState>(NO_FIND);
   const findRef = useRef(find);
@@ -62,7 +62,7 @@ export function useSourceFind(sourceId: string, onMatch: (match: SourceMatch) =>
         if (request !== requests.current) return;
         update({ ...findRef.current, result, searched: query, index: 0, status: "done" });
         const first = result.matches[0];
-        if (first) onMatchRef.current(first);
+        if (first) onMatchRef.current(first, findRef.current);
       },
       (e: unknown) => {
         if (request !== requests.current) return;
@@ -78,7 +78,7 @@ export function useSourceFind(sourceId: string, onMatch: (match: SourceMatch) =>
     if (count === 0) return;
     const index = (now.index + by + count) % count;
     update({ ...now, index });
-    onMatchRef.current(now.result!.matches[index]!);
+    onMatchRef.current(now.result!.matches[index]!, findRef.current);
   };
 
   useEffect(

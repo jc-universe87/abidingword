@@ -161,7 +161,8 @@
     "fitWidth": "Ajustar al ancho",
     "fitPage": "Ajustar a la página",
     "loading": "Abriendo el original…",
-    "renderFailed": "No se pudo mostrar el original. Aún puedes leer el texto extraído."
+    "renderFailed": "No se pudo mostrar el original. Aún puedes leer el texto extraído.",
+    "noNativeText": "Texto nativo no disponible en esta página"
   },
   "contents": {
     "title": "Contenido",

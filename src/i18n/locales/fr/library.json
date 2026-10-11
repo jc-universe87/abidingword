@@ -161,7 +161,8 @@
     "fitWidth": "Ajuster à la largeur",
     "fitPage": "Ajuster à la page",
     "loading": "Ouverture de l’original…",
-    "renderFailed": "L’original n’a pas pu être affiché. Vous pouvez toujours lire le texte extrait."
+    "renderFailed": "L’original n’a pas pu être affiché. Vous pouvez toujours lire le texte extrait.",
+    "noNativeText": "Texte natif indisponible sur cette page"
   },
   "contents": {
     "title": "Sommaire",

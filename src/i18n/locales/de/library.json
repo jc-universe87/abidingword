@@ -153,7 +153,8 @@
     "fitWidth": "Breite anpassen",
     "fitPage": "Seite einpassen",
     "loading": "Das Original wird geöffnet …",
-    "renderFailed": "Das Original konnte nicht angezeigt werden. Der extrahierte Text bleibt lesbar."
+    "renderFailed": "Das Original konnte nicht angezeigt werden. Der extrahierte Text bleibt lesbar.",
+    "noNativeText": "Auf dieser Seite ist kein eigener Text verfügbar"
   },
   "contents": {
     "title": "Inhalt",

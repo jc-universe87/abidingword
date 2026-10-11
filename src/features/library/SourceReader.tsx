@@ -20,11 +20,29 @@ import { EpubViewer } from "./formatted/EpubViewer";
 import { activeMatch, FindBar, useSourceFind } from "./FindBar";
 import { placeOfPosition, positionOfPlace, type EpubPlace } from "./formatted/epubLocation";
 import { useEpubStructure } from "./formatted/useEpubStructure";
-import { PdfViewer } from "./PdfViewer";
+import { PdfViewer, type PdfFind } from "./PdfViewer";
 import { canGoBack, canGoForward, NO_HISTORY, stepBack, stepForward, visit, type ReaderHistory, type SourceLocation } from "./readerHistory";
 import { currentEntry, useSourceContents } from "./useSourceContents";
 
 export type ReaderMode = "reading" | "original";
+
+/** The view last chosen for a source (v0.13), kept on this computer only. Never a global default. */
+const modeKey = (sourceId: string) => `abidingword.reader.mode.${sourceId}`;
+function rememberedMode(sourceId: string): ReaderMode | null {
+  try {
+    const value = window.localStorage.getItem(modeKey(sourceId));
+    return value === "reading" || value === "original" ? value : null;
+  } catch {
+    return null;
+  }
+}
+function rememberMode(sourceId: string, mode: ReaderMode) {
+  try {
+    window.localStorage.setItem(modeKey(sourceId), mode);
+  } catch {
+    // Remembering the view is a convenience; without storage the reader opens in Reading.
+  }
+}
 
 /**
  * Where a reader is: which view, and the physical page (PDF) that view is
@@ -75,7 +93,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const target = useRef<HTMLElement | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const [mode, setMode] = useState<ReaderMode>(initialPosition?.mode ?? "reading");
+  const [mode, setMode] = useState<ReaderMode>(() => initialPosition?.mode ?? rememberedMode(sourceId) ?? "reading");
   // The page this reader was told to open at (continuing from another reader).
   const [initialPage] = useState(initialPosition?.page ?? null);
   const startedInOriginal = initialPosition?.mode === "original";
@@ -193,6 +211,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
 
   const choose = async (next: ReaderMode) => {
     if (next === mode) return;
+    rememberMode(sourceId, next);
     // A request made in the other view, and a panel that named a place there, are finished.
     setPanel(null);
     setJump(null);
@@ -466,6 +485,12 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   };
   // The find marks in each segment, with the current one flagged.
   const current = activeMatch(finder.find);
+  // In the original PDF: the current match on its page, marked there only if the page's own text agrees.
+  const pdfFind: PdfFind | null = (() => {
+    if (!current || current.pageNumber === null || !finder.find.result) return null;
+    const onPage = finder.find.result.matches.filter((m) => m.pageNumber === current.pageNumber);
+    return { page: current.pageNumber, query: finder.find.searched, index: onPage.indexOf(current), count: onPage.length };
+  })();
   const findMarks = new Map<number, FindMark[]>();
   for (const m of finder.find.result?.matches ?? []) {
     const list = findMarks.get(m.position) ?? [];
@@ -580,6 +605,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         onOutline={adoptContents}
         onLink={(place) => jumpTo({ page: place.page, fraction: place.fraction })}
         locationRef={pdfNow}
+        onOpenInBible={(reference) => openInBible(reference, positionNow())}
+        find={pdfFind}
       />
     )
   ) : null;
@@ -595,9 +622,13 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   };
 
   const historyButtons = <HistoryButtons history={history} onBack={goBack} onForward={goForward} />;
+  // Opened straight into the original (the view last chosen for this source): at the passage opened at, once it is known.
+  const targetPosition = window?.segments.find((x) => x.id === window.targetSegmentId)?.position;
+  const targetPlace = targetPosition !== undefined && epub.status === "ready" ? placeOfPosition(epub.items, targetPosition) : null;
+  const epubStartKnown = epubOpen !== null || epubStart !== null || !segmentId || window !== null || error !== null;
   const epubViewer =
     showOriginal && isEpubView ? (
-      epub.status === "ready" && epub.items.length > 0 ? (
+      epub.status === "ready" && epub.items.length > 0 && epubStartKnown ? (
         <>
           {linkFailed && (
             <div className="shrink-0 px-3 pt-2">
@@ -609,7 +640,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
             sourceId={sourceId}
             kind={viewKind === "docx" ? "docx" : "epub"}
             structure={epub.items}
-            start={epubOpen ?? epubStart ?? { item: epub.items[0]!.id, fragment: null, offset: 0 }}
+            start={epubOpen ?? epubStart ?? targetPlace ?? { item: epub.items[0]!.id, fragment: null, offset: 0 }}
             jumpTo={epubJump}
             onLink={(target, from) => jumpTo({ item: target.item, fragment: target.id }, from)}
             onExternal={openExternal}

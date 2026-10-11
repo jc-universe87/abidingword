@@ -55,13 +55,58 @@ export interface PdfLink {
   dest: unknown;
 }
 
+/** A box on a page, as shares of the page (0..1 from the top left), whatever the zoom. */
+export interface PdfBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * A page's text as PDF.js draws it (v0.13): the second of a PDF's two
+ * representations. The first, the normalised text imported into the library,
+ * is what search, citations and segments use; this one exists only while the
+ * page is on screen, and is what marks are placed with. The two are never
+ * merged.
+ */
+export interface PdfPageText {
+  /** The text items' strings in drawing order, with a line break after each item that ends a line. */
+  text: string;
+  /** Where each text item starts in `text` (UTF-16 offsets), by item index. */
+  starts: number[];
+  /** Each item's length in `text`. */
+  lengths: number[];
+  /**
+   * Whether each item can carry a mark: upright, left-to-right text, away from
+   * the page's top and bottom margins (running headers and footers). Vertical,
+   * rotated and right-to-left items never do; their places are not guessed.
+   */
+  usable: boolean[];
+  /** Whether the page has any text of its own (a scanned page has none). */
+  hasText: boolean;
+}
+
+export interface PdfTextLayer extends PdfPageText {
+  /**
+   * The boxes covering `text[start, end)`, measured on the drawn text layer.
+   * Empty when the range touches an item that cannot carry a mark, or covers no item.
+   */
+  boxes(start: number, end: number): PdfBox[];
+}
+
 export interface PdfDocument {
   numPages: number;
   pageSize(page: number): Promise<PdfPageSize>;
   /** Draws a page onto `canvas` at `scale` CSS pixels per PDF point. */
   render(page: number, canvas: HTMLCanvasElement, scale: number): PdfRender;
-  /** Adds a selectable text layer over a page. Best effort: never throws. */
-  text(page: number, container: HTMLElement, scale: number): Promise<void>;
+  /**
+   * Adds a selectable text layer over a page, and gives back the page's text
+   * map (v0.13): the page text as PDF.js draws it, and the way from a range of
+   * it to boxes on the page. Null when the page's text could not be read.
+   * Best effort: never throws.
+   */
+  text(page: number, container: HTMLElement, scale: number): Promise<PdfTextLayer | null>;
   /**
    * The outline of this already open document, so the viewer never needs a
    * second opening just to learn it. Empty when the PDF has none; throws a

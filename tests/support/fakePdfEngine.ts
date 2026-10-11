@@ -1,4 +1,5 @@
-import { PdfOutlineError, type PdfDocument, type PdfEngine, type PdfLink, type PdfPageSize, type PdfPlace } from "@/lib/pdfEngine";
+import { PdfOutlineError, type PdfDocument, type PdfEngine, type PdfLink, type PdfPageSize, type PdfPlace, type PdfTextLayer } from "@/lib/pdfEngine";
+import { buildPageText, rangeParts, type PageTextItem } from "@/lib/pdfPageText";
 import type { ContentsItem } from "@/types/library";
 
 export interface FakePdfEngine extends PdfEngine {
@@ -33,7 +34,17 @@ export interface FakePdfEngine extends PdfEngine {
   destinations: Record<string, PdfPlace>;
   /** Destinations looked up, in order. */
   resolved: string[];
+  /**
+   * The text items drawn on pages (1-based), as PDF.js would report them. A page
+   * missing here has no page-text map (its text could not be read); an empty list is a page without text.
+   */
+  pageTexts: Record<number, PageTextItem[]>;
+  /** Pages whose text layer was drawn, in order. */
+  textReads: number[];
 }
+
+/** A text item for `pageTexts`: upright, left to right, in the body of the page unless told otherwise. */
+export const textItem = (str: string, more: Partial<PageTextItem> = {}): PageTextItem => ({ str, hasEOL: true, dir: "ltr", upright: true, top: 0.3, ...more });
 
 /** A synthetic PDF renderer for tests: `pages` pages of `size`, no canvas needed. */
 export function createFakePdfEngine({ pages = 5, size = { width: 600, height: 800 }, outline = [] }: { pages?: number; size?: PdfPageSize; outline?: ContentsItem[] } = {}): FakePdfEngine {
@@ -52,6 +63,8 @@ export function createFakePdfEngine({ pages = 5, size = { width: 600, height: 80
     pageLinks: {},
     destinations: {},
     resolved: [],
+    pageTexts: {},
+    textReads: [],
     async outline(_api, sourceId) {
       engine.outlineReads.push(sourceId);
       if (engine.outlineDelay) await new Promise((resolve) => setTimeout(resolve, engine.outlineDelay));
@@ -68,7 +81,17 @@ export function createFakePdfEngine({ pages = 5, size = { width: 600, height: 80
           engine.rendered.add(page);
           return { promise: engine.failRender ? Promise.reject(new Error("synthetic render failure")) : Promise.resolve(), cancel: () => undefined };
         },
-        text: async () => undefined,
+        // The page-text map, with boxes laid out on a simple grid: item i on row i, one hundredth of the width per character.
+        text: async (page): Promise<PdfTextLayer | null> => {
+          engine.textReads.push(page);
+          const items = engine.pageTexts[page];
+          if (!items) return null;
+          const map = buildPageText(items);
+          return {
+            ...map,
+            boxes: (start, end) => (rangeParts(map, start, end) ?? []).map((p) => ({ x: p.from / 100, y: 0.1 + p.item * 0.05, width: (p.to - p.from) / 100, height: 0.03 })),
+          };
+        },
         // The open document's own outline: independent of the standalone read, which may fail.
         outline: async () => engine.docOutlineItems ?? engine.outlineBySource?.[sourceId] ?? engine.outlineItems,
         links: async (page) => engine.pageLinks[page] ?? [],
