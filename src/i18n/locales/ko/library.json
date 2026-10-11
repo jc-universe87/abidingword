@@ -156,7 +156,12 @@
     "none": "사용할 수 있는 목차가 없습니다",
     "current": "현재 구간",
     "generated": "자동 생성 목차",
-    "generatedNote": "이 자료에서 찾은 제목으로 만들었습니다. 원본에 포함된 목차가 아닙니다."
+    "generatedNote": "이 자료에서 찾은 제목으로 만들었습니다. 원본에 포함된 목차가 아닙니다.",
+    "expand": "{{title}}의 하위 항목 펼치기",
+    "collapse": "{{title}}의 하위 항목 접기",
+    "expandAll": "모두 펼치기",
+    "collapseAll": "모두 접기",
+    "containsCurrent": "현재 위치 포함"
   },
   "links": {
     "follow": "연결된 위치로 이동"

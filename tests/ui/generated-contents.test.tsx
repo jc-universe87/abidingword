@@ -78,6 +78,7 @@ describe("generated contents", () => {
     const nav = await screen.findByRole("navigation", { name: "Contents of Garden Notes" });
     expect(within(nav).getByRole("heading", { name: "Generated contents" })).toBeInTheDocument();
     expect(within(nav).getByText("Made from the headings found in this source. It is not part of the original.")).toBeInTheDocument();
+    await user.click(within(nav).getByRole("button", { name: "Show the subsections of Chapter 1 Soil" }));
     await user.click(within(nav).getByRole("button", { name: /^Pruning/ }));
     // a deliberate jump: Back is offered
     await waitFor(() => expect(screen.getByRole("button", { name: "Back to the previous place" })).toBeEnabled());

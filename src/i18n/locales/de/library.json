@@ -164,7 +164,12 @@
     "none": "Kein Inhaltsverzeichnis vorhanden",
     "current": "Aktueller Abschnitt",
     "generated": "Automatisch erstelltes Inhaltsverzeichnis",
-    "generatedNote": "Aus den Überschriften dieser Quelle erstellt. Es ist nicht Teil des Originals."
+    "generatedNote": "Aus den Überschriften dieser Quelle erstellt. Es ist nicht Teil des Originals.",
+    "expand": "Unterabschnitte von {{title}} anzeigen",
+    "collapse": "Unterabschnitte von {{title}} ausblenden",
+    "expandAll": "Alle aufklappen",
+    "collapseAll": "Alle zuklappen",
+    "containsCurrent": "enthält den aktuellen Abschnitt"
   },
   "links": {
     "follow": "Zur verknüpften Stelle springen"
