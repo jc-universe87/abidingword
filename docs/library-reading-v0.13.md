@@ -4,7 +4,7 @@
 > **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Your library](guide/05-library.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
 
 Status: built on the branch `claude/beautiful-curie-vm0eve` (on top of `main`
-`75fe193` and the concordance terminology fix `c4b4253`). **Not merged, not
+`76145c3` and the concordance terminology fix `c4b4253`). **Not merged, not
 tagged, no Windows build published.** Windows acceptance is still to come.
 **No database migration.** Deterministic only: no AI, no embeddings, no
 semantic matching, no OCR.
