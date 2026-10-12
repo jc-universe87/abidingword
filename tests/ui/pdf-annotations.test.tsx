@@ -135,6 +135,15 @@ describe("marks on the Original PDF", () => {
     expect(bookmark.start?.segmentId).toBe(api.state.library.segments.find((x) => x.text.startsWith("Abiding"))!.id);
     expect(await within(header).findByRole("button", { name: "Remove the bookmark here" })).toHaveAttribute("aria-pressed", "true");
     expect(await within(pageSheet(1)).findByRole("button", { name: "1 mark here: Bookmark" })).toBeInTheDocument();
+
+    // A scanned page (no text of its own): the page itself is bookmarked.
+    const pageBox = screen.getByRole("textbox", { name: "Page number" });
+    await user.clear(pageBox);
+    await user.type(pageBox, "3{Enter}");
+    await user.click(await within(header).findByRole("button", { name: "Bookmark this place" }));
+    await waitFor(() => expect(live(api)).toHaveLength(2));
+    expect(live(api)[1]).toMatchObject({ kind: "bookmark", pageNumber: 3, start: null });
+    expect(await within(pageSheet(3)).findByRole("button", { name: "1 mark here: Bookmark" })).toBeInTheDocument();
   });
 
   it("writes a note on the page in view from the keyboard", async () => {
