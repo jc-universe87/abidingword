@@ -243,6 +243,8 @@
     "close": "Close marks",
     "show": "Show the marks in this source",
     "delete": "Delete",
-    "panels": "Contents or marks"
+    "panels": "Contents or marks",
+    "notePage": "Note on this page",
+    "cannotPlace": "These words cannot be marked here exactly. Select them in Reading to mark them."
   }
 }

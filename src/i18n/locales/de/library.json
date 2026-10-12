@@ -243,6 +243,8 @@
     "close": "Anmerkungen schließen",
     "show": "Die Anmerkungen in dieser Quelle zeigen",
     "delete": "Löschen",
-    "panels": "Inhalt oder Anmerkungen"
+    "panels": "Inhalt oder Anmerkungen",
+    "notePage": "Notiz zu dieser Seite",
+    "cannotPlace": "Diese Wörter lassen sich hier nicht genau markieren. Wählen Sie sie unter „Lesen“ aus, um sie zu markieren."
   }
 }

@@ -253,6 +253,8 @@
     "close": "Fechar as marcas",
     "show": "Mostrar as marcas desta fonte",
     "delete": "Excluir",
-    "panels": "Conteúdo ou marcas"
+    "panels": "Conteúdo ou marcas",
+    "notePage": "Nota sobre esta página",
+    "cannotPlace": "Estas palavras não podem ser marcadas aqui com exatidão. Selecione-as em Leitura para marcá-las."
   }
 }

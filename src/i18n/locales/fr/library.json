@@ -253,6 +253,8 @@
     "close": "Fermer les marques",
     "show": "Afficher les marques de cette source",
     "delete": "Supprimer",
-    "panels": "Sommaire ou marques"
+    "panels": "Sommaire ou marques",
+    "notePage": "Note sur cette page",
+    "cannotPlace": "Ces mots ne peuvent pas être marqués exactement ici. Sélectionnez-les en mode Lecture pour les marquer."
   }
 }

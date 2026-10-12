@@ -27,6 +27,7 @@ import { currentEntry, useSourceContents } from "./useSourceContents";
 import { MarksInspector, MarksMarker } from "./annotations/ParagraphMarks";
 import { SourceMarkStrip, type PlaceRequest } from "./annotations/SourceMarkStrip";
 import { SourceMarksPanel } from "./annotations/SourceMarksPanel";
+import { selectionInside, type SourceSelection } from "./annotations/sourceSelection";
 import { useSourceAnnotations, type MarkedRange } from "./annotations/useSourceAnnotations";
 
 export type ReaderMode = "reading" | "original";
@@ -136,6 +137,10 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   };
   // Where the original is, on request (page and how far down it).
   const pdfNow = useRef<(() => PdfPlace) | null>(null);
+  // The original PDF's page, as state too: the bookmark button says whether this page has one.
+  const [pdfPage, setPdfPage] = useState<number | null>(null);
+  // Reads a selection on an original PDF page as an anchor in the stored text (v0.14).
+  const pdfSelection = useRef<((selection: Selection) => SourceSelection | null) | null>(null);
   // The links in an EPUB's text, by the segment they are in.
   const links = useSourceLinks(source.data);
   // The Scripture references written in the text, by segment (from the stored index).
@@ -456,11 +461,39 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   }, [window, showOriginal]);
 
   const hereSegment = window?.segments.find((x) => x.position === here) ?? null;
-  const hereBookmark = hereSegment ? (marks.byParagraph.get(hereSegment.position) ?? []).find((m) => m.kind === "bookmark") : undefined;
+  const onPdfPage = showOriginal && isPdf;
+  // In the original PDF, "here" is the page in view: a bookmark there (made in either view) is this page's.
+  const pageBookmark = (page: number | null) => (page === null ? undefined : marks.all.find((m) => m.kind === "bookmark" && m.state !== "unresolved" && m.pageNumber === page));
+  const hereBookmark = onPdfPage
+    ? pageBookmark(pdfPage)
+    : hereSegment
+      ? (marks.byParagraph.get(hereSegment.position) ?? []).find((m) => m.kind === "bookmark")
+      : undefined;
+  /** The original PDF's place in view, and the first paragraph of that page (if it has text). */
+  const pdfHere = async (): Promise<{ page: number; fraction: number; segmentId?: string }> => {
+    const at = pdfNow.current?.() ?? { page: originalPage.current ?? startPage, fraction: 0 };
+    const page = at.page;
+    const fraction = Math.min(1, Math.max(0, at.fraction));
+    const w = await api.sourceGetSegments({ sourceId, aroundPage: page, limit: 20 });
+    return { page, fraction, segmentId: w.segments.find((x) => x.pageNumber === page)?.id };
+  };
   const [markError, setMarkError] = useState<string | null>(null);
 
   /** Bookmark this place, or remove the bookmark that is here. */
   const toggleBookmark = async () => {
+    if (onPdfPage) {
+      setMarkError(null);
+      try {
+        const at = await pdfHere();
+        const existing = pageBookmark(at.page);
+        if (existing) await api.sourceAnnotationDelete(existing.id);
+        else await api.sourceAnnotationCreate({ sourceId, kind: "bookmark", place: at });
+        await marks.reload();
+      } catch (e) {
+        setMarkError(toApiError(e).message);
+      }
+      return;
+    }
     const position = hereNow();
     const segment = window?.segments.find((x) => x.position === position);
     if (!segment) return;
@@ -478,6 +511,13 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
 
   /** "Add note here": a note on the paragraph the reader is at, with no words selected. */
   const noteHere = () => {
+    if (onPdfPage) {
+      void pdfHere().then(
+        (at) => setPlaceNote({ ...at, nonce: ++placeNonce.current }),
+        (e: unknown) => setMarkError(toApiError(e).message),
+      );
+      return;
+    }
     const position = hereNow();
     const segment = window?.segments.find((x) => x.position === position);
     if (segment) setPlaceNote({ segmentId: segment.id, nonce: ++placeNonce.current });
@@ -637,7 +677,10 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   /** A mark chosen in the Marks panel: to its place (a jump, so Back returns), with its paragraph's marks shown in Reading. */
   const chooseMark = (mark: SourceAnnotation) => {
     setMarksPanel(false);
-    if (mark.start) {
+    if (showOriginal && isPdf) {
+      // The original shows its page; the page's marks are there.
+      if (mark.pageNumber !== null) jumpTo({ page: mark.pageNumber, fraction: mark.start ? 0 : (mark.fraction ?? 0) });
+    } else if (mark.start) {
       jumpTo({ position: mark.start.position });
       if (!showOriginal) {
         marksOpener.current = null;
@@ -758,6 +801,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         initialPage={startPage}
         onPageChange={(page) => {
           originalPage.current = page;
+          setPdfPage(page);
         }}
         jumpTo={jump}
         onOutline={adoptContents}
@@ -765,6 +809,9 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         locationRef={pdfNow}
         onOpenInBible={(reference) => openInBible(reference, positionNow())}
         find={pdfFind}
+        marks={marks.all}
+        onMarksChanged={() => void marks.reload()}
+        selectionRef={pdfSelection}
       />
     )
   ) : null;
@@ -825,7 +872,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   );
   // Marking the place the reader is at (Reading): a bookmark, or a note with no words selected.
   const placeButtons =
-    !showOriginal && window ? (
+    (!showOriginal && window) || onPdfPage ? (
       <div role="group" aria-label={t("library.marks.title")} className="flex shrink-0 items-center">
         <Button
           variant="quiet"
@@ -841,11 +888,31 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         </Button>
       </div>
     ) : null;
+  // Marking the original PDF: a selection on a page, read through the stored text placed there.
+  const pdfStrip = onPdfPage ? (
+    <div className="pointer-events-none absolute inset-x-2 bottom-2 z-20">
+      <div className="pointer-events-auto">
+        <SourceMarkStrip
+          root={stage}
+          sourceId={sourceId}
+          read={(selection) => pdfSelection.current?.(selection) ?? null}
+          cannotPlace={t("library.marks.cannotPlace")}
+          place={placeNote}
+          onPlaceDone={() => {
+            setPlaceNote(null);
+            requestAnimationFrame(() => noteHereButton.current?.focus({ preventScroll: true }));
+          }}
+          onSaved={() => void marks.reload()}
+        />
+      </div>
+    </div>
+  ) : null;
   const markStrip =
     !showOriginal && window ? (
       <SourceMarkStrip
         root={bodyRef}
         sourceId={sourceId}
+        read={(selection, root) => selectionInside(selection, root, storedText)}
         stored={storedText}
         place={placeNote}
         onPlaceDone={() => {
@@ -941,7 +1008,10 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         {findBar}
         <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
           {showOriginal ? (
-            (epubViewer ?? original)
+            <>
+              {epubViewer ?? original}
+              {pdfStrip}
+            </>
           ) : (
             <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
               <div className="flex flex-col gap-5 px-5 pb-16 pt-5">
@@ -983,7 +1053,10 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       {findBar}
       <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
         {showOriginal ? (
-          (epubViewer ?? original)
+          <>
+            {epubViewer ?? original}
+            {pdfStrip}
+          </>
         ) : (
           <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
             <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-6">

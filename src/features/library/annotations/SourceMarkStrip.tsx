@@ -5,7 +5,7 @@ import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { HighlightColors } from "@/features/scripture/HighlightColors";
 import type { HighlightColor } from "@/types/scripture";
-import { selectionInside, wholeParagraph, type SourceSelection, type StoredText } from "./sourceSelection";
+import { wholeParagraph, type SourceSelection, type StoredText } from "./sourceSelection";
 
 // The same weight as the Bible's selection bar: when text is selected the
 // reader should see at once that a choice is waiting.
@@ -15,18 +15,28 @@ const outlined = action + "border-2 border-text-strong bg-bg text-text-strong ho
 
 type Step = { kind: "actions" } | { kind: "color" } | { kind: "note"; text: string };
 
-/** A paragraph the person asked to write a note on (or highlight) without selecting words. */
+/**
+ * A place the person asked to write a note on without selecting words: a
+ * paragraph (Reading), or a page and how far down it (Original PDF), with the
+ * paragraph that begins there when there is one.
+ */
 export interface PlaceRequest {
-  segmentId: string;
+  segmentId?: string;
+  page?: number;
+  fraction?: number;
   nonce: number;
 }
 
 interface Props {
-  /** The element holding the Reading view's paragraphs; selections are read inside it. */
+  /** The element holding the view's text; only selections inside it are read. */
   root: RefObject<HTMLElement | null>;
   sourceId: string;
-  /** The stored text of a paragraph on screen. */
-  stored: (segmentId: string) => StoredText | undefined;
+  /** Reads a selection inside `root` as an anchor in the stored text, or null when it cannot be anchored exactly. */
+  read: (selection: Selection, root: HTMLElement) => SourceSelection | null;
+  /** Said when text is selected that cannot be anchored exactly (Original PDF); otherwise such a selection is ignored. */
+  cannotPlace?: string;
+  /** The stored text of a paragraph on screen (for "Highlight this paragraph"); absent where it is not known. */
+  stored?: (segmentId: string) => StoredText | undefined;
   /** "Add note here": a paragraph to write a note on, with no words selected. */
   place: PlaceRequest | null;
   /** The place request is finished (saved or cancelled); focus goes back where it came from. */
@@ -41,7 +51,7 @@ interface Props {
  * sticky, never floating over the text. The anchor is captured when the
  * selection settles and kept while a colour is chosen or a note is written.
  */
-export function SourceMarkStrip({ root, sourceId, stored, place, onPlaceDone, onSaved }: Props) {
+export function SourceMarkStrip({ root, sourceId, read: readSelection, cannotPlace, stored, place, onPlaceDone, onSaved }: Props) {
   const { t } = useTranslation();
   const api = useApi();
   const bar = useRef<HTMLDivElement>(null);
@@ -49,10 +59,12 @@ export function SourceMarkStrip({ root, sourceId, stored, place, onPlaceDone, on
   const [step, setStep] = useState<Step>({ kind: "actions" });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Text is selected, but it cannot be anchored exactly (said only where `cannotPlace` is given).
+  const [missed, setMissed] = useState(false);
   const frozen = step.kind !== "actions" || place !== null;
-  const storedRef = useRef(stored);
+  const readRef = useRef(readSelection);
   useEffect(() => {
-    storedRef.current = stored;
+    readRef.current = readSelection;
   });
 
   const finish = useCallback(() => {
@@ -83,7 +95,10 @@ export function SourceMarkStrip({ root, sourceId, stored, place, onPlaceDone, on
         // Tabbing into the bar can empty the selection; the bar stays reachable.
         if (bar.current?.contains(document.activeElement)) return;
         const selection = document.getSelection();
-        setAnchor(selection && !selection.isCollapsed ? selectionInside(selection, element, storedRef.current) : null);
+        const inside = selection && !selection.isCollapsed && selection.rangeCount > 0 && selection.getRangeAt(0).intersectsNode(element);
+        const found = inside ? readRef.current(selection, element) : null;
+        setAnchor(found);
+        setMissed(!!inside && !found && !!selection.toString().trim());
         setError(null);
       }, 120);
     };
@@ -94,8 +109,14 @@ export function SourceMarkStrip({ root, sourceId, stored, place, onPlaceDone, on
     };
   }, [root, frozen]);
 
-  const placeText = place ? stored(place.segmentId) : undefined;
-  if (!anchor && !(place && placeText)) return null;
+  const placeText = place?.segmentId ? stored?.(place.segmentId) : undefined;
+  if (!anchor && !place) {
+    return missed && cannotPlace ? (
+      <p role="status" data-aw-skip="" className="m-0 rounded-aw border border-border bg-bg-secondary px-4 py-2 font-ui text-[0.9375rem] text-text">
+        {cannotPlace}
+      </p>
+    ) : null;
+  }
 
   const cancel = () => {
     finish();
@@ -117,7 +138,7 @@ export function SourceMarkStrip({ root, sourceId, stored, place, onPlaceDone, on
           quote: words.quote,
         });
       } else if (place && input.kind === "note") {
-        await api.sourceAnnotationCreate({ sourceId, kind: "note", content: input.content, place: { segmentId: place.segmentId } });
+        await api.sourceAnnotationCreate({ sourceId, kind: "note", content: input.content, place: { segmentId: place.segmentId, page: place.page, fraction: place.fraction } });
       }
       finish();
       if (place) onPlaceDone();
@@ -130,7 +151,7 @@ export function SourceMarkStrip({ root, sourceId, stored, place, onPlaceDone, on
   };
 
   const quote = anchor?.quote ?? null;
-  const paragraph = !anchor && place && placeText ? wholeParagraph(place.segmentId, placeText) : null;
+  const paragraph = !anchor && place?.segmentId && placeText ? wholeParagraph(place.segmentId, placeText) : null;
 
   return (
     <div
@@ -150,7 +171,7 @@ export function SourceMarkStrip({ root, sourceId, stored, place, onPlaceDone, on
       }}
       className="sticky bottom-2 z-10 flex select-none flex-col gap-3 rounded-aw border border-t-[4px] border-border border-t-accent bg-bg-secondary px-4 py-3.5 font-ui text-[0.9375rem] shadow-[0_-6px_20px_rgba(0,0,0,0.22)]"
     >
-      <p className="m-0 text-[0.875rem] font-semibold text-text-strong">{quote !== null ? t("library.marks.selectedText") : t("library.marks.noteHere")}</p>
+      <p className="m-0 text-[0.875rem] font-semibold text-text-strong">{quote !== null ? t("library.marks.selectedText") : place?.segmentId ? t("library.marks.noteHere") : t("library.marks.notePage")}</p>
       {quote !== null && (
         <q className="reading m-0 line-clamp-3 whitespace-pre-line break-words border-l-[3px] border-accent bg-bg px-3 py-1.5 text-[1.0625rem] text-text-strong [quotes:none]" data-testid="source-selection-quote">
           {quote}

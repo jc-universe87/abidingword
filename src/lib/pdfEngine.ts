@@ -93,6 +93,11 @@ export interface PdfTextLayer extends PdfPageText {
    * Empty when the range touches an item that cannot carry a mark, or covers no item.
    */
   boxes(start: number, end: number): PdfBox[];
+  /**
+   * Where a DOM point (a selection's end) inside this page's drawn text layer
+   * is in `text` (v0.14). Null when the point is not in the layer.
+   */
+  offsetOf(node: Node, offset: number): number | null;
 }
 
 export interface PdfDocument {
