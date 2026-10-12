@@ -329,3 +329,39 @@ describe("removing a source with marks", () => {
     await waitFor(() => expect(live(api)).toHaveLength(0));
   });
 });
+
+describe("focus after marking", () => {
+  it("goes back to the paragraph after a highlight is made from the keyboard", async () => {
+    const { user } = await openReader();
+    await select([1, 0], [1, "As the branch".length]);
+    const bar = await strip();
+    within(bar).getByRole("button", { name: "Highlight" }).focus();
+    await user.keyboard("{Enter}");
+    within(bar).getByRole("button", { name: "Green" }).focus();
+    await user.keyboard("{Enter}");
+    await waitFor(() => expect(screen.queryByRole("group", { name: "Mark the selected text" })).toBeNull());
+    await waitFor(() => expect(paragraph(1)).toHaveFocus());
+  });
+
+  it("moves focus to the paragraph when its last mark is removed, and does not reopen the panel later", async () => {
+    const { api, user } = await openReader();
+    await select([0, 0], [0, "Abide".length]);
+    const bar = await strip();
+    await user.click(within(bar).getByRole("button", { name: "Highlight" }));
+    await user.click(within(bar).getByRole("button", { name: "Amber" }));
+    await user.click(await within(paragraph(0)).findByRole("button", { name: "1 mark here: Highlight" }));
+    const panel = await screen.findByRole("region", { name: "Marks here" });
+    within(panel).getByRole("button", { name: "Remove highlight" }).focus();
+    await user.keyboard("{Enter}");
+    await waitFor(() => expect(live(api)).toHaveLength(0));
+    await waitFor(() => expect(screen.queryByRole("region", { name: "Marks here" })).toBeNull());
+    await waitFor(() => expect(paragraph(0)).toHaveFocus());
+    // A new mark there later: its panel stays closed until asked for.
+    await select([0, 0], [0, "Abide".length]);
+    const again = await strip();
+    await user.click(within(again).getByRole("button", { name: "Highlight" }));
+    await user.click(within(again).getByRole("button", { name: "Blue" }));
+    await within(paragraph(0)).findByRole("button", { name: "1 mark here: Highlight" });
+    expect(screen.queryByRole("region", { name: "Marks here" })).toBeNull();
+  });
+});

@@ -64,7 +64,15 @@ export function SourceMarksPanel({ id, title, marks, layout, switcher, onSelect,
           <ul className="m-0 flex list-none flex-col gap-1 p-0">
             {marks.map((mark) => (
               <li key={mark.id}>
-                <MarkRow mark={mark} onSelect={() => onSelect(mark)} onChanged={onChanged} />
+                <MarkRow
+                  mark={mark}
+                  onSelect={() => onSelect(mark)}
+                  onChanged={() => {
+                    onChanged();
+                    // The row (and the button that had focus) is gone: focus stays in the panel.
+                    heading.current?.focus({ preventScroll: true });
+                  }}
+                />
               </li>
             ))}
           </ul>

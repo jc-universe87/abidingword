@@ -20,8 +20,8 @@ export interface SourceMarks {
   ranges: Map<number, MarkedRange[]>;
   /** The annotations that belong to each paragraph (where their words or place begin). */
   byParagraph: Map<number, SourceAnnotation[]>;
-  /** Reads them again (after a change). */
-  reload: () => Promise<void>;
+  /** Reads them again (after a change); gives the new list (empty if the read failed). */
+  reload: () => Promise<SourceAnnotation[]>;
   /** Whether this source's marks have been read. */
   loaded: boolean;
 }
@@ -37,13 +37,15 @@ export function useSourceAnnotations(sourceId: string | undefined): SourceMarks 
   const api = useApi();
   const [found, setFound] = useState<{ id: string; all: SourceAnnotation[] } | null>(null);
 
-  const read = useCallback(async () => {
-    if (!sourceId) return;
+  const read = useCallback(async (): Promise<SourceAnnotation[]> => {
+    if (!sourceId) return [];
     try {
       const all = await api.sourceAnnotationList(sourceId);
       setFound({ id: sourceId, all });
+      return all;
     } catch (e) {
       void api.logError(`Marks in the source could not be read: ${e instanceof Error ? e.message : String(e)}`).catch(() => undefined);
+      return [];
     }
   }, [api, sourceId]);
 

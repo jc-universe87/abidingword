@@ -48,6 +48,19 @@ describe("placing stored text on a drawn PDF page", () => {
     expect(pageToStored(placement, drawn.indexOf("12"), drawn.length)).toBeNull();
   });
 
+  it("never reads a selection over paragraphs drawn out of reading order as more than was selected", () => {
+    // Two columns, say: paragraph 6 drawn above paragraph 5.
+    const page = "Epsilon zeta eta theta.\nAlpha beta gamma delta.\n";
+    const placement = placeSegments(page, [
+      { segmentId: "A", position: 5, text: "Alpha beta gamma delta." },
+      { segmentId: "B", position: 6, text: "Epsilon zeta eta theta." },
+    ]);
+    expect(placement.placed).toHaveLength(2);
+    expect(pageToStored(placement, page.indexOf("eta theta"), page.indexOf("Alpha beta") + "Alpha beta".length)).toBeNull();
+    // Within one paragraph it is fine.
+    expect(pageToStored(placement, page.indexOf("beta gamma"), page.indexOf("gamma") + 5)?.quote).toBe("beta gamma");
+  });
+
   it("leaves a paragraph unplaced when its text occurs twice or not at all, rather than guess", () => {
     const twice = "Grace and peace.\nGrace and peace.\n";
     expect(placeSegments(twice, [{ segmentId: "x", position: 0, text: "Grace and peace." }]).placed).toEqual([]);

@@ -68,11 +68,28 @@ export function SourceMarkStrip({ root, sourceId, read: readSelection, cannotPla
   });
 
   const finish = useCallback(() => {
+    // Focus was in the bar (keyboard): it goes back to the text the words were in, not lost with the bar.
+    const hadFocus = !!bar.current?.contains(document.activeElement);
+    const words = anchor;
     document.getSelection()?.removeAllRanges();
     setAnchor(null);
     setStep({ kind: "actions" });
     setError(null);
-  }, []);
+    if (!hadFocus || !words) return;
+    requestAnimationFrame(() => {
+      const element = root.current;
+      const target =
+        element?.querySelector<HTMLElement>(`[data-seg-position="${words.firstPosition}"]`) ??
+        element?.querySelector<HTMLElement>("[role='region'][tabindex]") ??
+        null;
+      if (!target) return;
+      if (!target.hasAttribute("tabindex")) {
+        target.setAttribute("tabindex", "-1");
+        target.addEventListener("blur", () => target.removeAttribute("tabindex"), { once: true });
+      }
+      target.focus({ preventScroll: true });
+    });
+  }, [anchor, root]);
 
   // "Add note here": the note field opens at once, on that paragraph (adjusted while rendering, once per request).
   const [seenPlace, setSeenPlace] = useState<PlaceRequest | null>(null);

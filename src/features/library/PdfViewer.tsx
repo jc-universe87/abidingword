@@ -52,8 +52,8 @@ interface PdfViewerProps {
    * and listed by a page's marker. Without it, none are drawn.
    */
   marks?: SourceAnnotation[];
-  /** A mark was changed or removed from a page's marks. */
-  onMarksChanged?: () => void;
+  /** A mark was changed or removed from a page's marks; gives the source's marks as they are now. */
+  onMarksChanged?: () => Promise<SourceAnnotation[]>;
   /** Filled with a way to turn a text selection on a page into an anchor in the stored text (or null). */
   selectionRef?: React.MutableRefObject<((selection: Selection) => SourceSelection | null) | null>;
 }
@@ -505,7 +505,7 @@ interface PageViewProps {
   /** The stored paragraphs of a page; absent when marks are not drawn. */
   loadSegments?: (n: number) => Promise<PageSegment[]>;
   onLayer: (n: number, layer: PageLayer | null) => void;
-  onMarksChanged?: () => void;
+  onMarksChanged?: () => Promise<SourceAnnotation[]>;
 }
 
 /** A mark's colour on the always-white page: the highlight colour, see-through so the print shows. */
@@ -655,6 +655,23 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onO
   }, [marks, placement, pageText, n]);
   const [marksOpen, setMarksOpen] = useState(false);
   const marksButton = useRef<HTMLButtonElement | null>(null);
+  // When the page has no marks left, its panel and marker go: focus moves to the page, not lost.
+  const marksChanged = async () => {
+    const all = await onMarksChanged?.();
+    if (!all) return;
+    const here = new Set(placement?.all.map((p) => p.segmentId) ?? []);
+    if (all.some((m) => m.state !== "unresolved" && (m.start ? here.has(m.start.segmentId) : m.pageNumber === n))) return;
+    setMarksOpen(false);
+    requestAnimationFrame(() => {
+      const page = sheet.current;
+      if (!page) return;
+      if (!page.hasAttribute("tabindex")) {
+        page.setAttribute("tabindex", "-1");
+        page.addEventListener("blur", () => page.removeAttribute("tabindex"), { once: true });
+      }
+      page.focus({ preventScroll: true });
+    });
+  };
   const marksId = `pdf-marks-${n}`;
 
   // The current find match, if this page's own text shows it unambiguously: exactly as many
@@ -733,7 +750,7 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onO
               <MarksInspector
                 id={marksId}
                 marks={onPage.listed}
-                onChanged={() => onMarksChanged?.()}
+                onChanged={() => void marksChanged()}
                 onClose={() => {
                   setMarksOpen(false);
                   requestAnimationFrame(() => marksButton.current?.focus({ preventScroll: true }));

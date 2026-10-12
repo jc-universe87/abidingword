@@ -160,6 +160,9 @@ text.
 
 - `PdfTextLayer.offsetOf` turns a DOM point in PDF.js's text layer into a page
   text offset. `pageToStored` reads that range back into the stored text.
+- Across paragraphs, the page must draw them in reading order and the
+  selection must cover everything between its ends; otherwise (two columns,
+  a float) it is not offered, rather than mark words that were not selected.
 - Every selected character must belong to a placed paragraph. Otherwise the
   selection is not offered and the reader is told *"These words cannot be
   marked here exactly. Select them in Reading to mark them."*
@@ -290,7 +293,7 @@ anchor, segment or offset.
 
 ## Tests
 
-**Rust** (`tests/source_annotations.rs`, 17; `tests/migration_v6.rs`;
+**Rust** (`tests/source_annotations.rs`, 18; `tests/migration_v6.rs`;
 `library::annotations` unit tests; `tests/text_refresh.rs` extended):
 
 - **Anchoring:** context; a quote across paragraphs joined with `"\n"`; UTF-16
@@ -302,7 +305,8 @@ anchor, segment or offset.
   paragraphs and notes untouched.
 - **Following text changes:** moved words, a lost paragraph found again by
   context, ambiguous and missing quotes left unresolved, context deciding
-  between repeats.
+  between repeats, a highlight found again laid down without overlapping
+  another colour.
 - **Places and rebuilds:** a place's section fallback; passage-index rebuilds
   leaving marks untouched.
 - **Removal and PDF pages:** removal; a scanned PDF page bookmarked.
@@ -311,14 +315,16 @@ anchor, segment or offset.
 
 **Interface:**
 
-- `source-annotations.test.tsx` (12): selection strip, highlight, note,
+- `source-annotations.test.tsx` (14): selection strip, highlight, note,
   cross-paragraph quote, marks panel, Escape and focus, recolour, bookmark
   toggle, keyboard note and paragraph highlight, the reader's Marks list,
-  unresolved marks, Marks view scopes, the removal message.
+  unresolved marks, Marks view scopes, the removal message, focus returned
+  after marking from the keyboard and after a paragraph's last mark goes.
 - `source-selection.test.ts` (6): Korean, surrogates, skipped buttons and menus,
   joined paragraphs, trimming, untrusted text.
-- `pdf-text-match.test.ts` (6): folding, hyphenation, ligatures, headers,
-  repeats, Korean, the text-layer offsets.
+- `pdf-text-match.test.ts` (7): folding, hyphenation, ligatures, headers,
+  repeats, paragraphs drawn out of reading order (never read as more than
+  was selected), Korean, the text-layer offsets.
 - `pdf-annotations.test.tsx` (5): page selection to a stored anchor, header
   refused, a Reading mark on its page at any zoom, page bookmarks (with and
   without text), a keyboard note.

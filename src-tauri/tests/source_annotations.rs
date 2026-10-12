@@ -960,3 +960,71 @@ fn the_marks_view_lists_source_marks_by_source_then_reading_order() {
         Ok(())
     });
 }
+
+#[test]
+fn a_highlight_found_again_never_overlaps_another_colour() {
+    with_db(|conn, dir| {
+        let source = add(
+            conn,
+            dir,
+            "overlap.txt",
+            "Grace and peace to you from God our Father.\n\nSecond paragraph.\n",
+        );
+        let segs = segments(conn, &source);
+        let lost = marks::create(
+            conn,
+            &on_words(
+                &source,
+                "highlight",
+                Some("rose"),
+                words_in(&segs[0], "peace to you"),
+            ),
+        )?;
+        // Its words go: it is unresolved and takes no part in other highlights.
+        set_text(conn, &segs[0].id, "Grace and mercy from God our Father.");
+        assert_eq!(
+            state_of(conn, &source, &lost.id).state,
+            AnchorState::Unresolved
+        );
+        // A blue highlight is made where the words will come back.
+        set_text(
+            conn,
+            &segs[0].id,
+            "Grace and peace to you from God our Father.",
+        );
+        conn.execute(
+            "UPDATE source_annotations SET anchor_state = 'unresolved' WHERE id = ?1",
+            [&lost.id],
+        )?;
+        marks::create(
+            conn,
+            &on_words(
+                &source,
+                "highlight",
+                Some("blue"),
+                words_in(&segs[0], "and peace"),
+            ),
+        )?;
+        // Found again, the rose highlight is laid down like a highlighter: no two colours overlap.
+        let all = marks::list_for_source(conn, &source)?;
+        let spans: Vec<(String, u32, u32)> = all
+            .iter()
+            .filter(|m| m.kind == "highlight")
+            .map(|m| {
+                (
+                    m.color.clone().unwrap(),
+                    m.start.as_ref().unwrap().offset.unwrap(),
+                    m.end.as_ref().unwrap().offset.unwrap(),
+                )
+            })
+            .collect();
+        for (i, a) in spans.iter().enumerate() {
+            for b in spans.iter().skip(i + 1) {
+                assert!(a.2 <= b.1 || b.2 <= a.1, "overlap: {a:?} {b:?}");
+            }
+        }
+        assert!(spans.iter().any(|s| s.0 == "rose"));
+        assert_eq!(state_of(conn, &source, &lost.id).state, AnchorState::Moved);
+        Ok(())
+    });
+}

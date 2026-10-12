@@ -529,6 +529,25 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     marksOpener.current = button;
     setMarksOpen((open) => (open === position ? null : position));
   };
+  /**
+   * A mark in a paragraph's panel changed. When the paragraph has none left, its panel and marker
+   * go: focus moves to the paragraph itself rather than being lost (and the panel does not reopen
+   * by itself when a mark is made there later).
+   */
+  const marksChanged = async (position: number) => {
+    const all = await marks.reload();
+    if (all.some((m) => m.state !== "unresolved" && m.start?.position === position)) return;
+    setMarksOpen((open) => (open === position ? null : open));
+    requestAnimationFrame(() => {
+      const paragraph = bodyRef.current?.querySelector<HTMLElement>(`[data-seg-position="${position}"]`);
+      if (!paragraph) return;
+      if (!paragraph.hasAttribute("tabindex")) {
+        paragraph.setAttribute("tabindex", "-1");
+        paragraph.addEventListener("blur", () => paragraph.removeAttribute("tabindex"), { once: true });
+      }
+      paragraph.focus({ preventScroll: true });
+    });
+  };
   const closeMarks = () => {
     const position = marksOpen;
     setMarksOpen(null);
@@ -779,7 +798,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
                 marksOpen={marksOpen === segment.position}
                 marksId={`${id}-marks-${segment.position}`}
                 onToggleMarks={(button) => toggleMarks(segment.position, button)}
-                onMarksChanged={() => void marks.reload()}
+                onMarksChanged={() => void marksChanged(segment.position)}
                 onCloseMarks={closeMarks}
                 onFollow={(position) => jumpTo({ position }, segment.position)}
                 onOpenInBible={(reference) => openInBible(reference, positionNow())}
@@ -813,7 +832,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         onOpenInBible={(reference) => openInBible(reference, positionNow())}
         find={pdfFind}
         marks={marks.all}
-        onMarksChanged={() => void marks.reload()}
+        onMarksChanged={marks.reload}
         selectionRef={pdfSelection}
       />
     )
@@ -1171,9 +1190,11 @@ function painted(text: string, from: number, to: number, paint: Paint): React.Re
           {piece}
         </mark>,
       );
-    } else if (colors.length === 1) {
+    } else if (colors.length > 0) {
+      // Highlights never overlap (the core lays them like a highlighter); should two ever meet, the last is shown.
+      const color = colors[colors.length - 1]!;
       out.push(
-        <mark key={`h${start}`} data-source-highlight={colors[0]} data-source-note={noted || undefined} className={`${PHRASE_CLASS[colors[0]!]} text-text${noteClass}`}>
+        <mark key={`h${start}`} data-source-highlight={color} data-source-note={noted || undefined} className={`${PHRASE_CLASS[color]} text-text${noteClass}`}>
           {piece}
         </mark>,
       );

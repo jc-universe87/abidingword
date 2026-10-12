@@ -1079,7 +1079,11 @@ pub fn resolve_source(conn: &Connection, source_id: &str) -> AppResult<ResolveRe
     let rows = live_rows(conn, source_id)?;
     let mut report = ResolveReport::default();
     let mut text: Option<Vec<StoredSegment>> = None;
+    // Highlights now on other words than before: laid down again like a highlighter, so they
+    // never overlap another colour (they took no part while unresolved).
+    let mut relaid: Vec<(String, String)> = Vec::new();
     for raw in rows {
+        let returned = raw.state == AnchorState::Unresolved;
         let outcome = if raw.quote.is_some() {
             resolve_words(conn, &raw, &mut text)?
         } else {
@@ -1087,8 +1091,16 @@ pub fn resolve_source(conn: &Connection, source_id: &str) -> AppResult<ResolveRe
         };
         let state = match outcome {
             Outcome::Here => {
-                if raw.state == AnchorState::Unresolved {
+                if returned {
                     set_state(conn, &raw.id, AnchorState::Moved)?;
+                    if raw.kind == "highlight" {
+                        relaid.push((
+                            raw.id.clone(),
+                            raw.color
+                                .clone()
+                                .unwrap_or_else(|| DEFAULT_HIGHLIGHT_COLOR.to_string()),
+                        ));
+                    }
                     AnchorState::Moved
                 } else {
                     raw.state
@@ -1096,6 +1108,14 @@ pub fn resolve_source(conn: &Connection, source_id: &str) -> AppResult<ResolveRe
             }
             Outcome::Words(built) => {
                 write_words(conn, &raw.id, &built, AnchorState::Moved)?;
+                if raw.kind == "highlight" {
+                    relaid.push((
+                        raw.id.clone(),
+                        raw.color
+                            .clone()
+                            .unwrap_or_else(|| DEFAULT_HIGHLIGHT_COLOR.to_string()),
+                    ));
+                }
                 AnchorState::Moved
             }
             Outcome::Place(segment) => {
@@ -1129,6 +1149,9 @@ pub fn resolve_source(conn: &Connection, source_id: &str) -> AppResult<ResolveRe
             AnchorState::Unresolved => report.unresolved += 1,
         }
     }
+    for (id, color) in relaid {
+        relay(conn, source_id, &id, &color)?;
+    }
     if report.moved + report.unresolved > 0 {
         log::debug!(
             "source marks checked: {} exact, {} moved, {} unresolved",
@@ -1138,6 +1161,38 @@ pub fn resolve_source(conn: &Connection, source_id: &str) -> AppResult<ResolveRe
         );
     }
     Ok(report)
+}
+
+/// Lays a highlight that was found on other words down again, as a highlighter would, so that
+/// it merges with its own colour and other colours give way. It stays `moved`.
+fn relay(conn: &Connection, source_id: &str, id: &str, color: &str) -> AppResult<()> {
+    let Ok(raw) = get_raw(conn, id) else {
+        return Ok(()); // merged into a neighbour laid down before it
+    };
+    let (Some(start), Some(end), Some(from), Some(to)) = (
+        raw.start_segment_id.as_deref(),
+        raw.end_segment_id.as_deref(),
+        raw.start_offset,
+        raw.end_offset,
+    ) else {
+        return Ok(());
+    };
+    let at = positions(conn, &[start, end])?;
+    let (Some(&first), Some(&last)) = (at.get(start), at.get(end)) else {
+        return Ok(());
+    };
+    let span = Span {
+        start: pack(first, from),
+        end: pack(last, to),
+    };
+    let Some(built) = build_span(conn, source_id, span)? else {
+        return Ok(());
+    };
+    let tx = conn.unchecked_transaction()?;
+    let kept = highlight(&tx, source_id, color, &built, Some(id))?;
+    set_state(&tx, &kept, AnchorState::Moved)?;
+    tx.commit()?;
+    Ok(())
 }
 
 fn set_state(conn: &Connection, id: &str, state: AnchorState) -> AppResult<()> {

@@ -165,20 +165,34 @@ export function pageToStored(placement: PagePlacement, pageStart: number, pageEn
     }
   }
   if (first < 0) return null;
-  type Part = { segment: PlacedSegment; from: number; to: number };
+  type Part = { segment: PlacedSegment; from: number; to: number; whole: { head: boolean; tail: boolean } };
   const parts: Part[] = [];
   let covered = 0;
+  // `placed` is in page order: the parts below are too.
   for (const segment of placed) {
     const a = Math.max(first, segment.at);
     const b = Math.min(last, segment.at + segment.fold.folded.length - 1);
     if (a > b) continue;
-    parts.push({ segment, from: segment.fold.starts[a - segment.at]!, to: segment.fold.ends[b - segment.at]! });
+    parts.push({
+      segment,
+      from: segment.fold.starts[a - segment.at]!,
+      to: segment.fold.ends[b - segment.at]!,
+      // Whether the selection reaches the paragraph's first and last characters.
+      whole: { head: a === segment.at, tail: b === segment.at + segment.fold.folded.length - 1 },
+    });
     covered += b - a + 1;
   }
   // Every selected unit must belong to a placed paragraph: nothing is guessed.
   if (parts.length === 0 || covered !== last - first + 1) return null;
-  parts.sort((x, y) => x.segment.position - y.segment.position);
+  // Across paragraphs, the page must draw them in reading order, one after another, and the
+  // selection must run from inside the first to inside the last without leaving anything out:
+  // otherwise the stored range would hold words that were never selected (two columns, a float).
   for (let i = 1; i < parts.length; i++) if (parts[i]!.segment.position !== parts[i - 1]!.segment.position + 1) return null;
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i]!;
+    if (i < parts.length - 1 && !part.whole.tail) return null;
+    if (i > 0 && !part.whole.head) return null;
+  }
   const head = parts[0]!;
   const tail = parts[parts.length - 1]!;
   return {
