@@ -62,7 +62,10 @@
     "dialogLabel": "Retirer {{title}} ?",
     "message": "Retirer <strong>{{title}}</strong> de votre bibliothèque ? Son texte et la copie du fichier conservée par Abiding Word sont supprimés ; votre fichier d’origine n’est pas touché. Les élément d’études qui la citent gardent une trace de la référence.",
     "confirm": "Retirer de la bibliothèque",
-    "keep": "La conserver"
+    "keep": "La conserver",
+    "marks_one": "Votre marque dans cette source (surlignage, note ou signet) est retirée avec elle.",
+    "marks_many": "Vos {{count}} marques dans cette source (surlignages, notes et signets) sont retirées avec elle.",
+    "marks_other": "Vos {{count}} marques dans cette source (surlignages, notes et signets) sont retirées avec elle."
   },
   "add": {
     "title": "Ajouter à la bibliothèque",

@@ -62,7 +62,10 @@
     "dialogLabel": "¿Quitar {{title}}?",
     "message": "¿Quitar <strong>{{title}}</strong> de tu biblioteca? Se eliminan su texto y la copia del archivo que guarda Abiding Word; tu archivo original no se toca. Los apuntes que la citan conservan un registro de la referencia.",
     "confirm": "Quitar de la biblioteca",
-    "keep": "Conservarla"
+    "keep": "Conservarla",
+    "marks_one": "Su marca en esta fuente (resaltado, nota o marcador) se quita con ella.",
+    "marks_many": "Sus {{count}} marcas en esta fuente (resaltados, notas y marcadores) se quitan con ella.",
+    "marks_other": "Sus {{count}} marcas en esta fuente (resaltados, notas y marcadores) se quitan con ella."
   },
   "add": {
     "title": "Añadir a la biblioteca",

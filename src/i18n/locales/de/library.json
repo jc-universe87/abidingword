@@ -60,7 +60,9 @@
     "dialogLabel": "{{title}} entfernen?",
     "message": "<strong>{{title}}</strong> aus Ihrer Bibliothek entfernen? Der Text und die Kopie der Datei, die Abiding Word angelegt hat, werden gelöscht; Ihre Originaldatei bleibt unberührt. Erkenntnisse, die diese Quelle anführen, behalten einen Vermerk der Quellenangabe.",
     "confirm": "Aus der Bibliothek entfernen",
-    "keep": "Behalten"
+    "keep": "Behalten",
+    "marks_one": "Ihre Anmerkung darin (Markierung, Notiz oder Lesezeichen) wird mit entfernt.",
+    "marks_other": "Ihre {{count}} Anmerkungen darin (Markierungen, Notizen und Lesezeichen) werden mit entfernt."
   },
   "add": {
     "title": "Zur Bibliothek hinzufügen",

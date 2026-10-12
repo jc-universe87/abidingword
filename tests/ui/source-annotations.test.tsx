@@ -312,3 +312,20 @@ describe("source marks in the Marks view", () => {
     expect(marked).toHaveTextContent(/By this my Father/);
   });
 });
+
+describe("removing a source with marks", () => {
+  it("says how many marks go with it before it is removed", async () => {
+    const api = createMemoryApi();
+    api.installFixtureBible("FXA", "alpha");
+    api.state.settings.scripturePassage = "PSA.23";
+    api.installFixtureSource(SERMON);
+    await seedMarks(api);
+    const { user } = await renderApp(api);
+    await user.click(await within(screen.getByRole("complementary", { name: "Sources" })).findByRole("button", { name: "Open library" }));
+    await user.click(await within(await screen.findByRole("main")).findByRole("button", { name: "Remove The True Vine" }));
+    const dialog = await screen.findByRole("alertdialog", { name: "Remove The True Vine?" });
+    expect(await within(dialog).findByText("Your 2 marks in it (highlights, notes and bookmarks) are removed with it.")).toBeInTheDocument();
+    await user.click(within(dialog).getByRole("button", { name: "Remove from library" }));
+    await waitFor(() => expect(live(api)).toHaveLength(0));
+  });
+});
