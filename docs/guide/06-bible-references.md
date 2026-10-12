@@ -35,8 +35,11 @@ remembers where you came from:
 
 ## Every language reads its own way
 
-References are read in the **language of the book**, not the language of the
-program:
+Every language below is understood in **every** book, so a German sermon
+that quotes *John 3:16* or *요한복음 3장 16절* links them too. The language you
+choose for a book decides which way of writing counts first when two
+languages disagree, and how numbers without a book name (*15,4* or *15:4*,
+*V. 5* or *v. 5*) are read:
 
 | Book language | Written as | Opens |
 |---|---|---|
