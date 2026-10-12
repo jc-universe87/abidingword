@@ -608,3 +608,310 @@ fn verse_shorthand_needs_the_main_passage_to_lie_in_one_chapter() {
         "the book is clear, the chapter of v. 5 is not"
     );
 }
+
+// --- the main passage is suspended by another book, and resumed only explicitly --------------
+
+/// The references found in each paragraph of a sermon, in a language.
+fn sermon_in(
+    language: ReferenceLanguage,
+    format: &str,
+    items: &[(&str, Option<&str>, Option<i64>)],
+) -> Vec<Found> {
+    let index = passage_index::build(
+        format,
+        items.iter().copied(),
+        language,
+        passage_index::SourceFacts {
+            kind: Some("sermon"),
+            title: "Sermon",
+        },
+    );
+    let mut out = vec![Found::new(); items.len()];
+    for (i, r) in index.references {
+        out[i].push((r.text, r.reference.canonical));
+    }
+    out
+}
+
+fn canon(found: &Found) -> Vec<&str> {
+    found.iter().map(|(_, c)| c.as_str()).collect()
+}
+
+#[test]
+fn another_book_suspends_the_main_passage_until_it_is_named_again() {
+    let p = |t: &'static str| (t, None, Some(1));
+    let found = sermon_in(
+        En,
+        "pdf",
+        &[
+            p("John 15:1–11"),
+            p("Abiding in Christ"),
+            p("Later 15:4 here."),
+            p("A different section: Romans 8:1–4"),
+            p("In 8:2 the law sets free."),
+            p("Application"),
+            p("Here 8:5 has no book."),
+            p("Back to the Vine"),
+            p("Still 8:6 has none."),
+            p("Read John 15:9 now."),
+            p("Then 15:10 follows."),
+        ],
+    );
+    assert_eq!(canon(&found[2]), ["JHN.15.4"]);
+    assert_eq!(canon(&found[4]), ["ROM.8.2"]);
+    assert!(
+        found[6].is_empty(),
+        "the local section ended; John is not resumed: {found:?}"
+    );
+    assert!(
+        found[8].is_empty(),
+        "a neutral heading resumes nothing: {found:?}"
+    );
+    assert_eq!(canon(&found[9]), ["JHN.15.9"]);
+    assert_eq!(
+        canon(&found[10]),
+        ["JHN.15.10"],
+        "the explicit John reference resumed it"
+    );
+}
+
+#[test]
+fn a_heading_naming_the_main_book_resumes_it() {
+    let p = |t: &'static str| (t, None, Some(1));
+    let found = sermon_in(
+        En,
+        "pdf",
+        &[
+            p("John 15:1–11"),
+            p("Abiding in Christ"),
+            p("A different section: Romans 8:1–4"),
+            p("In 8:2 the law sets free."),
+            p("Fruit that remains: John 15:12–17"),
+            p("Here 15:13 speaks of love."),
+            p("Application"),
+            p("And 15:16 still belongs to John."),
+        ],
+    );
+    assert_eq!(canon(&found[3]), ["ROM.8.2"]);
+    assert_eq!(canon(&found[5]), ["JHN.15.13"]);
+    assert_eq!(
+        canon(&found[7]),
+        ["JHN.15.16"],
+        "John was named again by a heading: resumed"
+    );
+}
+
+#[test]
+fn the_same_suspension_with_other_books_and_in_structured_sources() {
+    // Psalm 23 sermon, an Isaiah section
+    let p = |t: &'static str| (t, None, Some(1));
+    let found = sermon_in(
+        En,
+        "pdf",
+        &[
+            p("Psalm 23"),
+            p("The Shepherd"),
+            p("Comfort: Isaiah 40:1–11"),
+            p("In 40:3 a voice cries."),
+            p("Application"),
+            p("Here 23:4 has no book."),
+            p("Psalm 23:1 again."),
+            p("So 23:4 is the valley."),
+        ],
+    );
+    assert_eq!(canon(&found[3]), ["ISA.40.3"]);
+    assert!(found[5].is_empty(), "{found:?}");
+    assert_eq!(canon(&found[7]), ["PSA.23.4"]);
+    // a structured source: section headings do the same
+    let found = sermon_in(
+        En,
+        "docx",
+        &[
+            ("Opening words.", Some("John 15:1–11"), None),
+            ("Here 15:4 is John's.", Some("John 15:1–11"), None),
+            (
+                "Here 8:2 is Paul's.",
+                Some("John 15:1–11 › Romans 8:1–4"),
+                None,
+            ),
+            (
+                "Here 8:5 has no book.",
+                Some("John 15:1–11 › Application"),
+                None,
+            ),
+        ],
+    );
+    assert_eq!(canon(&found[1]), ["JHN.15.4"]);
+    assert_eq!(canon(&found[2]), ["ROM.8.2"]);
+    // "Application" sits under the John heading, but an enclosing heading does not resume
+    // the main passage once another book suspended it
+    assert!(found[3].is_empty(), "{found:?}");
+    // a section's own heading naming the main book does
+    let found = sermon_in(
+        En,
+        "docx",
+        &[
+            ("Here 15:4 is John's.", Some("John 15:1–11"), None),
+            (
+                "Here 8:2 is Paul's.",
+                Some("John 15:1–11 › Romans 8:1–4"),
+                None,
+            ),
+            (
+                "Here 8:5 has no book.",
+                Some("John 15:1–11 › Application"),
+                None,
+            ),
+            (
+                "Here 15:13 is John's.",
+                Some("John 15:1–11 › John 15:12–17"),
+                None,
+            ),
+            (
+                "Here 15:16 is John's too.",
+                Some("John 15:1–11 › Conclusion"),
+                None,
+            ),
+        ],
+    );
+    assert!(found[2].is_empty(), "{found:?}");
+    assert_eq!(canon(&found[3]), ["JHN.15.13"]);
+    assert_eq!(
+        canon(&found[4]),
+        ["JHN.15.16"],
+        "resumed by the John heading"
+    );
+}
+
+#[test]
+fn suspension_in_german_and_korean() {
+    let p = |t: &'static str| (t, None, Some(1));
+    let found = sermon_in(
+        De,
+        "pdf",
+        &[
+            p("Joh 15,1–11"),
+            p("Bleiben in Christus"),
+            p("Ein anderer Abschnitt: Röm 8,1–4"),
+            p("In 8,2 befreit das Gesetz des Geistes."),
+            p("Anwendung"),
+            p("Hier 8,5 ohne Buch."),
+            p("Lies Joh 15,9 jetzt."),
+            p("Dann 15,10 dazu."),
+        ],
+    );
+    assert_eq!(canon(&found[3]), ["ROM.8.2"]);
+    assert!(found[5].is_empty(), "{found:?}");
+    assert_eq!(canon(&found[7]), ["JHN.15.10"]);
+    let found = sermon_in(
+        Ko,
+        "pdf",
+        &[
+            p("요한복음 15장 1-11절"),
+            p("그리스도 안에 거하라"),
+            p("다른 단락: 로마서 8장 1-4절"),
+            p("여기서 8장 2절은 해방을 말한다."),
+            p("적용"),
+            p("여기서 8장 5절은 책이 없다."),
+            p("요한복음 15장 9절을 읽으라."),
+            p("이어서 15장 10절을 보라."),
+        ],
+    );
+    assert_eq!(canon(&found[3]), ["ROM.8.2"]);
+    assert!(found[5].is_empty(), "{found:?}");
+    assert_eq!(canon(&found[7]), ["JHN.15.10"]);
+}
+
+// --- visible heading lines: titles, not pointers -----------------------------------------------
+
+#[test]
+fn a_line_introducing_a_reference_is_not_a_heading_in_any_language() {
+    use abiding_word_lib::scripture::parser::heading_line;
+    for pointer in [
+        "Compare John 3:16",
+        "See Romans 8:1",
+        "Cf. Matthew 5:3",
+        "Cp. Mark 1:1",
+        "Also see John 1:1",
+        "See also Romans 12:1",
+        "Siehe Joh 3,16",
+        "Vgl. Röm 8,1",
+        "Vergleiche Joh 1,1",
+        "Voir Jean 3,16",
+        "Cf. Jean 3,16",
+        "Comparer Jean 3,16",
+        "Véase Juan 3,16",
+        "Ver Juan 3,16",
+        "Comparar João 3:16",
+        "Ver João 3:16",
+        "(요 3:16 참조)",
+        "참고: 요한복음 3장 16절",
+    ] {
+        assert!(
+            !heading_line(pointer),
+            "{pointer:?} is a pointer, not a heading"
+        );
+    }
+    for heading in [
+        "Romans 8:1–4",
+        "A different section: Romans 8:1–4",
+        "The New Birth — John 3:1–8",
+        "Johannes 15,1–11 — Der wahre Weinstock",
+        "요한복음 15장 1-11절",
+        "Seeds of Faith: Matthew 13:1–9",
+        "Verdad y libertad: Juan 8:31–36",
+        "Une nouvelle naissance : Jean 3,1-8",
+    ] {
+        assert!(heading_line(heading), "{heading:?} is a heading");
+    }
+}
+
+#[test]
+fn a_pointer_line_does_not_govern_the_paragraphs_after_it() {
+    let found = paragraphs(
+        En,
+        false,
+        &[
+            ("Compare John 3:16", None, Some(1)),
+            ("One.", None, Some(1)),
+            ("Two.", None, Some(1)),
+            ("Then 3:18 has no book.", None, Some(1)),
+        ],
+    );
+    assert!(found[3].is_empty(), "{found:?}");
+    // a real heading line does
+    let found = paragraphs(
+        En,
+        false,
+        &[
+            ("The New Birth — John 3:1–8", None, Some(1)),
+            ("One.", None, Some(1)),
+            ("Two.", None, Some(1)),
+            ("Then 3:5 is John's.", None, Some(1)),
+        ],
+    );
+    assert_eq!(found[3], pairs(&[("3:5", "JHN.3.5")]));
+}
+
+#[test]
+fn a_heading_line_suspends_the_heading_line_it_displaces_even_without_a_main_passage() {
+    let p = |t: &'static str| (t, None, Some(1));
+    let found = paragraphs(
+        En,
+        false,
+        &[
+            p("The Vine: John 15:1–11"),
+            p("Here 15:4 is John's."),
+            p("A different section: Romans 8:1–4"),
+            p("In 8:2 the law sets free."),
+            p("Application"),
+            p("Here 15:9 has no book."),
+            p("Read John 15:9 now."),
+            p("Then 15:10 follows."),
+        ],
+    );
+    assert_eq!(found[1], pairs(&[("15:4", "JHN.15.4")]));
+    assert_eq!(found[3], pairs(&[("8:2", "ROM.8.2")]));
+    assert!(found[5].is_empty(), "{found:?}");
+    assert_eq!(found[7], pairs(&[("15:10", "JHN.15.10")]));
+}

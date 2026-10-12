@@ -586,12 +586,37 @@ pub const MAIN_PASSAGE_KINDS: &[&str] = &["sermon", "lecture"];
 pub const OPENING_PARAGRAPHS: usize = 2;
 pub const OPENING_CHARS: usize = 80;
 
-/// Whether an opening paragraph reads as a title line rather than prose.
-fn title_like(text: &str) -> bool {
+/// Whether a paragraph reads as a title or heading line rather than prose:
+/// short ([`OPENING_CHARS`] at most), not ending as a sentence does, and not a
+/// pointer to a passage ("Compare John 3:16", "Vgl. Röm 8,1", "(요 3:16 참조)"):
+/// a line that begins with a reference lead-in of any language pack, or ends
+/// with a trailing one, is not a heading. The reference may stand anywhere in a
+/// heading ("The New Birth — John 3:1–8").
+pub fn heading_line(text: &str) -> bool {
     let text = text.trim();
-    !text.is_empty()
-        && text.chars().count() <= OPENING_CHARS
-        && !text.ends_with(['.', '!', '?', '…'])
+    if text.is_empty()
+        || text.chars().count() > OPENING_CHARS
+        || text.ends_with(['.', '!', '?', '…'])
+    {
+        return false;
+    }
+    let lower = text
+        .trim_start_matches(|c: char| !c.is_alphanumeric())
+        .to_lowercase();
+    let trimmed_end = text
+        .trim_end_matches(|c: char| !c.is_alphanumeric())
+        .to_lowercase();
+    !packs::PACKS.iter().any(|pack| {
+        pack.reference_lead_ins.iter().any(|lead| {
+            lower.strip_prefix(lead).is_some_and(|rest| {
+                // a whole word: "See", "Vgl.", "Siehe:", not "Seeds" or "Seen"
+                rest.chars().next().is_none_or(|c| !c.is_alphanumeric())
+            })
+        }) || pack
+            .reference_tails
+            .iter()
+            .any(|tail| trimmed_end.ends_with(tail))
+    })
 }
 
 /// The main passage of a whole document (v0.13.1), from unusually strong
@@ -619,7 +644,7 @@ pub fn document_context(
         opening
             .iter()
             .take(OPENING_PARAGRAPHS)
-            .take_while(|text| title_like(text))
+            .take_while(|text| heading_line(text))
             .copied(),
     );
     let mut context = OuterContext::default();
@@ -660,9 +685,16 @@ fn continues_number(after: &str) -> bool {
 ///   next [`PAGE_LOOKBACK`] paragraphs on the same page only;
 /// * a sermon or lecture whose title area names one passage
 ///   ([`document_context`]): that passage counts throughout the document, on
-///   every page, wherever no section heading names another; it is gathered
-///   with the other context, so a competing book nearby still makes a
-///   reference ambiguous.
+///   every page, wherever no heading names another; it is gathered with the
+///   other context, so a competing book nearby still makes a reference
+///   ambiguous.
+///
+/// **Suspension.** When a section's own heading or a visible heading line
+/// names a different book, the outer context it displaces (the main passage,
+/// an enclosing heading, the heading line before) is **suspended**, and stays
+/// suspended after that section ends. A suspended book resumes only when it is
+/// named again explicitly: a reference to it anywhere, or a heading naming it.
+/// A neutral heading ("Application") and the end of a section resume nothing.
 pub struct ContextTracker<'p> {
     recogniser: &'p Recogniser,
     sectioned: bool,
@@ -681,6 +713,12 @@ pub struct ContextTracker<'p> {
     /// after it like a section heading, until the next heading line, a new
     /// section, or [`LOCAL_HEADING_SPAN`] paragraphs.
     local: Option<(OuterContext, usize)>,
+    /// Books whose outer context is suspended: a heading (a section's own
+    /// heading or a visible heading line) named a different book, displacing
+    /// the main passage or an enclosing heading. They stay suspended after that
+    /// section ends, and each resumes only when it is named again explicitly: a
+    /// reference to it, or a heading naming it.
+    suspended: Vec<&'static str>,
 }
 
 /// How many paragraphs a visible heading line governs at most.
@@ -697,7 +735,39 @@ impl<'p> ContextTracker<'p> {
             document: OuterContext::default(),
             recent: None,
             local: None,
+            suspended: Vec::new(),
         }
+    }
+
+    /// Whether every book of a context is suspended (an empty context is not).
+    fn all_suspended(&self, context: &OuterContext) -> bool {
+        !context.books.is_empty()
+            && context
+                .books
+                .iter()
+                .all(|b| self.suspended.contains(&b.code))
+    }
+
+    /// A heading naming `named` was met, displacing the outer context `displaced`:
+    /// the displaced books it does not name are suspended; the books it names resume.
+    fn heading_met(&mut self, named: &OuterContext, displaced: &[&'static Book]) {
+        if named.books.is_empty() {
+            return;
+        }
+        for book in displaced {
+            if !named.books.iter().any(|b| b.code == book.code)
+                && !self.suspended.contains(&book.code)
+            {
+                self.suspended.push(book.code);
+            }
+        }
+        self.resume(named);
+    }
+
+    /// The books named explicitly resume.
+    fn resume(&mut self, named: &OuterContext) {
+        self.suspended
+            .retain(|code| !named.books.iter().any(|b| b.code == *code));
     }
 
     /// The document's main passage, for every paragraph whose section heading names none.
@@ -719,14 +789,38 @@ impl<'p> ContextTracker<'p> {
                 self.recent = None;
                 self.local = None;
                 let recogniser = self.recogniser;
-                self.heading = section_path
+                // The headings of the path that name passages, deepest first, and
+                // whether the deepest is this section's own heading or an enclosing one.
+                let named: Vec<(usize, OuterContext)> = section_path
                     .map(|path| {
                         path.rsplit(crate::library::sections::PATH_SEPARATOR)
                             .map(|part| heading_context(recogniser, part))
-                            .find(|c| !c.books.is_empty())
-                            .unwrap_or_default()
+                            .enumerate()
+                            .filter(|(_, c)| !c.books.is_empty())
+                            .collect()
                     })
                     .unwrap_or_default();
+                let (heading, own) = named
+                    .first()
+                    .map(|(depth, c)| (c.clone(), *depth == 0))
+                    .unwrap_or_default();
+                if own {
+                    // A section's own heading displaces the main passage and the
+                    // enclosing headings.
+                    let mut displaced: Vec<&'static Book> = self.document.books.clone();
+                    for (_, enclosing) in named.iter().skip(1) {
+                        displaced.extend(enclosing.books.iter().copied());
+                    }
+                    self.heading_met(&heading, &displaced);
+                }
+                // An enclosing heading whose books are suspended ("John 15:1–11" above
+                // "Application", after a Romans section) does not govern: only a
+                // section's own heading, or an explicit reference, brings it back.
+                self.heading = if !own && self.all_suspended(&heading) {
+                    OuterContext::default()
+                } else {
+                    heading
+                };
             }
         } else if page != self.page {
             self.page = page;
@@ -747,7 +841,8 @@ impl<'p> ContextTracker<'p> {
         let mut outer = match local {
             Some(local) => local.clone(),
             None if !self.heading.books.is_empty() => self.heading.clone(),
-            None => self.document.clone(),
+            None if !self.all_suspended(&self.document) => self.document.clone(),
+            None => OuterContext::default(),
         };
         if let Some((recent, age)) = &self.recent {
             if *age < limit {
@@ -766,24 +861,34 @@ impl<'p> ContextTracker<'p> {
         if let Some((_, age)) = &mut self.local {
             *age += 1;
         }
-        // A heading line ends the one before it; one that names a single book starts its own.
-        if title_like(text) {
-            let mut context = OuterContext::default();
-            for r in &found.explicit {
-                if let Ok(reference) = ScriptureRef::from_canonical(&r.reference.canonical) {
-                    context.add(&reference);
-                }
+        let mut named = OuterContext::default();
+        for r in &found.explicit {
+            if let Ok(reference) = ScriptureRef::from_canonical(&r.reference.canonical) {
+                named.add(&reference);
             }
-            self.local = (context.books.len() == 1).then_some((context, 0));
+        }
+        // A book named explicitly resumes.
+        self.resume(&named);
+        // A heading line starts a new local section, as a new section does: it ends
+        // the heading line before it and what the paragraphs before it named; one that
+        // names a single book governs what follows.
+        if heading_line(text) {
+            self.recent = None;
+            if named.books.len() == 1 {
+                // It displaces the main passage, the section's heading and the line before it.
+                let mut displaced: Vec<&'static Book> = self.document.books.clone();
+                displaced.extend(self.heading.books.iter().copied());
+                if let Some((previous, _)) = &self.local {
+                    displaced.extend(previous.books.iter().copied());
+                }
+                self.heading_met(&named, &displaced);
+                self.local = Some((named.clone(), 0));
+            } else {
+                self.local = None;
+            }
         }
         if !found.explicit.is_empty() {
-            let mut context = OuterContext::default();
-            for r in &found.explicit {
-                if let Ok(reference) = ScriptureRef::from_canonical(&r.reference.canonical) {
-                    context.add(&reference);
-                }
-            }
-            self.recent = Some((context, 0));
+            self.recent = Some((named, 0));
         }
         found
     }

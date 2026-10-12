@@ -75,7 +75,21 @@ pub struct LanguagePack {
     /// "est" (are, is); Spanish "es" (is). A pack's own aliases are governed by
     /// its own dictionary, not by this list. Only words certainly ordinary are
     /// listed: a word here hides a real reference of another language.
+    ///
+    /// These are **safety exceptions, not stop-word lists**: each entry closes a
+    /// known collision between this language's prose and another pack's
+    /// abbreviation. They grow only with a reviewed case and its test, never
+    /// speculatively.
     pub ordinary_words: &'static [&'static str],
+    /// Words that introduce a reference in running text ("See", "Vgl.",
+    /// "Voir", "Véase"), lower case, without a trailing full stop. A line that
+    /// begins with one is a pointer to a passage, never a heading
+    /// (`scripture::parser::context`). Lines of any language are checked
+    /// against every pack's list.
+    pub reference_lead_ins: &'static [&'static str],
+    /// The same, for languages that put the word after the reference (Korean
+    /// "(요 3:16 참조)"): a line that ends with one is not a heading.
+    pub reference_tails: &'static [&'static str],
 }
 
 /// The packs, one per language with a reviewed dictionary. Order carries no
@@ -91,6 +105,8 @@ pub static PACKS: [LanguagePack; 6] = [
             comma_joins_list: true,
         },
         ordinary_words: &["is", "am"],
+        reference_lead_ins: &["see also", "also see", "see", "compare", "cf", "cp"],
+        reference_tails: &[],
     },
     LanguagePack {
         language: ReferenceLanguage::De,
@@ -102,6 +118,8 @@ pub static PACKS: [LanguagePack; 6] = [
             comma_joins_list: false,
         },
         ordinary_words: &["am", "es", "mal", "na", "rom"],
+        reference_lead_ins: &["siehe auch", "siehe", "vergleiche", "vgl", "s"],
+        reference_tails: &[],
     },
     LanguagePack {
         language: ReferenceLanguage::Ko,
@@ -113,6 +131,8 @@ pub static PACKS: [LanguagePack; 6] = [
             comma_joins_list: true,
         },
         ordinary_words: &[],
+        reference_lead_ins: &["참조", "참고", "비교"],
+        reference_tails: &["참조", "참고"],
     },
     LanguagePack {
         language: ReferenceLanguage::Fr,
@@ -124,6 +144,8 @@ pub static PACKS: [LanguagePack; 6] = [
             comma_joins_list: false,
         },
         ordinary_words: &["es", "est"],
+        reference_lead_ins: &["voir aussi", "voir", "comparer", "cf"],
+        reference_tails: &[],
     },
     LanguagePack {
         language: ReferenceLanguage::Es,
@@ -135,6 +157,8 @@ pub static PACKS: [LanguagePack; 6] = [
             comma_joins_list: false,
         },
         ordinary_words: &["es"],
+        reference_lead_ins: &["véase también", "véase", "vease", "ver", "comparar", "cf"],
+        reference_tails: &[],
     },
     LanguagePack {
         language: ReferenceLanguage::Pt,
@@ -146,6 +170,8 @@ pub static PACKS: [LanguagePack; 6] = [
             comma_joins_list: false,
         },
         ordinary_words: &[],
+        reference_lead_ins: &["ver também", "ver", "veja", "comparar", "cf"],
+        reference_tails: &[],
     },
 ];
 
