@@ -894,22 +894,21 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       </div>
     ) : null;
   // Marking the original PDF: a selection on a page, read through the stored text placed there.
+  // Below the pages, never over them: the page area gets smaller while it is open.
   const pdfStrip = onPdfPage ? (
-    <div className="pointer-events-none absolute inset-x-2 bottom-2 z-20">
-      <div className="pointer-events-auto">
-        <SourceMarkStrip
-          root={stage}
-          sourceId={sourceId}
-          read={(selection) => pdfSelection.current?.(selection) ?? null}
-          cannotPlace={t("library.marks.cannotPlace")}
-          place={placeNote}
-          onPlaceDone={() => {
-            setPlaceNote(null);
-            requestAnimationFrame(() => noteHereButton.current?.focus({ preventScroll: true }));
-          }}
-          onSaved={() => void marks.reload()}
-        />
-      </div>
+    <div className="max-h-[50%] shrink-0 overflow-y-auto border-t border-border-subtle bg-bg px-2 pt-2 empty:hidden">
+      <SourceMarkStrip
+        root={stage}
+        sourceId={sourceId}
+        read={(selection) => pdfSelection.current?.(selection) ?? null}
+        cannotPlace={t("library.marks.cannotPlace")}
+        place={placeNote}
+        onPlaceDone={() => {
+          setPlaceNote(null);
+          requestAnimationFrame(() => noteHereButton.current?.focus({ preventScroll: true }));
+        }}
+        onSaved={() => void marks.reload()}
+      />
     </div>
   ) : null;
   const markStrip =

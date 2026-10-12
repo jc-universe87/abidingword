@@ -3,9 +3,10 @@
 > [!NOTE]
 > **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Your library](guide/05-library.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
 
-Status: built on the branch `claude/beautiful-curie-vm0eve` (on top of `main`
-`76145c3` and the concordance terminology fix `c4b4253`). **Not merged, not
-tagged, no Windows build published.** Windows acceptance is still to come.
+Status: merged into `main` (`d8d2ecd`), with the v0.13.1 and v0.13.2 fixes
+(`f7e4577`, `2732029`), and accepted on Windows (test build `0.5.0-dev.29`).
+To be tagged `library-reading-v0.13` at `2732029`. Built on the branch
+`claude/beautiful-curie-vm0eve` from `main` `76145c3`.
 **No database migration.** Deterministic only: no AI, no embeddings, no
 semantic matching, no OCR.
 

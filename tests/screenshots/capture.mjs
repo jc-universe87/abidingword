@@ -242,6 +242,91 @@ Object.assign(scenes, {
     await shot(page, "pdf-original");
     await page.close();
   },
+  async "source-marks"() {
+    const page = await open("sourcesWidth=440", { width: 1600, height: 1000 });
+    await openSource(page, "Notes on Abiding");
+    await sources(page).getByRole("button", { name: /mark here: Note/ }).click();
+    await page.waitForTimeout(500);
+    await shot(page, "source-marks", sources(page));
+    await page.close();
+  },
+  async "source-selection"() {
+    const page = await open("sourcesWidth=440", { width: 1600, height: 1000 });
+    await openSource(page, "Notes on Abiding");
+    // Select words as a reader would, then wait for the small bar.
+    await page.evaluate(() => {
+      const p = [...document.querySelectorAll("[data-segment-id]")].find((el) => el.textContent?.includes("Galatians"));
+      if (!p) return;
+      const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+      let node = walker.nextNode();
+      while (node && !node.textContent?.includes("love, joy, peace")) node = walker.nextNode();
+      if (!node) return;
+      const text = node.textContent ?? "";
+      const range = document.createRange();
+      range.setStart(node, text.indexOf("love, joy, peace"));
+      range.setEnd(node, text.indexOf("love, joy, peace") + "love, joy, peace".length);
+      document.getSelection()?.removeAllRanges();
+      document.getSelection()?.addRange(range);
+    });
+    await sources(page).getByRole("group", { name: "Mark the selected text" }).waitFor();
+    await shot(page, "source-selection", sources(page));
+    await page.close();
+  },
+  async "pdf-marks"() {
+    const page = await open("sourcesWidth=440", { width: 1440, height: 1000 });
+    await page.getByRole("combobox", { name: /Search in/ }).selectOption({ label: "Library" });
+    await page.getByRole("searchbox").first().press("Enter");
+    await page.getByRole("button", { name: /A Short Guide to Bible Study/ }).first().click();
+    await page.getByRole("button", { name: "Original" }).click();
+    await page.getByRole("button", { name: "Open full reader" }).click();
+    const drawn = page.locator("[data-pdf-mark]").first();
+    await drawn.waitFor();
+    await page.getByRole("button", { name: "Fit page" }).click();
+    await page.getByRole("button", { name: "Zoom in" }).click();
+    await page.getByRole("button", { name: "Zoom in" }).click();
+    await page.getByRole("button", { name: "Zoom in" }).click();
+    await page.waitForTimeout(1200);
+    await page.locator("[data-pdf-mark]").first().scrollIntoViewIfNeeded();
+    console.log("    marks drawn:", await page.locator("[data-pdf-mark]").count());
+    await shot(page, "pdf-marks");
+    await page.close();
+  },
+  async "pdf-selection"() {
+    const page = await open("sourcesWidth=440", { width: 1440, height: 1000 });
+    await page.getByRole("combobox", { name: /Search in/ }).selectOption({ label: "Library" });
+    await page.getByRole("searchbox").first().press("Enter");
+    await page.getByRole("button", { name: /A Short Guide to Bible Study/ }).first().click();
+    await page.getByRole("button", { name: "Original" }).click();
+    await page.getByRole("button", { name: "Open full reader" }).click();
+    await page.locator("[data-pdf-mark]").first().waitFor();
+    await page.getByRole("button", { name: "Fit page" }).click();
+    await page.getByRole("button", { name: "Next page" }).click();
+    await page.waitForTimeout(1000);
+    // Select "first readers before asking" on page 13, in PDF.js's own text layer, as a reader would.
+    const sheet = page.getByRole("group", { name: "Page 13" });
+    await sheet.scrollIntoViewIfNeeded();
+    await sheet.locator(".textLayer span").first().waitFor();
+    await page.waitForTimeout(800);
+    const picked = await page.evaluate(() => {
+      const layer = document.querySelector('[data-page="13"] .textLayer');
+      const span = [...(layer?.querySelectorAll("span") ?? [])].find((s) => s.textContent?.includes("first readers"));
+      const node = span?.firstChild;
+      if (!node) return null;
+      const text = node.textContent ?? "";
+      const range = document.createRange();
+      range.setStart(node, text.indexOf("first readers"));
+      range.setEnd(node, text.indexOf("first readers") + "first readers before asking".length);
+      document.getSelection()?.removeAllRanges();
+      document.getSelection()?.addRange(range);
+      return range.toString();
+    });
+    console.log("    selected:", picked);
+    const bar = page.getByRole("group", { name: "Mark the selected text" });
+    await bar.waitFor();
+    console.log("    quote:", await bar.getByTestId("source-selection-quote").textContent());
+    await shot(page, "pdf-selection");
+    await page.close();
+  },
   async "find-in-source"() {
     const page = await open("sourcesWidth=440", { width: 1600, height: 1000 });
     await openSource(page, "Notes on Abiding");

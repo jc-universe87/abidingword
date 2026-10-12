@@ -49,15 +49,21 @@ highlight. Click it to see them.
 ## Finding your marks again: *Marks*
 
 Click **Marks** at the top of the Scripture pane to see everything you have
-marked, in Bible order.
+marked: in the Bible (in Bible order) and in your books (book by book, in
+reading order).
 
 <p align="center">
   <img src="images/marks.png" alt="The Marks list with highlights, a note and a bookmark in John 15" width="420">
 </p>
 
-- Filter by **Notes**, **Highlights** or **Bookmarks**, or by **book**.
+- Choose **Bible and sources**, **Bible only** or **Sources only**.
+- Filter by **Notes**, **Highlights** or **Bookmarks**; with **Bible only**,
+  by **book**; with **Sources only**, by **source**.
 - **Search your notes** by typing a word.
-- Click any mark to jump to that verse.
+- Click any mark to jump to that verse, or to open the book at that place.
+
+How to mark your own books is explained in
+[Marking your books](05-library.md#marking-your-books).
 
 > [!NOTE]
 > Marks stay with the verse in **every** translation. If a highlight is on a

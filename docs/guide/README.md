@@ -25,7 +25,7 @@ with pictures of the real program. You do not need any technical knowledge.
 | 📖 | [**2. Reading the Bible**](02-reading-the-bible.md) | Move through books and chapters, type a passage, switch translations, search |
 | 🖍️ | [**3. Highlights, notes and bookmarks**](03-highlights-notes-bookmarks.md) | Mark verses and words, write notes, find everything again in *Marks* |
 | ✍️ | [**4. Studies**](04-studies.md) | Create a study, write in its sections, and collect what you discover |
-| 📚 | [**5. Your library**](05-library.md) | Add your own books, notes and documents and read them beside the Bible |
+| 📚 | [**5. Your library**](05-library.md) | Add your own books, notes and documents, read them beside the Bible, and mark them as you read |
 | 🔗 | [**6. Bible references in your books**](06-bible-references.md) | Open a verse mentioned in a book with one click, and find your way back |
 | 🔎 | [**7. Concordance**](07-concordance.md) | See every place a word appears in the Bible |
 | ⚙️ | [**8. Settings, updates and backups**](08-settings-updates-backups.md) | Theme, language, Bibles, updates, and keeping your work safe |
