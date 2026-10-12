@@ -238,6 +238,11 @@
     "colourIs": "Colour: {{color}}",
     "wholeParagraph": "Whole paragraph",
     "unresolved": "This place can no longer be found in the text.",
-    "empty": "No marks in this source yet. Select some text to highlight it or add a note."
+    "empty": "No marks in this source yet. Select some text to highlight it or add a note.",
+    "for": "Marks in {{title}}",
+    "close": "Close marks",
+    "show": "Show the marks in this source",
+    "delete": "Delete",
+    "panels": "Contents or marks"
   }
 }

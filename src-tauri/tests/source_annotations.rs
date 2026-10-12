@@ -859,3 +859,104 @@ fn a_page_of_a_pdf_without_text_can_be_bookmarked() {
         Ok(())
     });
 }
+
+#[test]
+fn the_marks_view_lists_source_marks_by_source_then_reading_order() {
+    use abiding_word_lib::library::annotations::SourceMarksQuery;
+    with_db(|conn, dir| {
+        let vine = add(conn, dir, "vine.md", SERMON);
+        let other = add(
+            conn,
+            dir,
+            "another.md",
+            "# Another\n\nGrace and peace.\n\nGrace again.\n",
+        );
+        let v = segments(conn, &vine);
+        let o = segments(conn, &other);
+        marks::create(
+            conn,
+            &on_words(
+                &vine,
+                "highlight",
+                Some("blue"),
+                words_in(&v[2], "much fruit"),
+            ),
+        )?;
+        let mut note = on_words(&vine, "note", None, words_in(&v[0], "Abide"));
+        note.content = Some("Remain in Christ.".into());
+        marks::create(conn, &note)?;
+        marks::create(conn, &place(&other, "bookmark", &o[1].id))?;
+        marks::create(
+            conn,
+            &on_words(&other, "highlight", Some("rose"), words_in(&o[0], "Grace")),
+        )?;
+
+        let all = marks::marks(conn, &SourceMarksQuery::default())?;
+        let order: Vec<(String, String)> = all
+            .marks
+            .iter()
+            .map(|m| (m.source_title.clone(), m.annotation.kind.clone()))
+            .collect();
+        assert_eq!(
+            order,
+            vec![
+                ("another.md".into(), "highlight".into()),
+                ("another.md".into(), "bookmark".into()),
+                ("vine.md".into(), "note".into()),
+                ("vine.md".into(), "highlight".into()),
+            ]
+        );
+        let notes = marks::marks(
+            conn,
+            &SourceMarksQuery {
+                query: Some("CHRIST".into()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(notes.marks.len(), 1);
+        assert_eq!(notes.marks[0].annotation.content, "Remain in Christ.");
+        let rose = marks::marks(
+            conn,
+            &SourceMarksQuery {
+                color: Some("rose".into()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(rose.marks.len(), 1);
+        let paged = marks::marks(
+            conn,
+            &SourceMarksQuery {
+                limit: Some(3),
+                ..Default::default()
+            },
+        )?;
+        assert!(paged.has_more);
+        let rest = marks::marks(
+            conn,
+            &SourceMarksQuery {
+                limit: Some(3),
+                offset: Some(3),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(rest.marks.len(), 1);
+        assert!(!rest.has_more);
+        let sources = marks::marked_sources(conn)?;
+        assert_eq!(
+            sources
+                .iter()
+                .map(|s| (s.title.as_str(), s.count))
+                .collect::<Vec<_>>(),
+            vec![("another.md", 2), ("vine.md", 2)]
+        );
+        // A removed source's marks leave the view.
+        library::remove(conn, &other)?;
+        assert_eq!(
+            marks::marks(conn, &SourceMarksQuery::default())?
+                .marks
+                .len(),
+            2
+        );
+        Ok(())
+    });
+}

@@ -190,16 +190,30 @@
       "none": "No marks yet.",
       "noneBody": "Highlights, notes and bookmarks you add while reading will appear here.",
       "noMatch": "Nothing here matches. Try another book or colour.",
-      "noSearch": "No notes match your search."
+      "noSearch": "No notes match your search.",
+      "noneSources": "No marks in your sources yet.",
+      "noneSourcesBody": "Select text while reading a source to highlight it or add a note.",
+      "noMatchSources": "Nothing here matches. Try another source or colour."
     },
     "result": {
       "note": "Note",
       "highlight": "Highlight",
       "bookmark": "Bookmark",
       "wholeVerse": "Whole verse",
-      "show": "Show in the Bible"
+      "show": "Show in the Bible",
+      "showSource": "Open in the source"
     },
-    "concordance": "Concordance"
+    "concordance": "Concordance",
+    "scope": {
+      "label": "Show marks from",
+      "all": "Bible and sources",
+      "bible": "Bible only",
+      "sources": "Sources only"
+    },
+    "source": "Source",
+    "allSources": "All sources",
+    "sectionBible": "In the Bible",
+    "sectionSources": "In your sources"
   },
   "history": {
     "group": "Scripture history",

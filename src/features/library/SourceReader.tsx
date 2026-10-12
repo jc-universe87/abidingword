@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Bookmark, List, Maximize2, Redo2, Search, StickyNote, Undo2 } from "lucide-react";
+import { ArrowLeft, Bookmark, Highlighter, List, Maximize2, Redo2, Search, StickyNote, Undo2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
@@ -26,6 +26,7 @@ import { canGoBack, canGoForward, NO_HISTORY, stepBack, stepForward, visit, type
 import { currentEntry, useSourceContents } from "./useSourceContents";
 import { MarksInspector, MarksMarker } from "./annotations/ParagraphMarks";
 import { SourceMarkStrip, type PlaceRequest } from "./annotations/SourceMarkStrip";
+import { SourceMarksPanel } from "./annotations/SourceMarksPanel";
 import { useSourceAnnotations, type MarkedRange } from "./annotations/useSourceAnnotations";
 
 export type ReaderMode = "reading" | "original";
@@ -113,6 +114,9 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const opener = useRef<HTMLButtonElement>(null);
   const contentsLayout = useContentsLayout(stage, contents.length > 0);
   const [panel, setPanel] = useState<{ currentId: string | null } | null>(null);
+  // The source's marks, listed beside the text like its contents (v0.14).
+  const [marksPanel, setMarksPanel] = useState(false);
+  const marksPanelOpener = useRef<HTMLButtonElement>(null);
   const [jump, setJump] = useState<{ page: number; nonce: number; fraction?: number } | null>(null);
   // A segment position Reading should scroll to after a contents entry or link was chosen.
   // With an `offset`, the segment is put exactly that far from the top of the view (returning by Back / Forward).
@@ -323,7 +327,10 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     return currentEntry(contents, "segment", Number(top?.dataset.segPosition ?? window?.offset ?? 0));
   };
 
-  const openContents = () => setPanel({ currentId: currentEntryNow() });
+  const openContents = () => {
+    setMarksPanel(false);
+    setPanel({ currentId: currentEntryNow() });
+  };
   const closeContents = () => {
     setPanel(null);
     if (refocusOpener.current !== null) cancelAnimationFrame(refocusOpener.current);
@@ -331,6 +338,27 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       refocusOpener.current = null;
       opener.current?.focus({ preventScroll: true });
     });
+  };
+
+  const openMarksPanel = () => {
+    setPanel(null);
+    setMarksPanel(true);
+  };
+  const closeMarksPanel = () => {
+    setMarksPanel(false);
+    if (refocusOpener.current !== null) cancelAnimationFrame(refocusOpener.current);
+    refocusOpener.current = requestAnimationFrame(() => {
+      refocusOpener.current = null;
+      marksPanelOpener.current?.focus({ preventScroll: true });
+    });
+  };
+  /** Contents and Marks share the place beside the text: one switch moves between them. */
+  const switchPanels = (to: "contents" | "marks") => {
+    if (to === "marks") openMarksPanel();
+    else {
+      setMarksPanel(false);
+      openContents();
+    }
   };
 
   /** Reading, at a physical page: stay in Reading and show that page's text. */
@@ -460,8 +488,15 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     setMarksOpen((open) => (open === position ? null : position));
   };
   const closeMarks = () => {
+    const position = marksOpen;
     setMarksOpen(null);
-    requestAnimationFrame(() => marksOpener.current?.focus({ preventScroll: true }));
+    requestAnimationFrame(() => {
+      // The marker that opened the panel, or (opened from the Marks list) the marker of that paragraph.
+      const marker = marksOpener.current?.isConnected
+        ? marksOpener.current
+        : bodyRef.current?.querySelector<HTMLElement>(`[data-seg-position="${position}"] [data-source-marker]`);
+      marker?.focus({ preventScroll: true });
+    });
   };
 
   /** A formatted EPUB place with both of its faces: document and element, and the matching segment of the text. */
@@ -598,6 +633,20 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     list.push({ start: m.start, end: m.end, active: m === current });
     findMarks.set(m.position, list);
   }
+
+  /** A mark chosen in the Marks panel: to its place (a jump, so Back returns), with its paragraph's marks shown in Reading. */
+  const chooseMark = (mark: SourceAnnotation) => {
+    setMarksPanel(false);
+    if (mark.start) {
+      jumpTo({ position: mark.start.position });
+      if (!showOriginal) {
+        marksOpener.current = null;
+        setMarksOpen(mark.start.position);
+      }
+    } else if (mark.pageNumber !== null) {
+      jumpTo({ page: mark.pageNumber, fraction: mark.fraction ?? 0 });
+    }
+  };
 
   const chooseEntry = (item: ContentsItem) => {
     const target = item.target;
@@ -809,9 +858,58 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const findBar = finding ? (
     <FindBar find={finder.find} focusKey={findFocus} onType={finder.type} onSubmit={finder.submit} onStep={finder.step} onClose={closeFind} />
   ) : null;
+  const panelSwitch =
+    contents.length > 0 ? (
+      <div role="group" aria-label={t("library.marks.panels")} className="flex shrink-0 rounded-aw border border-border p-0.5">
+        {(["contents", "marks"] as const).map((which) => (
+          <button
+            key={which}
+            type="button"
+            aria-pressed={which === "marks" ? marksPanel : panel !== null}
+            onClick={() => switchPanels(which)}
+            className="min-h-8 rounded-[4px] px-2 font-ui text-[0.875rem] text-text-strong hover:bg-bg-secondary aria-pressed:bg-primary aria-pressed:text-on-primary"
+          >
+            {which === "marks" ? t("library.marks.title") : t("library.contents.title")}
+          </button>
+        ))}
+      </div>
+    ) : null;
   const contentsPanel = panel ? (
-    <ContentsPanel id={`${id}-contents`} title={s?.title ?? ""} items={contents} generated={contentsGenerated} currentId={panel.currentId} layout={contentsLayout} onSelect={chooseEntry} onClose={closeContents} />
+    <ContentsPanel
+      id={`${id}-contents`}
+      title={s?.title ?? ""}
+      items={contents}
+      generated={contentsGenerated}
+      currentId={panel.currentId}
+      layout={contentsLayout}
+      onSelect={chooseEntry}
+      onClose={closeContents}
+      switcher={panelSwitch}
+    />
+  ) : marksPanel ? (
+    <SourceMarksPanel
+      id={`${id}-marks`}
+      title={s?.title ?? ""}
+      marks={marks.all}
+      layout={contentsLayout}
+      switcher={panelSwitch}
+      onSelect={chooseMark}
+      onChanged={() => void marks.reload()}
+      onClose={closeMarksPanel}
+    />
   ) : null;
+  const marksButton = (
+    <Button
+      ref={marksPanelOpener}
+      variant="quiet"
+      aria-expanded={marksPanel}
+      aria-controls={marksPanel ? `${id}-marks` : undefined}
+      title={t("library.marks.show")}
+      onClick={() => (marksPanel ? closeMarksPanel() : openMarksPanel())}
+    >
+      <Highlighter className="size-4" aria-hidden="true" /> {t("library.marks.title")}
+    </Button>
+  );
 
   if (inPane) {
     // A column: controls that never scroll away, then Reading (which scrolls
@@ -837,6 +935,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
             {placeButtons}
             {findButton}
             {contentsButton}
+            {marksButton}
           </div>
         </div>
         {findBar}
@@ -879,6 +978,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         {placeButtons}
         {findButton}
         {contentsButton}
+        {marksButton}
       </div>
       {findBar}
       <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">

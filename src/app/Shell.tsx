@@ -56,15 +56,15 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
       // and from every other screen, it opens in the full-width reader,
       // whose Back returns to where it was opened from (after adding a
       // source: the library).
-      openSource: (sourceId, segmentId) => {
+      openSource: (sourceId, segmentId, position) => {
         if (view === "workspace" && (open.sources || window.innerWidth >= NARROW_WIDTH)) {
           if (!open.sources) setOpen("sources", true);
           const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-          setPaneSource((current) => ({ sourceId, segmentId, opener, key: (current?.key ?? 0) + 1 }));
+          setPaneSource((current) => ({ sourceId, segmentId, position, opener, key: (current?.key ?? 0) + 1 }));
           return;
         }
         const from = view === "addSource" ? "library" : view === "source" ? (reading?.from ?? "workspace") : view;
-        setReading({ sourceId, segmentId, from });
+        setReading({ sourceId, segmentId, from, position });
         setView("source");
       },
       addSource: () => {

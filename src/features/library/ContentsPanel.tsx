@@ -20,6 +20,8 @@ interface ContentsPanelProps {
   layout: ContentsLayout;
   onSelect: (item: ContentsItem) => void;
   onClose: () => void;
+  /** "Contents | Marks", when the source has marks too. */
+  switcher?: React.ReactNode;
 }
 
 /** The ids of the entries on the way to `id` (not `id` itself), outermost first; empty if it is not found. */
@@ -58,7 +60,7 @@ function branches(items: ContentsItem[], out: string[] = []): string[] {
  * (and, like Close, hands focus back to whatever opened the panel, which the
  * reader does).
  */
-export function ContentsPanel({ id, title, items, generated = false, currentId, layout, onSelect, onClose }: ContentsPanelProps) {
+export function ContentsPanel({ id, title, items, generated = false, currentId, layout, onSelect, onClose, switcher }: ContentsPanelProps) {
   const { t } = useTranslation();
   const heading = useRef<HTMLHeadingElement>(null);
   const root = useRef<HTMLElement>(null);
@@ -99,11 +101,12 @@ export function ContentsPanel({ id, title, items, generated = false, currentId, 
       }}
       className={`${place} z-20 flex min-h-0 flex-col bg-bg font-ui`}
     >
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border-subtle px-3 py-1.5">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border-subtle px-3 py-1.5">
         <h3 ref={heading} tabIndex={-1} className="m-0 font-display text-[1.0625rem] font-heading text-text-strong">
           {generated ? t("library.contents.generated") : t("library.contents.title")}
         </h3>
         <div className="flex shrink-0 items-center">
+          {switcher}
           {all.length > 0 && (
             <Button variant="quiet" onClick={() => setOpen(everything ? new Set() : new Set(all))}>
               {everything ? t("library.contents.collapseAll") : t("library.contents.expandAll")}

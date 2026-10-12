@@ -142,6 +142,8 @@ pub fn run() {
             commands::source_annotations::source_annotation_create,
             commands::source_annotations::source_annotation_update,
             commands::source_annotations::source_annotation_delete,
+            commands::source_annotations::source_marks_list,
+            commands::source_annotations::source_marks_sources,
             commands::study_passages::study_passage_list,
             commands::study_passages::study_passage_add,
             commands::study_passages::study_passage_remove,

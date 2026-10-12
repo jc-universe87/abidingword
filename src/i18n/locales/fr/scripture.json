@@ -203,16 +203,30 @@
       "none": "Aucune marque pour l’instant.",
       "noneBody": "Les surlignages, notes et signets ajoutés pendant la lecture apparaîtront ici.",
       "noMatch": "Rien ne correspond. Essayez un autre livre ou une autre couleur.",
-      "noSearch": "Aucune note ne correspond à votre recherche."
+      "noSearch": "Aucune note ne correspond à votre recherche.",
+      "noneSources": "Aucune marque dans vos sources pour l’instant.",
+      "noneSourcesBody": "Sélectionnez du texte en lisant une source pour le surligner ou y ajouter une note.",
+      "noMatchSources": "Rien ne correspond. Essayez une autre source ou une autre couleur."
     },
     "result": {
       "note": "Note",
       "highlight": "Surlignage",
       "bookmark": "Signet",
       "wholeVerse": "Verset entier",
-      "show": "Afficher dans la Bible"
+      "show": "Afficher dans la Bible",
+      "showSource": "Ouvrir dans la source"
     },
-    "concordance": "Concordance"
+    "concordance": "Concordance",
+    "scope": {
+      "label": "Afficher les marques de",
+      "all": "Bible et sources",
+      "bible": "Bible seulement",
+      "sources": "Sources seulement"
+    },
+    "source": "Source",
+    "allSources": "Toutes les sources",
+    "sectionBible": "Dans la Bible",
+    "sectionSources": "Dans vos sources"
   },
   "history": {
     "group": "Historique de la Bible",

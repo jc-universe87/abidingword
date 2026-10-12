@@ -40,6 +40,7 @@ import type {
   CreateAnnotation,
   MarksPage,
   MarksQuery,
+  HighlightColor,
   DetectedReference,
   ImportPreview,
   ImportRequest,
@@ -87,6 +88,9 @@ import type {
   SourceAnnotation,
   CreateSourceAnnotation,
   UpdateSourceAnnotation,
+  SourceMarksPage,
+  MarkedSource,
+  SourceAnnotationKind,
 } from "@/types/library";
 
 export interface Api {
@@ -184,6 +188,10 @@ export interface Api {
   sourceAnnotationCreate(input: CreateSourceAnnotation): Promise<SourceAnnotation>;
   sourceAnnotationUpdate(input: UpdateSourceAnnotation): Promise<SourceAnnotation>;
   sourceAnnotationDelete(id: string): Promise<void>;
+  /** A page of the marks in library sources (by source, then reading order), for the Marks view. */
+  sourceMarksList(query: { kind?: SourceAnnotationKind; sourceId?: string; color?: HighlightColor; query?: string; limit?: number; offset?: number }): Promise<SourceMarksPage>;
+  /** The sources that have marks, with how many. */
+  sourceMarksSources(): Promise<MarkedSource[]>;
   findingSourceAdd(input: { findingId: string; segmentId: string }): Promise<Finding>;
   findingSourceRemove(citationId: string): Promise<Finding>;
   studyBlockCreate(input: CreateStudyBlock): Promise<StudyBlock>;
@@ -352,6 +360,8 @@ export const tauriApi: Api = {
   sourceAnnotationCreate: (input) => call("source_annotation_create", { input }),
   sourceAnnotationUpdate: (input) => call("source_annotation_update", { input }),
   sourceAnnotationDelete: (id) => call("source_annotation_delete", { id }),
+  sourceMarksList: (query) => call("source_marks_list", { query }),
+  sourceMarksSources: () => call("source_marks_sources"),
   findingSourceAdd: (input) => call("finding_source_add", { input }),
   findingSourceRemove: (citationId) => call("finding_source_remove", { citationId }),
   studyBlockCreate: (input) => call("study_block_create", { input }),

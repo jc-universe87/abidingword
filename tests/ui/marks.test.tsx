@@ -51,6 +51,12 @@ async function openMarks(api: MemoryApi) {
   return user;
 }
 
+/** Bible marks only: the view's choice that offers a book. */
+async function bibleOnly(user: Awaited<ReturnType<typeof openMarks>>) {
+  await user.click(within(within(pane()).getByRole("group", { name: "Show marks from" })).getByRole("button", { name: "Bible only" }));
+  await waitFor(() => expect(within(pane()).getByRole("combobox", { name: "Book" })).toBeInTheDocument());
+}
+
 afterEach(async () => {
   await act(async () => {
     await i18n.changeLanguage("en");
@@ -119,6 +125,7 @@ describe("the list", () => {
 
   it("narrows to one book", async () => {
     const user = await openMarks(await seeded());
+    await bibleOnly(user);
     await user.selectOptions(within(pane()).getByRole("combobox", { name: "Book" }), "Romans");
     await waitFor(() => expect(labels()).toEqual(["Romans 8:1", "Romans 8:28"]));
     await user.selectOptions(within(pane()).getByRole("combobox", { name: "Book" }), "All books");
@@ -186,6 +193,7 @@ describe("empty and long lists", () => {
   it("says so when a choice leaves nothing", async () => {
     const user = await openMarks(await seeded());
     await user.click(kind("Bookmarks"));
+    await bibleOnly(user);
     await user.selectOptions(within(pane()).getByRole("combobox", { name: "Book" }), "Romans");
     expect(await within(pane()).findByText("Nothing here matches. Try another book or colour.")).toBeInTheDocument();
   });
@@ -259,6 +267,7 @@ describe("what each mark says", () => {
 describe("going back to the passage", () => {
   it("shows the verse in the Bible, in the same translation", async () => {
     const user = await openMarks(await seeded());
+    await bibleOnly(user);
     await user.selectOptions(within(pane()).getByRole("combobox", { name: "Book" }), "Romans");
     await user.click(await within(pane()).findByRole("button", { name: /Romans 8:28/ }));
     expect(screen.queryByRole("heading", { level: 2, name: "Marks" })).toBeNull();
@@ -311,13 +320,17 @@ describe("keyboard, narrow panes and structure", () => {
     switchTo("Marks").focus();
     await user.tab(); // Concordance (v0.12), the last of the switch
     await user.tab();
+    const scopes = within(pane()).getByRole("group", { name: "Show marks from" });
+    expect(within(scopes).getByRole("button", { name: "Bible and sources" })).toHaveFocus();
+    await user.tab();
+    await user.tab();
+    expect(within(scopes).getByRole("button", { name: "Sources only" })).toHaveFocus();
+    await user.tab();
     expect(kind("All")).toHaveFocus();
     await user.tab();
     await user.tab();
     await user.tab();
     expect(kind("Bookmarks")).toHaveFocus();
-    await user.tab();
-    expect(within(pane()).getByRole("combobox", { name: "Book" })).toHaveFocus();
     await user.tab();
     expect(within(pane()).getByRole("searchbox", { name: "Search your notes" })).toHaveFocus();
     await user.tab();
@@ -328,7 +341,7 @@ describe("keyboard, narrow panes and structure", () => {
   });
 
   it("stacks as a list of cards with wrapping controls, never a table or a wide row", async () => {
-    await openMarks(await seeded());
+    await bibleOnly(await openMarks(await seeded()));
     expect(within(pane()).queryByRole("table")).toBeNull();
     expect(within(pane()).getByRole("list")).toHaveClass("flex-col");
     expect(kinds().className).toMatch(/\bflex-wrap\b/);

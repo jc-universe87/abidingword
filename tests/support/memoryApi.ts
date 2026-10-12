@@ -1483,6 +1483,34 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       found.updatedAt = new Date().toISOString();
       return shown(found);
     },
+    sourceMarksList: async ({ kind, sourceId, color, query, limit = 30, offset = 0 }) => {
+      const needle = query?.trim().toLowerCase();
+      const wanted = needle ? "note" : kind;
+      const titleOf = (id: string) => library.sources.find((x) => x.id === id);
+      const all = library.annotations
+        .filter((a) => !a.deleted && !titleOf(a.sourceId)?.deleted)
+        .filter((a) => (!wanted || a.kind === wanted) && (!sourceId || a.sourceId === sourceId) && (!color || (a.kind === "highlight" && a.color === color)))
+        .filter((a) => !needle || a.content.toLowerCase().includes(needle))
+        .map((a) => ({ ...shown(a), sourceTitle: titleOf(a.sourceId)!.title, sourceAuthor: titleOf(a.sourceId)!.author }))
+        .sort(
+          (a, b) =>
+            a.sourceTitle.localeCompare(b.sourceTitle) ||
+            Number(a.state === "unresolved") - Number(b.state === "unresolved") ||
+            (a.start?.position ?? a.position ?? 0) - (b.start?.position ?? b.position ?? 0) ||
+            (a.start?.offset ?? 0) - (b.start?.offset ?? 0),
+        );
+      return { marks: all.slice(offset, offset + limit), offset, hasMore: all.length > offset + limit };
+    },
+    sourceMarksSources: async () => {
+      const counts = new Map<string, number>();
+      for (const a of library.annotations) {
+        const source = library.sources.find((x) => x.id === a.sourceId);
+        if (!a.deleted && source && !source.deleted) counts.set(a.sourceId, (counts.get(a.sourceId) ?? 0) + 1);
+      }
+      return [...counts]
+        .map(([sourceId, count]) => ({ sourceId, title: library.sources.find((x) => x.id === sourceId)!.title, count }))
+        .sort((a, b) => a.title.localeCompare(b.title));
+    },
     sourceAnnotationDelete: async (annotationId) => {
       const found = library.annotations.find((a) => a.id === annotationId && !a.deleted);
       if (!found) throw new ApiError("notFound", "This mark could not be found.");

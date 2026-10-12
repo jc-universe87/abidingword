@@ -248,6 +248,11 @@
     "colourIs": "Color: {{color}}",
     "wholeParagraph": "Párrafo completo",
     "unresolved": "Este lugar ya no se encuentra en el texto.",
-    "empty": "Todavía no hay marcas en esta fuente. Seleccione texto para resaltarlo o añadir una nota."
+    "empty": "Todavía no hay marcas en esta fuente. Seleccione texto para resaltarlo o añadir una nota.",
+    "for": "Marcas en {{title}}",
+    "close": "Cerrar las marcas",
+    "show": "Mostrar las marcas de esta fuente",
+    "delete": "Eliminar",
+    "panels": "Contenido o marcas"
   }
 }

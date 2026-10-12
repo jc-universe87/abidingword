@@ -248,6 +248,11 @@
     "colourIs": "Cor: {{color}}",
     "wholeParagraph": "Parágrafo inteiro",
     "unresolved": "Este lugar já não se encontra no texto.",
-    "empty": "Ainda não há marcas nesta fonte. Selecione texto para destacá-lo ou adicionar uma nota."
+    "empty": "Ainda não há marcas nesta fonte. Selecione texto para destacá-lo ou adicionar uma nota.",
+    "for": "Marcas em {{title}}",
+    "close": "Fechar as marcas",
+    "show": "Mostrar as marcas desta fonte",
+    "delete": "Excluir",
+    "panels": "Conteúdo ou marcas"
   }
 }

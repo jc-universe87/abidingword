@@ -28,8 +28,9 @@ use crate::db::{library, new_id, now, workspaces};
 use crate::error::{AppError, AppResult, UserMessage};
 use crate::library::annotations::{
     absorb, pack, pick, remainders, unpack, AnchorState, AnnotationPoint, CreateSourceAnnotation,
-    Line, LinePoint, Pick, PlaceDetails, SourceAnnotation, Span, StoredSegment,
-    UpdateSourceAnnotation, SOURCE_ANNOTATION_KINDS,
+    Line, LinePoint, MarkedSource, Pick, PlaceDetails, SourceAnnotation, SourceMark,
+    SourceMarksPage, SourceMarksQuery, Span, StoredSegment, UpdateSourceAnnotation,
+    SOURCE_ANNOTATION_KINDS,
 };
 use crate::scripture::annotation_data::{validate_color, DEFAULT_HIGHLIGHT_COLOR};
 
@@ -319,6 +320,115 @@ pub fn list_for_source(conn: &Connection, source_id: &str) -> AppResult<Vec<Sour
         )
     });
     Ok(marks)
+}
+
+const MARKS_PAGE: i64 = 30;
+const MARKS_PAGE_MAX: i64 = 100;
+
+/// A page of the person's marks in library sources, for the Marks view: by
+/// source title, then reading order (unresolved last in each source). Live
+/// marks of live sources only. Filters are optional: kind, source, highlight
+/// colour, and words in a note (case-insensitive in any script, read while
+/// walking the ordered rows, as the Bible's marks are). Marks are shown as
+/// last found; they are found again when their source is opened.
+pub fn marks(conn: &Connection, query: &SourceMarksQuery) -> AppResult<SourceMarksPage> {
+    let mut clauses = vec!["a.deleted_at IS NULL AND s.deleted_at IS NULL".to_string()];
+    let mut values: Vec<rusqlite::types::Value> = Vec::new();
+    let needle = query
+        .query
+        .as_deref()
+        .map(|q| q.trim().to_lowercase())
+        .filter(|q| !q.is_empty());
+    let kind = if needle.is_some() {
+        Some("note")
+    } else {
+        query.kind.as_deref()
+    };
+    if let Some(kind) = kind {
+        check_kind(kind)?;
+        clauses.push("a.kind = ?".into());
+        values.push(kind.to_string().into());
+    }
+    if let Some(source) = query.source_id.as_deref() {
+        clauses.push("a.source_id = ?".into());
+        values.push(source.to_string().into());
+    }
+    if let Some(color) = query.color.as_deref() {
+        validate_color(color)?;
+        clauses.push(format!(
+            "a.kind = 'highlight' AND COALESCE(a.color, '{DEFAULT_HIGHLIGHT_COLOR}') = ?"
+        ));
+        values.push(color.to_string().into());
+    }
+    let limit = query.limit.unwrap_or(MARKS_PAGE).clamp(1, MARKS_PAGE_MAX) as usize;
+    let offset = query.offset.unwrap_or(0).max(0) as usize;
+    let columns = COLUMNS
+        .split(',')
+        .map(|c| format!("a.{}", c.trim()))
+        .collect::<Vec<_>>()
+        .join(", ");
+    let mut stmt = conn.prepare(&format!(
+        "SELECT {columns}, s.title, s.author FROM source_annotations a
+         JOIN sources s ON s.id = a.source_id
+         WHERE {}
+         ORDER BY s.title COLLATE NOCASE, a.source_id, a.anchor_state = 'unresolved',
+                  a.position, a.start_offset, a.created_at, a.rowid",
+        clauses.join(" AND ")
+    ))?;
+    let mut rows = stmt.query(rusqlite::params_from_iter(values))?;
+    let mut page: Vec<(Raw, String, Option<String>)> = Vec::with_capacity(limit);
+    let mut skipped = 0usize;
+    let mut has_more = false;
+    while let Some(row) = rows.next()? {
+        let raw = from_row(row)?;
+        if let Some(needle) = &needle {
+            if !raw.content.to_lowercase().contains(needle.as_str()) {
+                continue;
+            }
+        }
+        if skipped < offset {
+            skipped += 1;
+        } else if page.len() == limit {
+            has_more = true;
+            break;
+        } else {
+            page.push((raw, row.get(21)?, row.get(22)?));
+        }
+    }
+    drop(rows);
+    let marks = page
+        .into_iter()
+        .map(|(raw, source_title, source_author)| {
+            Ok(SourceMark {
+                annotation: to_annotation(conn, raw)?,
+                source_title,
+                source_author,
+            })
+        })
+        .collect::<AppResult<Vec<_>>>()?;
+    Ok(SourceMarksPage {
+        marks,
+        offset: offset as i64,
+        has_more,
+    })
+}
+
+/// The live sources that have live marks, by title, with how many.
+pub fn marked_sources(conn: &Connection) -> AppResult<Vec<MarkedSource>> {
+    let mut stmt = conn.prepare(
+        "SELECT s.id, s.title, COUNT(*) FROM source_annotations a
+         JOIN sources s ON s.id = a.source_id
+         WHERE a.deleted_at IS NULL AND s.deleted_at IS NULL
+         GROUP BY s.id ORDER BY s.title COLLATE NOCASE, s.id",
+    )?;
+    let rows = stmt.query_map([], |r| {
+        Ok(MarkedSource {
+            source_id: r.get(0)?,
+            title: r.get(1)?,
+            count: r.get(2)?,
+        })
+    })?;
+    Ok(rows.collect::<Result<_, _>>()?)
 }
 
 /// How many live annotations a source has (said before it is removed).

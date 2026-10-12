@@ -353,3 +353,22 @@ export interface UpdateSourceAnnotation {
   content?: string;
   color?: HighlightColor;
 }
+
+/** A source annotation with the source it is in, for the Marks view. */
+export interface SourceMark extends SourceAnnotation {
+  sourceTitle: string;
+  sourceAuthor: string | null;
+}
+
+export interface SourceMarksPage {
+  marks: SourceMark[];
+  offset: number;
+  hasMore: boolean;
+}
+
+/** A source that has marks, for choosing one in the Marks view. */
+export interface MarkedSource {
+  sourceId: string;
+  title: string;
+  count: number;
+}

@@ -238,6 +238,11 @@
     "colourIs": "Farbe: {{color}}",
     "wholeParagraph": "Ganzer Absatz",
     "unresolved": "Diese Stelle ist im Text nicht mehr zu finden.",
-    "empty": "In dieser Quelle gibt es noch keine Anmerkungen. Wählen Sie Text aus, um ihn zu markieren oder eine Notiz hinzuzufügen."
+    "empty": "In dieser Quelle gibt es noch keine Anmerkungen. Wählen Sie Text aus, um ihn zu markieren oder eine Notiz hinzuzufügen.",
+    "for": "Anmerkungen in {{title}}",
+    "close": "Anmerkungen schließen",
+    "show": "Die Anmerkungen in dieser Quelle zeigen",
+    "delete": "Löschen",
+    "panels": "Inhalt oder Anmerkungen"
   }
 }

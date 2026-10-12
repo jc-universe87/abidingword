@@ -248,6 +248,11 @@
     "colourIs": "Couleur : {{color}}",
     "wholeParagraph": "Paragraphe entier",
     "unresolved": "Cet endroit est introuvable dans le texte.",
-    "empty": "Aucune marque dans cette source pour l’instant. Sélectionnez du texte pour le surligner ou y ajouter une note."
+    "empty": "Aucune marque dans cette source pour l’instant. Sélectionnez du texte pour le surligner ou y ajouter une note.",
+    "for": "Marques dans {{title}}",
+    "close": "Fermer les marques",
+    "show": "Afficher les marques de cette source",
+    "delete": "Supprimer",
+    "panels": "Sommaire ou marques"
   }
 }

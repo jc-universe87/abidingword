@@ -208,3 +208,107 @@ describe("marking a place without selecting words", () => {
     expect(live(api)[0]).toMatchObject({ kind: "highlight", color: "blue", quote: SERMON.segments[0]!.text });
   });
 });
+
+/** Marks made directly in the in-memory core (test setup). */
+async function seedMarks(api: MemoryApi) {
+  const seg = (start: string) => api.state.library.segments.find((x) => x.text.startsWith(start))!;
+  const a = seg("Abide");
+  const c = seg("By this");
+  await api.sourceAnnotationCreate({ sourceId: a.sourceId, kind: "bookmark", place: { segmentId: a.id } });
+  const at = c.text.indexOf("much fruit");
+  await api.sourceAnnotationCreate({
+    sourceId: c.sourceId,
+    kind: "note",
+    content: "Fruit is the evidence.",
+    start: { segmentId: c.id, offset: at },
+    end: { segmentId: c.id, offset: at + 10 },
+    quote: "much fruit",
+  });
+  return { a, c };
+}
+
+describe("the source's marks beside its text", () => {
+  it("lists them in reading order and goes to one, showing its paragraph's marks", async () => {
+    const api = createMemoryApi();
+    api.installFixtureBible("FXA", "alpha");
+    api.state.settings.scripturePassage = "PSA.23";
+    api.installFixtureSource(SERMON);
+    await seedMarks(api);
+    const { user } = await renderApp(api);
+    await user.click(await within(screen.getByRole("complementary", { name: "Sources" })).findByRole("button", { name: "Open library" }));
+    await user.click((await within(await screen.findByRole("main")).findAllByRole("button", { name: /The True Vine/ }))[0]!);
+    await within(screen.getByTestId("reader-body")).findByText(/Abide in me/);
+
+    const opener = within(screen.getByTestId("reader-header")).getByRole("button", { name: "Marks" });
+    await user.click(opener);
+    const panel = await screen.findByRole("region", { name: "Marks in The True Vine" });
+    const rows = within(panel).getAllByRole("button").filter((b) => b.closest("li"));
+    expect(rows.map((r) => r.textContent)).toEqual([expect.stringContaining("Bookmark"), expect.stringContaining("Fruit is the evidence.")]);
+    await user.click(rows[1]!);
+    await waitFor(() => expect(screen.queryByRole("region", { name: "Marks in The True Vine" })).toBeNull());
+    const shown = await screen.findByRole("region", { name: "Marks here" });
+    expect(within(shown).getByText("Fruit is the evidence.")).toBeInTheDocument();
+    // Escape in the panel closes it and gives focus back to its button.
+    await user.click(opener);
+    await screen.findByRole("region", { name: "Marks in The True Vine" });
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(opener).toHaveFocus());
+  });
+
+  it("keeps a mark that can no longer be found, with its words, and lets it be deleted", async () => {
+    const api = createMemoryApi();
+    api.installFixtureBible("FXA", "alpha");
+    api.state.settings.scripturePassage = "PSA.23";
+    api.installFixtureSource(SERMON);
+    await seedMarks(api);
+    const note = api.state.library.annotations.find((a) => a.kind === "note")!;
+    Object.assign(note, { state: "unresolved", start: null, end: null });
+    const { user } = await renderApp(api);
+    await user.click(await within(screen.getByRole("complementary", { name: "Sources" })).findByRole("button", { name: "Open library" }));
+    await user.click((await within(await screen.findByRole("main")).findAllByRole("button", { name: /The True Vine/ }))[0]!);
+    await within(screen.getByTestId("reader-body")).findByText(/Abide in me/);
+    // Never drawn in the text.
+    expect(screen.getByTestId("reader-body").querySelector("[data-source-note]")).toBeNull();
+    await user.click(within(screen.getByTestId("reader-header")).getByRole("button", { name: "Marks" }));
+    const panel = await screen.findByRole("region", { name: "Marks in The True Vine" });
+    expect(within(panel).getByText("This place can no longer be found in the text.")).toBeInTheDocument();
+    expect(within(panel).getByText(/much fruit/)).toBeInTheDocument();
+    await user.click(within(panel).getByRole("button", { name: "Delete" }));
+    await waitFor(() => expect(within(panel).queryByText("This place can no longer be found in the text.")).toBeNull());
+    expect(live(api)).toHaveLength(1);
+  });
+});
+
+describe("source marks in the Marks view", () => {
+  it("lists Bible and source marks together, narrows to sources, and opens a source at its mark", async () => {
+    const api = createMemoryApi();
+    api.installFixtureBible("FXA", "alpha");
+    api.state.settings.scripturePassage = "JHN.15";
+    api.installFixtureSource(SERMON);
+    await seedMarks(api);
+    await api.annotationCreate({ reference: "JHN.15.4", kind: "bookmark" });
+    const { user } = await renderApp(api);
+    const scripture = screen.getByRole("complementary", { name: "Scripture" });
+    await waitFor(() => expect(scripture.querySelector('[data-verse-text="JHN.15.1"]')).not.toBeNull());
+    await user.click(within(scripture).getByRole("button", { name: "Marks" }));
+    expect(await within(scripture).findByRole("heading", { level: 3, name: "In the Bible" })).toBeInTheDocument();
+    expect(await within(scripture).findByRole("heading", { level: 3, name: "In your sources" })).toBeInTheDocument();
+
+    await user.click(within(within(scripture).getByRole("group", { name: "Show marks from" })).getByRole("button", { name: "Sources only" }));
+    await waitFor(() => expect(within(scripture).queryByRole("heading", { name: "In the Bible" })).toBeNull());
+    const source = await within(scripture).findByRole("combobox", { name: "Source" });
+    expect(within(source).getByRole("option", { name: "The True Vine" })).toBeInTheDocument();
+    await user.click(within(scripture).getByRole("button", { name: "Notes" }));
+    const card = await within(scripture).findByRole("button", { name: /The True Vine.*Note/ });
+    expect(card).toHaveTextContent("Fruit is the evidence.");
+    await user.click(card);
+    // The source opens beside Scripture, at the marked paragraph.
+    const sources = screen.getByRole("complementary", { name: "Sources" });
+    const marked = await waitFor(() => {
+      const target = sources.querySelector<HTMLElement>("[data-target]");
+      expect(target).not.toBeNull();
+      return target!;
+    });
+    expect(marked).toHaveTextContent(/By this my Father/);
+  });
+});

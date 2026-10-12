@@ -139,6 +139,46 @@ pub struct SourceAnnotation {
     pub revision: i64,
 }
 
+/// Filters for the Marks view's source marks; all optional.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct SourceMarksQuery {
+    pub kind: Option<String>,
+    pub source_id: Option<String>,
+    pub color: Option<String>,
+    /// Words in a note.
+    pub query: Option<String>,
+    pub limit: Option<i64>,
+    pub offset: Option<i64>,
+}
+
+/// A source annotation with the source it is in, for the Marks view.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SourceMark {
+    #[serde(flatten)]
+    pub annotation: SourceAnnotation,
+    pub source_title: String,
+    pub source_author: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SourceMarksPage {
+    pub marks: Vec<SourceMark>,
+    pub offset: i64,
+    pub has_more: bool,
+}
+
+/// A source that has marks, for the Marks view's choice of source.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MarkedSource {
+    pub source_id: String,
+    pub title: String,
+    pub count: i64,
+}
+
 /// Format-specific placement stored in `source_annotations.anchor`.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct PlaceDetails {

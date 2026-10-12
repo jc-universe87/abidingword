@@ -203,16 +203,30 @@
       "none": "Aún no hay marcas.",
       "noneBody": "Los resaltados, notas y marcadores que añadas al leer aparecerán aquí.",
       "noMatch": "No hay coincidencias. Prueba con otro libro u otro color.",
-      "noSearch": "Ninguna nota coincide con tu búsqueda."
+      "noSearch": "Ninguna nota coincide con tu búsqueda.",
+      "noneSources": "Todavía no hay marcas en sus fuentes.",
+      "noneSourcesBody": "Seleccione texto mientras lee una fuente para resaltarlo o añadir una nota.",
+      "noMatchSources": "Nada coincide. Pruebe con otra fuente u otro color."
     },
     "result": {
       "note": "Nota",
       "highlight": "Resaltado",
       "bookmark": "Marcador",
       "wholeVerse": "Versículo completo",
-      "show": "Mostrar en la Biblia"
+      "show": "Mostrar en la Biblia",
+      "showSource": "Abrir en la fuente"
     },
-    "concordance": "Concordancia"
+    "concordance": "Concordancia",
+    "scope": {
+      "label": "Mostrar marcas de",
+      "all": "Biblia y fuentes",
+      "bible": "Solo la Biblia",
+      "sources": "Solo fuentes"
+    },
+    "source": "Fuente",
+    "allSources": "Todas las fuentes",
+    "sectionBible": "En la Biblia",
+    "sectionSources": "En sus fuentes"
   },
   "history": {
     "group": "Historial de la Biblia",

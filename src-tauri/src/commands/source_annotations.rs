@@ -3,7 +3,8 @@ use tauri::State;
 use super::CommandResult;
 use crate::db::source_annotations;
 use crate::library::annotations::{
-    CreateSourceAnnotation, SourceAnnotation, UpdateSourceAnnotation,
+    CreateSourceAnnotation, MarkedSource, SourceAnnotation, SourceMarksPage, SourceMarksQuery,
+    UpdateSourceAnnotation,
 };
 use crate::state::AppState;
 
@@ -36,4 +37,19 @@ pub fn source_annotation_update(
 #[tauri::command(async)]
 pub fn source_annotation_delete(state: State<'_, AppState>, id: String) -> CommandResult<()> {
     state.db(|conn| source_annotations::delete(conn, &id))
+}
+
+/// A page of the marks in library sources, for the Marks view.
+#[tauri::command(async)]
+pub fn source_marks_list(
+    state: State<'_, AppState>,
+    query: SourceMarksQuery,
+) -> CommandResult<SourceMarksPage> {
+    state.db(|conn| source_annotations::marks(conn, &query))
+}
+
+/// The sources that have marks, for the Marks view's choice of source.
+#[tauri::command(async)]
+pub fn source_marks_sources(state: State<'_, AppState>) -> CommandResult<Vec<MarkedSource>> {
+    state.db(source_annotations::marked_sources)
 }
