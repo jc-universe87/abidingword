@@ -40,8 +40,15 @@ weighing policy or context logic.
   - whether `,` joins a list.
 - **Script:** a pack only reads text containing its script.
 - **Ordinary words:** words of this language that must never be read as
-  another language's book abbreviation in a source of this language. Only
-  certain cases belong here: a word on this list hides a real reference.
+  another language's book abbreviation in a source of this language. These
+  are **safety exceptions, not stop-word lists**: each entry closes a known
+  collision and has its test. Only words certainly ordinary in the language
+  belong here, because a word on the list hides a real reference. Never
+  extend a list speculatively.
+- **Reference lead-ins** (and, where a language writes them after the
+  reference, trailing ones): words that introduce a reference in running text
+  ("See", "Vgl.", "Voir", "참조"). A line that starts or ends with one is a
+  pointer, never a heading line.
 
 ## Adding a language
 
@@ -69,7 +76,9 @@ weighing policy or context logic.
    - false positives: ordinary words, times, decimals, dates in that language;
    - **collisions with every other pack**: run `recognise::contested_names()`,
      add a test for each new contested name, and update the expected list in
-     `tests/multilingual_references.rs`;
+     `tests/multilingual_references.rs` (a change to that list needs review);
+   - reference lead-ins: pointer lines are not headings
+     (`tests/contextual_references.rs`);
    - the fixture matrix (`tests/multilingual_references.rs`): the language's
      forms are found in every source language, and the others in its sources.
 

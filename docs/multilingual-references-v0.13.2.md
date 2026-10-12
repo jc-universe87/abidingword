@@ -93,14 +93,35 @@ For one text:
 A test fails if this list changes, so any new pack must account for the
 collisions it adds.
 
+## Source language: explicit references and shorthand
+
+- **Explicit references** may be recognised with **any** supported language
+  pack, whatever language the source is filed under, subject to the collision
+  and false-positive rules above. Examples: `John 15:4`, `Joh 15,4`,
+  `Jean 15,4`, `Juan 15,4`, `João 15:4`, `요한복음 15장 4절`.
+- **Bookless shorthand** (`15:4`, `15,4`, `v. 5`, `4절`) is read in the
+  **source language's** notation only, and only with context. It is never
+  multilingual. So the language a source is filed under still matters, and
+  stays correctable by the person.
+
 ## Context in PDF, DOCX and EPUB
 
 Context levels, nearest first:
 
 1. **A visible heading line** (new, every format). This is a short paragraph
-   that reads as a heading: at most 80 characters, not ending in `.`, `!`, `?`
-   or `…`, naming passages of one book. "A different section: Romans 8:1–4"
-   qualifies.
+   that reads as a heading:
+   - at most 80 characters;
+   - not ending in `.`, `!`, `?` or `…`;
+   - naming passages of exactly one book;
+   - not a pointer to a passage. A line that begins with a reference lead-in
+     of any language pack, or ends with a trailing one, is not a heading
+     (table below).
+
+   The reference may stand anywhere in the line. These qualify:
+   "Romans 8:1–4", "A different section: Romans 8:1–4", "The New Birth —
+   John 3:1–8", "Johannes 15,1–11 — Der wahre Weinstock",
+   "요한복음 15장 1-11절". These do not: "Compare John 3:16",
+   "See Romans 8:1".
    - It governs the following paragraphs like a section heading.
    - It ends at the next heading line (with or without a passage), a new
      section, or after 8 paragraphs.
@@ -110,7 +131,50 @@ Context levels, nearest first:
 
 Explicit references in the same paragraph and in the paragraphs just before
 are weighed with the nearest of these, as before. Two books in view means no
-link.
+link. A heading line, like a new section, ends what the paragraphs before it
+named.
+
+**Reference lead-ins** (`LanguagePack::reference_lead_ins` /
+`reference_tails`; every line is checked against every pack):
+
+| Language | Lead-ins at the start of a line | At the end |
+|---|---|---|
+| English | See, See also, Also see, Compare, Cf., Cp. | |
+| German | Siehe, Siehe auch, Vgl., Vergleiche, S. | |
+| French | Voir, Voir aussi, Comparer, Cf. | |
+| Spanish | Véase, Véase también, Ver, Comparar, Cf. | |
+| Portuguese | Ver, Ver também, Veja, Comparar, Cf. | |
+| Korean | 참고, 참조, 비교 | 참조, 참고 |
+
+A lead-in must be a whole word: "Seeds of Faith: Matthew 13:1–9" and
+"Verdad y libertad: Juan 8:31–36" are headings.
+
+**Suspension.** When a section's own heading or a visible heading line names a
+**different book**, the outer context it displaces is **suspended**. That
+outer context is the document main passage, an enclosing heading, or the
+heading line before.
+
+Rules:
+
+- It stays suspended after that section ends.
+- A suspended book resumes only when it is named again explicitly:
+  - by an explicit reference to it anywhere, or
+  - by a heading (a section's own heading or a heading line) naming it.
+- A neutral heading ("Application") and the end of a section resume nothing.
+- An enclosing heading whose book is suspended does not govern its sub-sections.
+
+| Sermon (main passage John 15:1–11) | Result |
+|---|---|
+| "A different section: Romans 8:1–4", then `8:2` | Romans 8:2 |
+| "Application", then `8:5` | **no link** (John is suspended) |
+| "Read John 15:9 now.", then `15:10` | John 15:10 (resumed by the explicit reference) |
+| or a heading "Fruit that remains: John 15:12–17", then `15:13` | John 15:13 (resumed by the heading) |
+
+The same holds for any pair of books, in every language's notation (tested
+with Psalm 23 / Isaiah 40, German `Joh`/`Röm`, Korean 요한복음/로마서). It also
+holds in Word and EPUB section structure (an h2 "Application" under an h1
+"John 15:1–11", after an h2 Romans section, gives no link), and without a
+main passage (a heading line displaced by another).
 
 | Fixture | PDF | DOCX (headings) | DOCX (plain paragraphs) | EPUB |
 |---|---|---|---|---|
@@ -120,9 +184,8 @@ link.
 | 9+ paragraphs after the heading line → `8:6` | none | — | — | — |
 | main passage John 15–16 → `15:4` ✓, `v. 5` none | ✓ | | | |
 
-One known semantic: in a sermon with a main passage, after a local section
-ends, the main passage applies again. A later `8:5` meant for Romans then
-reads as John 8:5. Notes, books and documents have no main passage.
+After a section on another book, the main passage stays suspended until it is
+named again (above). An incorrect link is worse than no link.
 
 The PDF fixture uses ASCII forms only, because the test PDF writer encodes
 WinAnsi text. Korean and accented forms are covered through plain text, DOCX
@@ -165,6 +228,13 @@ links, as before).
   - the sermon through PDF, DOCX (headings and plain paragraphs) and EPUB;
   - no leak after a heading line;
   - the multi-chapter main passage.
+- `tests/contextual_references.rs`:
+  - suspension and resumption: by an explicit reference, and by a heading;
+  - another book pair (Psalm/Isaiah) and the structured (DOCX) form;
+  - German and Korean shorthand;
+  - suspension without a main passage;
+  - pointer lines are not headings, in all six languages;
+  - a pointer line governs nothing.
 - `scripture::recognise` unit tests: order independence; contested names.
 - Updated to the new policy: `tests/passage_languages.rs`,
   `tests/source_references.rs`, `library::passage_index` (the language now
