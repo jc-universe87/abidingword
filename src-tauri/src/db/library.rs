@@ -354,6 +354,8 @@ pub fn remove(conn: &Connection, id: &str) -> AppResult<Option<String>> {
     let file = managed_file(conn, id)?;
     let now = now();
     let tx = conn.unchecked_transaction()?;
+    // Its marks go with it (soft-deleted, their words kept in the file).
+    crate::db::source_annotations::remove_with_source(&tx, id, &now)?;
     // Segments go (search entries by trigger, Scripture links by cascade,
     // citation segment links set to NULL by the foreign key).
     tx.execute("DELETE FROM source_segments WHERE source_id = ?1", [id])?;

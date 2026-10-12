@@ -112,5 +112,14 @@
     "otherTranslation": "The selected words belong to a different translation.",
     "notInPassage": "The selected words are not in this passage.",
     "notSingleVerse": "“{{passage}}” is not a single verse."
+  },
+  "sourceAnnotations": {
+    "noWords": "Select some words of the source first.",
+    "textChanged": "The selected words do not match the text of this source.",
+    "tooMuchText": "So much text cannot be marked at once.",
+    "placeGone": "This place is no longer in the source.",
+    "noPlace": "Choose a place in the source first.",
+    "bookmarkPlace": "A bookmark marks a place, not words.",
+    "wordsOnlyNotes": "Only notes have words of their own."
   }
 }

@@ -38,6 +38,7 @@ const EXPECTED_TABLES: &[&str] = &[
     "projects",
     "schema_versions",
     "settings",
+    "source_annotations",
     "source_files",
     "source_passages",
     "source_segments",

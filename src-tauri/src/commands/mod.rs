@@ -19,6 +19,7 @@ pub mod relations;
 pub mod scripture;
 pub mod sections;
 pub mod settings;
+pub mod source_annotations;
 pub mod studies;
 pub mod study_passages;
 pub mod templates;

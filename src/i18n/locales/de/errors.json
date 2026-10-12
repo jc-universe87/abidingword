@@ -112,5 +112,14 @@
     "otherTranslation": "Die ausgewählten Wörter gehören zu einer anderen Übersetzung.",
     "notInPassage": "Die ausgewählten Wörter gehören nicht zu dieser Stelle.",
     "notSingleVerse": "„{{passage}}“ ist kein einzelner Vers."
+  },
+  "sourceAnnotations": {
+    "noWords": "Wählen Sie zuerst einige Wörter der Quelle aus.",
+    "textChanged": "Die ausgewählten Wörter stimmen nicht mit dem Text dieser Quelle überein.",
+    "tooMuchText": "So viel Text kann nicht auf einmal markiert werden.",
+    "placeGone": "Diese Stelle ist nicht mehr in der Quelle.",
+    "noPlace": "Wählen Sie zuerst eine Stelle in der Quelle.",
+    "bookmarkPlace": "Ein Lesezeichen markiert eine Stelle, keine Wörter.",
+    "wordsOnlyNotes": "Nur Notizen haben einen eigenen Text."
   }
 }
