@@ -69,16 +69,16 @@ describe("marks in the formatted Original", () => {
     api.installFixtureSource(FORMATTED_BOOK);
     await markWords(api, "The middle paragraph.", "middle", "highlight", "green");
     const { user, reader, page } = await openOriginal(api);
-    let shown: Element | null = null;
+    const shown: Element[] = [];
     const real = Element.prototype.scrollIntoView;
     Element.prototype.scrollIntoView = function (this: Element) {
-      shown = this;
+      shown.push(this);
     };
     try {
       await user.click(within(reader).getByRole("button", { name: "Marks" }));
       const panel = await screen.findByRole("region", { name: "Marks in A Formatted Book" });
       await user.click(within(panel).getAllByRole("button").find((b) => b.closest("li"))!);
-      await waitFor(() => expect(shown).toBe(page().querySelector("mark[data-mark='green']")));
+      await waitFor(() => expect(shown.at(-1)).toBe(page().querySelector("mark[data-mark='green']")));
     } finally {
       Element.prototype.scrollIntoView = real;
     }
