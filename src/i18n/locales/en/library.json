@@ -208,5 +208,36 @@
     "previous": "Previous match",
     "next": "Next match",
     "close": "Close find"
+  },
+  "marks": {
+    "title": "Marks",
+    "selectedText": "Selected text",
+    "stripLabel": "Mark the selected text",
+    "highlight": "Highlight",
+    "addNote": "Add note",
+    "saveNote": "Save note",
+    "noteField": "Note",
+    "addNoteHere": "Add note here",
+    "noteHere": "Note on this paragraph",
+    "highlightParagraph": "Highlight this paragraph",
+    "bookmarkHere": "Bookmark this place",
+    "removeBookmarkHere": "Remove the bookmark here",
+    "kind": {
+      "highlight": "Highlight",
+      "note": "Note",
+      "bookmark": "Bookmark"
+    },
+    "marker_one": "{{count}} mark here: {{kinds}}",
+    "marker_other": "{{count}} marks here: {{kinds}}",
+    "here": "Marks here",
+    "changeColour": "Change colour",
+    "removeHighlight": "Remove highlight",
+    "editNote": "Edit note",
+    "deleteNote": "Delete note",
+    "removeBookmark": "Remove bookmark",
+    "colourIs": "Colour: {{color}}",
+    "wholeParagraph": "Whole paragraph",
+    "unresolved": "This place can no longer be found in the text.",
+    "empty": "No marks in this source yet. Select some text to highlight it or add a note."
   }
 }

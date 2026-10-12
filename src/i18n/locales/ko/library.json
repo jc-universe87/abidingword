@@ -199,5 +199,35 @@
     "previous": "이전 항목",
     "next": "다음 항목",
     "close": "찾기 닫기"
+  },
+  "marks": {
+    "title": "표시",
+    "selectedText": "선택한 글",
+    "stripLabel": "선택한 글 표시하기",
+    "highlight": "강조",
+    "addNote": "메모 추가",
+    "saveNote": "메모 저장",
+    "noteField": "메모",
+    "addNoteHere": "여기에 메모 추가",
+    "noteHere": "이 단락에 대한 메모",
+    "highlightParagraph": "이 단락 강조",
+    "bookmarkHere": "이 위치에 책갈피 추가",
+    "removeBookmarkHere": "이 위치의 책갈피 제거",
+    "kind": {
+      "highlight": "강조",
+      "note": "메모",
+      "bookmark": "책갈피"
+    },
+    "marker_other": "이곳의 표시 {{count}}개: {{kinds}}",
+    "here": "이곳의 표시",
+    "changeColour": "색 바꾸기",
+    "removeHighlight": "강조 제거",
+    "editNote": "메모 편집",
+    "deleteNote": "메모 삭제",
+    "removeBookmark": "책갈피 제거",
+    "colourIs": "색: {{color}}",
+    "wholeParagraph": "단락 전체",
+    "unresolved": "이 위치를 더 이상 글에서 찾을 수 없습니다.",
+    "empty": "이 자료에는 아직 표시가 없습니다. 글을 선택하여 강조하거나 메모를 추가하세요."
   }
 }

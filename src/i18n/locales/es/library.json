@@ -217,5 +217,37 @@
     "previous": "Coincidencia anterior",
     "next": "Coincidencia siguiente",
     "close": "Cerrar búsqueda"
+  },
+  "marks": {
+    "title": "Marcas",
+    "selectedText": "Texto seleccionado",
+    "stripLabel": "Marcar el texto seleccionado",
+    "highlight": "Resaltar",
+    "addNote": "Añadir nota",
+    "saveNote": "Guardar nota",
+    "noteField": "Nota",
+    "addNoteHere": "Añadir nota aquí",
+    "noteHere": "Nota sobre este párrafo",
+    "highlightParagraph": "Resaltar este párrafo",
+    "bookmarkHere": "Poner un marcador aquí",
+    "removeBookmarkHere": "Quitar el marcador de aquí",
+    "kind": {
+      "highlight": "Resaltado",
+      "note": "Nota",
+      "bookmark": "Marcador"
+    },
+    "marker_one": "{{count}} marca aquí: {{kinds}}",
+    "marker_many": "{{count}} marcas aquí: {{kinds}}",
+    "marker_other": "{{count}} marcas aquí: {{kinds}}",
+    "here": "Marcas aquí",
+    "changeColour": "Cambiar el color",
+    "removeHighlight": "Quitar el resaltado",
+    "editNote": "Editar nota",
+    "deleteNote": "Eliminar nota",
+    "removeBookmark": "Quitar el marcador",
+    "colourIs": "Color: {{color}}",
+    "wholeParagraph": "Párrafo completo",
+    "unresolved": "Este lugar ya no se encuentra en el texto.",
+    "empty": "Todavía no hay marcas en esta fuente. Seleccione texto para resaltarlo o añadir una nota."
   }
 }

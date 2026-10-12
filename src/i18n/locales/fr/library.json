@@ -217,5 +217,37 @@
     "previous": "Résultat précédent",
     "next": "Résultat suivant",
     "close": "Fermer la recherche"
+  },
+  "marks": {
+    "title": "Marques",
+    "selectedText": "Texte sélectionné",
+    "stripLabel": "Marquer le texte sélectionné",
+    "highlight": "Surligner",
+    "addNote": "Ajouter une note",
+    "saveNote": "Enregistrer la note",
+    "noteField": "Note",
+    "addNoteHere": "Ajouter une note ici",
+    "noteHere": "Note sur ce paragraphe",
+    "highlightParagraph": "Surligner ce paragraphe",
+    "bookmarkHere": "Mettre un signet ici",
+    "removeBookmarkHere": "Retirer le signet ici",
+    "kind": {
+      "highlight": "Surlignage",
+      "note": "Note",
+      "bookmark": "Signet"
+    },
+    "marker_one": "{{count}} marque ici : {{kinds}}",
+    "marker_many": "{{count}} marques ici : {{kinds}}",
+    "marker_other": "{{count}} marques ici : {{kinds}}",
+    "here": "Marques ici",
+    "changeColour": "Changer la couleur",
+    "removeHighlight": "Retirer le surlignage",
+    "editNote": "Modifier la note",
+    "deleteNote": "Supprimer la note",
+    "removeBookmark": "Retirer le signet",
+    "colourIs": "Couleur : {{color}}",
+    "wholeParagraph": "Paragraphe entier",
+    "unresolved": "Cet endroit est introuvable dans le texte.",
+    "empty": "Aucune marque dans cette source pour l’instant. Sélectionnez du texte pour le surligner ou y ajouter une note."
   }
 }

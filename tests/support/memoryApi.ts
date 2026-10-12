@@ -41,6 +41,8 @@ import type {
   SourceImportPreview,
   SourceSegment,
   SourceSummary,
+  SourceAnnotation,
+  AnnotationPoint,
 } from "@/types/library";
 import type {
   Finding,
@@ -104,6 +106,8 @@ export interface MemoryApi extends Api {
       openedLinks: string[];
       openLinkFails: boolean;
       pending: { preview: SourceImportPreview; fixture: SourceFixture } | null;
+      /** Source annotations (v0.14); removed ones stay with `deleted`. */
+      annotations: (SourceAnnotation & { deleted: boolean })[];
     };
   };
   /** Installs a fixture Bible directly (test setup). */
@@ -310,7 +314,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     passages: [],
     nextChosenFiles: null,
     pendingPreview: null,
-    library: { sources: [], segments: [], mentions: [], links: [], nextChosenFile: null, openedLinks: [], openLinkFails: false, pending: null },
+    library: { sources: [], segments: [], mentions: [], links: [], nextChosenFile: null, openedLinks: [], openLinkFails: false, pending: null, annotations: [] },
     findings: [],
     relations: [],
     templates: BUILTIN_TEMPLATES.map((t) => ({
@@ -1220,6 +1224,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       library.segments = library.segments.filter((x) => x.sourceId !== sourceId);
       library.mentions = library.mentions.filter((m) => m.sourceId !== sourceId);
       library.links = library.links.filter((l) => l.sourceId !== sourceId);
+      for (const a of library.annotations) if (a.sourceId === sourceId) a.deleted = true;
       for (const f of state.findings) {
         for (const c of f.sources) if (c.sourceId === sourceId) Object.assign(c, { removed: true, segmentId: null });
       }
@@ -1381,6 +1386,108 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         ...library.links.filter((l) => l.segmentId === segmentId).map((l) => ({ origin: l.origin, reference: l.reference, matchedText: l.matchedText, sectionHeading: l.heading, sectionSegmentId: l.openerSegmentId })),
       ].sort((a, b) => rank[a.origin] - rank[b.origin]);
     },
+    // Source annotations (v0.14), as the core keeps them: quotes checked against the stored text
+    // (segments joined with "\n"), one bookmark per place, same-colour highlights merged and other
+    // highlights wholly covered by a new one removed. Recovery after text changes is the core's.
+    sourceAnnotationList: async (sourceId) => {
+      liveSource(sourceId);
+      const at = (a: SourceAnnotation) => [a.start?.position ?? a.position ?? 0, a.start?.offset ?? 0];
+      return library.annotations
+        .filter((a) => a.sourceId === sourceId && !a.deleted)
+        .map(shown)
+        .sort((a, b) => at(a)[0]! - at(b)[0]! || at(a)[1]! - at(b)[1]!);
+    },
+    sourceAnnotationCreate: async (input) => {
+      liveSource(input.sourceId);
+      const segment = (segmentId: string) => {
+        const found = library.segments.find((x) => x.id === segmentId && x.sourceId === input.sourceId);
+        if (!found) throw new ApiError("invalidInput", "The selected words do not match the text of this source.");
+        return found;
+      };
+      const stamp = new Date().toISOString();
+      const base = { id: id(), sourceId: input.sourceId, kind: input.kind, color: null, content: input.content ?? "", quote: null, start: null, end: null, fraction: null, state: "exact" as const, createdAt: stamp, updatedAt: stamp, revision: 1, deleted: false };
+      if (input.start && input.end && input.quote !== undefined) {
+        if (input.kind === "bookmark") throw new ApiError("invalidInput", "A bookmark marks a place, not words.");
+        const first = segment(input.start.segmentId);
+        const last = segment(input.end.segmentId);
+        const covered = library.segments
+          .filter((x) => x.sourceId === input.sourceId && x.position >= first.position && x.position <= last.position)
+          .sort((a, b) => a.position - b.position);
+        const line = covered.map((x) => x.text).join("\n");
+        const from = input.start.offset;
+        const to = line.length - (last.text.length - input.end.offset);
+        if (line.slice(from, to) !== input.quote) throw new ApiError("invalidInput", "The selected words do not match the text of this source.");
+        const made: SourceAnnotation & { deleted: boolean } = {
+          ...base,
+          color: input.kind === "highlight" ? (input.color ?? "amber") : null,
+          quote: input.quote,
+          start: { segmentId: first.id, position: first.position, offset: input.start.offset },
+          end: { segmentId: last.id, position: last.position, offset: input.end.offset },
+          position: first.position,
+          pageNumber: first.pageNumber,
+          locator: first.locator,
+          sectionPath: first.sectionPath,
+        };
+        if (input.kind === "highlight") {
+          const key = (p: AnnotationPoint) => p.position * 1_000_000 + (p.offset ?? 0);
+          for (const other of library.annotations) {
+            if (other.deleted || other.kind !== "highlight" || other.sourceId !== input.sourceId || !other.start || !other.end) continue;
+            if (key(other.end) < key(made.start!) || key(other.start) > key(made.end!)) continue;
+            if (other.color === made.color) {
+              if (key(other.start) < key(made.start!)) made.start = other.start;
+              if (key(other.end) > key(made.end!)) made.end = other.end;
+              other.deleted = true;
+            } else if (key(other.start) >= key(made.start!) && key(other.end) <= key(made.end!)) {
+              other.deleted = true;
+            }
+          }
+          const lines = library.segments
+            .filter((x) => x.sourceId === input.sourceId && x.position >= made.start!.position && x.position <= made.end!.position)
+            .sort((a, b) => a.position - b.position);
+          const tail = lines[lines.length - 1]!.text.length - made.end!.offset!;
+          const joined = lines.map((x) => x.text).join("\n");
+          made.quote = joined.slice(made.start!.offset!, joined.length - tail);
+        }
+        library.annotations.push(made);
+        return shown(made);
+      }
+      if (input.kind === "highlight") throw new ApiError("invalidInput", "Select some words of the source first.");
+      const place = input.place ?? {};
+      const at = place.segmentId ? segment(place.segmentId) : null;
+      if (input.kind === "bookmark") {
+        const existing = library.annotations.find(
+          (a) => !a.deleted && a.kind === "bookmark" && a.sourceId === input.sourceId && (at ? a.start?.segmentId === at.id : !a.start && a.pageNumber === place.page),
+        );
+        if (existing) {
+          return shown(existing);
+        }
+      }
+      const made: SourceAnnotation & { deleted: boolean } = {
+        ...base,
+        start: at ? { segmentId: at.id, position: at.position, offset: null } : null,
+        position: at?.position ?? null,
+        pageNumber: place.page ?? at?.pageNumber ?? null,
+        fraction: place.fraction ?? null,
+        locator: at?.locator ?? (place.page !== undefined ? `p. ${place.page}` : null),
+        sectionPath: at?.sectionPath ?? null,
+      };
+      library.annotations.push(made);
+      return shown(made);
+    },
+    sourceAnnotationUpdate: async ({ id: annotationId, content, color }) => {
+      const found = library.annotations.find((a) => a.id === annotationId && !a.deleted);
+      if (!found) throw new ApiError("notFound", "This mark could not be found.");
+      if (content !== undefined) found.content = content;
+      if (color !== undefined) found.color = color;
+      found.revision += 1;
+      found.updatedAt = new Date().toISOString();
+      return shown(found);
+    },
+    sourceAnnotationDelete: async (annotationId) => {
+      const found = library.annotations.find((a) => a.id === annotationId && !a.deleted);
+      if (!found) throw new ApiError("notFound", "This mark could not be found.");
+      found.deleted = true;
+    },
     findingSourceAdd: async ({ findingId, segmentId }) => {
       const finding = find(state.findings, findingId, "finding");
       if (!finding.sources.some((c) => c.segmentId === segmentId)) finding.sources.push(citationFor(findingId, segmentId));
@@ -1394,6 +1501,13 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     },
   };
   return api;
+}
+
+/** A stored source annotation as the core returns it (without the test's own `deleted` flag). */
+function shown(stored: SourceAnnotation & { deleted: boolean }): SourceAnnotation {
+  const copy: Partial<SourceAnnotation & { deleted: boolean }> = { ...stored };
+  delete copy.deleted;
+  return copy as SourceAnnotation;
 }
 
 /** The core's find folding (library::find::fold), for the in-memory librarySourceFind. */

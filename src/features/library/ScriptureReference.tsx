@@ -78,6 +78,8 @@ export function ScriptureReference({ reference, children, onOpen, classes = APP_
         <span
           id={menuId}
           role="menu"
+          // Not part of the source's text: never counted when words are selected and marked.
+          data-aw-skip=""
           aria-label={t("library.scriptureRef.actions", { passage })}
           className={classes.menu}
           onKeyDown={(event) => {

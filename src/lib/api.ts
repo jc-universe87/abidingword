@@ -84,6 +84,9 @@ import type {
   SourceImportPreview,
   SourceSummary,
   SourceType,
+  SourceAnnotation,
+  CreateSourceAnnotation,
+  UpdateSourceAnnotation,
 } from "@/types/library";
 
 export interface Api {
@@ -176,6 +179,11 @@ export interface Api {
   libraryPassageSourceLocations(sourceId: string, reference: string): Promise<PassageLocation[]>;
   /** Why a segment is linked to Scripture: what it mentions and the section it belongs to. */
   sourceSegmentPassageLinks(segmentId: string): Promise<SegmentPassageLink[]>;
+  /** A source's highlights, notes and bookmarks in reading order, each found again in the stored text first. */
+  sourceAnnotationList(sourceId: string): Promise<SourceAnnotation[]>;
+  sourceAnnotationCreate(input: CreateSourceAnnotation): Promise<SourceAnnotation>;
+  sourceAnnotationUpdate(input: UpdateSourceAnnotation): Promise<SourceAnnotation>;
+  sourceAnnotationDelete(id: string): Promise<void>;
   findingSourceAdd(input: { findingId: string; segmentId: string }): Promise<Finding>;
   findingSourceRemove(citationId: string): Promise<Finding>;
   studyBlockCreate(input: CreateStudyBlock): Promise<StudyBlock>;
@@ -340,6 +348,10 @@ export const tauriApi: Api = {
   libraryPassageSourceLocations: (sourceId, reference) =>
     call("library_passage_source_locations", { sourceId, reference }),
   sourceSegmentPassageLinks: (segmentId) => call("source_segment_passage_links", { segmentId }),
+  sourceAnnotationList: (sourceId) => call("source_annotation_list", { sourceId }),
+  sourceAnnotationCreate: (input) => call("source_annotation_create", { input }),
+  sourceAnnotationUpdate: (input) => call("source_annotation_update", { input }),
+  sourceAnnotationDelete: (id) => call("source_annotation_delete", { id }),
   findingSourceAdd: (input) => call("finding_source_add", { input }),
   findingSourceRemove: (citationId) => call("finding_source_remove", { citationId }),
   studyBlockCreate: (input) => call("study_block_create", { input }),

@@ -217,5 +217,37 @@
     "previous": "Resultado anterior",
     "next": "Próximo resultado",
     "close": "Fechar localização"
+  },
+  "marks": {
+    "title": "Marcas",
+    "selectedText": "Texto selecionado",
+    "stripLabel": "Marcar o texto selecionado",
+    "highlight": "Destacar",
+    "addNote": "Adicionar nota",
+    "saveNote": "Salvar nota",
+    "noteField": "Nota",
+    "addNoteHere": "Adicionar nota aqui",
+    "noteHere": "Nota sobre este parágrafo",
+    "highlightParagraph": "Destacar este parágrafo",
+    "bookmarkHere": "Marcar este lugar",
+    "removeBookmarkHere": "Remover o marcador daqui",
+    "kind": {
+      "highlight": "Destaque",
+      "note": "Nota",
+      "bookmark": "Marcador"
+    },
+    "marker_one": "{{count}} marca aqui: {{kinds}}",
+    "marker_many": "{{count}} marcas aqui: {{kinds}}",
+    "marker_other": "{{count}} marcas aqui: {{kinds}}",
+    "here": "Marcas aqui",
+    "changeColour": "Mudar a cor",
+    "removeHighlight": "Remover destaque",
+    "editNote": "Editar nota",
+    "deleteNote": "Excluir nota",
+    "removeBookmark": "Remover marcador",
+    "colourIs": "Cor: {{color}}",
+    "wholeParagraph": "Parágrafo inteiro",
+    "unresolved": "Este lugar já não se encontra no texto.",
+    "empty": "Ainda não há marcas nesta fonte. Selecione texto para destacá-lo ou adicionar uma nota."
   }
 }
