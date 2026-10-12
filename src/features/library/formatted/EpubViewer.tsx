@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { formatNumber } from "@/i18n/format";
 import { useApi } from "@/lib/ApiContext";
-import type { EpubItem, EpubStructureItem } from "@/types/library";
+import type { EpubItem, EpubStructureItem, SourceAnnotation } from "@/types/library";
+import { placeSegments, storedToPage, type PageSegment } from "@/lib/pdfTextMatch";
 import type { DetectedReference, ScriptureRef } from "@/types/scripture";
-import { EpubDocument, pageTexts, type EpubLinkTarget } from "./epubDocument";
+import { drawnStrings, EpubDocument, pageTexts, type EpubLinkTarget, type TextMark } from "./epubDocument";
 import type { EpubPlace } from "./epubLocation";
 
 /** Pages kept after being read, so going back to one is immediate. */
@@ -30,6 +31,20 @@ interface EpubViewerProps {
   locationRef: React.MutableRefObject<(() => EpubPlace) | null>;
   /** "Open in Bible" on a Scripture reference in the page. Absent: references are plain text. */
   onOpenInBible?: (reference: ScriptureRef) => void;
+  /**
+   * The source's marks (v0.14): drawn where their stored words are placed exactly on the page's
+   * text (the same placement as an original PDF's), never elsewhere. Absent: none are drawn.
+   */
+  marks?: SourceAnnotation[];
+  /** Bring this mark into view once its page is drawn. A new `nonce` is a new request. */
+  revealMark?: { id: string; nonce: number } | null;
+}
+
+/** Reads `count` stored paragraphs from `from`, in pages the core allows. */
+async function readParagraphs(read: (offset: number, limit: number) => Promise<PageSegment[]>, from: number, count: number): Promise<PageSegment[]> {
+  const out: PageSegment[] = [];
+  for (let at = from; at < from + count; at += 500) out.push(...(await read(at, Math.min(500, from + count - at))));
+  return out;
 }
 
 /**
@@ -41,7 +56,7 @@ interface EpubViewerProps {
  * extracted text. Scripture references in the page's text are found by the core,
  * in the source's language, one page at a time, and drawn as "Open in Bible".
  */
-export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, onLink, onExternal, locationRef, onOpenInBible }: EpubViewerProps) {
+export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, onLink, onExternal, locationRef, onOpenInBible, marks, revealMark }: EpubViewerProps) {
   const { t } = useTranslation();
   const api = useApi();
   const scroller = useRef<HTMLDivElement>(null);
@@ -139,6 +154,66 @@ export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, 
     };
   }, [api, sourceId, linksScripture, currentId, currentNodes]);
 
+  // The stored paragraphs of each page (v0.14), read once per page while marks are shown.
+  const paragraphCache = useRef(new Map<string, Promise<PageSegment[]>>());
+  const [pageParagraphs, setPageParagraphs] = useState<{ id: string; list: PageSegment[] } | null>(null);
+  const showsMarks = marks !== undefined;
+  useEffect(() => {
+    if (!showsMarks || !currentId) return;
+    const part = structureRef.current.find((s) => s.id === currentId);
+    if (!part || part.segmentCount === 0) return;
+    let active = true;
+    let load = paragraphCache.current.get(currentId);
+    if (!load) {
+      load = readParagraphs(
+        (offset, limit) => api.sourceGetSegments({ sourceId, offset, limit }).then((w) => w.segments.map((x) => ({ segmentId: x.id, position: x.position, text: x.text }))),
+        part.startSegment,
+        part.segmentCount,
+      ).catch((error: unknown) => {
+        paragraphCache.current.delete(currentId);
+        void api.logError(`Marks could not be placed on a formatted page: ${error instanceof Error ? error.message : String(error)}`).catch(() => undefined);
+        return [];
+      });
+      paragraphCache.current.set(currentId, load);
+    }
+    void load.then((list) => active && setPageParagraphs({ id: currentId, list }));
+    return () => {
+      active = false;
+    };
+  }, [api, sourceId, showsMarks, currentId]);
+
+  // The marks on this page, by the text piece they are on: only words placed exactly are drawn.
+  const textMarks = useMemo(() => {
+    if (!marks || !current || pageParagraphs?.id !== current.id) return undefined;
+    const strings = drawnStrings(current.nodes);
+    const starts: number[] = [];
+    let total = 0;
+    for (const piece of strings) {
+      starts.push(total);
+      total += piece.length;
+    }
+    const placement = placeSegments(strings.join(""), pageParagraphs.list);
+    const out = new Map<number, TextMark[]>();
+    for (const mark of marks) {
+      const { start, end } = mark;
+      if (mark.state === "unresolved" || mark.kind === "bookmark" || mark.quote === null || !start || !end || start.offset === null || end.offset === null) continue;
+      for (const p of pageParagraphs.list) {
+        if (p.position < start.position || p.position > end.position) continue;
+        const range = storedToPage(placement, p.segmentId, p.position === start.position ? start.offset : 0, p.position === end.position ? end.offset : p.text.length);
+        if (!range) continue;
+        strings.forEach((piece, i) => {
+          const from = Math.max(range[0], starts[i]!);
+          const to = Math.min(range[1], starts[i]! + piece.length);
+          if (from >= to) return;
+          const list = out.get(i) ?? [];
+          list.push({ id: mark.id, start: from - starts[i]!, end: to - starts[i]!, color: mark.kind === "highlight" ? mark.color : null, note: mark.kind === "note" });
+          out.set(i, list);
+        });
+      }
+    }
+    return out;
+  }, [marks, current, pageParagraphs]);
+
   const onRoot = useCallback((shadow: ShadowRoot | null) => {
     root.current = shadow;
   }, []);
@@ -179,6 +254,17 @@ export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, 
         spot.focus({ preventScroll: true });
       }
     }
+  });
+
+  // A mark chosen elsewhere (the Marks list): into view once its page has drawn it.
+  const revealed = useRef(-1);
+  useLayoutEffect(() => {
+    // After the jump that goes with it has put the page in place (the effect above).
+    if (!revealMark || revealed.current === revealMark.nonce || applied.current !== request.nonce) return;
+    const spot = root.current?.querySelector<HTMLElement>(`mark[data-mark-id="${revealMark.id.replace(/["\\]/g, "")}"]`);
+    if (!spot) return;
+    revealed.current = revealMark.nonce;
+    spot.scrollIntoView?.({ block: "center" });
   });
 
   // Where the view is, on request: the last element with an id at or above the top of the view, and how far it is from it.
@@ -271,6 +357,7 @@ export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, 
               onDrawn={onDrawn}
               references={pageReferences?.id === current.id ? pageReferences.found : undefined}
               onScripture={linksScripture ? scripture : undefined}
+              marks={textMarks}
             />
           </>
         )}

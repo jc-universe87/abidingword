@@ -117,6 +117,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const [panel, setPanel] = useState<{ currentId: string | null } | null>(null);
   // The source's marks, listed beside the text like its contents (v0.14).
   const [marksPanel, setMarksPanel] = useState(false);
+  // A mark chosen in the Marks list while the formatted original is shown: brought into view there.
+  const [revealMark, setRevealMark] = useState<{ id: string; nonce: number } | null>(null);
   const marksPanelOpener = useRef<HTMLButtonElement>(null);
   const [jump, setJump] = useState<{ page: number; nonce: number; fraction?: number } | null>(null);
   // A segment position Reading should scroll to after a contents entry or link was chosen.
@@ -682,6 +684,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       if (mark.pageNumber !== null) jumpTo({ page: mark.pageNumber, fraction: mark.start ? 0 : (mark.fraction ?? 0) });
     } else if (mark.start) {
       jumpTo({ position: mark.start.position });
+      if (showOriginal && isEpubView) setRevealMark({ id: mark.id, nonce: ++jumps.current });
       if (!showOriginal) {
         marksOpener.current = null;
         setMarksOpen(mark.start.position);
@@ -851,6 +854,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
             onExternal={openExternal}
             locationRef={epubNow}
             onOpenInBible={(reference) => openInBible(reference, positionNow())}
+            marks={marks.all}
+            revealMark={revealMark}
           />
         </>
       ) : (

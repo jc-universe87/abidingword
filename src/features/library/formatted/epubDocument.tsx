@@ -1,4 +1,4 @@
-import { createElement, memo, useCallback, useLayoutEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { createElement, Fragment, memo, useCallback, useLayoutEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { safeExternalUrl } from "@/lib/externalLink";
 import type { EpubElement, EpubItem, EpubNode } from "@/types/library";
@@ -93,8 +93,22 @@ export interface EpubLinkTarget {
   keyboard?: boolean;
 }
 
+/** A person's mark on part of one drawn text piece (v0.14): UTF-16 offsets into that piece. */
+export interface TextMark {
+  id: string;
+  start: number;
+  end: number;
+  /** Highlight colour; null for noted words. */
+  color: string | null;
+  note: boolean;
+}
+
 interface Context {
   onLink: (target: EpubLinkTarget) => void;
+  /** The person's marks, by the index of the text piece they are on (in drawing order, see `drawnStrings`). */
+  marks?: Map<number, TextMark[]>;
+  /** Counts the text pieces as they are drawn, so each finds its marks. */
+  counter: { n: number };
   /** Opens a web address (checked again here) in the system browser; without it a web link is plain text. */
   onExternal?: (url: string) => void;
   tableLabel: string;
@@ -108,21 +122,71 @@ interface Context {
 /** The look of a Scripture reference on the page (the page has its own styles, in its shadow root). */
 const PAGE_REFERENCE_CLASSES: ScriptureReferenceClasses = { wrap: "aw-sref", trigger: "aw-sref-trigger", menu: "aw-sref-menu", item: "aw-sref-item" };
 
-/** A piece of text with its Scripture references as actions; everything between them kept exactly. */
-function textWithReferences(text: string, found: DetectedReference[], onScripture: (reference: ScriptureRef) => void): ReactNode {
+/**
+ * `text.slice(from, to)` with the person's marks drawn in it: a highlight in its colour, noted words
+ * underlined with dots. Marks crossing the edges are cut to them; the text itself is kept exactly.
+ */
+function marked(text: string, from: number, to: number, marks: TextMark[] | undefined): ReactNode {
+  if (!marks || marks.length === 0) return text.slice(from, to);
+  const cuts = new Set([from, to]);
+  for (const m of marks) [m.start, m.end].forEach((x) => x > from && x < to && cuts.add(x));
+  const points = [...cuts].sort((a, b) => a - b);
+  const out: ReactNode[] = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i]!;
+    const b = points[i + 1]!;
+    const over = marks.filter((m) => m.start <= a && m.end >= b);
+    if (over.length === 0) {
+      out.push(text.slice(a, b));
+      continue;
+    }
+    const color = over.find((m) => m.color)?.color ?? null;
+    const note = over.some((m) => m.note);
+    const classes = ["aw-mark", color ? `aw-mark-${color}` : "", note ? "aw-mark-note" : ""].filter(Boolean).join(" ");
+    out.push(
+      <mark key={`m${a}`} className={classes} data-mark-id={over[0]!.id} data-mark={color ?? "note"}>
+        {text.slice(a, b)}
+      </mark>,
+    );
+  }
+  return out.length === 1 ? out[0] : out;
+}
+
+/** A piece of text with its Scripture references as actions (and the person's marks); everything between them kept exactly. */
+function textWithReferences(text: string, found: DetectedReference[], onScripture: (reference: ScriptureRef) => void, marks?: TextMark[]): ReactNode {
   const out: ReactNode[] = [];
   let at = 0;
   for (const ref of [...found].sort((a, b) => a.start - b.start)) {
     if (ref.start < at || ref.end > text.length || ref.start >= ref.end) continue;
-    if (ref.start > at) out.push(text.slice(at, ref.start));
+    if (ref.start > at) out.push(<Fragment key={`t${at}`}>{marked(text, at, ref.start, marks)}</Fragment>);
     out.push(
       <ScriptureReference key={`${ref.start}-${ref.end}`} reference={ref.reference} onOpen={onScripture} classes={PAGE_REFERENCE_CLASSES}>
-        {text.slice(ref.start, ref.end)}
+        {marked(text, ref.start, ref.end, marks)}
       </ScriptureReference>,
     );
     at = ref.end;
   }
-  if (at < text.length) out.push(text.slice(at));
+  if (at < text.length) out.push(<Fragment key={`t${at}`}>{marked(text, at, text.length, marks)}</Fragment>);
+  return out;
+}
+
+/**
+ * The page's text pieces in the order they are drawn (v0.14): what the stored text is placed on
+ * to draw marks. Walks exactly as drawing does: elements that are not drawn, and the inside of
+ * empty ones, are left out.
+ */
+export function drawnStrings(nodes: EpubNode[]): string[] {
+  const out: string[] = [];
+  const walk = (node: EpubNode) => {
+    if (typeof node === "string") {
+      out.push(node);
+      return;
+    }
+    if (!node || typeof node !== "object" || typeof node.t !== "string" || !TAGS.has(node.t)) return;
+    if (VOID.has(node.t)) return;
+    for (const child of node.c ?? []) walk(child);
+  };
+  for (const node of nodes) walk(node);
   return out;
 }
 
@@ -143,8 +207,10 @@ export function pageTexts(nodes: EpubNode[]): string[] {
 
 function renderNode(node: EpubNode, key: number, ctx: Context): ReactNode {
   if (typeof node === "string") {
+    const marks = ctx.marks?.get(ctx.counter.n++);
     const found = !ctx.inLink && ctx.onScripture ? ctx.references?.get(node) : undefined;
-    return found && found.length > 0 && ctx.onScripture ? textWithReferences(node, found, ctx.onScripture) : node;
+    if (found && found.length > 0 && ctx.onScripture) return textWithReferences(node, found, ctx.onScripture, marks);
+    return marks ? <Fragment key={key}>{marked(node, 0, node.length, marks)}</Fragment> : node;
   }
   if (!node || typeof node !== "object" || typeof node.t !== "string" || !TAGS.has(node.t)) return null;
   const inner = node.t === "a" && !ctx.inLink ? { ...ctx, inLink: true } : ctx;
@@ -185,8 +251,9 @@ function renderNode(node: EpubNode, key: number, ctx: Context): ReactNode {
   return createElement(node.t, props, children);
 }
 
-export function renderEpubNodes(nodes: EpubNode[], ctx: Context): ReactNode[] {
-  return nodes.map((node, i) => renderNode(node, i, ctx));
+export function renderEpubNodes(nodes: EpubNode[], ctx: Omit<Context, "counter">): ReactNode[] {
+  const counted: Context = { ...ctx, counter: { n: 0 } };
+  return nodes.map((node, i) => renderNode(node, i, counted));
 }
 
 const LINK = "#762e32";
@@ -215,6 +282,11 @@ const BASE_CSS = `
 .aw-doc .aw-missing-image { display: inline-block; padding: 0.15em 0.5em; border: 1px dashed #999; color: #555; font-size: 0.9em; }
 .aw-table-scroll { overflow-x: auto; max-width: 100%; margin: 1em 0; }
 .aw-table-scroll table { margin: 0; }
+.aw-doc mark.aw-mark { color: inherit; background: transparent; padding: 0; }
+.aw-doc mark.aw-mark-amber { background: #f0d78c; } .aw-doc mark.aw-mark-green { background: #bcd9b0; }
+.aw-doc mark.aw-mark-blue { background: #b9d1e8; } .aw-doc mark.aw-mark-rose { background: #ecc0c4; }
+.aw-doc mark.aw-mark-grey { background: #d3d0c8; }
+.aw-doc mark.aw-mark-note { text-decoration: underline dotted 2px #b45309; text-underline-offset: 4px; }
 .aw-sref { position: relative; display: inline; }
 .aw-sref-trigger { all: unset; display: inline; cursor: pointer; text-decoration: underline dotted 1px; text-underline-offset: 3px; }
 .aw-sref-trigger:hover { text-decoration-style: solid; }
@@ -251,10 +323,12 @@ interface EpubDocumentProps {
   /** Scripture references found in the page's text, by text; drawn as "Open in Bible" actions. */
   references?: Map<string, DetectedReference[]>;
   onScripture?: (reference: ScriptureRef) => void;
+  /** The person's marks, by text piece (v0.14). */
+  marks?: Map<number, TextMark[]>;
 }
 
 /** One page of the book, in a shadow root of its own. */
-export const EpubDocument = memo(function EpubDocument({ item, onLink, onExternal, tableLabel, onRoot, onDrawn, references, onScripture }: EpubDocumentProps) {
+export const EpubDocument = memo(function EpubDocument({ item, onLink, onExternal, tableLabel, onRoot, onDrawn, references, onScripture, marks }: EpubDocumentProps) {
   const [shadow, setShadow] = useState<ShadowRoot | null>(null);
   useLayoutEffect(() => {
     if (shadow) onDrawn?.();
@@ -278,8 +352,8 @@ export const EpubDocument = memo(function EpubDocument({ item, onLink, onExterna
     return rest;
   }, [item.root]);
   const body = useMemo(
-    () => renderEpubNodes(item.nodes, { onLink, onExternal, tableLabel, references, onScripture }),
-    [item.nodes, onLink, onExternal, tableLabel, references, onScripture],
+    () => renderEpubNodes(item.nodes, { onLink, onExternal, tableLabel, references, onScripture, marks }),
+    [item.nodes, onLink, onExternal, tableLabel, references, onScripture, marks],
   );
   const className = ["aw-doc", typeof bodyProps.className === "string" ? bodyProps.className : ""].join(" ").trim();
   return (
