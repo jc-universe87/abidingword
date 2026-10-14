@@ -15,6 +15,7 @@ import { RelatedStudies } from "./RelatedStudies";
 import { SectionEditor } from "./SectionEditor";
 import { sectionTitle } from "./builtinText";
 import { StudyAdd } from "./StudyAdd";
+import { useStudyFocus } from "./StudyFocus";
 import { StudyContents } from "./StudyContents";
 import { StudyDetailsPanel } from "./StudyDetails";
 import { StudyPassages } from "./StudyPassages";
@@ -101,6 +102,21 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
       })
       .catch(() => undefined);
   }, [revealPrimary, api, studyId, goTo, onRevealScripture]);
+
+  // Shared with source readers (v0.15): where the person last worked, and findings added from a source.
+  const focus = useStudyFocus();
+  const { setActiveSection: shareActiveSection } = focus;
+  useEffect(() => {
+    shareActiveSection(studyId, activeSection);
+  }, [studyId, activeSection, shareActiveSection]);
+  const added = focus.findingsVersion;
+  const reloadFindings = findings.reload;
+  const seenVersion = useRef(added.n);
+  useEffect(() => {
+    if (added.n === seenVersion.current) return;
+    seenVersion.current = added.n;
+    if (added.studyId === studyId) reloadFindings();
+  }, [added, studyId, reloadFindings]);
 
   const sections = useMemo(() => detail.data?.sections ?? [], [detail.data]);
   if (missing) return null;

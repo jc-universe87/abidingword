@@ -91,6 +91,8 @@ import type {
   SourceMarksPage,
   MarkedSource,
   SourceAnnotationKind,
+  CreateFindingFromSource,
+  CitationPlace,
 } from "@/types/library";
 
 export interface Api {
@@ -193,6 +195,10 @@ export interface Api {
   /** The sources that have marks, with how many. */
   sourceMarksSources(): Promise<MarkedSource[]>;
   findingSourceAdd(input: { findingId: string; segmentId: string }): Promise<Finding>;
+  /** "Add to Study" (v0.15): a new finding from selected words, a place or a mark, with its citation. */
+  findingCreateFromSource(input: CreateFindingFromSource): Promise<Finding>;
+  /** Where a citation is in its source now (null: the source was removed). */
+  findingSourceLocate(citationId: string): Promise<CitationPlace | null>;
   findingSourceRemove(citationId: string): Promise<Finding>;
   studyBlockCreate(input: CreateStudyBlock): Promise<StudyBlock>;
   studyBlockUpdate(input: UpdateStudyBlock): Promise<StudyBlock>;
@@ -363,6 +369,8 @@ export const tauriApi: Api = {
   sourceMarksList: (query) => call("source_marks_list", { query }),
   sourceMarksSources: () => call("source_marks_sources"),
   findingSourceAdd: (input) => call("finding_source_add", { input }),
+  findingCreateFromSource: (input) => call("finding_create_from_source", { input }),
+  findingSourceLocate: (citationId) => call("finding_source_locate", { citationId }),
   findingSourceRemove: (citationId) => call("finding_source_remove", { citationId }),
   studyBlockCreate: (input) => call("study_block_create", { input }),
   studyBlockUpdate: (input) => call("study_block_update", { input }),

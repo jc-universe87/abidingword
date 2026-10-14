@@ -144,7 +144,10 @@
     "replaceQuote": "Substituir também o texto desta citação pelo trecho citado",
     "useQuote": "Usar também o trecho citado como texto desta citação",
     "listLabel": "Trechos a citar",
-    "cite": "Citar {{citation}}"
+    "cite": "Citar {{citation}}",
+    "open": "Abrir a fonte",
+    "quoteLabel": "Citado da fonte",
+    "openFailed": "Não foi possível abrir esta fonte."
   },
   "original": {
     "modesLabel": "Visualização",
@@ -259,5 +262,15 @@
     "panels": "Conteúdo ou marcas",
     "notePage": "Nota sobre esta página",
     "cannotPlace": "Estas palavras não podem ser marcadas aqui com exatidão. Selecione-as em Leitura para marcá-las."
+  },
+  "copy": {
+    "quoted": "“{{quote}}”",
+    "action": "Copiar a citação com a referência",
+    "done": "Citação copiada com a referência.",
+    "failed": "Não foi possível copiar a citação."
+  },
+  "more": "Mais ações",
+  "toStudy": {
+    "add": "Adicionar ao estudo"
   }
 }

@@ -12,7 +12,7 @@ import type { PdfPlace } from "@/lib/pdfEngine";
 import type { ContentsItem, SegmentWindow, SourceAnnotation, SourceLink, SourceMatch, SourceReference, SourceSegment } from "@/types/library";
 import { PHRASE_CLASS } from "@/lib/annotationRender";
 import type { ScriptureRef } from "@/types/scripture";
-import { formatLabel, licenceLabel, locatorLabel, sourceTypeLabel } from "./labels";
+import { formatLabel, licenceLabel, locatorLabel, quotationWithCitation, sourceTypeLabel } from "./labels";
 import { useLibraryNav } from "./LibraryNav";
 import { PassageLinkNote } from "./PassageLinkNote";
 import { ScriptureReference } from "./ScriptureReference";
@@ -24,7 +24,9 @@ import { useEpubStructure } from "./formatted/useEpubStructure";
 import { PdfViewer, type PdfFind } from "./PdfViewer";
 import { canGoBack, canGoForward, NO_HISTORY, stepBack, stepForward, visit, type ReaderHistory, type SourceLocation } from "./readerHistory";
 import { currentEntry, useSourceContents } from "./useSourceContents";
-import { MarksInspector, MarksMarker } from "./annotations/ParagraphMarks";
+import { MarksInspector, MarksMarker, type MarkActions } from "./annotations/ParagraphMarks";
+import { AddToStudyPanel, type FromSource } from "@/features/studies/AddToStudyPanel";
+import { copyText } from "@/lib/clipboard";
 import { SourceMarkStrip, type PlaceRequest } from "./annotations/SourceMarkStrip";
 import { SourceMarksPanel } from "./annotations/SourceMarksPanel";
 import { selectionInside, type SourceSelection } from "./annotations/sourceSelection";
@@ -481,6 +483,72 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   };
   const [markError, setMarkError] = useState<string | null>(null);
 
+  // "Add to Study" (v0.15): what is being added, and where focus goes back to afterwards.
+  const [adding, setAdding] = useState<{ from: FromSource; returnTo: HTMLElement | null; position: number | null } | null>(null);
+  // A short confirmation ("Added to …", "Copied"), read out politely.
+  const [notice, setNotice] = useState<string | null>(null);
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(null), 6000);
+    return () => clearTimeout(timer);
+  }, [notice]);
+  /** The source's details for a citation, with the place of the paragraph the words begin in. */
+  const citationOf = (segmentId: string | null, fallbackPage?: number | null) => {
+    const segment = window?.segments.find((x) => x.id === segmentId);
+    return {
+      title: source.data?.title ?? "",
+      author: source.data?.author ?? null,
+      locator: segment?.locator ?? (fallbackPage ? `p. ${fallbackPage}` : null),
+      section: segment?.sectionPath ?? null,
+    };
+  };
+  const fromSelection = (words: SourceSelection): FromSource => ({
+    cited: { sourceId, start: words.start, end: words.end, quote: words.quote },
+    quote: words.quote,
+    note: "",
+    ...citationOf(words.start.segmentId, onPdfPage ? pdfPage : null),
+  });
+  const fromMark = (mark: SourceAnnotation): FromSource => ({
+    cited: { annotationId: mark.id },
+    quote: mark.quote,
+    note: mark.kind === "note" ? mark.content : "",
+    title: source.data?.title ?? "",
+    author: source.data?.author ?? null,
+    locator: mark.locator,
+    section: mark.sectionPath,
+  });
+  const startAdding = (from: FromSource, returnTo: HTMLElement | null, position: number | null) => {
+    setMarksPanel(false);
+    setNotice(null);
+    setAdding({ from, returnTo, position });
+  };
+  const stopAdding = () => {
+    const was = adding;
+    setAdding(null);
+    requestAnimationFrame(() => {
+      // Back where it was asked for: the button if it is still there, else the paragraph, else the text.
+      if (was?.returnTo?.isConnected) return was.returnTo.focus({ preventScroll: true });
+      const paragraph = was?.position !== null && was?.position !== undefined ? bodyRef.current?.querySelector<HTMLElement>(`[data-seg-position="${was.position}"]`) : null;
+      const target = paragraph ?? bodyRef.current ?? stage.current;
+      if (!target) return;
+      if (!target.hasAttribute("tabindex")) {
+        target.setAttribute("tabindex", "-1");
+        target.addEventListener("blur", () => target.removeAttribute("tabindex"), { once: true });
+      }
+      target.focus({ preventScroll: true });
+    });
+  };
+  const copy = async (quote: string, details: { title: string; author: string | null; locator: string | null; section: string | null }) => {
+    const done = await copyText(quotationWithCitation(t, quote, details));
+    setNotice(done ? t("library.copy.done") : t("library.copy.failed"));
+  };
+  const markActions: MarkActions = {
+    onAddToStudy: (mark, from) => startAdding(fromMark(mark), from, mark.start?.position ?? null),
+    onCopy: (mark) => {
+      if (mark.quote !== null) void copy(mark.quote, fromMark(mark));
+    },
+  };
+
   /** Bookmark this place, or remove the bookmark that is here. */
   const toggleBookmark = async () => {
     if (onPdfPage) {
@@ -800,6 +868,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
                 onToggleMarks={(button) => toggleMarks(segment.position, button)}
                 onMarksChanged={() => void marksChanged(segment.position)}
                 onCloseMarks={closeMarks}
+                markActions={markActions}
                 onFollow={(position) => jumpTo({ position }, segment.position)}
                 onOpenInBible={(reference) => openInBible(reference, positionNow())}
               />
@@ -833,6 +902,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         find={pdfFind}
         marks={marks.all}
         onMarksChanged={marks.reload}
+        markActions={markActions}
         selectionRef={pdfSelection}
       />
     )
@@ -913,9 +983,20 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       </div>
     ) : null;
   // Marking the original PDF: a selection on a page, read through the stored text placed there.
+  const addPanel = adding ? (
+    <AddToStudyPanel
+      from={adding.from}
+      onCancel={stopAdding}
+      onAdded={(where) => {
+        stopAdding();
+        setNotice(t("studies.fromSource.added", where));
+      }}
+    />
+  ) : null;
   // Below the pages, never over them: the page area gets smaller while it is open.
   const pdfStrip = onPdfPage ? (
     <div className="max-h-[50%] shrink-0 overflow-y-auto border-t border-border-subtle bg-bg px-2 pt-2 empty:hidden">
+      {addPanel}
       <SourceMarkStrip
         root={stage}
         sourceId={sourceId}
@@ -927,6 +1008,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
           requestAnimationFrame(() => noteHereButton.current?.focus({ preventScroll: true }));
         }}
         onSaved={() => void marks.reload()}
+        onAddToStudy={(words) => startAdding(fromSelection(words), null, null)}
+        onCopy={(words) => void copy(words.quote, citationOf(words.start.segmentId, pdfPage))}
       />
     </div>
   ) : null;
@@ -943,8 +1026,16 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
           requestAnimationFrame(() => noteHereButton.current?.focus({ preventScroll: true }));
         }}
         onSaved={() => void marks.reload()}
+        onAddToStudy={(words) => startAdding(fromSelection(words), null, words.firstPosition)}
+        onCopy={(words) => void copy(words.quote, citationOf(words.start.segmentId))}
       />
     ) : null;
+  // Always present, so a confirmation is read out when it appears.
+  const noticeLine = (
+    <p aria-live="polite" aria-atomic="true" data-testid="reader-notice" className={notice ? "m-0 shrink-0 border-b border-border-subtle bg-bg-secondary px-4 py-1.5 font-ui text-[0.9375rem] text-text-strong" : "sr-only"}>
+      {notice ?? ""}
+    </p>
+  );
   const findBar = finding ? (
     <FindBar find={finder.find} focusKey={findFocus} onType={finder.type} onSubmit={finder.submit} onStep={finder.step} onClose={closeFind} />
   ) : null;
@@ -986,6 +1077,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       onSelect={chooseMark}
       onChanged={() => void marks.reload()}
       onClose={closeMarksPanel}
+      actions={markActions}
     />
   ) : null;
   const marksButton = (
@@ -1029,6 +1121,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
           </div>
         </div>
         {findBar}
+        {noticeLine}
         <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
           {showOriginal ? (
             <>
@@ -1039,7 +1132,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
             <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
               <div className="flex flex-col gap-5 px-5 pb-16 pt-5">
                 {body}
-                {markStrip}
+                {addPanel ? <div className="sticky bottom-2 z-10">{addPanel}</div> : markStrip}
               </div>
             </div>
           )}
@@ -1074,6 +1167,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         {marksButton}
       </div>
       {findBar}
+      {noticeLine}
       <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
         {showOriginal ? (
           <>
@@ -1084,7 +1178,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
           <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
             <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-6">
               {body}
-              {markStrip}
+              {addPanel ? <div className="sticky bottom-2 z-10">{addPanel}</div> : markStrip}
             </div>
           </div>
         )}
@@ -1134,6 +1228,7 @@ interface SegmentViewProps {
   onToggleMarks: (button: HTMLButtonElement) => void;
   onMarksChanged: () => void;
   onCloseMarks: () => void;
+  markActions: MarkActions;
   onFollow: (position: number) => void;
   onOpenInBible: (reference: ScriptureRef) => void;
 }
@@ -1280,6 +1375,7 @@ function SegmentView({
   onToggleMarks,
   onMarksChanged,
   onCloseMarks,
+  markActions,
   onFollow,
   onOpenInBible,
 }: SegmentViewProps) {
@@ -1311,7 +1407,7 @@ function SegmentView({
         {linked(segment.text, links, references, { marks, ranges }, t("library.links.follow"), onFollow, onOpenInBible)}
         {paragraphMarks && paragraphMarks.length > 0 && <MarksMarker marks={paragraphMarks} open={marksOpen} controls={marksId} onToggle={onToggleMarks} />}
       </p>
-      {marksOpen && paragraphMarks && paragraphMarks.length > 0 && <MarksInspector id={marksId} marks={paragraphMarks} onChanged={onMarksChanged} onClose={onCloseMarks} />}
+      {marksOpen && paragraphMarks && paragraphMarks.length > 0 && <MarksInspector id={marksId} marks={paragraphMarks} onChanged={onMarksChanged} onClose={onCloseMarks} {...markActions} />}
       {isTarget && <PassageLinkNote segmentId={segment.id} />}
     </>
   );

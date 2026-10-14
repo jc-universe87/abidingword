@@ -27,9 +27,36 @@ export function locatorLabel(t: TFunction, locator: string | null | undefined, p
   return match ? t("library.locator.page", { page: match[1] }) : locator;
 }
 
-/** "Author, Title, p. 152" — the short citation shown in findings. */
-export function citationText(t: TFunction, c: Pick<FindingCitation, "author" | "title" | "locator">): string {
-  return [c.author, c.title, locatorLabel(t, c.locator)].filter(Boolean).join(", ");
+/**
+ * Where something is in a source, as a reader outside Abiding Word could use
+ * it: the page, else the section ("Chapter 3 › Grace"). A paragraph number
+ * ("¶ 4") counts paragraphs as Abiding Word stored them, which no printed copy
+ * has: the section is given instead, or nothing.
+ */
+export function placeLabel(t: TFunction, locator: string | null | undefined, section?: string | null): string {
+  if (!locator || /^¶\s*\d+$/.test(locator.trim())) return section?.trim() ?? "";
+  return locatorLabel(t, locator);
+}
+
+/** "Author, Title, p. 152" — the short citation shown in findings and copied with a quotation. Only what is known. */
+export function citationText(t: TFunction, c: Pick<FindingCitation, "author" | "title" | "locator"> & { section?: string | null }): string {
+  return [c.author?.trim(), c.title.trim(), placeLabel(t, c.locator, c.section)].filter(Boolean).join(", ");
+}
+
+/**
+ * A quotation with its citation, to copy out of Abiding Word (v0.15): the
+ * words exactly as the source has them, in the interface language's
+ * quotation marks, and "— Author, Title, p. 42" under them. One format only;
+ * nothing is added that the source's details do not say.
+ */
+export function quotationWithCitation(
+  t: TFunction,
+  quote: string,
+  c: Pick<FindingCitation, "author" | "title" | "locator"> & { section?: string | null },
+): string {
+  const citation = citationText(t, c);
+  const quoted = t("library.copy.quoted", { quote: quote.trim() });
+  return citation ? `${quoted}\n— ${citation}` : quoted;
 }
 
 /**

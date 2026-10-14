@@ -619,5 +619,18 @@
     "title": "Études",
     "organise": "Organiser en projets",
     "back": "Retour aux études"
+  },
+  "fromSource": {
+    "label": "Ajouter à l’étude",
+    "title": "Ajouter à l’étude : {{study}}",
+    "chooseStudy": "Étude",
+    "otherStudy": "Une autre étude…",
+    "noStudies": "Il n’y a pas encore d’étude. Commencez-en une dans le volet Étude, puis ajoutez-y ceci.",
+    "yourNote": "Votre commentaire (facultatif)",
+    "placeholder": "Qu’en retenez-vous ?",
+    "placeholderRequired": "Écrivez ce que vous retenez de cet endroit…",
+    "save": "Ajouter à l’étude",
+    "added": "Ajouté à {{study}} · {{part}}.",
+    "loading": "Chargement de vos études…"
   }
 }

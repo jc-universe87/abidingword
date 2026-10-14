@@ -612,5 +612,18 @@
     "title": "Studies",
     "organise": "Organise in projects",
     "back": "Back to Studies"
+  },
+  "fromSource": {
+    "label": "Add to Study",
+    "title": "Add to Study: {{study}}",
+    "chooseStudy": "Study",
+    "otherStudy": "Another study…",
+    "noStudies": "There is no study yet. Start one in the Study pane, then add this to it.",
+    "yourNote": "Your note (optional)",
+    "placeholder": "What do you take from this?",
+    "placeholderRequired": "Write what you take from this place…",
+    "save": "Add to Study",
+    "added": "Added to {{study}} · {{part}}.",
+    "loading": "Loading your studies…"
   }
 }

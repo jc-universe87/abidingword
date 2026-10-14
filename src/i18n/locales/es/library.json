@@ -144,7 +144,10 @@
     "replaceQuote": "Reemplazar también el texto de esta cita por el pasaje citado",
     "useQuote": "Usar también el pasaje citado como texto de esta cita",
     "listLabel": "Pasajes para citar",
-    "cite": "Citar {{citation}}"
+    "cite": "Citar {{citation}}",
+    "open": "Abrir la fuente",
+    "quoteLabel": "Citado de la fuente",
+    "openFailed": "No se pudo abrir esta fuente."
   },
   "original": {
     "modesLabel": "Vista",
@@ -259,5 +262,15 @@
     "panels": "Contenido o marcas",
     "notePage": "Nota sobre esta página",
     "cannotPlace": "Estas palabras no se pueden marcar aquí con exactitud. Selecciónelas en Lectura para marcarlas."
+  },
+  "copy": {
+    "quoted": "«{{quote}}»",
+    "action": "Copiar la cita con su referencia",
+    "done": "Cita copiada con su referencia.",
+    "failed": "No se pudo copiar la cita."
+  },
+  "more": "Más acciones",
+  "toStudy": {
+    "add": "Añadir al estudio"
   }
 }

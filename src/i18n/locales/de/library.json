@@ -135,7 +135,10 @@
     "replaceQuote": "Auch den Text dieses Zitats durch die angeführte Textstelle ersetzen",
     "useQuote": "Die angeführte Textstelle auch als Text dieses Zitats verwenden",
     "listLabel": "Textstellen zum Anführen",
-    "cite": "{{citation}} anführen"
+    "cite": "{{citation}} anführen",
+    "open": "Quelle öffnen",
+    "quoteLabel": "Aus der Quelle zitiert",
+    "openFailed": "Diese Quelle konnte nicht geöffnet werden."
   },
   "original": {
     "modesLabel": "Ansicht",
@@ -248,5 +251,15 @@
     "panels": "Inhalt oder Anmerkungen",
     "notePage": "Notiz zu dieser Seite",
     "cannotPlace": "Diese Wörter lassen sich hier nicht genau markieren. Wählen Sie sie unter „Lesen“ aus, um sie zu markieren."
+  },
+  "copy": {
+    "quoted": "„{{quote}}“",
+    "action": "Zitat mit Quellenangabe kopieren",
+    "done": "Zitat mit Quellenangabe kopiert.",
+    "failed": "Das Zitat konnte nicht kopiert werden."
+  },
+  "more": "Weitere Aktionen",
+  "toStudy": {
+    "add": "Zum Bibelstudium hinzufügen"
   }
 }

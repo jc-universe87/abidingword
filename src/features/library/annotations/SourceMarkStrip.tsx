@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
-import { Highlighter, StickyNote } from "lucide-react";
+import { BookPlus, Highlighter, StickyNote } from "lucide-react";
+import { ActionMenu } from "@/design-system/ActionMenu";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { HighlightColors } from "@/features/scripture/HighlightColors";
@@ -42,6 +43,10 @@ interface Props {
   /** The place request is finished (saved or cancelled); focus goes back where it came from. */
   onPlaceDone: () => void;
   onSaved: () => void;
+  /** "Add to Study" for the selected words (v0.15); the strip closes and the reader asks where. */
+  onAddToStudy?: (words: SourceSelection) => void;
+  /** "Copy quotation with citation" for the selected words (v0.15). */
+  onCopy?: (words: SourceSelection) => void;
 }
 
 /**
@@ -51,7 +56,7 @@ interface Props {
  * sticky, never floating over the text. The anchor is captured when the
  * selection settles and kept while a colour is chosen or a note is written.
  */
-export function SourceMarkStrip({ root, sourceId, read: readSelection, cannotPlace, stored, place, onPlaceDone, onSaved }: Props) {
+export function SourceMarkStrip({ root, sourceId, read: readSelection, cannotPlace, stored, place, onPlaceDone, onSaved, onAddToStudy, onCopy }: Props) {
   const { t } = useTranslation();
   const api = useApi();
   const bar = useRef<HTMLDivElement>(null);
@@ -203,6 +208,20 @@ export function SourceMarkStrip({ root, sourceId, read: readSelection, cannotPla
           <button type="button" className={primary} onClick={() => setStep({ kind: "color" })}>
             <Highlighter className="size-5" aria-hidden="true" /> {t("library.marks.highlight")}
           </button>
+          {anchor && onAddToStudy && (
+            <button
+              type="button"
+              className={outlined}
+              onClick={() => {
+                const words = anchor;
+                finish();
+                onAddToStudy(words);
+              }}
+            >
+              <BookPlus className="size-5" aria-hidden="true" /> {t("library.toStudy.add")}
+            </button>
+          )}
+          {anchor && onCopy && <ActionMenu label={t("library.more")} actions={[{ label: t("library.copy.action"), onSelect: () => onCopy(anchor) }]} className="self-center" />}
         </div>
       )}
 

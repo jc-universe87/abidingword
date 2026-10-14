@@ -11,7 +11,7 @@ import type { PdfBox, PdfDocument, PdfLink, PdfPageSize, PdfPlace, PdfTextLayer 
 import { findOnPage } from "@/lib/pdfPageText";
 import { pageToStored, placeSegments, storedToPage, type PagePlacement, type PageSegment } from "@/lib/pdfTextMatch";
 import { PHRASE_CLASS } from "@/lib/annotationRender";
-import { MarksInspector, MarksMarker } from "./annotations/ParagraphMarks";
+import { MarksInspector, MarksMarker, type MarkActions } from "./annotations/ParagraphMarks";
 import type { SourceSelection } from "./annotations/sourceSelection";
 import { usePdfEngine } from "./PdfEngineContext";
 import { ScriptureReference, type ScriptureReferenceClasses } from "./ScriptureReference";
@@ -54,6 +54,8 @@ interface PdfViewerProps {
   marks?: SourceAnnotation[];
   /** A mark was changed or removed from a page's marks; gives the source's marks as they are now. */
   onMarksChanged?: () => Promise<SourceAnnotation[]>;
+  /** "Add to Study" and "Copy quotation with citation" on a page's marks (v0.15). */
+  markActions?: MarkActions;
   /** Filled with a way to turn a text selection on a page into an anchor in the stored text (or null). */
   selectionRef?: React.MutableRefObject<((selection: Selection) => SourceSelection | null) | null>;
 }
@@ -81,7 +83,7 @@ export interface PdfFind {
  * inspect the source; search, citations and Scripture links stay with the
  * extracted text.
  */
-export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutline, onLink, locationRef, onOpenInBible, find, marks, onMarksChanged, selectionRef }: PdfViewerProps) {
+export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutline, onLink, locationRef, onOpenInBible, find, marks, onMarksChanged, markActions, selectionRef }: PdfViewerProps) {
   const { t } = useTranslation();
   const api = useApi();
   const engine = usePdfEngine();
@@ -481,6 +483,7 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutli
               loadSegments={marks ? loadSegments : undefined}
               onLayer={onLayer}
               onMarksChanged={onMarksChanged}
+              markActions={markActions}
             />
           ))}
         </div>
@@ -506,6 +509,7 @@ interface PageViewProps {
   loadSegments?: (n: number) => Promise<PageSegment[]>;
   onLayer: (n: number, layer: PageLayer | null) => void;
   onMarksChanged?: () => Promise<SourceAnnotation[]>;
+  markActions?: MarkActions;
 }
 
 /** A mark's colour on the always-white page: the highlight colour, see-through so the print shows. */
@@ -528,7 +532,7 @@ const boxStyle = (box: PdfBox): React.CSSProperties => ({
 });
 
 /** One page: an empty sheet of the right size until it is near the screen. */
-function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onOpenInBible, find, marks, loadSegments, onLayer, onMarksChanged }: PageViewProps) {
+function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onOpenInBible, find, marks, loadSegments, onLayer, onMarksChanged, markActions }: PageViewProps) {
   const { t } = useTranslation();
   const sheet = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -755,6 +759,7 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onO
                   setMarksOpen(false);
                   requestAnimationFrame(() => marksButton.current?.focus({ preventScroll: true }));
                 }}
+                {...markActions}
               />
             </div>
           )}

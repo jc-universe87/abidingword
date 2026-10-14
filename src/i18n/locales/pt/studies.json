@@ -619,5 +619,18 @@
     "title": "Estudos",
     "organise": "Organizar em projetos",
     "back": "Voltar a Estudos"
+  },
+  "fromSource": {
+    "label": "Adicionar ao estudo",
+    "title": "Adicionar ao estudo: {{study}}",
+    "chooseStudy": "Estudo",
+    "otherStudy": "Outro estudo…",
+    "noStudies": "Ainda não há nenhum estudo. Comece um no painel Estudo e depois adicione isto.",
+    "yourNote": "Seu registro (opcional)",
+    "placeholder": "O que você tira disto?",
+    "placeholderRequired": "Escreva o que você tira deste lugar…",
+    "save": "Adicionar ao estudo",
+    "added": "Adicionado a {{study}} · {{part}}.",
+    "loading": "Carregando seus estudos…"
   }
 }
