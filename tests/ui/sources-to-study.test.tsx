@@ -326,3 +326,114 @@ describe("copying a quotation with its citation", () => {
     await waitFor(async () => expect(await navigator.clipboard.readText()).toBe("„Bleibt in mir“\n— Anonyme Predigt, S. 42"));
   });
 });
+
+describe("a source-backed finding in the Study", () => {
+  /** A study with one finding from selected words, made through the same call the panel uses. */
+  async function withFinding(content: string, findingType = "observation") {
+    const { api, studyIds } = await setup();
+    const branch = api.state.library.segments.find((x) => x.text.startsWith("As the branch"))!;
+    const at = branch.text.indexOf("bear fruit by itself");
+    const finding = await api.findingCreateFromSource({
+      studyId: studyIds[0]!,
+      findingType,
+      content,
+      sourceId: branch.sourceId,
+      start: { segmentId: branch.id, offset: at },
+      end: { segmentId: branch.id, offset: at + "bear fruit by itself".length },
+      quote: "bear fruit by itself",
+    });
+    return { api, studyIds, finding, branch };
+  }
+
+  it("shows the person's text first, the source's words quietly, and the citation; it opens the source at the words", async () => {
+    const { api, branch } = await withFinding("Fruit needs the vine.");
+    const { user } = await renderApp(api);
+    await openStudy(user, "Abiding");
+    const study = studyPane();
+    expect(within(study).getByDisplayValue("Fruit needs the vine.")).toBeInTheDocument();
+    const quote = within(study).getByLabelText("Quoted from the source");
+    expect(quote).toHaveTextContent("“bear fruit by itself”");
+    const citation = within(study).getByRole("button", { name: "J. Example, The True Vine, The Vine" });
+    await user.click(citation);
+    // Beside the Study, at the paragraph, with the cited words marked.
+    const reader = await within(sourcesPane()).findByRole("region", { name: "The True Vine" });
+    const marked = await waitFor(() => {
+      const found = reader.querySelector("[data-quoted]");
+      expect(found).not.toBeNull();
+      return found!;
+    });
+    expect(marked).toHaveTextContent("bear fruit by itself");
+    expect(marked.closest("[data-segment-id]")).toHaveAttribute("data-segment-id", branch.id);
+    // The Study is still there.
+    expect(within(studyPane()).getByDisplayValue("Fruit needs the vine.")).toBeInTheDocument();
+  });
+
+  it("shows a quotation's words once when they are the finding's own text", async () => {
+    const { api } = await withFinding("", "quotation");
+    const { user } = await renderApp(api);
+    await openStudy(user, "Abiding");
+    expect(within(studyPane()).getByDisplayValue("bear fruit by itself")).toBeInTheDocument();
+    expect(within(studyPane()).queryByLabelText("Quoted from the source")).toBeNull();
+  });
+
+  it("keeps the finding, its quote and citation when the source is removed, and offers no way to open it", async () => {
+    const { api, branch } = await withFinding("Fruit needs the vine.");
+    await api.libraryRemoveSource(branch.sourceId);
+    const { user } = await renderApp(api);
+    await openStudy(user, "Abiding");
+    const study = studyPane();
+    expect(within(study).getByDisplayValue("Fruit needs the vine.")).toBeInTheDocument();
+    expect(within(study).getByLabelText("Quoted from the source")).toHaveTextContent("bear fruit by itself");
+    expect(within(study).getByText(/J\. Example, The True Vine, The Vine/)).toBeInTheDocument();
+    expect(within(study).getByText("(removed from library)")).toBeInTheDocument();
+    expect(within(study).queryByRole("button", { name: "J. Example, The True Vine, The Vine" })).toBeNull();
+    // Copying still works from what was kept.
+    await user.click(within(study).getByRole("button", { name: "Copy quotation with citation" }));
+    await waitFor(async () => expect(await navigator.clipboard.readText()).toBe("“bear fruit by itself”\n— J. Example, The True Vine, The Vine"));
+  });
+
+  it("does not disturb a note being written in the Study when a finding arrives from a source", async () => {
+    const { api } = await withFinding("An earlier note.");
+    const { user } = await renderApp(api);
+    await openStudy(user, "Abiding");
+    const field = within(studyPane()).getByDisplayValue("An earlier note.");
+    await user.clear(field);
+    await user.type(field, "Half-written thought");
+    const reader = await openSource(user);
+    await select(paragraph(reader, "Abide in me"), "Abide in me");
+    await user.click(within(await within(reader).findByRole("group", { name: "Mark the selected text" })).getByRole("button", { name: "Add to Study" }));
+    await user.click(within(await panel()).getByRole("button", { name: "Add to Study" }));
+    await waitFor(() => expect(within(studyPane()).getByDisplayValue("Abide in me")).toBeInTheDocument());
+    expect(within(studyPane()).getByDisplayValue("Half-written thought")).toBeInTheDocument();
+  });
+});
+
+describe("source marks in the Marks view", () => {
+  it("offers Add to Study, Copy and Open on a source mark, and nothing new on Bible marks", async () => {
+    const { api, studyIds } = await setup();
+    const branch = api.state.library.segments.find((x) => x.text.startsWith("As the branch"))!;
+    await api.sourceAnnotationCreate({ sourceId: branch.sourceId, kind: "highlight", color: "blue", start: { segmentId: branch.id, offset: 0 }, end: { segmentId: branch.id, offset: 13 }, quote: "As the branch" });
+    await api.annotationCreate({ reference: "PSA.23.1", kind: "bookmark" });
+    const { user } = await renderApp(api);
+    await openStudy(user, "Abiding");
+    const scripture = screen.getByRole("complementary", { name: "Scripture" });
+    await user.click(within(scripture).getByRole("button", { name: "Marks" }));
+    await within(scripture).findByRole("heading", { level: 3, name: "In your sources" });
+    // Bible marks have no menu.
+    const bible = within(scripture).getByRole("heading", { level: 3, name: "In the Bible" }).parentElement!;
+    expect(within(bible).queryByRole("button", { name: "More actions" })).toBeNull();
+    const card = within(scripture).getByRole("button", { name: /The True Vine.*Highlight/ });
+    const row = card.closest("li")!;
+    await user.click(within(row).getByRole("button", { name: "More actions" }));
+    expect(within(row).getAllByRole("menuitem").map((m) => m.textContent)).toEqual(["Add to Study", "Copy quotation with citation", "Open source"]);
+    await user.click(within(row).getByRole("menuitem", { name: "Copy quotation with citation" }));
+    await waitFor(async () => expect(await navigator.clipboard.readText()).toBe("“As the branch”\n— J. Example, The True Vine, The Vine"));
+    await user.click(within(row).getByRole("button", { name: "More actions" }));
+    await user.click(within(row).getByRole("menuitem", { name: "Add to Study" }));
+    const form = await within(row).findByRole("region", { name: "Add to Study: Abiding" });
+    await user.click(within(form).getByRole("button", { name: "Add to Study" }));
+    await waitFor(() => expect(findingsOf(api, studyIds[0]!)).toHaveLength(1));
+    expect(await within(scripture).findByText("Added to Abiding · Whole study.")).toBeInTheDocument();
+    await waitFor(() => expect(within(row).getByRole("button", { name: "More actions" })).toHaveFocus());
+  });
+});

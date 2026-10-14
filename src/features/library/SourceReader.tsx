@@ -13,7 +13,7 @@ import type { ContentsItem, SegmentWindow, SourceAnnotation, SourceLink, SourceM
 import { PHRASE_CLASS } from "@/lib/annotationRender";
 import type { ScriptureRef } from "@/types/scripture";
 import { formatLabel, licenceLabel, locatorLabel, quotationWithCitation, sourceTypeLabel } from "./labels";
-import { useLibraryNav } from "./LibraryNav";
+import { useLibraryNav, type QuotedWords } from "./LibraryNav";
 import { PassageLinkNote } from "./PassageLinkNote";
 import { ScriptureReference } from "./ScriptureReference";
 import { ContentsPanel, useContentsLayout } from "./ContentsPanel";
@@ -82,6 +82,8 @@ interface SourceReaderProps {
   onExpand?: (position: ReaderPosition) => void;
   /** Where to open (view and page), when continuing from another reader. */
   initialPosition?: ReaderPosition;
+  /** Cited words to show marked in Reading (a Study finding's citation, found exactly). */
+  quotedWords?: QuotedWords;
 }
 
 /**
@@ -89,7 +91,7 @@ interface SourceReaderProps {
  * extracted text with page markers (PDF) or section headings (EPUB,
  * Markdown). Opens at an exact segment and loads more around it on demand.
  */
-export function SourceReader({ sourceId, segmentId, onClose, variant = "page", onExpand, initialPosition }: SourceReaderProps) {
+export function SourceReader({ sourceId, segmentId, onClose, variant = "page", onExpand, initialPosition, quotedWords }: SourceReaderProps) {
   const { t } = useTranslation();
   const api = useApi();
   const id = useId();
@@ -762,6 +764,19 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     list.push({ start: m.start, end: m.end, active: m === current });
     findMarks.set(m.position, list);
   }
+  // The words a Study finding cites, shown where they are (opened from its citation).
+  if (quotedWords && window) {
+    const first = window.segments.find((x) => x.id === quotedWords.startSegmentId);
+    const last = window.segments.find((x) => x.id === quotedWords.endSegmentId);
+    if (first && last) {
+      for (const segment of window.segments) {
+        if (segment.position < first.position || segment.position > last.position) continue;
+        const start = segment.position === first.position ? quotedWords.startOffset : 0;
+        const end = segment.position === last.position ? quotedWords.endOffset : segment.text.length;
+        if (start < end) findMarks.set(segment.position, [...(findMarks.get(segment.position) ?? []), { start, end, active: false, quoted: true }]);
+      }
+    }
+  }
 
   /** A mark chosen in the Marks panel: to its place (a jump, so Back returns), with its paragraph's marks shown in Reading. */
   const chooseMark = (mark: SourceAnnotation) => {
@@ -1238,6 +1253,8 @@ interface FindMark {
   start: number;
   end: number;
   active: boolean;
+  /** Words a Study finding cites, rather than a find match. */
+  quoted?: boolean;
 }
 
 /** What is drawn over a segment's text: find matches and the person's own marks. */
@@ -1280,6 +1297,7 @@ function painted(text: string, from: number, to: number, paint: Paint): React.Re
         <mark
           key={`f${start}`}
           data-find-active={find.active || undefined}
+          data-quoted={find.quoted || undefined}
           className={(find.active ? "rounded-sm bg-hl-amber font-semibold text-text-strong outline outline-2 outline-offset-1 outline-accent" : "rounded-sm bg-hl-amber text-text") + noteClass}
         >
           {piece}
