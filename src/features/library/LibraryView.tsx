@@ -61,6 +61,17 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
     void search(query);
   };
 
+  // How many marks the source being removed has (v0.14): said in the confirmation, so nothing is lost unawares.
+  const [markCount, setMarkCount] = useState<{ sourceId: string; count: number } | null>(null);
+  const confirm = (sourceId: string) => {
+    setConfirming(sourceId);
+    setMarkCount(null);
+    api.sourceMarksSources().then(
+      (all) => setMarkCount({ sourceId, count: all.find((x) => x.sourceId === sourceId)?.count ?? 0 }),
+      () => undefined,
+    );
+  };
+
   const remove = async (sourceId: string) => {
     setError(null);
     try {
@@ -176,13 +187,14 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
                           .join(t("common.listSeparator"))}
                       </span>
                     </button>
-                    <Button variant="quiet" onClick={() => setConfirming(s.id)} aria-label={t("library.remove.label", { title: s.title })}>{t("library.remove.button")}</Button>
+                    <Button variant="quiet" onClick={() => confirm(s.id)} aria-label={t("library.remove.label", { title: s.title })}>{t("library.remove.button")}</Button>
                   </div>
                   {confirming === s.id && (
                     <div role="alertdialog" aria-label={t("library.remove.dialogLabel", { title: s.title })} className="flex flex-col gap-3 border-l-[3px] border-danger bg-bg-secondary px-4 py-3">
                       <p className="m-0">
                         <Trans i18nKey="library.remove.message" values={{ title: s.title }} components={{ strong: <strong /> }} />
                       </p>
+                      {markCount?.sourceId === s.id && markCount.count > 0 && <p className="m-0">{t("library.remove.marks", { count: markCount.count })}</p>}
                       <div className="flex gap-2">
                         <Button variant="primary" onClick={() => remove(s.id)}>{t("library.remove.confirm")}</Button>
                         <Button autoFocus onClick={() => setConfirming(null)}>{t("library.remove.keep")}</Button>

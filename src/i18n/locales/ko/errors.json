@@ -109,5 +109,14 @@
     "otherTranslation": "선택한 말씀은 다른 번역본의 것입니다.",
     "notInPassage": "선택한 말씀은 이 본문에 속하지 않습니다.",
     "notSingleVerse": "“{{passage}}”은(는) 한 절이 아닙니다."
+  },
+  "sourceAnnotations": {
+    "noWords": "먼저 자료에서 낱말을 선택하세요.",
+    "textChanged": "선택한 낱말이 이 자료의 글과 일치하지 않습니다.",
+    "tooMuchText": "한 번에 이렇게 많은 글을 표시할 수 없습니다.",
+    "placeGone": "이 위치는 더 이상 자료에 없습니다.",
+    "noPlace": "먼저 자료에서 위치를 선택하세요.",
+    "bookmarkPlace": "책갈피는 낱말이 아니라 위치를 표시합니다.",
+    "wordsOnlyNotes": "메모에만 글을 쓸 수 있습니다."
   }
 }

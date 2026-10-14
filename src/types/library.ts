@@ -1,5 +1,5 @@
 // TypeScript mirror of the native library types (src-tauri/src/library).
-import type { ScriptureRef } from "./scripture";
+import type { HighlightColor, ScriptureRef } from "./scripture";
 
 export const SOURCE_TYPES = ["book", "article", "notes", "sermon", "lecture", "document"] as const;
 export type SourceType = (typeof SOURCE_TYPES)[number];
@@ -287,4 +287,88 @@ export interface EpubItem {
   /** What the `<body>` carried (class, id, style). */
   root: Record<string, string>;
   missingImages: number;
+}
+
+/* ------------------------------------------------------------------------
+ * Source annotations (v0.14): highlights, notes and bookmarks in a source.
+ * They belong to the source document, apart from Scripture annotations, and
+ * are anchored in its stored text (docs/source-annotations-v0.14.md).
+ * --------------------------------------------------------------------- */
+
+export type SourceAnnotationKind = "highlight" | "note" | "bookmark";
+
+/** exact: where it was made; moved: found again after the text changed; unresolved: not found, never drawn. */
+export type AnchorState = "exact" | "moved" | "unresolved";
+
+/** One end of selected words: a segment and a UTF-16 offset into its stored text. */
+export interface TextPoint {
+  segmentId: string;
+  offset: number;
+}
+
+/** Where an annotation is now. `offset` is null for a place (no selected words). */
+export interface AnnotationPoint {
+  segmentId: string;
+  position: number;
+  offset: number | null;
+}
+
+export interface SourceAnnotation {
+  id: string;
+  sourceId: string;
+  kind: SourceAnnotationKind;
+  /** Highlights only. */
+  color: HighlightColor | null;
+  /** A note's words. */
+  content: string;
+  /** The selected words; segments joined with "\n". Null for a place. */
+  quote: string | null;
+  start: AnnotationPoint | null;
+  end: AnnotationPoint | null;
+  position: number | null;
+  pageNumber: number | null;
+  /** How far down an Original PDF page a place is (0..1). */
+  fraction: number | null;
+  locator: string | null;
+  sectionPath: string | null;
+  state: AnchorState;
+  createdAt: string;
+  updatedAt: string;
+  revision: number;
+}
+
+export interface CreateSourceAnnotation {
+  sourceId: string;
+  kind: SourceAnnotationKind;
+  color?: HighlightColor;
+  content?: string;
+  start?: TextPoint;
+  end?: TextPoint;
+  quote?: string;
+  place?: { segmentId?: string; page?: number; fraction?: number };
+}
+
+export interface UpdateSourceAnnotation {
+  id: string;
+  content?: string;
+  color?: HighlightColor;
+}
+
+/** A source annotation with the source it is in, for the Marks view. */
+export interface SourceMark extends SourceAnnotation {
+  sourceTitle: string;
+  sourceAuthor: string | null;
+}
+
+export interface SourceMarksPage {
+  marks: SourceMark[];
+  offset: number;
+  hasMore: boolean;
+}
+
+/** A source that has marks, for choosing one in the Marks view. */
+export interface MarkedSource {
+  sourceId: string;
+  title: string;
+  count: number;
 }

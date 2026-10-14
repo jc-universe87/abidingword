@@ -4,6 +4,7 @@ import { PaneHeader } from "@/design-system/PaneHeader";
 import { Button } from "@/design-system/Button";
 import { ChapterReader } from "./ChapterReader";
 import { ConcordanceView } from "./ConcordanceView";
+import { useLibraryNav } from "@/features/library/LibraryNav";
 import { MarksView } from "./MarksView";
 import { PassageNav } from "./PassageNav";
 import { ScriptureHistoryBar } from "./ScriptureHistoryBar";
@@ -12,6 +13,7 @@ import { SearchResultsView } from "./SearchResultsView";
 
 /** The Scripture pane: a local passage reader over installed translations. */
 export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
+  const { openSource } = useLibraryNav();
   const { t } = useTranslation();
   const { translations, translation, setTranslation, search, goTo, navigationId, concordanceRequest } = useScripture();
   // Bible is the default; Marks is a second view of the same pane. The Bible
@@ -107,6 +109,12 @@ export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
                     // The passage first, then the Bible: the reader scrolls to it on arriving.
                     goTo(mark.reference);
                     setView("bible");
+                  }}
+                  onOpenSource={(mark) => {
+                    // At its words or place; a mark on a page of an Original PDF opens that page there.
+                    if (mark.start) openSource(mark.sourceId, mark.start.segmentId);
+                    else if (mark.pageNumber !== null && mark.fraction !== null) openSource(mark.sourceId, undefined, { mode: "original", page: mark.pageNumber });
+                    else openSource(mark.sourceId);
                   }}
                 />
               )}

@@ -3,9 +3,10 @@
 > [!NOTE]
 > **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Bible references in your books](guide/06-bible-references.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
 
-Status: built on the branch `claude/beautiful-curie-vm0eve` from `main`
-`f7e4577` (test build `0.5.0-dev.28`). Not merged, not tagged, no Windows
-build. **No database migration.** Deterministic only.
+Status: merged into `main` (`2732029`, test build `0.5.0-dev.29`) and
+accepted on Windows as part of v0.13 (real-world coverage, precision first;
+later improvements come from real failures). Built on the branch
+`claude/beautiful-curie-vm0eve` from `main` `f7e4577`. **No database migration.** Deterministic only.
 
 ## What the acceptance fixture showed, and why
 

@@ -9,7 +9,8 @@ mod fixtures;
 use std::fs;
 
 use abiding_word_lib::db::text_refresh::ensure_extracted_text;
-use abiding_word_lib::db::{library, Database};
+use abiding_word_lib::db::{library, source_annotations, Database};
+use abiding_word_lib::library::annotations::{AnchorState, CreateSourceAnnotation, TextPoint};
 use abiding_word_lib::library::import;
 use abiding_word_lib::library::CommitSourceImport;
 use rusqlite::Connection;
@@ -72,6 +73,25 @@ fn an_epub_imported_by_an_earlier_version_is_repaired_in_place_once() {
             conn.execute("DELETE FROM source_segments WHERE id = ?1", [&good[2].0])?;
             library::reindex_passages(conn, &id)?;
 
+            // Marks made on the old text (v0.14): a highlight after the broken
+            // entity, which moves in the repaired text.
+            let point = |offset| TextPoint {
+                segment_id: good[0].0.clone(),
+                offset,
+            };
+            let start = "Abide &dagger; ".encode_utf16().count() as u32;
+            let mark = source_annotations::create(
+                conn,
+                &CreateSourceAnnotation {
+                    source_id: id.clone(),
+                    kind: "highlight".into(),
+                    start: Some(point(start)),
+                    end: Some(point(start + 5)),
+                    quote: Some("in me".into()),
+                    ..Default::default()
+                },
+            )?;
+
             let report = ensure_extracted_text(conn, &root)?;
             assert_eq!((report.checked, report.updated, report.failed), (1, 1, 0));
             let repaired = rows(conn, &id);
@@ -87,6 +107,15 @@ fn an_epub_imported_by_an_earlier_version_is_repaired_in_place_once() {
                 String::from_utf16(&units[refs[0].start as usize..refs[0].end as usize]).unwrap(),
                 "John 15:4"
             );
+            // the highlight is on the same words in the repaired text
+            let moved = source_annotations::get(conn, &mark.id)?;
+            assert_eq!(moved.state, AnchorState::Moved);
+            assert_eq!(moved.start.as_ref().unwrap().segment_id, good[0].0);
+            assert_eq!(
+                moved.start.as_ref().unwrap().offset,
+                Some("Abide † ".encode_utf16().count() as u32)
+            );
+            assert_eq!(moved.quote.as_deref(), Some("in me"));
             // done once: a second start changes nothing
             assert_eq!(ensure_extracted_text(conn, &root)?.checked, 0);
             Ok(())

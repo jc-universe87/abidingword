@@ -40,6 +40,7 @@ import type {
   CreateAnnotation,
   MarksPage,
   MarksQuery,
+  HighlightColor,
   DetectedReference,
   ImportPreview,
   ImportRequest,
@@ -84,6 +85,12 @@ import type {
   SourceImportPreview,
   SourceSummary,
   SourceType,
+  SourceAnnotation,
+  CreateSourceAnnotation,
+  UpdateSourceAnnotation,
+  SourceMarksPage,
+  MarkedSource,
+  SourceAnnotationKind,
 } from "@/types/library";
 
 export interface Api {
@@ -176,6 +183,15 @@ export interface Api {
   libraryPassageSourceLocations(sourceId: string, reference: string): Promise<PassageLocation[]>;
   /** Why a segment is linked to Scripture: what it mentions and the section it belongs to. */
   sourceSegmentPassageLinks(segmentId: string): Promise<SegmentPassageLink[]>;
+  /** A source's highlights, notes and bookmarks in reading order, each found again in the stored text first. */
+  sourceAnnotationList(sourceId: string): Promise<SourceAnnotation[]>;
+  sourceAnnotationCreate(input: CreateSourceAnnotation): Promise<SourceAnnotation>;
+  sourceAnnotationUpdate(input: UpdateSourceAnnotation): Promise<SourceAnnotation>;
+  sourceAnnotationDelete(id: string): Promise<void>;
+  /** A page of the marks in library sources (by source, then reading order), for the Marks view. */
+  sourceMarksList(query: { kind?: SourceAnnotationKind; sourceId?: string; color?: HighlightColor; query?: string; limit?: number; offset?: number }): Promise<SourceMarksPage>;
+  /** The sources that have marks, with how many. */
+  sourceMarksSources(): Promise<MarkedSource[]>;
   findingSourceAdd(input: { findingId: string; segmentId: string }): Promise<Finding>;
   findingSourceRemove(citationId: string): Promise<Finding>;
   studyBlockCreate(input: CreateStudyBlock): Promise<StudyBlock>;
@@ -340,6 +356,12 @@ export const tauriApi: Api = {
   libraryPassageSourceLocations: (sourceId, reference) =>
     call("library_passage_source_locations", { sourceId, reference }),
   sourceSegmentPassageLinks: (segmentId) => call("source_segment_passage_links", { segmentId }),
+  sourceAnnotationList: (sourceId) => call("source_annotation_list", { sourceId }),
+  sourceAnnotationCreate: (input) => call("source_annotation_create", { input }),
+  sourceAnnotationUpdate: (input) => call("source_annotation_update", { input }),
+  sourceAnnotationDelete: (id) => call("source_annotation_delete", { id }),
+  sourceMarksList: (query) => call("source_marks_list", { query }),
+  sourceMarksSources: () => call("source_marks_sources"),
   findingSourceAdd: (input) => call("finding_source_add", { input }),
   findingSourceRemove: (citationId) => call("finding_source_remove", { citationId }),
   studyBlockCreate: (input) => call("study_block_create", { input }),

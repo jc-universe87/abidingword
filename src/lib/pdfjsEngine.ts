@@ -1,7 +1,7 @@
 import type { ContentsItem } from "@/types/library";
 import type { Api } from "./api";
 import { PdfOutlineError, type OutlineStage, type PdfBox, type PdfDocument, type PdfEngine, type PdfLink, type PdfPageSize, type PdfPlace, type PdfRender } from "./pdfEngine";
-import { buildPageText, rangeParts, toPageTextItems } from "./pdfPageText";
+import { buildPageText, offsetInLayer, rangeParts, toPageTextItems } from "./pdfPageText";
 
 /**
  * The PDF.js implementation of the viewer's engine.
@@ -408,6 +408,7 @@ function wrap(
             }
             return out;
           },
+          offsetOf: (node, offset) => (spans.length === map.starts.length ? offsetInLayer(container, spans, map, node, offset) : null),
         };
       } catch {
         // Selectable text is a convenience; the page itself is already drawn.

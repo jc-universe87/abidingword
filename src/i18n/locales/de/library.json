@@ -60,7 +60,9 @@
     "dialogLabel": "{{title}} entfernen?",
     "message": "<strong>{{title}}</strong> aus Ihrer Bibliothek entfernen? Der Text und die Kopie der Datei, die Abiding Word angelegt hat, werden gelöscht; Ihre Originaldatei bleibt unberührt. Erkenntnisse, die diese Quelle anführen, behalten einen Vermerk der Quellenangabe.",
     "confirm": "Aus der Bibliothek entfernen",
-    "keep": "Behalten"
+    "keep": "Behalten",
+    "marks_one": "Ihre Anmerkung darin (Markierung, Notiz oder Lesezeichen) wird mit entfernt.",
+    "marks_other": "Ihre {{count}} Anmerkungen darin (Markierungen, Notizen und Lesezeichen) werden mit entfernt."
   },
   "add": {
     "title": "Zur Bibliothek hinzufügen",
@@ -208,5 +210,43 @@
     "previous": "Vorheriger Treffer",
     "next": "Nächster Treffer",
     "close": "Suche schließen"
+  },
+  "marks": {
+    "title": "Anmerkungen",
+    "selectedText": "Ausgewählter Text",
+    "stripLabel": "Ausgewählten Text markieren",
+    "highlight": "Markieren",
+    "addNote": "Notiz hinzufügen",
+    "saveNote": "Notiz speichern",
+    "noteField": "Notiz",
+    "addNoteHere": "Notiz hier hinzufügen",
+    "noteHere": "Notiz zu diesem Absatz",
+    "highlightParagraph": "Diesen Absatz markieren",
+    "bookmarkHere": "Lesezeichen an diese Stelle setzen",
+    "removeBookmarkHere": "Lesezeichen hier entfernen",
+    "kind": {
+      "highlight": "Markierung",
+      "note": "Notiz",
+      "bookmark": "Lesezeichen"
+    },
+    "marker_one": "{{count}} Anmerkung hier: {{kinds}}",
+    "marker_other": "{{count}} Anmerkungen hier: {{kinds}}",
+    "here": "Anmerkungen hier",
+    "changeColour": "Farbe ändern",
+    "removeHighlight": "Markierung entfernen",
+    "editNote": "Notiz bearbeiten",
+    "deleteNote": "Notiz löschen",
+    "removeBookmark": "Lesezeichen entfernen",
+    "colourIs": "Farbe: {{color}}",
+    "wholeParagraph": "Ganzer Absatz",
+    "unresolved": "Diese Stelle ist im Text nicht mehr zu finden.",
+    "empty": "In dieser Quelle gibt es noch keine Anmerkungen. Wählen Sie Text aus, um ihn zu markieren oder eine Notiz hinzuzufügen.",
+    "for": "Anmerkungen in {{title}}",
+    "close": "Anmerkungen schließen",
+    "show": "Die Anmerkungen in dieser Quelle zeigen",
+    "delete": "Löschen",
+    "panels": "Inhalt oder Anmerkungen",
+    "notePage": "Notiz zu dieser Seite",
+    "cannotPlace": "Diese Wörter lassen sich hier nicht genau markieren. Wählen Sie sie unter „Lesen“ aus, um sie zu markieren."
   }
 }

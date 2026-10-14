@@ -74,7 +74,9 @@ same book.
 - The **↶ ↷** arrows go back and forward through the places you visited in
   the book.
 - **Find** looks for a word inside this book (see below).
-- **Contents** jumps to a chapter.
+- **Contents** jumps to a chapter; **Marks** lists your marks in the book.
+- 🔖 and 📝 bookmark the place you are reading or add a note there (see
+  [Marking your books](#marking-your-books)).
 - Underlined Bible references can be opened in the Bible. See
   [Bible references in your books](06-bible-references.md).
 
@@ -136,6 +138,74 @@ underlined too. Click one and choose **Open in Bible**:
 > page headers and footers, and in sideways or right-to-left text, are left
 > unclickable on purpose.
 
+## Marking your books
+
+Mark your books the way you would mark a printed book: highlight a sentence,
+write a note in the margin, put a bookmark in a page. Your marks are kept by
+Abiding Word, never written into your file.
+
+| Mark | How |
+|---|---|
+| 🖍️ **Highlight** | Select the words, then choose **Highlight** and a colour |
+| 📝 **Note** | Select the words and choose **Add note**, or use the 📝 button for a note on the paragraph you are reading |
+| 🔖 **Bookmark** | The 🔖 button marks the place you are reading. Press it again to remove the bookmark |
+
+When you select words, a small bar appears at the bottom of the reader:
+
+<p align="center">
+  <img src="images/source-selection.png" alt="Words selected in 'Notes on Abiding', with a small bar at the bottom: Selected text, Add note, Highlight" width="440">
+</p>
+
+Highlighted words are coloured; words with a note are underlined with dots. A
+small symbol at the end of a paragraph shows that it has marks. Click it to
+see them, change a highlight's colour, edit or delete a note, or remove a
+bookmark:
+
+<p align="center">
+  <img src="images/source-marks.png" alt="A highlighted phrase and a note in 'Notes on Abiding', with the paragraph's marks open: the note and Edit note, Delete note" width="440">
+</p>
+
+- The five colours are the same as in the Bible. No colour has a fixed meaning.
+- A selection may run over several paragraphs.
+- **Without a mouse:** the 📝 button writes a note on the paragraph you are
+  at, and offers **Highlight this paragraph**.
+
+### Marks in the Original view
+
+Your marks are shown in the **Original** view too, on the real page, at any
+zoom:
+
+<p align="center">
+  <img src="images/pdf-marks.png" alt="A PDF page in the Original view with a phrase highlighted across two lines" width="900">
+</p>
+
+- In a **PDF** you can also select words on the page and mark them: the same
+  small bar appears below the page. The 🔖 and 📝 buttons mark the page you
+  are looking at, even a scanned page.
+
+<p align="center">
+  <img src="images/pdf-selection.png" alt="Words selected on a PDF page in the Original view, with the bar below the page: Selected text 'first readers before asking', Add note, Highlight" width="900">
+</p>
+
+- In **EPUB** and **Word** documents your marks are shown on the page; to make
+  a new mark there, select the words in **Reading**.
+- Abiding Word only draws a mark where it finds exactly the same words. If it
+  can't be sure (a page header, an unusual page), it doesn't guess. Select
+  the words in **Reading** instead.
+
+### All your marks in a book
+
+**Marks**, next to **Contents**, lists every mark in the book in reading
+order. Click one to go there. To see the marks from all your books and the
+Bible together, use **Marks** in the Scripture pane (see
+[Highlights, notes and bookmarks](03-highlights-notes-bookmarks.md#finding-your-marks-again-marks)).
+
+> [!NOTE]
+> If the text of a book changes (for example after Abiding Word repairs how
+> an e-book was read), your marks follow their words. If a mark's words can no
+> longer be found for certain, it is kept with its words and says **"This place
+> can no longer be found in the text."** It is never moved to other words.
+
 ## Searching your library
 
 1. In the app bar, switch the search menu to **Library**.
@@ -158,7 +228,9 @@ from your library.
 ## Removing a book
 
 On the Library page, click **Remove…** beside the book. Citations in your
-studies keep the title and author, so your notes still make sense.
+studies keep the title and author, so your notes still make sense. Your marks
+in that book are removed with it; Abiding Word tells you how many before you
+confirm.
 
 ---
 

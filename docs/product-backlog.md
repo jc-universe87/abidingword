@@ -66,13 +66,13 @@ useful; PDF sections if the importer ever finds trustworthy headings.
 See [`scripture-links-v0.11.md`](scripture-links-v0.11.md): references in the
 Reading view and in formatted EPUB / Word pages offer **Open in Bible**;
 Scripture has Back / Forward and **Back to {main passage}**; the Study is never
-changed. Scripture links in the PDF Original view are built in v0.13 (branch,
-not yet merged; see [`library-reading-v0.13.md`](library-reading-v0.13.md)):
+changed. Scripture links in the PDF Original view are built in v0.13
+(accepted with v0.13; see [`library-reading-v0.13.md`](library-reading-v0.13.md)):
 placed with PDF.js's own text layer, never guessed. Still open: references in
 right-to-left or vertical PDF text; references split across formatting in
 formatted pages; further actions (Add as related passage, Copy reference).
 
-### Concordance — surface forms shipped in v0.12 (merged; Windows acceptance in progress); lemma and morphology open
+### Concordance — surface forms shipped in v0.12 (accepted); lemma and morphology open
 
 See [`concordance-v0.12.md`](concordance-v0.12.md): Word and Phrase occurrences
 in one Bible, by book, with per-script normalisation (Latin accents kept,
@@ -115,33 +115,32 @@ targets and pane-aware layout; a calmer study list and relation picker.
 **Still open:** an Add reachable from the middle of a long study; project
 organisation for people with many projects; a real-display dark-mode review.
 
-### Document annotations and ink (future milestone)
+### Document annotations — highlights, notes and bookmarks built in v0.14; ink open
 
-**Document Annotations & Ink** is a separate system from the structured
-Scripture annotations of v0.5. For PDF sources, including PDF Bibles, future
-support would include: text highlighting; notes attached to text, a page or a
-location; page/location bookmarks; freehand pen/stylus markup (underline and
-shapes possibly later); exact navigation back to the annotated page or
-location. The original PDF stays untouched and annotations are stored
-separately.
+**Built in v0.14** (see [`source-annotations-v0.14.md`](source-annotations-v0.14.md)):
+highlights, notes (on words or a place) and bookmarks in library sources, kept
+apart from the structured Scripture annotations of v0.5 and anchored in the
+stored text (never in a view). They are drawn in Reading, on Original PDF
+pages and in formatted EPUB/DOCX; made in Reading and on PDF pages; found
+again (or kept as unresolved, never moved) when the stored text changes; and
+listed in **Marks** with the Bible's marks (*Bible and sources / Bible only /
+Sources only*) and in each reader beside Contents. The original file is never
+touched.
 
-| | Structured Scripture annotations (v0.5) | Document / PDF annotations (future) |
+| | Structured Scripture annotations (v0.5) | Source annotations (v0.14) |
 |---|---|---|
 | Tied to | canonical verse / phrase | one source document |
-| Position | canonical reference, translation-aware | page, text or location |
-| Ink | no | yes |
+| Position | canonical reference, translation-aware | stored text (segments, offsets, quote and context); page and place as fallbacks |
+| Ink | no | not yet (below) |
 | Works without structured Scripture | no | yes |
 
-For a PDF Bible the two may eventually be linked **only if reliable verse
-mapping exists**. Page annotations never automatically correspond to
-canonical Scripture and no verse mapping is invented.
+**Still open:**
 
-The Marks view should eventually be able to surface Scripture notes,
-highlights and bookmarks, PDF/source notes, highlights and bookmarks, and ink
-together, hiding the technical distinction unless the user needs it. Stylus
-support should consider Windows pen, touch devices, tablets and pen-enabled
-laptops, a smooth handwriting experience, and pressure/stroke data only if
-needed.
+- **v0.14.x:** making marks directly in the formatted EPUB/DOCX Original (selection inside its shadow root, once checked on Windows); bookmark and note-here buttons in the formatted Original; a selection across two PDF pages.
+- **Ink:** freehand pen/stylus markup (underline and shapes possibly later), in its own storage for strokes; the annotation model already leaves room (positioning in the small `anchor` JSON). Stylus support should consider Windows pen, touch devices, tablets and pen-enabled laptops, a smooth handwriting experience, and pressure/stroke data only if needed. Ink would appear in Marks with the rest.
+- **With studies:** *Add note to Study*, *Create finding from annotation*, *Copy quotation with citation* (never automatic findings from highlights).
+- **Restoring marks after a re-import** of the same file (the content hash and quote-based recovery make it possible).
+- **PDF Bibles:** linked to canonical Scripture **only if reliable verse mapping exists**. Page annotations never automatically correspond to canonical Scripture and no verse mapping is invented.
 
 ## 1. Detachable panes (multi-monitor workspace)
 
@@ -242,16 +241,17 @@ Reading and Original views, and **Back / Forward** reading history — see
   Reading's extracted text.
 - **EPUB:** embedded fonts, fixed-layout and
   vertical-writing books, inline SVG/MathML, a text-size control, and
-  annotations on the formatted view.
+  making marks directly on the formatted view (they are shown there since
+  v0.14).
 - **History** beyond one reading session (it is kept in memory only, per
   source), and across sources.
 - **DOCX:** headers and footers, text boxes and shapes, charts and equations,
   heading numbers from multilevel lists, other number formats, table widths and
   borders, links inside Reading's text, caching the parsed document between
-  parts, and the EPUB items above that apply (text size, annotations). Web links
+  parts, and the EPUB items above that apply (text size, making marks there). Web links
   open in the system browser (`http`/`https` only) in both formatted views;
   `mailto:` and other schemes stay blocked until deliberately designed.
-- **Generated contents:** built in v0.13 (branch, not yet merged): headings of
+- **Generated contents:** built in v0.13 (accepted): headings of
   EPUB, Markdown and Word sources, and conservative probable headings of a PDF,
   always labelled *Generated contents*. Open: bold type as PDF evidence (the
   extractor does not report weight), a Word document's own TOC field, and

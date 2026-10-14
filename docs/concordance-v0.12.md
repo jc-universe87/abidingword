@@ -3,9 +3,10 @@
 > [!NOTE]
 > **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Concordance](guide/07-concordance.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
 
-Status: merged into `main` (`75fe193`) and published for Windows acceptance
-(test build `0.5.0-dev.25`, and in every later build); acceptance in progress;
-not tagged yet. Built on `feature/concordance-v0.12` from `main` `c417846`.
+Status: merged into `main` (`75fe193`) and accepted on Windows (test builds
+`0.5.0-dev.25` and later). To be tagged `concordance-v0.12` at `76145c3`, the
+last `main` before v0.13 (test build `0.5.0-dev.26`). Built on
+`feature/concordance-v0.12` from `main` `c417846`.
 **No database migration.** Deterministic only: no AI, no
 embeddings, no semantic similarity.
 

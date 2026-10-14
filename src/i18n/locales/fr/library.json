@@ -62,7 +62,10 @@
     "dialogLabel": "Retirer {{title}} ?",
     "message": "Retirer <strong>{{title}}</strong> de votre bibliothèque ? Son texte et la copie du fichier conservée par Abiding Word sont supprimés ; votre fichier d’origine n’est pas touché. Les élément d’études qui la citent gardent une trace de la référence.",
     "confirm": "Retirer de la bibliothèque",
-    "keep": "La conserver"
+    "keep": "La conserver",
+    "marks_one": "Votre marque dans cette source (surlignage, note ou signet) est retirée avec elle.",
+    "marks_many": "Vos {{count}} marques dans cette source (surlignages, notes et signets) sont retirées avec elle.",
+    "marks_other": "Vos {{count}} marques dans cette source (surlignages, notes et signets) sont retirées avec elle."
   },
   "add": {
     "title": "Ajouter à la bibliothèque",
@@ -217,5 +220,44 @@
     "previous": "Résultat précédent",
     "next": "Résultat suivant",
     "close": "Fermer la recherche"
+  },
+  "marks": {
+    "title": "Marques",
+    "selectedText": "Texte sélectionné",
+    "stripLabel": "Marquer le texte sélectionné",
+    "highlight": "Surligner",
+    "addNote": "Ajouter une note",
+    "saveNote": "Enregistrer la note",
+    "noteField": "Note",
+    "addNoteHere": "Ajouter une note ici",
+    "noteHere": "Note sur ce paragraphe",
+    "highlightParagraph": "Surligner ce paragraphe",
+    "bookmarkHere": "Mettre un signet ici",
+    "removeBookmarkHere": "Retirer le signet ici",
+    "kind": {
+      "highlight": "Surlignage",
+      "note": "Note",
+      "bookmark": "Signet"
+    },
+    "marker_one": "{{count}} marque ici : {{kinds}}",
+    "marker_many": "{{count}} marques ici : {{kinds}}",
+    "marker_other": "{{count}} marques ici : {{kinds}}",
+    "here": "Marques ici",
+    "changeColour": "Changer la couleur",
+    "removeHighlight": "Retirer le surlignage",
+    "editNote": "Modifier la note",
+    "deleteNote": "Supprimer la note",
+    "removeBookmark": "Retirer le signet",
+    "colourIs": "Couleur : {{color}}",
+    "wholeParagraph": "Paragraphe entier",
+    "unresolved": "Cet endroit est introuvable dans le texte.",
+    "empty": "Aucune marque dans cette source pour l’instant. Sélectionnez du texte pour le surligner ou y ajouter une note.",
+    "for": "Marques dans {{title}}",
+    "close": "Fermer les marques",
+    "show": "Afficher les marques de cette source",
+    "delete": "Supprimer",
+    "panels": "Sommaire ou marques",
+    "notePage": "Note sur cette page",
+    "cannotPlace": "Ces mots ne peuvent pas être marqués exactement ici. Sélectionnez-les en mode Lecture pour les marquer."
   }
 }

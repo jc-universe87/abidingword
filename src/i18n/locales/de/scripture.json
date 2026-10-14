@@ -190,16 +190,30 @@
       "none": "Noch keine Anmerkungen.",
       "noneBody": "Markierungen, Notizen und Lesezeichen, die beim Lesen entstehen, erscheinen hier.",
       "noMatch": "Dazu gibt es nichts. Versuche ein anderes Buch oder eine andere Farbe.",
-      "noSearch": "Keine Notiz passt zur Suche."
+      "noSearch": "Keine Notiz passt zur Suche.",
+      "noneSources": "In Ihren Quellen gibt es noch keine Anmerkungen.",
+      "noneSourcesBody": "Wählen Sie beim Lesen einer Quelle Text aus, um ihn zu markieren oder eine Notiz hinzuzufügen.",
+      "noMatchSources": "Hier passt nichts. Versuchen Sie eine andere Quelle oder Farbe."
     },
     "result": {
       "note": "Notiz",
       "highlight": "Markierung",
       "bookmark": "Lesezeichen",
       "wholeVerse": "Ganzer Vers",
-      "show": "In der Bibel anzeigen"
+      "show": "In der Bibel anzeigen",
+      "showSource": "In der Quelle öffnen"
     },
-    "concordance": "Konkordanz"
+    "concordance": "Konkordanz",
+    "scope": {
+      "label": "Anmerkungen aus",
+      "all": "Bibel und Quellen",
+      "bible": "Nur Bibel",
+      "sources": "Nur Quellen"
+    },
+    "source": "Quelle",
+    "allSources": "Alle Quellen",
+    "sectionBible": "In der Bibel",
+    "sectionSources": "In Ihren Quellen"
   },
   "history": {
     "group": "Verlauf der Bibel",

@@ -177,16 +177,30 @@
       "none": "아직 표시가 없습니다.",
       "noneBody": "읽으면서 추가한 강조, 메모, 책갈피가 여기에 나타납니다.",
       "noMatch": "일치하는 항목이 없습니다. 다른 책이나 색을 선택해 보세요.",
-      "noSearch": "검색과 일치하는 메모가 없습니다."
+      "noSearch": "검색과 일치하는 메모가 없습니다.",
+      "noneSources": "자료에 아직 표시가 없습니다.",
+      "noneSourcesBody": "자료를 읽다가 글을 선택하여 강조하거나 메모를 추가하세요.",
+      "noMatchSources": "일치하는 것이 없습니다. 다른 자료나 색을 선택해 보세요."
     },
     "result": {
       "note": "메모",
       "highlight": "강조",
       "bookmark": "책갈피",
       "wholeVerse": "구절 전체",
-      "show": "성경에서 보기"
+      "show": "성경에서 보기",
+      "showSource": "자료에서 열기"
     },
-    "concordance": "용례 찾기"
+    "concordance": "용례 찾기",
+    "scope": {
+      "label": "표시 범위",
+      "all": "성경과 자료",
+      "bible": "성경만",
+      "sources": "자료만"
+    },
+    "source": "자료",
+    "allSources": "모든 자료",
+    "sectionBible": "성경에서",
+    "sectionSources": "내 자료에서"
   },
   "history": {
     "group": "성경 이동 기록",

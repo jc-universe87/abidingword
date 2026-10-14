@@ -1,5 +1,5 @@
 import { PdfOutlineError, type PdfDocument, type PdfEngine, type PdfLink, type PdfPageSize, type PdfPlace, type PdfTextLayer } from "@/lib/pdfEngine";
-import { buildPageText, rangeParts, type PageTextItem } from "@/lib/pdfPageText";
+import { buildPageText, offsetInLayer, rangeParts, type PageTextItem } from "@/lib/pdfPageText";
 import type { ContentsItem } from "@/types/library";
 
 export interface FakePdfEngine extends PdfEngine {
@@ -82,14 +82,24 @@ export function createFakePdfEngine({ pages = 5, size = { width: 600, height: 80
           return { promise: engine.failRender ? Promise.reject(new Error("synthetic render failure")) : Promise.resolve(), cancel: () => undefined };
         },
         // The page-text map, with boxes laid out on a simple grid: item i on row i, one hundredth of the width per character.
-        text: async (page): Promise<PdfTextLayer | null> => {
+        // Like PDF.js, one selectable span per item (a line break after an item that ends a line).
+        text: async (page, container): Promise<PdfTextLayer | null> => {
           engine.textReads.push(page);
           const items = engine.pageTexts[page];
           if (!items) return null;
           const map = buildPageText(items);
+          container.replaceChildren();
+          const spans = items.map((item) => {
+            const span = document.createElement("span");
+            span.textContent = item.str;
+            container.append(span);
+            if (item.hasEOL) container.append(document.createElement("br"));
+            return span;
+          });
           return {
             ...map,
             boxes: (start, end) => (rangeParts(map, start, end) ?? []).map((p) => ({ x: p.from / 100, y: 0.1 + p.item * 0.05, width: (p.to - p.from) / 100, height: 0.03 })),
+            offsetOf: (node, offset) => offsetInLayer(container, spans, map, node, offset),
           };
         },
         // The open document's own outline: independent of the standalone read, which may fail.

@@ -58,7 +58,8 @@
     "dialogLabel": "{{title}}을(를) 제거할까요?",
     "message": "자료실에서 <strong>{{title}}</strong>을(를) 제거할까요? 텍스트와 Abiding Word가 보관하던 파일 사본이 삭제되며, 원본 파일은 그대로 남습니다. 이 자료를 인용한 기록에는 출처 기록이 남습니다.",
     "confirm": "자료실에서 제거",
-    "keep": "유지"
+    "keep": "유지",
+    "marks_other": "이 자료에 있는 표시 {{count}}개(강조, 메모, 책갈피)도 함께 제거됩니다."
   },
   "add": {
     "title": "자료실에 추가",
@@ -199,5 +200,42 @@
     "previous": "이전 항목",
     "next": "다음 항목",
     "close": "찾기 닫기"
+  },
+  "marks": {
+    "title": "표시",
+    "selectedText": "선택한 글",
+    "stripLabel": "선택한 글 표시하기",
+    "highlight": "강조",
+    "addNote": "메모 추가",
+    "saveNote": "메모 저장",
+    "noteField": "메모",
+    "addNoteHere": "여기에 메모 추가",
+    "noteHere": "이 단락에 대한 메모",
+    "highlightParagraph": "이 단락 강조",
+    "bookmarkHere": "이 위치에 책갈피 추가",
+    "removeBookmarkHere": "이 위치의 책갈피 제거",
+    "kind": {
+      "highlight": "강조",
+      "note": "메모",
+      "bookmark": "책갈피"
+    },
+    "marker_other": "이곳의 표시 {{count}}개: {{kinds}}",
+    "here": "이곳의 표시",
+    "changeColour": "색 바꾸기",
+    "removeHighlight": "강조 제거",
+    "editNote": "메모 편집",
+    "deleteNote": "메모 삭제",
+    "removeBookmark": "책갈피 제거",
+    "colourIs": "색: {{color}}",
+    "wholeParagraph": "단락 전체",
+    "unresolved": "이 위치를 더 이상 글에서 찾을 수 없습니다.",
+    "empty": "이 자료에는 아직 표시가 없습니다. 글을 선택하여 강조하거나 메모를 추가하세요.",
+    "for": "{{title}}의 표시",
+    "close": "표시 닫기",
+    "show": "이 자료의 표시 보기",
+    "delete": "삭제",
+    "panels": "목차 또는 표시",
+    "notePage": "이 쪽에 대한 메모",
+    "cannotPlace": "이 낱말은 여기에서 정확히 표시할 수 없습니다. ‘읽기’에서 선택하여 표시하세요."
   }
 }

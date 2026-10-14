@@ -3,7 +3,7 @@
 > [!NOTE]
 > **This is a technical record for developers.** To learn how to *use* Abiding Word, see the User Guide: **[Studies](guide/04-studies.md)**. Status lines below describe the time this record was written; the current state of every version is in the [milestone table](developers.md#milestones).
 
-Status: in review (Phase 1 approved; Phase 2 below). Branch `feature/study-workspace-ux-v0.6`, not merged.
+Status: complete (tag `study-workspace-ux-v0.6`; Phases 1 and 2). Built on the branch `feature/study-workspace-ux-v0.6`.
 
 ## Principle: the software should disappear
 

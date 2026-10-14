@@ -51,6 +51,11 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "passage_sections",
         sql: include_str!("../../migrations/0005_passage_sections.sql"),
     },
+    Migration {
+        version: 6,
+        name: "source_annotations",
+        sql: include_str!("../../migrations/0006_source_annotations.sql"),
+    },
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]

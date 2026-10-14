@@ -125,3 +125,31 @@ export function findOnPage(text: string, query: string): [number, number][] {
   }
   return out;
 }
+
+/**
+ * Where a DOM point inside a drawn text layer is in the page's text (v0.14):
+ * the selection's ends become offsets of `map.text`. The layer has one span
+ * per text item, in item order. A point between spans counts as the start of
+ * the next one. Null when the point is outside the layer.
+ */
+export function offsetInLayer(container: HTMLElement, spans: ArrayLike<HTMLElement>, map: PdfPageText, node: Node, offset: number): number | null {
+  if (!container.contains(node)) return null;
+  const list = Array.from(spans);
+  // Inside a span: the item's start, plus the text before the point in that span.
+  for (let el: Node | null = node; el && el !== container; el = el.parentNode) {
+    const item = list.indexOf(el as HTMLElement);
+    if (item < 0) continue;
+    const span = list[item]!;
+    const range = document.createRange();
+    range.setStart(span, 0);
+    range.setEnd(node, offset);
+    return map.starts[item]! + Math.min(range.toString().length, map.lengths[item]!);
+  }
+  // Between spans: the first span after the point.
+  const point = document.createRange();
+  point.setStart(node, offset);
+  for (let item = 0; item < list.length; item++) {
+    if (point.comparePoint(list[item]!, 0) >= 0) return map.starts[item]!;
+  }
+  return map.text.length;
+}

@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, List, Maximize2, Redo2, Search, Undo2 } from "lucide-react";
+import { ArrowLeft, Bookmark, Highlighter, List, Maximize2, Redo2, Search, StickyNote, Undo2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
@@ -9,7 +9,8 @@ import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { hostOf } from "@/lib/externalLink";
 import type { PdfPlace } from "@/lib/pdfEngine";
-import type { ContentsItem, SegmentWindow, SourceLink, SourceMatch, SourceReference, SourceSegment } from "@/types/library";
+import type { ContentsItem, SegmentWindow, SourceAnnotation, SourceLink, SourceMatch, SourceReference, SourceSegment } from "@/types/library";
+import { PHRASE_CLASS } from "@/lib/annotationRender";
 import type { ScriptureRef } from "@/types/scripture";
 import { formatLabel, licenceLabel, locatorLabel, sourceTypeLabel } from "./labels";
 import { useLibraryNav } from "./LibraryNav";
@@ -23,6 +24,11 @@ import { useEpubStructure } from "./formatted/useEpubStructure";
 import { PdfViewer, type PdfFind } from "./PdfViewer";
 import { canGoBack, canGoForward, NO_HISTORY, stepBack, stepForward, visit, type ReaderHistory, type SourceLocation } from "./readerHistory";
 import { currentEntry, useSourceContents } from "./useSourceContents";
+import { MarksInspector, MarksMarker } from "./annotations/ParagraphMarks";
+import { SourceMarkStrip, type PlaceRequest } from "./annotations/SourceMarkStrip";
+import { SourceMarksPanel } from "./annotations/SourceMarksPanel";
+import { selectionInside, type SourceSelection } from "./annotations/sourceSelection";
+import { useSourceAnnotations, type MarkedRange } from "./annotations/useSourceAnnotations";
 
 export type ReaderMode = "reading" | "original";
 
@@ -109,6 +115,11 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const opener = useRef<HTMLButtonElement>(null);
   const contentsLayout = useContentsLayout(stage, contents.length > 0);
   const [panel, setPanel] = useState<{ currentId: string | null } | null>(null);
+  // The source's marks, listed beside the text like its contents (v0.14).
+  const [marksPanel, setMarksPanel] = useState(false);
+  // A mark chosen in the Marks list while the formatted original is shown: brought into view there.
+  const [revealMark, setRevealMark] = useState<{ id: string; nonce: number } | null>(null);
+  const marksPanelOpener = useRef<HTMLButtonElement>(null);
   const [jump, setJump] = useState<{ page: number; nonce: number; fraction?: number } | null>(null);
   // A segment position Reading should scroll to after a contents entry or link was chosen.
   // With an `offset`, the segment is put exactly that far from the top of the view (returning by Back / Forward).
@@ -128,10 +139,26 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   };
   // Where the original is, on request (page and how far down it).
   const pdfNow = useRef<(() => PdfPlace) | null>(null);
+  // The original PDF's page, as state too: the bookmark button says whether this page has one.
+  const [pdfPage, setPdfPage] = useState<number | null>(null);
+  // Reads a selection on an original PDF page as an anchor in the stored text (v0.14).
+  const pdfSelection = useRef<((selection: Selection) => SourceSelection | null) | null>(null);
   // The links in an EPUB's text, by the segment they are in.
   const links = useSourceLinks(source.data);
   // The Scripture references written in the text, by segment (from the stored index).
   const references = useSourceReferences(source.data?.id);
+  // The person's highlights, notes and bookmarks in this source (v0.14).
+  const marks = useSourceAnnotations(source.data?.id);
+  // The paragraph whose marks are shown below it, and the marker that opened them (focus returns there).
+  const [marksOpen, setMarksOpen] = useState<number | null>(null);
+  const marksOpener = useRef<HTMLButtonElement | null>(null);
+  // "Add note here": the paragraph to write on; the toolbar button gets focus back afterwards.
+  const [placeNote, setPlaceNote] = useState<PlaceRequest | null>(null);
+  const noteHereButton = useRef<HTMLButtonElement>(null);
+  const placeNonce = useRef(0);
+  // The paragraph the reader is at: the one last clicked or focused while it is in view, else the top of the view.
+  const [here, setHere] = useState<number | null>(null);
+  const chosenParagraph = useRef<number | null>(null);
   const { openInBible } = useLibraryNav();
   // An EPUB's formatted view: its reading order, where it was told to open, and where it is on request.
   const epub = useEpubStructure(source.data);
@@ -307,7 +334,10 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     return currentEntry(contents, "segment", Number(top?.dataset.segPosition ?? window?.offset ?? 0));
   };
 
-  const openContents = () => setPanel({ currentId: currentEntryNow() });
+  const openContents = () => {
+    setMarksPanel(false);
+    setPanel({ currentId: currentEntryNow() });
+  };
   const closeContents = () => {
     setPanel(null);
     if (refocusOpener.current !== null) cancelAnimationFrame(refocusOpener.current);
@@ -315,6 +345,27 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       refocusOpener.current = null;
       opener.current?.focus({ preventScroll: true });
     });
+  };
+
+  const openMarksPanel = () => {
+    setPanel(null);
+    setMarksPanel(true);
+  };
+  const closeMarksPanel = () => {
+    setMarksPanel(false);
+    if (refocusOpener.current !== null) cancelAnimationFrame(refocusOpener.current);
+    refocusOpener.current = requestAnimationFrame(() => {
+      refocusOpener.current = null;
+      marksPanelOpener.current?.focus({ preventScroll: true });
+    });
+  };
+  /** Contents and Marks share the place beside the text: one switch moves between them. */
+  const switchPanels = (to: "contents" | "marks") => {
+    if (to === "marks") openMarksPanel();
+    else {
+      setMarksPanel(false);
+      openContents();
+    }
   };
 
   /** Reading, at a physical page: stay in Reading and show that page's text. */
@@ -361,6 +412,152 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       all[0];
     if (!top) return null;
     return { position: Number(top.dataset.segPosition), offset: area ? Math.round(top.getBoundingClientRect().top - area.top) : 0 };
+  };
+
+  /** The stored text of a paragraph on screen (Reading), to anchor a selection in. */
+  const storedText = (segmentId: string) => {
+    const segment = window?.segments.find((x) => x.id === segmentId);
+    return segment ? { position: segment.position, text: segment.text } : undefined;
+  };
+
+  /** The paragraph the reader is at (see `here`), worked out now. */
+  const hereNow = (): number | null => {
+    const body = bodyRef.current;
+    const area = body?.getBoundingClientRect();
+    const chosen = chosenParagraph.current;
+    if (body && area && chosen !== null) {
+      const box = body.querySelector<HTMLElement>(`[data-seg-position="${chosen}"]`)?.getBoundingClientRect();
+      if (box && box.bottom > area.top && box.top < area.bottom) return chosen;
+    }
+    return topSegment()?.position ?? null;
+  };
+
+  // Keep `here` current as the reader scrolls, clicks or tabs through the text.
+  useEffect(() => {
+    const body = bodyRef.current;
+    if (!body || showOriginal) return;
+    let frame: number | null = null;
+    const update = () => {
+      if (frame !== null) return;
+      frame = requestAnimationFrame(() => {
+        frame = null;
+        setHere(hereNow());
+      });
+    };
+    const choose = (event: Event) => {
+      const paragraph = (event.target as Element | null)?.closest?.("[data-seg-position]");
+      if (paragraph instanceof HTMLElement) chosenParagraph.current = Number(paragraph.dataset.segPosition);
+      update();
+    };
+    update();
+    body.addEventListener("scroll", update, { passive: true });
+    body.addEventListener("click", choose);
+    body.addEventListener("focusin", choose);
+    return () => {
+      if (frame !== null) cancelAnimationFrame(frame);
+      body.removeEventListener("scroll", update);
+      body.removeEventListener("click", choose);
+      body.removeEventListener("focusin", choose);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the body element and the text on screen are what matter
+  }, [window, showOriginal]);
+
+  const hereSegment = window?.segments.find((x) => x.position === here) ?? null;
+  const onPdfPage = showOriginal && isPdf;
+  // In the original PDF, "here" is the page in view: a bookmark there (made in either view) is this page's.
+  const pageBookmark = (page: number | null) => (page === null ? undefined : marks.all.find((m) => m.kind === "bookmark" && m.state !== "unresolved" && m.pageNumber === page));
+  const hereBookmark = onPdfPage
+    ? pageBookmark(pdfPage)
+    : hereSegment
+      ? (marks.byParagraph.get(hereSegment.position) ?? []).find((m) => m.kind === "bookmark")
+      : undefined;
+  /** The original PDF's place in view, and the first paragraph of that page (if it has text). */
+  const pdfHere = async (): Promise<{ page: number; fraction: number; segmentId?: string }> => {
+    const at = pdfNow.current?.() ?? { page: originalPage.current ?? startPage, fraction: 0 };
+    const page = at.page;
+    const fraction = Math.min(1, Math.max(0, at.fraction));
+    const w = await api.sourceGetSegments({ sourceId, aroundPage: page, limit: 20 });
+    return { page, fraction, segmentId: w.segments.find((x) => x.pageNumber === page)?.id };
+  };
+  const [markError, setMarkError] = useState<string | null>(null);
+
+  /** Bookmark this place, or remove the bookmark that is here. */
+  const toggleBookmark = async () => {
+    if (onPdfPage) {
+      setMarkError(null);
+      try {
+        const at = await pdfHere();
+        const existing = pageBookmark(at.page);
+        if (existing) await api.sourceAnnotationDelete(existing.id);
+        else await api.sourceAnnotationCreate({ sourceId, kind: "bookmark", place: at });
+        await marks.reload();
+      } catch (e) {
+        setMarkError(toApiError(e).message);
+      }
+      return;
+    }
+    const position = hereNow();
+    const segment = window?.segments.find((x) => x.position === position);
+    if (!segment) return;
+    setMarkError(null);
+    try {
+      const existing = (marks.byParagraph.get(segment.position) ?? []).find((m) => m.kind === "bookmark");
+      if (existing) await api.sourceAnnotationDelete(existing.id);
+      else await api.sourceAnnotationCreate({ sourceId, kind: "bookmark", place: { segmentId: segment.id } });
+      setHere(segment.position);
+      await marks.reload();
+    } catch (e) {
+      setMarkError(toApiError(e).message);
+    }
+  };
+
+  /** "Add note here": a note on the paragraph the reader is at, with no words selected. */
+  const noteHere = () => {
+    if (onPdfPage) {
+      void pdfHere().then(
+        (at) => setPlaceNote({ ...at, nonce: ++placeNonce.current }),
+        (e: unknown) => setMarkError(toApiError(e).message),
+      );
+      return;
+    }
+    const position = hereNow();
+    const segment = window?.segments.find((x) => x.position === position);
+    if (segment) setPlaceNote({ segmentId: segment.id, nonce: ++placeNonce.current });
+  };
+
+  const toggleMarks = (position: number, button: HTMLButtonElement) => {
+    marksOpener.current = button;
+    setMarksOpen((open) => (open === position ? null : position));
+  };
+  /**
+   * A mark in a paragraph's panel changed. When the paragraph has none left, its panel and marker
+   * go: focus moves to the paragraph itself rather than being lost (and the panel does not reopen
+   * by itself when a mark is made there later).
+   */
+  const marksChanged = async (position: number) => {
+    const all = await marks.reload();
+    if (all.some((m) => m.state !== "unresolved" && m.start?.position === position)) return;
+    setMarksOpen((open) => (open === position ? null : open));
+    requestAnimationFrame(() => {
+      const paragraph = bodyRef.current?.querySelector<HTMLElement>(`[data-seg-position="${position}"]`);
+      if (!paragraph) return;
+      if (!paragraph.hasAttribute("tabindex")) {
+        paragraph.setAttribute("tabindex", "-1");
+        paragraph.addEventListener("blur", () => paragraph.removeAttribute("tabindex"), { once: true });
+      }
+      paragraph.focus({ preventScroll: true });
+    });
+  };
+  const closeMarks = () => {
+    const position = marksOpen;
+    setMarksOpen(null);
+    requestAnimationFrame(() => {
+      // The marker that opened the panel, or (opened from the Marks list) the marker of that paragraph.
+      const marker = marksOpener.current?.isConnected
+        ? marksOpener.current
+        : bodyRef.current?.querySelector<HTMLElement>(`[data-seg-position="${position}"] [data-source-marker]`);
+      marker?.focus({ preventScroll: true });
+    });
   };
 
   /** A formatted EPUB place with both of its faces: document and element, and the matching segment of the text. */
@@ -498,6 +695,24 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     findMarks.set(m.position, list);
   }
 
+  /** A mark chosen in the Marks panel: to its place (a jump, so Back returns), with its paragraph's marks shown in Reading. */
+  const chooseMark = (mark: SourceAnnotation) => {
+    setMarksPanel(false);
+    if (showOriginal && isPdf) {
+      // The original shows its page; the page's marks are there.
+      if (mark.pageNumber !== null) jumpTo({ page: mark.pageNumber, fraction: mark.start ? 0 : (mark.fraction ?? 0) });
+    } else if (mark.start) {
+      jumpTo({ position: mark.start.position });
+      if (showOriginal && isEpubView) setRevealMark({ id: mark.id, nonce: ++jumps.current });
+      if (!showOriginal) {
+        marksOpener.current = null;
+        setMarksOpen(mark.start.position);
+      }
+    } else if (mark.pageNumber !== null) {
+      jumpTo({ page: mark.pageNumber, fraction: mark.fraction ?? 0 });
+    }
+  };
+
   const chooseEntry = (item: ContentsItem) => {
     const target = item.target;
     if (!target) return;
@@ -531,6 +746,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     <>
       {source.error && <Notice tone="error">{source.error.message}</Notice>}
       {error && <Notice tone="error">{error}</Notice>}
+      {markError && <Notice tone="error">{markError}</Notice>}
       {s && (
         <header className="flex flex-col gap-1 border-b border-border-subtle pb-4">
           {inPane && (
@@ -577,6 +793,13 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
                 links={links.get(segment.position)}
                 references={references.get(segment.position)}
                 marks={findMarks.get(segment.position)}
+                ranges={marks.ranges.get(segment.position)}
+                paragraphMarks={marks.byParagraph.get(segment.position)}
+                marksOpen={marksOpen === segment.position}
+                marksId={`${id}-marks-${segment.position}`}
+                onToggleMarks={(button) => toggleMarks(segment.position, button)}
+                onMarksChanged={() => void marksChanged(segment.position)}
+                onCloseMarks={closeMarks}
                 onFollow={(position) => jumpTo({ position }, segment.position)}
                 onOpenInBible={(reference) => openInBible(reference, positionNow())}
               />
@@ -600,6 +823,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         initialPage={startPage}
         onPageChange={(page) => {
           originalPage.current = page;
+          setPdfPage(page);
         }}
         jumpTo={jump}
         onOutline={adoptContents}
@@ -607,6 +831,9 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         locationRef={pdfNow}
         onOpenInBible={(reference) => openInBible(reference, positionNow())}
         find={pdfFind}
+        marks={marks.all}
+        onMarksChanged={marks.reload}
+        selectionRef={pdfSelection}
       />
     )
   ) : null;
@@ -646,6 +873,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
             onExternal={openExternal}
             locationRef={epubNow}
             onOpenInBible={(reference) => openInBible(reference, positionNow())}
+            marks={marks.all}
+            revealMark={revealMark}
           />
         </>
       ) : (
@@ -665,12 +894,112 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       <Search className="size-4" aria-hidden="true" /> {t("library.find.button")}
     </Button>
   );
+  // Marking the place the reader is at (Reading): a bookmark, or a note with no words selected.
+  const placeButtons =
+    (!showOriginal && window) || onPdfPage ? (
+      <div role="group" aria-label={t("library.marks.title")} className="flex shrink-0 items-center">
+        <Button
+          variant="quiet"
+          aria-pressed={!!hereBookmark}
+          aria-label={hereBookmark ? t("library.marks.removeBookmarkHere") : t("library.marks.bookmarkHere")}
+          title={hereBookmark ? t("library.marks.removeBookmarkHere") : t("library.marks.bookmarkHere")}
+          onClick={() => void toggleBookmark()}
+        >
+          <Bookmark className={`size-4 ${hereBookmark ? "fill-current" : ""}`} aria-hidden="true" />
+        </Button>
+        <Button ref={noteHereButton} variant="quiet" aria-label={t("library.marks.addNoteHere")} title={t("library.marks.addNoteHere")} onClick={noteHere}>
+          <StickyNote className="size-4" aria-hidden="true" />
+        </Button>
+      </div>
+    ) : null;
+  // Marking the original PDF: a selection on a page, read through the stored text placed there.
+  // Below the pages, never over them: the page area gets smaller while it is open.
+  const pdfStrip = onPdfPage ? (
+    <div className="max-h-[50%] shrink-0 overflow-y-auto border-t border-border-subtle bg-bg px-2 pt-2 empty:hidden">
+      <SourceMarkStrip
+        root={stage}
+        sourceId={sourceId}
+        read={(selection) => pdfSelection.current?.(selection) ?? null}
+        cannotPlace={t("library.marks.cannotPlace")}
+        place={placeNote}
+        onPlaceDone={() => {
+          setPlaceNote(null);
+          requestAnimationFrame(() => noteHereButton.current?.focus({ preventScroll: true }));
+        }}
+        onSaved={() => void marks.reload()}
+      />
+    </div>
+  ) : null;
+  const markStrip =
+    !showOriginal && window ? (
+      <SourceMarkStrip
+        root={bodyRef}
+        sourceId={sourceId}
+        read={(selection, root) => selectionInside(selection, root, storedText)}
+        stored={storedText}
+        place={placeNote}
+        onPlaceDone={() => {
+          setPlaceNote(null);
+          requestAnimationFrame(() => noteHereButton.current?.focus({ preventScroll: true }));
+        }}
+        onSaved={() => void marks.reload()}
+      />
+    ) : null;
   const findBar = finding ? (
     <FindBar find={finder.find} focusKey={findFocus} onType={finder.type} onSubmit={finder.submit} onStep={finder.step} onClose={closeFind} />
   ) : null;
+  const panelSwitch =
+    contents.length > 0 ? (
+      <div role="group" aria-label={t("library.marks.panels")} className="flex shrink-0 rounded-aw border border-border p-0.5">
+        {(["contents", "marks"] as const).map((which) => (
+          <button
+            key={which}
+            type="button"
+            aria-pressed={which === "marks" ? marksPanel : panel !== null}
+            onClick={() => switchPanels(which)}
+            className="min-h-8 rounded-[4px] px-2 font-ui text-[0.875rem] text-text-strong hover:bg-bg-secondary aria-pressed:bg-primary aria-pressed:text-on-primary"
+          >
+            {which === "marks" ? t("library.marks.title") : t("library.contents.title")}
+          </button>
+        ))}
+      </div>
+    ) : null;
   const contentsPanel = panel ? (
-    <ContentsPanel id={`${id}-contents`} title={s?.title ?? ""} items={contents} generated={contentsGenerated} currentId={panel.currentId} layout={contentsLayout} onSelect={chooseEntry} onClose={closeContents} />
+    <ContentsPanel
+      id={`${id}-contents`}
+      title={s?.title ?? ""}
+      items={contents}
+      generated={contentsGenerated}
+      currentId={panel.currentId}
+      layout={contentsLayout}
+      onSelect={chooseEntry}
+      onClose={closeContents}
+      switcher={panelSwitch}
+    />
+  ) : marksPanel ? (
+    <SourceMarksPanel
+      id={`${id}-marks`}
+      title={s?.title ?? ""}
+      marks={marks.all}
+      layout={contentsLayout}
+      switcher={panelSwitch}
+      onSelect={chooseMark}
+      onChanged={() => void marks.reload()}
+      onClose={closeMarksPanel}
+    />
   ) : null;
+  const marksButton = (
+    <Button
+      ref={marksPanelOpener}
+      variant="quiet"
+      aria-expanded={marksPanel}
+      aria-controls={marksPanel ? `${id}-marks` : undefined}
+      title={t("library.marks.show")}
+      onClick={() => (marksPanel ? closeMarksPanel() : openMarksPanel())}
+    >
+      <Highlighter className="size-4" aria-hidden="true" /> {t("library.marks.title")}
+    </Button>
+  );
 
   if (inPane) {
     // A column: controls that never scroll away, then Reading (which scrolls
@@ -693,17 +1022,25 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
             {modeSwitch}
           </div>
           <div className="flex flex-wrap items-center gap-x-1">
+            {placeButtons}
             {findButton}
             {contentsButton}
+            {marksButton}
           </div>
         </div>
         {findBar}
         <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
           {showOriginal ? (
-            (epubViewer ?? original)
+            <>
+              {epubViewer ?? original}
+              {pdfStrip}
+            </>
           ) : (
             <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
-              <div className="flex flex-col gap-5 px-5 pb-16 pt-5">{body}</div>
+              <div className="flex flex-col gap-5 px-5 pb-16 pt-5">
+                {body}
+                {markStrip}
+              </div>
             </div>
           )}
           {contentsPanel}
@@ -731,16 +1068,24 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         </h1>
         {historyButtons}
         {modeSwitch}
+        {placeButtons}
         {findButton}
         {contentsButton}
+        {marksButton}
       </div>
       {findBar}
       <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
         {showOriginal ? (
-          (epubViewer ?? original)
+          <>
+            {epubViewer ?? original}
+            {pdfStrip}
+          </>
         ) : (
           <div ref={bodyRef} data-testid="reader-body" className="min-h-0 flex-1 overflow-y-auto">
-            <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-6">{body}</div>
+            <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-6">
+              {body}
+              {markStrip}
+            </div>
           </div>
         )}
         {contentsPanel}
@@ -780,6 +1125,15 @@ interface SegmentViewProps {
   references?: SourceReference[];
   /** "Find in this source" matches in this segment's text, in order. */
   marks?: FindMark[];
+  /** The person's highlighted and noted words in this segment's text. */
+  ranges?: MarkedRange[];
+  /** The marks that begin in this paragraph (shown by its marker). */
+  paragraphMarks?: SourceAnnotation[];
+  marksOpen: boolean;
+  marksId: string;
+  onToggleMarks: (button: HTMLButtonElement) => void;
+  onMarksChanged: () => void;
+  onCloseMarks: () => void;
   onFollow: (position: number) => void;
   onOpenInBible: (reference: ScriptureRef) => void;
 }
@@ -791,28 +1145,67 @@ interface FindMark {
   active: boolean;
 }
 
-/** `text.slice(from, to)`, with the find matches in it marked (a match crossing the edges is cut to them). */
-function painted(text: string, from: number, to: number, marks: FindMark[] | undefined): React.ReactNode {
-  if (!marks || marks.length === 0) return text.slice(from, to);
+/** What is drawn over a segment's text: find matches and the person's own marks. */
+interface Paint {
+  marks?: FindMark[];
+  ranges?: MarkedRange[];
+}
+
+/**
+ * `text.slice(from, to)`, with find matches and the person's highlights and
+ * noted words drawn in it (anything crossing the edges is cut to them). A
+ * highlight is a `<mark>` in its colour; noted words are underlined with
+ * dots; a find match is drawn over both. Colour is never the only sign: the
+ * paragraph's marker says what is there.
+ */
+function painted(text: string, from: number, to: number, paint: Paint): React.ReactNode {
+  const { marks, ranges } = paint;
+  if ((!marks || marks.length === 0) && (!ranges || ranges.length === 0)) return text.slice(from, to);
+  const cuts = new Set<number>([from, to]);
+  for (const m of marks ?? []) [m.start, m.end].forEach((x) => x > from && x < to && cuts.add(x));
+  for (const r of ranges ?? []) [r.start, r.end ?? text.length].forEach((x) => x > from && x < to && cuts.add(x));
+  const points = [...cuts].sort((a, b) => a - b);
   const out: React.ReactNode[] = [];
-  let at = from;
-  for (const mark of marks) {
-    const start = Math.max(mark.start, at);
-    const end = Math.min(mark.end, to);
+  for (let i = 0; i < points.length - 1; i++) {
+    const start = points[i]!;
+    const end = points[i + 1]!;
     if (start >= end) continue;
-    if (start > at) out.push(text.slice(at, start));
-    out.push(
-      <mark
-        key={`f${start}`}
-        data-find-active={mark.active || undefined}
-        className={mark.active ? "rounded-sm bg-hl-amber font-semibold text-text-strong outline outline-2 outline-offset-1 outline-accent" : "rounded-sm bg-hl-amber text-text"}
-      >
-        {text.slice(start, end)}
-      </mark>,
-    );
-    at = end;
+    const piece = text.slice(start, end);
+    const find = marks?.find((m) => m.start <= start && m.end >= end);
+    const over = (ranges ?? []).filter((r) => r.start <= start && (r.end ?? text.length) >= end);
+    const colors = [...new Set(over.map((r) => r.color).filter((c): c is NonNullable<typeof c> => c !== null))];
+    const noted = over.some((r) => r.note);
+    if (!find && over.length === 0) {
+      out.push(piece);
+      continue;
+    }
+    const noteClass = noted ? " underline decoration-accent decoration-dotted decoration-2 underline-offset-4" : "";
+    if (find) {
+      out.push(
+        <mark
+          key={`f${start}`}
+          data-find-active={find.active || undefined}
+          className={(find.active ? "rounded-sm bg-hl-amber font-semibold text-text-strong outline outline-2 outline-offset-1 outline-accent" : "rounded-sm bg-hl-amber text-text") + noteClass}
+        >
+          {piece}
+        </mark>,
+      );
+    } else if (colors.length > 0) {
+      // Highlights never overlap (the core lays them like a highlighter); should two ever meet, the last is shown.
+      const color = colors[colors.length - 1]!;
+      out.push(
+        <mark key={`h${start}`} data-source-highlight={color} data-source-note={noted || undefined} className={`${PHRASE_CLASS[color]} text-text${noteClass}`}>
+          {piece}
+        </mark>,
+      );
+    } else {
+      out.push(
+        <span key={`n${start}`} data-source-note={noted || undefined} className={noteClass.trim() || undefined}>
+          {piece}
+        </span>,
+      );
+    }
   }
-  if (at < to) out.push(text.slice(at, to));
   return out.length === 1 ? out[0] : out;
 }
 
@@ -826,7 +1219,7 @@ function linked(
   text: string,
   links: SourceLink[] | undefined,
   references: SourceReference[] | undefined,
-  marks: FindMark[] | undefined,
+  marks: Paint,
   title: string,
   onFollow: (position: number) => void,
   onOpenInBible: (reference: ScriptureRef) => void,
@@ -872,7 +1265,24 @@ function linked(
   return out;
 }
 
-function SegmentView({ segment, previous, isTarget, targetRef, links, references, marks, onFollow, onOpenInBible }: SegmentViewProps) {
+function SegmentView({
+  segment,
+  previous,
+  isTarget,
+  targetRef,
+  links,
+  references,
+  marks,
+  ranges,
+  paragraphMarks,
+  marksOpen,
+  marksId,
+  onToggleMarks,
+  onMarksChanged,
+  onCloseMarks,
+  onFollow,
+  onOpenInBible,
+}: SegmentViewProps) {
   const { t } = useTranslation();
   const page = segment.pageLabel ?? segment.pageNumber;
   const newPage = segment.pageNumber !== null && segment.pageNumber !== previous?.pageNumber;
@@ -895,10 +1305,13 @@ function SegmentView({ segment, previous, isTarget, targetRef, links, references
         data-target={isTarget || undefined}
         data-seg-page={segment.pageNumber ?? undefined}
         data-seg-position={segment.position}
+        data-segment-id={segment.id}
         className={`m-0 ${isTarget ? "border-l-[3px] border-accent bg-note px-3 py-1" : ""}`}
       >
-        {linked(segment.text, links, references, marks, t("library.links.follow"), onFollow, onOpenInBible)}
+        {linked(segment.text, links, references, { marks, ranges }, t("library.links.follow"), onFollow, onOpenInBible)}
+        {paragraphMarks && paragraphMarks.length > 0 && <MarksMarker marks={paragraphMarks} open={marksOpen} controls={marksId} onToggle={onToggleMarks} />}
       </p>
+      {marksOpen && paragraphMarks && paragraphMarks.length > 0 && <MarksInspector id={marksId} marks={paragraphMarks} onChanged={onMarksChanged} onClose={onCloseMarks} />}
       {isTarget && <PassageLinkNote segmentId={segment.id} />}
     </>
   );

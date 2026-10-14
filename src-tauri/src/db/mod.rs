@@ -17,6 +17,7 @@ pub mod projects;
 pub mod relations;
 pub mod sections;
 pub mod settings;
+pub mod source_annotations;
 pub mod studies;
 pub mod study_passages;
 pub mod study_search;

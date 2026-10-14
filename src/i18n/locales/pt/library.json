@@ -62,7 +62,10 @@
     "dialogLabel": "Remover {{title}}?",
     "message": "Remover <strong>{{title}}</strong> da sua biblioteca? O texto e a cópia do arquivo feita pelo Abiding Word são excluídos; seu arquivo original não é alterado. Os registros que a citam mantêm um registro da referência.",
     "confirm": "Remover da biblioteca",
-    "keep": "Manter"
+    "keep": "Manter",
+    "marks_one": "A sua marca nesta fonte (destaque, nota ou marcador) é removida com ela.",
+    "marks_many": "As suas {{count}} marcas nesta fonte (destaques, notas e marcadores) são removidas com ela.",
+    "marks_other": "As suas {{count}} marcas nesta fonte (destaques, notas e marcadores) são removidas com ela."
   },
   "add": {
     "title": "Adicionar à biblioteca",
@@ -217,5 +220,44 @@
     "previous": "Resultado anterior",
     "next": "Próximo resultado",
     "close": "Fechar localização"
+  },
+  "marks": {
+    "title": "Marcas",
+    "selectedText": "Texto selecionado",
+    "stripLabel": "Marcar o texto selecionado",
+    "highlight": "Destacar",
+    "addNote": "Adicionar nota",
+    "saveNote": "Salvar nota",
+    "noteField": "Nota",
+    "addNoteHere": "Adicionar nota aqui",
+    "noteHere": "Nota sobre este parágrafo",
+    "highlightParagraph": "Destacar este parágrafo",
+    "bookmarkHere": "Marcar este lugar",
+    "removeBookmarkHere": "Remover o marcador daqui",
+    "kind": {
+      "highlight": "Destaque",
+      "note": "Nota",
+      "bookmark": "Marcador"
+    },
+    "marker_one": "{{count}} marca aqui: {{kinds}}",
+    "marker_many": "{{count}} marcas aqui: {{kinds}}",
+    "marker_other": "{{count}} marcas aqui: {{kinds}}",
+    "here": "Marcas aqui",
+    "changeColour": "Mudar a cor",
+    "removeHighlight": "Remover destaque",
+    "editNote": "Editar nota",
+    "deleteNote": "Excluir nota",
+    "removeBookmark": "Remover marcador",
+    "colourIs": "Cor: {{color}}",
+    "wholeParagraph": "Parágrafo inteiro",
+    "unresolved": "Este lugar já não se encontra no texto.",
+    "empty": "Ainda não há marcas nesta fonte. Selecione texto para destacá-lo ou adicionar uma nota.",
+    "for": "Marcas em {{title}}",
+    "close": "Fechar as marcas",
+    "show": "Mostrar as marcas desta fonte",
+    "delete": "Excluir",
+    "panels": "Conteúdo ou marcas",
+    "notePage": "Nota sobre esta página",
+    "cannotPlace": "Estas palavras não podem ser marcadas aqui com exatidão. Selecione-as em Leitura para marcá-las."
   }
 }

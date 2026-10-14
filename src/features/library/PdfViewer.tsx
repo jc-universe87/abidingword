@@ -5,10 +5,14 @@ import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { formatNumber } from "@/i18n/format";
 import { useApi } from "@/lib/ApiContext";
-import type { ContentsItem } from "@/types/library";
+import type { ContentsItem, SourceAnnotation } from "@/types/library";
 import type { DetectedReference, ScriptureRef } from "@/types/scripture";
 import type { PdfBox, PdfDocument, PdfLink, PdfPageSize, PdfPlace, PdfTextLayer } from "@/lib/pdfEngine";
 import { findOnPage } from "@/lib/pdfPageText";
+import { pageToStored, placeSegments, storedToPage, type PagePlacement, type PageSegment } from "@/lib/pdfTextMatch";
+import { PHRASE_CLASS } from "@/lib/annotationRender";
+import { MarksInspector, MarksMarker } from "./annotations/ParagraphMarks";
+import type { SourceSelection } from "./annotations/sourceSelection";
 import { usePdfEngine } from "./PdfEngineContext";
 import { ScriptureReference, type ScriptureReferenceClasses } from "./ScriptureReference";
 
@@ -43,6 +47,22 @@ interface PdfViewerProps {
    * matches it is (`index` of `count`). Marked only if the page's own text has exactly `count`.
    */
   find?: PdfFind | null;
+  /**
+   * The source's marks (v0.14): drawn on the pages where their stored words can be placed exactly,
+   * and listed by a page's marker. Without it, none are drawn.
+   */
+  marks?: SourceAnnotation[];
+  /** A mark was changed or removed from a page's marks; gives the source's marks as they are now. */
+  onMarksChanged?: () => Promise<SourceAnnotation[]>;
+  /** Filled with a way to turn a text selection on a page into an anchor in the stored text (or null). */
+  selectionRef?: React.MutableRefObject<((selection: Selection) => SourceSelection | null) | null>;
+}
+
+/** A drawn page's text layer, with the stored paragraphs placed on it: how a selection there is read. */
+interface PageLayer {
+  element: HTMLElement;
+  map: PdfTextLayer;
+  placement: PagePlacement;
 }
 
 /** A find match to mark on a page of the original (see `PdfViewerProps.find`). */
@@ -61,7 +81,7 @@ export interface PdfFind {
  * inspect the source; search, citations and Scripture links stay with the
  * extracted text.
  */
-export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutline, onLink, locationRef, onOpenInBible, find }: PdfViewerProps) {
+export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutline, onLink, locationRef, onOpenInBible, find, marks, onMarksChanged, selectionRef }: PdfViewerProps) {
   const { t } = useTranslation();
   const api = useApi();
   const engine = usePdfEngine();
@@ -109,6 +129,59 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutli
     },
     [api, sourceId],
   );
+
+  // The stored paragraphs of each page (v0.14), read once per page: what marks are placed with.
+  const segmentsOfPage = useRef(new Map<number, Promise<PageSegment[]>>());
+  useEffect(() => {
+    segmentsOfPage.current = new Map();
+  }, [sourceId]);
+  const loadSegments = useCallback(
+    (n: number): Promise<PageSegment[]> => {
+      let found = segmentsOfPage.current.get(n);
+      if (!found) {
+        found = api.sourceGetSegments({ sourceId, aroundPage: n, limit: 150 }).then(
+          (w) => w.segments.filter((x) => x.pageNumber === n).map((x) => ({ segmentId: x.id, position: x.position, text: x.text })),
+          () => {
+            segmentsOfPage.current.delete(n);
+            return [];
+          },
+        );
+        segmentsOfPage.current.set(n, found);
+      }
+      return found;
+    },
+    [api, sourceId],
+  );
+  // The pages' drawn text layers with their placed paragraphs, for reading a selection.
+  const layers = useRef(new Map<number, PageLayer>());
+  const onLayer = useCallback((n: number, entry: PageLayer | null) => {
+    if (entry) layers.current.set(n, entry);
+    else layers.current.delete(n);
+  }, []);
+  useEffect(() => {
+    if (!selectionRef) return;
+    selectionRef.current = (selection) => {
+      if (selection.isCollapsed || selection.rangeCount === 0) return null;
+      const range = selection.getRangeAt(0);
+      const pageOf = (node: Node) => (node instanceof Element ? node : node.parentElement)?.closest<HTMLElement>("[data-page]");
+      const startPage = pageOf(range.startContainer);
+      const endPage = pageOf(range.endContainer);
+      // One page at a time: a selection across pages is not offered (mark it in Reading).
+      if (!startPage || startPage !== endPage || !scroller.current?.contains(startPage)) return null;
+      const layer = layers.current.get(Number(startPage.dataset.page));
+      if (!layer) return null;
+      const from = layer.map.offsetOf(range.startContainer, range.startOffset);
+      const to = layer.map.offsetOf(range.endContainer, range.endOffset);
+      if (from === null || to === null || from >= to) return null;
+      const stored = pageToStored(layer.placement, from, to);
+      if (!stored) return null;
+      const positions = layer.placement.placed.filter((p) => p.segmentId === stored.start.segmentId || p.segmentId === stored.end.segmentId).map((p) => p.position);
+      return { ...stored, firstPosition: Math.min(...positions), lastPosition: Math.max(...positions) };
+    };
+    return () => {
+      selectionRef.current = null;
+    };
+  }, [selectionRef]);
 
   const fail = useCallback(
     (error: unknown) => {
@@ -281,7 +354,7 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutli
     const el = scroller.current;
     if (!el || e.button !== 0) return;
     const target = e.target as HTMLElement;
-    if (target.closest(".textLayer > span, .textLayer > br, input, button, textarea")) return;
+    if (target.closest(".textLayer > span, .textLayer > br, input, button, textarea, [data-aw-skip]")) return;
     if (el.scrollWidth <= el.clientWidth && el.scrollHeight <= el.clientHeight) return;
     e.preventDefault();
     el.focus({ preventScroll: true });
@@ -404,6 +477,10 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutli
               detect={linksScripture ? detect : undefined}
               onOpenInBible={openInBible}
               find={find && find.page === n ? find : null}
+              marks={marks}
+              loadSegments={marks ? loadSegments : undefined}
+              onLayer={onLayer}
+              onMarksChanged={onMarksChanged}
             />
           ))}
         </div>
@@ -424,7 +501,15 @@ interface PageViewProps {
   detect?: (n: number, text: string) => Promise<DetectedReference[]>;
   onOpenInBible: (reference: ScriptureRef) => void;
   find: PdfFind | null;
+  marks?: SourceAnnotation[];
+  /** The stored paragraphs of a page; absent when marks are not drawn. */
+  loadSegments?: (n: number) => Promise<PageSegment[]>;
+  onLayer: (n: number, layer: PageLayer | null) => void;
+  onMarksChanged?: () => Promise<SourceAnnotation[]>;
 }
+
+/** A mark's colour on the always-white page: the highlight colour, see-through so the print shows. */
+const PDF_MARK_CLASS = "pointer-events-none absolute mix-blend-multiply opacity-60";
 
 /** On the original page (always white), a reference is a fixed-colour dotted underline over the drawn words. */
 const PDF_REFERENCE_CLASSES: ScriptureReferenceClasses = {
@@ -443,7 +528,7 @@ const boxStyle = (box: PdfBox): React.CSSProperties => ({
 });
 
 /** One page: an empty sheet of the right size until it is near the screen. */
-function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onOpenInBible, find }: PageViewProps) {
+function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onOpenInBible, find, marks, loadSegments, onLayer, onMarksChanged }: PageViewProps) {
   const { t } = useTranslation();
   const sheet = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -525,6 +610,70 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onO
   }, [pageText, detect, n]);
   const references = placed && detect && placed.on === pageText ? placed.list : [];
 
+  // The page's stored paragraphs, placed on its drawn text (v0.14): marks are drawn with them, and
+  // a selection here is read through them. Kept with the text map they were placed on.
+  const [paragraphs, setParagraphs] = useState<{ on: PdfTextLayer; all: PageSegment[]; placement: PagePlacement } | null>(null);
+  useEffect(() => {
+    if (!pageText || !pageText.hasText || !loadSegments) return;
+    let live = true;
+    void loadSegments(n).then((all) => {
+      if (!live) return;
+      const placement = placeSegments(pageText.text, all);
+      setParagraphs({ on: pageText, all, placement });
+      if (text.current) onLayer(n, { element: text.current, map: pageText, placement });
+    });
+    return () => {
+      live = false;
+      onLayer(n, null);
+    };
+  }, [pageText, loadSegments, n, onLayer]);
+  const placement = paragraphs && paragraphs.on === pageText ? paragraphs : null;
+
+  // The marks drawn on this page: each covered paragraph's part, only where it is placed exactly
+  // on usable text. A mark that begins here but cannot be drawn is still listed by the page's marker.
+  const onPage = useMemo(() => {
+    if (!marks) return { drawn: [] as { id: string; color: string | null; note: boolean; boxes: PdfBox[] }[], listed: [] as SourceAnnotation[] };
+    const here = new Set(placement?.all.map((p) => p.segmentId) ?? []);
+    const listed = marks.filter((m) => m.state !== "unresolved" && (m.start ? here.has(m.start.segmentId) : m.pageNumber === n));
+    const drawn: { id: string; color: string | null; note: boolean; boxes: PdfBox[] }[] = [];
+    if (placement && pageText) {
+      for (const mark of marks) {
+        const { start, end } = mark;
+        if (mark.state === "unresolved" || mark.kind === "bookmark" || mark.quote === null || !start || !end || start.offset === null || end.offset === null) continue;
+        const boxes: PdfBox[] = [];
+        for (const p of placement.all) {
+          if (p.position < start.position || p.position > end.position) continue;
+          const from = p.position === start.position ? start.offset : 0;
+          const to = p.position === end.position ? end.offset : p.text.length;
+          const range = storedToPage(placement.placement, p.segmentId, from, to);
+          if (range) boxes.push(...pageText.boxes(range[0], range[1]));
+        }
+        if (boxes.length > 0) drawn.push({ id: mark.id, color: mark.kind === "highlight" ? mark.color : null, note: mark.kind === "note", boxes });
+      }
+    }
+    return { drawn, listed };
+  }, [marks, placement, pageText, n]);
+  const [marksOpen, setMarksOpen] = useState(false);
+  const marksButton = useRef<HTMLButtonElement | null>(null);
+  // When the page has no marks left, its panel and marker go: focus moves to the page, not lost.
+  const marksChanged = async () => {
+    const all = await onMarksChanged?.();
+    if (!all) return;
+    const here = new Set(placement?.all.map((p) => p.segmentId) ?? []);
+    if (all.some((m) => m.state !== "unresolved" && (m.start ? here.has(m.start.segmentId) : m.pageNumber === n))) return;
+    setMarksOpen(false);
+    requestAnimationFrame(() => {
+      const page = sheet.current;
+      if (!page) return;
+      if (!page.hasAttribute("tabindex")) {
+        page.setAttribute("tabindex", "-1");
+        page.addEventListener("blur", () => page.removeAttribute("tabindex"), { once: true });
+      }
+      page.focus({ preventScroll: true });
+    });
+  };
+  const marksId = `pdf-marks-${n}`;
+
   // The current find match, if this page's own text shows it unambiguously: exactly as many
   // occurrences as the source's text has on this page. Otherwise the page is shown without a mark.
   const findBoxes = (() => {
@@ -571,6 +720,46 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onO
             }}
           />
         ))}
+      {near &&
+        onPage.drawn.map((mark) =>
+          mark.boxes.map((box, i) => (
+            <div
+              key={`m${mark.id}-${i}`}
+              data-pdf-mark={mark.color ?? "note"}
+              aria-hidden="true"
+              className={`${PDF_MARK_CLASS} ${mark.color ? PHRASE_CLASS[mark.color as keyof typeof PHRASE_CLASS] : "border-b-2 border-dotted border-[#b45309]"}`}
+              style={boxStyle(box)}
+            />
+          )),
+        )}
+      {near && onPage.listed.length > 0 && (
+        <div data-aw-skip="" className="absolute right-1 top-1 z-10 flex flex-col items-end gap-1 font-ui">
+          <span className="rounded-full bg-[rgba(255,255,255,0.92)] shadow-sm">
+            <MarksMarker
+              marks={onPage.listed}
+              open={marksOpen}
+              controls={marksId}
+              onToggle={(button) => {
+                marksButton.current = button;
+                setMarksOpen((o) => !o);
+              }}
+            />
+          </span>
+          {marksOpen && (
+            <div className="w-80 max-w-[90vw] text-left">
+              <MarksInspector
+                id={marksId}
+                marks={onPage.listed}
+                onChanged={() => void marksChanged()}
+                onClose={() => {
+                  setMarksOpen(false);
+                  requestAnimationFrame(() => marksButton.current?.focus({ preventScroll: true }));
+                }}
+              />
+            </div>
+          )}
+        </div>
+      )}
       {near &&
         findBoxes.map((box, i) => (
           <div

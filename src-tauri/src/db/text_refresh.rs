@@ -257,6 +257,8 @@ fn refresh_source(conn: &Connection, root: &Path, id: &str, relative: &str) -> A
     tx.commit()?;
     // Offsets of references moved with the text: the passage index is made again.
     library::reindex_passages(conn, id)?;
+    // Marks are found again in the repaired text (or kept as unresolved).
+    crate::db::source_annotations::resolve_source(conn, id)?;
     Ok(true)
 }
 

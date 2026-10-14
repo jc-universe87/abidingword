@@ -5,8 +5,8 @@ import type { ReaderPosition } from "./SourceReader";
 /** Opening library screens from anywhere (Sources pane, findings, search). */
 export interface LibraryNav {
   openLibrary: (query?: string) => void;
-  /** Opens a source, at an exact segment when given. */
-  openSource: (sourceId: string, segmentId?: string) => void;
+  /** Opens a source, at an exact segment when given, or at a view and page (a mark on an Original PDF page). */
+  openSource: (sourceId: string, segmentId?: string, position?: ReaderPosition) => void;
   addSource: () => void;
   /**
    * Shows a passage in the Scripture pane (a reference read in a source). Navigation

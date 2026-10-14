@@ -115,5 +115,14 @@
     "otherTranslation": "As palavras selecionadas pertencem a outra tradução.",
     "notInPassage": "As palavras selecionadas não fazem parte desta passagem.",
     "notSingleVerse": "“{{passage}}” não é um único versículo."
+  },
+  "sourceAnnotations": {
+    "noWords": "Selecione primeiro algumas palavras da fonte.",
+    "textChanged": "As palavras selecionadas não correspondem ao texto desta fonte.",
+    "tooMuchText": "Não é possível marcar tanto texto de uma vez.",
+    "placeGone": "Este lugar já não está na fonte.",
+    "noPlace": "Escolha primeiro um lugar na fonte.",
+    "bookmarkPlace": "Um marcador indica um lugar, não palavras.",
+    "wordsOnlyNotes": "Apenas as notas têm texto próprio."
   }
 }

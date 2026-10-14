@@ -126,6 +126,15 @@ async function seed(api: MemoryApi) {
     ],
     sections: [{ segment: 0, reference: "JHN.15.1-JHN.15.11", matchedText: "John 15:1–11", heading: "John 15:1–11 — The True Vine", through: 2 }],
   });
+  // Marks in that source (v0.14): a highlight, and a note on words.
+  const abiding = (start: string) => api.state.library.segments.find((x) => x.text.startsWith(start))!;
+  const mark = async (segmentText: string, words: string, more: { kind: "highlight"; color: "amber" | "green" } | { kind: "note"; content: string }) => {
+    const segment = abiding(segmentText);
+    const at = segment.text.indexOf(words);
+    await api.sourceAnnotationCreate({ sourceId: segment.sourceId, ...more, start: { segmentId: segment.id, offset: at }, end: { segmentId: segment.id, offset: at + words.length }, quote: words });
+  };
+  await mark("Jesus does not ask", "he asks them to remain", { kind: "highlight", color: "green" });
+  await mark("Remaining is not anxious", "Remaining is not anxious striving", { kind: "note", content: "Rest, not effort: abiding is receiving." });
   api.installFixtureSource({
     title: "Sermon outline: The True Vine",
     author: "Sample sermon",
@@ -164,6 +173,9 @@ async function seed(api: MemoryApi) {
     ],
     mentions: [{ segment: 0, reference: "JHN.15.4-JHN.15.10", matchedText: "John 15:4–10" }],
   });
+  // A highlight across the handbook's line break and a note: drawn on the real page by PDF.js (v0.14).
+  await mark("Read the passage slowly", "Notice repeated words, like “remain”", { kind: "highlight", color: "amber" });
+  await mark("Ask what the passage meant", "its first readers", { kind: "note", content: "Who first heard this?" });
   // The handbook's original: a real PDF (written here), so the Original view draws real pages with PDF.js.
   const handbook = minimalPdf(
     Array.from({ length: 13 }, (_, i) => {
