@@ -123,8 +123,8 @@ step by step, with pictures.
 
 | | |
 |---|---|
-| ✅ **Ready** | Bible reading, with nine free Bibles included (English, German, Korean, French, Spanish, Portuguese) · highlights, notes and bookmarks · studies with templates, sections and study notes · projects · your own library (PDF, EPUB, Word, Markdown, text) · books matched to the passage you read · clickable Bible references in six languages, in the text and on PDF pages · find a word inside a book · contents made from a book's headings · concordance · search across Bible, studies and library · light and dark themes · six interface languages · automatic test updates |
-| 🛠️ **Next** (being tested) | Marking your own books: highlights, notes and bookmarks in PDF, EPUB and Word sources, shown in Reading and on the original pages, and listed with your Bible marks |
+| ✅ **Ready** | Bible reading, with nine free Bibles included (English, German, Korean, French, Spanish, Portuguese) · highlights, notes and bookmarks · studies with templates, sections and study notes · projects · your own library (PDF, EPUB, Word, Markdown, text) · books matched to the passage you read · clickable Bible references in six languages, in the text and on PDF pages · find a word inside a book · contents made from a book's headings · marking your own books (highlights, notes, bookmarks) · concordance · search across Bible, studies and library · light and dark themes · six interface languages · automatic test updates |
+| 🛠️ **Next** (being tested) | Bringing what you read into your study: add selected words, highlights and notes to a study with their source, open the book again at those words, and copy a quotation with its citation |
 | 🌱 **Later** | Teaching outputs (sermon and lesson outlines, handouts) · dictionary forms and grammar for Greek and Hebrew words · optional AI study assistance, always pointing to its sources · reading scanned books and recordings · drawing on books with a pen · sharing and syncing between your own devices |
 
 ## Documentation

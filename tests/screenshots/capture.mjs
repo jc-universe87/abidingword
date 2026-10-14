@@ -327,6 +327,42 @@ Object.assign(scenes, {
     await shot(page, "pdf-selection");
     await page.close();
   },
+  async "add-to-study"() {
+    const page = await open("sourcesWidth=440", { width: 1600, height: 1000 });
+    await openStudy(page);
+    await openSource(page, "Notes on Abiding");
+    await page.evaluate(() => {
+      const p = [...document.querySelectorAll("[data-segment-id]")].find((el) => el.textContent?.startsWith("Jesus does not ask"));
+      if (!p) return;
+      const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+      let node = walker.nextNode();
+      while (node && !node.textContent?.includes("apart from him")) node = walker.nextNode();
+      if (!node) return;
+      const text = node.textContent ?? "";
+      const range = document.createRange();
+      range.setStart(node, text.indexOf("apart from him"));
+      range.setEnd(node, text.indexOf("apart from him") + "apart from him we can do nothing".length);
+      document.getSelection()?.removeAllRanges();
+      document.getSelection()?.addRange(range);
+    });
+    const strip = sources(page).getByRole("group", { name: "Mark the selected text" });
+    await strip.waitFor();
+    await strip.getByRole("button", { name: "Add to Study" }).click();
+    const panel = sources(page).getByRole("region", { name: /^Add to Study/ });
+    await panel.waitFor();
+    await panel.getByRole("textbox", { name: "Your note (optional)" }).fill("Even my study of this depends on him.");
+    await page.waitForTimeout(500);
+    await shot(page, "add-to-study", sources(page));
+    await page.close();
+  },
+  async "source-in-study"() {
+    const page = await open("", { width: 1440, height: 1000 });
+    await openStudy(page);
+    const note = page.locator("li > article", { hasText: "Abiding is receiving" }).first();
+    await note.scrollIntoViewIfNeeded();
+    await shot(page, "source-in-study", note);
+    await page.close();
+  },
   async "find-in-source"() {
     const page = await open("sourcesWidth=440", { width: 1600, height: 1000 });
     await openSource(page, "Notes on Abiding");

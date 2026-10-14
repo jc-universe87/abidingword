@@ -138,7 +138,7 @@ touched.
 
 - **v0.14.x:** making marks directly in the formatted EPUB/DOCX Original (selection inside its shadow root, once checked on Windows); bookmark and note-here buttons in the formatted Original; a selection across two PDF pages.
 - **Ink:** freehand pen/stylus markup (underline and shapes possibly later), in its own storage for strokes; the annotation model already leaves room (positioning in the small `anchor` JSON). Stylus support should consider Windows pen, touch devices, tablets and pen-enabled laptops, a smooth handwriting experience, and pressure/stroke data only if needed. Ink would appear in Marks with the rest.
-- **With studies:** *Add note to Study*, *Create finding from annotation*, *Copy quotation with citation* (never automatic findings from highlights).
+- **With studies:** built in v0.15 (see [`sources-to-study-v0.15.md`](sources-to-study-v0.15.md)): *Add to Study* from selected words, highlights and notes, with the quote, place and source kept as the finding's citation; *Copy quotation with citation* in one plain format. Never automatic. Still open: *show the original mark* from a finding; offering a quote's Scripture references as related passages (explicitly, never automatically); citation styles and bibliography, only when needed.
 - **Restoring marks after a re-import** of the same file (the content hash and quote-based recovery make it possible).
 - **PDF Bibles:** linked to canonical Scripture **only if reliable verse mapping exists**. Page annotations never automatically correspond to canonical Scripture and no verse mapping is invented.
 
