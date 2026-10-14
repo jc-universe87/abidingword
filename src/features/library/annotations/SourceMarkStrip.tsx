@@ -72,9 +72,10 @@ export function SourceMarkStrip({ root, sourceId, read: readSelection, cannotPla
     readRef.current = readSelection;
   });
 
-  const finish = useCallback(() => {
-    // Focus was in the bar (keyboard): it goes back to the text the words were in, not lost with the bar.
-    const hadFocus = !!bar.current?.contains(document.activeElement);
+  const finish = useCallback((returnFocus = true) => {
+    // Focus was in the bar (keyboard): it goes back to the text the words were in, not lost with the bar
+    // (unless the bar hands over to something that takes focus itself, such as Add to Study).
+    const hadFocus = returnFocus && !!bar.current?.contains(document.activeElement);
     const words = anchor;
     document.getSelection()?.removeAllRanges();
     setAnchor(null);
@@ -214,7 +215,7 @@ export function SourceMarkStrip({ root, sourceId, read: readSelection, cannotPla
               className={outlined}
               onClick={() => {
                 const words = anchor;
-                finish();
+                finish(false);
                 onAddToStudy(words);
               }}
             >

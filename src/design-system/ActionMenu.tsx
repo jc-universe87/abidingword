@@ -53,7 +53,7 @@ export function ActionMenu({ label, actions, className = "" }: { label: string; 
         aria-label={label}
         title={label}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex size-9 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+        className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
       >
         <MoreHorizontal className="size-4" aria-hidden="true" />
       </button>
@@ -89,7 +89,7 @@ export function ActionMenu({ label, actions, className = "" }: { label: string; 
                 setOpen(false);
                 action.onSelect(button.current);
               }}
-              className="flex min-h-10 items-center gap-2 whitespace-nowrap rounded-[4px] px-3 text-left text-[0.9375rem] text-text-strong hover:bg-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
+              className="flex min-h-11 items-center gap-2 whitespace-nowrap rounded-[4px] px-3 text-left text-[0.9375rem] text-text-strong hover:bg-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
             >
               {action.icon}
               {action.label}

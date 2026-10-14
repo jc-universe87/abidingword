@@ -78,7 +78,8 @@ export function AddToStudyPanel({
         if (!active) return;
         const sorted = [...all].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
         setStudies(sorted);
-        if (studyId === null && sorted[0]) setStudyId(sorted[0].id);
+        // The open study, if it is still there; else the most recent one.
+        if (sorted[0] && !sorted.some((s) => s.id === studyId)) setStudyId(sorted[0].id);
       },
       (e) => active && setError(toApiError(e).message),
     );
@@ -94,6 +95,7 @@ export function AddToStudyPanel({
     api.studyGet(studyId).then(
       (loaded) => {
         if (!active) return;
+        setError(null);
         setDetail(loaded);
         const last = studyId === focus.openStudyId ? focus.activeSectionId : null;
         setSectionId(last && loaded.sections.some((s) => s.id === last) ? last : "");
@@ -111,8 +113,10 @@ export function AddToStudyPanel({
     field.current?.focus({ preventScroll: true });
   }, []);
 
+  // The study shown is the one chosen (not one still loading in its place).
+  const ready = detail !== null && detail.study.id === studyId;
   const save = async () => {
-    if (!detail || busy) return;
+    if (!detail || !ready || busy) return;
     setBusy(true);
     setError(null);
     try {
@@ -257,7 +261,7 @@ export function AddToStudyPanel({
             )}
           </div>
 
-          {detail && detail.sections.length > 0 && (
+          {ready && detail.sections.length > 0 && (
             <label className="flex flex-wrap items-center gap-2">
               <span className="text-text-muted">{t("studies.findings.in")}</span>
               <select value={sectionId} onChange={(e) => setSectionId(e.target.value)} className={select}>
@@ -278,7 +282,7 @@ export function AddToStudyPanel({
       )}
       <div className="flex flex-wrap items-center gap-2">
         {!noStudies && (
-          <Button variant="primary" className="min-h-11" disabled={busy || !detail || (from.quote === null && !note.trim())} onClick={() => void save()}>
+          <Button variant="primary" className="min-h-11" disabled={busy || !ready || (from.quote === null && !note.trim())} onClick={() => void save()}>
             {t("studies.fromSource.save")}
           </Button>
         )}

@@ -165,6 +165,28 @@ describe("selected text → Study", () => {
     expect(findingsOf(api, studyIds[0]!)).toHaveLength(0);
   });
 
+  it("keeps the keyboard in the note after Add to Study from the selection strip, and Escape closes only the panel", async () => {
+    const { api, studyIds } = await setup();
+    const { user } = await renderApp(api);
+    await openStudy(user, "Abiding");
+    const reader = await openSource(user);
+    await select(paragraph(reader, "Abide in me"), "Abide");
+    within(await within(reader).findByRole("group", { name: "Mark the selected text" })).getByRole("button", { name: "Add to Study" }).focus();
+    await user.keyboard("{Enter}");
+    const form = await panel();
+    const note = within(form).getByRole("textbox", { name: "Your note (optional)" });
+    await waitFor(() => expect(note).toHaveFocus());
+    // Focus is not taken back by the strip as it closes.
+    await act(async () => {
+      await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+    });
+    expect(note).toHaveFocus();
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("region", { name: /^Add to Study/ })).toBeNull());
+    expect(within(sourcesPane()).getByRole("region", { name: "The True Vine" })).toBeInTheDocument();
+    expect(findingsOf(api, studyIds[0]!)).toHaveLength(0);
+  });
+
   it("asks which Study when none is open, and says so plainly when there is none", async () => {
     const { api, studyIds } = await setup({ studies: ["Abiding", "Fruitfulness"] });
     const { user } = await renderApp(api);

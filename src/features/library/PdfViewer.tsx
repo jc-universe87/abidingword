@@ -178,7 +178,7 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutli
       const stored = pageToStored(layer.placement, from, to);
       if (!stored) return null;
       const positions = layer.placement.placed.filter((p) => p.segmentId === stored.start.segmentId || p.segmentId === stored.end.segmentId).map((p) => p.position);
-      return { ...stored, firstPosition: Math.min(...positions), lastPosition: Math.max(...positions) };
+      return { ...stored, firstPosition: Math.min(...positions), lastPosition: Math.max(...positions), page: Number(startPage.dataset.page) };
     };
     return () => {
       selectionRef.current = null;

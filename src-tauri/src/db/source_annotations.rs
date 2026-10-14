@@ -1684,10 +1684,9 @@ pub(crate) fn locate_citation(
             }
             Outcome::Here => {
                 place.segment_id = paragraph(raw.start_segment_id.as_deref())?;
-                if place.segment_id.is_none() {
-                    place.page = anchor.page;
-                    place.fraction = anchor.fraction;
-                }
+                // A place cited on an Original PDF page reopens on that page, as far down as it was.
+                place.page = anchor.page;
+                place.fraction = anchor.fraction;
                 return Ok(Some(place));
             }
             Outcome::Words(built) => {
@@ -1702,6 +1701,8 @@ pub(crate) fn locate_citation(
             }
             Outcome::Place(segment) => {
                 place.segment_id = Some(segment.id);
+                place.page = anchor.page;
+                place.fraction = anchor.fraction;
                 return Ok(Some(place));
             }
             Outcome::Lost => {}

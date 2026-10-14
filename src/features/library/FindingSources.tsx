@@ -44,8 +44,9 @@ export function FindingSources({ finding, canAdd = true, onChanged, onQuote }: F
         setError(t("library.citations.openFailed"));
         return;
       }
-      if (place.segmentId) openSource(place.sourceId, place.segmentId, undefined, place.words ?? undefined);
-      else if (place.page !== null) openSource(place.sourceId, undefined, { mode: "original", page: place.page });
+      // A place on an Original PDF page opens on that page; words and paragraphs open where they are.
+      if (place.page !== null && !place.words) openSource(place.sourceId, place.segmentId ?? undefined, { mode: "original", page: place.page });
+      else if (place.segmentId) openSource(place.sourceId, place.segmentId, undefined, place.words ?? undefined);
       else openSource(place.sourceId);
     } catch (e) {
       setError(toApiError(e).message);
@@ -78,7 +79,7 @@ export function FindingSources({ finding, canAdd = true, onChanged, onQuote }: F
           aria-label={t("library.citations.quoteLabel")}
           className="reading m-0 whitespace-pre-line break-words border-l-2 border-border pl-3 text-[0.9375rem] italic text-text-muted"
         >
-          “{c.quote}”
+          {t("library.copy.quoted", { quote: c.quote })}
         </blockquote>
       ))}
       <div className="flex flex-wrap items-center gap-2">
@@ -106,7 +107,7 @@ export function FindingSources({ finding, canAdd = true, onChanged, onQuote }: F
                 onClick={() => void copy(c)}
                 aria-label={t("library.copy.action")}
                 title={t("library.copy.action")}
-                className="inline-flex size-8 shrink-0 items-center justify-center border-l border-border text-text-muted hover:bg-bg-secondary"
+                className="inline-flex size-11 shrink-0 items-center justify-center border-l border-border text-text-muted hover:bg-bg-secondary"
               >
                 <Copy className="size-3.5" aria-hidden="true" />
               </button>

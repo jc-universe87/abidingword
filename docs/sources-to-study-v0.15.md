@@ -261,7 +261,8 @@ person's text *commentaire*, since *note* there is a source note.
   mark is unchanged; deleting it leaves the finding unchanged.
 - Removing the source keeps every snapshot, and the citation cannot be opened.
 - Moved words are followed; ambiguous words are not guessed.
-- PDF words and PDF page places.
+- PDF words and PDF page places; a page place reopens on its page, how far
+  down, even when it also names its paragraph.
 - Study duplication copies quotes, places and snapshots.
 
 **Rust: `tests/migration_v7.rs`**
@@ -270,7 +271,7 @@ person's text *commentaire*, since *note* there is a source note.
 - A removed source.
 - Reopening again makes no new backup.
 
-**Interface: `tests/ui/sources-to-study.test.tsx` (17 tests)**
+**Interface: `tests/ui/sources-to-study.test.tsx` (18 tests)**
 - Selection to Study:
   - the defaults;
   - no mark is made;
@@ -279,6 +280,8 @@ person's text *commentaire*, since *note* there is a source note.
 - The part last worked in, choosing another part, the kind with arrow keys, and
   Ctrl+Enter.
 - Cancel and Escape add nothing.
+- From the selection strip by keyboard, focus stays in the note; Escape closes
+  only the panel.
 - The study picker; no studies at all.
 - Highlight, note on words, place note from the Marks list, no bookmark, and
   keyboard-only use.

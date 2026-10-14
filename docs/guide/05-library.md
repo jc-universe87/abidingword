@@ -241,7 +241,7 @@ under them, and where they come from. Click the source to open the book beside
 your study at those very words.
 
 <p align="center">
-  <img src="images/source-in-study.png" alt="A study note: the person's observation, the quoted words from the book in italics, and the citation 'Study group notes, Notes on Abiding, The True Vine' as a link" width="640">
+  <img src="images/source-in-study.png" alt="A study note: the person's own words, the quoted words from the book in italics, and the citation 'Study group notes, Notes on Abiding, The True Vine' as a link" width="640">
 </p>
 
 > [!NOTE]

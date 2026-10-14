@@ -508,7 +508,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
     cited: { sourceId, start: words.start, end: words.end, quote: words.quote },
     quote: words.quote,
     note: "",
-    ...citationOf(words.start.segmentId, onPdfPage ? pdfPage : null),
+    ...citationOf(words.start.segmentId, words.page ?? (onPdfPage ? pdfPage : null)),
   });
   const fromMark = (mark: SourceAnnotation): FromSource => ({
     cited: { annotationId: mark.id },
@@ -1024,7 +1024,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         }}
         onSaved={() => void marks.reload()}
         onAddToStudy={(words) => startAdding(fromSelection(words), null, null)}
-        onCopy={(words) => void copy(words.quote, citationOf(words.start.segmentId, pdfPage))}
+        onCopy={(words) => void copy(words.quote, citationOf(words.start.segmentId, words.page ?? pdfPage))}
       />
     </div>
   ) : null;

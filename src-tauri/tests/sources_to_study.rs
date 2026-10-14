@@ -719,6 +719,25 @@ fn a_place_on_a_pdf_page_and_pdf_words_are_kept_with_their_page() {
         assert_eq!(noted.sources[0].locator.as_deref(), Some("p. 3"));
         let opened = findings::locate_source(conn, &noted.sources[0].id)?.unwrap();
         assert_eq!((opened.page, opened.fraction), (Some(3), Some(0.25)));
+
+        // A place on a page that also names its paragraph still reopens on the
+        // page, how far down, not only at the paragraph in Reading.
+        let at_paragraph = CitedPassage {
+            source_id: Some(source.clone()),
+            place: Some(PlaceInput {
+                segment_id: Some(second.id.clone()),
+                page: Some(2),
+                fraction: Some(0.6),
+            }),
+            ..Default::default()
+        };
+        let there = findings::create_from_source(
+            conn,
+            &to_study(&study, "question", "And here?", at_paragraph),
+        )?;
+        let opened = findings::locate_source(conn, &there.sources[0].id)?.unwrap();
+        assert_eq!(opened.segment_id.as_deref(), Some(second.id.as_str()));
+        assert_eq!((opened.page, opened.fraction), (Some(2), Some(0.6)));
         Ok(())
     });
 }
