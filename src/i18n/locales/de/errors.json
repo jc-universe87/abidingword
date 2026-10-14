@@ -99,7 +99,8 @@
     "tooLong": "Dieser Eintrag ist zu lang zum Speichern.",
     "otherStudySection": "Dieser Abschnitt gehört zu einem anderen Bibelstudium.",
     "tooManyTags": "Ein Eintrag kann höchstens {{max}} Schlagwörter haben.",
-    "tagTooLong": "Das Schlagwort „{{tag}}“ ist zu lang."
+    "tagTooLong": "Das Schlagwort „{{tag}}“ ist zu lang.",
+    "writeFirst": "Schreiben Sie zuerst etwas, das hinzugefügt werden soll."
   },
   "annotations": {
     "tooLong": "Diese Notiz ist zu lang zum Speichern.",
@@ -120,6 +121,7 @@
     "placeGone": "Diese Stelle ist nicht mehr in der Quelle.",
     "noPlace": "Wählen Sie zuerst eine Stelle in der Quelle.",
     "bookmarkPlace": "Ein Lesezeichen markiert eine Stelle, keine Wörter.",
-    "wordsOnlyNotes": "Nur Notizen haben einen eigenen Text."
+    "wordsOnlyNotes": "Nur Notizen haben einen eigenen Text.",
+    "bookmarkNotStudy": "Ein Lesezeichen markiert nur eine Stelle; es enthält nichts, was sich einem Bibelstudium hinzufügen ließe."
   }
 }

@@ -522,7 +522,8 @@ fn rebuilding_never_touches_manual_links_citations_or_the_sources_own_details() 
             conn,
             &AddFindingSource {
                 finding_id: finding.clone(),
-                segment_id: cited.clone(),
+                segment_id: Some(cited.clone()),
+                ..Default::default()
             },
         )?;
         let before = library::get(conn, &id)?;

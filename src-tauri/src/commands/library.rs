@@ -18,10 +18,10 @@ use crate::error::{AppError, ErrorPayload, UserMessage};
 use crate::filesystem;
 use crate::library::{adapters, contents, generated_contents, import, original};
 use crate::library::{
-    AddFindingSource, CommitSourceImport, FindingCitation, GetSegments, LibraryResults,
-    ListSources, PassageLocation, PassageMention, PassageSourceGroup, SearchLibrary,
-    SegmentPassageLink, SegmentWindow, Source, SourceFind, SourceImportPreview, SourceReference,
-    SourceSummary, SourceType,
+    AddFindingSource, CitationPlace, CommitSourceImport, CreateFindingFromSource, FindingCitation,
+    GetSegments, LibraryResults, ListSources, PassageLocation, PassageMention, PassageSourceGroup,
+    SearchLibrary, SegmentPassageLink, SegmentWindow, Source, SourceFind, SourceImportPreview,
+    SourceReference, SourceSummary, SourceType,
 };
 use crate::scripture::parser::DetectedReference;
 use crate::scripture::reference::ScriptureRef;
@@ -293,6 +293,26 @@ pub fn finding_source_add(
     input: AddFindingSource,
 ) -> CommandResult<Finding> {
     state.db(|conn| findings::add_source(conn, &input))
+}
+
+/// "Add to Study" (v0.15): a new finding from selected words, a place or a
+/// source mark, with its citation, in one step.
+#[tauri::command(async)]
+pub fn finding_create_from_source(
+    state: State<'_, AppState>,
+    input: CreateFindingFromSource,
+) -> CommandResult<Finding> {
+    state.db(|conn| findings::create_from_source(conn, &input))
+}
+
+/// Where a citation is in its source now, to open it there (v0.15); null
+/// when the source has been removed.
+#[tauri::command(async)]
+pub fn finding_source_locate(
+    state: State<'_, AppState>,
+    citation_id: String,
+) -> CommandResult<Option<CitationPlace>> {
+    state.db(|conn| findings::locate_source(conn, &citation_id))
 }
 
 #[tauri::command(async)]

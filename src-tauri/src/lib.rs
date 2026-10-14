@@ -114,6 +114,8 @@ pub fn run() {
             commands::library::library_source_find,
             commands::library::source_segment_passage_links,
             commands::library::finding_source_add,
+            commands::library::finding_create_from_source,
+            commands::library::finding_source_locate,
             commands::library::finding_source_remove,
             commands::library::finding_source_list,
             commands::settings::settings_get,

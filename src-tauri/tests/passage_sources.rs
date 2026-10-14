@@ -794,7 +794,8 @@ fn finding_citations_are_unaffected_by_rebuilding_the_links() {
             conn,
             &AddFindingSource {
                 finding_id: finding.clone(),
-                segment_id: cited_segment.clone(),
+                segment_id: Some(cited_segment.clone()),
+                ..Default::default()
             },
         )?;
         library::reindex_passages(conn, &id)?;

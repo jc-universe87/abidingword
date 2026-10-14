@@ -214,6 +214,66 @@ impl PlaceDetails {
     }
 }
 
+/// Where a finding's citation was in the stored text (v0.15), kept as small
+/// versioned JSON in `finding_sources.anchor`: the words (both ends, with
+/// context, as a source annotation keeps them) or a place (a paragraph, or a
+/// page of an Original PDF and how far down it). Never a view's coordinates.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct CitationAnchor {
+    pub v: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub start_segment_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub start_offset: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub end_segment_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub end_offset: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prefix: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub suffix: Option<String>,
+    /// Reading position when cited (where to look nearby if the text changed).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub position: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub page_number: Option<i64>,
+    /// A page of an Original PDF, and how far down it (0..1).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub page: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fraction: Option<f64>,
+}
+
+impl CitationAnchor {
+    pub const VERSION: u32 = 1;
+
+    pub fn read(stored: Option<&str>) -> Option<Self> {
+        stored
+            .and_then(|s| serde_json::from_str::<Self>(s).ok())
+            .filter(|a| a.v == Self::VERSION)
+    }
+
+    pub fn to_stored(&self) -> String {
+        serde_json::to_string(&Self {
+            v: Self::VERSION,
+            ..self.clone()
+        })
+        .expect("citation anchor serialises")
+    }
+
+    /// The same place in the stored text: what makes two citations one.
+    pub fn same_place(&self, other: &Self) -> bool {
+        self.start_segment_id == other.start_segment_id
+            && self.start_offset == other.start_offset
+            && self.end_segment_id == other.end_segment_id
+            && self.end_offset == other.end_offset
+            && self.page == other.page
+            && self.fraction == other.fraction
+    }
+}
+
 /// One stored segment, in reading order.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StoredSegment {

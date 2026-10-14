@@ -575,14 +575,16 @@ fn findings_cite_segments_and_survive_restart_and_removal() {
                 conn,
                 &AddFindingSource {
                     finding_id: finding.clone(),
-                    segment_id: hit.segment_id.clone(),
+                    segment_id: Some(hit.segment_id.clone()),
+                    ..Default::default()
                 },
             )?;
             let again = findings::add_source(
                 conn,
                 &AddFindingSource {
                     finding_id: finding.clone(),
-                    segment_id: hit.segment_id,
+                    segment_id: Some(hit.segment_id),
+                    ..Default::default()
                 },
             )?;
             assert_eq!(again.sources.len(), 1, "no duplicate citation");
