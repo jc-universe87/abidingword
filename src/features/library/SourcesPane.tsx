@@ -7,7 +7,7 @@ import { useLoad } from "@/hooks/useLoad";
 import { referenceLabel } from "@/i18n/scripture";
 import { useApi } from "@/lib/ApiContext";
 import type { ScriptureRef } from "@/types/scripture";
-import { useLibraryNav } from "./LibraryNav";
+import { useLibraryNav, type QuotedWords } from "./LibraryNav";
 import { PassageSourceList } from "./PassageSourceList";
 import { usePassageSourceExpansion } from "./usePassageSourceExpansion";
 import { SourceReader, type ReaderPosition } from "./SourceReader";
@@ -22,6 +22,8 @@ export interface PaneSource {
   opener: HTMLElement | null;
   /** Where to open (view and page) when continuing from the full reader. */
   position?: ReaderPosition;
+  /** Cited words to show marked (opened from a Study finding's citation). */
+  words?: QuotedWords;
 }
 
 interface SourcesPaneProps {
@@ -89,6 +91,7 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
           sourceId={reading.sourceId}
           segmentId={reading.segmentId}
           initialPosition={reading.position}
+          quotedWords={reading.words}
           onClose={() => {
             returning.current = { opener: reading.opener };
             onCloseReader?.();

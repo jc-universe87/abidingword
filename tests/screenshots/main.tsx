@@ -135,6 +135,18 @@ async function seed(api: MemoryApi) {
   };
   await mark("Jesus does not ask", "he asks them to remain", { kind: "highlight", color: "green" });
   await mark("Remaining is not anxious", "Remaining is not anxious striving", { kind: "note", content: "Rest, not effort: abiding is receiving." });
+  // A study note brought from that source (v0.15): the person's words, the book's words and where they are.
+  const remaining = abiding("Remaining is not anxious");
+  await api.findingCreateFromSource({
+    studyId: vine.study.id,
+    findingType: "interpretation",
+    sectionId: application?.id,
+    content: "Abiding is receiving, not striving: I rest in what Christ has done.",
+    sourceId: remaining.sourceId,
+    start: { segmentId: remaining.id, offset: 0 },
+    end: { segmentId: remaining.id, offset: "Remaining is not anxious striving".length },
+    quote: "Remaining is not anxious striving",
+  });
   api.installFixtureSource({
     title: "Sermon outline: The True Vine",
     author: "Sample sermon",

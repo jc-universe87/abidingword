@@ -206,6 +206,64 @@ Bible together, use **Marks** in the Scripture pane (see
 > longer be found for certain, it is kept with its words and says **"This place
 > can no longer be found in the text."** It is never moved to other words.
 
+## Using a book in your study
+
+When something you read belongs in your study, bring it there in one step,
+without losing where it came from.
+
+1. **Select the words** (or open a highlight or note you made earlier).
+2. Click **Add to Study**.
+3. A small panel shows the words and where they come from. Abiding Word
+   suggests the study you have open and the part you last worked in; change
+   either if you like.
+4. Write **your own note** about it if you want to. Left empty, it is added as
+   a **Quotation**; once you write, it becomes an **Observation**. Pick another
+   kind if it fits better.
+5. Click **Add to Study** (or press **Ctrl + Enter**). **Esc** or **Cancel**
+   adds nothing.
+
+<p align="center">
+  <img src="images/add-to-study.png" alt="The Add to Study panel in the reader: the selected words with their author, title and section, a field for your own note, the kind, and the part of the study" width="440">
+</p>
+
+- It works on words you select in **Reading** and on the pages of a **PDF**
+  in the **Original** view, with no highlight needed first.
+- A **highlight** or a **note** can be added from its paragraph's marks, from
+  the book's **Marks** list, or from **Marks** in the Scripture pane. A note
+  you wrote while reading starts as your note in the study; the book's words
+  stay with it.
+- Bookmarks only mark a place, so they have nothing to add.
+- Nothing is ever added to a study by itself. A highlight stays a highlight
+  until you choose **Add to Study**.
+
+In the study, the note shows **your words first**, the book's words quietly
+under them, and where they come from. Click the source to open the book beside
+your study at those very words.
+
+<p align="center">
+  <img src="images/source-in-study.png" alt="A study note: the person's own words, the quoted words from the book in italics, and the citation 'Study group notes, Notes on Abiding, The True Vine' as a link" width="640">
+</p>
+
+> [!NOTE]
+> Your study keeps the quotation and where it came from, even if you later
+> remove the book from your library or delete the highlight. The book can no
+> longer be opened then, but nothing you added is lost.
+
+### Copying a quotation with its source
+
+Choose **⋯ More actions → Copy quotation with citation** on selected words, a
+highlight, a note with words, or a quotation in your study. You get something
+you can paste anywhere:
+
+```
+“As the branch cannot bear fruit by itself”
+— J. Example, Notes on Abiding, p. 42
+```
+
+Only what Abiding Word knows about the book is used: if there is no author, it
+is left out; if there is no page number, the chapter or section is given
+instead.
+
 ## Searching your library
 
 1. In the app bar, switch the search menu to **Library**.
@@ -220,7 +278,10 @@ Click a result to open the book at that place.
 
 ## Citing a book in a study note
 
-In a [study note](04-studies.md#study-notes-capturing-what-you-discover), open
+The quickest way is **Add to Study** while you read (see
+[Using a book in your study](#using-a-book-in-your-study)). You can also cite
+a book from the study itself: in a
+[study note](04-studies.md#study-notes-capturing-what-you-discover), open
 **Details** and search your library for the passage you want to cite, then
 click **Cite**. The citation stays readable even if you later remove the book
 from your library.

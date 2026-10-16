@@ -605,5 +605,18 @@
     "title": "성경공부",
     "organise": "성경공부 모음으로 정리",
     "back": "성경공부 목록으로"
+  },
+  "fromSource": {
+    "label": "성경공부에 추가",
+    "title": "성경공부에 추가: {{study}}",
+    "chooseStudy": "성경공부",
+    "otherStudy": "다른 성경공부…",
+    "noStudies": "아직 성경공부가 없습니다. 성경공부 창에서 성경공부를 시작한 뒤 여기에 추가하세요.",
+    "yourNote": "내 기록 (선택)",
+    "placeholder": "여기서 무엇을 얻었나요?",
+    "placeholderRequired": "이곳에서 얻은 것을 적어 주세요…",
+    "save": "성경공부에 추가",
+    "added": "{{study}} · {{part}}에 추가했습니다.",
+    "loading": "성경공부를 불러오는 중…"
   }
 }

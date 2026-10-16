@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Bookmark, Highlighter, StickyNote, X } from "lucide-react";
+import { ActionMenu, type MenuAction } from "@/design-system/ActionMenu";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
@@ -8,6 +9,7 @@ import { SWATCH_CLASS } from "@/lib/annotationRender";
 import type { SourceAnnotation } from "@/types/library";
 import type { ContentsLayout } from "../ContentsPanel";
 import { locatorLabel } from "../labels";
+import type { MarkActions } from "./ParagraphMarks";
 
 const ICON = { highlight: Highlighter, note: StickyNote, bookmark: Bookmark } as const;
 
@@ -21,6 +23,8 @@ interface Props {
   onSelect: (mark: SourceAnnotation) => void;
   onChanged: () => void;
   onClose: () => void;
+  /** "Add to Study" and "Copy quotation with citation" for a mark (v0.15). */
+  actions?: MarkActions;
 }
 
 /**
@@ -28,7 +32,7 @@ interface Props {
  * back to its place. A mark that can no longer be found in the text is listed
  * last with its words, never moved; it can be deleted here.
  */
-export function SourceMarksPanel({ id, title, marks, layout, switcher, onSelect, onChanged, onClose }: Props) {
+export function SourceMarksPanel({ id, title, marks, layout, switcher, onSelect, onChanged, onClose, actions }: Props) {
   const { t } = useTranslation();
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus({ preventScroll: true }), []);
@@ -66,6 +70,7 @@ export function SourceMarksPanel({ id, title, marks, layout, switcher, onSelect,
               <li key={mark.id}>
                 <MarkRow
                   mark={mark}
+                  actions={actions}
                   onSelect={() => onSelect(mark)}
                   onChanged={() => {
                     onChanged();
@@ -82,7 +87,7 @@ export function SourceMarksPanel({ id, title, marks, layout, switcher, onSelect,
   );
 }
 
-function MarkRow({ mark, onSelect, onChanged }: { mark: SourceAnnotation; onSelect: () => void; onChanged: () => void }) {
+function MarkRow({ mark, onSelect, onChanged, actions }: { mark: SourceAnnotation; onSelect: () => void; onChanged: () => void; actions?: MarkActions }) {
   const { t } = useTranslation();
   const api = useApi();
   const [error, setError] = useState<string | null>(null);
@@ -101,16 +106,35 @@ function MarkRow({ mark, onSelect, onChanged }: { mark: SourceAnnotation; onSele
       {mark.kind === "note" && mark.content && <span className="line-clamp-3 whitespace-pre-wrap text-[0.9375rem] text-text">{mark.content}</span>}
     </>
   );
+  // Quiet actions beside the row, never instead of going to the mark.
+  const more: MenuAction[] = [];
+  if (mark.kind !== "bookmark" && actions?.onAddToStudy) {
+    const onAdd = actions.onAddToStudy;
+    more.push({ label: t("library.toStudy.add"), onSelect: (opener) => onAdd(mark, opener) });
+  }
+  const onCopy = actions?.onCopy;
+  if (mark.quote !== null && onCopy) more.push({ label: t("library.copy.action"), onSelect: () => onCopy(mark) });
+  const menu = more.length > 0 ? (
+    <span className="shrink-0">
+      <ActionMenu label={t("library.more")} actions={more} />
+    </span>
+  ) : null;
   if (mark.state !== "unresolved") {
     return (
-      <button type="button" onClick={onSelect} className="flex w-full flex-col gap-0.5 rounded-aw px-2 py-1.5 text-left hover:bg-bg-secondary">
-        {body}
-      </button>
+      <div className="flex items-start gap-1">
+        <button type="button" onClick={onSelect} className="flex min-w-0 flex-1 flex-col gap-0.5 rounded-aw px-2 py-1.5 text-left hover:bg-bg-secondary">
+          {body}
+        </button>
+        {menu}
+      </div>
     );
   }
   return (
     <div className="flex flex-col gap-1 rounded-aw border border-dashed border-border px-2 py-1.5">
-      {body}
+      <div className="flex items-start gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">{body}</div>
+        {menu}
+      </div>
       <p className="m-0 text-[0.875rem] text-text-muted">{t("library.marks.unresolved")}</p>
       <Button
         className="self-start"

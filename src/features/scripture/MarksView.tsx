@@ -7,7 +7,10 @@ import { bookName, referenceLabel } from "@/i18n/scripture";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { SWATCH_CLASS } from "@/lib/annotationRender";
-import { locatorLabel } from "@/features/library/labels";
+import { locatorLabel, quotationWithCitation } from "@/features/library/labels";
+import { ActionMenu } from "@/design-system/ActionMenu";
+import { AddToStudyPanel } from "@/features/studies/AddToStudyPanel";
+import { copyText } from "@/lib/clipboard";
 import { HIGHLIGHT_COLORS, type Annotation, type AnnotationKind, type BibleTranslation, type HighlightColor } from "@/types/scripture";
 import type { MarkedSource, SourceMark } from "@/types/library";
 import { useScripture } from "./ScriptureContext";
@@ -314,6 +317,14 @@ function SourceMarks({ heading, together, filters, filtered, onOpen, onCount }: 
   const api = useApi();
   const key = JSON.stringify(filters);
   const { page, error, loadingMore, loadMore, list } = usePagedMarks(key, (offset) => api.sourceMarksList({ ...filters, limit: PAGE, offset }));
+  // A mark being added to a Study (v0.15), with the menu button focus returns to; and a short confirmation.
+  const [adding, setAdding] = useState<{ mark: SourceMark; opener: HTMLButtonElement | null } | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const copy = async (mark: SourceMark) => {
+    if (mark.quote === null) return;
+    const done = await copyText(quotationWithCitation(t, mark.quote, { title: mark.sourceTitle, author: mark.sourceAuthor, locator: mark.locator, section: mark.sectionPath }));
+    setNotice(done ? t("library.copy.done") : t("library.copy.failed"));
+  };
   useEffect(() => onCount(page.ready ? page.marks.length : null), [onCount, page.ready, page.marks.length]);
   const empty = filters.query ? (
     <p className="reading m-0 text-text-muted">{t("scripture.marks.empty.noSearch")}</p>
@@ -330,12 +341,50 @@ function SourceMarks({ heading, together, filters, filtered, onOpen, onCount }: 
       {page.marks.length > 0 && (
         <ul ref={list} className="m-0 flex list-none flex-col gap-2 p-0">
           {page.marks.map((mark) => (
-            <li key={mark.id}>
+            <li key={mark.id} className="flex flex-wrap items-start gap-1">
               <SourceMarkCard mark={mark} onOpen={() => onOpen(mark)} />
+              {mark.kind !== "bookmark" && (
+                <ActionMenu
+                  label={t("library.more")}
+                  actions={[
+                    { label: t("library.toStudy.add"), onSelect: (opener) => setAdding({ mark, opener }) },
+                    ...(mark.quote !== null ? [{ label: t("library.copy.action"), onSelect: () => void copy(mark) }] : []),
+                    { label: t("library.citations.open"), onSelect: () => onOpen(mark) },
+                  ]}
+                  className="shrink-0"
+                />
+              )}
+              {adding?.mark.id === mark.id && (
+                <div className="basis-full">
+                  <AddToStudyPanel
+                    from={{
+                      cited: { annotationId: mark.id },
+                      quote: mark.quote,
+                      note: mark.kind === "note" ? mark.content : "",
+                      title: mark.sourceTitle,
+                      author: mark.sourceAuthor,
+                      locator: mark.locator,
+                      section: mark.sectionPath,
+                    }}
+                    onCancel={() => {
+                      const opener = adding.opener;
+                      setAdding(null);
+                      requestAnimationFrame(() => opener?.focus());
+                    }}
+                    onAdded={(where) => {
+                      const opener = adding.opener;
+                      setAdding(null);
+                      setNotice(t("studies.fromSource.added", where));
+                      requestAnimationFrame(() => opener?.focus());
+                    }}
+                  />
+                </div>
+              )}
             </li>
           ))}
         </ul>
       )}
+      <p aria-live="polite" className={notice ? "m-0 text-[0.9375rem] text-text-muted" : "sr-only"}>{notice ?? ""}</p>
     </ListFrame>
   );
 }
@@ -384,6 +433,7 @@ function MarkCard({ mark, chapterCount, onOpen }: { mark: Annotation; chapterCou
 
 /** A mark in a source: the source and the place (page or section), what kind it is, the words and the note. */
 function SourceMarkCard({ mark, onOpen }: { mark: SourceMark; onOpen: () => void }) {
+  // Beside its quiet menu (v0.15): the card takes the rest of the row.
   const { t } = useTranslation();
   const place = mark.locator ? locatorLabel(t, mark.locator, mark.pageNumber ?? undefined) : null;
   return (
@@ -391,7 +441,7 @@ function SourceMarkCard({ mark, onOpen }: { mark: SourceMark; onOpen: () => void
       type="button"
       onClick={onOpen}
       title={t("scripture.marks.result.showSource")}
-      className="flex w-full flex-col gap-1 rounded-aw border border-border-subtle bg-bg p-3 text-left font-ui hover:bg-bg-secondary"
+      className="flex min-w-0 flex-1 flex-col gap-1 rounded-aw border border-border-subtle bg-bg p-3 text-left font-ui hover:bg-bg-secondary"
     >
       <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
         <span className="font-medium text-text-strong">{mark.sourceTitle}</span>

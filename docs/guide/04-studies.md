@@ -97,6 +97,10 @@ Each note shows its kind, its section and its passage. Open **Details** to add
 tags or to **cite a book from your library** (see
 [Your library](05-library.md#citing-a-book-in-a-study-note)).
 
+While reading a book you can also **add what you read straight into your
+study**: select the words and choose **Add to Study**. See
+[Using a book in your study](05-library.md#using-a-book-in-your-study).
+
 ## Finding a study again
 
 - The start page lists **All studies**, newest first.

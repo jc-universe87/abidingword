@@ -135,7 +135,10 @@
     "replaceQuote": "Also replace this quotation’s text with the cited passage",
     "useQuote": "Also use the cited passage as this quotation’s text",
     "listLabel": "Passages to cite",
-    "cite": "Cite {{citation}}"
+    "cite": "Cite {{citation}}",
+    "open": "Open source",
+    "quoteLabel": "Quoted from the source",
+    "openFailed": "This source could not be opened."
   },
   "original": {
     "modesLabel": "View",
@@ -248,5 +251,15 @@
     "panels": "Contents or marks",
     "notePage": "Note on this page",
     "cannotPlace": "These words cannot be marked here exactly. Select them in Reading to mark them."
+  },
+  "copy": {
+    "quoted": "“{{quote}}”",
+    "action": "Copy quotation with citation",
+    "done": "Quotation copied with its citation.",
+    "failed": "The quotation could not be copied."
+  },
+  "more": "More actions",
+  "toStudy": {
+    "add": "Add to Study"
   }
 }

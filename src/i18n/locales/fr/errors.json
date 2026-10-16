@@ -102,7 +102,8 @@
     "tooLong": "Ce élément d’étude est trop long pour être enregistré.",
     "otherStudySection": "Cette section appartient à une autre étude.",
     "tooManyTags": "Un élément d’étude peut avoir au plus {{max}} étiquettes.",
-    "tagTooLong": "L’étiquette « {{tag}} » est trop longue."
+    "tagTooLong": "L’étiquette « {{tag}} » est trop longue.",
+    "writeFirst": "Écrivez d’abord quelque chose à ajouter."
   },
   "annotations": {
     "tooLong": "Cette note est trop longue pour être enregistrée.",
@@ -123,6 +124,7 @@
     "placeGone": "Cet endroit ne se trouve plus dans la source.",
     "noPlace": "Choisissez d’abord un endroit dans la source.",
     "bookmarkPlace": "Un signet marque un endroit, pas des mots.",
-    "wordsOnlyNotes": "Seules les notes ont un texte propre."
+    "wordsOnlyNotes": "Seules les notes ont un texte propre.",
+    "bookmarkNotStudy": "Un signet marque seulement un endroit ; il n’y a rien à ajouter à une étude."
   }
 }

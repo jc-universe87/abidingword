@@ -26,6 +26,8 @@ export interface SourceSelection {
   /** Reading positions of the first and last paragraph covered. */
   firstPosition: number;
   lastPosition: number;
+  /** On an Original PDF page: the page the words were selected on. */
+  page?: number;
 }
 
 /** A paragraph of stored text as the reader shows it. */

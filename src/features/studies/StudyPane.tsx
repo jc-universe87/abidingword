@@ -1,3 +1,4 @@
+import { useStudyFocus } from "./StudyFocus";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronRight } from "lucide-react";
@@ -51,6 +52,10 @@ export function StudyPane({ workspace, onRevealScripture, search, onCloseSearch 
   // Set only when the user opens a study; never saved.
   const [revealFor, setRevealFor] = useState<string | null>(null);
   useEffect(() => writeLocal(LOCATION_KEY, location), [location]);
+  // The Study open here is what "Add to Study" in a source adds to (v0.15); none while browsing.
+  const { setOpenStudy } = useStudyFocus();
+  const openId = location.kind === "study" ? location.studyId : null;
+  useEffect(() => setOpenStudy(openId), [openId, setOpenStudy]);
 
   const goToProjects = useCallback(() => setLocation({ kind: "projects" }), []);
   const openStudy = useCallback(

@@ -612,5 +612,18 @@
     "title": "Bibelstudien",
     "organise": "In Projekten ordnen",
     "back": "Zurück zu den Bibelstudien"
+  },
+  "fromSource": {
+    "label": "Zum Bibelstudium hinzufügen",
+    "title": "Zum Bibelstudium hinzufügen: {{study}}",
+    "chooseStudy": "Bibelstudium",
+    "otherStudy": "Anderes Bibelstudium …",
+    "noStudies": "Es gibt noch kein Bibelstudium. Beginnen Sie eines im Bereich „Bibelstudium“ und fügen Sie dies dann hinzu.",
+    "yourNote": "Ihr Eintrag (freiwillig)",
+    "placeholder": "Was nehmen Sie daraus mit?",
+    "placeholderRequired": "Schreiben Sie, was Sie von dieser Stelle mitnehmen …",
+    "save": "Hinzufügen",
+    "added": "Zu {{study}} · {{part}} hinzugefügt.",
+    "loading": "Ihre Bibelstudien werden geladen …"
   }
 }

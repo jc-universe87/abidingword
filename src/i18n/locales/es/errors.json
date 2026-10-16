@@ -102,7 +102,8 @@
     "tooLong": "Este apunte es demasiado largo para guardarlo.",
     "otherStudySection": "Esa sección pertenece a otro estudio.",
     "tooManyTags": "Un apunte puede tener como máximo {{max}} etiquetas.",
-    "tagTooLong": "La etiqueta “{{tag}}” es demasiado larga."
+    "tagTooLong": "La etiqueta “{{tag}}” es demasiado larga.",
+    "writeFirst": "Escriba primero algo que añadir."
   },
   "annotations": {
     "tooLong": "Esta nota es demasiado larga para guardarla.",
@@ -123,6 +124,7 @@
     "placeGone": "Este lugar ya no está en la fuente.",
     "noPlace": "Elija primero un lugar en la fuente.",
     "bookmarkPlace": "Un marcador señala un lugar, no palabras.",
-    "wordsOnlyNotes": "Solo las notas tienen texto propio."
+    "wordsOnlyNotes": "Solo las notas tienen texto propio.",
+    "bookmarkNotStudy": "Un marcador solo señala un lugar; no hay nada que añadir a un estudio."
   }
 }

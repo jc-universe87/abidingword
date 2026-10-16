@@ -242,7 +242,7 @@ describe("the source's marks beside its text", () => {
     const opener = within(screen.getByTestId("reader-header")).getByRole("button", { name: "Marks" });
     await user.click(opener);
     const panel = await screen.findByRole("region", { name: "Marks in The True Vine" });
-    const rows = within(panel).getAllByRole("button").filter((b) => b.closest("li"));
+    const rows = within(panel).getAllByRole("button").filter((b) => b.closest("li") && !b.hasAttribute("aria-haspopup"));
     expect(rows.map((r) => r.textContent)).toEqual([expect.stringContaining("Bookmark"), expect.stringContaining("Fruit is the evidence.")]);
     await user.click(rows[1]!);
     await waitFor(() => expect(screen.queryByRole("region", { name: "Marks in The True Vine" })).toBeNull());

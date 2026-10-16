@@ -27,11 +27,12 @@ use rusqlite::{params, Connection, OptionalExtension, Row};
 use crate::db::{library, new_id, now, workspaces};
 use crate::error::{AppError, AppResult, UserMessage};
 use crate::library::annotations::{
-    absorb, pack, pick, remainders, unpack, AnchorState, AnnotationPoint, CreateSourceAnnotation,
-    Line, LinePoint, MarkedSource, Pick, PlaceDetails, SourceAnnotation, SourceMark,
-    SourceMarksPage, SourceMarksQuery, Span, StoredSegment, UpdateSourceAnnotation,
-    SOURCE_ANNOTATION_KINDS,
+    absorb, pack, pick, remainders, unpack, AnchorState, AnnotationPoint, CitationAnchor,
+    CreateSourceAnnotation, Line, LinePoint, MarkedSource, Pick, PlaceDetails, SourceAnnotation,
+    SourceMark, SourceMarksPage, SourceMarksQuery, Span, StoredSegment, TextPoint,
+    UpdateSourceAnnotation, SOURCE_ANNOTATION_KINDS,
 };
+use crate::library::{CitationPlace, CitationWords, CitedPassage};
 use crate::scripture::annotation_data::{validate_color, DEFAULT_HIGHLIGHT_COLOR};
 
 const COLUMNS: &str = "id, source_id, kind, color, content, start_segment_id, start_offset,
@@ -1411,4 +1412,331 @@ fn resolve_place(
         Some(segment) => Outcome::Place(segment.clone()),
         None => Outcome::Lost,
     })
+}
+
+// ---------------------------------------------------------------------------
+// Citations from a source into a Study (v0.15). A finding's citation keeps its
+// own copy of the quote and of where it was: it is anchored here with the
+// same rules as an annotation, and found again with the same resolver, but it
+// never depends on an annotation continuing to exist.
+// ---------------------------------------------------------------------------
+
+/// What a finding's citation records about the cited words or place.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct Cited {
+    pub source_id: String,
+    /// The paragraph the words or place begin in, if known.
+    pub segment_id: Option<String>,
+    pub quote: Option<String>,
+    pub locator: Option<String>,
+    pub section_path: Option<String>,
+    pub anchor: CitationAnchor,
+    pub annotation_id: Option<String>,
+}
+
+fn words_anchor(built: &Built) -> CitationAnchor {
+    CitationAnchor {
+        v: CitationAnchor::VERSION,
+        start_segment_id: Some(built.start_segment_id.clone()),
+        start_offset: Some(built.start_offset),
+        end_segment_id: Some(built.end_segment_id.clone()),
+        end_offset: Some(built.end_offset),
+        prefix: Some(built.prefix.clone()),
+        suffix: Some(built.suffix.clone()),
+        position: Some(built.position),
+        page_number: built.page_number,
+        ..Default::default()
+    }
+}
+
+fn from_words(source_id: &str, built: Built, annotation_id: Option<String>) -> Cited {
+    Cited {
+        source_id: source_id.to_string(),
+        segment_id: Some(built.start_segment_id.clone()),
+        anchor: words_anchor(&built),
+        quote: Some(built.quote),
+        locator: built.locator,
+        section_path: built.section_path,
+        annotation_id,
+    }
+}
+
+fn from_place(source_id: &str, place: Place, annotation_id: Option<String>) -> Cited {
+    Cited {
+        source_id: source_id.to_string(),
+        segment_id: place.segment_id.clone(),
+        quote: None,
+        locator: place.locator,
+        section_path: place.section_path,
+        anchor: CitationAnchor {
+            v: CitationAnchor::VERSION,
+            start_segment_id: place.segment_id,
+            position: place.position,
+            page_number: place.page_number,
+            page: place.details.page,
+            fraction: place.details.fraction,
+            ..Default::default()
+        },
+        annotation_id,
+    }
+}
+
+/// Anchors what a finding cites: selected words (checked against the stored
+/// text exactly as a highlight is), a place, or a source mark — whose words
+/// or place are copied, so the citation never depends on the mark.
+pub(crate) fn cite(conn: &Connection, input: &CitedPassage) -> AppResult<Cited> {
+    if let Some(annotation_id) = &input.annotation_id {
+        let raw = get_raw(conn, annotation_id)?;
+        if input
+            .source_id
+            .as_deref()
+            .is_some_and(|s| s != raw.source_id)
+        {
+            return Err(AppError::not_found("source annotation", annotation_id));
+        }
+        library::get(conn, &raw.source_id)?;
+        if raw.kind == "bookmark" {
+            return Err(invalid(
+                "sourceAnnotations.bookmarkNotStudy",
+                "A bookmark marks a place; it has nothing to add to a study.",
+            ));
+        }
+        let link = Some(annotation_id.clone());
+        if let Some(quote) = raw.quote.clone() {
+            // Its words where they are now, checked as a new selection would be.
+            if let (Some(start), Some(end), Some(from), Some(to)) = (
+                raw.start_segment_id.clone(),
+                raw.end_segment_id.clone(),
+                raw.start_offset,
+                raw.end_offset,
+            ) {
+                let selection = CreateSourceAnnotation {
+                    source_id: raw.source_id.clone(),
+                    start: Some(TextPoint {
+                        segment_id: start,
+                        offset: from,
+                    }),
+                    end: Some(TextPoint {
+                        segment_id: end,
+                        offset: to,
+                    }),
+                    quote: Some(quote.clone()),
+                    ..Default::default()
+                };
+                if let Ok(built) = anchor_selection(conn, &selection) {
+                    return Ok(from_words(&raw.source_id, built, link));
+                }
+            }
+            // A mark that can no longer be found: its words, and where it was, without a place.
+            return Ok(Cited {
+                source_id: raw.source_id.clone(),
+                segment_id: None,
+                quote: Some(quote),
+                locator: raw.locator.clone(),
+                section_path: raw.section_path.clone(),
+                anchor: CitationAnchor {
+                    v: CitationAnchor::VERSION,
+                    prefix: raw.prefix.clone(),
+                    suffix: raw.suffix.clone(),
+                    position: raw.position,
+                    page_number: raw.page_number,
+                    ..Default::default()
+                },
+                annotation_id: link,
+            });
+        }
+        // A note on a place: the same place.
+        let details = PlaceDetails::read(raw.anchor.as_deref());
+        let live_segment = match &raw.start_segment_id {
+            Some(id) => segment_place(conn, id)?
+                .filter(|(source, _)| *source == raw.source_id)
+                .map(|_| id.clone()),
+            None => None,
+        };
+        let place = Place {
+            segment_id: live_segment,
+            position: raw.position,
+            page_number: raw.page_number,
+            locator: raw.locator.clone(),
+            section_path: raw.section_path.clone(),
+            details,
+        };
+        return Ok(from_place(&raw.source_id, place, link));
+    }
+    let source_id = input.source_id.clone().ok_or_else(|| {
+        invalid(
+            "sourceAnnotations.noWords",
+            "Select some words of the source first.",
+        )
+    })?;
+    library::get(conn, &source_id)?;
+    if input.start.is_some() || input.end.is_some() || input.quote.is_some() {
+        let selection = CreateSourceAnnotation {
+            source_id: source_id.clone(),
+            start: input.start.clone(),
+            end: input.end.clone(),
+            quote: input.quote.clone(),
+            ..Default::default()
+        };
+        let built = anchor_selection(conn, &selection)?;
+        return Ok(from_words(&source_id, built, None));
+    }
+    let request = CreateSourceAnnotation {
+        source_id: source_id.clone(),
+        place: input.place.clone(),
+        ..Default::default()
+    };
+    let place = anchor_place(conn, &request)?;
+    Ok(from_place(&source_id, place, None))
+}
+
+/// Where a citation is in its source now, to open it there; None when the
+/// source has been removed. Its own anchor first (found again with the
+/// annotation resolver, so moved words are followed only when unambiguous),
+/// then the paragraph it was in, then its page or section, else the start of
+/// the source. Words are only ever given when they were found exactly.
+pub(crate) fn locate_citation(
+    conn: &Connection,
+    source_id: &str,
+    segment_id: Option<&str>,
+    quote: Option<&str>,
+    section_path: Option<&str>,
+    anchor: Option<&CitationAnchor>,
+) -> AppResult<Option<CitationPlace>> {
+    let live: bool = conn
+        .query_row(
+            "SELECT deleted_at IS NULL FROM sources WHERE id = ?1",
+            [source_id],
+            |r| r.get(0),
+        )
+        .optional()?
+        .unwrap_or(false);
+    if !live {
+        return Ok(None);
+    }
+    let mut place = CitationPlace {
+        source_id: source_id.to_string(),
+        segment_id: None,
+        words: None,
+        page: None,
+        fraction: None,
+    };
+    let paragraph = |id: Option<&str>| -> AppResult<Option<String>> {
+        Ok(match id {
+            Some(id) => segment_place(conn, id)?
+                .filter(|(source, _)| source == source_id)
+                .map(|_| id.to_string()),
+            None => None,
+        })
+    };
+    if let Some(anchor) = anchor {
+        let raw = Raw {
+            id: String::new(),
+            source_id: source_id.to_string(),
+            kind: if quote.is_some() { "highlight" } else { "note" }.into(),
+            color: None,
+            content: String::new(),
+            start_segment_id: anchor.start_segment_id.clone(),
+            start_offset: anchor.start_offset,
+            end_segment_id: anchor.end_segment_id.clone(),
+            end_offset: anchor.end_offset,
+            quote: quote.map(str::to_string),
+            prefix: anchor.prefix.clone(),
+            suffix: anchor.suffix.clone(),
+            position: anchor.position,
+            page_number: anchor.page_number,
+            locator: None,
+            section_path: section_path.map(str::to_string),
+            anchor: PlaceDetails {
+                v: 0,
+                page: anchor.page,
+                fraction: anchor.fraction,
+            }
+            .to_stored(),
+            state: AnchorState::Exact,
+            created_at: String::new(),
+            updated_at: String::new(),
+            revision: 0,
+        };
+        let mut text = None;
+        let outcome = if raw.quote.is_some() {
+            resolve_words(conn, &raw, &mut text)?
+        } else {
+            resolve_place(conn, &raw, &mut text)?
+        };
+        match outcome {
+            Outcome::Here if raw.quote.is_some() => {
+                if let (Some(start), Some(end), Some(from), Some(to)) = (
+                    &raw.start_segment_id,
+                    &raw.end_segment_id,
+                    raw.start_offset,
+                    raw.end_offset,
+                ) {
+                    place.segment_id = Some(start.clone());
+                    place.words = Some(CitationWords {
+                        start_segment_id: start.clone(),
+                        start_offset: from,
+                        end_segment_id: end.clone(),
+                        end_offset: to,
+                    });
+                    return Ok(Some(place));
+                }
+            }
+            Outcome::Here => {
+                place.segment_id = paragraph(raw.start_segment_id.as_deref())?;
+                // A place cited on an Original PDF page reopens on that page, as far down as it was.
+                place.page = anchor.page;
+                place.fraction = anchor.fraction;
+                return Ok(Some(place));
+            }
+            Outcome::Words(built) => {
+                place.segment_id = Some(built.start_segment_id.clone());
+                place.words = Some(CitationWords {
+                    start_segment_id: built.start_segment_id,
+                    start_offset: built.start_offset,
+                    end_segment_id: built.end_segment_id,
+                    end_offset: built.end_offset,
+                });
+                return Ok(Some(place));
+            }
+            Outcome::Place(segment) => {
+                place.segment_id = Some(segment.id);
+                place.page = anchor.page;
+                place.fraction = anchor.fraction;
+                return Ok(Some(place));
+            }
+            Outcome::Lost => {}
+        }
+        // Not found for certain: the paragraph it began in, if it is still there (no words marked).
+        if let Some(id) = paragraph(anchor.start_segment_id.as_deref())? {
+            place.segment_id = Some(id);
+            return Ok(Some(place));
+        }
+        // Else its page or section.
+        let page = anchor.page.or(anchor.page_number);
+        let found: Option<String> = match (page, section_path) {
+            (Some(page), _) => conn
+                .query_row(
+                    "SELECT id FROM source_segments WHERE source_id = ?1 AND deleted_at IS NULL
+                     AND page_number >= ?2 ORDER BY position LIMIT 1",
+                    params![source_id, page],
+                    |r| r.get(0),
+                )
+                .optional()?,
+            (None, Some(path)) => conn
+                .query_row(
+                    "SELECT id FROM source_segments WHERE source_id = ?1 AND deleted_at IS NULL
+                     AND section_path = ?2 ORDER BY position LIMIT 1",
+                    params![source_id, path],
+                    |r| r.get(0),
+                )
+                .optional()?,
+            (None, None) => None,
+        };
+        place.segment_id = found;
+        return Ok(Some(place));
+    }
+    // A citation from before v0.15: the paragraph, as always.
+    place.segment_id = paragraph(segment_id)?;
+    Ok(Some(place))
 }

@@ -189,6 +189,45 @@ export interface FindingCitation {
   author: string | null;
   locator: string | null;
   removed: boolean;
+  /** What the source said: the cited words, as they were (v0.15). */
+  quote: string | null;
+  /** The section path at the time, e.g. "Chapter 3 › Grace" (v0.15). */
+  section: string | null;
+  /** The source mark it was made from, if any (v0.15). */
+  annotationId: string | null;
+}
+
+/**
+ * What a finding cites in a source (v0.15): selected words (both ends and the
+ * quote, paragraphs joined with "\n"), a place, or one of the person's marks.
+ */
+export interface CitedPassage {
+  sourceId?: string;
+  start?: TextPoint;
+  end?: TextPoint;
+  quote?: string;
+  place?: { segmentId?: string; page?: number; fraction?: number };
+  annotationId?: string;
+}
+
+/** "Add to Study" (v0.15). */
+export interface CreateFindingFromSource extends CitedPassage {
+  studyId: string;
+  findingType: string;
+  /** What the person wrote; may be empty when there are cited words. */
+  content?: string;
+  sectionId?: string;
+}
+
+/** Where a citation is in its source now, to open it there (v0.15). */
+export interface CitationPlace {
+  sourceId: string;
+  segmentId: string | null;
+  /** The words, when they were found exactly. */
+  words: { startSegmentId: string; startOffset: number; endSegmentId: string; endOffset: number } | null;
+  /** A page of an Original PDF, and how far down it. */
+  page: number | null;
+  fraction: number | null;
 }
 
 /**

@@ -59,7 +59,10 @@ fn a_v5_database_is_backed_up_then_gains_source_annotations() {
     assert_eq!(migrations::current_version(&copy).unwrap(), 5);
 
     db.with_conn(|conn| {
-        assert_eq!(migrations::current_version(conn)?, 6);
+        assert_eq!(
+            migrations::current_version(conn)?,
+            MIGRATIONS.last().unwrap().version
+        );
         // Scripture annotations are as they were.
         let verse = annotations::list(conn, &ScriptureRef::from_canonical("JHN.15.4")?)?;
         assert_eq!(verse.len(), 1);

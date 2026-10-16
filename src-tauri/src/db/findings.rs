@@ -7,6 +7,7 @@ use std::collections::HashMap;
 
 use rusqlite::{params, Connection, OptionalExtension, Row};
 
+use crate::db::source_annotations::{self, Cited};
 use crate::db::study_passages::{columns_for, reference_from_columns};
 use crate::db::{new_id, now, sections, studies};
 use crate::domain::{
@@ -14,7 +15,8 @@ use crate::domain::{
     SetFindingTags, UpdateFinding,
 };
 use crate::error::{AppError, AppResult, UserMessage};
-use crate::library::{AddFindingSource, FindingCitation};
+use crate::library::annotations::CitationAnchor;
+use crate::library::{AddFindingSource, CitationPlace, CreateFindingFromSource, FindingCitation};
 use crate::scripture::reference::ScriptureRef;
 
 const CONTENT_MAX_CHARS: usize = 50_000;
@@ -89,7 +91,8 @@ fn citations_for(conn: &Connection, finding_id: &str) -> AppResult<Vec<FindingCi
     let mut stmt = conn.prepare(
         "SELECT c.id, c.finding_id, c.source_id, c.source_segment_id,
                 COALESCE(s.title, c.cited_title, 'Removed source'), COALESCE(s.author, c.cited_author),
-                c.locator, s.id IS NULL OR s.deleted_at IS NOT NULL
+                c.locator, s.id IS NULL OR s.deleted_at IS NOT NULL,
+                c.quote, c.cited_section, c.annotation_id
          FROM finding_sources c LEFT JOIN sources s ON s.id = c.source_id
          WHERE c.finding_id = ?1 AND c.deleted_at IS NULL
          ORDER BY c.created_at, c.rowid",
@@ -104,43 +107,247 @@ fn citations_for(conn: &Connection, finding_id: &str) -> AppResult<Vec<FindingCi
             author: r.get(5)?,
             locator: r.get(6)?,
             removed: r.get(7)?,
+            quote: r.get(8)?,
+            section: r.get(9)?,
+            annotation_id: r.get(10)?,
         })
     })?;
     Ok(rows.collect::<Result<_, _>>()?)
 }
 
-/// Cites a library segment from a finding. Stores the source, the segment
-/// and a snapshot of title, author and location — never the text itself.
-/// Citing the same segment twice returns the finding unchanged.
-pub fn add_source(conn: &Connection, input: &AddFindingSource) -> AppResult<Finding> {
-    let finding = get(conn, &input.finding_id)?;
-    let (source_id, segment) = crate::db::library::segment(conn, &input.segment_id)?;
-    let source = crate::db::library::get(conn, &source_id)?;
-    if finding
-        .sources
-        .iter()
-        .any(|c| c.segment_id.as_deref() == Some(input.segment_id.as_str()))
-    {
-        return Ok(finding);
+/// What one citation row holds: a snapshot of what was cited, and where.
+struct NewCitation<'a> {
+    source_id: &'a str,
+    segment_id: Option<&'a str>,
+    locator: Option<&'a str>,
+    title: &'a str,
+    author: Option<&'a str>,
+    quote: Option<&'a str>,
+    section: Option<&'a str>,
+    anchor: Option<&'a CitationAnchor>,
+    annotation_id: Option<&'a str>,
+}
+
+/// Whether the finding already cites exactly this: the same source, the same
+/// place in it and the same words. The same words elsewhere (another place in
+/// the paragraph or the source) are another citation. A whole paragraph cited
+/// without words (the v0.4 "Add source") is the same as before: one per
+/// paragraph.
+fn already_cites(conn: &Connection, finding_id: &str, new: &NewCitation) -> AppResult<bool> {
+    let mut stmt = conn.prepare(
+        "SELECT source_segment_id, quote, anchor, annotation_id FROM finding_sources
+         WHERE finding_id = ?1 AND source_id = ?2 AND deleted_at IS NULL",
+    )?;
+    let rows = stmt.query_map(params![finding_id, new.source_id], |r| {
+        Ok((
+            r.get::<_, Option<String>>(0)?,
+            r.get::<_, Option<String>>(1)?,
+            r.get::<_, Option<String>>(2)?,
+            r.get::<_, Option<String>>(3)?,
+        ))
+    })?;
+    for row in rows {
+        let (segment, quote, anchor, annotation) = row?;
+        if quote.as_deref() != new.quote {
+            continue;
+        }
+        let anchor = CitationAnchor::read(anchor.as_deref());
+        let same = match (anchor.as_ref(), new.anchor) {
+            // A whole paragraph, as before v0.15.
+            (None, None) => segment.as_deref() == new.segment_id,
+            (Some(old), Some(new_anchor)) => {
+                let placed = new_anchor.start_segment_id.is_some() || new_anchor.page.is_some();
+                old.same_place(new_anchor)
+                    // Words that can no longer be placed are one citation only if from the same mark.
+                    && (placed || annotation.as_deref() == new.annotation_id)
+            }
+            _ => false,
+        };
+        if same {
+            return Ok(true);
+        }
     }
-    let now = now();
+    Ok(false)
+}
+
+fn insert_citation(
+    conn: &Connection,
+    finding_id: &str,
+    new: &NewCitation,
+    now: &str,
+) -> AppResult<()> {
     conn.execute(
         "INSERT INTO finding_sources (id, finding_id, source_id, source_segment_id, locator,
-             cited_title, cited_author, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?8)",
+             cited_title, cited_author, quote, cited_section, anchor, annotation_id,
+             created_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?12)",
         params![
             new_id(),
-            finding.id,
-            source.id,
-            segment.id,
-            segment.locator,
-            source.title,
-            source.author,
+            finding_id,
+            new.source_id,
+            new.segment_id,
+            new.locator,
+            new.title,
+            new.author,
+            new.quote,
+            new.section,
+            new.anchor.map(CitationAnchor::to_stored),
+            new.annotation_id,
             now
         ],
     )?;
+    Ok(())
+}
+
+/// Adds a citation of what was cited to a finding, unless it already cites
+/// exactly that. The quote, location and title are snapshots: they stay as
+/// they were when the source is removed or its text changes.
+fn add_cited(conn: &Connection, finding: &Finding, cited: &Cited, now: &str) -> AppResult<bool> {
+    let source = crate::db::library::get(conn, &cited.source_id)?;
+    let new = NewCitation {
+        source_id: &cited.source_id,
+        segment_id: cited.segment_id.as_deref(),
+        locator: cited.locator.as_deref().filter(|l| !l.is_empty()),
+        title: &source.title,
+        author: source.author.as_deref(),
+        quote: cited.quote.as_deref(),
+        section: cited.section_path.as_deref().filter(|s| !s.is_empty()),
+        anchor: Some(&cited.anchor),
+        annotation_id: cited.annotation_id.as_deref(),
+    };
+    if already_cites(conn, &finding.id, &new)? {
+        return Ok(false);
+    }
+    insert_citation(conn, &finding.id, &new, now)?;
+    Ok(true)
+}
+
+/// Cites a library source from a finding: a whole paragraph (as since v0.4:
+/// the source, the segment and a snapshot of title, author and location), or
+/// (v0.15) selected words, a place or a source mark, with the quote and where
+/// it was. Citing exactly the same thing twice returns the finding unchanged.
+pub fn add_source(conn: &Connection, input: &AddFindingSource) -> AppResult<Finding> {
+    let finding = get(conn, &input.finding_id)?;
+    let now = now();
+    if let Some(segment_id) = input.segment_id.as_deref() {
+        let (source_id, segment) = crate::db::library::segment(conn, segment_id)?;
+        let source = crate::db::library::get(conn, &source_id)?;
+        let new = NewCitation {
+            source_id: &source.id,
+            segment_id: Some(&segment.id),
+            locator: Some(&segment.locator),
+            title: &source.title,
+            author: source.author.as_deref(),
+            quote: None,
+            section: segment.section_path.as_deref().filter(|s| !s.is_empty()),
+            anchor: None,
+            annotation_id: None,
+        };
+        if already_cites(conn, &finding.id, &new)? {
+            return Ok(finding);
+        }
+        insert_citation(conn, &finding.id, &new, &now)?;
+    } else {
+        let cited = source_annotations::cite(conn, &input.cited)?;
+        if !add_cited(conn, &finding, &cited, &now)? {
+            return Ok(finding);
+        }
+    }
     studies::touch(conn, &finding.study_id, &now)?;
     get(conn, &finding.id)
+}
+
+/// A new finding made from a source ("Add to Study", v0.15): the person's
+/// own words (or, when they wrote none, the cited words as the finding's
+/// text) and a citation with the quote, in one transaction. Nothing else in
+/// the study changes: no passages are added for references in the quote.
+pub fn create_from_source(
+    conn: &Connection,
+    input: &CreateFindingFromSource,
+) -> AppResult<Finding> {
+    studies::get(conn, &input.study_id)?;
+    let finding_type = FindingType::parse(&input.finding_type)?;
+    let section_id = input.section_id.as_deref().filter(|s| !s.is_empty());
+    if let Some(section) = section_id {
+        check_section(conn, &input.study_id, section)?;
+    }
+    let cited = source_annotations::cite(conn, &input.cited)?;
+    let written = input.content.as_deref().unwrap_or_default().trim();
+    let content = if written.is_empty() {
+        cited.quote.clone().ok_or_else(|| {
+            AppError::InvalidInput(UserMessage::new(
+                "findings.writeFirst",
+                "Write something to add first.",
+            ))
+        })?
+    } else {
+        written.to_string()
+    };
+    check_content(&content)?;
+    let position: i64 = conn.query_row(
+        "SELECT COALESCE(MAX(sort_order), -1) + 1 FROM findings WHERE study_id = ?1 AND deleted_at IS NULL",
+        [&input.study_id],
+        |r| r.get(0),
+    )?;
+    let id = new_id();
+    let now = now();
+    let tx = conn.unchecked_transaction()?;
+    tx.execute(
+        "INSERT INTO findings (id, study_id, section_id, kind, content, sort_order, created_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?7)",
+        params![id, input.study_id, section_id, finding_type.as_str(), content, position, now],
+    )?;
+    let finding = Finding {
+        id: id.clone(),
+        study_id: input.study_id.clone(),
+        section_id: section_id.map(str::to_string),
+        finding_type,
+        content,
+        sort_order: position,
+        parent_id: None,
+        passages: Vec::new(),
+        tags: Vec::new(),
+        sources: Vec::new(),
+        created_at: now.clone(),
+        updated_at: now.clone(),
+        revision: 1,
+    };
+    add_cited(&tx, &finding, &cited, &now)?;
+    studies::touch(&tx, &input.study_id, &now)?;
+    tx.commit()?;
+    get(conn, &id)
+}
+
+/// Where a citation is in its source now, to open it there (v0.15); None
+/// when the source has been removed.
+pub fn locate_source(conn: &Connection, citation_id: &str) -> AppResult<Option<CitationPlace>> {
+    let row = conn
+        .query_row(
+            "SELECT source_id, source_segment_id, quote, cited_section, anchor FROM finding_sources
+             WHERE id = ?1 AND deleted_at IS NULL",
+            [citation_id],
+            |r| {
+                Ok((
+                    r.get::<_, String>(0)?,
+                    r.get::<_, Option<String>>(1)?,
+                    r.get::<_, Option<String>>(2)?,
+                    r.get::<_, Option<String>>(3)?,
+                    r.get::<_, Option<String>>(4)?,
+                ))
+            },
+        )
+        .optional()?
+        .ok_or_else(|| AppError::not_found("citation", citation_id))?;
+    let (source_id, segment_id, quote, section, anchor) = row;
+    let anchor = CitationAnchor::read(anchor.as_deref());
+    source_annotations::locate_citation(
+        conn,
+        &source_id,
+        segment_id.as_deref(),
+        quote.as_deref(),
+        section.as_deref(),
+        anchor.as_ref(),
+    )
 }
 
 /// Removes a citation (soft delete).
@@ -475,21 +682,23 @@ pub(crate) fn copy_all(
                 params![id, tag, now],
             )?;
         }
-        for citation in &finding.sources {
+        // Every citation, with its quote, place and snapshots, as it is.
+        let citation_ids: Vec<String> = conn
+            .prepare(
+                "SELECT id FROM finding_sources WHERE finding_id = ?1 AND deleted_at IS NULL
+                 ORDER BY created_at, rowid",
+            )?
+            .query_map([&finding.id], |r| r.get(0))?
+            .collect::<Result<_, _>>()?;
+        for citation in citation_ids {
             conn.execute(
                 "INSERT INTO finding_sources (id, finding_id, source_id, source_segment_id, locator,
-                     cited_title, cited_author, created_at, updated_at)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?8)",
-                params![
-                    new_id(),
-                    id,
-                    citation.source_id,
-                    citation.segment_id,
-                    citation.locator,
-                    citation.title,
-                    citation.author,
-                    now
-                ],
+                     cited_title, cited_author, quote, cited_section, anchor, annotation_id,
+                     created_at, updated_at)
+                 SELECT ?1, ?2, source_id, source_segment_id, locator, cited_title, cited_author,
+                        quote, cited_section, anchor, annotation_id, ?3, ?3
+                 FROM finding_sources WHERE id = ?4",
+                params![new_id(), id, now, citation],
             )?;
         }
     }

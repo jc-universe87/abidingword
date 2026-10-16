@@ -96,7 +96,8 @@
     "tooLong": "이 기록은 너무 길어서 저장할 수 없습니다.",
     "otherStudySection": "그 부분은 다른 성경공부에 속해 있습니다.",
     "tooManyTags": "기록 하나에는 태그를 최대 {{max}}개까지 붙일 수 있습니다.",
-    "tagTooLong": "태그 “{{tag}}”이(가) 너무 깁니다."
+    "tagTooLong": "태그 “{{tag}}”이(가) 너무 깁니다.",
+    "writeFirst": "먼저 추가할 내용을 적어 주세요."
   },
   "annotations": {
     "tooLong": "이 메모는 너무 길어서 저장할 수 없습니다.",
@@ -117,6 +118,7 @@
     "placeGone": "이 위치는 더 이상 자료에 없습니다.",
     "noPlace": "먼저 자료에서 위치를 선택하세요.",
     "bookmarkPlace": "책갈피는 낱말이 아니라 위치를 표시합니다.",
-    "wordsOnlyNotes": "메모에만 글을 쓸 수 있습니다."
+    "wordsOnlyNotes": "메모에만 글을 쓸 수 있습니다.",
+    "bookmarkNotStudy": "책갈피는 위치만 표시하므로 성경공부에 추가할 내용이 없습니다."
   }
 }

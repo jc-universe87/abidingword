@@ -48,4 +48,5 @@ They are kept as written at the time.
 | [reference-language-packs.md](reference-language-packs.md) | How reference languages are built, and how to add one. |
 | [reference-context-v0.13.1.md](reference-context-v0.13.1.md) | v0.13.1: references without a book name, folding contents, EPUB text repair. |
 | [library-reading-v0.13.md](library-reading-v0.13.md) | v0.13: find in a book, generated contents, and clickable Bible references on PDF pages. |
-| [source-annotations-v0.14.md](source-annotations-v0.14.md) | v0.14 (in progress): highlights, notes and bookmarks in your own books, on their pages too, and Marks for the Bible and your books together. |
+| [source-annotations-v0.14.md](source-annotations-v0.14.md) | v0.14: highlights, notes and bookmarks in your own books, on their pages too, and Marks for the Bible and your books together. |
+| [sources-to-study-v0.15.md](sources-to-study-v0.15.md) | v0.15 (in progress): bring what you read into your study with its source; copy a quotation with its citation. |

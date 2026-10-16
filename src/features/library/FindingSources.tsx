@@ -1,13 +1,15 @@
 import { useId, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { BookOpen, X } from "lucide-react";
+import { BookOpen, Copy, X } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { highlighted } from "@/lib/highlight";
 import type { LibraryHit } from "@/types/library";
 import type { Finding } from "@/types/studies";
-import { citationText } from "./labels";
+import { copyText } from "@/lib/clipboard";
+import type { FindingCitation } from "@/types/library";
+import { citationText, quotationWithCitation } from "./labels";
 import { useLibraryNav } from "./LibraryNav";
 
 interface FindingSourcesProps {
@@ -30,6 +32,32 @@ export function FindingSources({ finding, canAdd = true, onChanged, onQuote }: F
   const [picking, setPicking] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [notice, setNotice] = useState<string | null>(null);
+
+  // Opens the source where the citation is now: its words if they are found exactly (never a guess),
+  // else its paragraph, page or section. A removed source is not offered.
+  const open = async (c: FindingCitation) => {
+    setError(null);
+    try {
+      const place = await api.findingSourceLocate(c.id);
+      if (!place) {
+        setError(t("library.citations.openFailed"));
+        return;
+      }
+      // A place on an Original PDF page opens on that page; words and paragraphs open where they are.
+      if (place.page !== null && !place.words) openSource(place.sourceId, place.segmentId ?? undefined, { mode: "original", page: place.page });
+      else if (place.segmentId) openSource(place.sourceId, place.segmentId, undefined, place.words ?? undefined);
+      else openSource(place.sourceId);
+    } catch (e) {
+      setError(toApiError(e).message);
+    }
+  };
+  const copy = async (c: FindingCitation) => {
+    if (!c.quote) return;
+    const done = await copyText(quotationWithCitation(t, c.quote, c));
+    setNotice(done ? t("library.copy.done") : t("library.copy.failed"));
+  };
+
   const remove = async (citationId: string) => {
     setError(null);
     try {
@@ -41,8 +69,19 @@ export function FindingSources({ finding, canAdd = true, onChanged, onQuote }: F
   };
 
   if (finding.sources.length === 0 && !canAdd && !picking) return null;
+  // What the source said, quietly, unless the finding's own text is just those words.
+  const quotes = finding.sources.filter((c) => c.quote && c.quote.trim() !== finding.content.trim());
   return (
     <div className="flex flex-col gap-2 text-[0.875rem]">
+      {quotes.map((c) => (
+        <blockquote
+          key={`q${c.id}`}
+          aria-label={t("library.citations.quoteLabel")}
+          className="reading m-0 whitespace-pre-line break-words border-l-2 border-border pl-3 text-[0.9375rem] italic text-text-muted"
+        >
+          {t("library.copy.quoted", { quote: c.quote })}
+        </blockquote>
+      ))}
       <div className="flex flex-wrap items-center gap-2">
         {finding.sources.map((c) => (
           <span key={c.id} className="inline-flex max-w-full items-center rounded-aw border border-border">
@@ -54,12 +93,23 @@ export function FindingSources({ finding, canAdd = true, onChanged, onQuote }: F
             ) : (
               <button
                 type="button"
-                onClick={() => openSource(c.sourceId, c.segmentId ?? undefined)}
+                onClick={() => void open(c)}
                 className="min-h-8 truncate px-2 text-left font-medium text-link hover:bg-bg-secondary"
                 title={t("library.citations.openTitle")}
               >
                 <BookOpen className="mr-1 inline size-3.5" aria-hidden="true" />
                 {citationText(t, c)}
+              </button>
+            )}
+            {c.quote && (
+              <button
+                type="button"
+                onClick={() => void copy(c)}
+                aria-label={t("library.copy.action")}
+                title={t("library.copy.action")}
+                className="inline-flex size-11 shrink-0 items-center justify-center border-l border-border text-text-muted hover:bg-bg-secondary"
+              >
+                <Copy className="size-3.5" aria-hidden="true" />
               </button>
             )}
             <button
@@ -83,6 +133,7 @@ export function FindingSources({ finding, canAdd = true, onChanged, onQuote }: F
         )}
       </div>
       {error && <p role="alert" className="m-0 text-danger">{error}</p>}
+      <p aria-live="polite" className={notice ? "m-0 text-text-muted" : "sr-only"}>{notice ?? ""}</p>
       {picking && (
         <SourcePicker
           finding={finding}

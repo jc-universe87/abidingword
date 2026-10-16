@@ -1,3 +1,4 @@
+import { StudyFocusProvider } from "@/features/studies/StudyFocus";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { localizeError } from "@/i18n/messages";
@@ -77,7 +78,9 @@ function Workspace({ info, updater }: { info: AppInfo; updater: Updater }) {
         translations={loaded.data.translations}
       >
         <UpdatesProvider updater={updater} enabled={info.updatesEnabled} version={info.version}>
-          <Shell info={info} workspace={loaded.data.workspace} />
+          <StudyFocusProvider>
+            <Shell info={info} workspace={loaded.data.workspace} />
+          </StudyFocusProvider>
         </UpdatesProvider>
       </ScriptureProvider>
     </ThemeProvider>

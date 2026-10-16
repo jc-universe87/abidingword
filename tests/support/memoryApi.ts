@@ -43,6 +43,9 @@ import type {
   SourceSummary,
   SourceAnnotation,
   AnnotationPoint,
+  CitationPlace,
+  CreateFindingFromSource,
+  TextPoint,
 } from "@/types/library";
 import type {
   Finding,
@@ -565,8 +568,10 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
   const citationFor = (findingId: string, segmentId: string): FindingCitation => {
     const segment = find(library.segments, segmentId, "passage");
     const source = liveSource(segment.sourceId);
-    return { id: id(), findingId, sourceId: source.id, segmentId, title: source.title, author: source.author, locator: segment.locator, removed: false };
+    return { id: id(), findingId, sourceId: source.id, segmentId, title: source.title, author: source.author, locator: segment.locator, removed: false, quote: null, section: segment.sectionPath, annotationId: null };
   };
+  // Where each v0.15 citation was (the core keeps this as its anchor), for opening it again.
+  const citationPlaces = new Map<string, { words: CitationPlace["words"]; segmentId: string | null; page: number | null; fraction: number | null }>();
 
   // Mirrors db::library::passage_sources and library/relevance.rs: rank = (class, origin, fit,
   // closeness); a mention's class reads the headings of the section it lies in; links that share no
@@ -1520,6 +1525,93 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const finding = find(state.findings, findingId, "finding");
       if (!finding.sources.some((c) => c.segmentId === segmentId)) finding.sources.push(citationFor(findingId, segmentId));
       return { ...finding };
+    },
+    // As the core: the words are checked against the stored text (paragraphs joined with "\n"); a
+    // mark gives its own words or place (a bookmark has nothing to add); nothing written takes the quote.
+    findingCreateFromSource: async (input) => {
+      find(state.studies, input.studyId, "study");
+      const changed = () => new ApiError("invalidInput", "The selected words do not match the text of this source.");
+      let sourceId = input.sourceId;
+      let words: { start: TextPoint; end: TextPoint; quote: string } | null = null;
+      let place: CreateFindingFromSource["place"] | null = null;
+      let fromMark: (SourceAnnotation & { deleted: boolean }) | undefined;
+      if (input.annotationId) {
+        fromMark = library.annotations.find((a) => a.id === input.annotationId && !a.deleted);
+        if (!fromMark) throw new ApiError("notFound", "This mark could not be found.");
+        if (fromMark.kind === "bookmark") throw new ApiError("invalidInput", "A bookmark marks a place; it has nothing to add to a study.");
+        sourceId = fromMark.sourceId;
+        if (fromMark.quote !== null && fromMark.start && fromMark.end) {
+          words = { start: { segmentId: fromMark.start.segmentId, offset: fromMark.start.offset! }, end: { segmentId: fromMark.end.segmentId, offset: fromMark.end.offset! }, quote: fromMark.quote };
+        } else if (fromMark.quote === null) {
+          place = { segmentId: fromMark.start?.segmentId, page: fromMark.start ? undefined : (fromMark.pageNumber ?? undefined), fraction: fromMark.fraction ?? undefined };
+        }
+      } else if (input.start && input.end && input.quote !== undefined) {
+        words = { start: input.start, end: input.end, quote: input.quote };
+      } else {
+        place = input.place ?? null;
+      }
+      const source = liveSource(sourceId ?? "");
+      const segmentOf = (segmentId: string | undefined) => library.segments.find((x) => x.id === segmentId && x.sourceId === source.id);
+      let quote: string | null = fromMark?.quote ?? null;
+      let first: SourceSegment | undefined;
+      let placeOut: { words: CitationPlace["words"]; segmentId: string | null; page: number | null; fraction: number | null } = { words: null, segmentId: null, page: null, fraction: null };
+      let locator: string | null = fromMark?.locator ?? null;
+      let section: string | null = fromMark?.sectionPath ?? null;
+      if (words) {
+        first = segmentOf(words.start.segmentId);
+        const last = segmentOf(words.end.segmentId);
+        if (!first || !last || last.position < first.position) throw changed();
+        const line = library.segments.filter((x) => x.sourceId === source.id && x.position >= first!.position && x.position <= last.position).sort((a, b) => a.position - b.position);
+        const joined = line.map((x) => x.text).join("\n");
+        if (joined.slice(words.start.offset, joined.length - (last.text.length - words.end.offset)) !== words.quote) throw changed();
+        quote = words.quote;
+        placeOut = { words: { startSegmentId: first.id, startOffset: words.start.offset, endSegmentId: last.id, endOffset: words.end.offset }, segmentId: first.id, page: null, fraction: null };
+        locator = first.locator;
+        section = first.sectionPath;
+      } else if (place?.segmentId) {
+        first = segmentOf(place.segmentId);
+        if (!first) throw new ApiError("invalidInput", "This place is no longer in the source.");
+        placeOut = { words: null, segmentId: first.id, page: null, fraction: null };
+        locator = first.locator;
+        section = first.sectionPath;
+      } else if (place?.page !== undefined) {
+        placeOut = { words: null, segmentId: null, page: place.page, fraction: place.fraction ?? null };
+        locator = `p. ${place.page}`;
+      } else if (quote === null) {
+        throw new ApiError("invalidInput", "Select some words of the source first.");
+      }
+      const written = (input.content ?? "").trim();
+      const content = written || quote;
+      if (!content) throw new ApiError("invalidInput", "Write something to add first.");
+      if (input.sectionId) {
+        const section = state.sections.find((x) => x.id === input.sectionId);
+        if (!section || section.studyId !== input.studyId) throw new ApiError("invalidInput", "That section belongs to another study.");
+      }
+      const t = now();
+      const finding: Finding = {
+        id: id(), studyId: input.studyId, sectionId: input.sectionId || null, findingType: input.findingType as Finding["findingType"],
+        content, sortOrder: state.findings.filter((f) => f.studyId === input.studyId).length,
+        parentId: null, passages: [], tags: [], sources: [], createdAt: t, updatedAt: t, revision: 1,
+      };
+      const citation: FindingCitation = {
+        id: id(), findingId: finding.id, sourceId: source.id, segmentId: placeOut.segmentId, title: source.title, author: source.author,
+        locator: locator || null, removed: false, quote, section: section || null, annotationId: input.annotationId ?? null,
+      };
+      citationPlaces.set(citation.id, placeOut);
+      finding.sources.push(citation);
+      state.findings.push(finding);
+      touch(input.studyId);
+      return { ...finding, sources: [...finding.sources] };
+    },
+    findingSourceLocate: async (citationId) => {
+      const finding = state.findings.find((f) => f.sources.some((c) => c.id === citationId));
+      const citation = finding?.sources.find((c) => c.id === citationId);
+      if (!citation) throw new ApiError("notFound", "This citation could not be found.");
+      if (citation.removed || library.sources.find((x) => x.id === citation.sourceId)?.deleted) return null;
+      const known = citationPlaces.get(citationId);
+      const live = (segmentId: string | null) => (segmentId && library.segments.some((x) => x.id === segmentId) ? segmentId : null);
+      if (!known) return { sourceId: citation.sourceId, segmentId: live(citation.segmentId), words: null, page: null, fraction: null };
+      return { sourceId: citation.sourceId, segmentId: live(known.segmentId), words: live(known.segmentId) ? known.words : null, page: known.page, fraction: known.fraction };
     },
     findingSourceRemove: async (citationId) => {
       const finding = state.findings.find((f) => f.sources.some((c) => c.id === citationId));

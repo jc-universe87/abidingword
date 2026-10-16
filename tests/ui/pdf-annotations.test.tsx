@@ -160,3 +160,28 @@ describe("marks on the Original PDF", () => {
     expect(live(api)[0]).toMatchObject({ kind: "note", content: "Read this page again.", pageNumber: 1, quote: null });
   });
 });
+
+describe("from the Original PDF to a Study", () => {
+  it("adds words selected on the page to a Study, with the page they are on", async () => {
+    const { api, engine } = setup();
+    const project = await api.projectCreate({ workspaceId: api.state.workspace.id, title: "Collection" });
+    const made = await api.studyCreate({ projectId: project.id, title: "Pruning" });
+    const { user } = await renderApp(api, { pdfEngine: engine });
+    await openOriginal(user);
+    // Across the broken word, as on paper.
+    const first = "Abiding is the heart of fruit-";
+    await selectOnPage(1, [1, first.indexOf("heart")], [2, "fulness".length]);
+    const bar = await screen.findByRole("group", { name: "Mark the selected text" });
+    await user.click(within(bar).getByRole("button", { name: "Add to Study" }));
+    const panel = await screen.findByRole("region", { name: /^Add to Study/ });
+    expect(within(panel).getByText("heart of fruitfulness")).toBeInTheDocument();
+    expect(within(panel).getByText(/— Fruit and Pruning, p\. 1/)).toBeInTheDocument();
+    await user.click(within(panel).getByRole("button", { name: "Add to Study" }));
+    await waitFor(() => expect(api.state.findings.filter((f) => f.studyId === made.study.id)).toHaveLength(1));
+    const finding = api.state.findings.find((f) => f.studyId === made.study.id)!;
+    expect(finding.sources[0]).toMatchObject({ quote: "heart of fruitfulness", locator: "p. 1" });
+    // The page is unchanged: no mark was made.
+    expect(live(api)).toHaveLength(0);
+    expect(await screen.findByText("Added to Pruning · Whole study.")).toBeInTheDocument();
+  });
+});

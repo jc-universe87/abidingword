@@ -619,5 +619,18 @@
     "title": "Estudios",
     "organise": "Organizar en proyectos",
     "back": "Volver a Estudios"
+  },
+  "fromSource": {
+    "label": "Añadir al estudio",
+    "title": "Añadir al estudio: {{study}}",
+    "chooseStudy": "Estudio",
+    "otherStudy": "Otro estudio…",
+    "noStudies": "Todavía no hay ningún estudio. Empiece uno en el panel Estudio y luego añada esto.",
+    "yourNote": "Su apunte (opcional)",
+    "placeholder": "¿Qué saca de esto?",
+    "placeholderRequired": "Escriba lo que saca de este lugar…",
+    "save": "Añadir al estudio",
+    "added": "Añadido a {{study}} · {{part}}.",
+    "loading": "Cargando sus estudios…"
   }
 }

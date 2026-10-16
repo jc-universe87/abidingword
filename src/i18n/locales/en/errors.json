@@ -99,7 +99,8 @@
     "tooLong": "This finding is too long to save.",
     "otherStudySection": "That section belongs to another study.",
     "tooManyTags": "A finding can have at most {{max}} tags.",
-    "tagTooLong": "The tag “{{tag}}” is too long."
+    "tagTooLong": "The tag “{{tag}}” is too long.",
+    "writeFirst": "Write something to add first."
   },
   "annotations": {
     "tooLong": "This note is too long to save.",
@@ -120,6 +121,7 @@
     "placeGone": "This place is no longer in the source.",
     "noPlace": "Choose a place in the source first.",
     "bookmarkPlace": "A bookmark marks a place, not words.",
-    "wordsOnlyNotes": "Only notes have words of their own."
+    "wordsOnlyNotes": "Only notes have words of their own.",
+    "bookmarkNotStudy": "A bookmark marks a place; it has nothing to add to a study."
   }
 }

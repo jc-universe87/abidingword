@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import { Bookmark, Highlighter, Layers, StickyNote, X } from "lucide-react";
+import { Bookmark, BookPlus, Highlighter, Layers, StickyNote, X } from "lucide-react";
+import { ActionMenu } from "@/design-system/ActionMenu";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
@@ -47,7 +48,15 @@ export function MarksMarker({ marks, open, controls, onToggle }: { marks: Source
   );
 }
 
-interface InspectorProps {
+/** What can be done with a mark besides editing it (v0.15). */
+export interface MarkActions {
+  /** "Add to Study" for a highlight or a note; told the button, so focus can come back to it. */
+  onAddToStudy?: (mark: SourceAnnotation, from: HTMLElement | null) => void;
+  /** "Copy quotation with citation" for marked words. */
+  onCopy?: (mark: SourceAnnotation) => void;
+}
+
+interface InspectorProps extends MarkActions {
   id: string;
   marks: SourceAnnotation[];
   onChanged: () => void;
@@ -59,7 +68,7 @@ interface InspectorProps {
  * note (read, edit, delete) and bookmark (remove). Escape closes the
  * innermost open thing first, then the panel.
  */
-export function MarksInspector({ id, marks, onChanged, onClose }: InspectorProps) {
+export function MarksInspector({ id, marks, onChanged, onClose, onAddToStudy, onCopy }: InspectorProps) {
   const { t } = useTranslation();
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus({ preventScroll: true }), []);
@@ -87,7 +96,7 @@ export function MarksInspector({ id, marks, onChanged, onClose }: InspectorProps
       <ul className="m-0 flex list-none flex-col gap-3 p-0">
         {marks.map((mark) => (
           <li key={mark.id}>
-            <MarkItem mark={mark} onChanged={onChanged} />
+            <MarkItem mark={mark} onChanged={onChanged} onAddToStudy={onAddToStudy} onCopy={onCopy} />
           </li>
         ))}
       </ul>
@@ -95,7 +104,7 @@ export function MarksInspector({ id, marks, onChanged, onClose }: InspectorProps
   );
 }
 
-function MarkItem({ mark, onChanged }: { mark: SourceAnnotation; onChanged: () => void }) {
+function MarkItem({ mark, onChanged, onAddToStudy, onCopy }: { mark: SourceAnnotation; onChanged: () => void } & MarkActions) {
   const { t } = useTranslation();
   const api = useApi();
   const [mode, setMode] = useState<"view" | "colour" | "edit">("view");
@@ -174,6 +183,11 @@ function MarkItem({ mark, onChanged }: { mark: SourceAnnotation; onChanged: () =
       )}
       {mode === "view" && (
         <div className="flex flex-wrap gap-2">
+          {mark.kind !== "bookmark" && onAddToStudy && (
+            <Button onClick={(e) => onAddToStudy(mark, e.currentTarget)}>
+              <BookPlus className="size-4" aria-hidden="true" /> {t("library.toStudy.add")}
+            </Button>
+          )}
           {mark.kind === "highlight" && (
             <>
               <Button aria-expanded={false} onClick={() => setMode("colour")}>
@@ -197,6 +211,7 @@ function MarkItem({ mark, onChanged }: { mark: SourceAnnotation; onChanged: () =
               {t("library.marks.removeBookmark")}
             </Button>
           )}
+          {mark.quote !== null && onCopy && <ActionMenu label={t("library.more")} actions={[{ label: t("library.copy.action"), onSelect: () => onCopy(mark) }]} />}
         </div>
       )}
       {error && (

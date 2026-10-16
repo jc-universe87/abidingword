@@ -126,7 +126,10 @@
     "replaceQuote": "이 인용의 내용도 출처 구절로 바꾸기",
     "useQuote": "출처 구절을 이 인용의 내용으로도 사용하기",
     "listLabel": "인용할 구절",
-    "cite": "{{citation}} 인용"
+    "cite": "{{citation}} 인용",
+    "open": "자료 열기",
+    "quoteLabel": "자료에서 인용",
+    "openFailed": "이 자료를 열 수 없습니다."
   },
   "original": {
     "modesLabel": "보기",
@@ -237,5 +240,15 @@
     "panels": "목차 또는 표시",
     "notePage": "이 쪽에 대한 메모",
     "cannotPlace": "이 낱말은 여기에서 정확히 표시할 수 없습니다. ‘읽기’에서 선택하여 표시하세요."
+  },
+  "copy": {
+    "quoted": "“{{quote}}”",
+    "action": "출처와 함께 인용 복사",
+    "done": "출처와 함께 인용을 복사했습니다.",
+    "failed": "인용을 복사하지 못했습니다."
+  },
+  "more": "더 보기",
+  "toStudy": {
+    "add": "성경공부에 추가"
   }
 }

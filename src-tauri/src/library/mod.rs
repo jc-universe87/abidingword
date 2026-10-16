@@ -357,11 +357,74 @@ pub struct FindingCitation {
     pub locator: Option<String>,
     /// The source was removed; the citation remains as a record.
     pub removed: bool,
+    /// What the source said: the cited words, as they were (v0.15).
+    pub quote: Option<String>,
+    /// The section path at the time, e.g. "Chapter 3 › Grace" (v0.15).
+    pub section: Option<String>,
+    /// The source mark it was made from, if any (a weak link; v0.15).
+    pub annotation_id: Option<String>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
+/// Cites a library source from an existing finding: a whole paragraph (as
+/// since v0.4), or (v0.15) selected words or a place, like a new finding
+/// from a source.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
 pub struct AddFindingSource {
     pub finding_id: String,
-    pub segment_id: String,
+    /// A whole paragraph.
+    pub segment_id: Option<String>,
+    /// Or what is cited, as for a new finding.
+    #[serde(flatten)]
+    pub cited: CitedPassage,
+}
+
+/// What a finding cites in a source (v0.15): selected words (both ends and
+/// the quote, segments joined with "\n"), a place (a paragraph, or a page of
+/// an Original PDF), or a source mark, which gives its own words or place.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct CitedPassage {
+    pub source_id: Option<String>,
+    pub start: Option<annotations::TextPoint>,
+    pub end: Option<annotations::TextPoint>,
+    pub quote: Option<String>,
+    pub place: Option<annotations::PlaceInput>,
+    pub annotation_id: Option<String>,
+}
+
+/// A new finding made from a source (v0.15 "Add to Study").
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct CreateFindingFromSource {
+    pub study_id: String,
+    pub finding_type: String,
+    /// What the person wrote; may be empty when there are cited words.
+    pub content: Option<String>,
+    pub section_id: Option<String>,
+    #[serde(flatten)]
+    pub cited: CitedPassage,
+}
+
+/// Where a citation is in its source now, to open it there (v0.15).
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CitationPlace {
+    pub source_id: String,
+    /// The paragraph to open at (where the words begin), if known.
+    pub segment_id: Option<String>,
+    /// The words, when they were found exactly: both ends in the stored text.
+    pub words: Option<CitationWords>,
+    /// A page of an Original PDF (a place with no paragraph), and how far down it.
+    pub page: Option<i64>,
+    pub fraction: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CitationWords {
+    pub start_segment_id: String,
+    pub start_offset: u32,
+    pub end_segment_id: String,
+    pub end_offset: u32,
 }
