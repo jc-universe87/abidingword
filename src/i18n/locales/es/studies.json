@@ -625,18 +625,18 @@
     "title": "Añadir al estudio: {{study}}",
     "chooseStudy": "Estudio",
     "otherStudy": "Otro estudio…",
-    "noStudies": "Todavía no hay ningún estudio. Empiece uno en el panel Estudio y luego añada esto.",
-    "yourNote": "Su apunte (opcional)",
-    "placeholder": "¿Qué saca de esto?",
-    "placeholderRequired": "Escriba lo que saca de este lugar…",
+    "noStudies": "Todavía no hay ningún estudio. Empieza uno en el panel Estudio y luego añade esto.",
+    "yourNote": "Tu apunte (opcional)",
+    "placeholder": "¿Qué sacas de esto?",
+    "placeholderRequired": "Escribe lo que sacas de este lugar…",
     "save": "Añadir al estudio",
     "added": "Añadido a {{study}} · {{part}}.",
-    "loading": "Cargando sus estudios…"
+    "loading": "Cargando tus estudios…"
   },
   "view": {
     "label": "Mostrar",
-    "study": "Estudio",
-    "teaching": "Enseñanza"
+    "study": "Estudio bíblico",
+    "teaching": "Enseñanza bíblica"
   },
   "teaching": {
     "loading": "Abriendo la enseñanza…",
@@ -644,7 +644,7 @@
     "another": "Preparar otra enseñanza",
     "empty": {
       "title": "Preparar una enseñanza a partir de este estudio",
-      "text": "Un sermón, un estudio en grupo o una lección, escritos por usted. Puede usar lo que encontró en este estudio: sus hallazgos y pasajes siguen en su sitio y aquí solo se usan. No se rellena nada por usted, y cada parte puede quedar vacía."
+      "text": "Un sermón, un estudio en grupo o una lección, escritos por ti. Puedes usar lo que encontraste en este estudio: tus apuntes y pasajes siguen en su sitio y aquí solo se usan. No se rellena nada por ti, y cada parte puede quedar vacía."
     },
     "kindLabel": "Tipo de enseñanza",
     "kindNone": "Sin indicar",
@@ -660,52 +660,41 @@
     "titleLabel": "Título",
     "start": "Empezar",
     "delete": "Eliminar esta enseñanza",
-    "deleteConfirm": "¿Eliminar esta enseñanza? El estudio, sus hallazgos y sus pasajes quedan como están.",
-    "about": "De qué se trata",
+    "deleteConfirm": "¿Eliminar esta enseñanza? El estudio, sus apuntes y sus pasajes quedan como están.",
+    "about": "Sobre esta enseñanza",
     "audience": "Para quién",
     "audiencePlaceholder": "p. ej. toda la iglesia, un grupo de jóvenes",
     "purpose": "Propósito",
-    "purposePlaceholder": "Lo que espera de esta enseñanza",
+    "purposePlaceholder": "Lo que esperas de esta enseñanza",
     "message": "Mensaje central",
-    "messageHint": "Con sus propias palabras: lo principal que quiere que la gente se lleve.",
+    "messageHint": "Con tus propias palabras: lo principal que quieres que la gente se lleve.",
     "introduction": "Introducción",
     "conclusion": "Conclusión",
-    "notes": "Notas para usted",
-    "notesHint": "Recordatorios mientras enseña; no forman parte de lo que dice.",
+    "notes": "Notas para ti",
+    "notesHint": "Recordatorios mientras enseñas; no forman parte de lo que dices.",
     "points": {
-      "title": "Puntos principales",
       "whole": "toda la enseñanza",
-      "none": "Aún no hay puntos. Añada los que necesite, de cualquier forma: un momento de un relato, una pregunta, un tema o unos versículos.",
-      "add": "Añadir un punto",
       "added": "Punto añadido.",
       "removed": "Punto eliminado.",
       "moved": "Punto movido al lugar {{position}}.",
-      "number": "Punto {{number}}",
-      "label": "Punto {{number}}: {{title}}",
-      "untitled": "Punto {{number}}",
-      "titleLabel": "Título del punto {{number}}",
-      "titlePlaceholder": "Lo que dice este punto",
-      "explanation": "Explicación",
-      "application": "Aplicación",
-      "illustration": "Ilustración o ejemplo",
       "moveUp": "Subir «{{point}}»",
       "moveDown": "Bajar «{{point}}»",
       "delete": "Eliminar «{{point}}»",
-      "deleteConfirm": "¿Eliminar este punto y lo que escribió en él? Los hallazgos usados aquí siguen en el estudio."
+      "deleteConfirm": "¿Eliminar este punto y lo que escribiste en él? Los apuntes usados aquí siguen en el estudio."
     },
     "links": {
       "used": "Usado en {{scope}}",
       "wholeScope": "toda la enseñanza",
       "passages": "Pasajes en {{scope}}",
-      "findings": "Hallazgos del estudio en {{scope}}",
+      "findings": "De tu estudio, en {{scope}}",
       "materials": "Guardado del asistente en {{scope}}",
-      "useFinding": "Usar un hallazgo del estudio",
-      "chooseFinding": "Hallazgo",
+      "useFinding": "Usar un apunte de tu estudio",
+      "chooseFinding": "De tu estudio",
       "pick": "Elegir…",
       "empty": "(vacío)",
-      "findingNote": "El hallazgo sigue en el estudio. Sus cambios también se ven aquí.",
-      "removeFinding": "Dejar de usar este hallazgo aquí",
-      "removeFindingHint": "Sigue en el estudio.",
+      "findingNote": "Sigue en tu estudio. Si lo cambias allí, también cambia aquí.",
+      "removeFinding": "Dejar de usarlo aquí",
+      "removeFindingHint": "Sigue en tu estudio.",
       "addPassage": "Añadir un pasaje",
       "passageLabel": "Pasaje para {{scope}}",
       "removePassage": "Quitar {{passage}} de esta enseñanza"
@@ -718,22 +707,16 @@
       "remove": "Quitar de esta enseñanza"
     },
     "standing": {
-      "verified": "Dos sitios independientes de los resultados lo cuentan (léalos antes de usarlo)",
-      "unverified": "Sin comprobar: solo una fuente. Compruébelo antes de usarlo.",
+      "verified": "Dos sitios independientes de los resultados lo cuentan (léelos antes de usarlo)",
+      "unverified": "Sin comprobar: solo una fuente. Compruébalo antes de usarlo.",
       "hypothetical": "Ejemplo inventado, no un hecho real",
       "found": "Imagen encontrada · {{licence}}",
       "generated": "Hecha por el asistente: una ilustración, no una fotografía",
       "suggestion": "Sugerencia del asistente"
     },
     "assist": {
-      "intro": "«Ayuda» junto a cada parte ofrece el asistente: comenta, revisa y sugiere redacciones para lo que usted ha escrito. Su texto solo cambia si elige una sugerencia.",
       "menu": "Ayuda",
       "menuLabel": "Ayuda con {{part}}",
-      "group": {
-        "wording": "Redacción",
-        "comments": "Comentarios",
-        "ideas": "Ideas"
-      },
       "action": {
         "grammar": "Revisar gramática y ortografía",
         "clarity": "Hacerlo más claro",
@@ -754,17 +737,19 @@
         "restructure": "¿Cómo podría ordenar lo que tengo?",
         "illustration": "Ideas para una ilustración",
         "story": "Buscar una historia real…",
-        "visual": "Sugerir un recurso visual"
+        "visual": "Sugerir un recurso visual",
+        "free": "Pedir otra cosa…"
       },
       "title": "{{action}} · {{part}}",
       "close": "Cerrar el asistente",
-      "selectionOnly": "Solo las palabras que seleccionó.",
+      "selectionOnly": "Solo las palabras que seleccionaste.",
       "request": {
         "question": "¿Qué debe ayudar a notar la pregunta?",
-        "story": "¿Qué tipo de historia real busca?",
+        "story": "¿Qué tipo de historia real buscas?",
         "transition": "¿Qué debe conectar? (opcional)",
-        "phrasing": "¿Qué quiere decir? (opcional)",
-        "visual": "¿Qué debe ayudar a explicar la imagen? (opcional)"
+        "phrasing": "¿Qué quieres decir? (opcional)",
+        "visual": "¿Qué debe ayudar a explicar la imagen? (opcional)",
+        "free": "¿Con qué quieres ayuda?"
       },
       "audienceLabel": "¿Para quién?",
       "audiencePlaceholder": "p. ej. niños de 8 a 10 años",
@@ -773,38 +758,37 @@
       "shared": {
         "remote": "Para ayudar, esto se enviará a {{assistant}}:",
         "local": "Esto se queda en este ordenador ({{assistant}}). Verá:",
-        "text": "su parte «{{part}}»",
+        "text": "tu parte «{{part}}»",
         "selection": "las palabras seleccionadas",
-        "request": "lo que pidió",
+        "request": "lo que pediste",
         "teaching": "el título y el tipo de la enseñanza, y su público, propósito y mensaje central si están escritos",
-        "nearby_one": "otra parte de esta enseñanza (para mantener su estilo)",
-        "nearby_many": "{{count}} partes más de esta enseñanza (para mantener su estilo)",
-        "nearby_other": "{{count}} partes más de esta enseñanza (para mantener su estilo)",
+        "nearby_one": "otra parte de esta enseñanza (para mantener tu estilo)",
+        "nearby_many": "{{count}} partes más de esta enseñanza (para mantener tu estilo)",
+        "nearby_other": "{{count}} partes más de esta enseñanza (para mantener tu estilo)",
         "passages": "Escritura: {{passages}}",
-        "findings_one": "un hallazgo de su estudio",
-        "findings_many": "{{count}} hallazgos de su estudio",
-        "findings_other": "{{count}} hallazgos de su estudio",
-        "quotes_one": "una cita de un libro de su biblioteca, con su fuente",
-        "quotes_many": "{{count}} citas de libros de su biblioteca, con sus fuentes",
-        "quotes_other": "{{count}} citas de libros de su biblioteca, con sus fuentes",
-        "searches": "También se enviarán a su servicio de búsqueda palabras basadas en su petición (pueden incluir sus palabras)."
+        "findings_one": "un apunte de tu estudio",
+        "findings_many": "{{count}} apuntes de tu estudio",
+        "findings_other": "{{count}} apuntes de tu estudio",
+        "quotes_one": "una cita de un libro de tu biblioteca, con su fuente",
+        "quotes_many": "{{count}} citas de libros de tu biblioteca, con sus fuentes",
+        "quotes_other": "{{count}} citas de libros de tu biblioteca, con sus fuentes",
+        "searches": "También se enviarán a tu servicio de búsqueda palabras basadas en tu petición (pueden incluir tus palabras)."
       },
       "ask": "Pedir",
       "askHint": "Ctrl+Intro pide; Escape cierra. No se envía nada antes de pedir.",
-      "working": "Trabajando…",
       "ready": "Sugerencia lista.",
       "failed": "El asistente no pudo ayudar esta vez.",
       "kept": "Guardado con esta enseñanza.",
       "keptLabel": "Guardado",
       "from": "De {{assistant}}",
       "done": "Listo",
-      "applied": "Cambiado como eligió.",
+      "applied": "Cambiado como elegiste.",
       "undo": "Deshacer",
-      "undone": "Su texto anterior ha vuelto.",
+      "undone": "Tu texto anterior ha vuelto.",
       "proposal": {
         "heading": "Redacción sugerida",
         "headingStart": "Transición sugerida",
-        "notYet": "Todavía no ha cambiado nada. Su texto queda como está si no elige esto.",
+        "notYet": "Todavía no ha cambiado nada. Tu texto queda como está si no eliges esto.",
         "same": "No se sugieren cambios.",
         "removed": "quitado:",
         "added": "añadido:",
@@ -813,7 +797,7 @@
         "useStart": "Ponerla al principio"
       },
       "comments": {
-        "heading": "Comentarios sobre lo que escribió",
+        "heading": "Comentarios sobre lo que escribiste",
         "none": "Nada que añadir.",
         "suggested": "Para mirar:",
         "add": "Añadir",
@@ -821,14 +805,14 @@
       },
       "basis": {
         "scripture": "Según el asistente, basado en la Escritura",
-        "study": "Según el asistente, basado en su estudio",
-        "source": "Según el asistente, basado en un libro de su biblioteca",
-        "reasoning": "Reflexión propia del asistente, para que la valore"
+        "study": "Según el asistente, basado en tu estudio",
+        "source": "Según el asistente, basado en un libro de tu biblioteca",
+        "reasoning": "Reflexión propia del asistente, para que la valores"
       },
       "options": {
         "heading": "Sugerencias",
         "headingInvented": "Ideas de ilustración",
-        "invented": "Son ejemplos inventados, no hechos reales. No los cuente como si hubieran ocurrido.",
+        "invented": "Son ejemplos inventados, no hechos reales. No los cuentes como si hubieran ocurrido.",
         "insert": "Añadir debajo de mi texto",
         "keepIdea": "Guardar como idea",
         "use": "Usar esto"
@@ -836,7 +820,7 @@
       "stories": {
         "heading": "Historias reales encontradas",
         "none": "No se pudo encontrar ni comprobar ninguna historia real en los resultados. No se ha inventado nada.",
-        "checkNote": "Comprobado solo con los resúmenes de los resultados. Abra las fuentes y lea toda la historia antes de usarla.",
+        "checkNote": "Comprobado solo con los resúmenes de los resultados. Abre las fuentes y lee toda la historia antes de usarla.",
         "keep": "Guardar con esta enseñanza",
         "sources": "Fuentes"
       },
@@ -859,9 +843,72 @@
         "keep": "Guardar esta imagen",
         "keepLabel": "Guardar la imagen «{{title}}»",
         "generatedAlt": "Ilustración hecha por el asistente: {{description}}",
-        "nothingPlaced": "No se coloca nada en su enseñanza a menos que lo guarde."
+        "nothingPlaced": "No se coloca nada en tu enseñanza a menos que lo guardes."
       },
-      "changedMeanwhile": "Su texto cambió después de pedirlo, así que no se usó esta sugerencia. Vuelva a pedirlo."
-    }
+      "changedMeanwhile": "Tu texto cambió después de que lo pidieras, así que no se usó esta sugerencia. Vuelve a pedirlo.",
+      "menuIntro": "¿Qué te ayudaría?",
+      "allHelp": "Toda la ayuda",
+      "category": {
+        "wording": "Mejorar mi redacción",
+        "review": "Revisar lo que escribí",
+        "structure": "Ayuda con la estructura",
+        "ideas": "Ideas e ilustraciones",
+        "research": "Buscar algo"
+      },
+      "freePlaceholder": "p. ej. ¿Es demasiado largo para un grupo de jóvenes?",
+      "freeHint": "El asistente ve esta parte y lo que necesita de esta enseñanza y este estudio. Responde con comentarios y preguntas; no escribe tu enseñanza por ti.",
+      "slow": "Está tardando más de lo normal. Puedes seguir esperando o parar.",
+      "stop": "Dejar de esperar",
+      "stopped": "Has dejado de esperar. No se ha cambiado nada.",
+      "pending": {
+        "ask": "Preguntando al asistente…",
+        "story": "Buscando fuentes… Puede tardar un poco.",
+        "findImages": "Buscando imágenes adecuadas…",
+        "makeImage": "Creando una imagen… Puede tardar un poco."
+      }
+    },
+    "shape": {
+      "points": {
+        "title": "Puntos principales",
+        "none": "Aún no hay puntos. Añade los que necesites, de cualquier forma: un momento de un relato, una pregunta, un tema o unos versículos.",
+        "add": "Añadir un punto",
+        "number": "Punto {{number}}",
+        "label": "Punto {{number}}: {{title}}",
+        "untitled": "Punto {{number}}",
+        "titleLabel": "Título del punto {{number}}",
+        "titlePlaceholder": "Lo que dice este punto",
+        "explanation": "Explicación",
+        "application": "Aplicación",
+        "illustration": "Ilustración o ejemplo"
+      },
+      "questions": {
+        "title": "Preguntas y respuestas",
+        "none": "Aún no hay preguntas. Añade las preguntas de las que queréis hablar, cada una con lo que muestra el pasaje.",
+        "add": "Añadir una pregunta",
+        "number": "Pregunta {{number}}",
+        "label": "Pregunta {{number}}: {{title}}",
+        "untitled": "Pregunta {{number}}",
+        "titleLabel": "Pregunta {{number}}",
+        "titlePlaceholder": "La pregunta que vas a hacer",
+        "explanation": "Lo que muestra el pasaje",
+        "application": "Lo que significa para nosotros",
+        "illustration": "Notas para guiar la conversación"
+      },
+      "steps": {
+        "title": "Desarrollo de la lección",
+        "none": "Aún no hay pasos. Añade las partes de la lección en el orden en que suceden: bienvenida, historia, actividad, oración…",
+        "add": "Añadir un paso",
+        "number": "Paso {{number}}",
+        "label": "Paso {{number}}: {{title}}",
+        "untitled": "Paso {{number}}",
+        "titleLabel": "Título del paso {{number}}",
+        "titlePlaceholder": "Qué pasa en este paso",
+        "explanation": "Lo que vas a decir o hacer",
+        "application": "Lo que deberían llevarse",
+        "illustration": "Actividad, material o ejemplo"
+      }
+    },
+    "aboutEmpty": "Tipo, para quién, propósito, pasajes",
+    "aboutFor": "para {{audience}}"
   }
 }

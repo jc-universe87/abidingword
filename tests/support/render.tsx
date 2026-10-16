@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "@/app/App";
 import i18n from "@/i18n";
@@ -21,4 +21,18 @@ export async function renderApp(api: MemoryApi = createMemoryApi(), { width = 14
     await screen.findByRole("main", { name: new RegExp(i18n.t("app.panes.name.study"), "i") });
   }
   return { api, user };
+}
+
+/**
+ * Opens Settings → one section (by its title). Sections start closed; the
+ * section's heading is the button that opens it.
+ */
+export async function openSettingsSection(user: ReturnType<typeof userEvent.setup>, title: string) {
+  if (!screen.queryByRole("heading", { level: 1, name: i18n.t("settings.title") })) {
+    await user.click(screen.getByRole("button", { name: i18n.t("app.toolbar.settings") }));
+  }
+  const region = await screen.findByRole("region", { name: title });
+  const toggle = within(region).getByRole("button", { name: title });
+  if (toggle.getAttribute("aria-expanded") !== "true") await user.click(toggle);
+  return region;
 }

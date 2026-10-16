@@ -160,7 +160,7 @@
   "teaching": {
     "tooLong": "Cette partie de l’enseignement est trop longue pour être enregistrée.",
     "otherPoint": "Ce point appartient à un autre enseignement.",
-    "otherStudyFinding": "Cette observation appartient à une autre étude.",
+    "otherStudyFinding": "Cet élément appartient à une autre étude.",
     "badMaterial": "Cet élément ne peut pas être conservé.",
     "notVerified": "Une histoire n’est conservée comme vérifiée qu’avec deux sources indépendantes.",
     "imageGone": "Cette image n’est plus disponible. Recréez-la."

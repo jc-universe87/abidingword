@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { BookOpen, ExternalLink, Image as ImageIcon, Lightbulb, MessageSquare, Search, X } from "lucide-react";
+import { BookOpen, ExternalLink, Image as ImageIcon, Lightbulb, Loader2, MessageSquare, Search, X } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 import { referenceLabel } from "@/i18n/scripture";
@@ -33,10 +33,44 @@ export interface AssistTarget {
 }
 
 /** Actions that ask the person for a few words first. */
-const NEEDS_REQUEST = new Set<AssistAction>(["question", "story"]);
+const NEEDS_REQUEST = new Set<AssistAction>(["question", "story", "free"]);
 const OPTIONAL_REQUEST = new Set<AssistAction>(["transition", "phrasing", "visual"]);
 
 type Material = Omit<KeepTeachingMaterial, "preparationId" | "pointId">;
+
+/** The longest request in the person's words (as the core allows). */
+const REQUEST_MAX = 1_000;
+
+/** After this long, a waiting message adds that it is taking longer than usual. */
+export const SLOW_AFTER_MS = 20_000;
+
+/**
+ * A long operation under way: said at once, in words, and to screen readers.
+ * No percentages (none are known); after a while it says it is slow, and,
+ * where it is safe, offers to stop waiting.
+ */
+export function Pending({ message, onStop }: { message: string; onStop?: () => void }) {
+  const { t } = useTranslation();
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setSlow(true), SLOW_AFTER_MS);
+    return () => clearTimeout(timer);
+  }, []);
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-aw border border-border-subtle bg-bg px-3 py-2" data-testid="pending">
+      <Loader2 className="size-5 shrink-0 animate-spin text-primary motion-reduce:animate-none" aria-hidden="true" />
+      <p role="status" className="m-0 min-w-0 flex-1 text-text-strong">
+        {message}
+        {slow && <span className="block text-[0.875rem] text-text-muted">{t("studies.teaching.assist.slow")}</span>}
+      </p>
+      {onStop && (
+        <Button className="min-h-11" onClick={onStop}>
+          {t("studies.teaching.assist.stop")}
+        </Button>
+      )}
+    </div>
+  );
+}
 
 interface AssistPanelProps {
   preparationId: string;
@@ -76,6 +110,8 @@ export function AssistPanel(props: AssistPanelProps) {
   const [preview, setPreview] = useState<AssistPreview | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Each request has a number; a request the person stopped waiting for is ignored when it answers.
+  const asking = useRef(0);
   const [reply, setReply] = useState<AssistReply | null>(null);
   const [status, setStatus] = useState("");
   const [kept, setKept] = useState<Set<string>>(new Set());
@@ -145,21 +181,32 @@ export function AssistPanel(props: AssistPanelProps) {
 
   const ask = async () => {
     if (busy || !preview || needsInput) return;
+    const n = ++asking.current;
     setBusy(true);
     setProblem(null);
     setReply(null);
-    setStatus(t("studies.teaching.assist.working"));
+    setStatus("");
     try {
       const answer = await api.assistantAsk(input());
+      if (n !== asking.current) return;
       setReply(answer);
       setStatus(t("studies.teaching.assist.ready"));
       requestAnimationFrame(() => resultHeading.current?.focus({ preventScroll: false }));
     } catch (e) {
+      if (n !== asking.current) return;
       setProblem(toApiError(e).message);
       setStatus(t("studies.teaching.assist.failed"));
     } finally {
-      setBusy(false);
+      if (n === asking.current) setBusy(false);
     }
+  };
+
+  /** Stops waiting: asking changes nothing, so a late answer can simply be ignored. */
+  const stop = () => {
+    asking.current += 1;
+    setBusy(false);
+    setStatus(t("studies.teaching.assist.stopped"));
+    requestAnimationFrame(() => askButton.current?.focus());
   };
 
   const keep = async (key: string, material: Material) => {
@@ -210,7 +257,31 @@ export function AssistPanel(props: AssistPanelProps) {
 
       {!reply && (
         <>
-          {requestLabel && (
+          {requestLabel && action === "free" && (
+            <div className="flex flex-col gap-1">
+              <label htmlFor={`${id}-request`} className="text-text-strong">
+                {requestLabel}
+              </label>
+              <textarea
+                id={`${id}-request`}
+                ref={(el) => {
+                  first.current = el;
+                }}
+                rows={3}
+                maxLength={REQUEST_MAX}
+                value={request}
+                disabled={busy}
+                onChange={(e) => setRequest(e.target.value)}
+                aria-describedby={`${id}-request-hint`}
+                placeholder={t("studies.teaching.assist.freePlaceholder")}
+                className="w-full rounded-aw border border-border bg-bg px-3 py-2 text-[0.9375rem] placeholder:text-text-muted"
+              />
+              <p id={`${id}-request-hint`} className="m-0 text-[0.875rem] text-text-muted">
+                {t("studies.teaching.assist.freeHint")}
+              </p>
+            </div>
+          )}
+          {requestLabel && action !== "free" && (
             <label className="flex flex-wrap items-center gap-2">
               <span className="text-text-strong">{requestLabel}</span>
               <input
@@ -218,6 +289,8 @@ export function AssistPanel(props: AssistPanelProps) {
                   first.current = el;
                 }}
                 value={request}
+                maxLength={REQUEST_MAX}
+                disabled={busy}
                 onChange={(e) => setRequest(e.target.value)}
                 className={field}
               />
@@ -260,13 +333,14 @@ export function AssistPanel(props: AssistPanelProps) {
               disabled={busy || !preview || needsInput}
               onClick={() => void ask()}
             >
-              {busy ? t("studies.teaching.assist.working") : t("studies.teaching.assist.ask")}
+              {t("studies.teaching.assist.ask")}
             </Button>
             <Button className="min-h-11" onClick={onClose}>
               {t("common.cancel")}
             </Button>
             {!busy && <span className="text-[0.875rem] text-text-muted">{t("studies.teaching.assist.askHint")}</span>}
           </div>
+          {busy && <Pending message={action === "story" ? t("studies.teaching.assist.pending.story") : t("studies.teaching.assist.pending.ask")} onStop={stop} />}
         </>
       )}
 
@@ -605,6 +679,7 @@ function Visuals({ reply, heading, kept, onKeep, canFindImages, canGenerateImage
   const [error, setError] = useState<string | null>(null);
 
   const find = async (i: number, terms: string) => {
+    if (found[i] === "loading") return;
     setError(null);
     setFound((prev) => ({ ...prev, [i]: "loading" }));
     try {
@@ -616,6 +691,7 @@ function Visuals({ reply, heading, kept, onKeep, canFindImages, canGenerateImage
     }
   };
   const make = async (i: number, description: string) => {
+    if (made[i] === "loading") return;
     setError(null);
     setMade((prev) => ({ ...prev, [i]: "loading" }));
     try {
@@ -673,7 +749,7 @@ function Visuals({ reply, heading, kept, onKeep, canFindImages, canGenerateImage
                   </Button>
                 )}
               </div>
-              {images === "loading" && <p className="m-0 text-text-muted">{t("studies.teaching.assist.working")}</p>}
+              {images === "loading" && <Pending message={t("studies.teaching.assist.pending.findImages")} />}
               {Array.isArray(images) && images.length === 0 && <p className="m-0 text-text-muted">{t("studies.teaching.assist.images.none")}</p>}
               {Array.isArray(images) && images.length > 0 && (
                 <ul aria-label={t("studies.teaching.assist.images.found")} className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] gap-2 p-0">
@@ -728,7 +804,7 @@ function Visuals({ reply, heading, kept, onKeep, canFindImages, canGenerateImage
                   ))}
                 </ul>
               )}
-              {generated === "loading" && <p className="m-0 text-text-muted">{t("studies.teaching.assist.working")}</p>}
+              {generated === "loading" && <Pending message={t("studies.teaching.assist.pending.makeImage")} />}
               {generated && generated !== "loading" && (
                 <div className="flex flex-col gap-1">
                   <img src={generated.dataUrl} alt={t("studies.teaching.assist.images.generatedAlt", { description: idea.description })} className="w-full max-w-sm rounded-aw border border-border-subtle" />

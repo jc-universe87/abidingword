@@ -157,7 +157,7 @@
   "teaching": {
     "tooLong": "This part of the teaching is too long to save.",
     "otherPoint": "That point belongs to another teaching.",
-    "otherStudyFinding": "That finding belongs to another study.",
+    "otherStudyFinding": "That note belongs to another study.",
     "badMaterial": "This item cannot be kept.",
     "notVerified": "A story is only kept as checked with two independent sources.",
     "imageGone": "This image is no longer available. Please make it again."

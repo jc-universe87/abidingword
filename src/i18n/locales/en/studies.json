@@ -628,8 +628,8 @@
   },
   "view": {
     "label": "Show",
-    "study": "Study",
-    "teaching": "Teaching"
+    "study": "Bible Study",
+    "teaching": "Bible Teaching"
   },
   "teaching": {
     "loading": "Opening the teaching…",
@@ -637,7 +637,7 @@
     "another": "Prepare another teaching",
     "empty": {
       "title": "Prepare a teaching from this study",
-      "text": "A sermon, a group study or a lesson, written by you. You can use what you found in this study: its findings and passages stay where they are and are simply used here. Nothing is filled in for you, and every part may stay empty."
+      "text": "A sermon, a group Bible study or a lesson, written by you. You can use what you noted in this study: your notes and passages stay where they are and are simply used here. Nothing is filled in for you, and every part may stay empty."
     },
     "kindLabel": "Kind of teaching",
     "kindNone": "Not said",
@@ -653,8 +653,8 @@
     "titleLabel": "Title",
     "start": "Start",
     "delete": "Delete this teaching",
-    "deleteConfirm": "Delete this teaching? The study, its findings and passages stay as they are.",
-    "about": "What it is about",
+    "deleteConfirm": "Delete this teaching? Your study, with its notes and passages, stays as it is.",
+    "about": "About this teaching",
     "audience": "Who it is for",
     "audiencePlaceholder": "e.g. the whole church, a youth group",
     "purpose": "Purpose",
@@ -666,39 +666,28 @@
     "notes": "Notes for yourself",
     "notesHint": "Reminders while you teach; not part of what you say.",
     "points": {
-      "title": "Main points",
       "whole": "the whole teaching",
-      "none": "No points yet. Add as many as you need, in any shape: a movement of a story, a question, a theme or a few verses.",
-      "add": "Add a point",
       "added": "Point added.",
       "removed": "Point removed.",
       "moved": "Point moved to place {{position}}.",
-      "number": "Point {{number}}",
-      "label": "Point {{number}}: {{title}}",
-      "untitled": "Point {{number}}",
-      "titleLabel": "Title of point {{number}}",
-      "titlePlaceholder": "What this point says",
-      "explanation": "Explanation",
-      "application": "Application",
-      "illustration": "Illustration or example",
       "moveUp": "Move “{{point}}” up",
       "moveDown": "Move “{{point}}” down",
       "delete": "Delete “{{point}}”",
-      "deleteConfirm": "Delete this point and what you wrote in it? Findings used here stay in the study."
+      "deleteConfirm": "Delete this point and what you wrote in it? Anything from your study used here stays in the study."
     },
     "links": {
       "used": "Used in {{scope}}",
       "wholeScope": "the whole teaching",
       "passages": "Passages in {{scope}}",
-      "findings": "Findings from the study in {{scope}}",
+      "findings": "From your study, in {{scope}}",
       "materials": "Kept from the assistant in {{scope}}",
-      "useFinding": "Use a finding from the study",
-      "chooseFinding": "Finding",
+      "useFinding": "Use something from your study",
+      "chooseFinding": "From your study",
       "pick": "Choose…",
       "empty": "(empty)",
-      "findingNote": "The finding stays in the study. Changes to it show here too.",
-      "removeFinding": "Stop using this finding here",
-      "removeFindingHint": "It stays in the study.",
+      "findingNote": "It stays in your study. If you change it there, it changes here too.",
+      "removeFinding": "Stop using this here",
+      "removeFindingHint": "It stays in your study.",
       "addPassage": "Add a passage",
       "passageLabel": "Passage for {{scope}}",
       "removePassage": "Remove {{passage}} from this teaching"
@@ -719,14 +708,8 @@
       "suggestion": "The assistant’s suggestion"
     },
     "assist": {
-      "intro": "“Help” beside each part offers the assistant: it comments, checks and suggests wording for what you have written. It never changes your text unless you choose a suggestion.",
       "menu": "Help",
       "menuLabel": "Help with {{part}}",
-      "group": {
-        "wording": "Wording",
-        "comments": "Comments",
-        "ideas": "Ideas"
-      },
       "action": {
         "grammar": "Check grammar and spelling",
         "clarity": "Make it clearer",
@@ -747,7 +730,8 @@
         "restructure": "How could I order what I have?",
         "illustration": "Ideas for an illustration",
         "story": "Find a real story…",
-        "visual": "Suggest a visual"
+        "visual": "Suggest a visual",
+        "free": "Ask for something else…"
       },
       "title": "{{action}} · {{part}}",
       "close": "Close the assistant",
@@ -757,7 +741,8 @@
         "story": "What kind of real story are you looking for?",
         "transition": "What should it connect? (optional)",
         "phrasing": "What do you want to say? (optional)",
-        "visual": "What should the picture help explain? (optional)"
+        "visual": "What should the picture help explain? (optional)",
+        "free": "What would you like help with?"
       },
       "audienceLabel": "Who is it for?",
       "audiencePlaceholder": "e.g. children aged 8 to 10",
@@ -773,15 +758,14 @@
         "nearby_one": "one other part of this teaching (so it keeps your voice)",
         "nearby_other": "{{count}} other parts of this teaching (so it keeps your voice)",
         "passages": "Scripture: {{passages}}",
-        "findings_one": "one finding from your study",
-        "findings_other": "{{count}} findings from your study",
+        "findings_one": "one note from your study",
+        "findings_other": "{{count}} notes from your study",
         "quotes_one": "one quotation from a book in your library, with its source",
         "quotes_other": "{{count}} quotations from books in your library, with their sources",
         "searches": "Search words based on your request (they may include your words) will also go to your search service."
       },
       "ask": "Ask",
       "askHint": "Ctrl+Enter asks; Escape closes. Nothing is sent before you ask.",
-      "working": "Working…",
       "ready": "Suggestion ready.",
       "failed": "The assistant could not help this time.",
       "kept": "Kept with this teaching.",
@@ -851,7 +835,70 @@
         "generatedAlt": "Illustration made by the assistant: {{description}}",
         "nothingPlaced": "Nothing is placed in your teaching unless you keep it."
       },
-      "changedMeanwhile": "Your text changed after you asked, so this suggestion was not used. Please ask again."
-    }
+      "changedMeanwhile": "Your text changed after you asked, so this suggestion was not used. Please ask again.",
+      "menuIntro": "What would help?",
+      "allHelp": "All help",
+      "category": {
+        "wording": "Improve my wording",
+        "review": "Review what I wrote",
+        "structure": "Help with structure",
+        "ideas": "Ideas and illustrations",
+        "research": "Look something up"
+      },
+      "freePlaceholder": "e.g. Is this too long for a youth group?",
+      "freeHint": "The assistant sees this part and what it needs from this teaching and study. It answers with comments and questions; it does not write your teaching for you.",
+      "slow": "This is taking longer than usual. You can keep waiting or stop.",
+      "stop": "Stop waiting",
+      "stopped": "Stopped waiting. Nothing was changed.",
+      "pending": {
+        "ask": "Asking the assistant…",
+        "story": "Looking for sources… This can take a little while.",
+        "findImages": "Finding suitable images…",
+        "makeImage": "Creating an image… This can take a little while."
+      }
+    },
+    "shape": {
+      "points": {
+        "title": "Main points",
+        "none": "No points yet. Add as many as you need, in any shape: a movement of a story, a question, a theme or a few verses.",
+        "add": "Add a point",
+        "number": "Point {{number}}",
+        "label": "Point {{number}}: {{title}}",
+        "untitled": "Point {{number}}",
+        "titleLabel": "Title of point {{number}}",
+        "titlePlaceholder": "What this point says",
+        "explanation": "Explanation",
+        "application": "Application",
+        "illustration": "Illustration or example"
+      },
+      "questions": {
+        "title": "Questions and answers",
+        "none": "No questions yet. Add the questions you want to talk about, each with what the passage shows.",
+        "add": "Add a question",
+        "number": "Question {{number}}",
+        "label": "Question {{number}}: {{title}}",
+        "untitled": "Question {{number}}",
+        "titleLabel": "Question {{number}}",
+        "titlePlaceholder": "The question you will ask",
+        "explanation": "What the passage shows",
+        "application": "What it means for us",
+        "illustration": "Notes for leading the conversation"
+      },
+      "steps": {
+        "title": "Lesson plan",
+        "none": "No steps yet. Add the parts of the lesson in the order they happen: a welcome, a story, an activity, a prayer…",
+        "add": "Add a step",
+        "number": "Step {{number}}",
+        "label": "Step {{number}}: {{title}}",
+        "untitled": "Step {{number}}",
+        "titleLabel": "Title of step {{number}}",
+        "titlePlaceholder": "What happens in this step",
+        "explanation": "What you will say or do",
+        "application": "What they should take away",
+        "illustration": "Activity, material or example"
+      }
+    },
+    "aboutEmpty": "Kind, who it is for, purpose, passages",
+    "aboutFor": "for {{audience}}"
   }
 }

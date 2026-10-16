@@ -4,11 +4,12 @@
   "sections": {
     "appearance": "Appearance",
     "language": "Language",
-    "bibleTexts": "Bible Texts",
-    "templates": "Study Templates",
+    "bibleTexts": "Bible texts",
+    "templates": "Templates",
     "about": "About this installation",
     "planned": "Coming in later versions",
-    "assistant": "Assistant"
+    "assistant": "Assistant",
+    "updates": "Updates"
   },
   "language": {
     "label": "Interface language",
@@ -46,51 +47,119 @@
     "integrationsText": "Connect other tools you already use."
   },
   "assistant": {
-    "intro": "An optional helper for Teaching: it comments on and suggests wording for what you write, checks claims against the passage, and can look for real stories and images. You remain the author: it never changes your text unless you choose a suggestion. It is off until you turn it on, and works only when you ask.",
+    "intro": "An optional helper for your teaching. It comments and suggests; you stay the author, and nothing in your text changes unless you choose it. It works only when you ask.",
     "enabled": "Use the assistant",
     "provider": "Service",
     "providers": {
-      "openai": "OpenAI",
+      "openai": "OpenAI (ChatGPT)",
       "anthropic": "Anthropic (Claude)",
       "google": "Google Gemini",
-      "ollama": "Ollama (on this computer)",
-      "lmstudio": "LM Studio (on this computer)",
-      "openai_compatible": "Other compatible server"
+      "ollama": "Ollama",
+      "lmstudio": "LM Studio",
+      "openai_compatible": "Other compatible service",
+      "xai": "xAI (Grok)",
+      "perplexity": "Perplexity",
+      "deepseek": "DeepSeek",
+      "qwen": "Qwen (Alibaba Cloud)"
     },
     "remote": "When you ask for help, the text you chose is sent over the internet to this service.",
     "local": "Runs on this computer: your text does not leave it.",
     "model": "Model",
     "modelPlaceholder": "The model's name",
-    "modelHint": "The name the service uses for it, e.g. from its website.",
-    "address": "Address (optional)",
+    "modelHint": "A suggested model is filled in. Change it only if you want a different one.",
+    "address": "Address of the service",
     "addressPlaceholder": "The service’s usual address",
-    "addressHint": "Only needed for another server, or a local model on another computer.",
+    "addressHint": "Leave empty to use the service’s usual address. Only needed for a different server, or a program running on another computer.",
     "key": "Key",
-    "keyHint": "The key is kept in this computer's credential store, never in your studies, and is not shown again.",
+    "keyHint": "Kept in this computer’s password store, never in your studies, and not shown again.",
     "keyKept": "A key is kept on this computer.",
     "keyKeptPlaceholder": "A key is kept (type to replace it)",
     "keySave": "Keep key",
     "keyRemove": "Remove key",
     "keySaved": "The key is kept on this computer.",
     "keyRemoved": "The key was removed.",
-    "search": "Checking real stories",
-    "searchHint": "Real stories and quotations are only offered when a search service finds them; without one the assistant says it cannot check them.",
+    "search": "Look up real stories",
+    "searchHint": "An AI assistant cannot be trusted to remember facts: it can tell a story that sounds true but never happened. So to find real stories, Abiding Word asks a search service for real sources and shows them to you. Read the sources yourself before you use a story.",
     "searchKinds": {
-      "none": "No search (do not look for real stories)",
-      "brave": "Brave Search (needs a key)",
-      "searxng": "SearXNG (an address you trust)"
+      "none": "Off (no real stories)",
+      "brave": "Brave Search (needs its own key)",
+      "searxng": "SearXNG (a search address you trust)"
     },
     "searchAddress": "SearXNG address",
     "searchKey": "Search key",
     "images": "Images",
     "findImages": "Find freely licensed images on Wikimedia Commons (only search words are sent)",
     "generateImages": "Allow making images (always marked as made by the assistant)",
-    "generateOnlyOpenai": "Making images works with OpenAI or a compatible server only.",
-    "perspective": "Your theological tradition (optional)",
-    "perspectiveHint": "In your own words, if you want the assistant to respect it. Left empty, it assumes no position and says where Christians read a passage differently.",
+    "generateOnlyOpenai": "Making images works with OpenAI or another compatible service only.",
+    "perspective": "How should the assistant place theological questions?",
+    "perspectiveHint": "In a few words: your church tradition, or how disputed questions should be handled. Left empty, the assistant assumes no particular tradition and says where Christians read a passage differently.",
     "save": "Save",
     "saved": "Saved.",
     "test": "Check the connection",
-    "testOk": "The assistant answered. It is ready."
+    "testOk": "Connected. The assistant answered and is ready.",
+    "offHint": "Turn on the assistant to choose a service and check the connection.",
+    "turnedOn": "The assistant is on.",
+    "turnedOff": "The assistant is off.",
+    "providerGroups": {
+      "internet": "On the internet",
+      "local": "On this computer",
+      "other": "Other"
+    },
+    "localHelp": {
+      "title": "How do I set up {{service}}?",
+      "what": "{{service}} is a free program that runs an AI model on your own computer. It needs no key and no account, and your text never leaves your computer. It works best on a fairly powerful computer, and answers can take longer.",
+      "steps": "Install {{service}}, download a model in it, and leave it running. Then enter the model’s name below and check the connection.",
+      "open": "Open the {{service}} website"
+    },
+    "otherHelp": "For a service that works like OpenAI’s. Enter the address from its instructions, a key if it needs one, and the model’s name.",
+    "keyOptional": "Key (if the service needs one)",
+    "keyHelp": {
+      "title": "How do I get a key?",
+      "whatQ": "What is a key?",
+      "whatA": "A long code from {{service}} that lets Abiding Word use your account there. Treat it like a password and keep it to yourself.",
+      "whyQ": "Why do I need one?",
+      "whyA": "{{service}} runs the assistant on its own computers. The key tells it that a request comes from your account.",
+      "whereQ": "Where do I get it?",
+      "whereA": "Sign in on the {{service}} website (or create an account), open the page for API keys and create a new key. Copy it straight away: it is usually shown only once.",
+      "open": "Open the {{service}} key page",
+      "costQ": "Does it cost money?",
+      "costA": "Usually yes, a little: {{service}} charges for what you use, often a few cents for a request. Some services give free credit to start. You arrange payment on their website, not in Abiding Word.",
+      "pasteQ": "Where do I paste it?",
+      "pasteA": "In the Key field above. Then choose Keep key."
+    },
+    "modelHintEmpty": "Type the model’s name as {{service}} shows it.",
+    "advanced": "Advanced",
+    "checking": "Checking the connection… This can take a few seconds.",
+    "why": {
+      "noKey": "To check the connection, first paste your key and choose Keep key.",
+      "noModel": "To check the connection, first enter the model’s name.",
+      "noAddress": "To check the connection, first enter the address of the service.",
+      "badAddress": "The address of the service must begin with http:// or https://."
+    },
+    "extras": "Optional extras",
+    "optional": "(optional)",
+    "perspectiveExamples": "Examples:",
+    "perspectiveExample": {
+      "reformed": "Evangelical Reformed",
+      "catholic": "Roman Catholic",
+      "lutheran": "Lutheran",
+      "pentecostal": "Pentecostal",
+      "none": "No particular tradition",
+      "views": "On disputed questions, show the different views first."
+    }
+  },
+  "jumpTo": "Go to a section",
+  "summary": {
+    "version": "Version {{version}}",
+    "upToDate": "Up to date",
+    "updateAvailable": "Version {{version}} is available",
+    "updateInstalling": "Installing the update…",
+    "updateFailed": "Something went wrong: see below",
+    "updatesOff": "Not included in this build",
+    "bibleTexts": "Add or remove translations",
+    "templates": "Starting outlines for new studies",
+    "assistantOff": "Off",
+    "assistantOn": "On · {{service}}",
+    "about": "Version {{version}} · where your data is kept"
   }
 }

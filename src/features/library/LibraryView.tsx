@@ -89,10 +89,13 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
   return (
     <main aria-labelledby={`${id}-title`} className="min-h-0 flex-1 overflow-y-auto bg-bg">
       <div className="mx-auto flex max-w-[52rem] flex-col gap-8 px-8 pb-24 pt-8">
-        <div className="flex flex-col items-start gap-4">
+        {/* Back stays in reach while the page scrolls. */}
+        <div className="sticky top-0 z-10 -mx-8 -mt-8 self-stretch border-b border-border-subtle bg-bg px-8 py-2">
           <Button variant="quiet" onClick={onClose}>
             <ArrowLeft className="size-4" aria-hidden="true" /> {t("library.view.backToWorkspace")}
           </Button>
+        </div>
+        <div className="flex flex-col items-start gap-4">
           <div className="flex w-full flex-wrap items-end justify-between gap-3">
             <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
               {t("library.view.title")}

@@ -40,6 +40,8 @@ export interface TeachingState {
     findCalls: string[];
     generated: string[];
     tested: number;
+    /** When set, asking, finding and making images wait for it: a test can see the waiting state. */
+    hold: Promise<void> | null;
   };
 }
 
@@ -71,6 +73,7 @@ export function newTeachingState(): TeachingState {
       findCalls: [],
       generated: [],
       tested: 0,
+      hold: null,
     },
   };
 }
@@ -113,14 +116,18 @@ type TeachingApi = Pick<
   | "assistantGenerateImage"
 >;
 
-const NEEDS_KEY = new Set(["openai", "anthropic", "google"]);
+const NEEDS_KEY = new Set(["openai", "anthropic", "google", "xai", "perplexity", "deepseek", "qwen"]);
 const LABELS: Record<string, string> = {
   openai: "OpenAI",
   anthropic: "Anthropic",
   google: "Google Gemini",
+  xai: "xAI Grok",
+  perplexity: "Perplexity",
+  deepseek: "DeepSeek",
+  qwen: "Qwen",
   ollama: "Ollama",
   lmstudio: "LM Studio",
-  openai_compatible: "OpenAI-compatible server",
+  openai_compatible: "Other compatible service",
 };
 
 export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
@@ -150,7 +157,7 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
     };
   };
   const remote = (c: AssistantConfig) => {
-    const base = c.baseUrl || { openai: "https://api.openai.com/v1", anthropic: "https://api.anthropic.com/v1", google: "https://g", ollama: "http://localhost:11434/v1", lmstudio: "http://localhost:1234/v1", openai_compatible: "" }[c.provider];
+    const base = c.baseUrl || { openai: "https://api.openai.com/v1", anthropic: "https://api.anthropic.com/v1", google: "https://g", xai: "https://api.x.ai/v1", perplexity: "https://api.perplexity.ai", deepseek: "https://api.deepseek.com/v1", qwen: "https://q", ollama: "http://localhost:11434/v1", lmstudio: "http://localhost:1234/v1", openai_compatible: "" }[c.provider];
     return !base || !isLocalAddress(base);
   };
   const settings = (): AssistantSettings => {
@@ -177,7 +184,7 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
     if (input.action === "structure" || input.action === "restructure") {
       if (p.points.filter((x) => x.title.trim() || x.explanation.trim()).length < 2)
         throw new ApiError("assistant", "Write at least two points first. The assistant comments on the structure you have.");
-    } else if (input.action === "question" || input.action === "story") {
+    } else if (input.action === "question" || input.action === "story" || input.action === "free") {
       if (!input.request?.trim()) throw new ApiError("assistant", "Say in a few words what you are looking for.");
     } else if (input.action === "visual") {
       if (!text && !input.request?.trim()) throw new ApiError("assistant", "Write something here first. The assistant helps with what you have written.");
@@ -356,6 +363,7 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
     assistantAsk: async (input) => {
       ready(input);
       state.assistant.asked.push(input);
+      if (state.assistant.hold) await state.assistant.hold;
       const next = state.assistant.replies.shift();
       if (!next) throw new ApiError("assistant", "The assistant service could not answer this time. Please try again.");
       if (next instanceof ApiError) throw next;
@@ -365,6 +373,7 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
       const c = state.assistant.config;
       if (!c.enabled || !c.findImages) throw new ApiError("assistant", "Finding images is turned off. You can turn it on in Settings.");
       state.assistant.findCalls.push(terms);
+      if (state.assistant.hold) await state.assistant.hold;
       return state.assistant.foundImages;
     },
     assistantImagePreview: async (url) => (url.startsWith("https://upload.wikimedia.org/") ? "data:image/jpeg;base64,/9j/" : null),
@@ -372,6 +381,7 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
       if (!settings().canGenerateImages)
         throw new ApiError("assistant", "Making images is not set up. You can turn it on in Settings (OpenAI image models only).");
       state.assistant.generated.push(description);
+      if (state.assistant.hold) await state.assistant.hold;
       const file = `${h.id().replace(/[^0-9a-f-]/g, "")}.png`;
       return { file, dataUrl: "data:image/png;base64,iVBORw0KGgo=", assistant: `${LABELS[state.assistant.config.provider]} · gpt-image-1` };
     },

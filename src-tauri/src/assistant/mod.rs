@@ -257,7 +257,8 @@ pub fn interpret(context: &Context, answer: &Value) -> AppResult<AssistResult> {
         | AssistAction::Structure
         | AssistAction::Application
         | AssistAction::Theology
-        | AssistAction::Passages => {
+        | AssistAction::Passages
+        | AssistAction::Free => {
             let parser = ReferenceParser::english();
             let comments = answer["comments"]
                 .as_array()

@@ -4,7 +4,7 @@ import i18n from "@/i18n";
 import { ApiError } from "@/lib/api";
 import type { AssistReply } from "@/types/teaching";
 import { createMemoryApi, type MemoryApi } from "../support/memoryApi";
-import { renderApp } from "../support/render";
+import { openSettingsSection, renderApp } from "../support/render";
 
 // Teaching Preparation (v0.16): written by the person; the assistant only
 // suggests, and nothing changes without an explicit choice. All text is invented.
@@ -30,7 +30,7 @@ const studyPane = () => screen.getByRole("main", { name: "Study" });
 async function openTeaching(user: User) {
   await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /Abiding/ }));
   await within(studyPane()).findByRole("textbox", { name: "Study title" });
-  await user.click(within(studyPane()).getByRole("button", { name: "Teaching" }));
+  await user.click(within(studyPane()).getByRole("button", { name: "Bible Teaching" }));
 }
 
 async function startSermon(user: User) {
@@ -40,6 +40,13 @@ async function startSermon(user: User) {
 }
 
 const field = (scope: HTMLElement, name: string | RegExp) => within(scope).getByRole("textbox", { name });
+
+/** Opens "About this teaching" (kind, audience, purpose, what the whole teaching uses). */
+async function openAbout(user: User, article: HTMLElement) {
+  const toggle = within(article).getByRole("button", { name: /^About this teaching/ });
+  if (toggle.getAttribute("aria-expanded") !== "true") await user.click(toggle);
+  return within(article).getByRole("region", { name: "About this teaching" });
+}
 
 /** Waits for the debounced save of every field. */
 async function settle() {
@@ -61,6 +68,32 @@ afterEach(async () => {
   });
 });
 
+/** Help → (the category holding it) → the action, as a person would click it. */
+async function helpWith(user: User, scope: HTMLElement, part: string, action: string) {
+  await user.click(within(scope).getByRole("button", { name: `Help with ${part}` }));
+  const menu = await within(scope).findByRole("menu", { name: `Help with ${part}` });
+  const direct = within(menu).queryByRole("menuitem", { name: action });
+  if (direct) {
+    await user.click(direct);
+    return within(scope).findByTestId("assist-panel");
+  }
+  const categories = within(menu)
+    .getAllByRole("menuitem")
+    .filter((item) => item.getAttribute("aria-haspopup") === "menu")
+    .map((item) => item.textContent ?? "");
+  for (const category of categories) {
+    await user.click(within(within(scope).getByRole("menu")).getByRole("menuitem", { name: category }));
+    const sub = within(scope).getByRole("menu", { name: category });
+    const found = within(sub).queryByRole("menuitem", { name: action });
+    if (found) {
+      await user.click(found);
+      return within(scope).findByTestId("assist-panel");
+    }
+    await user.click(within(sub).getByRole("menuitem", { name: "All help" }));
+  }
+  throw new Error(`No “${action}” under Help with ${part}`);
+}
+
 describe("teaching preparation", () => {
   it("starts empty, is written by the person, and saves as they type", async () => {
     const { api, studyId } = await setup();
@@ -75,6 +108,9 @@ describe("teaching preparation", () => {
     expect(field(article, "Central message")).toHaveValue("");
     expect(within(article).getByText(/No points yet/)).toBeInTheDocument();
 
+    // The details wait under "About this teaching"; the writing comes first.
+    expect(within(article).getByRole("button", { name: /^About this teaching/ })).toHaveAttribute("aria-expanded", "false");
+    await openAbout(user, article);
     await user.type(field(article, "Who it is for"), "Families");
     await user.type(field(article, "Central message"), "Fruit comes from abiding.");
     await user.type(field(article, "Introduction"), "Have you ever pruned a rose?");
@@ -114,21 +150,21 @@ describe("teaching preparation", () => {
     const { api, findingId } = await setup();
     const { user } = await renderApp(api);
     const article = await startSermon(user);
-    const about = within(article).getByRole("region", { name: "What it is about" });
-    await user.click(within(about).getByRole("button", { name: "Use a finding from the study" }));
-    await user.selectOptions(within(about).getByRole("combobox", { name: "Finding" }), findingId);
+    const about = await openAbout(user, article);
+    await user.click(within(about).getByRole("button", { name: "Use something from your study" }));
+    await user.selectOptions(within(about).getByRole("combobox", { name: "From your study" }), findingId);
     await user.click(within(about).getByRole("button", { name: "Add" }));
-    const used = await within(about).findByRole("list", { name: "Findings from the study in the whole teaching" });
+    const used = await within(about).findByRole("list", { name: "From your study, in the whole teaching" });
     expect(within(used).getByText("Branches do not strain; they stay.")).toBeInTheDocument();
     expect(api.state.findings).toHaveLength(1);
 
     // Changed in the study: the teaching shows it as it is now.
     await api.findingUpdate({ id: findingId, content: "Branches stay." });
-    await user.click(within(studyPane()).getByRole("button", { name: "Study" }));
-    await user.click(within(studyPane()).getByRole("button", { name: "Teaching" }));
+    await user.click(within(studyPane()).getByRole("button", { name: "Bible Study" }));
+    await user.click(within(studyPane()).getByRole("button", { name: "Bible Teaching" }));
     expect(await within(studyPane()).findByText("Branches stay.")).toBeInTheDocument();
 
-    await user.click(within(studyPane()).getByRole("button", { name: "Stop using this finding here" }));
+    await user.click(within(studyPane()).getByRole("button", { name: "Stop using this here" }));
     await waitFor(() => expect(within(studyPane()).queryByText("Branches stay.")).toBeNull());
     expect(api.state.findings.map((f) => f.content)).toEqual(["Branches stay."]);
   });
@@ -137,7 +173,7 @@ describe("teaching preparation", () => {
     const { api, studyId } = await setup();
     const { user } = await renderApp(api);
     const article = await startSermon(user);
-    const about = within(article).getByRole("region", { name: "What it is about" });
+    const about = await openAbout(user, article);
     await user.click(within(about).getByRole("button", { name: "Add a passage" }));
     await user.type(within(about).getByRole("textbox", { name: "Passage for the whole teaching" }), "Galatians 5:22-23{Enter}");
     expect(await within(about).findByRole("button", { name: "Galatians 5:22–23" })).toBeInTheDocument();
@@ -166,7 +202,7 @@ describe("teaching preparation", () => {
     });
     const { user } = await renderApp(api);
     await user.click(within(await screen.findByRole("list", { name: "성경공부" })).getByRole("button", { name: /Abiding/ }));
-    await user.click(await screen.findByRole("button", { name: "가르침 준비" }));
+    await user.click(await screen.findByRole("button", { name: "성경 가르침" }));
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
     expect(await screen.findByRole("heading", { name: "대지" })).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: "핵심 메시지" })).toBeInTheDocument();
@@ -182,12 +218,6 @@ async function ask(user: User, panel: HTMLElement) {
 }
 
 describe("the assistant", () => {
-  async function helpWith(user: User, scope: HTMLElement, part: string, action: string) {
-    await user.click(within(scope).getByRole("button", { name: `Help with ${part}` }));
-    const menu = await within(scope).findByRole("menu", { name: `Help with ${part}` });
-    await user.click(within(menu).getByRole("menuitem", { name: action }));
-    return within(scope).findByTestId("assist-panel");
-  }
 
   it("says what will be shared, asks only when told, and changes nothing until the person chooses", async () => {
     const { api } = await setup({ assistant: true });
@@ -416,31 +446,142 @@ describe("the assistant", () => {
 describe("assistant settings", () => {
   it("is off until turned on, keeps the key out of sight, and checks the connection", async () => {
     const { user, api } = await renderApp(createMemoryApi());
-    await user.click(screen.getByRole("button", { name: "Settings" }));
-    const enabled = await screen.findByRole("checkbox", { name: "Use the assistant" });
+    const region = await openSettingsSection(user, "Assistant");
+    const enabled = await within(region).findByRole("checkbox", { name: "Use the assistant" });
     expect(enabled).not.toBeChecked();
+    // Off: one plain sentence instead of a disabled form.
+    expect(within(region).getByText("Turn on the assistant to choose a service and check the connection.")).toBeInTheDocument();
+    expect(within(region).queryByRole("combobox", { name: "Service" })).toBeNull();
+    expect(within(region).queryByRole("button", { name: "Check the connection" })).toBeNull();
+
     await user.click(enabled);
-    await user.selectOptions(screen.getByRole("combobox", { name: "Service" }), "anthropic");
-    expect(screen.getByRole("textbox", { name: "Model" })).toHaveValue("claude-sonnet-5-5");
-    expect(screen.getByText("When you ask for help, the text you chose is sent over the internet to this service.")).toBeInTheDocument();
-    const key = screen.getByLabelText("Key");
+    expect(await within(region).findByText("The assistant is on.")).toBeInTheDocument();
+    expect(api.state.teaching.assistant.config.enabled).toBe(true);
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "anthropic");
+    expect(within(region).getByRole("textbox", { name: "Model" })).toHaveValue("claude-sonnet-5-5");
+    expect(within(region).getByText("When you ask for help, the text you chose is sent over the internet to this service.")).toBeInTheDocument();
+
+    // The check sits with the key and says why it cannot run yet.
+    const test = within(region).getByRole("button", { name: "Check the connection" });
+    expect(test).toBeDisabled();
+    expect(test).toHaveAccessibleDescription("To check the connection, first paste your key and choose Keep key.");
+
+    const key = within(region).getByLabelText("Key");
     await user.type(key, "sk-ant-secret");
-    await user.click(screen.getByRole("button", { name: "Keep key" }));
-    expect(await screen.findByText("The key is kept on this computer.")).toBeInTheDocument();
+    await user.click(within(region).getByRole("button", { name: "Keep key" }));
+    expect(await within(region).findByText("The key is kept on this computer.")).toBeInTheDocument();
     expect(key).toHaveValue("");
     expect(document.body.textContent).not.toContain("sk-ant-secret");
     expect(api.state.teaching.assistant.keys.get("anthropic")).toBe("sk-ant-secret");
     expect(api.state.teaching.assistant.config).toMatchObject({ enabled: true, provider: "anthropic", model: "claude-sonnet-5-5" });
 
-    await user.click(screen.getByRole("button", { name: "Check the connection" }));
-    expect(await screen.findByText("The assistant answered. It is ready.")).toBeInTheDocument();
+    expect(test).toBeEnabled();
+    await user.click(test);
+    expect(await within(region).findByText("Connected. The assistant answered and is ready.")).toBeInTheDocument();
+    expect(api.state.teaching.assistant.tested).toBe(1);
+
+    // Without a model there is nothing to check, and it says so.
+    await user.clear(within(region).getByRole("textbox", { name: "Model" }));
+    expect(test).toBeDisabled();
+    expect(test).toHaveAccessibleDescription("To check the connection, first enter the model’s name.");
 
     // A local service: nothing leaves the computer, and no key is asked for.
-    await user.selectOptions(screen.getByRole("combobox", { name: "Service" }), "ollama");
-    expect(screen.getByText("Runs on this computer: your text does not leave it.")).toBeInTheDocument();
-    expect(screen.queryByLabelText("Key")).toBeNull();
-    fireEvent.submit(screen.getByRole("button", { name: "Save" }).closest("form")!);
-    await waitFor(() => expect(api.state.teaching.assistant.config.provider).toBe("ollama"));
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "ollama");
+    expect(within(region).getByText("Runs on this computer: your text does not leave it.")).toBeInTheDocument();
+    expect(within(region).queryByLabelText("Key")).toBeNull();
+    expect(test).toBeEnabled();
+  });
+
+  it("offers each service by name, with a suggested model and plain help for its key", async () => {
+    const { user, api } = await renderApp(createMemoryApi());
+    const region = await openSettingsSection(user, "Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the assistant" }));
+    const service = within(region).getByRole("combobox", { name: "Service" });
+    const offered = within(service).getAllByRole("option").map((o) => o.textContent);
+    expect(offered).toEqual(
+      expect.arrayContaining(["OpenAI (ChatGPT)", "Anthropic (Claude)", "Google Gemini", "xAI (Grok)", "Perplexity", "DeepSeek", "Qwen (Alibaba Cloud)", "Ollama", "LM Studio", "Other compatible service"]),
+    );
+    // Grouped by where it runs, not ranked by vendor.
+    expect(within(service).getAllByRole("group").map((g) => g.getAttribute("label"))).toEqual(["On the internet", "On this computer", "Other"]);
+
+    for (const [kind, model] of [["xai", "grok-4"], ["perplexity", "sonar-pro"], ["deepseek", "deepseek-chat"], ["qwen", "qwen-plus"]] as const) {
+      await user.selectOptions(service, kind);
+      expect(within(region).getByRole("textbox", { name: "Model" })).toHaveValue(model);
+      expect(within(region).getByLabelText("Key")).toBeInTheDocument();
+    }
+
+    // "How do I get a key?": short answers and the service's own page.
+    await user.selectOptions(service, "deepseek");
+    await user.click(within(region).getByText("How do I get a key?"));
+    for (const question of ["What is a key?", "Why do I need one?", "Where do I get it?", "Does it cost money?", "Where do I paste it?"]) {
+      expect(within(region).getByText(question)).toBeVisible();
+    }
+    await user.click(within(region).getByRole("button", { name: "Open the DeepSeek key page" }));
+    expect(api.state.library.openedLinks).toContain("https://platform.deepseek.com/api_keys");
+
+    // The technical address waits under Advanced.
+    expect(within(region).getByLabelText("Address of the service")).not.toBeVisible();
+    const words = region.textContent ?? "";
+    for (const jargon of [/endpoint/i, /base url/i, /token/i, /OpenAI-compatible/i]) expect(words).not.toMatch(jargon);
+
+    // A local program: what it is, that it needs no key, and where to get it.
+    await user.selectOptions(service, "lmstudio");
+    await user.click(within(region).getByText("How do I set up LM Studio?"));
+    expect(within(region).getByText(/needs no key and no account/)).toBeVisible();
+    expect(within(region).getByRole("textbox", { name: "Model" })).toHaveValue("");
+    expect(within(region).getByRole("button", { name: "Check the connection" })).toHaveAccessibleDescription("To check the connection, first enter the model’s name.");
+  });
+
+  it("asks the generic service for its address and explains a bad one", async () => {
+    const { user } = await renderApp(createMemoryApi());
+    const region = await openSettingsSection(user, "Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the assistant" }));
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "openai_compatible");
+    const test = within(region).getByRole("button", { name: "Check the connection" });
+    expect(test).toHaveAccessibleDescription("To check the connection, first enter the address of the service.");
+    expect(within(region).getByLabelText("Key (if the service needs one)")).toBeInTheDocument();
+    const address = within(region).getByRole("textbox", { name: "Address of the service" });
+    await user.type(address, "ftp://example.org");
+    expect(test).toHaveAccessibleDescription("The address of the service must begin with http:// or https://.");
+    await user.clear(address);
+    await user.type(address, "https://example.org/v1");
+    await user.type(within(region).getByRole("textbox", { name: "Model" }), "my-model");
+    expect(test).toBeEnabled();
+  });
+
+  it("says text leaves the computer for a look-alike local address", async () => {
+    const { user } = await renderApp(createMemoryApi());
+    const region = await openSettingsSection(user, "Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the assistant" }));
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "ollama");
+    expect(within(region).getByText("Runs on this computer: your text does not leave it.")).toBeInTheDocument();
+    await user.click(within(region).getByText("Advanced"));
+    await user.type(within(region).getByRole("textbox", { name: "Address of the service" }), "http://127.0.0.1.nip.io/v1");
+    expect(within(region).getByText("When you ask for help, the text you chose is sent over the internet to this service.")).toBeInTheDocument();
+  });
+
+  it("explains real-story research without promising truth, and keeps theology optional", async () => {
+    const { user, api } = await renderApp(createMemoryApi());
+    const region = await openSettingsSection(user, "Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the assistant" }));
+    const search = within(region).getByRole("combobox", { name: "Look up real stories" });
+    expect(search).toHaveAccessibleDescription(/cannot be trusted to remember facts/);
+    expect(search).toHaveAccessibleDescription(/Read the sources yourself/);
+    const words = region.textContent ?? "";
+    expect(words).not.toMatch(/proves?|guarantee|verified as true/i);
+
+    const theology = within(region).getByRole("textbox", { name: /How should the assistant place theological questions\?/ });
+    expect(within(region).getByText("(optional)")).toBeInTheDocument();
+    expect(theology).toHaveValue("");
+    expect(theology).toHaveAccessibleDescription(/assumes no particular tradition/);
+    // Examples to start from; nothing about the person's life is asked.
+    const examples = within(region).getByRole("group", { name: "Examples:" });
+    await user.click(within(examples).getByRole("button", { name: "Lutheran" }));
+    await user.click(within(examples).getByRole("button", { name: "On disputed questions, show the different views first." }));
+    expect(theology).toHaveValue("Lutheran On disputed questions, show the different views first.");
+    expect(words).not.toMatch(/biograph|your life|testimony/i);
+    await user.click(within(region).getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(api.state.teaching.assistant.config.perspective).toBe("Lutheran On disputed questions, show the different views first."));
   });
 });
 
@@ -458,12 +599,6 @@ describe("the comparison of a suggestion", () => {
 });
 
 describe("review fixes: applying a suggestion safely", () => {
-  async function helpWith(user: User, scope: HTMLElement, part: string, action: string) {
-    await user.click(within(scope).getByRole("button", { name: `Help with ${part}` }));
-    const menu = await within(scope).findByRole("menu", { name: `Help with ${part}` });
-    await user.click(within(menu).getByRole("menuitem", { name: action }));
-    return within(scope).findByTestId("assist-panel");
-  }
 
   it("never overwrites what was typed after asking", async () => {
     const { api } = await setup({ assistant: true });
@@ -512,6 +647,7 @@ describe("review fixes: applying a suggestion safely", () => {
     const { api } = await setup({ assistant: true });
     const { user } = await renderApp(api);
     const article = await startSermon(user);
+    await openAbout(user, article);
     await user.type(field(article, "Purpose"), "To abide");
     await settle();
     api.state.teaching.assistant.replies.push({
@@ -576,14 +712,223 @@ describe("review fixes: where text goes", () => {
     expect(isLocalAddress("http://localhost:x@evil.com/v1")).toBe(false);
     expect(isLocalAddress("not an address")).toBe(false);
   });
+});
 
-  it("says text leaves the computer for a look-alike local address", async () => {
-    const { user } = await renderApp(createMemoryApi());
-    await user.click(screen.getByRole("button", { name: "Settings" }));
-    await user.click(await screen.findByRole("checkbox", { name: "Use the assistant" }));
-    await user.selectOptions(screen.getByRole("combobox", { name: "Service" }), "ollama");
-    expect(screen.getByText("Runs on this computer: your text does not leave it.")).toBeInTheDocument();
-    await user.type(screen.getByRole("textbox", { name: "Address (optional)" }), "http://127.0.0.1.nip.io/v1");
-    expect(screen.getByText("When you ask for help, the text you chose is sent over the internet to this service.")).toBeInTheDocument();
+describe("the help menu", () => {
+  it("offers a few plain categories, each with its own short list, and something else in the person's words", async () => {
+    const { api } = await setup({ assistant: true });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await user.click(within(article).getByRole("button", { name: "Help with Introduction" }));
+    const menu = await within(article).findByRole("menu", { name: "Help with Introduction" });
+    const items = within(menu).getAllByRole("menuitem").map((i) => i.textContent);
+    expect(items).toEqual(["Improve my wording", "Review what I wrote", "Help with structure", "Ideas and illustrations", "Look something up", "Ask for something else…"]);
+    expect(items.length).toBeLessThanOrEqual(6);
+    // Focus starts on the first category.
+    expect(within(menu).getByRole("menuitem", { name: "Improve my wording" })).toHaveFocus();
+  });
+
+  it("moves through both levels with the keyboard, and Escape goes back a level, then closes", async () => {
+    const { api } = await setup({ assistant: true });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    const help = within(article).getByRole("button", { name: "Help with Introduction" });
+    help.focus();
+    await user.keyboard("{Enter}");
+    await within(article).findByRole("menu", { name: "Help with Introduction" });
+    await user.keyboard("{ArrowDown}");
+    expect(within(article).getByRole("menuitem", { name: "Review what I wrote" })).toHaveFocus();
+    await user.keyboard("{ArrowRight}");
+    const sub = within(article).getByRole("menu", { name: "Review what I wrote" });
+    expect(within(sub).getByRole("menuitem", { name: "Review what I wrote" })).toHaveFocus();
+    expect(within(sub).getAllByRole("menuitem").map((i) => i.textContent)).toEqual(["All help", "Review what I wrote", "Check theology and the passage"]);
+    await user.keyboard("{Escape}");
+    // Back on the first level, on the category it came from.
+    expect(within(article).getByRole("menuitem", { name: "Review what I wrote" })).toHaveFocus();
+    await user.keyboard("{Enter}");
+    await user.keyboard("{ArrowLeft}");
+    expect(within(article).getByRole("menu", { name: "Help with Introduction" })).toBeInTheDocument();
+    await user.keyboard("{End}");
+    expect(within(article).getByRole("menuitem", { name: "Ask for something else…" })).toHaveFocus();
+    await user.keyboard("{Escape}");
+    expect(within(article).queryByRole("menu")).toBeNull();
+    expect(help).toHaveFocus();
+    expect(api.state.teaching.assistant.previews).toHaveLength(0);
+  });
+
+  it("answers a request in the person's own words with comments only, never wording to put in", async () => {
+    const { api } = await setup({ assistant: true });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    api.state.teaching.assistant.replies.push({
+      result: { type: "comments", summary: "I can help you shape your own introduction.", comments: [{ excerpt: "", comment: "Which picture from John 15 would you start with?", basis: "reasoning", passages: [] }] },
+      assistant: "OpenAI · test-model",
+      remote: true,
+    });
+    const panel = await helpWith(user, article, "Introduction", "Ask for something else…");
+    const request = within(panel).getByRole("textbox", { name: "What would you like help with?" });
+    await waitFor(() => expect(request).toHaveFocus());
+    expect(request).toHaveAccessibleDescription(/does not write your teaching for you/);
+    expect(within(panel).getByRole("button", { name: "Ask" })).toBeDisabled();
+    await user.type(request, "Write my whole introduction for me.");
+    await ask(user, panel);
+    expect(await within(panel).findByText("Which picture from John 15 would you start with?")).toBeInTheDocument();
+    expect(api.state.teaching.assistant.asked[0]).toMatchObject({ action: "free", part: "introduction", request: "Write my whole introduction for me." });
+    expect(within(panel).queryByRole("button", { name: "Use this wording" })).toBeNull();
+    expect(field(article, "Introduction")).toHaveValue("");
+    expect(prep(api).introduction).toBe("");
+  });
+});
+
+describe("long assistant actions", () => {
+  function holdOn(api: MemoryApi) {
+    let release = () => {};
+    api.state.teaching.assistant.hold = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    return () => {
+      api.state.teaching.assistant.hold = null;
+      release();
+    };
+  }
+
+  it("says at once that it is asking, asks only once, and can stop waiting", async () => {
+    const { api } = await setup({ assistant: true });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await user.type(field(article, "Introduction"), "We dont stay.");
+    await settle();
+    api.state.teaching.assistant.replies.push(proposal("We don't stay."));
+    const release = holdOn(api);
+    const panel = await helpWith(user, article, "Introduction", "Check grammar and spelling");
+    await ask(user, panel);
+    expect(within(panel).getByRole("status")).toHaveTextContent("Asking the assistant…");
+    const askButton = within(panel).getByRole("button", { name: "Ask" });
+    expect(askButton).toBeDisabled();
+    await user.click(askButton);
+    fireEvent.keyDown(panel, { key: "Enter", ctrlKey: true });
+    expect(api.state.teaching.assistant.asked).toHaveLength(1);
+
+    await user.click(within(panel).getByRole("button", { name: "Stop waiting" }));
+    expect(within(panel).queryByTestId("pending")).toBeNull();
+    expect(within(panel).getByText("Stopped waiting. Nothing was changed.")).toBeInTheDocument();
+    await act(async () => release());
+    // The late answer is ignored.
+    expect(within(panel).queryByRole("heading", { name: "Suggested wording" })).toBeNull();
+    expect(field(article, "Introduction")).toHaveValue("We dont stay.");
+  });
+
+  it("says when a request failed or timed out, and lets the person try again", async () => {
+    const { api } = await setup({ assistant: true });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await user.type(field(article, "Introduction"), "We dont stay.");
+    await settle();
+    api.state.teaching.assistant.replies.push(new ApiError("assistant", "The assistant service did not answer in time. Please try again."));
+    const panel = await helpWith(user, article, "Introduction", "Check grammar and spelling");
+    await ask(user, panel);
+    expect(await within(panel).findByRole("alert")).toHaveTextContent("did not answer in time");
+    expect(within(panel).queryByTestId("pending")).toBeNull();
+    expect(within(panel).getByRole("button", { name: "Ask" })).toBeEnabled();
+  });
+
+  it("shows plainly while looking for real stories", async () => {
+    const { api } = await setup({ assistant: true });
+    await api.assistantSettingsSet({ ...api.state.teaching.assistant.config, search: "searxng", searchUrl: "https://search.example" });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await user.type(field(article, "Introduction"), "Forgiveness after a conflict.");
+    await settle();
+    api.state.teaching.assistant.replies.push({ result: { type: "stories", stories: [] }, assistant: "OpenAI · test-model", remote: true });
+    const release = holdOn(api);
+    const panel = await helpWith(user, article, "Introduction", "Find a real story…");
+    await user.type(within(panel).getByRole("textbox"), "forgiveness");
+    await ask(user, panel);
+    expect(within(panel).getByRole("status")).toHaveTextContent("Looking for sources… This can take a little while.");
+    await act(async () => release());
+    await waitFor(() => expect(within(panel).queryByTestId("pending")).toBeNull());
+  });
+
+  it("shows plainly while finding or making images, one request at a time", async () => {
+    const { api } = await setup({ assistant: true });
+    await api.assistantSettingsSet({ ...api.state.teaching.assistant.config, generateImages: true });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await user.type(field(article, "Introduction"), "Jesus is the vine; we are the branches.");
+    await settle();
+    api.state.teaching.assistant.replies.push({
+      result: { type: "visuals", ideas: [{ description: "A vine with branches", kind: "photo", searchTerms: "grapevine" }] },
+      assistant: "OpenAI · test-model",
+      remote: true,
+    });
+    const panel = await helpWith(user, article, "Introduction", "Suggest a visual");
+    await ask(user, panel);
+    const find = await within(panel).findByRole("button", { name: "Find freely licensed images" });
+    let release = holdOn(api);
+    await user.click(find);
+    expect(within(panel).getByText("Finding suitable images…")).toBeInTheDocument();
+    expect(find).toBeDisabled();
+    await user.click(find);
+    expect(api.state.teaching.assistant.findCalls).toHaveLength(1);
+    await act(async () => release());
+    await waitFor(() => expect(within(panel).queryByText("Finding suitable images…")).toBeNull());
+
+    release = holdOn(api);
+    const make = within(panel).getByRole("button", { name: "Make an image" });
+    await user.click(make);
+    expect(within(panel).getByText("Creating an image… This can take a little while.")).toBeInTheDocument();
+    expect(make).toBeDisabled();
+    await act(async () => release());
+    expect(await within(panel).findByText("Made by the assistant: an illustration, not a photograph")).toBeInTheDocument();
+    expect(api.state.teaching.assistant.generated).toHaveLength(1);
+  });
+});
+
+describe("the teaching canvas", () => {
+  it("puts the writing first and keeps the details folded away until wanted", async () => {
+    const { api } = await setup();
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    const about = within(article).getByRole("button", { name: /^About this teaching/ });
+    expect(about).toHaveAttribute("aria-expanded", "false");
+    expect(within(article).queryByRole("textbox", { name: "Who it is for" })).toBeNull();
+    expect(within(article).queryByRole("button", { name: "Delete this teaching" })).toBeNull();
+    // The main parts are there at once, in order.
+    const boxes = within(article).getAllByRole("textbox").map((b) => b.getAttribute("id") && (b.labels?.[0]?.textContent ?? ""));
+    expect(boxes).toEqual(["Title", "Central message", "Introduction", "Conclusion", "Notes for yourself"]);
+    await user.click(about);
+    expect(await within(article).findByRole("textbox", { name: "Who it is for" })).toBeVisible();
+    // The summary says what is set.
+    await user.type(field(article, "Who it is for"), "families");
+    await settle();
+    expect(within(article).getByRole("button", { name: /^About this teaching/ })).toHaveTextContent("Sermon · for families");
+  });
+
+  it("names the main parts after the kind: questions for a Bible study, steps for a lesson", async () => {
+    const { api } = await setup();
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    expect(within(article).getByRole("heading", { name: "Main points" })).toBeInTheDocument();
+    await openAbout(user, article);
+    await user.selectOptions(within(article).getByRole("combobox", { name: "Kind of teaching" }), "bible_study");
+    expect(await within(article).findByRole("heading", { name: "Questions and answers" })).toBeInTheDocument();
+    await user.click(within(article).getByRole("button", { name: "Add a question" }));
+    expect(await within(article).findByRole("textbox", { name: "What the passage shows" })).toBeInTheDocument();
+    await user.selectOptions(within(article).getByRole("combobox", { name: "Kind of teaching" }), "lesson");
+    expect(await within(article).findByRole("heading", { name: "Lesson plan" })).toBeInTheDocument();
+    expect(within(article).getByRole("textbox", { name: "What you will say or do" })).toBeInTheDocument();
+    // The same point, only named differently: nothing was lost.
+    expect(prep(api).points).toHaveLength(1);
+  });
+
+  it("works fully without the assistant", async () => {
+    const { api } = await setup();
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await user.type(field(article, "Introduction"), "Abide.");
+    await settle();
+    expect(prep(api).introduction).toBe("Abide.");
+    expect(within(article).queryByRole("button", { name: /^Help with/ })).toBeNull();
+    expect(within(article).queryByText(/assistant/i)).toBeNull();
   });
 });

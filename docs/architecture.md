@@ -942,8 +942,12 @@ Abiding Word should use a provider abstraction.
 > store (§36), a bounded context assembled from one teaching preparation and
 > its study (§25), labelled provenance (§26), research through a separate
 > search service, and images (Wikimedia Commons; OpenAI-style generation).
-> Embedding, transcription and OCR providers are not built. Details:
-> [`teaching-preparation-v0.16.md`](teaching-preparation-v0.16.md).
+> Embedding, transcription and OCR providers are not built. Presets after the
+> v0.16 refinement: OpenAI, Anthropic, Google, xAI, Perplexity, DeepSeek,
+> Qwen, Ollama, LM Studio and any other compatible service; none is preferred.
+> Presentation is a future output of a teaching (export, or audience and
+> presenter screens), not a third workspace view. Details:
+> [`teaching-preparation-v0.16.md`](teaching-preparation-v0.16.md) §17.
 
 ## Providers
 

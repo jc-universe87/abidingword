@@ -1,17 +1,21 @@
 import { useCallback, useId, useMemo, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
+import { readLocal, writeLocal } from "@/lib/storage";
 import { useApi } from "@/lib/ApiContext";
 import type { Finding } from "@/types/studies";
 import { TEACHING_KINDS, type TeachingKind, type TeachingPoint, type TeachingPreparation } from "@/types/teaching";
 import { AssistMenu } from "./AssistMenu";
 import { AssistPanel } from "./AssistPanel";
-import { teachingKindLabel } from "./labels";
+import { canvasShape, teachingKindLabel, type ShapeText } from "./labels";
 import { TeachingField, type AssistantHooks } from "./TeachingField";
 import { TeachingLinks } from "./TeachingLinks";
+
+/** Whether "About this teaching" is open, remembered on this computer. */
+const ABOUT_KEY = "teaching.aboutOpen";
 
 interface TeachingViewProps {
   studyId: string;
@@ -217,6 +221,8 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
   const setPrep = loaded.setData;
   const [newPoint, setNewPoint] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // "About this teaching" (kind, audience, purpose, what it uses) stays folded away unless wanted.
+  const [aboutOpen, setAboutOpen] = useState(() => readLocal<boolean>(ABOUT_KEY, false));
   const [wholeAction, setWholeAction] = useState<"structure" | "restructure" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
@@ -316,6 +322,17 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
     }
   };
 
+  // The main canvas follows the kind: points for a sermon, questions for a Bible study, steps for a lesson.
+  const shapeName = canvasShape(prep.kind);
+  const shape = (key: ShapeText, options?: Record<string, unknown>) => t(`studies.teaching.shape.${shapeName}.${key}`, options ?? {});
+  const aboutSummary = [prep.kind ? teachingKindLabel(t, prep.kind) : "", prep.audience?.trim() ? t("studies.teaching.aboutFor", { audience: prep.audience.trim() }) : ""]
+    .filter(Boolean)
+    .join(" · ");
+  const toggleAbout = () => {
+    setAboutOpen(!aboutOpen);
+    writeLocal(ABOUT_KEY, !aboutOpen);
+  };
+
   const kindField = (
     <label className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
       <span className="text-text-muted">{t("studies.teaching.kindLabel")}</span>
@@ -336,7 +353,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
 
   return (
     <article aria-label={prep.title} className="flex flex-col gap-6">
-      <header className="flex flex-col gap-3">
+      <header className="flex flex-col gap-1">
         <TeachingField
           key={`title-${prep.id}`}
           label={t("studies.teaching.titleLabel")}
@@ -354,8 +371,33 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
           emphasis
           assistant={null}
         />
-        <div className="flex flex-wrap items-center gap-3">
-          {kindField}
+        <button
+          type="button"
+          aria-expanded={aboutOpen}
+          aria-controls={`about-${prep.id}`}
+          onClick={toggleAbout}
+          className="inline-flex min-h-11 flex-wrap items-center gap-x-2 self-start rounded-aw px-2 text-left text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+        >
+          <ChevronRight className={`size-4 shrink-0 transition-transform ${aboutOpen ? "rotate-90" : ""}`} aria-hidden="true" />
+          <span className="font-medium text-text-strong">{t("studies.teaching.about")}</span>
+          <span>{aboutSummary || t("studies.teaching.aboutEmpty")}</span>
+        </button>
+      </header>
+
+      <section
+        id={`about-${prep.id}`}
+        aria-labelledby={`about-title-${prep.id}`}
+        hidden={!aboutOpen}
+        className="flex flex-col gap-4 rounded-aw border border-border-subtle px-4 py-3"
+      >
+        <h3 id={`about-title-${prep.id}`} className="sr-only">
+          {t("studies.teaching.about")}
+        </h3>
+        {kindField}
+        <TeachingField key={`audience-${prep.id}`} label={t("studies.teaching.audience")} value={prep.audience ?? ""} save={save("audience")} part="audience" multiline={false} placeholder={t("studies.teaching.audiencePlaceholder")} assistant={hooks} />
+        <TeachingField key={`purpose-${prep.id}`} label={t("studies.teaching.purpose")} value={prep.purpose ?? ""} save={save("purpose")} part="purpose" multiline={false} placeholder={t("studies.teaching.purposePlaceholder")} assistant={hooks} />
+        <TeachingLinks preparation={prep} pointId={null} scope={t("studies.teaching.links.wholeScope")} studyFindings={findings} onChanged={setPrep} onRevealScripture={onRevealScripture} />
+        <div>
           {confirmDelete ? (
             <span className="flex flex-wrap items-center gap-2 rounded-aw border border-border bg-bg px-2 py-1 text-[0.9375rem]">
               <span>{t("studies.teaching.deleteConfirm")}</span>
@@ -377,39 +419,30 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
             </button>
           )}
         </div>
-        {assistant && <p className="m-0 max-w-prose text-[0.875rem] text-text-muted">{t("studies.teaching.assist.intro")}</p>}
-      </header>
-
-      <section aria-labelledby={`about-${prep.id}`} className="flex flex-col gap-4">
-        <h3 id={`about-${prep.id}`} className="m-0 font-display text-[1.25rem] font-heading text-text-strong">
-          {t("studies.teaching.about")}
-        </h3>
-        <TeachingField key={`audience-${prep.id}`} label={t("studies.teaching.audience")} value={prep.audience ?? ""} save={save("audience")} part="audience" multiline={false} placeholder={t("studies.teaching.audiencePlaceholder")} assistant={hooks} />
-        <TeachingField key={`purpose-${prep.id}`} label={t("studies.teaching.purpose")} value={prep.purpose ?? ""} save={save("purpose")} part="purpose" multiline={false} placeholder={t("studies.teaching.purposePlaceholder")} assistant={hooks} />
-        <TeachingField
-          key={`message-${prep.id}`}
-          label={t("studies.teaching.message")}
-          hint={t("studies.teaching.messageHint")}
-          value={prep.centralMessage ?? ""}
-          save={save("centralMessage")}
-          part="centralMessage"
-          rows={2}
-          assistant={hooks}
-          onRevealScripture={onRevealScripture}
-        />
-        <TeachingLinks preparation={prep} pointId={null} scope={t("studies.teaching.links.wholeScope")} studyFindings={findings} onChanged={setPrep} onRevealScripture={onRevealScripture} />
       </section>
+
+      <TeachingField
+        key={`message-${prep.id}`}
+        label={t("studies.teaching.message")}
+        hint={t("studies.teaching.messageHint")}
+        value={prep.centralMessage ?? ""}
+        save={save("centralMessage")}
+        part="centralMessage"
+        rows={2}
+        assistant={hooks}
+        onRevealScripture={onRevealScripture}
+      />
 
       <TeachingField key={`intro-${prep.id}`} label={t("studies.teaching.introduction")} value={prep.introduction} save={save("introduction")} part="introduction" assistant={hooks} onRevealScripture={onRevealScripture} />
 
       <section aria-labelledby={`points-${prep.id}`} className="flex flex-col gap-4">
         <div ref={wholeButton} className="flex flex-wrap items-center justify-between gap-2">
           <h3 id={`points-${prep.id}`} className="m-0 font-display text-[1.25rem] font-heading text-text-strong">
-            {t("studies.teaching.points.title")}
+            {shape("title")}
           </h3>
           {hooks && !wholeAction && <AssistMenu part="whole" partLabel={t("studies.teaching.points.whole")} onChoose={(a) => setWholeAction(a as "structure" | "restructure")} />}
         </div>
-        {prep.points.length === 0 && <p className="m-0 text-text-muted">{t("studies.teaching.points.none")}</p>}
+        {prep.points.length === 0 && <p className="m-0 text-text-muted">{shape("none")}</p>}
         {hooks && wholeAction && (
           <AssistPanel
             preparationId={prep.id}
@@ -428,11 +461,11 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         )}
         <ol className="m-0 flex list-none flex-col gap-6 p-0">
           {prep.points.map((point, index) => {
-            const name = point.title.trim() || t("studies.teaching.points.untitled", { number: index + 1 });
+            const name = point.title.trim() || shape("untitled", { number: index + 1 });
             return (
-              <li key={point.id} aria-label={t("studies.teaching.points.label", { number: index + 1, title: name })} className="flex flex-col gap-3 border-l-[3px] border-accent pl-4">
+              <li key={point.id} aria-label={shape("label", { number: index + 1, title: name })} className="flex flex-col gap-3 border-l-[3px] border-accent pl-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-ui text-[0.875rem] font-semibold text-text-muted">{t("studies.teaching.points.number", { number: index + 1 })}</span>
+                  <span className="font-ui text-[0.875rem] font-semibold text-text-muted">{shape("number", { number: index + 1 })}</span>
                   <span className="ml-auto flex items-center">
                     <button
                       id={`point-move-${point.id}-up`}
@@ -480,7 +513,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
                 </div>
                 <TeachingField
                   key={`ptitle-${point.id}`}
-                  label={t("studies.teaching.points.titleLabel", { number: index + 1 })}
+                  label={shape("titleLabel", { number: index + 1 })}
                   value={point.title}
                   save={savePoint(point.id, "title")}
                   part="pointTitle"
@@ -488,13 +521,13 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
                   fieldId={`point-title-${point.id}`}
                   multiline={false}
                   emphasis
-                  placeholder={t("studies.teaching.points.titlePlaceholder")}
+                  placeholder={shape("titlePlaceholder")}
                   assistant={hooks}
                   autoFocus={point.id === newPoint}
                 />
-                <TeachingField key={`pexp-${point.id}`} label={t("studies.teaching.points.explanation")} value={point.explanation} save={savePoint(point.id, "explanation")} part="pointExplanation" pointId={point.id} assistant={hooks} onRevealScripture={onRevealScripture} />
-                <TeachingField key={`papp-${point.id}`} label={t("studies.teaching.points.application")} value={point.application} save={savePoint(point.id, "application")} part="pointApplication" pointId={point.id} rows={2} assistant={hooks} onRevealScripture={onRevealScripture} />
-                <TeachingField key={`pill-${point.id}`} label={t("studies.teaching.points.illustration")} value={point.illustration} save={savePoint(point.id, "illustration")} part="pointIllustration" pointId={point.id} rows={2} assistant={hooks} />
+                <TeachingField key={`pexp-${point.id}`} label={shape("explanation")} value={point.explanation} save={savePoint(point.id, "explanation")} part="pointExplanation" pointId={point.id} assistant={hooks} onRevealScripture={onRevealScripture} />
+                <TeachingField key={`papp-${point.id}`} label={shape("application")} value={point.application} save={savePoint(point.id, "application")} part="pointApplication" pointId={point.id} rows={2} assistant={hooks} onRevealScripture={onRevealScripture} />
+                <TeachingField key={`pill-${point.id}`} label={shape("illustration")} value={point.illustration} save={savePoint(point.id, "illustration")} part="pointIllustration" pointId={point.id} rows={2} assistant={hooks} />
                 <TeachingLinks preparation={prep} pointId={point.id} scope={name} studyFindings={findings} onChanged={setPrep} onRevealScripture={onRevealScripture} />
               </li>
             );
@@ -503,7 +536,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         <div>
           <Button ref={addButton} className="min-h-11" onClick={() => void addPoint(prep.points[prep.points.length - 1]?.id ?? null)}>
             <Plus className="size-4" aria-hidden="true" />
-            {t("studies.teaching.points.add")}
+            {shape("add")}
           </Button>
         </div>
       </section>

@@ -201,12 +201,40 @@ assistant beside each part of a teaching (wording, comments, ideas, real
 stories through search, images), which never changes the person's text
 without an explicit choice and lists what it will see before anything is sent.
 
+**Refined after Windows testing** (§17 of the v0.16 record): calmer Settings,
+more provider presets with plain key help, a two-level Help menu with a
+free-text request answered only as comments, visible progress for long
+operations, and a Teaching view where the writing comes first.
+
 **Still open:** the assistant in the Study itself (findings, sections) and in
 the Library (summarising a source with provenance); research modes beyond one
 teaching ("my library only", "compare these three commentaries"); a record of
 accepted assistant wording; a persistent Linux key store; search through an AI
 service's own search tool; copying teaching preparations with a study and
 finding them in study search.
+
+### Presentation (future; not a peer of Bible Study / Bible Teaching)
+
+Presentation is an **output of a teaching**, not a third view beside Bible
+Study and Bible Teaching. Two paths, both later:
+
+- **A. Export or create a presentation** (PowerPoint or slides) from a
+  teaching's parts, Scripture and kept images.
+- **B. Present directly:** an audience screen (Scripture, images, key
+  sentences) and a presenter screen (manuscript, notes, current and next,
+  navigation), built on the multi-window work (§1).
+
+Keep the teaching model ordered and id-stable, and keep media out of the
+manuscript text, so neither path needs a migration of what people wrote.
+
+### Format-specific teaching canvases, inline media, templates
+
+Recorded in [`teaching-preparation-v0.16.md`](teaching-preparation-v0.16.md)
+§17.8: a canvas per kind (manuscript and outline for sermons, questions and
+answers for Bible studies, an agenda for lessons), typed blocks for inline
+media later (text, Scripture, question, image, activity, audio), one template
+list for Study and Teaching, and dropping "finding" as a user-facing word in
+the Study redesign (§17.6).
 
 ## 3. Backup and sync versus export and publication
 

@@ -2,7 +2,7 @@
   "translation": "Übersetzung",
   "empty": {
     "title": "Es wurde noch keine Bibel hinzugefügt.",
-    "body": "Fügen Sie eine der freien Bibeln hinzu, die Abiding Word mitbringt, oder eine Bibeldatei, die Sie besitzen. Alles bleibt auf diesem Computer und funktioniert ohne Internetverbindung.",
+    "body": "Füge eine der freien Bibeln hinzu, die Abiding Word mitbringt, oder eine Bibeldatei, die du besitzt. Alles bleibt auf diesem Computer und funktioniert ohne Internetverbindung.",
     "addBible": "Bibel hinzufügen …"
   },
   "nav": {
@@ -85,10 +85,10 @@
     "addSelected": "Hinzufügen …",
     "confirmTitle": "{{name}} hinzufügen?",
     "confirmLanguage": "Sprache: {{language}}",
-    "confirmBody": "Als Nächstes prüft Abiding Word jedes Buch, jedes Kapitel und jeden Vers und zeigt Ihnen das Ergebnis. Hinzugefügt wird erst, wenn Sie bestätigen.",
+    "confirmBody": "Als Nächstes prüft Abiding Word jedes Buch, jedes Kapitel und jeden Vers und zeigt dir das Ergebnis. Hinzugefügt wird erst, wenn du bestätigst.",
     "confirmContinue": "Weiter",
     "ownTitle": "Eine eigene Bibel",
-    "ownBody": "Wählen Sie eine Bibel im USFM-Format: einen .zip-Download oder ihre .usfm-Dateien. Abiding Word legt eine eigene Kopie an und verändert Ihre Datei nie.",
+    "ownBody": "Wähle eine Bibel im USFM-Format: einen .zip-Download oder ihre .usfm-Dateien. Abiding Word legt eine eigene Kopie an und verändert deine Datei nie.",
     "chooseFiles": "Bibeldateien auswählen …",
     "field": {
       "name": "Name",
@@ -127,7 +127,7 @@
     "addBible": "Bibel hinzufügen …",
     "source": {
       "bundled": "In Abiding Word enthalten",
-      "imported": "Aus Ihrer Datei importiert"
+      "imported": "Aus deiner Datei importiert"
     },
     "status": {
       "ready": "Bereit",
@@ -147,8 +147,8 @@
     },
     "contents_one": "{{count}} Buch, {{verses}} Verse",
     "contents_other": "{{count}} Bücher, {{verses}} Verse",
-    "confirmRemove": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht. Ihre Studien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
-    "confirmRemoveManaged": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht, zusammen mit der Kopie der Datei, die Abiding Word angelegt hat (Ihre Originaldatei bleibt unberührt). Ihre Studien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
+    "confirmRemove": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht. Deine Studien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
+    "confirmRemoveManaged": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht, zusammen mit der Kopie der Datei, die Abiding Word angelegt hat (deine Originaldatei bleibt unberührt). Deine Studien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
     "keep": "Behalten"
   },
   "colors": {
@@ -191,9 +191,9 @@
       "noneBody": "Markierungen, Notizen und Lesezeichen, die beim Lesen entstehen, erscheinen hier.",
       "noMatch": "Dazu gibt es nichts. Versuche ein anderes Buch oder eine andere Farbe.",
       "noSearch": "Keine Notiz passt zur Suche.",
-      "noneSources": "In Ihren Quellen gibt es noch keine Anmerkungen.",
-      "noneSourcesBody": "Wählen Sie beim Lesen einer Quelle Text aus, um ihn zu markieren oder eine Notiz hinzuzufügen.",
-      "noMatchSources": "Hier passt nichts. Versuchen Sie eine andere Quelle oder Farbe."
+      "noneSources": "In deinen Quellen gibt es noch keine Anmerkungen.",
+      "noneSourcesBody": "Wähle beim Lesen einer Quelle Text aus, um ihn zu markieren oder eine Notiz hinzuzufügen.",
+      "noMatchSources": "Hier passt nichts. Versuche eine andere Quelle oder Farbe."
     },
     "result": {
       "note": "Notiz",
@@ -213,7 +213,7 @@
     "source": "Quelle",
     "allSources": "Alle Quellen",
     "sectionBible": "In der Bibel",
-    "sectionSources": "In Ihren Quellen"
+    "sectionSources": "In deinen Quellen"
   },
   "history": {
     "group": "Verlauf der Bibel",

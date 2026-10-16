@@ -622,7 +622,7 @@
   "view": {
     "label": "보기",
     "study": "성경공부",
-    "teaching": "가르침 준비"
+    "teaching": "성경 가르침"
   },
   "teaching": {
     "loading": "가르침 준비를 여는 중…",
@@ -647,7 +647,7 @@
     "start": "시작하기",
     "delete": "이 가르침 준비 삭제",
     "deleteConfirm": "이 가르침 준비를 삭제할까요? 성경공부와 그 기록, 본문은 그대로 남습니다.",
-    "about": "무엇에 관한 가르침인가",
+    "about": "이 가르침에 관하여",
     "audience": "대상",
     "audiencePlaceholder": "예: 온 교회, 청소년부",
     "purpose": "목적",
@@ -659,21 +659,10 @@
     "notes": "인도자 메모",
     "notesHint": "가르치면서 볼 메모입니다. 전하는 내용에는 들어가지 않습니다.",
     "points": {
-      "title": "대지",
       "whole": "가르침 전체",
-      "none": "아직 대지가 없습니다. 필요한 만큼, 어떤 형태로든 추가하세요. 이야기의 흐름, 질문, 주제, 몇 구절이 될 수 있습니다.",
-      "add": "대지 추가",
       "added": "대지를 추가했습니다.",
       "removed": "대지를 삭제했습니다.",
       "moved": "대지를 {{position}}번째로 옮겼습니다.",
-      "number": "{{number}}대지",
-      "label": "{{number}}대지: {{title}}",
-      "untitled": "{{number}}대지",
-      "titleLabel": "{{number}}대지 제목",
-      "titlePlaceholder": "이 대지가 말하는 것",
-      "explanation": "설명",
-      "application": "적용",
-      "illustration": "예화",
       "moveUp": "‘{{point}}’ 위로",
       "moveDown": "‘{{point}}’ 아래로",
       "delete": "‘{{point}}’ 삭제",
@@ -712,14 +701,8 @@
       "suggestion": "도우미의 제안"
     },
     "assist": {
-      "intro": "각 부분 옆의 ‘도움 받기’로 도우미를 쓸 수 있습니다. 쓴 내용에 의견을 주고, 확인하고, 표현을 제안합니다. 제안을 고르지 않는 한 글은 바뀌지 않습니다.",
       "menu": "도움 받기",
       "menuLabel": "{{part}} 도움 받기",
-      "group": {
-        "wording": "표현 다듬기",
-        "comments": "의견 듣기",
-        "ideas": "아이디어"
-      },
       "action": {
         "grammar": "맞춤법·문법 확인",
         "clarity": "더 분명하게",
@@ -740,7 +723,8 @@
         "restructure": "지금 쓴 내용을 어떻게 배열할까?",
         "illustration": "예화 아이디어",
         "story": "실화 찾기…",
-        "visual": "시각 자료 제안"
+        "visual": "시각 자료 제안",
+        "free": "다른 것 요청하기…"
       },
       "title": "{{action}} · {{part}}",
       "close": "도우미 닫기",
@@ -750,7 +734,8 @@
         "story": "어떤 실화를 찾나요?",
         "transition": "무엇을 연결할까요? (선택)",
         "phrasing": "무엇을 말하고 싶나요? (선택)",
-        "visual": "그림으로 무엇을 설명할까요? (선택)"
+        "visual": "그림으로 무엇을 설명할까요? (선택)",
+        "free": "무엇을 도와 드릴까요?"
       },
       "audienceLabel": "누구를 위한 글인가요?",
       "audiencePlaceholder": "예: 8–10세 어린이",
@@ -771,7 +756,6 @@
       },
       "ask": "요청하기",
       "askHint": "Ctrl+Enter로 요청, Esc로 닫기. 요청하기 전에는 아무것도 보내지 않습니다.",
-      "working": "처리 중…",
       "ready": "제안이 준비되었습니다.",
       "failed": "이번에는 도우미가 도움을 드리지 못했습니다.",
       "kept": "이 가르침 준비에 보관했습니다.",
@@ -841,7 +825,70 @@
         "generatedAlt": "도우미가 만든 그림: {{description}}",
         "nothingPlaced": "보관하지 않으면 가르침 준비에 아무것도 넣지 않습니다."
       },
-      "changedMeanwhile": "요청한 뒤에 글이 바뀌어서 이 제안을 쓰지 않았습니다. 다시 요청하세요."
-    }
+      "changedMeanwhile": "요청한 뒤에 글이 바뀌어서 이 제안을 쓰지 않았습니다. 다시 요청하세요.",
+      "menuIntro": "어떤 도움이 필요하세요?",
+      "allHelp": "모든 도움",
+      "category": {
+        "wording": "표현 다듬기",
+        "review": "쓴 글 검토받기",
+        "structure": "구성 도움",
+        "ideas": "아이디어와 예화",
+        "research": "찾아보기"
+      },
+      "freePlaceholder": "예: 청소년 모임에 너무 긴가요?",
+      "freeHint": "도우미는 이 부분과, 이 가르침과 성경공부에서 필요한 내용을 봅니다. 의견과 질문으로 답할 뿐, 가르침을 대신 써 주지는 않습니다.",
+      "slow": "평소보다 오래 걸리고 있습니다. 계속 기다리거나 그만둘 수 있습니다.",
+      "stop": "그만 기다리기",
+      "stopped": "기다리기를 멈췄습니다. 바뀐 것은 없습니다.",
+      "pending": {
+        "ask": "도우미에게 묻는 중…",
+        "story": "출처를 찾는 중… 조금 걸릴 수 있습니다.",
+        "findImages": "알맞은 이미지를 찾는 중…",
+        "makeImage": "이미지를 만드는 중… 조금 걸릴 수 있습니다."
+      }
+    },
+    "shape": {
+      "points": {
+        "title": "대지",
+        "none": "아직 대지가 없습니다. 필요한 만큼, 어떤 형태로든 추가하세요. 이야기의 흐름, 질문, 주제, 몇 구절이 될 수 있습니다.",
+        "add": "대지 추가",
+        "number": "{{number}}대지",
+        "label": "{{number}}대지: {{title}}",
+        "untitled": "{{number}}대지",
+        "titleLabel": "{{number}}대지 제목",
+        "titlePlaceholder": "이 대지가 말하는 것",
+        "explanation": "설명",
+        "application": "적용",
+        "illustration": "예화"
+      },
+      "questions": {
+        "title": "질문과 나눔",
+        "none": "아직 질문이 없습니다. 함께 나눌 질문을 추가하고, 본문이 무엇을 보여 주는지 적어 보세요.",
+        "add": "질문 추가",
+        "number": "질문 {{number}}",
+        "label": "질문 {{number}}: {{title}}",
+        "untitled": "질문 {{number}}",
+        "titleLabel": "질문 {{number}}",
+        "titlePlaceholder": "던질 질문",
+        "explanation": "본문이 보여 주는 것",
+        "application": "우리에게 주는 의미",
+        "illustration": "나눔 인도를 위한 메모"
+      },
+      "steps": {
+        "title": "진행 순서",
+        "none": "아직 순서가 없습니다. 환영, 이야기, 활동, 기도처럼 진행되는 차례대로 추가하세요.",
+        "add": "순서 추가",
+        "number": "순서 {{number}}",
+        "label": "순서 {{number}}: {{title}}",
+        "untitled": "순서 {{number}}",
+        "titleLabel": "순서 {{number}} 제목",
+        "titlePlaceholder": "이 순서에서 하는 일",
+        "explanation": "말하거나 할 내용",
+        "application": "마음에 새길 것",
+        "illustration": "활동, 준비물, 예"
+      }
+    },
+    "aboutEmpty": "종류, 대상, 목적, 본문",
+    "aboutFor": "대상: {{audience}}"
   }
 }

@@ -8,7 +8,8 @@
     "templates": "성경공부 틀",
     "about": "이 설치 정보",
     "planned": "향후 버전에서 제공 예정",
-    "assistant": "도우미"
+    "assistant": "도우미",
+    "updates": "업데이트"
   },
   "language": {
     "label": "화면 언어",
@@ -46,51 +47,119 @@
     "integrationsText": "이미 사용하는 다른 도구와 연결합니다."
   },
   "assistant": {
-    "intro": "가르침 준비를 돕는 선택 기능입니다. 쓰신 글에 의견을 주고 표현을 제안하며, 주장을 본문에 비추어 확인하고, 실화와 그림을 찾을 수 있습니다. 글쓴이는 언제나 사용자입니다. 제안을 고르지 않는 한 글은 바뀌지 않습니다. 켜기 전에는 꺼져 있고, 요청할 때만 일합니다.",
+    "intro": "가르침을 준비할 때 쓰는 선택 기능입니다. 의견을 주고 제안을 하지만, 글쓴이는 언제나 본인입니다. 직접 고르지 않으면 글은 바뀌지 않으며, 요청할 때만 작동합니다.",
     "enabled": "도우미 사용",
     "provider": "서비스",
     "providers": {
-      "openai": "OpenAI",
+      "openai": "OpenAI (ChatGPT)",
       "anthropic": "Anthropic (Claude)",
       "google": "Google Gemini",
-      "ollama": "Ollama (이 컴퓨터)",
-      "lmstudio": "LM Studio (이 컴퓨터)",
-      "openai_compatible": "다른 호환 서버"
+      "ollama": "Ollama",
+      "lmstudio": "LM Studio",
+      "openai_compatible": "다른 호환 서비스",
+      "xai": "xAI (Grok)",
+      "perplexity": "Perplexity",
+      "deepseek": "DeepSeek",
+      "qwen": "Qwen (Alibaba Cloud)"
     },
     "remote": "도움을 요청하면 고르신 글이 인터넷으로 이 서비스에 전송됩니다.",
     "local": "이 컴퓨터에서 실행되므로 글이 밖으로 나가지 않습니다.",
     "model": "모델",
     "modelPlaceholder": "모델 이름",
-    "modelHint": "서비스에서 쓰는 이름입니다(예: 서비스 웹사이트 참고).",
-    "address": "주소 (선택)",
+    "modelHint": "추천 모델이 미리 적혀 있습니다. 다른 모델을 원할 때만 바꾸세요.",
+    "address": "서비스 주소",
     "addressPlaceholder": "서비스 기본 주소",
-    "addressHint": "다른 서버나 다른 컴퓨터의 로컬 모델을 쓸 때만 필요합니다.",
+    "addressHint": "비워 두면 서비스의 기본 주소를 씁니다. 다른 서버나 다른 컴퓨터에서 실행되는 프로그램을 쓸 때만 필요합니다.",
     "key": "키",
-    "keyHint": "키는 이 컴퓨터의 자격 증명 저장소에 보관되며, 성경공부에는 저장되지 않고 다시 표시되지 않습니다.",
+    "keyHint": "이 컴퓨터의 암호 저장소에 보관되며, 성경공부에는 저장되지 않고 다시 표시되지 않습니다.",
     "keyKept": "이 컴퓨터에 키가 보관되어 있습니다.",
     "keyKeptPlaceholder": "키 보관됨 (바꾸려면 입력)",
     "keySave": "키 저장",
     "keyRemove": "키 삭제",
     "keySaved": "키를 이 컴퓨터에 보관했습니다.",
     "keyRemoved": "키를 삭제했습니다.",
-    "search": "실화 확인",
-    "searchHint": "실화와 인용은 검색 서비스가 찾았을 때만 제시됩니다. 검색 서비스가 없으면 확인할 수 없다고 알려 줍니다.",
+    "search": "실제 이야기 찾아보기",
+    "searchHint": "AI 도우미의 기억은 사실 확인에 믿을 수 없습니다. 실제로 없었던 일을 사실처럼 이야기할 수 있습니다. 그래서 실제 이야기를 찾을 때는 Abiding Word가 검색 서비스에서 실제 출처를 찾아 보여 줍니다. 이야기를 쓰기 전에 출처를 직접 읽어 보세요.",
     "searchKinds": {
-      "none": "검색 안 함 (실화를 찾지 않음)",
-      "brave": "Brave Search (키 필요)",
-      "searxng": "SearXNG (신뢰하는 주소)"
+      "none": "끄기 (실제 이야기 찾지 않음)",
+      "brave": "Brave Search (별도 키 필요)",
+      "searxng": "SearXNG (믿을 수 있는 검색 주소)"
     },
     "searchAddress": "SearXNG 주소",
     "searchKey": "검색 키",
     "images": "그림",
     "findImages": "Wikimedia Commons에서 자유 이용 그림 찾기 (검색어만 보냄)",
     "generateImages": "그림 만들기 허용 (항상 도우미가 만든 그림으로 표시)",
-    "generateOnlyOpenai": "그림 만들기는 OpenAI 또는 호환 서버에서만 됩니다.",
-    "perspective": "신학 전통 (선택)",
-    "perspectiveHint": "도우미가 존중하기를 원하면 직접 적어 주세요. 비워 두면 어떤 입장도 가정하지 않고, 그리스도인들이 본문을 다르게 읽는 곳을 알려 줍니다.",
+    "generateOnlyOpenai": "이미지 만들기는 OpenAI 또는 다른 호환 서비스에서만 됩니다.",
+    "perspective": "도우미가 신학적 질문을 어떤 관점에서 다루면 좋을까요?",
+    "perspectiveHint": "짧게 적어 주세요. 속한 교회 전통이나, 의견이 갈리는 질문을 어떻게 다룰지 등입니다. 비워 두면 특정 전통을 전제하지 않고, 그리스도인들이 본문을 다르게 읽는 부분을 알려 줍니다.",
     "save": "저장",
     "saved": "저장했습니다.",
     "test": "연결 확인",
-    "testOk": "도우미가 응답했습니다. 사용할 수 있습니다."
+    "testOk": "연결되었습니다. 도우미가 응답했고 사용할 준비가 되었습니다.",
+    "offHint": "도우미를 켜면 서비스를 고르고 연결을 확인할 수 있습니다.",
+    "turnedOn": "도우미가 켜졌습니다.",
+    "turnedOff": "도우미가 꺼졌습니다.",
+    "providerGroups": {
+      "internet": "인터넷 서비스",
+      "local": "이 컴퓨터에서",
+      "other": "기타"
+    },
+    "localHelp": {
+      "title": "{{service}}는 어떻게 준비하나요?",
+      "what": "{{service}}는 AI 모델을 내 컴퓨터에서 직접 실행하는 무료 프로그램입니다. 키나 계정이 필요 없고, 글이 컴퓨터 밖으로 나가지 않습니다. 성능이 좋은 컴퓨터에서 잘 작동하며, 답이 늦게 올 수 있습니다.",
+      "steps": "{{service}}를 설치하고, 그 안에서 모델을 내려받은 뒤 실행해 두세요. 그다음 아래에 모델 이름을 적고 연결을 확인하세요.",
+      "open": "{{service}} 웹사이트 열기"
+    },
+    "otherHelp": "OpenAI와 같은 방식으로 작동하는 서비스입니다. 안내서에 나온 주소, 필요하면 키, 그리고 모델 이름을 적으세요.",
+    "keyOptional": "키 (서비스에 필요한 경우)",
+    "keyHelp": {
+      "title": "키는 어떻게 받나요?",
+      "whatQ": "키가 무엇인가요?",
+      "whatA": "{{service}}에서 받는 긴 코드로, Abiding Word가 그곳의 내 계정을 쓸 수 있게 해 줍니다. 비밀번호처럼 다루고 다른 사람에게 알려 주지 마세요.",
+      "whyQ": "왜 필요한가요?",
+      "whyA": "{{service}}는 자기 컴퓨터에서 도우미를 실행합니다. 키를 보고 요청이 내 계정에서 온 것임을 압니다.",
+      "whereQ": "어디서 받나요?",
+      "whereA": "{{service}} 웹사이트에 로그인하거나 계정을 만든 뒤, API 키 페이지에서 새 키를 만드세요. 보통 한 번만 보여 주므로 바로 복사하세요.",
+      "open": "{{service}} 키 페이지 열기",
+      "costQ": "비용이 드나요?",
+      "costA": "보통 조금 듭니다. {{service}}는 쓴 만큼 요금을 받으며, 요청 한 번에 몇 센트 정도인 경우가 많습니다. 처음에 무료 사용량을 주는 곳도 있습니다. 결제는 Abiding Word가 아니라 그 웹사이트에서 합니다.",
+      "pasteQ": "어디에 붙여 넣나요?",
+      "pasteA": "위의 ‘키’ 칸에 붙여 넣고 ‘키 저장’을 누르세요."
+    },
+    "modelHintEmpty": "{{service}}에 표시된 그대로 모델 이름을 적으세요.",
+    "advanced": "고급",
+    "checking": "연결을 확인하는 중… 몇 초 걸릴 수 있습니다.",
+    "why": {
+      "noKey": "연결을 확인하려면 먼저 키를 붙여 넣고 ‘키 저장’을 누르세요.",
+      "noModel": "연결을 확인하려면 먼저 모델 이름을 적으세요.",
+      "noAddress": "연결을 확인하려면 먼저 서비스 주소를 적으세요.",
+      "badAddress": "서비스 주소는 http:// 또는 https://로 시작해야 합니다."
+    },
+    "extras": "추가 기능 (선택)",
+    "optional": "(선택)",
+    "perspectiveExamples": "예:",
+    "perspectiveExample": {
+      "reformed": "개혁주의",
+      "catholic": "로마 가톨릭",
+      "lutheran": "루터교",
+      "pentecostal": "오순절",
+      "none": "특정 전통 없음",
+      "views": "의견이 갈리는 질문에서는 여러 관점을 먼저 보여 주세요."
+    }
+  },
+  "jumpTo": "항목으로 이동",
+  "summary": {
+    "version": "버전 {{version}}",
+    "upToDate": "최신 상태",
+    "updateAvailable": "버전 {{version}}을(를) 받을 수 있습니다",
+    "updateInstalling": "업데이트를 설치하는 중…",
+    "updateFailed": "문제가 생겼습니다. 아래를 보세요",
+    "updatesOff": "이 버전에는 없음",
+    "bibleTexts": "번역본 추가 또는 삭제",
+    "templates": "새 성경공부의 기본 틀",
+    "assistantOff": "꺼짐",
+    "assistantOn": "켜짐 · {{service}}",
+    "about": "버전 {{version}} · 데이터 저장 위치"
   }
 }

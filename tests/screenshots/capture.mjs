@@ -44,7 +44,7 @@ const openSource = async (page, title) => {
 
 const openTeaching = async (page) => {
   await openStudy(page);
-  await page.getByRole("main").getByRole("button", { name: "Teaching", exact: true }).click();
+  await page.getByRole("main").getByRole("button", { name: "Bible Teaching", exact: true }).click();
   await page.waitForTimeout(800);
 };
 
@@ -60,6 +60,7 @@ const scenes = {
     await openTeaching(page);
     const main = page.getByRole("main");
     await main.getByRole("button", { name: "Help with Introduction" }).click();
+    await main.getByRole("menuitem", { name: "Improve my wording" }).click();
     await main.getByRole("menuitem", { name: "Make it sound natural" }).click();
     const panel = main.getByTestId("assist-panel");
     await panel.getByRole("button", { name: "Ask" }).click();
@@ -67,6 +68,17 @@ const scenes = {
     await panel.scrollIntoViewIfNeeded();
     const box = await panel.boundingBox();
     await shot(page, "teaching-help", { screenshot: (o) => page.screenshot({ ...o, clip: { x: box.x - 16, y: box.y - 150, width: box.width + 32, height: box.height + 166 } }) });
+    await page.close();
+  },
+  async "teaching-menu"() {
+    const page = await open("", { width: 1440, height: 1400 });
+    await openTeaching(page);
+    const main = page.getByRole("main");
+    await main.getByRole("button", { name: "Help with Introduction" }).click();
+    const menu = main.getByRole("menu");
+    await menu.waitFor();
+    const box = await menu.boundingBox();
+    await shot(page, "teaching-menu", { screenshot: (o) => page.screenshot({ ...o, clip: { x: box.x - 420, y: box.y - 90, width: box.width + 440, height: box.height + 110 } }) });
     await page.close();
   },
   async workspace() {
@@ -235,18 +247,29 @@ Object.assign(scenes, {
   async "bible-texts"() {
     const page = await open();
     await page.getByRole("button", { name: "Settings" }).click();
-    const heading = page.getByRole("heading", { name: "Bible Texts" });
-    await heading.scrollIntoViewIfNeeded();
-    await page.evaluate(() => window.scrollBy(0, -40));
-    await shot(page, "bible-texts", page.locator("section", { has: heading }).first());
+    const section = page.getByRole("region", { name: "Bible texts" });
+    await section.getByRole("button", { name: "Bible texts" }).click();
+    await page.waitForTimeout(400);
+    await shot(page, "bible-texts", section);
     await page.close();
   },
   async updates() {
     const page = await open();
     await page.getByRole("button", { name: "Settings" }).click();
-    const heading = page.getByRole("heading", { name: "Updates" });
-    await heading.scrollIntoViewIfNeeded();
-    await shot(page, "updates", page.locator("section", { has: heading }).first());
+    const section = page.getByRole("region", { name: "Updates" });
+    await section.getByRole("button", { name: "Updates" }).click();
+    await page.waitForTimeout(400);
+    await shot(page, "updates", section);
+    await page.close();
+  },
+  async "settings-assistant"() {
+    const page = await open("", { width: 1440, height: 2600 });
+    await page.getByRole("button", { name: "Settings" }).click();
+    const section = page.getByRole("region", { name: "Assistant" });
+    await section.getByRole("button", { name: "Assistant" }).click();
+    await section.getByText("How do I get a key?").click();
+    await page.waitForTimeout(400);
+    await shot(page, "settings-assistant", section);
     await page.close();
   },
   async "pdf-original"() {

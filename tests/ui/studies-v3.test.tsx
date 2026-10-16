@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { createMemoryApi, type MemoryApi } from "../support/memoryApi";
-import { renderApp } from "../support/render";
+import { openSettingsSection, renderApp } from "../support/render";
 
 async function withProject(title = "John Sermon Series") {
   const api = createMemoryApi();
@@ -272,7 +272,7 @@ describe("templates", () => {
   it("duplicates a built-in template, customises it and uses it for a new study", async () => {
     const { api } = await withProject();
     const { user } = await renderApp(api);
-    await user.click(screen.getByRole("button", { name: "Settings" }));
+    await openSettingsSection(user, "Templates");
     const templates = await screen.findByRole("list", { name: "Study templates" });
     expect(within(templates).getAllByRole("listitem")).toHaveLength(6);
     const passage = within(templates).getByText("Passage Study").closest("li")!;

@@ -37,6 +37,9 @@ pub enum AssistAction {
     Application,
     Theology,
     Passages,
+    /// The person's own request in their words, answered only as comments:
+    /// never as wording that could be put into the teaching.
+    Free,
     // Alternatives grounded in the person's material.
     Phrasing,
     Question,
@@ -77,6 +80,7 @@ impl AssistAction {
                 | Self::Application
                 | Self::Theology
                 | Self::Passages
+                | Self::Free
                 | Self::Question
                 | Self::Phrasing
                 | Self::Structure
@@ -301,13 +305,13 @@ pub fn assemble(conn: &Connection, input: &AssistInput) -> AppResult<Context> {
     let grounded = match action {
         a if a.is_whole() => whole_has_content,
         AssistAction::Question => !request.is_empty(),
-        AssistAction::Story => !request.is_empty(),
+        AssistAction::Story | AssistAction::Free => !request.is_empty(),
         AssistAction::Visual => !text.is_empty() || !request.is_empty(),
         _ => !text.is_empty(),
     };
     if !grounded {
         return Err(match action {
-            AssistAction::Question | AssistAction::Story => AppError::Assistant(UserMessage::new(
+            AssistAction::Question | AssistAction::Story | AssistAction::Free => AppError::Assistant(UserMessage::new(
                 "assistant.sayWhat",
                 "Say in a few words what you are looking for.",
             )),

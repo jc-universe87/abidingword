@@ -1,7 +1,7 @@
 import { cleanup, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { createMemoryApi } from "../support/memoryApi";
-import { renderApp } from "../support/render";
+import { openSettingsSection, renderApp } from "../support/render";
 
 /** The workspace panes from left to right, by name. */
 function paneOrder(): string[] {
@@ -123,7 +123,7 @@ describe("workspace layout", () => {
     const studyLocation = stored("studyPane.location");
     expect(studyLocation).not.toBeNull();
 
-    await user.click(screen.getByRole("button", { name: "Settings" }));
+    await openSettingsSection(user, "Appearance");
     await user.click(await screen.findByRole("button", { name: "Reset layout" }));
     expect(await screen.findByText("Layout reset.")).toBeInTheDocument();
     expect(stored("layout.order")).toBeNull();
@@ -149,7 +149,7 @@ describe("workspace layout", () => {
     // The narrow window leaves less room, so less to grow into.
     expect(divider("Sources")).toHaveAttribute("aria-valuemax", "240");
 
-    await user.click(screen.getByRole("button", { name: "Settings" }));
+    await openSettingsSection(user, "Appearance");
     await user.click(await screen.findByRole("button", { name: "Reset layout" }));
     await user.click(screen.getByRole("button", { name: "Back to workspace" }));
     await screen.findByRole("main", { name: "Study" });

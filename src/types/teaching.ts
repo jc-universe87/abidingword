@@ -132,7 +132,8 @@ export interface KeepTeachingMaterial {
 // Assistant
 // ---------------------------------------------------------------------------
 
-export const PROVIDER_KINDS = ["openai", "anthropic", "google", "ollama", "lmstudio", "openai_compatible"] as const;
+/** Services on the internet, then on this computer, then any other compatible one (as the core lists them). */
+export const PROVIDER_KINDS = ["openai", "anthropic", "google", "xai", "perplexity", "deepseek", "qwen", "ollama", "lmstudio", "openai_compatible"] as const;
 export type ProviderKind = (typeof PROVIDER_KINDS)[number];
 export const SEARCH_KINDS = ["none", "brave", "searxng"] as const;
 export type SearchKind = (typeof SEARCH_KINDS)[number];
@@ -160,7 +161,8 @@ export interface AssistantSettings {
 }
 
 export const WORDING_ACTIONS = ["grammar", "clarity", "shorten", "natural", "repetition", "spoken", "audience", "translate", "transition"] as const;
-export const REVIEW_ACTIONS = ["review", "structure", "application", "theology", "passages"] as const;
+/** Answered as comments; "free" is a request in the person's own words. */
+export const REVIEW_ACTIONS = ["review", "structure", "application", "theology", "passages", "free"] as const;
 export const OPTION_ACTIONS = ["phrasing", "question", "restructure", "illustration"] as const;
 export type AssistAction =
   | (typeof WORDING_ACTIONS)[number]

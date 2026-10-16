@@ -65,7 +65,8 @@ export function UpdatesProvider({ updater, enabled, version, children }: Provide
       if (!automatic) setState({ kind: "checking" });
       try {
         const update = await updater.check();
-        setState(update ? { kind: "available", update } : automatic ? { kind: "idle" } : { kind: "upToDate" });
+        // A quiet check that finds nothing still tells Settings that all is up to date.
+        setState(update ? { kind: "available", update } : { kind: "upToDate" });
       } catch (error) {
         note("Update check failed", error);
         setState(automatic ? { kind: "idle" } : { kind: "failed", step: "check" });

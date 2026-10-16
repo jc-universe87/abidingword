@@ -28,14 +28,14 @@
   "view": {
     "backToWorkspace": "Zurück zum Arbeitsbereich",
     "title": "Bibliothek",
-    "intro": "Ihre eigenen Bücher, Notizen und Dokumente, gespeichert auf diesem Computer. Jedes Suchergebnis zeigt genau, woher es stammt.",
+    "intro": "Deine eigenen Bücher, Notizen und Dokumente, gespeichert auf diesem Computer. Jedes Suchergebnis zeigt genau, woher es stammt.",
     "addedOn": "hinzugefügt am {{date}}"
   },
   "search": {
     "heading": "Bibliothek durchsuchen",
     "label": "Bibliothek durchsuchen",
     "placeholder": "Wörter oder „genauer Wortlaut“",
-    "nothingFound": "In Ihrer Bibliothek wurde nichts gefunden.",
+    "nothingFound": "In deiner Bibliothek wurde nichts gefunden.",
     "resultCount_one": "{{number}} Fundstelle gefunden.",
     "resultCount_other": "{{number}} Fundstellen gefunden.",
     "resultCountMore_one": "{{number}}+ Fundstelle gefunden.",
@@ -51,29 +51,29 @@
     "language": "Sprache",
     "allLanguages": "Alle Sprachen",
     "noMatch": "Keine Quellen entsprechen diesen Filtern.",
-    "empty": "Ihre Bibliothek ist noch leer. Fügen Sie eine PDF-, EPUB-, Word-, Markdown- oder Textdatei hinzu.",
+    "empty": "Deine Bibliothek ist noch leer. Füge eine PDF-, EPUB-, Word-, Markdown- oder Textdatei hinzu.",
     "listLabel": "Quellen"
   },
   "remove": {
     "button": "Entfernen …",
     "label": "{{title}} entfernen",
     "dialogLabel": "{{title}} entfernen?",
-    "message": "<strong>{{title}}</strong> aus Ihrer Bibliothek entfernen? Der Text und die Kopie der Datei, die Abiding Word angelegt hat, werden gelöscht; Ihre Originaldatei bleibt unberührt. Erkenntnisse, die diese Quelle anführen, behalten einen Vermerk der Quellenangabe.",
+    "message": "<strong>{{title}}</strong> aus deiner Bibliothek entfernen? Der Text und die Kopie der Datei, die Abiding Word angelegt hat, werden gelöscht; deine Originaldatei bleibt unberührt. Einträge, die diese Quelle anführen, behalten einen Vermerk der Quellenangabe.",
     "confirm": "Aus der Bibliothek entfernen",
     "keep": "Behalten",
-    "marks_one": "Ihre Anmerkung darin (Markierung, Notiz oder Lesezeichen) wird mit entfernt.",
-    "marks_other": "Ihre {{count}} Anmerkungen darin (Markierungen, Notizen und Lesezeichen) werden mit entfernt."
+    "marks_one": "Deine Anmerkung darin (Markierung, Notiz oder Lesezeichen) wird mit entfernt.",
+    "marks_other": "Deine {{count}} Anmerkungen darin (Markierungen, Notizen und Lesezeichen) werden mit entfernt."
   },
   "add": {
     "title": "Zur Bibliothek hinzufügen",
     "reading": "Die Datei wird gelesen und ihr Text ermittelt …",
-    "intro": "Wählen Sie eine PDF-, EPUB-, Word- (.docx), Markdown- (.md) oder Textdatei (.txt). Abiding Word legt eine eigene Kopie in Ihrer Bibliothek an und verändert Ihre Datei nie. Eingescannte PDFs können noch nicht gelesen werden.",
+    "intro": "Wähle eine PDF-, EPUB-, Word- (.docx), Markdown- (.md) oder Textdatei (.txt). Abiding Word legt eine eigene Kopie in deiner Bibliothek an und verändert deine Datei nie. Eingescannte PDFs können noch nicht gelesen werden.",
     "choose": "Datei auswählen …",
     "whatFound": "Gefundener Inhalt",
     "extracted": "Text erfolgreich ausgelesen",
     "references_one": "{{number}} Bibelstellenangabe erkannt",
     "references_other": "{{number}} Bibelstellenangaben erkannt",
-    "duplicate": "Diese Datei ist bereits als <strong>{{title}}</strong> in Ihrer Bibliothek.",
+    "duplicate": "Diese Datei ist bereits als <strong>{{title}}</strong> in deiner Bibliothek.",
     "addCopy": "Trotzdem eine zweite Kopie hinzufügen",
     "adding": "Wird hinzugefügt …"
   },
@@ -106,15 +106,15 @@
     "pageMarker": "Seite {{page}}"
   },
   "pane": {
-    "libraryHeading": "Ihre Bibliothek",
-    "empty": "Noch keine Quellen. Fügen Sie Bücher, Artikel und eigene Notizen hinzu (PDF, EPUB, Word, Markdown oder Text); sie bleiben auf diesem Computer.",
+    "libraryHeading": "Deine Bibliothek",
+    "empty": "Noch keine Quellen. Füge Bücher, Artikel und eigene Notizen hinzu (PDF, EPUB, Word, Markdown oder Text); sie bleiben auf diesem Computer.",
     "sourcesFor": "Quellen zu {{passage}}",
-    "noSources": "Keine Quelle in Ihrer Bibliothek ist mit dieser Bibelstelle verknüpft.",
+    "noSources": "Keine Quelle in deiner Bibliothek ist mit dieser Bibelstelle verknüpft.",
     "moreLocations_one": "{{count}} weitere Stelle in dieser Quelle",
     "moreLocations_other": "{{count}} weitere Stellen in dieser Quelle",
     "showFewerLocations": "Weniger anzeigen",
     "loadingLocations": "Weitere Stellen werden geladen …",
-    "locationsFailed": "Die weiteren Stellen konnten nicht geladen werden. Versuchen Sie es erneut.",
+    "locationsFailed": "Die weiteren Stellen konnten nicht geladen werden. Versuche es erneut.",
     "recent": "Zuletzt hinzugefügt",
     "openLibrary": "Bibliothek öffnen"
   },
@@ -130,8 +130,8 @@
     "removeLabel": "Quellenangabe {{citation}} entfernen",
     "add": "+ Quelle hinzufügen",
     "pickerLabel": "Quelle hinzufügen",
-    "searchLabel": "In Ihrer Bibliothek nach der anzuführenden Textstelle suchen",
-    "searchPlaceholder": "In Ihrer Bibliothek nach der anzuführenden Textstelle suchen",
+    "searchLabel": "In deiner Bibliothek nach der anzuführenden Textstelle suchen",
+    "searchPlaceholder": "In deiner Bibliothek nach der anzuführenden Textstelle suchen",
     "replaceQuote": "Auch den Text dieses Zitats durch die angeführte Textstelle ersetzen",
     "useQuote": "Die angeführte Textstelle auch als Text dieses Zitats verwenden",
     "listLabel": "Textstellen zum Anführen",
@@ -243,14 +243,14 @@
     "colourIs": "Farbe: {{color}}",
     "wholeParagraph": "Ganzer Absatz",
     "unresolved": "Diese Stelle ist im Text nicht mehr zu finden.",
-    "empty": "In dieser Quelle gibt es noch keine Anmerkungen. Wählen Sie Text aus, um ihn zu markieren oder eine Notiz hinzuzufügen.",
+    "empty": "In dieser Quelle gibt es noch keine Anmerkungen. Wähle Text aus, um ihn zu markieren oder eine Notiz hinzuzufügen.",
     "for": "Anmerkungen in {{title}}",
     "close": "Anmerkungen schließen",
     "show": "Die Anmerkungen in dieser Quelle zeigen",
     "delete": "Löschen",
     "panels": "Inhalt oder Anmerkungen",
     "notePage": "Notiz zu dieser Seite",
-    "cannotPlace": "Diese Wörter lassen sich hier nicht genau markieren. Wählen Sie sie unter „Lesen“ aus, um sie zu markieren."
+    "cannotPlace": "Diese Wörter lassen sich hier nicht genau markieren. Wähle sie unter „Lesen“ aus, um sie zu markieren."
   },
   "copy": {
     "quoted": "„{{quote}}“",

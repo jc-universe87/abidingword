@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import i18n from "@/i18n";
 import { createMemoryApi } from "../support/memoryApi";
 import { createMemoryUpdater } from "../support/memoryUpdater";
-import { renderApp } from "../support/render";
+import { openSettingsSection, renderApp } from "../support/render";
 
 // The real delay is covered in updates-startup.test.tsx.
 vi.mock("@/features/updates/timing", () => ({ STARTUP_CHECK_DELAY_MS: 0 }));
@@ -98,8 +98,7 @@ describe("update notice", () => {
 describe("Settings → Updates", () => {
   async function openSettings(updater: ReturnType<typeof createMemoryUpdater>, enabled = true) {
     const result = await renderApp(apiWith(enabled), { updater });
-    await result.user.click(screen.getByRole("button", { name: "Settings" }));
-    return { ...result, section: await screen.findByRole("region", { name: "Updates" }) };
+    return { ...result, section: await openSettingsSection(result.user, "Updates") };
   }
 
   it("shows the running version and the channel", async () => {

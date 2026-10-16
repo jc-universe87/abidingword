@@ -12,7 +12,9 @@ use crate::error::{AppError, AppResult, UserMessage};
 const KEY: &str = "assistant.config";
 
 /// The AI services the assistant can talk to. All but Anthropic use the
-/// widely shared "chat completions" interface.
+/// widely shared "chat completions" interface, so a service not listed here
+/// works through [`ProviderKind::OpenaiCompatible`]. None is preferred: the
+/// list is alphabetical in the interface apart from the local ones.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum ProviderKind {
@@ -21,6 +23,12 @@ pub enum ProviderKind {
     Anthropic,
     /// Google Gemini through its OpenAI-compatible endpoint.
     Google,
+    /// xAI (Grok).
+    Xai,
+    Perplexity,
+    Deepseek,
+    /// Alibaba Cloud Model Studio (Qwen), international endpoint.
+    Qwen,
     /// Runs on this computer (or one the person chooses).
     Ollama,
     /// Runs on this computer (or one the person chooses).
@@ -35,6 +43,10 @@ impl ProviderKind {
             Self::Openai => "openai",
             Self::Anthropic => "anthropic",
             Self::Google => "google",
+            Self::Xai => "xai",
+            Self::Perplexity => "perplexity",
+            Self::Deepseek => "deepseek",
+            Self::Qwen => "qwen",
             Self::Ollama => "ollama",
             Self::Lmstudio => "lmstudio",
             Self::OpenaiCompatible => "openai_compatible",
@@ -46,9 +58,13 @@ impl ProviderKind {
             Self::Openai => "OpenAI",
             Self::Anthropic => "Anthropic",
             Self::Google => "Google Gemini",
+            Self::Xai => "xAI Grok",
+            Self::Perplexity => "Perplexity",
+            Self::Deepseek => "DeepSeek",
+            Self::Qwen => "Qwen",
             Self::Ollama => "Ollama",
             Self::Lmstudio => "LM Studio",
-            Self::OpenaiCompatible => "OpenAI-compatible server",
+            Self::OpenaiCompatible => "Other compatible service",
         }
     }
 
@@ -57,6 +73,10 @@ impl ProviderKind {
             Self::Openai => Some("https://api.openai.com/v1"),
             Self::Anthropic => Some("https://api.anthropic.com/v1"),
             Self::Google => Some("https://generativelanguage.googleapis.com/v1beta/openai"),
+            Self::Xai => Some("https://api.x.ai/v1"),
+            Self::Perplexity => Some("https://api.perplexity.ai"),
+            Self::Deepseek => Some("https://api.deepseek.com/v1"),
+            Self::Qwen => Some("https://dashscope-intl.aliyuncs.com/compatible-mode/v1"),
             Self::Ollama => Some("http://localhost:11434/v1"),
             Self::Lmstudio => Some("http://localhost:1234/v1"),
             Self::OpenaiCompatible => None,
@@ -65,7 +85,7 @@ impl ProviderKind {
 
     /// Whether the service needs an API key at all.
     pub fn needs_key(self) -> bool {
-        matches!(self, Self::Openai | Self::Anthropic | Self::Google)
+        !matches!(self, Self::Ollama | Self::Lmstudio | Self::OpenaiCompatible)
     }
 
     pub fn is_anthropic(self) -> bool {
@@ -258,6 +278,26 @@ mod tests {
         config.provider = ProviderKind::OpenaiCompatible;
         config.base_url = String::new();
         assert!(config.is_remote(), "no address yet: treated as remote");
+    }
+
+    #[test]
+    fn every_cloud_service_has_an_address_and_needs_a_key() {
+        use ProviderKind::*;
+        for kind in [Openai, Anthropic, Google, Xai, Perplexity, Deepseek, Qwen] {
+            let url = kind.default_base_url().unwrap();
+            assert!(url.starts_with("https://"), "{url}");
+            assert!(!is_local_address(url));
+            assert!(kind.needs_key(), "{}", kind.as_str());
+        }
+        for kind in [Ollama, Lmstudio] {
+            assert!(is_local_address(kind.default_base_url().unwrap()));
+            assert!(!kind.needs_key());
+        }
+        // The generic choice: the person gives the address, and a key only if theirs needs one.
+        assert!(OpenaiCompatible.default_base_url().is_none());
+        assert!(!OpenaiCompatible.needs_key());
+        let parsed: ProviderKind = serde_json::from_str("\"xai\"").unwrap();
+        assert_eq!(parsed, Xai);
     }
 
     #[test]

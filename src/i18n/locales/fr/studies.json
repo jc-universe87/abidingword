@@ -635,8 +635,8 @@
   },
   "view": {
     "label": "Afficher",
-    "study": "Étude",
-    "teaching": "Enseignement"
+    "study": "Étude biblique",
+    "teaching": "Enseignement biblique"
   },
   "teaching": {
     "loading": "Ouverture de l’enseignement…",
@@ -644,7 +644,7 @@
     "another": "Préparer un autre enseignement",
     "empty": {
       "title": "Préparer un enseignement à partir de cette étude",
-      "text": "Une prédication, une étude en groupe ou une leçon, écrite par vous. Vous pouvez utiliser ce que vous avez trouvé dans cette étude : ses observations et ses passages restent à leur place et sont simplement repris ici. Rien n’est rempli à votre place, et chaque partie peut rester vide."
+      "text": "Une prédication, une étude en groupe ou une leçon, écrite par vous. Vous pouvez utiliser ce que vous avez trouvé dans cette étude : ses éléments et ses passages restent à leur place et sont simplement repris ici. Rien n’est rempli à votre place, et chaque partie peut rester vide."
     },
     "kindLabel": "Type d’enseignement",
     "kindNone": "Non précisé",
@@ -660,8 +660,8 @@
     "titleLabel": "Titre",
     "start": "Commencer",
     "delete": "Supprimer cet enseignement",
-    "deleteConfirm": "Supprimer cet enseignement ? L’étude, ses observations et ses passages restent tels quels.",
-    "about": "De quoi il s’agit",
+    "deleteConfirm": "Supprimer cet enseignement ? L’étude, ses éléments et ses passages restent tels quels.",
+    "about": "À propos de cet enseignement",
     "audience": "Pour qui",
     "audiencePlaceholder": "p. ex. toute l’Église, un groupe de jeunes",
     "purpose": "But",
@@ -673,39 +673,28 @@
     "notes": "Notes pour vous",
     "notesHint": "Des rappels pendant l’enseignement, qui ne font pas partie de ce que vous dites.",
     "points": {
-      "title": "Points principaux",
       "whole": "l’enseignement entier",
-      "none": "Pas encore de points. Ajoutez-en autant qu’il vous faut, sous toute forme : un moment d’un récit, une question, un thème ou quelques versets.",
-      "add": "Ajouter un point",
       "added": "Point ajouté.",
       "removed": "Point supprimé.",
       "moved": "Point déplacé en position {{position}}.",
-      "number": "Point {{number}}",
-      "label": "Point {{number}} : {{title}}",
-      "untitled": "Point {{number}}",
-      "titleLabel": "Titre du point {{number}}",
-      "titlePlaceholder": "Ce que dit ce point",
-      "explanation": "Explication",
-      "application": "Application",
-      "illustration": "Illustration ou exemple",
       "moveUp": "Monter « {{point}} »",
       "moveDown": "Descendre « {{point}} »",
       "delete": "Supprimer « {{point}} »",
-      "deleteConfirm": "Supprimer ce point et ce que vous y avez écrit ? Les observations utilisées restent dans l’étude."
+      "deleteConfirm": "Supprimer ce point et ce que vous y avez écrit ? Les éléments utilisés restent dans l’étude."
     },
     "links": {
       "used": "Utilisé dans {{scope}}",
       "wholeScope": "l’enseignement entier",
       "passages": "Passages dans {{scope}}",
-      "findings": "Observations de l’étude dans {{scope}}",
+      "findings": "De votre étude, dans {{scope}}",
       "materials": "Conservé de l’assistant dans {{scope}}",
-      "useFinding": "Utiliser une observation de l’étude",
-      "chooseFinding": "Observation",
+      "useFinding": "Utiliser un élément de votre étude",
+      "chooseFinding": "De votre étude",
       "pick": "Choisir…",
       "empty": "(vide)",
-      "findingNote": "L’observation reste dans l’étude. Ses modifications apparaissent aussi ici.",
-      "removeFinding": "Ne plus utiliser cette observation ici",
-      "removeFindingHint": "Elle reste dans l’étude.",
+      "findingNote": "Il reste dans votre étude. Si vous le modifiez là-bas, il change aussi ici.",
+      "removeFinding": "Ne plus l’utiliser ici",
+      "removeFindingHint": "Il reste dans votre étude.",
       "addPassage": "Ajouter un passage",
       "passageLabel": "Passage pour {{scope}}",
       "removePassage": "Retirer {{passage}} de cet enseignement"
@@ -726,14 +715,8 @@
       "suggestion": "Suggestion de l’assistant"
     },
     "assist": {
-      "intro": "« Aide » à côté de chaque partie propose l’assistant : il commente, vérifie et suggère des formulations pour ce que vous avez écrit. Votre texte ne change que si vous choisissez une suggestion.",
       "menu": "Aide",
       "menuLabel": "Aide pour {{part}}",
-      "group": {
-        "wording": "Formulation",
-        "comments": "Commentaires",
-        "ideas": "Idées"
-      },
       "action": {
         "grammar": "Vérifier grammaire et orthographe",
         "clarity": "Rendre plus clair",
@@ -754,7 +737,8 @@
         "restructure": "Comment ordonner ce que j’ai ?",
         "illustration": "Idées d’illustration",
         "story": "Trouver une histoire vraie…",
-        "visual": "Suggérer un visuel"
+        "visual": "Suggérer un visuel",
+        "free": "Demander autre chose…"
       },
       "title": "{{action}} · {{part}}",
       "close": "Fermer l’assistant",
@@ -764,7 +748,8 @@
         "story": "Quel genre d’histoire vraie cherchez-vous ?",
         "transition": "Que doit-elle relier ? (facultatif)",
         "phrasing": "Que voulez-vous dire ? (facultatif)",
-        "visual": "Qu’est-ce que l’image doit aider à expliquer ? (facultatif)"
+        "visual": "Qu’est-ce que l’image doit aider à expliquer ? (facultatif)",
+        "free": "Pour quoi souhaitez-vous de l’aide ?"
       },
       "audienceLabel": "Pour qui ?",
       "audiencePlaceholder": "p. ex. enfants de 8 à 10 ans",
@@ -781,9 +766,9 @@
         "nearby_many": "{{count}} autres parties de cet enseignement (pour garder votre style)",
         "nearby_other": "{{count}} autres parties de cet enseignement (pour garder votre style)",
         "passages": "Écriture : {{passages}}",
-        "findings_one": "une observation de votre étude",
-        "findings_many": "{{count}} observations de votre étude",
-        "findings_other": "{{count}} observations de votre étude",
+        "findings_one": "un élément de votre étude",
+        "findings_many": "{{count}} éléments de votre étude",
+        "findings_other": "{{count}} éléments de votre étude",
         "quotes_one": "une citation d’un livre de votre bibliothèque, avec sa source",
         "quotes_many": "{{count}} citations de livres de votre bibliothèque, avec leurs sources",
         "quotes_other": "{{count}} citations de livres de votre bibliothèque, avec leurs sources",
@@ -791,7 +776,6 @@
       },
       "ask": "Demander",
       "askHint": "Ctrl+Entrée pour demander, Échap pour fermer. Rien n’est envoyé avant.",
-      "working": "En cours…",
       "ready": "Suggestion prête.",
       "failed": "L’assistant n’a pas pu aider cette fois.",
       "kept": "Conservé avec cet enseignement.",
@@ -861,7 +845,70 @@
         "generatedAlt": "Illustration créée par l’assistant : {{description}}",
         "nothingPlaced": "Rien n’est placé dans votre enseignement si vous ne le gardez pas."
       },
-      "changedMeanwhile": "Votre texte a changé après la demande ; cette suggestion n’a donc pas été utilisée. Redemandez."
-    }
+      "changedMeanwhile": "Votre texte a changé après la demande ; cette suggestion n’a donc pas été utilisée. Redemandez.",
+      "menuIntro": "Qu’est-ce qui vous aiderait ?",
+      "allHelp": "Toutes les aides",
+      "category": {
+        "wording": "Améliorer ma formulation",
+        "review": "Relire ce que j’ai écrit",
+        "structure": "Aide pour la structure",
+        "ideas": "Idées et illustrations",
+        "research": "Chercher quelque chose"
+      },
+      "freePlaceholder": "p. ex. Est-ce trop long pour un groupe de jeunes ?",
+      "freeHint": "L’assistant voit cette partie et ce dont il a besoin de cet enseignement et de cette étude. Il répond par des remarques et des questions ; il n’écrit pas votre enseignement à votre place.",
+      "slow": "Cela prend plus de temps que d’habitude. Vous pouvez attendre ou arrêter.",
+      "stop": "Ne plus attendre",
+      "stopped": "Attente arrêtée. Rien n’a été modifié.",
+      "pending": {
+        "ask": "L’assistant est interrogé…",
+        "story": "Recherche de sources… Cela peut prendre un moment.",
+        "findImages": "Recherche d’images adaptées…",
+        "makeImage": "Création d’une image… Cela peut prendre un moment."
+      }
+    },
+    "shape": {
+      "points": {
+        "title": "Points principaux",
+        "none": "Pas encore de points. Ajoutez-en autant qu’il vous faut, sous toute forme : un moment d’un récit, une question, un thème ou quelques versets.",
+        "add": "Ajouter un point",
+        "number": "Point {{number}}",
+        "label": "Point {{number}} : {{title}}",
+        "untitled": "Point {{number}}",
+        "titleLabel": "Titre du point {{number}}",
+        "titlePlaceholder": "Ce que dit ce point",
+        "explanation": "Explication",
+        "application": "Application",
+        "illustration": "Illustration ou exemple"
+      },
+      "questions": {
+        "title": "Questions et réponses",
+        "none": "Pas encore de questions. Ajoutez les questions dont vous voulez parler, chacune avec ce que le passage montre.",
+        "add": "Ajouter une question",
+        "number": "Question {{number}}",
+        "label": "Question {{number}} : {{title}}",
+        "untitled": "Question {{number}}",
+        "titleLabel": "Question {{number}}",
+        "titlePlaceholder": "La question que vous poserez",
+        "explanation": "Ce que montre le passage",
+        "application": "Ce que cela signifie pour nous",
+        "illustration": "Notes pour animer la discussion"
+      },
+      "steps": {
+        "title": "Déroulement",
+        "none": "Pas encore d’étapes. Ajoutez les parties de la leçon dans l’ordre : accueil, histoire, activité, prière…",
+        "add": "Ajouter une étape",
+        "number": "Étape {{number}}",
+        "label": "Étape {{number}} : {{title}}",
+        "untitled": "Étape {{number}}",
+        "titleLabel": "Titre de l’étape {{number}}",
+        "titlePlaceholder": "Ce qui se passe à cette étape",
+        "explanation": "Ce que vous direz ou ferez",
+        "application": "Ce qu’ils devraient retenir",
+        "illustration": "Activité, matériel ou exemple"
+      }
+    },
+    "aboutEmpty": "Type, pour qui, but, passages",
+    "aboutFor": "pour {{audience}}"
   }
 }

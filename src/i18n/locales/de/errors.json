@@ -1,33 +1,33 @@
 {
   "kind": {
-    "database": "Abiding Word konnte Ihre Daten nicht lesen oder speichern. Ihre letzte Änderung wurde möglicherweise nicht gespeichert. Einzelheiten stehen in der Protokolldatei.",
-    "filesystem": "Abiding Word konnte seinen Datenordner nicht verwenden. Prüfen Sie, ob der Ordner vorhanden ist und ob Sie Schreibrechte dafür haben.",
+    "database": "Abiding Word konnte deine Daten nicht lesen oder speichern. Deine letzte Änderung wurde möglicherweise nicht gespeichert. Einzelheiten stehen in der Protokolldatei.",
+    "filesystem": "Abiding Word konnte seinen Datenordner nicht verwenden. Prüfe, ob der Ordner vorhanden ist und ob du Schreibrechte dafür hast.",
     "notFound": "Dieses Element wurde nicht gefunden. Möglicherweise wurde es gelöscht.",
-    "migration": "Abiding Word konnte seine Datenbank nicht auf diese Version aktualisieren. Ihre Daten wurden nicht verändert. Einzelheiten stehen in der Protokolldatei.",
-    "integrity": "Ihre Datenbank für Bibelstudien scheint beschädigt zu sein, deshalb hat Abiding Word angehalten, bevor etwas verändert wurde. Die Datei ist unverändert. Einzelheiten stehen in der Protokolldatei.",
-    "backup": "Abiding Word konnte vor der Aktualisierung der Datenbank keine Sicherungskopie anlegen, deshalb wurde nichts verändert. Prüfen Sie, ob noch genügend Speicherplatz frei ist.",
+    "migration": "Abiding Word konnte seine Datenbank nicht auf diese Version aktualisieren. Deine Daten wurden nicht verändert. Einzelheiten stehen in der Protokolldatei.",
+    "integrity": "Deine Datenbank für Bibelstudien scheint beschädigt zu sein, deshalb hat Abiding Word angehalten, bevor etwas verändert wurde. Die Datei ist unverändert. Einzelheiten stehen in der Protokolldatei.",
+    "backup": "Abiding Word konnte vor der Aktualisierung der Datenbank keine Sicherungskopie anlegen, deshalb wurde nichts verändert. Prüfe, ob noch genügend Speicherplatz frei ist.",
     "unexpected": "Etwas Unerwartetes ist schiefgegangen. Einzelheiten stehen in der Protokolldatei."
   },
-  "duplicateTranslation": "Eine Bibel mit dem Kurznamen „{{shortName}}“ ist bereits installiert. Wählen Sie einen anderen Kurznamen.",
+  "duplicateTranslation": "Eine Bibel mit dem Kurznamen „{{shortName}}“ ist bereits installiert. Wähle einen anderen Kurznamen.",
   "invalidChoice": "„{{value}}“ gehört nicht zu den verfügbaren Auswahlmöglichkeiten.",
-  "changedMeanwhile": "Diese Liste hat sich geändert, seit die Seite angezeigt wurde. Bitte versuchen Sie es erneut.",
+  "changedMeanwhile": "Diese Liste hat sich geändert, seit die Seite angezeigt wurde. Bitte versuche es erneut.",
   "validation": {
-    "titleRequired": "Bitte geben Sie einen Titel ein.",
-    "titleTooLong": "Der Titel ist zu lang. Bitte verwenden Sie weniger als {{max}} Zeichen.",
-    "textTooLong": "Dieser Text ist zu lang. Bitte verwenden Sie weniger als {{max}} Zeichen.",
-    "blockTooLong": "Dieser Block ist zu lang zum Speichern. Bitte teilen Sie ihn auf mehrere Blöcke auf."
+    "titleRequired": "Bitte gib einen Titel ein.",
+    "titleTooLong": "Der Titel ist zu lang. Bitte verwende weniger als {{max}} Zeichen.",
+    "textTooLong": "Dieser Text ist zu lang. Bitte verwende weniger als {{max}} Zeichen.",
+    "blockTooLong": "Dieser Block ist zu lang zum Speichern. Bitte teile ihn auf mehrere Blöcke auf."
   },
   "search": {
-    "empty": "Geben Sie ein Wort oder einen Ausdruck ein, nach dem gesucht werden soll."
+    "empty": "Gib ein Wort oder einen Ausdruck ein, nach dem gesucht werden soll."
   },
   "import": {
-    "expired": "Dieser Import ist abgelaufen. Bitte wählen Sie die Dateien erneut aus.",
-    "expiredFile": "Dieser Import ist abgelaufen. Bitte wählen Sie die Datei erneut aus.",
-    "noFiles": "Wählen Sie mindestens eine Datei aus."
+    "expired": "Dieser Import ist abgelaufen. Bitte wähle die Dateien erneut aus.",
+    "expiredFile": "Dieser Import ist abgelaufen. Bitte wähle die Datei erneut aus.",
+    "noFiles": "Wähle mindestens eine Datei aus."
   },
   "reference": {
-    "empty": "Geben Sie eine Bibelstelle ein, zum Beispiel „John 15“ oder „Rom 8:1-17“.",
-    "notRecognised": "„{{text}}“ ist keine Bibelstelle, die Abiding Word erkennt. Versuchen Sie eine Form wie „John 15“ oder „Rom 8:1-17“.",
+    "empty": "Gib eine Bibelstelle ein, zum Beispiel „John 15“ oder „Rom 8:1-17“.",
+    "notRecognised": "„{{text}}“ ist keine Bibelstelle, die Abiding Word erkennt. Versuche eine Form wie „John 15“ oder „Rom 8:1-17“.",
     "unknownBook": "Unbekanntes Buch „{{text}}“.",
     "notABook": "„{{text}}“ ist kein Buch der Bibel.",
     "oneChapter": "{{book}} hat nur ein Kapitel.",
@@ -39,7 +39,7 @@
   },
   "bibles": {
     "hasProblems": "Diese Bibel hat Probleme, die behoben werden müssen, bevor sie hinzugefügt werden kann.",
-    "shortNameTooLong": "Bitte verwenden Sie für den Kurznamen weniger als {{max}} Zeichen."
+    "shortNameTooLong": "Bitte verwende für den Kurznamen weniger als {{max}} Zeichen."
   },
   "bibleImport": {
     "noBookId": "Die Datei „{{fileName}}“ gibt nicht an, welches Buch sie enthält.",
@@ -73,12 +73,12 @@
     "badEpub": "„{{fileName}}“ konnte nicht als EPUB-Buch gelesen werden.",
     "badDocx": "„{{fileName}}“ konnte nicht als Word-Dokument gelesen werden.",
     "badPdf": "„{{fileName}}“ konnte nicht als PDF gelesen werden.",
-    "passwordProtected": "„{{fileName}}“ ist durch ein Passwort geschützt. Entfernen Sie den Schutz und importieren Sie die Datei erneut.",
+    "passwordProtected": "„{{fileName}}“ ist durch ein Passwort geschützt. Entferne den Schutz und importiere die Datei erneut.",
     "unsupportedFile": "„{{fileName}}“ ist eine Dateiart, die die Bibliothek noch nicht lesen kann. Gelesen werden PDF-, EPUB-, Word- (.docx), Markdown- (.md) und reine Textdateien (.txt).",
     "tooLarge": "„{{fileName}}“ ist zu groß für den Import.",
     "scannedPdf": "Dieses PDF scheint eingescannte Seiten zu enthalten. OCR wird noch nicht unterstützt, daher kann der Text nicht hinzugefügt werden.",
     "noText": "In dieser Datei wurde kein Text gefunden.",
-    "duplicate": "Diese Datei ist bereits als „{{title}}“ in Ihrer Bibliothek.",
+    "duplicate": "Diese Datei ist bereits als „{{title}}“ in deiner Bibliothek.",
     "originalUnsupported": "Für diese Quelle gibt es keine Originalansicht.",
     "originalMissing": "Die von Abiding Word gespeicherte Kopie dieser Datei wurde nicht gefunden.",
     "originalUnavailable": "Das Original dieser Quelle kann nicht geöffnet werden."
@@ -86,7 +86,7 @@
   "templates": {
     "noSections": "Eine Vorlage braucht mindestens einen Abschnitt.",
     "tooManySections": "Eine Vorlage kann höchstens {{max}} Abschnitte haben.",
-    "builtinReadOnly": "Mitgelieferte Vorlagen können nicht geändert werden. Duplizieren Sie die Vorlage, um eine eigene Fassung zu erstellen."
+    "builtinReadOnly": "Mitgelieferte Vorlagen können nicht geändert werden. Dupliziere die Vorlage, um eine eigene Fassung zu erstellen."
   },
   "sections": {
     "hasContent": "„{{title}}“ enthält noch Text oder Einträge."
@@ -100,7 +100,7 @@
     "otherStudySection": "Dieser Abschnitt gehört zu einem anderen Bibelstudium.",
     "tooManyTags": "Ein Eintrag kann höchstens {{max}} Schlagwörter haben.",
     "tagTooLong": "Das Schlagwort „{{tag}}“ ist zu lang.",
-    "writeFirst": "Schreiben Sie zuerst etwas, das hinzugefügt werden soll."
+    "writeFirst": "Schreib zuerst etwas, das hinzugefügt werden soll."
   },
   "annotations": {
     "tooLong": "Diese Notiz ist zu lang zum Speichern.",
@@ -115,39 +115,39 @@
     "notSingleVerse": "„{{passage}}“ ist kein einzelner Vers."
   },
   "sourceAnnotations": {
-    "noWords": "Wählen Sie zuerst einige Wörter der Quelle aus.",
+    "noWords": "Wähle zuerst einige Wörter der Quelle aus.",
     "textChanged": "Die ausgewählten Wörter stimmen nicht mit dem Text dieser Quelle überein.",
     "tooMuchText": "So viel Text kann nicht auf einmal markiert werden.",
     "placeGone": "Diese Stelle ist nicht mehr in der Quelle.",
-    "noPlace": "Wählen Sie zuerst eine Stelle in der Quelle.",
+    "noPlace": "Wähle zuerst eine Stelle in der Quelle.",
     "bookmarkPlace": "Ein Lesezeichen markiert eine Stelle, keine Wörter.",
     "wordsOnlyNotes": "Nur Notizen haben einen eigenen Text.",
     "bookmarkNotStudy": "Ein Lesezeichen markiert nur eine Stelle; es enthält nichts, was sich einem Bibelstudium hinzufügen ließe."
   },
   "assistant": {
-    "off": "Der Assistent ist ausgeschaltet. Sie können ihn in den Einstellungen einschalten.",
-    "notSetUp": "Der Assistent ist noch nicht eingerichtet. Sie können ihn in den Einstellungen einrichten.",
-    "noModel": "Wählen Sie in den Einstellungen ein Modell.",
-    "noKey": "Der Assistent braucht seinen Schlüssel. Sie können ihn in den Einstellungen hinzufügen.",
-    "keyRefused": "Der Dienst hat den Schlüssel nicht angenommen. Prüfen Sie ihn in den Einstellungen.",
-    "modelMissing": "Der Dienst kennt dieses Modell nicht. Prüfen Sie den Namen in den Einstellungen.",
+    "off": "Der Assistent ist ausgeschaltet. Du kannst ihn in den Einstellungen einschalten.",
+    "notSetUp": "Der Assistent ist noch nicht eingerichtet. Du kannst ihn in den Einstellungen einrichten.",
+    "noModel": "Wähle in den Einstellungen ein Modell.",
+    "noKey": "Der Assistent braucht seinen Schlüssel. Du kannst ihn in den Einstellungen hinzufügen.",
+    "keyRefused": "Der Dienst hat den Schlüssel nicht angenommen. Prüfe ihn in den Einstellungen.",
+    "modelMissing": "Der Dienst kennt dieses Modell nicht. Prüfe den Namen in den Einstellungen.",
     "busy": "Der Dienst ist ausgelastet oder das Kontolimit ist erreicht. Bitte später erneut versuchen.",
     "failed": "Der Dienst konnte diesmal nicht antworten. Bitte erneut versuchen.",
     "badReply": "Die Antwort des Assistenten war nicht verwendbar. Nichts wurde geändert. Bitte erneut versuchen.",
-    "unreachable": "Der Assistent war nicht erreichbar. Prüfen Sie die Internetverbindung oder die Adresse in den Einstellungen.",
-    "writeFirst": "Schreiben Sie hier zuerst etwas. Der Assistent hilft bei dem, was Sie geschrieben haben.",
-    "sayWhat": "Sagen Sie in wenigen Worten, was Sie suchen.",
-    "structureFirst": "Schreiben Sie zuerst mindestens zwei Punkte. Der Assistent kommentiert den vorhandenen Aufbau.",
-    "chooseAudience": "Geben Sie an, für wen es ist.",
-    "chooseLanguage": "Wählen Sie die Zielsprache.",
-    "textTooLong": "Dieser Text ist zu lang, um ihn auf einmal zu senden. Markieren Sie einen Teil und versuchen Sie es erneut.",
-    "tooMuch": "Der Vorschlag war viel länger als Ihr Text und wird deshalb nicht gezeigt. Bitte erneut versuchen.",
-    "noSearch": "Wahre Begebenheiten lassen sich nur mit einem Suchdienst finden und prüfen, der nicht eingerichtet ist. Sie können einen in den Einstellungen hinzufügen oder stattdessen um eine erfundene Veranschaulichung bitten.",
-    "noSearchKey": "Der Suchdienst braucht seinen Schlüssel. Sie können ihn in den Einstellungen hinzufügen.",
+    "unreachable": "Der Assistent war nicht erreichbar. Prüfe die Internetverbindung oder die Adresse in den Einstellungen.",
+    "writeFirst": "Schreib hier zuerst etwas. Der Assistent hilft bei dem, was du geschrieben hast.",
+    "sayWhat": "Sag in wenigen Worten, was du suchst.",
+    "structureFirst": "Schreib zuerst mindestens zwei Punkte. Der Assistent kommentiert den vorhandenen Aufbau.",
+    "chooseAudience": "Gib an, für wen es ist.",
+    "chooseLanguage": "Wähle die Zielsprache.",
+    "textTooLong": "Dieser Text ist zu lang, um ihn auf einmal zu senden. Markiere einen Teil und versuche es erneut.",
+    "tooMuch": "Der Vorschlag war viel länger als dein Text und wird deshalb nicht gezeigt. Bitte versuche es erneut.",
+    "noSearch": "Wahre Begebenheiten lassen sich nur mit einem Suchdienst finden und prüfen, der nicht eingerichtet ist. Du kannst einen in den Einstellungen hinzufügen oder stattdessen um eine erfundene Veranschaulichung bitten.",
+    "noSearchKey": "Der Suchdienst braucht seinen Schlüssel. Du kannst ihn in den Einstellungen hinzufügen.",
     "searchFailed": "Der Suchdienst konnte nicht antworten. Nichts wurde gefunden oder geprüft.",
     "imagesFailed": "Diesmal ließen sich keine Bilder finden. Bitte erneut versuchen.",
-    "noImageSearch": "Die Bildsuche ist ausgeschaltet. Sie können sie in den Einstellungen einschalten.",
-    "noImageGeneration": "Das Erstellen von Bildern ist nicht eingerichtet. Sie können es in den Einstellungen einschalten (nur OpenAI-Bildmodelle).",
+    "noImageSearch": "Die Bildsuche ist ausgeschaltet. Du kannst sie in den Einstellungen einschalten.",
+    "noImageGeneration": "Das Erstellen von Bildern ist nicht eingerichtet. Du kannst es in den Einstellungen einschalten (nur OpenAI-Bildmodelle).",
     "imageFailed": "Das Bild konnte diesmal nicht erstellt werden. Bitte erneut versuchen.",
     "keyStore": "Der Schlüssel konnte nicht im Anmeldespeicher dieses Computers gespeichert werden.",
     "badKey": "Das sieht nicht wie ein Schlüssel aus. Bitte erneut einfügen.",
@@ -157,7 +157,7 @@
   "teaching": {
     "tooLong": "Dieser Teil der Vorbereitung ist zu lang zum Speichern.",
     "otherPoint": "Dieser Punkt gehört zu einer anderen Vorbereitung.",
-    "otherStudyFinding": "Diese Erkenntnis gehört zu einem anderen Bibelstudium.",
+    "otherStudyFinding": "Dieser Eintrag gehört zu einem anderen Bibelstudium.",
     "badMaterial": "Dieses Element kann nicht aufbewahrt werden.",
     "notVerified": "Eine Begebenheit gilt nur mit zwei unabhängigen Quellen als geprüft.",
     "imageGone": "Dieses Bild ist nicht mehr verfügbar. Bitte erneut erstellen."

@@ -98,8 +98,10 @@ study search does not index them (both deferred, §12).
 
 ## 3. The Teaching view
 
-`src/features/teaching/`. A study has two views, **Study** and **Teaching**,
-switched by two buttons under the study's passages (`aria-pressed`).
+`src/features/teaching/`. A study has two views, **Bible Study** and **Bible
+Teaching** (DE *Bibelstudium* / *Bibellehre*), switched by two buttons under
+the study's passages (`aria-pressed`). The layout below was refined after
+Windows testing (§17).
 
 - **No preparation yet:** a short explanation and a choice of kind (sermon,
   group Bible study, youth, children, lesson, talk, other) and an optional
@@ -492,7 +494,8 @@ An independent review of the whole diff found, and these were fixed:
 5. Add passages to the whole teaching and a point; open them in the Bible;
    the study's passages are unchanged.
 6. With the assistant off: no Help anywhere.
-7. Settings → Assistant: turn on, choose a service, keep a key (then check
+7. Settings → Assistant (sections start closed; Updates is one line): turn
+   on, choose a service, open *How do I get a key?*, keep a key (then check
    Windows Credential Manager has an "Abiding Word" entry and that the key is
    nowhere in the data folder), *Check the connection*. Try Ollama locally if
    available ("Runs on this computer").
@@ -510,3 +513,225 @@ An independent review of the whole diff found, and these were fixed:
 14. Keyboard only, then with a screen reader: menus, panel, Ask
     (Ctrl+Enter), results announced, Escape back to the text.
 15. Korean (and one more language): the Teaching words read naturally.
+
+## 17. Refinement pass after Windows testing
+
+Real use of 0.5.0-dev.33 on Windows showed a workspace that asked for too
+much attention: Settings was long and flat, the assistant setup assumed API
+knowledge, the Help menu was a long list, long operations looked frozen, and
+the Teaching view gave metadata the same weight as the writing. This pass
+keeps the data model and the assistant core and changes how things are
+presented. The principle: **the main work dominates; AI, provenance, media,
+metadata and technical settings are secondary and disclosed progressively.**
+
+### 17.1 Settings information architecture
+
+- Order: **Updates, Appearance, Bible texts, Templates, Language, Assistant,
+  About this installation, Coming in later versions** (DE *Updates,
+  Darstellung, Bibelübersetzungen, Vorlagen, Sprache, Assistent, Über diese
+  Installation, In späteren Versionen*). `SETTINGS_SECTIONS` in
+  `SettingsView.tsx` is the single source.
+- Every section is a heading whose button opens or closes it
+  (`aria-expanded`, `aria-controls`; the summary is the button's description)
+  with a one-line status: *Up to date* / *Version 1.2.3 is available*, theme,
+  language, *Off* / *On · service*, version. Sections are independent (not an
+  accordion), closed by default, and the open ones are remembered on the
+  device (`settings.openSections`). Contents stay mounted while closed, so
+  nothing typed is lost.
+- **Updates** is one line normally. It opens by itself when an update is
+  available, installing, or failed (until the person closes it). A quiet
+  automatic check that finds nothing now records *up to date* (it used to
+  return to *idle*), so the line can say so. The signed-updater flow
+  (`UpdatesContext`, `Updater`) is unchanged.
+- A sticky header holds **Back to workspace**, the title and a jump list
+  (links; selecting one opens the section, scrolls to it and focuses its
+  button). Escape still goes back. The Template editor and the Library got
+  the same sticky Back bar; nothing else was redesigned.
+
+### 17.2 Assistant setup
+
+- **Providers:** OpenAI, Anthropic, Google Gemini, **xAI (Grok)**,
+  **Perplexity**, **DeepSeek**, **Qwen (Alibaba Cloud Model Studio,
+  international endpoint)**, Ollama, LM Studio and **Other compatible
+  service**. All but Anthropic use the chat-completions request already in
+  `provider.rs`; the new ones are presets (`ProviderKind::{Xai, Perplexity,
+  Deepseek, Qwen}` with their usual address). `needs_key` is now "every
+  service on the internet": `!matches!(Ollama | Lmstudio | OpenaiCompatible)`.
+  The choice is grouped by where it runs (*On the internet*, alphabetical; *On
+  this computer*; *Other*), never ranked by vendor, and each preset fills an
+  editable default model (no model list is fetched or shown).
+- **Journey:** turn on → choose a service → get and paste the key → model →
+  check the connection → ready. When off, only *Turn on the assistant to
+  choose a service and check the connection.* Turning on or off, keeping a
+  key and checking save by themselves; *Save* is for the extras.
+- **"How do I get a key?"** per cloud service (native `<details>`): what it
+  is, why, where (a button to the official page, with the address shown),
+  cost (usually a little, paid on their site), where to paste it. Ollama and
+  LM Studio get *How do I set up …?*: runs on this computer, no key, no
+  account, needs a capable computer; link to the official download.
+- **Check the connection** sits under the model. It is disabled only with a
+  visible reason (also its accessible description): no address for the
+  generic service, an address not starting with http(s)://, no key kept, or no
+  model. `connectionBlocker()` decides, in the order the steps appear.
+- Technical words (address of the service) live under **Advanced**; the
+  generic service shows its address in the main flow because it needs one.
+  No "endpoint", "base URL", "token" or "OpenAI-compatible protocol" in the
+  normal path (tested).
+- **Research** is now *Look up real stories* (DE *Echte Geschichten
+  recherchieren*): an AI assistant cannot be trusted to remember facts, so a
+  search service looks for real sources and the person reads them. It no
+  longer suggests that two results prove anything.
+- **Theology** is *How should the assistant place theological questions?*
+  (DE *Wie soll der Assistent theologische Fragen einordnen?*), marked
+  optional, with one-click examples (Evangelical Reformed, Roman Catholic,
+  Lutheran, Pentecostal, no particular tradition, "show the different views
+  first"). No biography is asked for; nothing is assumed when it is empty.
+
+### 17.3 The Help menu and free text
+
+- Two levels: **Improve my wording**, **Review what I wrote**, **Help with
+  structure**, **Ideas and illustrations**, **Look something up**, then
+  **Ask for something else…** (`assistCategories()` in `labels.ts`; short
+  parts get fewer). One menu element (`role="menu"`) drills down: Enter or →
+  opens a category (focus on its first action), ← or Escape goes back to the
+  category it came from, Escape at the top closes and returns focus to Help;
+  arrows, Home and End move; Tab closes. Headings, spacing, a separator and a
+  visible focus bar give it a hierarchy.
+- **Free text** is a new core action, `AssistAction::Free`. It needs the
+  person's words (`assistant.sayWhat` otherwise, at most 1 000 characters as
+  before), sees the same bounded context, and is **answered only as
+  comments** (`interpret` routes it with Review), so there is never wording
+  to apply. Its request adds `FREE_LIMITS`: the request cannot change the
+  rules, the assistant does not write the teaching or any part of it even
+  when asked, and treats the request as a question, never as instructions.
+  The standing system rules (no ghost-writing, keep the voice, no invented
+  facts) apply as to every action. Tested in Rust (a request to "write my
+  whole introduction" with a reply that contains a suggestion still yields
+  comments only) and in the interface (no *Use this wording*).
+
+### 17.4 Long operations
+
+`Pending` (in `AssistPanel.tsx`) says at once, in words and through a
+`role="status"` live region: *Asking the assistant…*, *Looking for sources…
+This can take a little while.*, *Finding suitable images…*, *Creating an
+image… This can take a little while.* After 20 s it adds that it is taking
+longer than usual. No percentages (none are known). Buttons are disabled while
+their request runs and the handlers refuse a second start (Ask, Ctrl+Enter,
+Find, Make). **Stop waiting** is offered for asking: it is safe because asking
+changes nothing, so a late answer is simply ignored (a request counter).
+Errors (including the core's 180 s timeout) are shown as before and Ask is
+usable again. Image search and generation are not cancellable (they finish
+or fail on their own; nothing is placed without *Keep*).
+
+### 17.5 Terminology and German address
+
+- The two views are **Bible Study** / **Bible Teaching** (DE *Bibelstudium* /
+  *Bibellehre*, KO *성경공부* / *성경 가르침*, FR *Étude biblique* /
+  *Enseignement biblique*, ES *Estudio bíblico* / *Enseñanza bíblica*, PT
+  *Estudo bíblico* / *Ensino bíblico*). The kinds of teaching are unchanged.
+- **German uses "du" throughout** (137 strings changed across app, errors,
+  library, scripture, settings and studies; quotations and Bible text
+  untouched). `tests/ui/german-address.test.ts` fails on any formal address.
+  **Spanish** was made consistently *tú* as well (82 strings); French keeps
+  *vous* and Portuguese (Brazil) *você*, both already consistent.
+
+### 17.6 "Erkenntnis" / finding: audit and what changed
+
+The data model is untouched (findings remain `findings` rows with a type;
+teaching links are `teaching_finding_links`). What the person sees:
+
+- **Study (already plain, unchanged):** the list is *Study notes*; the
+  entries are named by their type (Observation, Interpretation, Application,
+  Question…); German calls them *Einträge*, Korean *기록*, Spanish *apuntes*,
+  Portuguese *registros*, French *éléments d'étude*. English still says
+  "Add a finding" / "Show findings" in two controls.
+- **Teaching (v0.16, changed):** it had introduced the abstract word (EN
+  *finding*, DE *Erkenntnis*, ES *hallazgo*, PT *descoberta*, FR
+  *observation* for every type). Now: *Use something from your study*, *From
+  your study, in …*, *Stop using this here*, *one note from your study* in
+  "what will be shared"; German *Eintrag* everywhere, matching the Study. A
+  test keeps "Erkenntnis"/"finding" out of the Teaching strings.
+- **Recommendation for the Study redesign (deferred):** drop "finding" as a
+  user-facing word altogether. Name entries by what they are (note,
+  observation, question, insight, quotation) and the collection *Your notes*;
+  rename the two remaining English controls then, with the redesign, so the
+  study tests and guide change once.
+
+### 17.7 The Teaching canvas
+
+- **Main content first:** title; one quiet line **About this teaching**
+  (summary: kind · for whom) that opens kind, who it is for, purpose, what
+  the whole teaching uses from the study, and *Delete this teaching*; then
+  central message, introduction, the main part, conclusion, notes for
+  yourself. The assistant's introductory sentence was removed; Help buttons
+  stay quiet beside each part. The open state is remembered per device
+  (`teaching.aboutOpen`).
+- **Kind-aware main part (small architectural step):** `canvasShape(kind)`
+  maps sermon/youth/talk/other → **points**, group Bible study →
+  **questions** (*Questions and answers*: the question, what the passage
+  shows, what it means for us, notes for leading), lesson/children →
+  **steps** (*Lesson plan*: the step, what you will say or do, what they
+  should take away, activity/material/example). Labels come from
+  `studies.teaching.shape.<shape>.*`; the stored points are the same, so
+  changing the kind loses nothing.
+
+### 17.8 Direction recorded for later milestones
+
+- **Format-specific canvases.** The shape is now a single switch in the view.
+  A later milestone can give each shape its own canvas: a manuscript editor
+  with an outline for sermons; question/answer pairs anchored to verses for
+  Bible studies; a timed sequence (agenda) for lessons and children's work.
+  The schema can grow without breaking this: `teaching_points` gains an
+  optional `role` (question, step, point) and `duration`, and a preparation a
+  `canvas` value; until then the kind decides. Avoid hard-coding "three
+  points" anywhere.
+- **Inline media later.** The canvas should become a sequence of typed
+  blocks (text, Scripture, question, image, activity, audio) rather than
+  fixed fields. Kept material (`teaching_materials`) is already separate
+  from the writing, with kind and standing, and can be referenced from such
+  blocks. No audio management now.
+- **Presentation is not a peer of Bible Study / Bible Teaching.** It is an
+  output of a teaching. Two future paths: (A) **export or create** a
+  presentation (PowerPoint/slides) from a teaching's parts and kept images;
+  (B) **present directly**: an audience screen (Scripture, images, key
+  sentences) and a presenter screen (manuscript, notes, current and next,
+  navigation), using the multi-window work in the backlog (§1). Nothing in
+  this pass blocks either: parts, points and materials have stable ids and an
+  order, and media stays out of the manuscript text.
+- **Templates (no redesign now).** Problems seen: *Study templates* in
+  Settings shape only the Study; Teaching has its own fixed parts and kinds,
+  so there are two parallel notions of structure; built-in study templates
+  duplicate one another in places (passage and word studies share most
+  sections); and a template cannot say which teaching kind it prepares for.
+  What belongs where: the **Study** owns sections for investigating a text;
+  **Bible Teaching** owns the shape of what is taught (§17.7); a **Template**
+  should become a starting point for either, named by purpose. This pass only
+  renamed the section to *Templates* (DE *Vorlagen*) with the summary
+  *Starting outlines for new studies*. Next milestone: one template list with
+  a "for Study / for Teaching" type, teaching templates that set the kind and
+  canvas, and fewer, clearly different built-in study templates.
+
+### 17.9 Tests added or changed
+
+- Settings (`tests/ui/settings.test.tsx`): order and summaries, all closed,
+  About opens, independent sections with Enter/Space and `aria-controls`,
+  jump list opens and focuses, sticky header with Back, remembered sections,
+  theme, Escape. Other suites open sections through `openSettingsSection()`.
+- Updates (`tests/ui/updates.test.tsx`): unchanged expectations, now through
+  the opened section.
+- Assistant setup (`tests/ui/teaching.test.tsx`): off-state sentence; reasons
+  for a disabled check (no key, no model, no address, bad address); the check
+  enabled once the prerequisites exist; the new presets and their models; the
+  generic service; key help with the official link; local-program help; no
+  jargon in the normal path; research wording without overclaiming; theology
+  optional with examples and no biography.
+- Help menu: six top-level choices, keyboard through both levels, Escape and
+  focus, free text answered as comments only.
+- Long operations: pending text for asking, story search, image search and
+  generation; one request at a time; Stop waiting ignores the late answer;
+  error state.
+- Teaching canvas: About folded, writing first, kind-aware names, works
+  without the assistant.
+- German and terminology (`tests/ui/german-address.test.ts`).
+- Rust: presets and `needs_key`; the free request's prompt; the free request
+  end to end.
