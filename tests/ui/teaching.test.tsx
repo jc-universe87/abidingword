@@ -894,7 +894,7 @@ describe("the teaching canvas", () => {
     expect(within(article).queryByRole("textbox", { name: "Who it is for" })).toBeNull();
     expect(within(article).queryByRole("button", { name: "Delete this teaching" })).toBeNull();
     // The main parts are there at once, in order.
-    const boxes = within(article).getAllByRole("textbox").map((b) => b.getAttribute("id") && (b.labels?.[0]?.textContent ?? ""));
+    const boxes = within(article).getAllByRole("textbox").map((b) => (b as HTMLInputElement).labels?.[0]?.textContent ?? "");
     expect(boxes).toEqual(["Title", "Central message", "Introduction", "Conclusion", "Notes for yourself"]);
     await user.click(about);
     expect(await within(article).findByRole("textbox", { name: "Who it is for" })).toBeVisible();
