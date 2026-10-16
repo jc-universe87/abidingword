@@ -30,6 +30,7 @@ with pictures of the real program. You do not need any technical knowledge.
 | 🔎 | [**7. Concordance**](07-concordance.md) | See every place a word appears in the Bible |
 | ⚙️ | [**8. Settings, updates and backups**](08-settings-updates-backups.md) | Theme, language, Bibles, updates, and keeping your work safe |
 | ❓ | [**9. Questions and word list**](09-questions-and-word-list.md) | Answers to common questions and a short explanation of the terms used |
+| 🎤 | [**10. Preparing to teach**](10-teaching.md) | Write a sermon, group study or lesson from your study, with an optional assistant that helps with your own writing |
 
 ## Abiding Word in one minute
 
@@ -41,9 +42,11 @@ path: **read the Word → understand it → teach it**.
 - **Three panes side by side:** the Bible on the left, your study in the
   middle, and your own books on the right.
 - **Nothing is guessed.** When Abiding Word shows that a book mentions
-  John 15:5, it is because the book really says "John 15:5". The current
-  version uses no artificial intelligence. Optional AI assistance is planned
-  for later (see the [questions](09-questions-and-word-list.md)).
+  John 15:5, it is because the book really says "John 15:5".
+- **You are the author.** An optional assistant (off until you turn it on)
+  can comment on and polish what you write when you prepare to teach. It
+  never writes for you and never changes your text by itself (see
+  [Preparing to teach](10-teaching.md)).
 - **Six languages:** English, Deutsch, 한국어, Français, Español and Português.
 
 > [!NOTE]

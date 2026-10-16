@@ -382,12 +382,12 @@ function Result(props: ResultProps) {
               part.kind === "same" ? (
                 <span key={i}>{part.text}</span>
               ) : part.kind === "removed" ? (
-                <del key={i} className="text-danger decoration-2">
+                <del key={i} className="mx-0.5 rounded-sm px-0.5 text-text-muted line-through decoration-danger decoration-2">
                   <span className="sr-only">{t("studies.teaching.assist.proposal.removed")} </span>
                   {part.text}
                 </del>
               ) : (
-                <ins key={i} className="font-semibold text-link no-underline [text-decoration-line:underline] decoration-2">
+                <ins key={i} className="mx-0.5 rounded-sm bg-note px-0.5 font-semibold text-text-strong no-underline [text-decoration-line:underline] decoration-accent decoration-2 underline-offset-2">
                   <span className="sr-only">{t("studies.teaching.assist.proposal.added")} </span>
                   {part.text}
                 </ins>

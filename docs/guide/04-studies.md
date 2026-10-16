@@ -24,7 +24,7 @@ a passage, a word or a topic, and you write it in the middle pane.
    | **Passage study** | Work through a passage carefully: text, context, observations, meaning, application, teaching |
    | **Word study** | Follow one word through the Bible |
    | **Topic** | Gather what the Bible says about a theme |
-   | **Teaching preparation** | Prepare a sermon, lesson or talk |
+   | **Teaching preparation** | Prepare a sermon, lesson or talk (any study can also lead to a written teaching: see [Preparing to teach](10-teaching.md)) |
 
    Under **More options** you find more kinds (biblical theology, systematic
    theology, your own), the template to start from and the project to put it in.

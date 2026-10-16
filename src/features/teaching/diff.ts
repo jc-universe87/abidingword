@@ -6,9 +6,12 @@ export interface DiffPart {
   text: string;
 }
 
-/** Words and the spaces after them, so joining the parts gives the text back. */
+/**
+ * Each word with the spaces after it (and any spaces the text starts with), so joining the
+ * parts gives the text back and a changed phrase is never split by a matched lone space.
+ */
 function tokens(text: string): string[] {
-  return text.match(/\s+|[^\s]+/g) ?? [];
+  return text.match(/^\s+|\S+\s*/g) ?? [];
 }
 
 /** Longest-common-subsequence diff; falls back to "all changed" for very long texts. */

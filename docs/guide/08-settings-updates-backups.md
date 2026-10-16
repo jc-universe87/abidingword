@@ -55,6 +55,32 @@ Templates are the ready-made section lists a new study starts with. The
 built-in ones can't be changed, but you can **duplicate** one and adjust the
 copy: rename sections, add hints, change the order.
 
+## Assistant
+
+The assistant helps when you [prepare to teach](10-teaching.md). It is
+**off** until you tick **Use the assistant**.
+
+1. **Service:** choose one. *OpenAI*, *Anthropic (Claude)* and *Google Gemini*
+   run on the internet and need a **key** from that company. *Ollama* and
+   *LM Studio* run **on your own computer** (install them first), so your text
+   does not leave it, and need no key.
+2. **Model:** a suggested name is filled in; change it if the service's
+   website tells you another.
+3. **Key:** paste it and click **Keep key**. It is kept in your computer's own
+   password store (on Windows: the *Credential Manager*), never in your
+   studies, and is not shown again. **Remove key** deletes it.
+4. **Checking real stories** (optional): real stories are only offered when a
+   search service finds them. Choose *Brave Search* (needs its own key) or a
+   *SearXNG* address you trust. Without one, the assistant says it cannot
+   check real stories.
+5. **Images:** finding freely licensed images on Wikimedia Commons is on (only
+   search words are sent). **Allow making images** works with OpenAI only;
+   such images are always marked as made by the assistant.
+6. **Your theological tradition** (optional): in your own words, if you want
+   the assistant to respect it. Left empty, it assumes no position and says
+   where Christians read a passage differently.
+7. Click **Save**, then **Check the connection**.
+
 ## Updates
 
 <p align="center">

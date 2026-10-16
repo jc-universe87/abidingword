@@ -13,7 +13,7 @@
   <img alt="Windows" src="https://img.shields.io/badge/Windows-test%20version-1f3a2e">
   <img alt="Works offline" src="https://img.shields.io/badge/works-offline-b8862f">
   <img alt="Six languages" src="https://img.shields.io/badge/languages-EN%20%C2%B7%20DE%20%C2%B7%20KO%20%C2%B7%20FR%20%C2%B7%20ES%20%C2%B7%20PT-6b3a2a">
-  <img alt="AI assistance: planned" src="https://img.shields.io/badge/AI%20assistance-planned-555">
+  <img alt="AI assistance: optional" src="https://img.shields.io/badge/AI%20assistance-optional%2C%20off%20by%20default-555">
 </p>
 
 <p align="center">
@@ -89,8 +89,9 @@ Bibles too.
 
 ### 🔒 Yours, and private
 No account, no cloud and no internet needed. Nothing is guessed: every link
-points to something that is really there. Optional AI assistance is planned,
-and it will always show its sources and never replace Scripture.
+points to something that is really there. An optional assistant (off until you
+turn it on) comments on and polishes what *you* write; it never writes your
+teaching, and it shows where everything comes from.
 
 <img src="docs/guide/images/workspace-dark.png" alt="The workspace in the dark theme" width="360">
 
@@ -124,8 +125,9 @@ step by step, with pictures.
 | | |
 |---|---|
 | ✅ **Ready** | Bible reading, with nine free Bibles included (English, German, Korean, French, Spanish, Portuguese) · highlights, notes and bookmarks · studies with templates, sections and study notes · projects · your own library (PDF, EPUB, Word, Markdown, text) · books matched to the passage you read · clickable Bible references in six languages, in the text and on PDF pages · find a word inside a book · contents made from a book's headings · marking your own books (highlights, notes, bookmarks) · concordance · search across Bible, studies and library · light and dark themes · six interface languages · automatic test updates |
-| 🛠️ **Next** (being tested) | Bringing what you read into your study: add selected words, highlights and notes to a study with their source, open the book again at those words, and copy a quotation with its citation |
-| 🌱 **Later** | Teaching outputs (sermon and lesson outlines, handouts) · dictionary forms and grammar for Greek and Hebrew words · optional AI study assistance, always pointing to its sources · reading scanned books and recordings · drawing on books with a pen · sharing and syncing between your own devices |
+| ✅ **Also ready** | Bringing what you read into your study: add selected words, highlights and notes to a study with their source, open the book again at those words, and copy a quotation with its citation |
+| 🛠️ **Next** (being tested) | Preparing to teach: sermons, group studies and lessons written by you from your study, with main points, your findings and passages · an optional assistant that checks and polishes your wording, comments on your structure and theology, finds real stories with their sources and freely licensed images, and never writes for you |
+| 🌱 **Later** | Handouts and exports · dictionary forms and grammar for Greek and Hebrew words · reading scanned books and recordings · drawing on books with a pen · sharing and syncing between your own devices |
 
 ## Documentation
 

@@ -42,7 +42,33 @@ const openSource = async (page, title) => {
   await page.waitForTimeout(700);
 };
 
+const openTeaching = async (page) => {
+  await openStudy(page);
+  await page.getByRole("main").getByRole("button", { name: "Teaching", exact: true }).click();
+  await page.waitForTimeout(800);
+};
+
 const scenes = {
+  async teaching() {
+    const page = await open("", { width: 1440, height: 1500 });
+    await openTeaching(page);
+    await shot(page, "teaching");
+    await page.close();
+  },
+  async "teaching-help"() {
+    const page = await open("", { width: 1440, height: 1000 });
+    await openTeaching(page);
+    const main = page.getByRole("main");
+    await main.getByRole("button", { name: "Help with Introduction" }).click();
+    await main.getByRole("menuitem", { name: "Make it sound natural" }).click();
+    const panel = main.getByTestId("assist-panel");
+    await panel.getByRole("button", { name: "Ask" }).click();
+    await panel.getByRole("heading", { name: "Suggested wording" }).waitFor();
+    await panel.scrollIntoViewIfNeeded();
+    const box = await panel.boundingBox();
+    await shot(page, "teaching-help", { screenshot: (o) => page.screenshot({ ...o, clip: { x: box.x - 16, y: box.y - 150, width: box.width + 32, height: box.height + 166 } }) });
+    await page.close();
+  },
   async workspace() {
     const page = await open();
     await openStudy(page);

@@ -443,3 +443,16 @@ describe("assistant settings", () => {
     await waitFor(() => expect(api.state.teaching.assistant.config.provider).toBe("ollama"));
   });
 });
+
+describe("the comparison of a suggestion", () => {
+  it("shows removed and added words, and keeps a changed phrase together", async () => {
+    const { wordDiff } = await import("@/features/teaching/diff");
+    const parts = wordDiff("It looks like they are hurting it.", "It looks as if they are hurting it.");
+    expect(parts.filter((p) => p.kind === "removed").map((p) => p.text.trim())).toEqual(["like"]);
+    expect(parts.filter((p) => p.kind === "added").map((p) => p.text.trim())).toEqual(["as if"]);
+    // Each side reads back exactly.
+    expect(parts.filter((p) => p.kind !== "added").map((p) => p.text).join("")).toBe("It looks like they are hurting it.");
+    expect(parts.filter((p) => p.kind !== "removed").map((p) => p.text).join("")).toBe("It looks as if they are hurting it.");
+    expect(wordDiff("Same text.", "Same text.")).toEqual([{ kind: "same", text: "Same text." }]);
+  });
+});

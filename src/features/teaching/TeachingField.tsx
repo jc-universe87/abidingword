@@ -126,12 +126,18 @@ export function TeachingField(props: TeachingFieldProps) {
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex flex-wrap items-end justify-between gap-x-2">
-        <label htmlFor={`${id}-field`} className={emphasis ? "sr-only" : "text-[0.9375rem] font-semibold text-text-strong"}>
+      {emphasis ? (
+        <label htmlFor={`${id}-field`} className="sr-only">
           {label}
         </label>
-        {assistant && !action && <AssistMenu part={part} partLabel={label} onChoose={choose} />}
-      </div>
+      ) : (
+        <div className="flex flex-wrap items-end justify-between gap-x-2">
+          <label htmlFor={`${id}-field`} className="text-[0.9375rem] font-semibold text-text-strong">
+            {label}
+          </label>
+          {assistant && !action && <AssistMenu part={part} partLabel={label} onChoose={choose} />}
+        </div>
+      )}
       {hint && (
         <p id={`${id}-hint`} className="m-0 text-[0.875rem] text-text-muted">
           {hint}
@@ -155,21 +161,24 @@ export function TeachingField(props: TeachingFieldProps) {
           className={field}
         />
       ) : (
-        <input
-          id={`${id}-field`}
-          ref={(el) => {
-            area.current = el;
-          }}
-          value={text}
-          placeholder={placeholder}
-          aria-describedby={hint ? `${id}-hint` : undefined}
-          onChange={(e) => {
-            setUndo(null);
-            change(e.target.value);
-          }}
-          onBlur={flush}
-          className={`${field} h-11`}
-        />
+        <div className="flex items-center gap-1">
+          <input
+            id={`${id}-field`}
+            ref={(el) => {
+              area.current = el;
+            }}
+            value={text}
+            placeholder={placeholder}
+            aria-describedby={hint ? `${id}-hint` : undefined}
+            onChange={(e) => {
+              setUndo(null);
+              change(e.target.value);
+            }}
+            onBlur={flush}
+            className={`${field} h-11 min-w-0 flex-1`}
+          />
+          {emphasis && assistant && !action && <AssistMenu part={part} partLabel={label} onChoose={choose} />}
+        </div>
       )}
       {onRevealScripture && multiline && <DetectedReferences text={text} onOpen={onRevealScripture} />}
       {undo !== null && (

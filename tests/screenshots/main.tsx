@@ -70,7 +70,7 @@ async function seed(api: MemoryApi) {
   );
   const observations = vine.sections.find((s) => s.title === "Observations");
   const application = vine.sections.find((s) => s.title === "Application");
-  await api.findingCreate({
+  const fruit = await api.findingCreate({
     studyId: vine.study.id,
     findingType: "observation",
     sectionId: observations?.id,
@@ -137,7 +137,7 @@ async function seed(api: MemoryApi) {
   await mark("Remaining is not anxious", "Remaining is not anxious striving", { kind: "note", content: "Rest, not effort: abiding is receiving." });
   // A study note brought from that source (v0.15): the person's words, the book's words and where they are.
   const remaining = abiding("Remaining is not anxious");
-  await api.findingCreateFromSource({
+  const resting = await api.findingCreateFromSource({
     studyId: vine.study.id,
     findingType: "interpretation",
     sectionId: application?.id,
@@ -146,6 +146,48 @@ async function seed(api: MemoryApi) {
     start: { segmentId: remaining.id, offset: 0 },
     end: { segmentId: remaining.id, offset: "Remaining is not anxious striving".length },
     quote: "Remaining is not anxious striving",
+  });
+
+  // A sermon prepared from the study (v0.16): the person's own writing, with the study's findings linked.
+  const sermon = await api.teachingCreate({ studyId: vine.study.id, title: "Sunday sermon · Abiding in the Vine", kind: "sermon" });
+  await api.teachingUpdate({
+    id: sermon.id,
+    audience: "The whole church, with many young families",
+    purpose: "That we stop trying harder and learn to stay close to Jesus.",
+    centralMessage: "Fruit comes from remaining in Jesus, not from trying harder.",
+    introduction: "Have you ever watched someone prune a rose bush? It looks like they are hurting it. But a few months later the bush is full of flowers. Jesus says his Father does something like that with us.",
+  });
+  const first = await api.teachingPointCreate({ preparationId: sermon.id, title: "Jesus is the true vine" });
+  const vinePoint = first.points[0]!;
+  await api.teachingPointUpdate({
+    id: vinePoint.id,
+    explanation: "Israel was often called God’s vine, and it did not bear the fruit God looked for. Jesus says: I am the true vine. Everything the vine was meant to be, he is.",
+    application: "Our life with God does not start with what we do, but with who he is.",
+  });
+  await api.teachingPassageAdd({ preparationId: sermon.id, pointId: vinePoint.id, reference: "PSA.80.8-PSA.80.16" });
+  const second = await api.teachingPointCreate({ preparationId: sermon.id, title: "We bear fruit by remaining", afterPointId: vinePoint.id });
+  const remainPoint = second.points[1]!;
+  await api.teachingPointUpdate({
+    id: remainPoint.id,
+    explanation: "A branch does not strain to make grapes. It stays joined to the vine, and the fruit comes. The word “remain” comes again and again in verses 4 to 10.",
+    application: "This week, begin each morning with a short passage before anything else.",
+  });
+  await api.teachingFindingLink({ preparationId: sermon.id, pointId: remainPoint.id, findingId: fruit.id });
+  await api.teachingFindingLink({ preparationId: sermon.id, pointId: remainPoint.id, findingId: resting.id });
+  await api.teachingPointCreate({ preparationId: sermon.id, title: "The Father is glorified", afterPointId: remainPoint.id });
+  // The assistant, turned on for the guide's pictures, with one prepared answer (no network in the harness).
+  api.state.teaching.assistant.config = { ...api.state.teaching.assistant.config, enabled: true, provider: "openai", model: "gpt-4.1" };
+  api.state.teaching.assistant.keys.set("openai", "sample");
+  api.state.teaching.assistant.replies.push({
+    result: {
+      type: "proposal",
+      suggestion:
+        "Have you ever watched someone prune a rose bush? It looks as if they are hurting it. Yet a few months later the bush is full of flowers. Jesus says his Father does something like that with us.",
+      changes: "Two small changes for flow: “as if” and “Yet” at the start of the third sentence. Your words and tone are kept.",
+      placement: "replace",
+    },
+    assistant: "OpenAI · gpt-4.1",
+    remote: true,
   });
   api.installFixtureSource({
     title: "Sermon outline: The True Vine",

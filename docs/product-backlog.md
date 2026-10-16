@@ -192,8 +192,21 @@ author and Bible-study author.
   person from using AI heavily on their own. Abiding Word itself just does not
   position AI as the author.
 
-It should later shape command names, buttons, prompts, output size,
-provenance, UI wording and the review workflow. No AI is implemented.
+It shapes command names, buttons, prompts, output size, provenance, UI
+wording and the review workflow.
+
+**Built in v0.16** (see [`teaching-preparation-v0.16.md`](teaching-preparation-v0.16.md)):
+teaching preparations written by the person, and an optional, provider-neutral
+assistant beside each part of a teaching (wording, comments, ideas, real
+stories through search, images), which never changes the person's text
+without an explicit choice and lists what it will see before anything is sent.
+
+**Still open:** the assistant in the Study itself (findings, sections) and in
+the Library (summarising a source with provenance); research modes beyond one
+teaching ("my library only", "compare these three commentaries"); a record of
+accepted assistant wording; a persistent Linux key store; search through an AI
+service's own search tool; copying teaching preparations with a study and
+finding them in study search.
 
 ## 3. Backup and sync versus export and publication
 
