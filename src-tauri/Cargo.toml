@@ -38,6 +38,13 @@ sha2 = "0.10"
 zip = { version = "2", default-features = false, features = ["deflate"] }
 tauri-plugin-updater = "2"
 tauri-plugin-opener = "2"
+# Assistant (v0.16): requests to the AI, search and image services the person
+# configured. Already used by the updater; no new TLS stack.
+base64 = "0.22"
+reqwest = { version = "0.13", default-features = false, features = ["json", "rustls-no-provider", "system-proxy"] }
+rustls = { version = "0.23", default-features = false, features = ["ring"] }
+# API keys live in the operating system's credential store, never in the database.
+keyring = { version = "3", features = ["windows-native", "apple-native", "linux-native"] }
 
 [dev-dependencies]
 tempfile = "3"

@@ -6,6 +6,7 @@
 //! * `commands`   — the typed API the frontend calls
 //! * `state`      — startup and shared state
 
+pub mod assistant;
 pub mod commands;
 pub mod db;
 pub mod domain;
@@ -150,6 +151,30 @@ pub fn run() {
             commands::study_passages::study_passage_add,
             commands::study_passages::study_passage_remove,
             commands::study_passages::study_passage_set_role,
+            commands::teaching::teaching_list,
+            commands::teaching::teaching_get,
+            commands::teaching::teaching_create,
+            commands::teaching::teaching_update,
+            commands::teaching::teaching_delete,
+            commands::teaching::teaching_point_create,
+            commands::teaching::teaching_point_update,
+            commands::teaching::teaching_point_delete,
+            commands::teaching::teaching_point_reorder,
+            commands::teaching::teaching_finding_link,
+            commands::teaching::teaching_finding_unlink,
+            commands::teaching::teaching_passage_add,
+            commands::teaching::teaching_passage_remove,
+            commands::teaching::teaching_material_keep,
+            commands::teaching::teaching_material_remove,
+            commands::teaching::teaching_image,
+            commands::assistant::assistant_settings_get,
+            commands::assistant::assistant_settings_set,
+            commands::assistant::assistant_key_set,
+            commands::assistant::assistant_test,
+            commands::assistant::assistant_preview,
+            commands::assistant::assistant_ask,
+            commands::assistant::assistant_find_images,
+            commands::assistant::assistant_generate_image,
         ])
         .run(tauri::generate_context!())
         .expect("Abiding Word could not start its window");

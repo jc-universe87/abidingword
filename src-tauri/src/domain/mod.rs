@@ -4,9 +4,11 @@
 //! The TypeScript mirror lives in `src/types/domain.ts`; keep the two in step.
 
 pub mod studies;
+pub mod teaching;
 pub mod validate;
 
 pub use studies::*;
+pub use teaching::*;
 
 use std::fmt;
 use std::str::FromStr;

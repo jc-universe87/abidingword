@@ -56,6 +56,11 @@ const EXPECTED_TABLES: &[&str] = &[
     "study_search_items",
     "study_sections",
     "study_templates",
+    "teaching_finding_links",
+    "teaching_materials",
+    "teaching_passages",
+    "teaching_points",
+    "teaching_preparations",
     "workspaces",
 ];
 

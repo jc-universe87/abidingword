@@ -47,12 +47,12 @@ pub fn update(conn: &Connection, input: &UpdateSettings) -> AppResult<AppSetting
     get(conn)
 }
 
-fn clear(conn: &Connection, key: &str) -> AppResult<()> {
+pub(crate) fn clear(conn: &Connection, key: &str) -> AppResult<()> {
     conn.execute("DELETE FROM settings WHERE key = ?1", [key])?;
     Ok(())
 }
 
-fn read<T: DeserializeOwned>(conn: &Connection, key: &str) -> AppResult<Option<T>> {
+pub(crate) fn read<T: DeserializeOwned>(conn: &Connection, key: &str) -> AppResult<Option<T>> {
     let raw: Option<String> = conn
         .query_row("SELECT value FROM settings WHERE key = ?1", [key], |row| {
             row.get(0)
@@ -72,7 +72,7 @@ fn read<T: DeserializeOwned>(conn: &Connection, key: &str) -> AppResult<Option<T
     }
 }
 
-fn write<T: Serialize>(conn: &Connection, key: &str, value: &T) -> AppResult<()> {
+pub(crate) fn write<T: Serialize>(conn: &Connection, key: &str, value: &T) -> AppResult<()> {
     let json = serde_json::to_string(value).map_err(|e| AppError::Unexpected(e.to_string()))?;
     let now = now();
     conn.execute(
