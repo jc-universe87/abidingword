@@ -119,8 +119,29 @@ pub async fn assistant_find_images(
         return Ok(Vec::new());
     }
     use crate::assistant::http::Transport as _;
-    let reply = state.transport()?.send(images::search_call(&terms)).await?;
-    images::parse_found(&reply).map_err(Into::into)
+    let transport = state.transport()?;
+    let reply = transport.send(images::search_call(&terms)).await?;
+    let mut found = images::parse_found(&reply)?;
+    for image in &mut found {
+        if let Ok(call) = images::thumb_call(&image.thumb_url) {
+            if let Ok(reply) = transport.send(call).await {
+                image.thumb_data = images::thumb_data(&reply);
+            }
+        }
+    }
+    Ok(found)
+}
+
+/// The preview of a kept found image (from Wikimedia's image servers only).
+#[tauri::command]
+pub async fn assistant_image_preview(
+    state: State<'_, AppState>,
+    url: String,
+) -> CommandResult<Option<String>> {
+    use crate::assistant::http::Transport as _;
+    let call = images::thumb_call(&url)?;
+    let reply = state.transport()?.send(call).await?;
+    Ok(images::thumb_data(&reply))
 }
 
 #[derive(Debug, Clone, Serialize)]

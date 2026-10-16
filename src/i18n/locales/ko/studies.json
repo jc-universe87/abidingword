@@ -618,5 +618,228 @@
     "save": "성경공부에 추가",
     "added": "{{study}} · {{part}}에 추가했습니다.",
     "loading": "성경공부를 불러오는 중…"
+  },
+  "view": {
+    "label": "보기",
+    "study": "성경공부",
+    "teaching": "가르침 준비"
+  },
+  "teaching": {
+    "loading": "가르침 준비를 여는 중…",
+    "which": "가르침 준비:",
+    "another": "다른 가르침 준비하기",
+    "empty": {
+      "title": "이 성경공부로 가르침 준비하기",
+      "text": "설교, 소그룹 성경공부, 공과 등 직접 쓰는 가르침입니다. 이 성경공부에서 찾은 기록과 본문을 그대로 가져다 쓸 수 있으며, 원래 자리에 그대로 남습니다. 아무것도 대신 채워 넣지 않으며, 어느 부분이든 비워 두어도 됩니다."
+    },
+    "kindLabel": "종류",
+    "kindNone": "정하지 않음",
+    "kind": {
+      "sermon": "설교",
+      "bible_study": "소그룹 성경공부",
+      "youth": "청소년",
+      "children": "어린이",
+      "lesson": "공과",
+      "talk": "강의",
+      "other": "기타"
+    },
+    "titleLabel": "제목",
+    "start": "시작하기",
+    "delete": "이 가르침 준비 삭제",
+    "deleteConfirm": "이 가르침 준비를 삭제할까요? 성경공부와 그 기록, 본문은 그대로 남습니다.",
+    "about": "무엇에 관한 가르침인가",
+    "audience": "대상",
+    "audiencePlaceholder": "예: 온 교회, 청소년부",
+    "purpose": "목적",
+    "purposePlaceholder": "이 가르침이 무엇을 이루기를 바라는지",
+    "message": "핵심 메시지",
+    "messageHint": "직접 쓰세요. 듣는 이들이 꼭 붙들기를 바라는 한 가지입니다.",
+    "introduction": "서론",
+    "conclusion": "결론",
+    "notes": "인도자 메모",
+    "notesHint": "가르치면서 볼 메모입니다. 전하는 내용에는 들어가지 않습니다.",
+    "points": {
+      "title": "대지",
+      "whole": "가르침 전체",
+      "none": "아직 대지가 없습니다. 필요한 만큼, 어떤 형태로든 추가하세요. 이야기의 흐름, 질문, 주제, 몇 구절이 될 수 있습니다.",
+      "add": "대지 추가",
+      "added": "대지를 추가했습니다.",
+      "removed": "대지를 삭제했습니다.",
+      "moved": "대지를 {{position}}번째로 옮겼습니다.",
+      "number": "{{number}}대지",
+      "label": "{{number}}대지: {{title}}",
+      "untitled": "{{number}}대지",
+      "titleLabel": "{{number}}대지 제목",
+      "titlePlaceholder": "이 대지가 말하는 것",
+      "explanation": "설명",
+      "application": "적용",
+      "illustration": "예화",
+      "moveUp": "‘{{point}}’ 위로",
+      "moveDown": "‘{{point}}’ 아래로",
+      "delete": "‘{{point}}’ 삭제",
+      "deleteConfirm": "이 대지와 쓴 내용을 삭제할까요? 여기에 쓴 기록은 성경공부에 그대로 남습니다."
+    },
+    "links": {
+      "used": "{{scope}}에 쓴 것",
+      "wholeScope": "가르침 전체",
+      "passages": "{{scope}}의 본문",
+      "findings": "{{scope}}에 쓴 성경공부 기록",
+      "materials": "{{scope}}에 보관한 도우미 제안",
+      "useFinding": "성경공부 기록 가져오기",
+      "chooseFinding": "기록",
+      "pick": "선택…",
+      "empty": "(비어 있음)",
+      "findingNote": "기록은 성경공부에 그대로 있습니다. 고치면 여기에도 반영됩니다.",
+      "removeFinding": "여기서 이 기록 빼기",
+      "removeFindingHint": "성경공부에는 그대로 남습니다.",
+      "addPassage": "본문 추가",
+      "passageLabel": "{{scope}}의 본문",
+      "removePassage": "이 가르침 준비에서 {{passage}} 빼기"
+    },
+    "material": {
+      "story": "실화",
+      "illustration": "예화 아이디어",
+      "image": "그림",
+      "visual": "시각 자료 아이디어",
+      "remove": "이 가르침 준비에서 빼기"
+    },
+    "standing": {
+      "verified": "검색으로 찾은 서로 다른 출처 두 곳 이상이 전하는 이야기",
+      "unverified": "확인되지 않음: 출처가 하나뿐입니다. 쓰기 전에 꼭 확인하세요.",
+      "hypothetical": "지어낸 예이며 실제 일이 아닙니다",
+      "found": "찾은 그림 · {{licence}}",
+      "generated": "도우미가 만든 그림입니다. 사진이 아닙니다",
+      "suggestion": "도우미의 제안"
+    },
+    "assist": {
+      "intro": "각 부분 옆의 ‘도움 받기’로 도우미를 쓸 수 있습니다. 쓴 내용에 의견을 주고, 확인하고, 표현을 제안합니다. 제안을 고르지 않는 한 글은 바뀌지 않습니다.",
+      "menu": "도움 받기",
+      "menuLabel": "{{part}} 도움 받기",
+      "group": {
+        "wording": "표현 다듬기",
+        "comments": "의견 듣기",
+        "ideas": "아이디어"
+      },
+      "action": {
+        "grammar": "맞춤법·문법 확인",
+        "clarity": "더 분명하게",
+        "shorten": "더 짧게",
+        "natural": "자연스럽게",
+        "repetition": "반복 줄이기",
+        "spoken": "말로 전하기 쉽게",
+        "audience": "대상에 맞게 바꾸기…",
+        "translate": "번역하기…",
+        "transition": "연결 문장 도움",
+        "review": "쓴 글 검토하기",
+        "structure": "구성에 대한 의견",
+        "application": "적용이 본문에서 나오는가?",
+        "theology": "신학과 본문 확인",
+        "passages": "살펴볼 본문 제안",
+        "phrasing": "다르게 표현하기",
+        "question": "나눔 질문 도움…",
+        "restructure": "지금 쓴 내용을 어떻게 배열할까?",
+        "illustration": "예화 아이디어",
+        "story": "실화 찾기…",
+        "visual": "시각 자료 제안"
+      },
+      "title": "{{action}} · {{part}}",
+      "close": "도우미 닫기",
+      "selectionOnly": "선택한 부분만 봅니다.",
+      "request": {
+        "question": "질문으로 무엇을 알아차리게 하고 싶나요?",
+        "story": "어떤 실화를 찾나요?",
+        "transition": "무엇을 연결할까요? (선택)",
+        "phrasing": "무엇을 말하고 싶나요? (선택)",
+        "visual": "그림으로 무엇을 설명할까요? (선택)"
+      },
+      "audienceLabel": "누구를 위한 글인가요?",
+      "audiencePlaceholder": "예: 8–10세 어린이",
+      "languageLabel": "어느 언어로?",
+      "languagePlaceholder": "예: 영어",
+      "shared": {
+        "remote": "도움을 위해 다음 내용을 {{assistant}}(으)로 보냅니다:",
+        "local": "이 컴퓨터 안에서만 처리합니다({{assistant}}). 다음 내용을 봅니다:",
+        "text": "쓰신 ‘{{part}}’",
+        "selection": "선택한 부분",
+        "request": "요청하신 내용",
+        "teaching": "대상, 목적, 핵심 메시지",
+        "nearby_other": "이 가르침 준비의 다른 부분 {{count}}곳 (말투를 살리기 위해)",
+        "passages": "본문: {{passages}}",
+        "findings_other": "성경공부 기록 {{count}}개",
+        "quotes_other": "자료실 자료의 인용 {{count}}개 (출처 포함)",
+        "searches": "검색어(쓰신 글이 아님)도 검색 서비스로 보냅니다."
+      },
+      "ask": "요청하기",
+      "askHint": "Ctrl+Enter로 요청, Esc로 닫기. 요청하기 전에는 아무것도 보내지 않습니다.",
+      "working": "처리 중…",
+      "ready": "제안이 준비되었습니다.",
+      "failed": "이번에는 도우미가 도움을 드리지 못했습니다.",
+      "kept": "이 가르침 준비에 보관했습니다.",
+      "keptLabel": "보관함",
+      "from": "{{assistant}} 제안",
+      "done": "닫기",
+      "applied": "고르신 대로 바꾸었습니다.",
+      "undo": "되돌리기",
+      "undone": "이전 글로 되돌렸습니다.",
+      "proposal": {
+        "heading": "제안된 표현",
+        "headingStart": "제안된 연결 문장",
+        "notYet": "아직 아무것도 바뀌지 않았습니다. 이 제안을 고르지 않으면 글은 그대로입니다.",
+        "same": "바꿀 곳이 없다고 합니다.",
+        "removed": "삭제:",
+        "added": "추가:",
+        "changes": "바뀐 점: {{changes}}",
+        "use": "이 표현 쓰기",
+        "useStart": "앞부분에 넣기"
+      },
+      "comments": {
+        "heading": "쓰신 글에 대한 의견",
+        "none": "덧붙일 의견이 없습니다.",
+        "suggested": "살펴볼 본문:",
+        "add": "추가",
+        "addPassage": "이 가르침 준비에 {{passage}} 추가"
+      },
+      "basis": {
+        "scripture": "본문에 근거",
+        "study": "성경공부 기록에 근거",
+        "source": "자료실 자료에 근거",
+        "reasoning": "도우미의 생각이니 직접 판단하세요"
+      },
+      "options": {
+        "heading": "제안",
+        "headingInvented": "예화 아이디어",
+        "invented": "지어낸 예이며 실제 일이 아닙니다. 실제로 있었던 일처럼 전하지 마세요.",
+        "insert": "제 글 아래에 넣기",
+        "keepIdea": "아이디어로 보관"
+      },
+      "stories": {
+        "heading": "찾은 실화",
+        "none": "검색 결과에서 확인할 수 있는 실화를 찾지 못했습니다. 아무것도 지어내지 않았습니다.",
+        "checkNote": "검색 결과의 요약만으로 확인했습니다. 쓰기 전에 출처를 열어 전체 내용을 읽어 보세요.",
+        "keep": "이 가르침 준비에 보관",
+        "sources": "출처"
+      },
+      "visuals": {
+        "heading": "시각 자료 아이디어",
+        "kind": {
+          "photo": "사진",
+          "diagram": "간단한 도표",
+          "drawing": "그림"
+        },
+        "find": "자유 이용 그림 찾기",
+        "make": "그림 만들기",
+        "keepIdea": "이 아이디어 보관"
+      },
+      "images": {
+        "found": "찾은 그림",
+        "none": "자유 이용 그림을 찾지 못했습니다.",
+        "by": "만든 이: {{author}}",
+        "source": "출처 보기",
+        "keep": "이 그림 보관",
+        "keepLabel": "‘{{title}}’ 그림 보관",
+        "generatedAlt": "도우미가 만든 그림: {{description}}",
+        "nothingPlaced": "보관하지 않으면 가르침 준비에 아무것도 넣지 않습니다."
+      }
+    }
   }
 }

@@ -57,6 +57,8 @@ import type {
   TemplateSection,
 } from "@/types/studies";
 
+import { newTeachingState, teachingApi, type TeachingState } from "./memoryTeaching";
+
 const BUILTIN_TEMPLATES = [passageStudy, wordStudy, topicalStudy, biblicalTheology, systematicTheology, teachingStudy];
 import { BOOKS, FIXTURE_VERSE_COUNT, fixtureChapters } from "./scriptureFixture";
 
@@ -112,6 +114,8 @@ export interface MemoryApi extends Api {
       /** Source annotations (v0.14); removed ones stay with `deleted`. */
       annotations: (SourceAnnotation & { deleted: boolean })[];
     };
+    /** Teaching preparations and the scripted assistant (v0.16). */
+    teaching: TeachingState;
   };
   /** Installs a fixture Bible directly (test setup). */
   installFixtureBible(shortName: string, wording: string): BibleTranslation;
@@ -320,6 +324,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     library: { sources: [], segments: [], mentions: [], links: [], nextChosenFile: null, openedLinks: [], openLinkFails: false, pending: null, annotations: [] },
     findings: [],
     relations: [],
+    teaching: newTeachingState(),
     templates: BUILTIN_TEMPLATES.map((t) => ({
       id: `tpl-${t.key}`,
       key: t.key,
@@ -639,6 +644,14 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         .slice(0, 30);
   };
   const api: MemoryApi = {
+    ...teachingApi(state.teaching, {
+      id,
+      now,
+      findings: () => state.findings,
+      studyExists: (studyId) => void find(state.studies, studyId, "study"),
+      studyPassages: () => state.passages,
+      ref: (canonical) => refFromCanonical(canonical, bookByCode),
+    }),
     libraryLocationsCalls: [],
     concordanceCalls: [],
     detectCalls: [],

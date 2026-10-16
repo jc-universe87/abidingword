@@ -174,6 +174,7 @@ pub fn run() {
             commands::assistant::assistant_preview,
             commands::assistant::assistant_ask,
             commands::assistant::assistant_find_images,
+            commands::assistant::assistant_image_preview,
             commands::assistant::assistant_generate_image,
         ])
         .run(tauri::generate_context!())

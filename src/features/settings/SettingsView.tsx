@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
 import type { AppInfo, Theme } from "@/types/domain";
+import { AssistantSettings } from "./AssistantSettings";
 import { BibleTexts } from "./BibleTexts";
 import { StudyTemplates } from "./StudyTemplates";
 import { UpdateSettings } from "@/features/updates/UpdateSettings";
@@ -12,7 +13,7 @@ import { useTheme } from "./ThemeContext";
 
 const THEMES = ["light", "dark", "system"] as const satisfies readonly Theme[];
 
-const PLANNED = ["ai", "sync", "integrations"] as const;
+const PLANNED = ["sync", "integrations"] as const;
 
 interface SettingsViewProps {
   info: AppInfo;
@@ -64,6 +65,10 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
 
         <Section id="study-templates" title={t("settings.sections.templates")}>
           <StudyTemplates onEdit={onEditTemplate} />
+        </Section>
+
+        <Section id="assistant" title={t("settings.sections.assistant")}>
+          <AssistantSettings />
         </Section>
 
         <Section id="updates" title={t("app.updates.title")}>

@@ -126,5 +126,43 @@
     "bookmarkPlace": "Um marcador indica um lugar, não palavras.",
     "wordsOnlyNotes": "Apenas as notas têm texto próprio.",
     "bookmarkNotStudy": "Um marcador apenas assinala um lugar; não há nada a adicionar a um estudo."
+  },
+  "assistant": {
+    "off": "O assistente está desligado. Você pode ligá-lo em Configurações.",
+    "notSetUp": "O assistente ainda não está configurado. Você pode configurá-lo em Configurações.",
+    "noModel": "Escolha qual modelo usar em Configurações.",
+    "noKey": "O assistente precisa da chave. Você pode adicioná-la em Configurações.",
+    "keyRefused": "O serviço não aceitou a chave. Verifique-a em Configurações.",
+    "modelMissing": "O serviço não conhece esse modelo. Verifique o nome em Configurações.",
+    "busy": "O serviço está ocupado ou o limite da conta foi atingido. Tente mais tarde.",
+    "failed": "O serviço não conseguiu responder desta vez. Tente de novo.",
+    "badReply": "A resposta do assistente não pôde ser usada. Nada mudou. Tente de novo.",
+    "unreachable": "Não foi possível alcançar o assistente. Verifique a internet ou o endereço em Configurações.",
+    "writeFirst": "Escreva algo aqui primeiro. O assistente ajuda com o que você escreveu.",
+    "sayWhat": "Diga em poucas palavras o que você procura.",
+    "structureFirst": "Escreva primeiro pelo menos dois pontos. O assistente comenta a estrutura que você tem.",
+    "chooseAudience": "Indique para quem é.",
+    "chooseLanguage": "Escolha o idioma de destino.",
+    "textTooLong": "Este texto é longo demais para enviar de uma vez. Selecione uma parte e tente de novo.",
+    "tooMuch": "A sugestão era muito mais longa que o seu texto, por isso não foi mostrada. Tente de novo.",
+    "noSearch": "Histórias reais só podem ser encontradas e verificadas com um serviço de busca, que não está configurado. Você pode adicionar um em Configurações ou pedir uma ilustração inventada.",
+    "noSearchKey": "O serviço de busca precisa da chave. Você pode adicioná-la em Configurações.",
+    "searchFailed": "O serviço de busca não conseguiu responder. Nada foi encontrado ou verificado.",
+    "imagesFailed": "Desta vez não foi possível encontrar imagens. Tente de novo.",
+    "noImageSearch": "A busca de imagens está desligada. Você pode ligá-la em Configurações.",
+    "noImageGeneration": "Criar imagens não está configurado. Você pode ligar em Configurações (só modelos de imagem da OpenAI).",
+    "imageFailed": "Desta vez não foi possível criar a imagem. Tente de novo.",
+    "keyStore": "Não foi possível guardar a chave no cofre de credenciais deste computador.",
+    "badKey": "Isso não parece uma chave. Cole de novo.",
+    "badAddress": "Digite um endereço que comece com http:// ou https://.",
+    "badModel": "Esse nome de modelo é longo demais."
+  },
+  "teaching": {
+    "tooLong": "Esta parte do ensino é longa demais para salvar.",
+    "otherPoint": "Esse ponto pertence a outro ensino.",
+    "otherStudyFinding": "Essa descoberta pertence a outro estudo.",
+    "badMaterial": "Este item não pode ser guardado.",
+    "notVerified": "Uma história só é guardada como verificada com duas fontes independentes.",
+    "imageGone": "Esta imagem não está mais disponível. Crie de novo."
   }
 }

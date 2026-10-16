@@ -7,7 +7,8 @@
     "bibleTexts": "Bible Texts",
     "templates": "Study Templates",
     "about": "About this installation",
-    "planned": "Coming in later versions"
+    "planned": "Coming in later versions",
+    "assistant": "Assistant"
   },
   "language": {
     "label": "Interface language",
@@ -39,11 +40,57 @@
     "backup": "All your studies are stored in the data folder on this computer. To back them up, copy that whole folder while Abiding Word is closed."
   },
   "planned": {
-    "ai": "AI assistance",
-    "aiText": "Optional help with study. Abiding Word will always work fully without it.",
     "sync": "Sync",
     "syncText": "Keep your studies in step across your own devices, under your control.",
     "integrations": "Integrations",
     "integrationsText": "Connect other tools you already use."
+  },
+  "assistant": {
+    "intro": "An optional helper for Teaching: it comments on and suggests wording for what you write, checks claims against the passage, and can look for real stories and images. You remain the author: it never changes your text unless you choose a suggestion. It is off until you turn it on, and works only when you ask.",
+    "enabled": "Use the assistant",
+    "provider": "Service",
+    "providers": {
+      "openai": "OpenAI",
+      "anthropic": "Anthropic (Claude)",
+      "google": "Google Gemini",
+      "ollama": "Ollama (on this computer)",
+      "lmstudio": "LM Studio (on this computer)",
+      "openai_compatible": "Other compatible server"
+    },
+    "remote": "When you ask for help, the text you chose is sent over the internet to this service.",
+    "local": "Runs on this computer: your text does not leave it.",
+    "model": "Model",
+    "modelPlaceholder": "The model's name",
+    "modelHint": "The name the service uses for it, e.g. from its website.",
+    "address": "Address (optional)",
+    "addressPlaceholder": "The service’s usual address",
+    "addressHint": "Only needed for another server, or a local model on another computer.",
+    "key": "Key",
+    "keyHint": "The key is kept in this computer's credential store, never in your studies, and is not shown again.",
+    "keyKept": "A key is kept on this computer.",
+    "keyKeptPlaceholder": "A key is kept (type to replace it)",
+    "keySave": "Keep key",
+    "keyRemove": "Remove key",
+    "keySaved": "The key is kept on this computer.",
+    "keyRemoved": "The key was removed.",
+    "search": "Checking real stories",
+    "searchHint": "Real stories and quotations are only offered when a search service finds them; without one the assistant says it cannot check them.",
+    "searchKinds": {
+      "none": "No search (do not look for real stories)",
+      "brave": "Brave Search (needs a key)",
+      "searxng": "SearXNG (an address you trust)"
+    },
+    "searchAddress": "SearXNG address",
+    "searchKey": "Search key",
+    "images": "Images",
+    "findImages": "Find freely licensed images on Wikimedia Commons (only search words are sent)",
+    "generateImages": "Allow making images (always marked as made by the assistant)",
+    "generateOnlyOpenai": "Making images works with OpenAI or a compatible server only.",
+    "perspective": "Your theological tradition (optional)",
+    "perspectiveHint": "In your own words, if you want the assistant to respect it. Left empty, it assumes no position and says where Christians read a passage differently.",
+    "save": "Save",
+    "saved": "Saved.",
+    "test": "Check the connection",
+    "testOk": "The assistant answered. It is ready."
   }
 }

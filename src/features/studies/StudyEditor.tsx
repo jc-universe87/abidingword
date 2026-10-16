@@ -19,6 +19,7 @@ import { useStudyFocus } from "./StudyFocus";
 import { StudyContents } from "./StudyContents";
 import { StudyDetailsPanel } from "./StudyDetails";
 import { StudyPassages } from "./StudyPassages";
+import { TeachingView } from "@/features/teaching/TeachingView";
 
 interface StudyEditorProps {
   studyId: string;
@@ -50,6 +51,8 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   const [newBlock, setNewBlock] = useState<string | null>(null);
   // The kind the findings are narrowed to, in the study's own notes and in every section.
   const [kindFilter, setKindFilter] = useState<FindingType | null>(null);
+  // The study itself, or what it leads to: teaching preparations (v0.16).
+  const [view, setView] = useState<"study" | "teaching">("study");
   const toggle = useRef<HTMLButtonElement>(null);
   const article = useRef<HTMLElement>(null);
   const openedId = detail.data?.study.id;
@@ -232,6 +235,24 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
         )}
       </header>
 
+      <div role="group" aria-label={t("studies.view.label")} className="flex flex-wrap gap-1 self-start rounded-aw border border-border-subtle p-1">
+        {(["study", "teaching"] as const).map((v) => (
+          <button
+            key={v}
+            type="button"
+            aria-pressed={view === v}
+            onClick={() => setView(v)}
+            className="min-h-11 rounded-aw px-4 text-[0.9375rem] font-medium text-text-strong hover:bg-bg-secondary aria-pressed:bg-primary aria-pressed:text-on-primary"
+          >
+            {t(`studies.view.${v}`)}
+          </button>
+        ))}
+      </div>
+
+      {view === "teaching" ? (
+        <TeachingView studyId={study.id} studyTitle={study.title} findings={findings.data ?? []} onRevealScripture={onRevealScripture} />
+      ) : (
+      <>
       <StudyAdd
         empty={blank}
         targetSection={target ? sectionTitle(target) : null}
@@ -274,6 +295,8 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
           onContent={onContent}
         />
       ))}
+      </>
+      )}
       {error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{error}</p>}
     </article>
   );

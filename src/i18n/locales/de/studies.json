@@ -625,5 +625,231 @@
     "save": "Hinzufügen",
     "added": "Zu {{study}} · {{part}} hinzugefügt.",
     "loading": "Ihre Bibelstudien werden geladen …"
+  },
+  "view": {
+    "label": "Anzeigen",
+    "study": "Bibelstudium",
+    "teaching": "Lehren & Predigen"
+  },
+  "teaching": {
+    "loading": "Die Vorbereitung wird geöffnet …",
+    "which": "Vorbereitung:",
+    "another": "Weitere Vorbereitung beginnen",
+    "empty": {
+      "title": "Aus diesem Bibelstudium eine Predigt oder Lehre vorbereiten",
+      "text": "Eine Predigt, ein Gruppenabend oder eine Lektion, von Ihnen geschrieben. Sie können verwenden, was Sie in diesem Bibelstudium gefunden haben: Erkenntnisse und Bibelstellen bleiben, wo sie sind, und werden hier nur verwendet. Nichts wird für Sie ausgefüllt, und jeder Teil darf leer bleiben."
+    },
+    "kindLabel": "Art",
+    "kindNone": "Keine Angabe",
+    "kind": {
+      "sermon": "Predigt",
+      "bible_study": "Bibelgesprächskreis",
+      "youth": "Jugend",
+      "children": "Kinder",
+      "lesson": "Lektion",
+      "talk": "Vortrag",
+      "other": "Andere"
+    },
+    "titleLabel": "Titel",
+    "start": "Beginnen",
+    "delete": "Diese Vorbereitung löschen",
+    "deleteConfirm": "Diese Vorbereitung löschen? Das Bibelstudium mit seinen Erkenntnissen und Bibelstellen bleibt unverändert.",
+    "about": "Worum es geht",
+    "audience": "Für wen",
+    "audiencePlaceholder": "z. B. die ganze Gemeinde, eine Jugendgruppe",
+    "purpose": "Ziel",
+    "purposePlaceholder": "Was diese Predigt oder Lehre bewirken soll",
+    "message": "Kernbotschaft",
+    "messageHint": "In Ihren eigenen Worten: das eine, was die Hörer vor allem mitnehmen sollen.",
+    "introduction": "Einleitung",
+    "conclusion": "Schluss",
+    "notes": "Notizen für Sie selbst",
+    "notesHint": "Erinnerungen beim Halten; nicht Teil dessen, was Sie sagen.",
+    "points": {
+      "title": "Hauptpunkte",
+      "whole": "die ganze Vorbereitung",
+      "none": "Noch keine Punkte. Fügen Sie so viele hinzu, wie Sie brauchen, in jeder Form: ein Abschnitt einer Geschichte, eine Frage, ein Thema oder einige Verse.",
+      "add": "Punkt hinzufügen",
+      "added": "Punkt hinzugefügt.",
+      "removed": "Punkt entfernt.",
+      "moved": "Punkt an Stelle {{position}} verschoben.",
+      "number": "Punkt {{number}}",
+      "label": "Punkt {{number}}: {{title}}",
+      "untitled": "Punkt {{number}}",
+      "titleLabel": "Titel von Punkt {{number}}",
+      "titlePlaceholder": "Was dieser Punkt sagt",
+      "explanation": "Erklärung",
+      "application": "Anwendung",
+      "illustration": "Veranschaulichung oder Beispiel",
+      "moveUp": "„{{point}}“ nach oben",
+      "moveDown": "„{{point}}“ nach unten",
+      "delete": "„{{point}}“ löschen",
+      "deleteConfirm": "Diesen Punkt mit Ihrem Text löschen? Verwendete Erkenntnisse bleiben im Bibelstudium."
+    },
+    "links": {
+      "used": "Verwendet in {{scope}}",
+      "wholeScope": "der ganzen Vorbereitung",
+      "passages": "Bibelstellen in {{scope}}",
+      "findings": "Erkenntnisse aus dem Bibelstudium in {{scope}}",
+      "materials": "Vom Assistenten übernommen in {{scope}}",
+      "useFinding": "Erkenntnis aus dem Bibelstudium verwenden",
+      "chooseFinding": "Erkenntnis",
+      "pick": "Auswählen …",
+      "empty": "(leer)",
+      "findingNote": "Die Erkenntnis bleibt im Bibelstudium. Änderungen daran erscheinen auch hier.",
+      "removeFinding": "Erkenntnis hier nicht mehr verwenden",
+      "removeFindingHint": "Sie bleibt im Bibelstudium.",
+      "addPassage": "Bibelstelle hinzufügen",
+      "passageLabel": "Bibelstelle für {{scope}}",
+      "removePassage": "{{passage}} aus dieser Vorbereitung entfernen"
+    },
+    "material": {
+      "story": "Wahre Begebenheit",
+      "illustration": "Idee zur Veranschaulichung",
+      "image": "Bild",
+      "visual": "Idee für ein Bild",
+      "remove": "Aus dieser Vorbereitung entfernen"
+    },
+    "standing": {
+      "verified": "Von mindestens zwei unabhängigen gefundenen Quellen berichtet",
+      "unverified": "Nicht geprüft: nur eine Quelle. Bitte vor dem Verwenden prüfen.",
+      "hypothetical": "Erfundenes Beispiel, keine wahre Begebenheit",
+      "found": "Gefundenes Bild · {{licence}}",
+      "generated": "Vom Assistenten erstellt: eine Zeichnung, kein Foto",
+      "suggestion": "Vorschlag des Assistenten"
+    },
+    "assist": {
+      "intro": "„Hilfe“ neben jedem Teil bietet den Assistenten an: Er kommentiert, prüft und schlägt Formulierungen für das vor, was Sie geschrieben haben. Ihr Text ändert sich nur, wenn Sie einen Vorschlag wählen.",
+      "menu": "Hilfe",
+      "menuLabel": "Hilfe zu {{part}}",
+      "group": {
+        "wording": "Formulierung",
+        "comments": "Rückmeldung",
+        "ideas": "Ideen"
+      },
+      "action": {
+        "grammar": "Grammatik und Rechtschreibung prüfen",
+        "clarity": "Klarer machen",
+        "shorten": "Kürzen",
+        "natural": "Natürlicher klingen lassen",
+        "repetition": "Wiederholungen entfernen",
+        "spoken": "Leichter vorzutragen",
+        "audience": "Für eine Zielgruppe anpassen …",
+        "translate": "Übersetzen …",
+        "transition": "Hilfe bei einem Übergang",
+        "review": "Meinen Text durchsehen",
+        "structure": "Zum Aufbau Rückmeldung geben",
+        "application": "Folgt die Anwendung aus dem Text?",
+        "theology": "Theologie und Bibeltext prüfen",
+        "passages": "Bibelstellen zum Nachschlagen vorschlagen",
+        "phrasing": "Andere Formulierungen",
+        "question": "Hilfe bei einer Gesprächsfrage …",
+        "restructure": "Wie könnte ich ordnen, was ich habe?",
+        "illustration": "Ideen zur Veranschaulichung",
+        "story": "Eine wahre Begebenheit finden …",
+        "visual": "Ein Bild vorschlagen"
+      },
+      "title": "{{action}} · {{part}}",
+      "close": "Assistent schließen",
+      "selectionOnly": "Nur die markierten Wörter.",
+      "request": {
+        "question": "Was soll die Frage bewusst machen?",
+        "story": "Welche Art wahre Begebenheit suchen Sie?",
+        "transition": "Was soll er verbinden? (optional)",
+        "phrasing": "Was möchten Sie sagen? (optional)",
+        "visual": "Was soll das Bild erklären helfen? (optional)"
+      },
+      "audienceLabel": "Für wen?",
+      "audiencePlaceholder": "z. B. Kinder von 8 bis 10 Jahren",
+      "languageLabel": "In welche Sprache?",
+      "languagePlaceholder": "z. B. Koreanisch",
+      "shared": {
+        "remote": "Zum Helfen wird dies an {{assistant}} gesendet:",
+        "local": "Dies bleibt auf diesem Computer ({{assistant}}). Gesehen wird:",
+        "text": "Ihren Teil „{{part}}“",
+        "selection": "die markierten Wörter",
+        "request": "Ihre Bitte",
+        "teaching": "Zielgruppe, Ziel und Kernbotschaft",
+        "nearby_one": "ein weiterer Teil dieser Vorbereitung (damit Ihr Stil erhalten bleibt)",
+        "nearby_other": "{{count}} weitere Teile dieser Vorbereitung (damit Ihr Stil erhalten bleibt)",
+        "passages": "Bibeltext: {{passages}}",
+        "findings_one": "eine Erkenntnis aus Ihrem Bibelstudium",
+        "findings_other": "{{count}} Erkenntnisse aus Ihrem Bibelstudium",
+        "quotes_one": "ein Zitat aus einem Buch Ihrer Bibliothek, mit Quelle",
+        "quotes_other": "{{count}} Zitate aus Büchern Ihrer Bibliothek, mit Quellen",
+        "searches": "Suchbegriffe (nicht Ihr Text) gehen außerdem an Ihren Suchdienst."
+      },
+      "ask": "Fragen",
+      "askHint": "Strg+Eingabe fragt, Esc schließt. Vorher wird nichts gesendet.",
+      "working": "Wird bearbeitet …",
+      "ready": "Vorschlag bereit.",
+      "failed": "Der Assistent konnte diesmal nicht helfen.",
+      "kept": "In dieser Vorbereitung aufbewahrt.",
+      "keptLabel": "Aufbewahrt",
+      "from": "Von {{assistant}}",
+      "done": "Fertig",
+      "applied": "Wie gewählt geändert.",
+      "undo": "Rückgängig",
+      "undone": "Ihr vorheriger Text ist wieder da.",
+      "proposal": {
+        "heading": "Vorgeschlagene Formulierung",
+        "headingStart": "Vorgeschlagener Übergang",
+        "notYet": "Noch hat sich nichts geändert. Ihr Text bleibt, wie er ist, wenn Sie dies nicht wählen.",
+        "same": "Keine Änderungen vorgeschlagen.",
+        "removed": "entfernt:",
+        "added": "hinzugefügt:",
+        "changes": "Was sich ändert: {{changes}}",
+        "use": "Diese Formulierung übernehmen",
+        "useStart": "An den Anfang setzen"
+      },
+      "comments": {
+        "heading": "Rückmeldung zu Ihrem Text",
+        "none": "Nichts hinzuzufügen.",
+        "suggested": "Zum Nachschlagen:",
+        "add": "Hinzufügen",
+        "addPassage": "{{passage}} zu dieser Vorbereitung hinzufügen"
+      },
+      "basis": {
+        "scripture": "Mit Bezug auf den Bibeltext",
+        "study": "Mit Bezug auf Ihr Bibelstudium",
+        "source": "Mit Bezug auf eine Quelle Ihrer Bibliothek",
+        "reasoning": "Eigene Überlegung des Assistenten, zum selbst Abwägen"
+      },
+      "options": {
+        "heading": "Vorschläge",
+        "headingInvented": "Ideen zur Veranschaulichung",
+        "invented": "Dies sind erfundene Beispiele, keine wahren Begebenheiten. Erzählen Sie sie nicht, als wären sie geschehen.",
+        "insert": "Unter meinem Text einfügen",
+        "keepIdea": "Als Idee aufbewahren"
+      },
+      "stories": {
+        "heading": "Gefundene wahre Begebenheiten",
+        "none": "In den Suchergebnissen ließ sich keine wahre Begebenheit finden und prüfen. Es wurde nichts erfunden.",
+        "checkNote": "Nur mit den Kurzfassungen der Suchergebnisse abgeglichen. Öffnen Sie die Quellen und lesen Sie die ganze Geschichte, bevor Sie sie verwenden.",
+        "keep": "In dieser Vorbereitung aufbewahren",
+        "sources": "Quellen"
+      },
+      "visuals": {
+        "heading": "Ideen für ein Bild",
+        "kind": {
+          "photo": "Foto",
+          "diagram": "Einfaches Schaubild",
+          "drawing": "Zeichnung"
+        },
+        "find": "Frei lizenzierte Bilder finden",
+        "make": "Bild erstellen",
+        "keepIdea": "Idee aufbewahren"
+      },
+      "images": {
+        "found": "Gefundene Bilder",
+        "none": "Keine frei lizenzierten Bilder gefunden.",
+        "by": "von {{author}}",
+        "source": "Woher es stammt",
+        "keep": "Bild aufbewahren",
+        "keepLabel": "Bild „{{title}}“ aufbewahren",
+        "generatedAlt": "Vom Assistenten erstellte Zeichnung: {{description}}",
+        "nothingPlaced": "Nichts kommt in Ihre Vorbereitung, solange Sie es nicht aufbewahren."
+      }
+    }
   }
 }

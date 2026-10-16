@@ -7,7 +7,8 @@
     "bibleTexts": "Bibelübersetzungen",
     "templates": "Vorlagen für Bibelstudien",
     "about": "Über diese Installation",
-    "planned": "In späteren Versionen"
+    "planned": "In späteren Versionen",
+    "assistant": "Assistent"
   },
   "language": {
     "label": "Sprache der Oberfläche",
@@ -39,11 +40,57 @@
     "backup": "Alle Ihre Bibelstudien werden im Datenordner auf diesem Computer gespeichert. Um sie zu sichern, kopieren Sie den ganzen Ordner, während Abiding Word geschlossen ist."
   },
   "planned": {
-    "ai": "KI-Unterstützung",
-    "aiText": "Optionale Hilfe beim Bibelstudium. Abiding Word wird auch ohne sie immer vollständig funktionieren.",
     "sync": "Synchronisierung",
     "syncText": "Halten Sie Ihre Bibelstudien auf Ihren eigenen Geräten auf dem gleichen Stand – unter Ihrer Kontrolle.",
     "integrations": "Integrationen",
     "integrationsText": "Verbinden Sie andere Werkzeuge, die Sie bereits verwenden."
+  },
+  "assistant": {
+    "intro": "Ein optionaler Helfer für die Vorbereitung: Er gibt Rückmeldung zu Ihrem Text, schlägt Formulierungen vor, prüft Aussagen am Bibeltext und kann wahre Begebenheiten und Bilder suchen. Sie bleiben der Verfasser: Ihr Text ändert sich nur, wenn Sie einen Vorschlag wählen. Er ist aus, bis Sie ihn einschalten, und arbeitet nur, wenn Sie ihn fragen.",
+    "enabled": "Assistenten verwenden",
+    "provider": "Dienst",
+    "providers": {
+      "openai": "OpenAI",
+      "anthropic": "Anthropic (Claude)",
+      "google": "Google Gemini",
+      "ollama": "Ollama (auf diesem Computer)",
+      "lmstudio": "LM Studio (auf diesem Computer)",
+      "openai_compatible": "Anderer kompatibler Server"
+    },
+    "remote": "Wenn Sie um Hilfe bitten, wird der gewählte Text über das Internet an diesen Dienst gesendet.",
+    "local": "Läuft auf diesem Computer: Ihr Text verlässt ihn nicht.",
+    "model": "Modell",
+    "modelPlaceholder": "Name des Modells",
+    "modelHint": "Der Name, den der Dienst dafür verwendet, z. B. von seiner Website.",
+    "address": "Adresse (optional)",
+    "addressPlaceholder": "Die übliche Adresse des Dienstes",
+    "addressHint": "Nur nötig für einen anderen Server oder ein lokales Modell auf einem anderen Computer.",
+    "key": "Schlüssel",
+    "keyHint": "Der Schlüssel wird im Anmeldespeicher dieses Computers aufbewahrt, nie in Ihren Bibelstudien, und nicht wieder angezeigt.",
+    "keyKept": "Ein Schlüssel ist auf diesem Computer gespeichert.",
+    "keyKeptPlaceholder": "Schlüssel gespeichert (zum Ersetzen eingeben)",
+    "keySave": "Schlüssel speichern",
+    "keyRemove": "Schlüssel entfernen",
+    "keySaved": "Der Schlüssel ist auf diesem Computer gespeichert.",
+    "keyRemoved": "Der Schlüssel wurde entfernt.",
+    "search": "Wahre Begebenheiten prüfen",
+    "searchHint": "Wahre Begebenheiten und Zitate werden nur angeboten, wenn ein Suchdienst sie findet; ohne ihn sagt der Assistent, dass er sie nicht prüfen kann.",
+    "searchKinds": {
+      "none": "Keine Suche (keine wahren Begebenheiten suchen)",
+      "brave": "Brave Search (Schlüssel nötig)",
+      "searxng": "SearXNG (eine Adresse Ihres Vertrauens)"
+    },
+    "searchAddress": "SearXNG-Adresse",
+    "searchKey": "Such-Schlüssel",
+    "images": "Bilder",
+    "findImages": "Frei lizenzierte Bilder auf Wikimedia Commons finden (nur Suchbegriffe werden gesendet)",
+    "generateImages": "Bilder erstellen erlauben (immer als vom Assistenten erstellt gekennzeichnet)",
+    "generateOnlyOpenai": "Bilder erstellen funktioniert nur mit OpenAI oder einem kompatiblen Server.",
+    "perspective": "Ihre theologische Tradition (optional)",
+    "perspectiveHint": "In Ihren Worten, wenn der Assistent sie berücksichtigen soll. Leer gelassen nimmt er keine Position ein und sagt, wo Christen einen Text unterschiedlich verstehen.",
+    "save": "Speichern",
+    "saved": "Gespeichert.",
+    "test": "Verbindung prüfen",
+    "testOk": "Der Assistent hat geantwortet. Er ist bereit."
   }
 }

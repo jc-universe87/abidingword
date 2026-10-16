@@ -166,6 +166,7 @@ const REQUEST_MAX: usize = 1_000;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PassageContext {
+    pub reference: crate::scripture::reference::ScriptureRefDto,
     pub display: String,
     /// The verses in the person's chosen Bible, when installed.
     pub text: Option<String>,
@@ -211,9 +212,11 @@ pub struct Context {
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct SharedItem {
-    /// text, teaching, nearby, passage, finding, source
+    /// text, request, teaching, nearby, passage, finding, source
     pub kind: &'static str,
     pub label: String,
+    /// For a passage: the reference, so the interface can name it in its language.
+    pub reference: Option<crate::scripture::reference::ScriptureRefDto>,
 }
 
 fn cut(text: &str, max: usize) -> String {
@@ -481,6 +484,7 @@ fn passages(
             }
         }
         out.push(PassageContext {
+            reference: reference.to_dto(),
             display: reference.display(),
             translation: text
                 .as_ref()
@@ -560,12 +564,14 @@ pub fn shared(context: &Context) -> Vec<SharedItem> {
         items.push(SharedItem {
             kind: "text",
             label: context.focus.clone(),
+            reference: None,
         });
     }
     if !context.request.is_empty() {
         items.push(SharedItem {
             kind: "request",
             label: cut(&context.request, 80),
+            reference: None,
         });
     }
     let about = [
@@ -580,12 +586,14 @@ pub fn shared(context: &Context) -> Vec<SharedItem> {
         items.push(SharedItem {
             kind: "teaching",
             label: context.teaching_title.clone(),
+            reference: None,
         });
     }
     for (label, _) in &context.nearby {
         items.push(SharedItem {
             kind: "nearby",
             label: label.clone(),
+            reference: None,
         });
     }
     for p in &context.passages {
@@ -595,12 +603,14 @@ pub fn shared(context: &Context) -> Vec<SharedItem> {
                 Some(t) => format!("{} ({t})", p.display),
                 None => p.display.clone(),
             },
+            reference: Some(p.reference.clone()),
         });
     }
     if !context.findings.is_empty() {
         items.push(SharedItem {
             kind: "finding",
             label: context.findings.len().to_string(),
+            reference: None,
         });
     }
     let quotes: usize = context.findings.iter().map(|f| f.quotes.len()).sum();
@@ -608,6 +618,7 @@ pub fn shared(context: &Context) -> Vec<SharedItem> {
         items.push(SharedItem {
             kind: "source",
             label: quotes.to_string(),
+            reference: None,
         });
     }
     items

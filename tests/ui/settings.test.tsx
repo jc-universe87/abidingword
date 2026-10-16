@@ -14,9 +14,12 @@ describe("settings", () => {
     expect(screen.getByText("Abiding Word 0.1.0 (Foundation)")).toBeInTheDocument();
     expect(screen.getByText("/home/test/.local/share/Abiding Word")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "Bible Texts" })).toBeInTheDocument();
-    for (const planned of ["AI assistance", "Sync", "Integrations"]) {
+    for (const planned of ["Sync", "Integrations"]) {
       expect(screen.getByText(planned)).toBeInTheDocument();
     }
+    // The assistant (v0.16) is a real, optional section: off until turned on.
+    expect(screen.getByRole("heading", { level: 2, name: "Assistant" })).toBeInTheDocument();
+    expect(await screen.findByRole("checkbox", { name: "Use the assistant" })).not.toBeChecked();
   });
 
   it("applies and saves the theme choice", async () => {

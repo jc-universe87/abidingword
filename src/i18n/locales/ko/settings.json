@@ -7,7 +7,8 @@
     "bibleTexts": "성경 번역본",
     "templates": "성경공부 틀",
     "about": "이 설치 정보",
-    "planned": "향후 버전에서 제공 예정"
+    "planned": "향후 버전에서 제공 예정",
+    "assistant": "도우미"
   },
   "language": {
     "label": "화면 언어",
@@ -39,11 +40,57 @@
     "backup": "모든 성경공부는 이 컴퓨터의 데이터 폴더에 저장됩니다. 백업하려면 Abiding Word를 닫은 상태에서 폴더 전체를 복사하세요."
   },
   "planned": {
-    "ai": "AI 도움",
-    "aiText": "성경공부를 위한 선택적 도움입니다. Abiding Word는 AI 없이도 항상 모든 기능을 사용할 수 있습니다.",
     "sync": "동기화",
     "syncText": "내 기기들 사이에서 성경공부를 직접 관리하며 같은 상태로 유지합니다.",
     "integrations": "연동",
     "integrationsText": "이미 사용하는 다른 도구와 연결합니다."
+  },
+  "assistant": {
+    "intro": "가르침 준비를 돕는 선택 기능입니다. 쓰신 글에 의견을 주고 표현을 제안하며, 주장을 본문에 비추어 확인하고, 실화와 그림을 찾을 수 있습니다. 글쓴이는 언제나 사용자입니다. 제안을 고르지 않는 한 글은 바뀌지 않습니다. 켜기 전에는 꺼져 있고, 요청할 때만 일합니다.",
+    "enabled": "도우미 사용",
+    "provider": "서비스",
+    "providers": {
+      "openai": "OpenAI",
+      "anthropic": "Anthropic (Claude)",
+      "google": "Google Gemini",
+      "ollama": "Ollama (이 컴퓨터)",
+      "lmstudio": "LM Studio (이 컴퓨터)",
+      "openai_compatible": "다른 호환 서버"
+    },
+    "remote": "도움을 요청하면 고르신 글이 인터넷으로 이 서비스에 전송됩니다.",
+    "local": "이 컴퓨터에서 실행되므로 글이 밖으로 나가지 않습니다.",
+    "model": "모델",
+    "modelPlaceholder": "모델 이름",
+    "modelHint": "서비스에서 쓰는 이름입니다(예: 서비스 웹사이트 참고).",
+    "address": "주소 (선택)",
+    "addressPlaceholder": "서비스 기본 주소",
+    "addressHint": "다른 서버나 다른 컴퓨터의 로컬 모델을 쓸 때만 필요합니다.",
+    "key": "키",
+    "keyHint": "키는 이 컴퓨터의 자격 증명 저장소에 보관되며, 성경공부에는 저장되지 않고 다시 표시되지 않습니다.",
+    "keyKept": "이 컴퓨터에 키가 보관되어 있습니다.",
+    "keyKeptPlaceholder": "키 보관됨 (바꾸려면 입력)",
+    "keySave": "키 저장",
+    "keyRemove": "키 삭제",
+    "keySaved": "키를 이 컴퓨터에 보관했습니다.",
+    "keyRemoved": "키를 삭제했습니다.",
+    "search": "실화 확인",
+    "searchHint": "실화와 인용은 검색 서비스가 찾았을 때만 제시됩니다. 검색 서비스가 없으면 확인할 수 없다고 알려 줍니다.",
+    "searchKinds": {
+      "none": "검색 안 함 (실화를 찾지 않음)",
+      "brave": "Brave Search (키 필요)",
+      "searxng": "SearXNG (신뢰하는 주소)"
+    },
+    "searchAddress": "SearXNG 주소",
+    "searchKey": "검색 키",
+    "images": "그림",
+    "findImages": "Wikimedia Commons에서 자유 이용 그림 찾기 (검색어만 보냄)",
+    "generateImages": "그림 만들기 허용 (항상 도우미가 만든 그림으로 표시)",
+    "generateOnlyOpenai": "그림 만들기는 OpenAI 또는 호환 서버에서만 됩니다.",
+    "perspective": "신학 전통 (선택)",
+    "perspectiveHint": "도우미가 존중하기를 원하면 직접 적어 주세요. 비워 두면 어떤 입장도 가정하지 않고, 그리스도인들이 본문을 다르게 읽는 곳을 알려 줍니다.",
+    "save": "저장",
+    "saved": "저장했습니다.",
+    "test": "연결 확인",
+    "testOk": "도우미가 응답했습니다. 사용할 수 있습니다."
   }
 }

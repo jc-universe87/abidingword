@@ -7,7 +7,8 @@
     "bibleTexts": "Traduções da Bíblia",
     "templates": "Modelos de estudo",
     "about": "Sobre esta instalação",
-    "planned": "Nas próximas versões"
+    "planned": "Nas próximas versões",
+    "assistant": "Assistente"
   },
   "language": {
     "label": "Idioma da interface",
@@ -39,11 +40,57 @@
     "backup": "Todos os seus estudos ficam na pasta de dados deste computador. Para fazer uma cópia de segurança, copie a pasta inteira com o Abiding Word fechado."
   },
   "planned": {
-    "ai": "Assistência por IA",
-    "aiText": "Ajuda opcional no estudo. O Abiding Word sempre funcionará plenamente sem ela.",
     "sync": "Sincronização",
     "syncText": "Mantenha seus estudos em dia nos seus próprios dispositivos, sob o seu controle.",
     "integrations": "Integrações",
     "integrationsText": "Conecte outras ferramentas que você já usa."
+  },
+  "assistant": {
+    "intro": "Uma ajuda opcional para o ensino: comenta o que você escreve e sugere redações, verifica afirmações à luz da passagem e pode procurar histórias reais e imagens. Você continua sendo o autor: seu texto só muda se você escolher uma sugestão. Fica desligada até você ligar e só age quando você pede.",
+    "enabled": "Usar o assistente",
+    "provider": "Serviço",
+    "providers": {
+      "openai": "OpenAI",
+      "anthropic": "Anthropic (Claude)",
+      "google": "Google Gemini",
+      "ollama": "Ollama (neste computador)",
+      "lmstudio": "LM Studio (neste computador)",
+      "openai_compatible": "Outro servidor compatível"
+    },
+    "remote": "Quando você pede ajuda, o texto escolhido é enviado pela internet a este serviço.",
+    "local": "Funciona neste computador: seu texto não sai dele.",
+    "model": "Modelo",
+    "modelPlaceholder": "Nome do modelo",
+    "modelHint": "O nome que o serviço usa, por ex. no site dele.",
+    "address": "Endereço (opcional)",
+    "addressPlaceholder": "O endereço habitual do serviço",
+    "addressHint": "Só é necessário para outro servidor ou um modelo local em outro computador.",
+    "key": "Chave",
+    "keyHint": "A chave fica no cofre de credenciais deste computador, nunca nos seus estudos, e não é mostrada de novo.",
+    "keyKept": "Há uma chave guardada neste computador.",
+    "keyKeptPlaceholder": "Chave guardada (digite para substituir)",
+    "keySave": "Guardar chave",
+    "keyRemove": "Remover chave",
+    "keySaved": "A chave está guardada neste computador.",
+    "keyRemoved": "A chave foi removida.",
+    "search": "Verificar histórias reais",
+    "searchHint": "Histórias reais e citações só são oferecidas quando um serviço de busca as encontra; sem ele, o assistente diz que não pode verificá-las.",
+    "searchKinds": {
+      "none": "Sem busca (não procurar histórias reais)",
+      "brave": "Brave Search (precisa de chave)",
+      "searxng": "SearXNG (um endereço de confiança)"
+    },
+    "searchAddress": "Endereço do SearXNG",
+    "searchKey": "Chave de busca",
+    "images": "Imagens",
+    "findImages": "Encontrar imagens de licença livre no Wikimedia Commons (só palavras de busca são enviadas)",
+    "generateImages": "Permitir criar imagens (sempre marcadas como feitas pelo assistente)",
+    "generateOnlyOpenai": "Criar imagens só funciona com a OpenAI ou um servidor compatível.",
+    "perspective": "Sua tradição teológica (opcional)",
+    "perspectiveHint": "Com suas palavras, se quiser que o assistente a respeite. Se ficar vazio, ele não supõe nenhuma posição e indica onde os cristãos leem uma passagem de modo diferente.",
+    "save": "Salvar",
+    "saved": "Salvo.",
+    "test": "Verificar a conexão",
+    "testOk": "O assistente respondeu. Está pronto."
   }
 }

@@ -123,5 +123,43 @@
     "bookmarkPlace": "Ein Lesezeichen markiert eine Stelle, keine Wörter.",
     "wordsOnlyNotes": "Nur Notizen haben einen eigenen Text.",
     "bookmarkNotStudy": "Ein Lesezeichen markiert nur eine Stelle; es enthält nichts, was sich einem Bibelstudium hinzufügen ließe."
+  },
+  "assistant": {
+    "off": "Der Assistent ist ausgeschaltet. Sie können ihn in den Einstellungen einschalten.",
+    "notSetUp": "Der Assistent ist noch nicht eingerichtet. Sie können ihn in den Einstellungen einrichten.",
+    "noModel": "Wählen Sie in den Einstellungen ein Modell.",
+    "noKey": "Der Assistent braucht seinen Schlüssel. Sie können ihn in den Einstellungen hinzufügen.",
+    "keyRefused": "Der Dienst hat den Schlüssel nicht angenommen. Prüfen Sie ihn in den Einstellungen.",
+    "modelMissing": "Der Dienst kennt dieses Modell nicht. Prüfen Sie den Namen in den Einstellungen.",
+    "busy": "Der Dienst ist ausgelastet oder das Kontolimit ist erreicht. Bitte später erneut versuchen.",
+    "failed": "Der Dienst konnte diesmal nicht antworten. Bitte erneut versuchen.",
+    "badReply": "Die Antwort des Assistenten war nicht verwendbar. Nichts wurde geändert. Bitte erneut versuchen.",
+    "unreachable": "Der Assistent war nicht erreichbar. Prüfen Sie die Internetverbindung oder die Adresse in den Einstellungen.",
+    "writeFirst": "Schreiben Sie hier zuerst etwas. Der Assistent hilft bei dem, was Sie geschrieben haben.",
+    "sayWhat": "Sagen Sie in wenigen Worten, was Sie suchen.",
+    "structureFirst": "Schreiben Sie zuerst mindestens zwei Punkte. Der Assistent kommentiert den vorhandenen Aufbau.",
+    "chooseAudience": "Geben Sie an, für wen es ist.",
+    "chooseLanguage": "Wählen Sie die Zielsprache.",
+    "textTooLong": "Dieser Text ist zu lang, um ihn auf einmal zu senden. Markieren Sie einen Teil und versuchen Sie es erneut.",
+    "tooMuch": "Der Vorschlag war viel länger als Ihr Text und wird deshalb nicht gezeigt. Bitte erneut versuchen.",
+    "noSearch": "Wahre Begebenheiten lassen sich nur mit einem Suchdienst finden und prüfen, der nicht eingerichtet ist. Sie können einen in den Einstellungen hinzufügen oder stattdessen um eine erfundene Veranschaulichung bitten.",
+    "noSearchKey": "Der Suchdienst braucht seinen Schlüssel. Sie können ihn in den Einstellungen hinzufügen.",
+    "searchFailed": "Der Suchdienst konnte nicht antworten. Nichts wurde gefunden oder geprüft.",
+    "imagesFailed": "Diesmal ließen sich keine Bilder finden. Bitte erneut versuchen.",
+    "noImageSearch": "Die Bildsuche ist ausgeschaltet. Sie können sie in den Einstellungen einschalten.",
+    "noImageGeneration": "Das Erstellen von Bildern ist nicht eingerichtet. Sie können es in den Einstellungen einschalten (nur OpenAI-Bildmodelle).",
+    "imageFailed": "Das Bild konnte diesmal nicht erstellt werden. Bitte erneut versuchen.",
+    "keyStore": "Der Schlüssel konnte nicht im Anmeldespeicher dieses Computers gespeichert werden.",
+    "badKey": "Das sieht nicht wie ein Schlüssel aus. Bitte erneut einfügen.",
+    "badAddress": "Bitte eine Webadresse eingeben, die mit http:// oder https:// beginnt.",
+    "badModel": "Dieser Modellname ist zu lang."
+  },
+  "teaching": {
+    "tooLong": "Dieser Teil der Vorbereitung ist zu lang zum Speichern.",
+    "otherPoint": "Dieser Punkt gehört zu einer anderen Vorbereitung.",
+    "otherStudyFinding": "Diese Erkenntnis gehört zu einem anderen Bibelstudium.",
+    "badMaterial": "Dieses Element kann nicht aufbewahrt werden.",
+    "notVerified": "Eine Begebenheit gilt nur mit zwei unabhängigen Quellen als geprüft.",
+    "imageGone": "Dieses Bild ist nicht mehr verfügbar. Bitte erneut erstellen."
   }
 }

@@ -26,6 +26,49 @@ pub struct FoundImage {
     pub author: Option<String>,
     /// Wording to show with the image where the licence asks for it.
     pub attribution: String,
+    /// The small picture itself, fetched by the core (the window loads no
+    /// remote images).
+    pub thumb_data: Option<String>,
+}
+
+/// Where image previews may be fetched from: Wikimedia's image servers only.
+pub fn is_commons_file(url: &str) -> bool {
+    url.starts_with("https://upload.wikimedia.org/") && crate::db::teaching::is_web_address(url)
+}
+
+pub fn thumb_call(url: &str) -> AppResult<HttpCall> {
+    if !is_commons_file(url) {
+        return Err(failed());
+    }
+    Ok(HttpCall {
+        method: Method::Get,
+        url: url.to_string(),
+        headers: Vec::new(),
+        body: None,
+    })
+}
+
+/// A preview image as a data: address, when it really is an image.
+pub fn thumb_data(reply: &HttpReply) -> Option<String> {
+    if !(200..300).contains(&reply.status) || reply.body.len() > 3_000_000 {
+        return None;
+    }
+    let b = &reply.body;
+    let mime = if b.starts_with(b"\x89PNG") {
+        "image/png"
+    } else if b.starts_with(&[0xFF, 0xD8, 0xFF]) {
+        "image/jpeg"
+    } else if b.starts_with(b"GIF8") {
+        "image/gif"
+    } else if b.len() > 12 && &b[0..4] == b"RIFF" && &b[8..12] == b"WEBP" {
+        "image/webp"
+    } else {
+        return None;
+    };
+    Some(format!(
+        "data:{mime};base64,{}",
+        base64::engine::general_purpose::STANDARD.encode(b)
+    ))
 }
 
 fn failed() -> AppError {
@@ -120,6 +163,7 @@ pub fn parse_found(reply: &HttpReply) -> AppResult<Vec<FoundImage>> {
                 licence_url,
                 author,
                 attribution,
+                thumb_data: None,
             })
         })
         .take(FOUND_MAX)
@@ -243,6 +287,28 @@ mod tests {
             found[0].attribution,
             "Jane Doe, CC BY-SA 4.0, via Wikimedia Commons"
         );
+    }
+
+    #[test]
+    fn previews_come_only_from_wikimedia_and_must_be_images() {
+        assert!(is_commons_file("https://upload.wikimedia.org/a/b.jpg"));
+        assert!(!is_commons_file(
+            "https://upload.wikimedia.org.evil.example/a.jpg"
+        ));
+        assert!(!is_commons_file("http://upload.wikimedia.org/a.jpg"));
+        assert!(thumb_call("https://example.org/tracker.gif").is_err());
+        let jpeg = HttpReply {
+            status: 200,
+            body: vec![0xFF, 0xD8, 0xFF, 0xE0, 1, 2],
+        };
+        assert!(thumb_data(&jpeg)
+            .unwrap()
+            .starts_with("data:image/jpeg;base64,"));
+        let html = HttpReply {
+            status: 200,
+            body: b"<html>".to_vec(),
+        };
+        assert_eq!(thumb_data(&html), None);
     }
 
     #[test]

@@ -66,6 +66,21 @@ import type {
   UpdateFinding,
 } from "@/types/studies";
 import type {
+  AssistantConfig,
+  AssistantSettings,
+  AssistInput,
+  AssistPreview,
+  AssistReply,
+  FoundImage,
+  GeneratedImage,
+  KeepTeachingMaterial,
+  TeachingKind,
+  TeachingPreparation,
+  TeachingSummary,
+  UpdateTeaching,
+  UpdateTeachingPoint,
+} from "@/types/teaching";
+import type {
   CommitSourceImport,
   LibraryResults,
   ContentsItem,
@@ -199,6 +214,42 @@ export interface Api {
   findingCreateFromSource(input: CreateFindingFromSource): Promise<Finding>;
   /** Where a citation is in its source now (null: the source was removed). */
   findingSourceLocate(citationId: string): Promise<CitationPlace | null>;
+
+  /** Teaching Preparation (v0.16): what a study leads to, written by the person. */
+  teachingList(studyId: string): Promise<TeachingSummary[]>;
+  teachingGet(id: string): Promise<TeachingPreparation>;
+  teachingCreate(input: { studyId: string; title: string; kind?: TeachingKind | null }): Promise<TeachingPreparation>;
+  teachingUpdate(input: UpdateTeaching): Promise<TeachingPreparation>;
+  teachingDelete(id: string): Promise<void>;
+  teachingPointCreate(input: { preparationId: string; title?: string; afterPointId?: string | null }): Promise<TeachingPreparation>;
+  teachingPointUpdate(input: UpdateTeachingPoint): Promise<TeachingPreparation>;
+  teachingPointDelete(id: string): Promise<TeachingPreparation>;
+  teachingPointReorder(input: Reorder): Promise<TeachingPreparation>;
+  /** Uses a study finding here (a live link; the finding stays the study's). */
+  teachingFindingLink(input: { preparationId: string; pointId?: string | null; findingId: string }): Promise<TeachingPreparation>;
+  teachingFindingUnlink(linkId: string): Promise<TeachingPreparation>;
+  teachingPassageAdd(input: { preparationId: string; pointId?: string | null; reference: string }): Promise<TeachingPreparation>;
+  teachingPassageRemove(id: string): Promise<TeachingPreparation>;
+  /** Keeps something from the assistant, with its standing and sources. */
+  teachingMaterialKeep(input: KeepTeachingMaterial): Promise<TeachingPreparation>;
+  teachingMaterialRemove(id: string): Promise<TeachingPreparation>;
+  /** A kept generated image, as a data: address. */
+  teachingImage(file: string): Promise<string>;
+
+  /** The assistant's set-up (never a key, only whether one is kept). */
+  assistantSettingsGet(): Promise<AssistantSettings>;
+  assistantSettingsSet(config: AssistantConfig): Promise<AssistantSettings>;
+  /** Keeps a key in the computer's credential store; blank removes it. */
+  assistantKeySet(which: "provider" | "search", key: string): Promise<AssistantSettings>;
+  assistantTest(): Promise<void>;
+  /** What would be shared, and where it would go, before anything is sent. */
+  assistantPreview(input: AssistInput): Promise<AssistPreview>;
+  /** Asks the assistant. The answer is a suggestion; nothing is changed. */
+  assistantAsk(input: AssistInput): Promise<AssistReply>;
+  assistantFindImages(terms: string): Promise<FoundImage[]>;
+  /** The preview of a kept found image (fetched by the core from Wikimedia only). */
+  assistantImagePreview(url: string): Promise<string | null>;
+  assistantGenerateImage(description: string): Promise<GeneratedImage>;
   findingSourceRemove(citationId: string): Promise<Finding>;
   studyBlockCreate(input: CreateStudyBlock): Promise<StudyBlock>;
   studyBlockUpdate(input: UpdateStudyBlock): Promise<StudyBlock>;
@@ -371,6 +422,31 @@ export const tauriApi: Api = {
   findingSourceAdd: (input) => call("finding_source_add", { input }),
   findingCreateFromSource: (input) => call("finding_create_from_source", { input }),
   findingSourceLocate: (citationId) => call("finding_source_locate", { citationId }),
+  teachingList: (studyId) => call("teaching_list", { studyId }),
+  teachingGet: (id) => call("teaching_get", { id }),
+  teachingCreate: (input) => call("teaching_create", { input }),
+  teachingUpdate: (input) => call("teaching_update", { input }),
+  teachingDelete: (id) => call("teaching_delete", { id }),
+  teachingPointCreate: (input) => call("teaching_point_create", { input }),
+  teachingPointUpdate: (input) => call("teaching_point_update", { input }),
+  teachingPointDelete: (id) => call("teaching_point_delete", { id }),
+  teachingPointReorder: (input) => call("teaching_point_reorder", { input }),
+  teachingFindingLink: (input) => call("teaching_finding_link", { input }),
+  teachingFindingUnlink: (id) => call("teaching_finding_unlink", { id }),
+  teachingPassageAdd: (input) => call("teaching_passage_add", { input }),
+  teachingPassageRemove: (id) => call("teaching_passage_remove", { id }),
+  teachingMaterialKeep: (input) => call("teaching_material_keep", { input }),
+  teachingMaterialRemove: (id) => call("teaching_material_remove", { id }),
+  teachingImage: (file) => call("teaching_image", { file }),
+  assistantSettingsGet: () => call("assistant_settings_get"),
+  assistantSettingsSet: (config) => call("assistant_settings_set", { config }),
+  assistantKeySet: (which, key) => call("assistant_key_set", { which, key }),
+  assistantTest: () => call("assistant_test"),
+  assistantPreview: (input) => call("assistant_preview", { input }),
+  assistantAsk: (input) => call("assistant_ask", { input }),
+  assistantFindImages: (terms) => call("assistant_find_images", { terms }),
+  assistantImagePreview: (url) => call("assistant_image_preview", { url }),
+  assistantGenerateImage: (description) => call("assistant_generate_image", { description }),
   findingSourceRemove: (citationId) => call("finding_source_remove", { citationId }),
   studyBlockCreate: (input) => call("study_block_create", { input }),
   studyBlockUpdate: (input) => call("study_block_update", { input }),

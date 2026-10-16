@@ -625,5 +625,231 @@
     "save": "Add to Study",
     "added": "Added to {{study}} · {{part}}.",
     "loading": "Loading your studies…"
+  },
+  "view": {
+    "label": "Show",
+    "study": "Study",
+    "teaching": "Teaching"
+  },
+  "teaching": {
+    "loading": "Opening the teaching…",
+    "which": "Teaching:",
+    "another": "Prepare another teaching",
+    "empty": {
+      "title": "Prepare a teaching from this study",
+      "text": "A sermon, a group study or a lesson, written by you. You can use what you found in this study: its findings and passages stay where they are and are simply used here. Nothing is filled in for you, and every part may stay empty."
+    },
+    "kindLabel": "Kind of teaching",
+    "kindNone": "Not said",
+    "kind": {
+      "sermon": "Sermon",
+      "bible_study": "Group Bible study",
+      "youth": "Youth",
+      "children": "Children",
+      "lesson": "Lesson",
+      "talk": "Talk",
+      "other": "Other"
+    },
+    "titleLabel": "Title",
+    "start": "Start",
+    "delete": "Delete this teaching",
+    "deleteConfirm": "Delete this teaching? The study, its findings and passages stay as they are.",
+    "about": "What it is about",
+    "audience": "Who it is for",
+    "audiencePlaceholder": "e.g. the whole church, a youth group",
+    "purpose": "Purpose",
+    "purposePlaceholder": "What you hope this teaching will do",
+    "message": "Central message",
+    "messageHint": "In your own words: the one thing you most want people to take away.",
+    "introduction": "Introduction",
+    "conclusion": "Conclusion",
+    "notes": "Notes for yourself",
+    "notesHint": "Reminders while you teach; not part of what you say.",
+    "points": {
+      "title": "Main points",
+      "whole": "the whole teaching",
+      "none": "No points yet. Add as many as you need, in any shape: a movement of a story, a question, a theme or a few verses.",
+      "add": "Add a point",
+      "added": "Point added.",
+      "removed": "Point removed.",
+      "moved": "Point moved to place {{position}}.",
+      "number": "Point {{number}}",
+      "label": "Point {{number}}: {{title}}",
+      "untitled": "Point {{number}}",
+      "titleLabel": "Title of point {{number}}",
+      "titlePlaceholder": "What this point says",
+      "explanation": "Explanation",
+      "application": "Application",
+      "illustration": "Illustration or example",
+      "moveUp": "Move “{{point}}” up",
+      "moveDown": "Move “{{point}}” down",
+      "delete": "Delete “{{point}}”",
+      "deleteConfirm": "Delete this point and what you wrote in it? Findings used here stay in the study."
+    },
+    "links": {
+      "used": "Used in {{scope}}",
+      "wholeScope": "the whole teaching",
+      "passages": "Passages in {{scope}}",
+      "findings": "Findings from the study in {{scope}}",
+      "materials": "Kept from the assistant in {{scope}}",
+      "useFinding": "Use a finding from the study",
+      "chooseFinding": "Finding",
+      "pick": "Choose…",
+      "empty": "(empty)",
+      "findingNote": "The finding stays in the study. Changes to it show here too.",
+      "removeFinding": "Stop using this finding here",
+      "removeFindingHint": "It stays in the study.",
+      "addPassage": "Add a passage",
+      "passageLabel": "Passage for {{scope}}",
+      "removePassage": "Remove {{passage}} from this teaching"
+    },
+    "material": {
+      "story": "Real story",
+      "illustration": "Illustration idea",
+      "image": "Image",
+      "visual": "Idea for a visual",
+      "remove": "Remove from this teaching"
+    },
+    "standing": {
+      "verified": "Reported by at least two independent sources the search found",
+      "unverified": "Not checked: only one source. Please check before you use it.",
+      "hypothetical": "Invented example, not a real event",
+      "found": "Found image · {{licence}}",
+      "generated": "Made by the assistant: an illustration, not a photograph",
+      "suggestion": "The assistant’s suggestion"
+    },
+    "assist": {
+      "intro": "“Help” beside each part offers the assistant: it comments, checks and suggests wording for what you have written. It never changes your text unless you choose a suggestion.",
+      "menu": "Help",
+      "menuLabel": "Help with {{part}}",
+      "group": {
+        "wording": "Wording",
+        "comments": "Comments",
+        "ideas": "Ideas"
+      },
+      "action": {
+        "grammar": "Check grammar and spelling",
+        "clarity": "Make it clearer",
+        "shorten": "Make it shorter",
+        "natural": "Make it sound natural",
+        "repetition": "Remove repetition",
+        "spoken": "Easier to say aloud",
+        "audience": "Adapt for an audience…",
+        "translate": "Translate…",
+        "transition": "Help with a transition",
+        "review": "Review what I wrote",
+        "structure": "Comment on the structure",
+        "application": "Does the application follow from the passage?",
+        "theology": "Check theology and the passage",
+        "passages": "Suggest passages to look at",
+        "phrasing": "Other ways to say this",
+        "question": "Help with a discussion question…",
+        "restructure": "How could I order what I have?",
+        "illustration": "Ideas for an illustration",
+        "story": "Find a real story…",
+        "visual": "Suggest a visual"
+      },
+      "title": "{{action}} · {{part}}",
+      "close": "Close the assistant",
+      "selectionOnly": "Only the words you selected.",
+      "request": {
+        "question": "What should the question help people notice?",
+        "story": "What kind of real story are you looking for?",
+        "transition": "What should it connect? (optional)",
+        "phrasing": "What do you want to say? (optional)",
+        "visual": "What should the picture help explain? (optional)"
+      },
+      "audienceLabel": "Who is it for?",
+      "audiencePlaceholder": "e.g. children aged 8 to 10",
+      "languageLabel": "Into which language?",
+      "languagePlaceholder": "e.g. Korean",
+      "shared": {
+        "remote": "To help, this will be sent to {{assistant}}:",
+        "local": "This stays on this computer ({{assistant}}). It will see:",
+        "text": "your {{part}}",
+        "selection": "the words you selected",
+        "request": "what you asked for",
+        "teaching": "your audience, purpose and central message",
+        "nearby_one": "one other part of this teaching (so it keeps your voice)",
+        "nearby_other": "{{count}} other parts of this teaching (so it keeps your voice)",
+        "passages": "Scripture: {{passages}}",
+        "findings_one": "one finding from your study",
+        "findings_other": "{{count}} findings from your study",
+        "quotes_one": "one quotation from a book in your library, with its source",
+        "quotes_other": "{{count}} quotations from books in your library, with their sources",
+        "searches": "Search words (not your text) will also go to your search service."
+      },
+      "ask": "Ask",
+      "askHint": "Ctrl+Enter asks; Escape closes. Nothing is sent before you ask.",
+      "working": "Working…",
+      "ready": "Suggestion ready.",
+      "failed": "The assistant could not help this time.",
+      "kept": "Kept with this teaching.",
+      "keptLabel": "Kept",
+      "from": "From {{assistant}}",
+      "done": "Done",
+      "applied": "Changed as you chose.",
+      "undo": "Undo",
+      "undone": "Your earlier text is back.",
+      "proposal": {
+        "heading": "Suggested wording",
+        "headingStart": "Suggested transition",
+        "notYet": "Nothing has changed yet. Your text stays as it is unless you choose this.",
+        "same": "No changes suggested.",
+        "removed": "removed:",
+        "added": "added:",
+        "changes": "What changed: {{changes}}",
+        "use": "Use this wording",
+        "useStart": "Put this at the start"
+      },
+      "comments": {
+        "heading": "Comments on what you wrote",
+        "none": "Nothing to add.",
+        "suggested": "To look at:",
+        "add": "Add",
+        "addPassage": "Add {{passage}} to this teaching"
+      },
+      "basis": {
+        "scripture": "Based on Scripture",
+        "study": "Based on your study",
+        "source": "Based on a source in your library",
+        "reasoning": "The assistant’s own thought, to weigh for yourself"
+      },
+      "options": {
+        "heading": "Suggestions",
+        "headingInvented": "Illustration ideas",
+        "invented": "These are invented examples, not real events. Do not tell them as if they happened.",
+        "insert": "Add below my text",
+        "keepIdea": "Keep as an idea"
+      },
+      "stories": {
+        "heading": "Real stories found",
+        "none": "No real story could be found and checked in the search results. Nothing has been made up.",
+        "checkNote": "Checked only against the search results’ summaries. Open the sources and read the whole story before you use it.",
+        "keep": "Keep with this teaching",
+        "sources": "Sources"
+      },
+      "visuals": {
+        "heading": "Ideas for a visual",
+        "kind": {
+          "photo": "Photo",
+          "diagram": "Simple diagram",
+          "drawing": "Drawing"
+        },
+        "find": "Find freely licensed images",
+        "make": "Make an image",
+        "keepIdea": "Keep this idea"
+      },
+      "images": {
+        "found": "Images found",
+        "none": "No freely licensed images were found.",
+        "by": "by {{author}}",
+        "source": "Where it is from",
+        "keep": "Keep this image",
+        "keepLabel": "Keep the image “{{title}}”",
+        "generatedAlt": "Illustration made by the assistant: {{description}}",
+        "nothingPlaced": "Nothing is placed in your teaching unless you keep it."
+      }
+    }
   }
 }
