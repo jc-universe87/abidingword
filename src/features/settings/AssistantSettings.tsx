@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/design-system/Button";
@@ -43,6 +43,9 @@ const GROUPS = [
 const PERSPECTIVE_EXAMPLES = ["reformed", "catholic", "lutheran", "pentecostal", "none", "views"] as const;
 
 const URL_START = "https://";
+
+/** The config with the service's suggested model when none is chosen yet. */
+const withModel = (config: AssistantConfig): AssistantConfig => (config.model.trim() ? config : { ...config, model: SERVICES[config.provider].model });
 const WEB_ADDRESS = /^https?:\/\/\S+$/i;
 
 /** Why the connection cannot be checked yet, in the order the person meets the steps. */
@@ -82,7 +85,8 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
   const api = useApi();
   const id = useId();
   const [settings, setSettings] = useState(initial);
-  const [config, setConfig] = useState<AssistantConfig>(initial.config);
+  // A service without a model yet (as on first start) gets its suggested one, so the path needs no typing.
+  const [config, setConfig] = useState<AssistantConfig>(() => withModel(initial.config));
   const [key, setKey] = useState("");
   const [searchKey, setSearchKey] = useState("");
   const [message, setMessage] = useState<Message>(null);
@@ -95,19 +99,48 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
   };
   const saved = (next: Settings) => {
     setSettings(next);
-    setConfig(next.config);
+    setConfig(withModel(next.config));
     onStatus?.(next);
   };
-  const run = async (action: () => Promise<Settings>, ok: string) => {
+  /** Runs a save; on failure `undo` puts the form back as it was saved, so it never shows a state that is not. */
+  const run = async (action: () => Promise<Settings>, ok: string, undo?: () => void) => {
     setBusy("save");
     setMessage(null);
     try {
       saved(await action());
-      setMessage({ tone: "ok", text: ok });
+      setMessage(ok ? { tone: "ok", text: ok } : null);
     } catch (e) {
+      undo?.();
       setMessage({ tone: "error", text: toApiError(e).message });
     } finally {
       setBusy(null);
+    }
+  };
+
+  const keepKey = () => {
+    if (busy || !key.trim()) return;
+    void run(async () => {
+      await api.assistantSettingsSet(config);
+      const next = await api.assistantKeySet("provider", key);
+      setKey("");
+      setConnection(null);
+      return next;
+    }, t("settings.assistant.keySaved"));
+  };
+  const keepSearchKey = () => {
+    if (busy || !searchKey.trim()) return;
+    void run(async () => {
+      await api.assistantSettingsSet(config);
+      const next = await api.assistantKeySet("search", searchKey);
+      setSearchKey("");
+      return next;
+    }, t("settings.assistant.keySaved"));
+  };
+  /** Enter in a key field keeps the key (it would otherwise save the form and leave the key behind). */
+  const onEnter = (keep: () => void) => (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      keep();
     }
   };
 
@@ -159,7 +192,11 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
             onChange={(e) => {
               const enabled = e.target.checked;
               set("enabled", enabled);
-              void run(() => api.assistantSettingsSet({ ...config, enabled }), enabled ? t("settings.assistant.turnedOn") : t("settings.assistant.turnedOff"));
+              void run(
+                () => api.assistantSettingsSet({ ...config, enabled }),
+                enabled ? t("settings.assistant.turnedOn") : t("settings.assistant.turnedOff"),
+                () => set("enabled", !enabled),
+              );
             }}
             className="size-5"
           />
@@ -176,9 +213,12 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
               value={provider}
               onChange={(e) => {
                 const next = e.target.value as ProviderKind;
-                setConfig((c) => ({ ...c, provider: next, baseUrl: "", model: c.model && c.provider === next ? c.model : SERVICES[next].model }));
+                const changed = { ...config, provider: next, baseUrl: "", model: SERVICES[next].model };
+                setConfig(changed);
                 setConnection(null);
                 setKey("");
+                // Saved at once: keys are kept per service, so whether one is kept is known for the new choice.
+                void run(() => api.assistantSettingsSet(changed), "", () => setConfig(withModel(settings.config)));
               }}
               className={field}
             >
@@ -218,22 +258,11 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                   autoComplete="off"
                   value={key}
                   onChange={(e) => setKey(e.target.value)}
+                  onKeyDown={onEnter(keepKey)}
                   placeholder={keyShown ? t("settings.assistant.keyKeptPlaceholder") : ""}
                   className={field}
                 />
-                <Button
-                  className="min-h-11"
-                  disabled={busy !== null || !key.trim()}
-                  onClick={() =>
-                    void run(async () => {
-                      await api.assistantSettingsSet(config);
-                      const next = await api.assistantKeySet("provider", key);
-                      setKey("");
-                      setConnection(null);
-                      return next;
-                    }, t("settings.assistant.keySaved"))
-                  }
-                >
+                <Button className="min-h-11" disabled={busy !== null || !key.trim()} onClick={keepKey}>
                   {t("settings.assistant.keySave")}
                 </Button>
                 {keyShown && (
@@ -331,21 +360,11 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                     autoComplete="off"
                     value={searchKey}
                     onChange={(e) => setSearchKey(e.target.value)}
+                    onKeyDown={onEnter(keepSearchKey)}
                     placeholder={settings.hasSearchKey ? t("settings.assistant.keyKeptPlaceholder") : t("settings.assistant.searchKey")}
                     className={field}
                   />
-                  <Button
-                    className="min-h-11"
-                    disabled={busy !== null || !searchKey.trim()}
-                    onClick={() =>
-                      void run(async () => {
-                        await api.assistantSettingsSet(config);
-                        const next = await api.assistantKeySet("search", searchKey);
-                        setSearchKey("");
-                        return next;
-                      }, t("settings.assistant.keySaved"))
-                    }
-                  >
+                  <Button className="min-h-11" disabled={busy !== null || !searchKey.trim()} onClick={keepSearchKey}>
                     {t("settings.assistant.keySave")}
                   </Button>
                 </div>

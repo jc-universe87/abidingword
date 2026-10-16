@@ -667,13 +667,9 @@
     "notesHint": "Reminders while you teach; not part of what you say.",
     "points": {
       "whole": "the whole teaching",
-      "added": "Point added.",
-      "removed": "Point removed.",
-      "moved": "Point moved to place {{position}}.",
       "moveUp": "Move “{{point}}” up",
       "moveDown": "Move “{{point}}” down",
-      "delete": "Delete “{{point}}”",
-      "deleteConfirm": "Delete this point and what you wrote in it? Anything from your study used here stays in the study."
+      "delete": "Delete “{{point}}”"
     },
     "links": {
       "used": "Used in {{scope}}",
@@ -849,7 +845,7 @@
       "freeHint": "The assistant sees this part and what it needs from this teaching and study. It answers with comments and questions; it does not write your teaching for you.",
       "slow": "This is taking longer than usual. You can keep waiting or stop.",
       "stop": "Stop waiting",
-      "stopped": "Stopped waiting. Nothing was changed.",
+      "stopped": "Stopped waiting. Nothing was changed. The service may still finish the request, and it may count toward your use.",
       "pending": {
         "ask": "Asking the assistant…",
         "story": "Looking for sources… This can take a little while.",
@@ -869,7 +865,11 @@
         "titlePlaceholder": "What this point says",
         "explanation": "Explanation",
         "application": "Application",
-        "illustration": "Illustration or example"
+        "illustration": "Illustration or example",
+        "added": "Point added.",
+        "removed": "Point removed.",
+        "moved": "Point moved to place {{position}}.",
+        "deleteConfirm": "Delete this point and what you wrote in it? Anything from your study used here stays in the study."
       },
       "questions": {
         "title": "Questions and answers",
@@ -882,7 +882,11 @@
         "titlePlaceholder": "The question you will ask",
         "explanation": "What the passage shows",
         "application": "What it means for us",
-        "illustration": "Notes for leading the conversation"
+        "illustration": "Notes for leading the conversation",
+        "added": "Question added.",
+        "removed": "Question removed.",
+        "moved": "Question moved to place {{position}}.",
+        "deleteConfirm": "Delete this question and what you wrote with it? Anything from your study used here stays in the study."
       },
       "steps": {
         "title": "Lesson plan",
@@ -895,7 +899,11 @@
         "titlePlaceholder": "What happens in this step",
         "explanation": "What you will say or do",
         "application": "What they should take away",
-        "illustration": "Activity, material or example"
+        "illustration": "Activity, material or example",
+        "added": "Step added.",
+        "removed": "Step removed.",
+        "moved": "Step moved to place {{position}}.",
+        "deleteConfirm": "Delete this step and what you wrote in it? Anything from your study used here stays in the study."
       }
     },
     "aboutEmpty": "Kind, who it is for, purpose, passages",

@@ -223,7 +223,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
   const [confirmDelete, setConfirmDelete] = useState(false);
   // "About this teaching" (kind, audience, purpose, what it uses) stays folded away unless wanted.
   const [aboutOpen, setAboutOpen] = useState(() => readLocal<boolean>(ABOUT_KEY, false));
-  const [wholeAction, setWholeAction] = useState<"structure" | "restructure" | null>(null);
+  const [wholeAction, setWholeAction] = useState<"structure" | "restructure" | "free" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const wholeButton = useRef<HTMLDivElement>(null);
@@ -271,6 +271,10 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
   if (loaded.error) return <p role="alert" className="m-0 text-danger">{loaded.error.message}</p>;
   if (!prep) return <p className="m-0 text-text-muted">{t("studies.teaching.loading")}</p>;
 
+  // The main canvas follows the kind: points for a sermon, questions for a Bible study, steps for a lesson.
+  const shapeName = canvasShape(prep.kind);
+  const shape = (key: ShapeText, options?: Record<string, unknown>) => t(`studies.teaching.shape.${shapeName}.${key}`, options ?? {});
+
   // Each save returns the preparation as stored: kept, so names (a point's title in its labels) stay current.
   // Fields keep their own text, so this never overwrites what is being typed.
   const save = (field: keyof Omit<TeachingPreparation, "id">) => (value: string) =>
@@ -299,7 +303,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
       const ids = new Set(prep.points.map((p) => p.id));
       const fresh = next.points.find((p) => !ids.has(p.id));
       if (fresh) setNewPoint(fresh.id);
-      setNotice(t("studies.teaching.points.added"));
+      setNotice(shape("added"));
     }
   };
   const movePoint = async (index: number, delta: -1 | 1) => {
@@ -309,7 +313,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
     [ids[index], ids[target]] = [ids[target]!, ids[index]!];
     const next = await act(() => api.teachingPointReorder({ parentId: prep.id, ids }));
     if (next) {
-      setNotice(t("studies.teaching.points.moved", { position: target + 1 }));
+      setNotice(shape("moved", { position: target + 1 }));
       requestAnimationFrame(() => document.getElementById(`point-move-${ids[target]}-${delta < 0 ? "up" : "down"}`)?.focus());
     }
   };
@@ -322,13 +326,12 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
     }
   };
 
-  // The main canvas follows the kind: points for a sermon, questions for a Bible study, steps for a lesson.
-  const shapeName = canvasShape(prep.kind);
-  const shape = (key: ShapeText, options?: Record<string, unknown>) => t(`studies.teaching.shape.${shapeName}.${key}`, options ?? {});
   const aboutSummary = [prep.kind ? teachingKindLabel(t, prep.kind) : "", prep.audience?.trim() ? t("studies.teaching.aboutFor", { audience: prep.audience.trim() }) : ""]
     .filter(Boolean)
     .join(" · ");
   const toggleAbout = () => {
+    // A delete question left open is withdrawn with the section, so focus is never left in a hidden place.
+    if (aboutOpen) setConfirmDelete(false);
     setAboutOpen(!aboutOpen);
     writeLocal(ABOUT_KEY, !aboutOpen);
   };
@@ -440,7 +443,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
           <h3 id={`points-${prep.id}`} className="m-0 font-display text-[1.25rem] font-heading text-text-strong">
             {shape("title")}
           </h3>
-          {hooks && !wholeAction && <AssistMenu part="whole" partLabel={t("studies.teaching.points.whole")} onChoose={(a) => setWholeAction(a as "structure" | "restructure")} />}
+          {hooks && !wholeAction && <AssistMenu part="whole" partLabel={t("studies.teaching.points.whole")} onChoose={(a) => setWholeAction(a as "structure" | "restructure" | "free")} />}
         </div>
         {prep.points.length === 0 && <p className="m-0 text-text-muted">{shape("none")}</p>}
         {hooks && wholeAction && (
@@ -489,6 +492,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
                     </button>
                     <DeletePoint
                       name={name}
+                      confirm={shape("deleteConfirm")}
                       hasContent={Boolean(point.title.trim() || point.explanation.trim() || point.application.trim() || point.illustration.trim())}
                       onDelete={() => {
                         deleted.current.add(point.id);
@@ -497,7 +501,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
                             deleted.current.delete(point.id);
                             return;
                           }
-                          setNotice(t("studies.teaching.points.removed"));
+                          setNotice(shape("removed"));
                           // Focus goes to the point before (else after) it, or to "Add a point".
                           const target = next.points[Math.max(0, index - 1)];
                           requestAnimationFrame(() =>
@@ -556,13 +560,13 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
   );
 }
 
-function DeletePoint({ name, hasContent, onDelete }: { name: string; hasContent: boolean; onDelete: () => void }) {
+function DeletePoint({ name, confirm, hasContent, onDelete }: { name: string; confirm: string; hasContent: boolean; onDelete: () => void }) {
   const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
   if (confirming)
     return (
       <span className="flex flex-wrap items-center gap-1 rounded-aw border border-border bg-bg px-2 text-[0.9375rem]">
-        <span>{t("studies.teaching.points.deleteConfirm")}</span>
+        <span>{confirm}</span>
         <button type="button" onClick={onDelete} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-bg-secondary">
           {t("common.delete")}
         </button>

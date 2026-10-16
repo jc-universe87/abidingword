@@ -145,7 +145,7 @@ export function AssistMenu({ part, partLabel, onChoose }: { part: TeachingPart; 
                 {t("studies.teaching.assist.menuIntro")}
               </p>
               {categories.map(({ category: c }) => (
-                <button key={c} type="button" role="menuitem" tabIndex={-1} data-category={c} aria-haspopup="menu" onClick={() => enter(c)} className={item}>
+                <button key={c} type="button" role="menuitem" tabIndex={-1} data-category={c} onClick={() => enter(c)} className={item}>
                   <span className="flex-1">{t(`studies.teaching.assist.category.${c}`)}</span>
                   <ChevronRight className="size-4 shrink-0 text-text-muted" aria-hidden="true" />
                 </button>

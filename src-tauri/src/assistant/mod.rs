@@ -230,6 +230,10 @@ pub fn proposal_limit(action: AssistAction, original: usize) -> usize {
     }
 }
 
+/// Limits on the answer to a request in the person's own words.
+pub const FREE_COMMENTS_MAX: usize = 5;
+pub const FREE_COMMENT_MAX: usize = 400;
+
 /// Turns the service's JSON into a result, enforcing every limit.
 pub fn interpret(context: &Context, answer: &Value) -> AppResult<AssistResult> {
     let action = context.action;
@@ -260,13 +264,20 @@ pub fn interpret(context: &Context, answer: &Value) -> AppResult<AssistResult> {
         | AssistAction::Passages
         | AssistAction::Free => {
             let parser = ReferenceParser::english();
+            // A free request gets shorter answers: comments and questions, not
+            // passages long enough to stand in for the person's own writing.
+            let (most, longest) = if action == AssistAction::Free {
+                (FREE_COMMENTS_MAX, FREE_COMMENT_MAX)
+            } else {
+                (8, 800)
+            };
             let comments = answer["comments"]
                 .as_array()
                 .map(|list| {
                     list.iter()
-                        .take(8)
+                        .take(most)
                         .filter_map(|c| {
-                            let comment = text_of(c, "comment", 800);
+                            let comment = text_of(c, "comment", longest);
                             if comment.is_empty() {
                                 return None;
                             }

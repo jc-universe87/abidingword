@@ -341,6 +341,12 @@ pub fn assemble(conn: &Connection, input: &AssistInput) -> AppResult<Context> {
     if action == AssistAction::Question && text.is_empty() && findings.is_empty() {
         return Err(write_first());
     }
+    // A request in the person's own words, too, needs their material: some
+    // writing in this teaching or notes from their study, never the request alone.
+    if action == AssistAction::Free && text.is_empty() && findings.is_empty() && !has_writing(&prep)
+    {
+        return Err(write_first());
+    }
 
     let focus = match point_index {
         Some(i) => format!(
@@ -371,6 +377,22 @@ pub fn assemble(conn: &Connection, input: &AssistInput) -> AppResult<Context> {
     })
 }
 
+/// Whether the person has written anything in the teaching yet.
+fn has_writing(prep: &TeachingPreparation) -> bool {
+    [&prep.introduction, &prep.conclusion]
+        .iter()
+        .any(|t| !t.trim().is_empty())
+        || prep
+            .central_message
+            .as_deref()
+            .is_some_and(|t| !t.trim().is_empty())
+        || prep.points.iter().any(|p| {
+            [&p.title, &p.explanation, &p.application, &p.illustration]
+                .iter()
+                .any(|t| !t.trim().is_empty())
+        })
+}
+
 /// Other parts of the same teaching, in order and within limits. They show
 /// the assistant where the text sits and how the person writes.
 fn nearby(
@@ -379,7 +401,8 @@ fn nearby(
     part: Part,
     point_index: Option<usize>,
 ) -> Vec<(String, String)> {
-    let whole = action.is_whole();
+    // A free request about the whole teaching sees it as the structure comments do.
+    let whole = action.is_whole() || (action == AssistAction::Free && part == Part::Whole);
     let (each, total) = if whole {
         (WHOLE_TOTAL_MAX / 4, WHOLE_TOTAL_MAX)
     } else {

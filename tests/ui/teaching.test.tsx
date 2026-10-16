@@ -79,7 +79,7 @@ async function helpWith(user: User, scope: HTMLElement, part: string, action: st
   }
   const categories = within(menu)
     .getAllByRole("menuitem")
-    .filter((item) => item.getAttribute("aria-haspopup") === "menu")
+    .filter((item) => item.dataset.category)
     .map((item) => item.textContent ?? "");
   for (const category of categories) {
     await user.click(within(within(scope).getByRole("menu")).getByRole("menuitem", { name: category }));
@@ -492,6 +492,32 @@ describe("assistant settings", () => {
     expect(test).toBeEnabled();
   });
 
+  it("review fixes: a first start fills the model, Enter keeps the key, Escape in a field stays, and a kept key follows its service", async () => {
+    const { user, api } = await renderApp(createMemoryApi());
+    const region = await openSettingsSection(user, "Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the assistant" }));
+    // The default service gets its suggested model without choosing it again.
+    expect(within(region).getByRole("textbox", { name: "Model" })).toHaveValue("gpt-4.1");
+
+    // Enter in the key field keeps the key (it does not just save the form).
+    await user.type(within(region).getByLabelText("Key"), "sk-openai{Enter}");
+    expect(await within(region).findByText("The key is kept on this computer.")).toBeInTheDocument();
+    expect(api.state.teaching.assistant.keys.get("openai")).toBe("sk-openai");
+    expect(within(region).getByRole("button", { name: "Check the connection" })).toBeEnabled();
+
+    // Escape while typing does not leave Settings.
+    await user.type(within(region).getByRole("textbox", { name: "Model" }), "x");
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("heading", { level: 1, name: "Settings" })).toBeInTheDocument();
+
+    // A service chosen is saved at once, so a key already kept for it shows.
+    api.state.teaching.assistant.keys.set("anthropic", "sk-ant");
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "anthropic");
+    await waitFor(() => expect(api.state.teaching.assistant.config.provider).toBe("anthropic"));
+    expect(await within(region).findByText("A key is kept on this computer.")).toBeInTheDocument();
+    expect(within(region).getByRole("button", { name: "Check the connection" })).toBeEnabled();
+  });
+
   it("offers each service by name, with a suggested model and plain help for its key", async () => {
     const { user, api } = await renderApp(createMemoryApi());
     const region = await openSettingsSection(user, "Assistant");
@@ -802,7 +828,9 @@ describe("long assistant actions", () => {
     const release = holdOn(api);
     const panel = await helpWith(user, article, "Introduction", "Check grammar and spelling");
     await ask(user, panel);
-    expect(within(panel).getByRole("status")).toHaveTextContent("Asking the assistant…");
+    await waitFor(() => expect(within(panel).getByRole("status")).toHaveTextContent("Asking the assistant…"));
+    // Focus moves to Stop waiting (what had it is disabled while asking).
+    expect(within(panel).getByRole("button", { name: "Stop waiting" })).toHaveFocus();
     const askButton = within(panel).getByRole("button", { name: "Ask" });
     expect(askButton).toBeDisabled();
     await user.click(askButton);
@@ -811,7 +839,7 @@ describe("long assistant actions", () => {
 
     await user.click(within(panel).getByRole("button", { name: "Stop waiting" }));
     expect(within(panel).queryByTestId("pending")).toBeNull();
-    expect(within(panel).getByText("Stopped waiting. Nothing was changed.")).toBeInTheDocument();
+    expect(within(panel).getByText(/^Stopped waiting. Nothing was changed./)).toHaveTextContent(/may count toward your use/);
     await act(async () => release());
     // The late answer is ignored.
     expect(within(panel).queryByRole("heading", { name: "Suggested wording" })).toBeNull();
@@ -844,7 +872,7 @@ describe("long assistant actions", () => {
     const panel = await helpWith(user, article, "Introduction", "Find a real story…");
     await user.type(within(panel).getByRole("textbox"), "forgiveness");
     await ask(user, panel);
-    expect(within(panel).getByRole("status")).toHaveTextContent("Looking for sources… This can take a little while.");
+    await waitFor(() => expect(within(panel).getByRole("status")).toHaveTextContent("Looking for sources… This can take a little while."));
     await act(async () => release());
     await waitFor(() => expect(within(panel).queryByTestId("pending")).toBeNull());
   });
@@ -867,7 +895,7 @@ describe("long assistant actions", () => {
     let release = holdOn(api);
     await user.click(find);
     expect(within(panel).getByText("Finding suitable images…")).toBeInTheDocument();
-    expect(find).toBeDisabled();
+    expect(find).toHaveAttribute("aria-disabled", "true");
     await user.click(find);
     expect(api.state.teaching.assistant.findCalls).toHaveLength(1);
     await act(async () => release());
@@ -877,7 +905,8 @@ describe("long assistant actions", () => {
     const make = within(panel).getByRole("button", { name: "Make an image" });
     await user.click(make);
     expect(within(panel).getByText("Creating an image… This can take a little while.")).toBeInTheDocument();
-    expect(make).toBeDisabled();
+    expect(make).toHaveAttribute("aria-disabled", "true");
+    await user.click(make);
     await act(async () => release());
     expect(await within(panel).findByText("Made by the assistant: an illustration, not a photograph")).toBeInTheDocument();
     expect(api.state.teaching.assistant.generated).toHaveLength(1);

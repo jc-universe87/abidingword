@@ -75,13 +75,14 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
   const [open, setOpen] = useState<ReadonlySet<SectionName>>(
     () => new Set(readLocal<string[]>(OPEN_KEY, []).filter((n): n is SectionName => (SETTINGS_SECTIONS as readonly string[]).includes(n))),
   );
-  // Closed by the person while an update was waiting: stays closed until they open it again.
-  const [updatesClosed, setUpdatesClosed] = useState(false);
+  // Closed by the person while an update needed them: stays closed for that state only.
+  const [updatesClosedFor, setUpdatesClosedFor] = useState<string | null>(null);
+  const updateKey = updates.state.kind === "available" || updates.state.kind === "installing" ? `${updates.state.kind}:${updates.state.update.version}` : updates.state.kind;
   const [assistant, setAssistant] = useState<AssistantStatus | null>(null);
 
-  const isOpen = (name: SectionName) => open.has(name) || (name === "updates" && needsAttention(updates.state) && !updatesClosed);
+  const isOpen = (name: SectionName) => open.has(name) || (name === "updates" && needsAttention(updates.state) && updatesClosedFor !== updateKey);
   const setSection = (name: SectionName, value: boolean) => {
-    if (name === "updates") setUpdatesClosed(!value);
+    if (name === "updates") setUpdatesClosedFor(value ? null : updateKey);
     setOpen((current) => {
       const next = new Set(current);
       if (value) next.add(name);
@@ -164,7 +165,12 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
     <main
       aria-labelledby="settings-title"
       className="min-h-0 flex-1 overflow-y-auto bg-bg"
-      onKeyDown={(e) => e.key === "Escape" && !e.defaultPrevented && onClose()}
+      onKeyDown={(e) => {
+        // Escape goes back, but not from a field: there it would throw away what is being typed.
+        const target = e.target as HTMLElement;
+        if (e.key !== "Escape" || e.defaultPrevented || target.closest("input, textarea, select, details")) return;
+        onClose();
+      }}
     >
       <header className="sticky top-0 z-10 border-b border-border-subtle bg-bg">
         <div className="mx-auto flex max-w-[46rem] flex-col gap-2 px-4 pb-2 pt-3 sm:px-8">

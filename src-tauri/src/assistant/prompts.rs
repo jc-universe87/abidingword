@@ -153,10 +153,13 @@ pub fn request(context: &Context) -> String {
              reason. Only real passages, written like John 15:1-8, one per comment, in \
              \"references\". These are suggestions to investigate, not conclusions. {COMMENTS}"
         ),
+        // The person's words stay in the labelled block below (WHAT THE PERSON
+        // ASKS), never inside these instructions.
         AssistAction::Free => format!(
-            "The person asks, in their own words: “{ask}”. Help with exactly that, using only \
-             the teaching and study material below and what is generally known about Scripture. \
-             {FREE_LIMITS} {COMMENTS}"
+            "The person asks for help in their own words, given below as WHAT THE PERSON ASKS. \
+             Help with exactly that, using only the teaching and study material below and what \
+             is generally known about Scripture. {FREE_LIMITS} Keep each comment short (at most \
+             two or three sentences) and give at most 5. {COMMENTS}"
         ),
         AssistAction::Phrasing => format!(
             "Based only on the person's text and notes, suggest two or three ways they could \
@@ -237,7 +240,11 @@ mod tests {
         let r = request(&context);
         assert!(r.contains(FREE_LIMITS));
         assert!(r.contains("Do not rewrite their text."));
-        assert!(r.contains("“Write my whole introduction for me.”"));
+        // The request is data in its labelled block, never part of the instructions.
+        let (task, data) = r.split_once("\n\n").unwrap();
+        assert!(!task.contains("Write my whole introduction"));
+        assert!(data
+            .contains("WHAT THE PERSON ASKS (their words): Write my whole introduction for me."));
         assert!(!r.contains("\"suggestion\""));
     }
 }

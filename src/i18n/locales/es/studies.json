@@ -674,13 +674,9 @@
     "notesHint": "Recordatorios mientras enseñas; no forman parte de lo que dices.",
     "points": {
       "whole": "toda la enseñanza",
-      "added": "Punto añadido.",
-      "removed": "Punto eliminado.",
-      "moved": "Punto movido al lugar {{position}}.",
       "moveUp": "Subir «{{point}}»",
       "moveDown": "Bajar «{{point}}»",
-      "delete": "Eliminar «{{point}}»",
-      "deleteConfirm": "¿Eliminar este punto y lo que escribiste en él? Los apuntes usados aquí siguen en el estudio."
+      "delete": "Eliminar «{{point}}»"
     },
     "links": {
       "used": "Usado en {{scope}}",
@@ -859,7 +855,7 @@
       "freeHint": "El asistente ve esta parte y lo que necesita de esta enseñanza y este estudio. Responde con comentarios y preguntas; no escribe tu enseñanza por ti.",
       "slow": "Está tardando más de lo normal. Puedes seguir esperando o parar.",
       "stop": "Dejar de esperar",
-      "stopped": "Has dejado de esperar. No se ha cambiado nada.",
+      "stopped": "Has dejado de esperar. No se ha cambiado nada. El servicio puede terminar igualmente la petición, y puede contar en tu uso.",
       "pending": {
         "ask": "Preguntando al asistente…",
         "story": "Buscando fuentes… Puede tardar un poco.",
@@ -879,7 +875,11 @@
         "titlePlaceholder": "Lo que dice este punto",
         "explanation": "Explicación",
         "application": "Aplicación",
-        "illustration": "Ilustración o ejemplo"
+        "illustration": "Ilustración o ejemplo",
+        "added": "Punto añadido.",
+        "removed": "Punto eliminado.",
+        "moved": "Punto movido al lugar {{position}}.",
+        "deleteConfirm": "¿Eliminar este punto y lo que escribiste en él? Los apuntes usados aquí siguen en el estudio."
       },
       "questions": {
         "title": "Preguntas y respuestas",
@@ -892,7 +892,11 @@
         "titlePlaceholder": "La pregunta que vas a hacer",
         "explanation": "Lo que muestra el pasaje",
         "application": "Lo que significa para nosotros",
-        "illustration": "Notas para guiar la conversación"
+        "illustration": "Notas para guiar la conversación",
+        "added": "Pregunta añadida.",
+        "removed": "Pregunta eliminada.",
+        "moved": "Pregunta movida al lugar {{position}}.",
+        "deleteConfirm": "¿Eliminar esta pregunta y lo que escribiste con ella? Los apuntes usados aquí siguen en el estudio."
       },
       "steps": {
         "title": "Desarrollo de la lección",
@@ -905,7 +909,11 @@
         "titlePlaceholder": "Qué pasa en este paso",
         "explanation": "Lo que vas a decir o hacer",
         "application": "Lo que deberían llevarse",
-        "illustration": "Actividad, material o ejemplo"
+        "illustration": "Actividad, material o ejemplo",
+        "added": "Paso añadido.",
+        "removed": "Paso eliminado.",
+        "moved": "Paso movido al lugar {{position}}.",
+        "deleteConfirm": "¿Eliminar este paso y lo que escribiste en él? Los apuntes usados aquí siguen en el estudio."
       }
     },
     "aboutEmpty": "Tipo, para quién, propósito, pasajes",

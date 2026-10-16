@@ -137,7 +137,8 @@ While the assistant works you see it at once, in words: *Asking the
 assistant…*, *Looking for sources… This can take a little while.*, *Finding
 suitable images…* or *Creating an image… This can take a little while.* The
 button cannot be pressed twice. If it takes long, it says so, and **Stop
-waiting** lets you go on (nothing is changed). If the service does not
+waiting** lets you go on (nothing is changed; the service may still finish
+the request, and it may count toward your use). If the service does not
 answer, you are told plainly and can try again.
 
 If a part is still empty, the assistant does not fill it: *"Write something

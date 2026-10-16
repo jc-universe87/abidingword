@@ -666,14 +666,10 @@
     "notes": "Notizen für dich selbst",
     "notesHint": "Erinnerungen beim Halten; nicht Teil dessen, was du sagst.",
     "points": {
-      "whole": "die ganze Vorbereitung",
-      "added": "Punkt hinzugefügt.",
-      "removed": "Punkt entfernt.",
-      "moved": "Punkt an Stelle {{position}} verschoben.",
+      "whole": "deine ganze Bibellehre",
       "moveUp": "„{{point}}“ nach oben",
       "moveDown": "„{{point}}“ nach unten",
-      "delete": "„{{point}}“ löschen",
-      "deleteConfirm": "Diesen Punkt mit deinem Text löschen? Verwendete Einträge bleiben im Bibelstudium."
+      "delete": "„{{point}}“ löschen"
     },
     "links": {
       "used": "Verwendet in {{scope}}",
@@ -709,7 +705,7 @@
     },
     "assist": {
       "menu": "Hilfe",
-      "menuLabel": "Hilfe zu {{part}}",
+      "menuLabel": "Hilfe: {{part}}",
       "action": {
         "grammar": "Grammatik und Rechtschreibung prüfen",
         "clarity": "Klarer machen",
@@ -839,8 +835,8 @@
       "menuIntro": "Was würde dir helfen?",
       "allHelp": "Alle Hilfen",
       "category": {
-        "wording": "Meine Formulierung verbessern",
-        "review": "Mein Geschriebenes prüfen",
+        "wording": "Meine Formulierungen verbessern",
+        "review": "Meinen Text prüfen",
         "structure": "Hilfe beim Aufbau",
         "ideas": "Ideen und Veranschaulichungen",
         "research": "Etwas nachschlagen"
@@ -849,7 +845,7 @@
       "freeHint": "Der Assistent sieht diesen Teil und was er aus dieser Bibellehre und diesem Bibelstudium braucht. Er antwortet mit Kommentaren und Fragen; deine Bibellehre schreibt er nicht für dich.",
       "slow": "Das dauert länger als sonst. Du kannst weiter warten oder abbrechen.",
       "stop": "Nicht mehr warten",
-      "stopped": "Warten beendet. Nichts wurde geändert.",
+      "stopped": "Warten beendet. Nichts wurde geändert. Der Dienst kann die Anfrage trotzdem zu Ende bearbeiten, und sie kann zu deiner Nutzung zählen.",
       "pending": {
         "ask": "Der Assistent wird gefragt …",
         "story": "Quellen werden gesucht … Das kann eine Weile dauern.",
@@ -869,7 +865,11 @@
         "titlePlaceholder": "Was dieser Punkt sagt",
         "explanation": "Erklärung",
         "application": "Anwendung",
-        "illustration": "Veranschaulichung oder Beispiel"
+        "illustration": "Veranschaulichung oder Beispiel",
+        "added": "Punkt hinzugefügt.",
+        "removed": "Punkt entfernt.",
+        "moved": "Punkt an Stelle {{position}} verschoben.",
+        "deleteConfirm": "Diesen Punkt mit deinem Text löschen? Verwendete Einträge bleiben im Bibelstudium."
       },
       "questions": {
         "title": "Fragen und Antworten",
@@ -882,7 +882,11 @@
         "titlePlaceholder": "Die Frage, die du stellen wirst",
         "explanation": "Was der Bibeltext zeigt",
         "application": "Was das für uns bedeutet",
-        "illustration": "Hinweise für die Gesprächsleitung"
+        "illustration": "Hinweise für die Gesprächsleitung",
+        "added": "Frage hinzugefügt.",
+        "removed": "Frage entfernt.",
+        "moved": "Frage an Stelle {{position}} verschoben.",
+        "deleteConfirm": "Diese Frage mit deinem Text löschen? Verwendete Einträge bleiben im Bibelstudium."
       },
       "steps": {
         "title": "Ablauf",
@@ -895,7 +899,11 @@
         "titlePlaceholder": "Was in diesem Schritt geschieht",
         "explanation": "Was du sagst oder tust",
         "application": "Was sie mitnehmen sollen",
-        "illustration": "Aktion, Material oder Beispiel"
+        "illustration": "Aktion, Material oder Beispiel",
+        "added": "Schritt hinzugefügt.",
+        "removed": "Schritt entfernt.",
+        "moved": "Schritt an Stelle {{position}} verschoben.",
+        "deleteConfirm": "Diesen Schritt mit deinem Text löschen? Verwendete Einträge bleiben im Bibelstudium."
       }
     },
     "aboutEmpty": "Art, für wen, Ziel, Bibelstellen",

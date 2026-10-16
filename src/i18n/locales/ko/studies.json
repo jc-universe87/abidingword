@@ -660,13 +660,9 @@
     "notesHint": "가르치면서 볼 메모입니다. 전하는 내용에는 들어가지 않습니다.",
     "points": {
       "whole": "가르침 전체",
-      "added": "대지를 추가했습니다.",
-      "removed": "대지를 삭제했습니다.",
-      "moved": "대지를 {{position}}번째로 옮겼습니다.",
       "moveUp": "‘{{point}}’ 위로",
       "moveDown": "‘{{point}}’ 아래로",
-      "delete": "‘{{point}}’ 삭제",
-      "deleteConfirm": "이 대지와 쓴 내용을 삭제할까요? 여기에 쓴 기록은 성경공부에 그대로 남습니다."
+      "delete": "‘{{point}}’ 삭제"
     },
     "links": {
       "used": "{{scope}}에 쓴 것",
@@ -839,7 +835,7 @@
       "freeHint": "도우미는 이 부분과, 이 가르침과 성경공부에서 필요한 내용을 봅니다. 의견과 질문으로 답할 뿐, 가르침을 대신 써 주지는 않습니다.",
       "slow": "평소보다 오래 걸리고 있습니다. 계속 기다리거나 그만둘 수 있습니다.",
       "stop": "그만 기다리기",
-      "stopped": "기다리기를 멈췄습니다. 바뀐 것은 없습니다.",
+      "stopped": "기다리기를 멈췄습니다. 바뀐 것은 없습니다. 서비스는 요청을 끝까지 처리할 수 있으며, 사용량에 포함될 수 있습니다.",
       "pending": {
         "ask": "도우미에게 묻는 중…",
         "story": "출처를 찾는 중… 조금 걸릴 수 있습니다.",
@@ -859,7 +855,11 @@
         "titlePlaceholder": "이 대지가 말하는 것",
         "explanation": "설명",
         "application": "적용",
-        "illustration": "예화"
+        "illustration": "예화",
+        "added": "대지를 추가했습니다.",
+        "removed": "대지를 삭제했습니다.",
+        "moved": "대지를 {{position}}번째로 옮겼습니다.",
+        "deleteConfirm": "이 대지와 쓴 내용을 삭제할까요? 여기에 쓴 기록은 성경공부에 그대로 남습니다."
       },
       "questions": {
         "title": "질문과 나눔",
@@ -872,7 +872,11 @@
         "titlePlaceholder": "던질 질문",
         "explanation": "본문이 보여 주는 것",
         "application": "우리에게 주는 의미",
-        "illustration": "나눔 인도를 위한 메모"
+        "illustration": "나눔 인도를 위한 메모",
+        "added": "질문을 추가했습니다.",
+        "removed": "질문을 삭제했습니다.",
+        "moved": "질문을 {{position}}번째로 옮겼습니다.",
+        "deleteConfirm": "이 질문과 쓴 내용을 삭제할까요? 여기에 쓴 기록은 성경공부에 그대로 남습니다."
       },
       "steps": {
         "title": "진행 순서",
@@ -885,7 +889,11 @@
         "titlePlaceholder": "이 순서에서 하는 일",
         "explanation": "말하거나 할 내용",
         "application": "마음에 새길 것",
-        "illustration": "활동, 준비물, 예"
+        "illustration": "활동, 준비물, 예",
+        "added": "순서를 추가했습니다.",
+        "removed": "순서를 삭제했습니다.",
+        "moved": "순서를 {{position}}번째로 옮겼습니다.",
+        "deleteConfirm": "이 순서와 쓴 내용을 삭제할까요? 여기에 쓴 기록은 성경공부에 그대로 남습니다."
       }
     },
     "aboutEmpty": "종류, 대상, 목적, 본문",

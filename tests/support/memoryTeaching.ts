@@ -121,7 +121,7 @@ const LABELS: Record<string, string> = {
   openai: "OpenAI",
   anthropic: "Anthropic",
   google: "Google Gemini",
-  xai: "xAI Grok",
+  xai: "xAI (Grok)",
   perplexity: "Perplexity",
   deepseek: "DeepSeek",
   qwen: "Qwen",

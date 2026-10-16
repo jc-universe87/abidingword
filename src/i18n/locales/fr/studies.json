@@ -674,13 +674,9 @@
     "notesHint": "Des rappels pendant l’enseignement, qui ne font pas partie de ce que vous dites.",
     "points": {
       "whole": "l’enseignement entier",
-      "added": "Point ajouté.",
-      "removed": "Point supprimé.",
-      "moved": "Point déplacé en position {{position}}.",
       "moveUp": "Monter « {{point}} »",
       "moveDown": "Descendre « {{point}} »",
-      "delete": "Supprimer « {{point}} »",
-      "deleteConfirm": "Supprimer ce point et ce que vous y avez écrit ? Les éléments utilisés restent dans l’étude."
+      "delete": "Supprimer « {{point}} »"
     },
     "links": {
       "used": "Utilisé dans {{scope}}",
@@ -749,7 +745,7 @@
         "transition": "Que doit-elle relier ? (facultatif)",
         "phrasing": "Que voulez-vous dire ? (facultatif)",
         "visual": "Qu’est-ce que l’image doit aider à expliquer ? (facultatif)",
-        "free": "Pour quoi souhaitez-vous de l’aide ?"
+        "free": "Sur quoi souhaitez-vous de l’aide ?"
       },
       "audienceLabel": "Pour qui ?",
       "audiencePlaceholder": "p. ex. enfants de 8 à 10 ans",
@@ -859,7 +855,7 @@
       "freeHint": "L’assistant voit cette partie et ce dont il a besoin de cet enseignement et de cette étude. Il répond par des remarques et des questions ; il n’écrit pas votre enseignement à votre place.",
       "slow": "Cela prend plus de temps que d’habitude. Vous pouvez attendre ou arrêter.",
       "stop": "Ne plus attendre",
-      "stopped": "Attente arrêtée. Rien n’a été modifié.",
+      "stopped": "Attente arrêtée. Rien n’a été modifié. Le service peut quand même terminer la demande, et elle peut compter dans votre utilisation.",
       "pending": {
         "ask": "L’assistant est interrogé…",
         "story": "Recherche de sources… Cela peut prendre un moment.",
@@ -879,7 +875,11 @@
         "titlePlaceholder": "Ce que dit ce point",
         "explanation": "Explication",
         "application": "Application",
-        "illustration": "Illustration ou exemple"
+        "illustration": "Illustration ou exemple",
+        "added": "Point ajouté.",
+        "removed": "Point supprimé.",
+        "moved": "Point déplacé en position {{position}}.",
+        "deleteConfirm": "Supprimer ce point et ce que vous y avez écrit ? Les éléments utilisés restent dans l’étude."
       },
       "questions": {
         "title": "Questions et réponses",
@@ -892,7 +892,11 @@
         "titlePlaceholder": "La question que vous poserez",
         "explanation": "Ce que montre le passage",
         "application": "Ce que cela signifie pour nous",
-        "illustration": "Notes pour animer la discussion"
+        "illustration": "Notes pour animer la discussion",
+        "added": "Question ajoutée.",
+        "removed": "Question supprimée.",
+        "moved": "Question déplacée en position {{position}}.",
+        "deleteConfirm": "Supprimer cette question et ce que vous y avez écrit ? Les éléments utilisés restent dans l’étude."
       },
       "steps": {
         "title": "Déroulement",
@@ -905,7 +909,11 @@
         "titlePlaceholder": "Ce qui se passe à cette étape",
         "explanation": "Ce que vous direz ou ferez",
         "application": "Ce qu’ils devraient retenir",
-        "illustration": "Activité, matériel ou exemple"
+        "illustration": "Activité, matériel ou exemple",
+        "added": "Étape ajoutée.",
+        "removed": "Étape supprimée.",
+        "moved": "Étape déplacée en position {{position}}.",
+        "deleteConfirm": "Supprimer cette étape et ce que vous y avez écrit ? Les éléments utilisés restent dans l’étude."
       }
     },
     "aboutEmpty": "Type, pour qui, but, passages",

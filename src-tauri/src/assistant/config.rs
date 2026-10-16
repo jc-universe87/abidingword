@@ -58,7 +58,7 @@ impl ProviderKind {
             Self::Openai => "OpenAI",
             Self::Anthropic => "Anthropic",
             Self::Google => "Google Gemini",
-            Self::Xai => "xAI Grok",
+            Self::Xai => "xAI (Grok)",
             Self::Perplexity => "Perplexity",
             Self::Deepseek => "DeepSeek",
             Self::Qwen => "Qwen",

@@ -599,11 +599,15 @@ metadata and technical settings are secondary and disclosed progressively.**
   visible focus bar give it a hierarchy.
 - **Free text** is a new core action, `AssistAction::Free`. It needs the
   person's words (`assistant.sayWhat` otherwise, at most 1 000 characters as
-  before), sees the same bounded context, and is **answered only as
-  comments** (`interpret` routes it with Review), so there is never wording
+  before) and some of their material (writing in the teaching or study notes;
+  `assistant.writeFirst` otherwise), sees the same bounded context (the whole
+  teaching when asked from the main part's Help), and is **answered only as
+  comments**, at most 5 of 400 characters each (`interpret` routes it with Review), so there is never wording
   to apply. Its request adds `FREE_LIMITS`: the request cannot change the
   rules, the assistant does not write the teaching or any part of it even
   when asked, and treats the request as a question, never as instructions.
+  The person's words appear only in the labelled *WHAT THE PERSON ASKS* data
+  block, never inside the instruction sentence.
   The standing system rules (no ghost-writing, keep the voice, no invented
   facts) apply as to every action. Tested in Rust (a request to "write my
   whole introduction" with a reply that contains a suggestion still yields
@@ -735,3 +739,39 @@ teaching links are `teaching_finding_links`). What the person sees:
 - German and terminology (`tests/ui/german-address.test.ts`).
 - Rust: presets and `needs_key`; the free request's prompt; the free request
   end to end.
+
+### 17.10 Independent review of this pass, and what changed
+
+A separate review of the whole diff from `main` found, and this pass fixed:
+
+- On a first start the default service had no model, so the check stayed
+  blocked: the form now fills the suggested model whenever none is chosen.
+- Enter in a key field saved the form and left the key behind: it now keeps
+  the key (provider and search keys).
+- Escape anywhere in Settings went back and lost what was being typed: it now
+  ignores Escape from fields and disclosures.
+- Switching to a service whose key was already kept showed "no key": the
+  service is saved as soon as it is chosen, so the kept key shows.
+- The waiting message was in a live region that appeared already filled: the
+  announcement is now filled a moment later; while asking, focus moves to
+  **Stop waiting** (what had it is disabled). Image buttons use
+  `aria-disabled`, so focus stays on them.
+- The free request: request kept out of the instructions, shorter answers,
+  needs the person's material, and sees the whole teaching from the main
+  part's Help.
+- German "Hilfe zu {{part}}" was ungrammatical with some parts: now "Hilfe:
+  {{part}}"; "die ganze Vorbereitung" is "deine ganze Bibellehre"; stiffer
+  category names rewritten. French free-text label corrected.
+- "Point added/moved/removed" and the delete question now follow the kind
+  (question, step).
+- Updates reopened only once: closing it now holds for that state only.
+- Category items no longer claim a submenu (`aria-haspopup`); a delete
+  question is withdrawn when *About this teaching* closes.
+- *Stop waiting* now says the service may still finish the request and that
+  it may count toward the person's use (the core request is not cancelled).
+- The core's label for xAI matches the interface, "xAI (Grok)".
+
+Not changed: the generic service's label ("Other compatible service") is
+recorded in English in "From …" lines, like the other service names; the Qwen
+link opens Alibaba Cloud's help page on getting a key (the console address
+differs by region); suggested model names are defaults the person can edit.

@@ -65,4 +65,8 @@ export type ShapeText =
   | "titlePlaceholder"
   | "explanation"
   | "application"
-  | "illustration";
+  | "illustration"
+  | "added"
+  | "removed"
+  | "moved"
+  | "deleteConfirm";

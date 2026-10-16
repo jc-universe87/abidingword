@@ -52,19 +52,34 @@ export const SLOW_AFTER_MS = 20_000;
 export function Pending({ message, onStop }: { message: string; onStop?: () => void }) {
   const { t } = useTranslation();
   const [slow, setSlow] = useState(false);
+  // A live region is announced reliably only when its text changes after it is there: filled a moment later.
+  const [said, setSaid] = useState(false);
   useEffect(() => {
+    const say = setTimeout(() => setSaid(true), 50);
     const timer = setTimeout(() => setSlow(true), SLOW_AFTER_MS);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(say);
+      clearTimeout(timer);
+    };
   }, []);
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-aw border border-border-subtle bg-bg px-3 py-2" data-testid="pending">
       <Loader2 className="size-5 shrink-0 animate-spin text-primary motion-reduce:animate-none" aria-hidden="true" />
-      <p role="status" className="m-0 min-w-0 flex-1 text-text-strong">
-        {message}
-        {slow && <span className="block text-[0.875rem] text-text-muted">{t("studies.teaching.assist.slow")}</span>}
+      <p className="m-0 min-w-0 flex-1 text-text-strong">
+        <span aria-hidden="true">{message}</span>
+        {slow && (
+          <span aria-hidden="true" className="block text-[0.875rem] text-text-muted">
+            {t("studies.teaching.assist.slow")}
+          </span>
+        )}
+        <span role="status" className="sr-only">
+          {said ? message : ""}
+          {slow ? ` ${t("studies.teaching.assist.slow")}` : ""}
+        </span>
       </p>
       {onStop && (
-        <Button className="min-h-11" onClick={onStop}>
+        // Asking disables what had the focus; it moves here, so Escape and Stop stay at hand.
+        <Button className="min-h-11" autoFocus onClick={onStop}>
           {t("studies.teaching.assist.stop")}
         </Button>
       )}
@@ -725,13 +740,13 @@ function Visuals({ reply, heading, kept, onKeep, canFindImages, canGenerateImage
               <p className="m-0 text-[0.8125rem] text-text-muted">{t("studies.teaching.standing.suggestion")}</p>
               <div className="flex flex-wrap gap-2">
                 {canFindImages && (
-                  <Button className="min-h-11" disabled={images === "loading"} onClick={() => void find(i, idea.searchTerms || idea.description)}>
+                  <Button className="min-h-11 aria-disabled:cursor-not-allowed aria-disabled:opacity-60" aria-disabled={images === "loading"} onClick={() => void find(i, idea.searchTerms || idea.description)}>
                     <Search className="size-4" aria-hidden="true" />
                     {t("studies.teaching.assist.visuals.find")}
                   </Button>
                 )}
                 {canGenerateImages && (
-                  <Button className="min-h-11" disabled={generated === "loading"} onClick={() => void make(i, idea.description)}>
+                  <Button className="min-h-11 aria-disabled:cursor-not-allowed aria-disabled:opacity-60" aria-disabled={generated === "loading"} onClick={() => void make(i, idea.description)}>
                     <ImageIcon className="size-4" aria-hidden="true" />
                     {t("studies.teaching.assist.visuals.make")}
                   </Button>
