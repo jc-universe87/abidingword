@@ -116,12 +116,14 @@ pub fn teaching_material_keep(
     state: State<'_, AppState>,
     input: KeepTeachingMaterial,
 ) -> CommandResult<TeachingPreparation> {
+    let file = input.image.as_ref().and_then(|i| i.file.clone());
     let mut written = None;
-    if let Some(file) = input.image.as_ref().and_then(|i| i.file.as_deref()) {
+    if let Some(file) = file.as_deref() {
         if !teaching::is_generated_file_name(file) {
             return Err(gone().into());
         }
-        let png = state.take_generated(file)?.ok_or_else(gone)?;
+        // Still held until it is really kept, so a refusal can be retried.
+        let png = state.held_generated(file)?.ok_or_else(gone)?;
         let dir = state.core()?.dirs.teaching_images();
         std::fs::create_dir_all(&dir).map_err(|e| AppError::filesystem(&dir, e))?;
         let path = dir.join(file);
@@ -129,10 +131,16 @@ pub fn teaching_material_keep(
         written = Some(path);
     }
     let result = state.db(|conn| teaching::keep_material(conn, &input));
-    if result.is_err() {
-        if let Some(path) = written {
+    match (&result, written) {
+        (Err(_), Some(path)) => {
             let _ = std::fs::remove_file(path);
         }
+        (Ok(_), Some(_)) => {
+            if let Some(file) = file.as_deref() {
+                state.take_generated(file)?;
+            }
+        }
+        _ => {}
     }
     result
 }

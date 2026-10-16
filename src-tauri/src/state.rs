@@ -107,7 +107,19 @@ impl AppState {
         Ok(())
     }
 
-    /// Takes a held generated image (to be written when kept).
+    /// A held generated image, left held (it is let go only once kept).
+    pub fn held_generated(&self, name: &str) -> Result<Option<Vec<u8>>, ErrorPayload> {
+        let held = self
+            .generated
+            .lock()
+            .map_err(|_| AppError::Unexpected("generated image lock poisoned".into()))?;
+        Ok(held
+            .iter()
+            .find(|(n, _)| n == name)
+            .map(|(_, png)| png.clone()))
+    }
+
+    /// Lets go of a held generated image (after it was kept).
     pub fn take_generated(&self, name: &str) -> Result<Option<Vec<u8>>, ErrorPayload> {
         let mut held = self
             .generated

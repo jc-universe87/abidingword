@@ -256,18 +256,20 @@ function Material({ material, onRemove }: { material: TeachingMaterial; onRemove
   const api = useApi();
   const [preview, setPreview] = useState<string | null>(null);
   const image = material.image;
+  const file = image?.file ?? null;
+  const thumb = image?.thumbUrl ?? null;
+  // Loaded once per image (not again on every save of the teaching).
   useEffect(() => {
     let active = true;
-    if (!image) return;
-    const load = image.file ? api.teachingImage(image.file) : image.thumbUrl ? api.assistantImagePreview(image.thumbUrl) : Promise.resolve(null);
-    load.then(
+    const load = file ? api.teachingImage(file) : thumb ? api.assistantImagePreview(thumb) : null;
+    load?.then(
       (data) => active && setPreview(data),
       () => undefined,
     );
     return () => {
       active = false;
     };
-  }, [api, image]);
+  }, [api, file, thumb]);
   const tone = material.standing === "unverified" ? "text-danger" : "text-text-strong";
   return (
     <li className="flex flex-col gap-1 rounded-aw border border-dashed border-border bg-bg-secondary px-3 py-2">

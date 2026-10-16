@@ -711,7 +711,7 @@
       "remove": "Aus dieser Vorbereitung entfernen"
     },
     "standing": {
-      "verified": "Von mindestens zwei unabhängigen gefundenen Quellen berichtet",
+      "verified": "Zwei unabhängige Websites in den Suchergebnissen berichten davon (vor dem Verwenden lesen)",
       "unverified": "Nicht geprüft: nur eine Quelle. Bitte vor dem Verwenden prüfen.",
       "hypothetical": "Erfundenes Beispiel, keine wahre Begebenheit",
       "found": "Gefundenes Bild · {{licence}}",
@@ -769,7 +769,7 @@
         "text": "Ihren Teil „{{part}}“",
         "selection": "die markierten Wörter",
         "request": "Ihre Bitte",
-        "teaching": "Zielgruppe, Ziel und Kernbotschaft",
+        "teaching": "Titel und Art der Vorbereitung sowie Zielgruppe, Ziel und Kernbotschaft, soweit geschrieben",
         "nearby_one": "ein weiterer Teil dieser Vorbereitung (damit Ihr Stil erhalten bleibt)",
         "nearby_other": "{{count}} weitere Teile dieser Vorbereitung (damit Ihr Stil erhalten bleibt)",
         "passages": "Bibeltext: {{passages}}",
@@ -777,7 +777,7 @@
         "findings_other": "{{count}} Erkenntnisse aus Ihrem Bibelstudium",
         "quotes_one": "ein Zitat aus einem Buch Ihrer Bibliothek, mit Quelle",
         "quotes_other": "{{count}} Zitate aus Büchern Ihrer Bibliothek, mit Quellen",
-        "searches": "Suchbegriffe (nicht Ihr Text) gehen außerdem an Ihren Suchdienst."
+        "searches": "Suchbegriffe aus Ihrer Bitte (sie können Ihre Worte enthalten) gehen außerdem an Ihren Suchdienst."
       },
       "ask": "Fragen",
       "askHint": "Strg+Eingabe fragt, Esc schließt. Vorher wird nichts gesendet.",
@@ -810,9 +810,9 @@
         "addPassage": "{{passage}} zu dieser Vorbereitung hinzufügen"
       },
       "basis": {
-        "scripture": "Mit Bezug auf den Bibeltext",
-        "study": "Mit Bezug auf Ihr Bibelstudium",
-        "source": "Mit Bezug auf eine Quelle Ihrer Bibliothek",
+        "scripture": "Laut Assistent mit Bezug auf den Bibeltext",
+        "study": "Laut Assistent mit Bezug auf Ihr Bibelstudium",
+        "source": "Laut Assistent mit Bezug auf ein Buch Ihrer Bibliothek",
         "reasoning": "Eigene Überlegung des Assistenten, zum selbst Abwägen"
       },
       "options": {
@@ -820,7 +820,8 @@
         "headingInvented": "Ideen zur Veranschaulichung",
         "invented": "Dies sind erfundene Beispiele, keine wahren Begebenheiten. Erzählen Sie sie nicht, als wären sie geschehen.",
         "insert": "Unter meinem Text einfügen",
-        "keepIdea": "Als Idee aufbewahren"
+        "keepIdea": "Als Idee aufbewahren",
+        "use": "Übernehmen"
       },
       "stories": {
         "heading": "Gefundene wahre Begebenheiten",
@@ -849,7 +850,8 @@
         "keepLabel": "Bild „{{title}}“ aufbewahren",
         "generatedAlt": "Vom Assistenten erstellte Zeichnung: {{description}}",
         "nothingPlaced": "Nichts kommt in Ihre Vorbereitung, solange Sie es nicht aufbewahren."
-      }
+      },
+      "changedMeanwhile": "Ihr Text hat sich nach der Frage geändert; der Vorschlag wurde daher nicht übernommen. Bitte erneut fragen."
     }
   }
 }

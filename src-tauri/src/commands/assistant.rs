@@ -75,13 +75,7 @@ pub fn assistant_preview(
     state: State<'_, AppState>,
     input: AssistInput,
 ) -> CommandResult<AssistPreview> {
-    state.db(|conn| {
-        Ok(assistant::preview(&assistant::prepare(
-            conn,
-            state.secrets(),
-            &input,
-        )?))
-    })
+    state.db(|conn| Ok(assistant::preview(&assistant::prepare(conn, &input)?)))
 }
 
 /// Asks the assistant. The answer is a suggestion; nothing is changed.
@@ -90,7 +84,9 @@ pub async fn assistant_ask(
     state: State<'_, AppState>,
     input: AssistInput,
 ) -> CommandResult<AssistReply> {
-    let prepared = state.db(|conn| assistant::prepare(conn, state.secrets(), &input))?;
+    let prepared = state.db(|conn| assistant::prepare(conn, &input))?;
+    // The credential store is read with the database released.
+    let prepared = assistant::unlock(prepared, state.secrets())?;
     assistant::run(state.transport()?, &prepared)
         .await
         .map_err(Into::into)
@@ -139,6 +135,11 @@ pub async fn assistant_image_preview(
     url: String,
 ) -> CommandResult<Option<String>> {
     use crate::assistant::http::Transport as _;
+    // Wikimedia is contacted only while finding images is on.
+    let config = state.db(config::get)?;
+    if !config.enabled || !config.find_images {
+        return Ok(None);
+    }
     let call = images::thumb_call(&url)?;
     let reply = state.transport()?.send(call).await?;
     Ok(images::thumb_data(&reply))

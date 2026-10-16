@@ -718,7 +718,7 @@
       "remove": "Retirer de cet enseignement"
     },
     "standing": {
-      "verified": "Rapporté par au moins deux sources indépendantes trouvées par la recherche",
+      "verified": "Deux sites indépendants dans les résultats le rapportent (lisez-les avant de l’utiliser)",
       "unverified": "Non vérifié : une seule source. Vérifiez avant de l’utiliser.",
       "hypothetical": "Exemple inventé, pas un fait réel",
       "found": "Image trouvée · {{licence}}",
@@ -776,7 +776,7 @@
         "text": "votre partie « {{part}} »",
         "selection": "les mots sélectionnés",
         "request": "ce que vous avez demandé",
-        "teaching": "votre public, votre but et votre message central",
+        "teaching": "le titre et le type de l’enseignement, et son public, son but et son message central s’ils sont écrits",
         "nearby_one": "une autre partie de cet enseignement (pour garder votre style)",
         "nearby_many": "{{count}} autres parties de cet enseignement (pour garder votre style)",
         "nearby_other": "{{count}} autres parties de cet enseignement (pour garder votre style)",
@@ -787,7 +787,7 @@
         "quotes_one": "une citation d’un livre de votre bibliothèque, avec sa source",
         "quotes_many": "{{count}} citations de livres de votre bibliothèque, avec leurs sources",
         "quotes_other": "{{count}} citations de livres de votre bibliothèque, avec leurs sources",
-        "searches": "Des mots de recherche (pas votre texte) iront aussi à votre service de recherche."
+        "searches": "Des mots de recherche tirés de votre demande (ils peuvent contenir vos mots) iront aussi à votre service de recherche."
       },
       "ask": "Demander",
       "askHint": "Ctrl+Entrée pour demander, Échap pour fermer. Rien n’est envoyé avant.",
@@ -820,9 +820,9 @@
         "addPassage": "Ajouter {{passage}} à cet enseignement"
       },
       "basis": {
-        "scripture": "D’après l’Écriture",
-        "study": "D’après votre étude",
-        "source": "D’après une source de votre bibliothèque",
+        "scripture": "Selon l’assistant, d’après l’Écriture",
+        "study": "Selon l’assistant, d’après votre étude",
+        "source": "Selon l’assistant, d’après un livre de votre bibliothèque",
         "reasoning": "Réflexion propre de l’assistant, à peser vous-même"
       },
       "options": {
@@ -830,7 +830,8 @@
         "headingInvented": "Idées d’illustration",
         "invented": "Ce sont des exemples inventés, pas des faits réels. Ne les racontez pas comme s’ils étaient arrivés.",
         "insert": "Ajouter sous mon texte",
-        "keepIdea": "Garder comme idée"
+        "keepIdea": "Garder comme idée",
+        "use": "Utiliser"
       },
       "stories": {
         "heading": "Histoires vraies trouvées",
@@ -859,7 +860,8 @@
         "keepLabel": "Garder l’image « {{title}} »",
         "generatedAlt": "Illustration créée par l’assistant : {{description}}",
         "nothingPlaced": "Rien n’est placé dans votre enseignement si vous ne le gardez pas."
-      }
+      },
+      "changedMeanwhile": "Votre texte a changé après la demande ; cette suggestion n’a donc pas été utilisée. Redemandez."
     }
   }
 }

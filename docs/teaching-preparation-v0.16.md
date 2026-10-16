@@ -193,7 +193,8 @@ be sent to *OpenAI · model*:" or "This stays on this computer") and lists
 what will be shared in plain words (your Introduction; your audience, purpose
 and central message; 3 other parts of this teaching; Scripture: John 15:1–8;
 2 findings; 1 quotation with its source). For real stories it adds that
-search words (not the person's text) go to the search service. Images:
+search words based on the request (which may include the person's words) go
+to the search service. Images:
 only the search words go to Wikimedia Commons.
 
 ## 6. Provenance
@@ -214,7 +215,7 @@ What comes back keeps the same distinctions:
 | study findings | the findings themselves (live), with their v0.15 citations |
 | library sources | quote + citation + open at the words (unchanged from v0.15) |
 | external research | a kept story with its sources (title, site, address — only addresses the search returned) and its standing |
-| AI suggestion / inference | in the assistant panel, apart from the text; comments name their basis ("Based on Scripture", "Based on your study", "Based on a source in your library", "The assistant's own thought, to weigh for yourself"); kept items carry their standing and "From *service · model*" |
+| AI suggestion / inference | in the assistant panel, apart from the text; comments name the basis the assistant claims, in its name ("The assistant says this draws on Scripture / on your study / on a book in your library", or "The assistant's own thought, to weigh for yourself"); kept items carry their standing and "From *service · model*" |
 
 A comment's quoted excerpt is shown only if those words really occur in the
 person's text (never words put in their mouth). Passages named in comments
@@ -288,9 +289,11 @@ assistant's authority.
    names, dates or quotations, and not to use its memory of famous stories.
 4. Deterministically: numbers that do not exist are dropped; a story no
    result reports is not offered; every address comes from step 2; a story
-   is **checked** ("Reported by at least two independent sources the search
-   found") only when results from two different *sites* support it
-   (`site_of`: `news.bbc.co.uk` and `www.bbc.co.uk` are one site), otherwise
+   is **checked** ("Two independent sites in the search results report it
+   (read them before using it)") only when results from two different *sites*
+   are cited for it (`site_of` parses the address as a browser would:
+   `news.bbc.co.uk` and `www.bbc.co.uk` are one site, `evil.com\@bbc.co.uk` is
+   evil.com, a raw IP address is its own site), otherwise
    **not checked** ("only one source. Please check before you use it.").
 
 With **no search service**, no story is offered and the service is not asked
@@ -373,14 +376,14 @@ natural Korean teaching words: **가르침 준비** (Teaching), **설교**, **�
 
 ## 13. Tests
 
-- **Rust** (`cargo test --locked`: 550 in all):
+- **Rust** (`cargo test --locked`: 553 in all):
   - `tests/teaching.rs` (6): several preparations, save/clear/validate,
     delete leaves the study; point insert/reorder/stale order/edit/delete
     renumbering; findings linked live, never copied, never owned, other study
     refused, deleted finding hidden; Scripture without touching the study;
     kept material standings, two-site rule, unsafe links, path traversal;
     schema version.
-  - `tests/assistant.rs` (12): a suggestion changes nothing; the request
+  - `tests/assistant.rs` (15): a suggestion changes nothing; the request
     carries the voice rule, labelled provenance and no key, and nothing from
     another study or teaching; the preview lists what is shared and where;
     no ghost-writing without material; an over-long suggestion is refused;
@@ -388,17 +391,21 @@ natural Korean teaching words: **가르침 준비** (Teaching), **설교**, **�
     marked invented; no key / turned off → nothing sent; a local service needs
     no key and is local; keys never in the database or the settings view; real
     stories need a search and are checked against it (fabricated numbers and
-    addresses dropped); no results → nothing made up.
+    addresses dropped); no results → nothing made up; a discussion question
+    needs the person's own text or findings; "other ways to say it" stay about
+    as long as the person's words; the title is always listed as shared and
+    source quotations are bounded.
   - `tests/migration_v8.rs`: backup, existing data unchanged, empty usable
     tables, no second backup.
-  - unit tests in `assistant/` (16): local addresses, remote detection, bad
+  - unit tests in `assistant/` (15): local addresses (and look-alikes such as
+    `127.0.0.1.nip.io` or `localhost@evil.com`), remote detection, bad
     addresses, key only in its header, no call without a key, answers and
     refusals, JSON in prose, voice/boundary instructions, site counting,
     only returned addresses, unsafe search links, no search → nothing
     searched, image licence/author, previews only from Wikimedia, generation
     only where set up.
-- **Interface** (`npx vitest run`: 616 in all), `tests/ui/teaching.test.tsx`
-  (16): empty start and autosave; points from the keyboard; findings as live
+- **Interface** (`npx vitest run`: 624 in all), `tests/ui/teaching.test.tsx`
+  (24): empty start and autosave; points from the keyboard; findings as live
   links; Scripture not added to the study; several teachings; Korean words;
   share-first, ask-on-request, diff, nothing changed until *Use this
   wording*, Undo; Escape restores focus and changes nothing; selection-only
@@ -406,12 +413,52 @@ natural Korean teaching words: **가르침 준비** (Teaching), **설교**, **�
   on request; illustrations invented and kept only on request; real stories
   need search, checked/unchecked, sources open in the browser; found images
   with licence, made images marked; hidden while off; Settings: off by
-  default, key never shown, connection check, local service needs no key.
+  default, key never shown, connection check, local service needs no key;
+  and, after the review: a suggestion is refused if the text changed after
+  asking; a selection keeps its line breaks; a transition goes before the
+  selected words; one-line parts are replaced, never given line breaks; the
+  whole teaching's order offers nothing to insert; focus after deleting a
+  point; look-alike local addresses; the comparison keeps changed phrases
+  together.
 - Regression: every earlier suite stays green (Study, v0.15 Sources to Study,
   Library, Marks, Scripture, Quick Capture). `tests/ui/settings.test.tsx` now
   expects the Assistant section instead of the planned "AI assistance" line.
 
-## 14. Deliberately not in v0.16
+## 14. Independent review and what changed
+
+An independent review of the whole diff found, and these were fixed:
+
+1. *Use this wording* could overwrite text typed after asking → it is now
+   refused when the words it was made for have changed ("Your text changed
+   after you asked…").
+2. Look-alike "local" addresses (`127.0.0.1.nip.io`, `localhost@evil.com`)
+   were treated as this computer → addresses are parsed as the request will
+   be, in the core and in Settings; only `localhost` and loopback addresses
+   count.
+3. A redirect could have carried a key header to another host → redirects
+   are never followed.
+4. Alternatives added line breaks to one-line parts → one-line parts are
+   replaced (*Use this*), and line breaks are removed from what goes in.
+5. A transition went to the start of the whole part → it goes before the
+   selected words.
+6. A selection's line breaks could be lost → they stay where they were.
+7. A do-nothing *Add below* for the whole teaching's order → not offered.
+8. The real-story notice said only search words go out → it now says search
+   words are based on the request and may include the person's words.
+9. Also: logs keep only the host (never a user name in an address); `site_of`
+   parses addresses; kept image previews load once per image and only while
+   finding images is on; source quotations are bounded (2 per finding, 8 in
+   all) and citations cut; a discussion question needs the person's own text
+   or findings, and is framed as sharpening their observation; alternatives
+   stay about as long as the person's words; the teaching's title is always
+   listed as shared; a found image needs its page and licence; a generated
+   image stays held until really kept; the credential store is read only when
+   asking, never while the database is held; Settings shows a key's status
+   only for the saved service; deleting a point moves focus to the point
+   before it and ignores a save that arrives late; basis and "checked" labels
+   now say what the assistant claims rather than state it as fact.
+
+## 15. Deliberately not in v0.16
 
 - Whole-sermon, whole-lesson or question-set generation; autonomous or
   proactive assistance; a chat window.
@@ -425,8 +472,13 @@ natural Korean teaching words: **가르침 준비** (Teaching), **설교**, **�
   a separate search service is used).
 - Linux: the kernel keyring keeps a key until the computer restarts; a
   persistent Secret Service store is a later option.
+- A generated image kept and later removed (or whose teaching is deleted)
+  stays as a file in `sources/teaching-images/` (soft delete, like the rest);
+  a clean-up of unreferenced files is later work.
+- Checking that the search results actually *describe* a story (beyond the
+  model citing them): the person is told to read the sources.
 
-## 15. Windows acceptance (suggested)
+## 16. Windows acceptance (suggested)
 
 1. Upgrade from 0.5.0-dev.32: backup made; studies, findings, marks and
    sources unchanged; Teaching shows *Prepare a teaching from this study*.

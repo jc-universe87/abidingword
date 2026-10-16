@@ -4,6 +4,7 @@
 // kept material has an honest standing; the assistant never changes text,
 // refuses to write without the person's material, and is scripted by the test.
 import { ApiError, type Api } from "@/lib/api";
+import { isLocalAddress } from "@/lib/localAddress";
 import type { ScriptureRef, StudyPassage } from "@/types/scripture";
 import type { Finding } from "@/types/studies";
 import type {
@@ -113,7 +114,6 @@ type TeachingApi = Pick<
 >;
 
 const NEEDS_KEY = new Set(["openai", "anthropic", "google"]);
-const LOCAL = /^https?:\/\/(localhost|127\.|\[::1\])/i;
 const LABELS: Record<string, string> = {
   openai: "OpenAI",
   anthropic: "Anthropic",
@@ -151,7 +151,7 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
   };
   const remote = (c: AssistantConfig) => {
     const base = c.baseUrl || { openai: "https://api.openai.com/v1", anthropic: "https://api.anthropic.com/v1", google: "https://g", ollama: "http://localhost:11434/v1", lmstudio: "http://localhost:1234/v1", openai_compatible: "" }[c.provider];
-    return !base || !LOCAL.test(base);
+    return !base || !isLocalAddress(base);
   };
   const settings = (): AssistantSettings => {
     const c = state.assistant.config;

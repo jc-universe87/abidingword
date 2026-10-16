@@ -201,18 +201,19 @@ impl AssistantConfig {
 }
 
 /// Addresses on this computer: text sent there does not leave it.
+/// The address is parsed as the request will be (user names, ports and
+/// look-alike names such as `127.0.0.1.example.com` cannot pass), and only
+/// `localhost` or a loopback address counts.
 pub fn is_local_address(url: &str) -> bool {
-    let rest = url
-        .split_once("://")
-        .map_or(url, |(_, rest)| rest)
-        .to_ascii_lowercase();
-    let host_port = rest.split(['/', '?', '#']).next().unwrap_or("");
-    let host = if let Some(stripped) = host_port.strip_prefix('[') {
-        stripped.split(']').next().unwrap_or("")
-    } else {
-        host_port.split(':').next().unwrap_or("")
+    let Ok(parsed) = reqwest::Url::parse(url) else {
+        return false;
     };
-    host == "localhost" || host == "::1" || host.starts_with("127.")
+    match parsed.host() {
+        Some(url::Host::Domain(name)) => name.eq_ignore_ascii_case("localhost"),
+        Some(url::Host::Ipv4(ip)) => ip.is_loopback(),
+        Some(url::Host::Ipv6(ip)) => ip.is_loopback(),
+        None => false,
+    }
 }
 
 pub fn get(conn: &Connection) -> AppResult<AssistantConfig> {
@@ -237,6 +238,13 @@ mod tests {
         assert!(!is_local_address("https://api.openai.com/v1"));
         assert!(!is_local_address("http://localhost.example.com/v1"));
         assert!(!is_local_address("http://192.168.1.4:11434"));
+        // Look-alikes and tricks: never "this computer".
+        assert!(!is_local_address("http://127.0.0.1.nip.io/v1"));
+        assert!(!is_local_address("http://127.evil.com"));
+        assert!(!is_local_address("http://localhost:x@evil.com/v1"));
+        assert!(!is_local_address("http://localhost@evil.com/v1"));
+        assert!(is_local_address("http://user@localhost:11434/v1"));
+        assert!(is_local_address("http://127.1.2.3:8080"));
     }
 
     #[test]

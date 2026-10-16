@@ -42,10 +42,15 @@ interface AssistPanelProps {
   preparationId: string;
   target: AssistTarget;
   action: AssistAction;
-  /** New wording, chosen by the person: replaces the text (or the selection), or goes at its start. */
-  onApply: (text: string, placement: "replace" | "start") => void;
-  /** An alternative, chosen by the person, added below their text. */
-  onInsertBelow: (text: string) => void;
+  /**
+   * New wording, chosen by the person: replaces the text (or the selection), or goes before it.
+   * False when the text has changed since asking (then nothing is changed).
+   */
+  onApply: (text: string, placement: "replace" | "start") => boolean;
+  /** An alternative, chosen by the person, added below their text (absent: there is nowhere to add it). */
+  onInsertBelow?: (text: string) => void;
+  /** A one-line part: an alternative replaces it instead of being added below. */
+  singleLine?: boolean;
   onKeep: (material: Material) => Promise<void>;
   onAddPassage: (reference: ScriptureRef) => Promise<void>;
   onClose: () => void;
@@ -61,7 +66,7 @@ interface AssistPanelProps {
  * Escape or Dismiss leaves everything as it was.
  */
 export function AssistPanel(props: AssistPanelProps) {
-  const { preparationId, target, action, onApply, onInsertBelow, onKeep, onAddPassage, onClose, canGenerateImages, canFindImages } = props;
+  const { preparationId, target, action, onKeep, onAddPassage, onClose, canGenerateImages, canFindImages, singleLine = false } = props;
   const { t, i18n } = useTranslation();
   const api = useApi();
   const id = useId();
@@ -278,8 +283,13 @@ export function AssistPanel(props: AssistPanelProps) {
             target={target}
             heading={resultHeading}
             kept={kept}
-            onApply={onApply}
-            onInsertBelow={onInsertBelow}
+            onApply={(text, placement) => {
+              const done = props.onApply(text, placement);
+              if (!done) setProblem(t("studies.teaching.assist.changedMeanwhile"));
+              return done;
+            }}
+            onInsertBelow={props.onInsertBelow}
+            singleLine={singleLine}
             onKeep={keep}
             onAddPassage={onAddPassage}
             canFindImages={canFindImages}
@@ -342,6 +352,7 @@ interface ResultProps {
   kept: Set<string>;
   onApply: AssistPanelProps["onApply"];
   onInsertBelow: AssistPanelProps["onInsertBelow"];
+  singleLine: boolean;
   onKeep: (key: string, material: Material) => Promise<void>;
   onAddPassage: AssistPanelProps["onAddPassage"];
   canFindImages: boolean;
@@ -358,7 +369,7 @@ function Heading({ heading, children, icon }: { heading: ResultProps["heading"];
 }
 
 function Result(props: ResultProps) {
-  const { reply, target, heading, kept, onApply, onInsertBelow, onKeep, onAddPassage } = props;
+  const { reply, target, heading, kept, onApply, onInsertBelow, singleLine, onKeep, onAddPassage } = props;
   const { t } = useTranslation();
   const { goTo } = useScripture();
   const [added, setAdded] = useState<Set<string>>(new Set());
@@ -470,7 +481,12 @@ function Result(props: ResultProps) {
               <p className="reading m-0 whitespace-pre-wrap text-text-strong">{o.text}</p>
               {o.note && <p className="m-0 text-[0.875rem] text-text-muted">{o.note}</p>}
               <div className="flex flex-wrap gap-2">
-                {!invented && (
+                {!invented && singleLine && (
+                  <Button className="min-h-11" onClick={() => onApply(o.text, "replace")}>
+                    {t("studies.teaching.assist.options.use")}
+                  </Button>
+                )}
+                {!invented && !singleLine && onInsertBelow && (
                   <Button className="min-h-11" onClick={() => onInsertBelow(o.text)}>
                     {t("studies.teaching.assist.options.insert")}
                   </Button>

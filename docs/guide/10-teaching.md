@@ -92,8 +92,9 @@ the whole teaching, or how you could **order** what you already have.
      words are removed, underlined words added). Your text stays as it is
      unless you click **Use this wording**, and **Undo** brings your earlier
      text back.
-   - **Comments** say what they are based on: Scripture, your study, a book in
-     your library, or *the assistant's own thought, to weigh for yourself*.
+   - **Comments** say what the assistant says they draw on: Scripture, your
+     study, a book in your library, or *the assistant's own thought, to weigh
+     for yourself*.
      A suggested passage is added to your teaching only if you click **Add**.
    - **Illustration ideas** are always marked **invented examples, not real
      events**. Do not tell them as if they happened.
@@ -113,7 +114,7 @@ in a few words what you are looking for (e.g. *forgiveness after a conflict*).
   up.
 - Each story shows **where it came from** (click a source to open it in your
   browser) and how far it is checked:
-  - *Reported by at least two independent sources the search found*, or
+  - *Two independent sites in the search results report it (read them before using it)*, or
   - *Not checked: only one source. Please check before you use it.*
 - Always read the sources yourself before you use a story.
 - **Keep with this teaching** stores the story with its sources under the

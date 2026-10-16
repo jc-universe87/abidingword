@@ -699,6 +699,15 @@ fn check_image(image: &ImageInfo, standing: &str) -> AppResult<()> {
             "This image's address cannot be kept.",
         ));
     }
+    // A found image is kept only with where it is from and its licence.
+    let blank = |v: &Option<String>| v.as_deref().is_none_or(|v| v.trim().is_empty());
+    if standing == "found" && (blank(&image.page_url) || blank(&image.licence) || blank(&image.url))
+    {
+        return Err(invalid(
+            "teaching.badMaterial",
+            "An image is only kept with its source and licence.",
+        ));
+    }
     match (&image.file, standing) {
         (Some(file), "generated") if is_generated_file_name(file) => Ok(()),
         (Some(_), _) => Err(invalid(

@@ -704,7 +704,7 @@
       "remove": "이 가르침 준비에서 빼기"
     },
     "standing": {
-      "verified": "검색으로 찾은 서로 다른 출처 두 곳 이상이 전하는 이야기",
+      "verified": "검색 결과의 서로 다른 사이트 두 곳이 전합니다 (쓰기 전에 읽어 보세요)",
       "unverified": "확인되지 않음: 출처가 하나뿐입니다. 쓰기 전에 꼭 확인하세요.",
       "hypothetical": "지어낸 예이며 실제 일이 아닙니다",
       "found": "찾은 그림 · {{licence}}",
@@ -762,12 +762,12 @@
         "text": "쓰신 ‘{{part}}’",
         "selection": "선택한 부분",
         "request": "요청하신 내용",
-        "teaching": "대상, 목적, 핵심 메시지",
+        "teaching": "가르침 준비의 제목과 종류, 그리고 적어 둔 대상·목적·핵심 메시지",
         "nearby_other": "이 가르침 준비의 다른 부분 {{count}}곳 (말투를 살리기 위해)",
         "passages": "본문: {{passages}}",
         "findings_other": "성경공부 기록 {{count}}개",
         "quotes_other": "자료실 자료의 인용 {{count}}개 (출처 포함)",
-        "searches": "검색어(쓰신 글이 아님)도 검색 서비스로 보냅니다."
+        "searches": "요청을 바탕으로 한 검색어(쓰신 말이 들어갈 수 있음)도 검색 서비스로 보냅니다."
       },
       "ask": "요청하기",
       "askHint": "Ctrl+Enter로 요청, Esc로 닫기. 요청하기 전에는 아무것도 보내지 않습니다.",
@@ -800,9 +800,9 @@
         "addPassage": "이 가르침 준비에 {{passage}} 추가"
       },
       "basis": {
-        "scripture": "본문에 근거",
-        "study": "성경공부 기록에 근거",
-        "source": "자료실 자료에 근거",
+        "scripture": "도우미가 본문에 근거했다고 합니다",
+        "study": "도우미가 성경공부 기록에 근거했다고 합니다",
+        "source": "도우미가 자료실 자료에 근거했다고 합니다",
         "reasoning": "도우미의 생각이니 직접 판단하세요"
       },
       "options": {
@@ -810,7 +810,8 @@
         "headingInvented": "예화 아이디어",
         "invented": "지어낸 예이며 실제 일이 아닙니다. 실제로 있었던 일처럼 전하지 마세요.",
         "insert": "제 글 아래에 넣기",
-        "keepIdea": "아이디어로 보관"
+        "keepIdea": "아이디어로 보관",
+        "use": "이것 쓰기"
       },
       "stories": {
         "heading": "찾은 실화",
@@ -839,7 +840,8 @@
         "keepLabel": "‘{{title}}’ 그림 보관",
         "generatedAlt": "도우미가 만든 그림: {{description}}",
         "nothingPlaced": "보관하지 않으면 가르침 준비에 아무것도 넣지 않습니다."
-      }
+      },
+      "changedMeanwhile": "요청한 뒤에 글이 바뀌어서 이 제안을 쓰지 않았습니다. 다시 요청하세요."
     }
   }
 }

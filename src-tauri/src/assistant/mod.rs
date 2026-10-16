@@ -81,16 +81,29 @@ fn off() -> AppError {
     ))
 }
 
-/// Checks the set-up and assembles the bounded context.
-pub fn prepare(
-    conn: &Connection,
-    secrets: &dyn SecretStore,
-    input: &AssistInput,
-) -> AppResult<Prepared> {
+/// Checks the set-up and assembles the bounded context. Reads no key (the
+/// credential store is only read when actually asking, and never while the
+/// database is held).
+pub fn prepare(conn: &Connection, input: &AssistInput) -> AppResult<Prepared> {
     let config = config::get(conn)?;
     if !config.enabled {
         return Err(off());
     }
+    let context = context::assemble(conn, input)?;
+    if context.action == AssistAction::Story && config.search == SearchKind::None {
+        return Err(research::no_search());
+    }
+    Ok(Prepared {
+        config,
+        key: None,
+        search_key: None,
+        context,
+    })
+}
+
+/// Adds the keys the request needs, from the credential store.
+pub fn unlock(mut prepared: Prepared, secrets: &dyn SecretStore) -> AppResult<Prepared> {
+    let config = &prepared.config;
     let key = secrets.get(&secrets::provider_key_name(config.provider.as_str()))?;
     if config.provider.needs_key() && key.is_none() {
         return Err(AppError::Assistant(UserMessage::new(
@@ -98,24 +111,11 @@ pub fn prepare(
             "The assistant needs its key. You can add it in Settings.",
         )));
     }
-    let context = context::assemble(conn, input)?;
-    let search_key = if context.action == AssistAction::Story {
-        if config.search == SearchKind::None {
-            return Err(research::no_search());
-        }
-        match config.search {
-            SearchKind::Brave => secrets.get(&secrets::search_key_name("brave"))?,
-            _ => None,
-        }
-    } else {
-        None
-    };
-    Ok(Prepared {
-        config,
-        key,
-        search_key,
-        context,
-    })
+    if prepared.context.action == AssistAction::Story && config.search == SearchKind::Brave {
+        prepared.search_key = secrets.get(&secrets::search_key_name("brave"))?;
+    }
+    prepared.key = key;
+    Ok(prepared)
 }
 
 /// "Before you ask": where the text goes and what is shared.
@@ -311,13 +311,22 @@ pub fn interpret(context: &Context, answer: &Value) -> AppResult<AssistResult> {
         | AssistAction::Question
         | AssistAction::Restructure
         | AssistAction::Illustration => {
+            // Other ways to say the person's words are about as long as their words.
+            let each = if action == AssistAction::Phrasing && !context.text.is_empty() {
+                proposal_limit(AssistAction::Clarity, context.text.chars().count()).min(1_200)
+            } else {
+                1_200
+            };
             let options: Vec<Choice> = answer["options"]
                 .as_array()
                 .map(|list| {
                     list.iter()
                         .take(3)
                         .filter_map(|o| {
-                            let text = text_of(o, "text", 1_200);
+                            let text = text_of(o, "text", 40_000);
+                            if text.chars().count() > each {
+                                return None;
+                            }
                             (!text.is_empty()).then(|| Choice {
                                 text,
                                 note: text_of(o, "note", 300),

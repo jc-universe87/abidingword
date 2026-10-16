@@ -55,6 +55,8 @@ impl WebTransport {
         });
         let client = reqwest::Client::builder()
             .user_agent(concat!("AbidingWord/", env!("CARGO_PKG_VERSION")))
+            // A redirect could carry a key header to another host: never follow one.
+            .redirect(reqwest::redirect::Policy::none())
             .connect_timeout(Duration::from_secs(15))
             .timeout(Duration::from_secs(180))
             .build()
@@ -75,14 +77,11 @@ impl Transport for WebTransport {
         if let Some(body) = &call.body {
             request = request.json(body);
         }
-        // Only the address's host is logged: never a header, key or body.
-        let host = call
-            .url
-            .split("://")
-            .nth(1)
-            .and_then(|r| r.split('/').next())
-            .unwrap_or("")
-            .to_string();
+        // Only the address's host is logged: never a header, key, body or user name.
+        let host = reqwest::Url::parse(&call.url)
+            .ok()
+            .and_then(|u| u.host_str().map(String::from))
+            .unwrap_or_default();
         let response = request.send().await.map_err(|e| {
             log::warn!("assistant request to {host} failed: {}", e.without_url());
             unreachable()

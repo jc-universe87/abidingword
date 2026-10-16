@@ -155,8 +155,11 @@ pub fn request(context: &Context) -> String {
             }
         ),
         AssistAction::Question => format!(
-            "The person wants help with a discussion question: {ask}. Base it on their text, \
-             their study findings and the passage. Suggest up to three questions. {OPTIONS}"
+            "The person wants help with a discussion question: {ask}. If their text contains \
+             a draft question, help them sharpen it; otherwise help them put into a question an \
+             observation they have already made in their text or study findings. Stay with \
+             their observations and the passage; add no new idea of your own. At most three \
+             short questions. {OPTIONS}"
         ),
         AssistAction::Restructure => format!(
             "Suggest one or two clearer ways to order or group what the person has already \

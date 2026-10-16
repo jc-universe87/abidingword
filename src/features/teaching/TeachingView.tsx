@@ -221,6 +221,9 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const wholeButton = useRef<HTMLDivElement>(null);
+  const addButton = useRef<HTMLButtonElement>(null);
+  // Points deleted in this session: a late save for one is not an error.
+  const deleted = useRef(new Set<string>());
 
   const act = useCallback(
     async (run: () => Promise<TeachingPreparation>) => {
@@ -270,10 +273,19 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
       return next;
     });
   const savePoint = (pointId: string, field: keyof Omit<TeachingPoint, "id" | "position">) => (value: string) =>
-    api.teachingPointUpdate({ id: pointId, [field]: value }).then((next) => {
-      setPrep(next);
-      return next;
-    });
+    deleted.current.has(pointId)
+      ? Promise.resolve()
+      : api.teachingPointUpdate({ id: pointId, [field]: value }).then(
+          (next) => {
+            setPrep(next);
+            return next;
+          },
+          (e: unknown) => {
+            // A save that arrives after its point was deleted is not an error.
+            if (deleted.current.has(pointId) && toApiError(e).kind === "notFound") return;
+            throw e;
+          },
+        );
 
   const addPoint = async (after: string | null) => {
     const next = await act(() => api.teachingPointCreate({ preparationId: prep.id, afterPointId: after }));
@@ -403,8 +415,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
             preparationId={prep.id}
             target={{ part: "whole", pointId: null, label: t("studies.teaching.points.whole"), text: "", selection: null }}
             action={wholeAction}
-            onApply={() => undefined}
-            onInsertBelow={() => undefined}
+            onApply={() => false}
             onKeep={(m) => hooks.keep({ ...m, pointId: null })}
             onAddPassage={(r) => hooks.addPassage(r, null)}
             onClose={() => {
@@ -446,11 +457,24 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
                     <DeletePoint
                       name={name}
                       hasContent={Boolean(point.title.trim() || point.explanation.trim() || point.application.trim() || point.illustration.trim())}
-                      onDelete={() =>
+                      onDelete={() => {
+                        deleted.current.add(point.id);
                         void act(() => api.teachingPointDelete(point.id)).then((next) => {
-                          if (next) setNotice(t("studies.teaching.points.removed"));
-                        })
-                      }
+                          if (!next) {
+                            deleted.current.delete(point.id);
+                            return;
+                          }
+                          setNotice(t("studies.teaching.points.removed"));
+                          // Focus goes to the point before (else after) it, or to "Add a point".
+                          const target = next.points[Math.max(0, index - 1)];
+                          requestAnimationFrame(() =>
+                            (target
+                              ? document.getElementById(`point-title-${target.id}`)
+                              : addButton.current
+                            )?.focus(),
+                          );
+                        });
+                      }}
                     />
                   </span>
                 </div>
@@ -461,6 +485,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
                   save={savePoint(point.id, "title")}
                   part="pointTitle"
                   pointId={point.id}
+                  fieldId={`point-title-${point.id}`}
                   multiline={false}
                   emphasis
                   placeholder={t("studies.teaching.points.titlePlaceholder")}
@@ -476,7 +501,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
           })}
         </ol>
         <div>
-          <Button className="min-h-11" onClick={() => void addPoint(prep.points[prep.points.length - 1]?.id ?? null)}>
+          <Button ref={addButton} className="min-h-11" onClick={() => void addPoint(prep.points[prep.points.length - 1]?.id ?? null)}>
             <Plus className="size-4" aria-hidden="true" />
             {t("studies.teaching.points.add")}
           </Button>

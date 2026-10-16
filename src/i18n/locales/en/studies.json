@@ -711,7 +711,7 @@
       "remove": "Remove from this teaching"
     },
     "standing": {
-      "verified": "Reported by at least two independent sources the search found",
+      "verified": "Two independent sites in the search results report it (read them before using it)",
       "unverified": "Not checked: only one source. Please check before you use it.",
       "hypothetical": "Invented example, not a real event",
       "found": "Found image · {{licence}}",
@@ -769,7 +769,7 @@
         "text": "your {{part}}",
         "selection": "the words you selected",
         "request": "what you asked for",
-        "teaching": "your audience, purpose and central message",
+        "teaching": "the teaching’s title and kind, and its audience, purpose and central message where written",
         "nearby_one": "one other part of this teaching (so it keeps your voice)",
         "nearby_other": "{{count}} other parts of this teaching (so it keeps your voice)",
         "passages": "Scripture: {{passages}}",
@@ -777,7 +777,7 @@
         "findings_other": "{{count}} findings from your study",
         "quotes_one": "one quotation from a book in your library, with its source",
         "quotes_other": "{{count}} quotations from books in your library, with their sources",
-        "searches": "Search words (not your text) will also go to your search service."
+        "searches": "Search words based on your request (they may include your words) will also go to your search service."
       },
       "ask": "Ask",
       "askHint": "Ctrl+Enter asks; Escape closes. Nothing is sent before you ask.",
@@ -810,9 +810,9 @@
         "addPassage": "Add {{passage}} to this teaching"
       },
       "basis": {
-        "scripture": "Based on Scripture",
-        "study": "Based on your study",
-        "source": "Based on a source in your library",
+        "scripture": "The assistant says this draws on Scripture",
+        "study": "The assistant says this draws on your study",
+        "source": "The assistant says this draws on a book in your library",
         "reasoning": "The assistant’s own thought, to weigh for yourself"
       },
       "options": {
@@ -820,7 +820,8 @@
         "headingInvented": "Illustration ideas",
         "invented": "These are invented examples, not real events. Do not tell them as if they happened.",
         "insert": "Add below my text",
-        "keepIdea": "Keep as an idea"
+        "keepIdea": "Keep as an idea",
+        "use": "Use this"
       },
       "stories": {
         "heading": "Real stories found",
@@ -849,7 +850,8 @@
         "keepLabel": "Keep the image “{{title}}”",
         "generatedAlt": "Illustration made by the assistant: {{description}}",
         "nothingPlaced": "Nothing is placed in your teaching unless you keep it."
-      }
+      },
+      "changedMeanwhile": "Your text changed after you asked, so this suggestion was not used. Please ask again."
     }
   }
 }

@@ -4,6 +4,7 @@ import { Button } from "@/design-system/Button";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
+import { isLocalAddress } from "@/lib/localAddress";
 import { PROVIDER_KINDS, SEARCH_KINDS, type AssistantConfig, type AssistantSettings as Settings, type ProviderKind } from "@/types/teaching";
 
 /** A sensible model to start with; the person can type any other. */
@@ -69,7 +70,10 @@ function Form({ initial }: { initial: Settings }) {
   };
 
   const provider = config.provider;
-  const remote = !(LOCAL.has(provider) && (!config.baseUrl || /^https?:\/\/(localhost|127\.|\[::1\])/i.test(config.baseUrl)));
+  // As the core decides it: the address given, else the service's usual one.
+  const remote = config.baseUrl ? !isLocalAddress(config.baseUrl) : !LOCAL.has(provider);
+  // The key status is the saved service's: for a service not saved yet there is none to show.
+  const keyShown = settings.hasKey && settings.config.provider === provider;
   const field = "h-11 w-full max-w-md rounded-aw border border-border bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted";
   const labelText = "text-[0.9375rem] font-semibold text-text-strong";
   const hint = "m-0 text-[0.875rem] text-text-muted";
@@ -133,7 +137,7 @@ function Form({ initial }: { initial: Settings }) {
               autoComplete="off"
               value={key}
               onChange={(e) => setKey(e.target.value)}
-              placeholder={settings.hasKey ? t("settings.assistant.keyKeptPlaceholder") : ""}
+              placeholder={keyShown ? t("settings.assistant.keyKeptPlaceholder") : ""}
               className={field}
             />
             <Button
@@ -150,13 +154,13 @@ function Form({ initial }: { initial: Settings }) {
             >
               {t("settings.assistant.keySave")}
             </Button>
-            {settings.hasKey && (
+            {keyShown && (
               <Button className="min-h-11" disabled={busy} onClick={() => void run(() => api.assistantKeySet("provider", ""), t("settings.assistant.keyRemoved"))}>
                 {t("settings.assistant.keyRemove")}
               </Button>
             )}
           </div>
-          <p className={hint}>{settings.hasKey ? t("settings.assistant.keyKept") : t("settings.assistant.keyHint")}</p>
+          <p className={hint}>{keyShown ? t("settings.assistant.keyKept") : t("settings.assistant.keyHint")}</p>
         </div>
       )}
 

@@ -478,6 +478,15 @@ fn kept_material_carries_an_honest_standing() {
             ..Default::default()
         };
         keep("image", "found", vec![], Some(found.clone()))?;
+        // A found image without its licence or page is not kept.
+        let unlicensed = ImageInfo {
+            licence: None,
+            ..found.clone()
+        };
+        assert_eq!(
+            code(keep("image", "found", vec![], Some(unlicensed))),
+            "teaching.badMaterial"
+        );
         assert_eq!(
             code(keep("image", "generated", vec![], Some(found))),
             "teaching.badMaterial"

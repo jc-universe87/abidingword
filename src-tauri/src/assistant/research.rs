@@ -32,17 +32,19 @@ pub fn no_search() -> AppError {
 
 /// The site an address belongs to, for counting independent sources:
 /// "https://www.bbc.co.uk/news/x" → "bbc.co.uk".
+/// The address is parsed as a browser would open it, so a trick such as
+/// `https://evil.com\@bbc.co.uk/` counts as evil.com; a raw IP address is its
+/// own site.
 pub fn site_of(url: &str) -> Option<String> {
-    let rest = url.split_once("://")?.1;
-    let host = rest
-        .split(['/', '?', '#'])
-        .next()?
-        .rsplit('@')
-        .next()?
-        .split(':')
-        .next()?
-        .trim_end_matches('.')
-        .to_ascii_lowercase();
+    let parsed = reqwest::Url::parse(url).ok()?;
+    if !matches!(parsed.scheme(), "http" | "https") {
+        return None;
+    }
+    let host = match parsed.host()? {
+        url::Host::Domain(name) => name.trim_end_matches('.').to_ascii_lowercase(),
+        url::Host::Ipv4(ip) => return Some(ip.to_string()),
+        url::Host::Ipv6(ip) => return Some(ip.to_string()),
+    };
     if host.is_empty() || !host.contains('.') {
         return None;
     }
@@ -339,6 +341,17 @@ mod tests {
             Some("example.com")
         );
         assert_eq!(site_of("not a url"), None);
+        // Parsed as a browser opens it.
+        assert_eq!(
+            site_of("https://evil.com\\@bbc.co.uk/").as_deref(),
+            Some("evil.com")
+        );
+        assert_eq!(
+            site_of("https://bbc%2Eco.uk/x").as_deref(),
+            Some("bbc.co.uk")
+        );
+        assert_eq!(site_of("http://10.0.0.1/a").as_deref(), Some("10.0.0.1"));
+        assert_ne!(site_of("http://10.0.0.1/a"), site_of("http://10.0.0.2/a"));
     }
 
     #[test]

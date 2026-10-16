@@ -162,6 +162,9 @@ const SCRIPTURE_TEXT_MAX: usize = 5_000;
 const FINDINGS_MAX: usize = 12;
 const FINDING_TEXT_MAX: usize = 600;
 const QUOTE_MAX: usize = 400;
+const QUOTES_PER_FINDING: usize = 2;
+const QUOTES_MAX: usize = 8;
+const CITATION_MAX: usize = 200;
 const REQUEST_MAX: usize = 1_000;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -328,6 +331,13 @@ pub fn assemble(conn: &Connection, input: &AssistInput) -> AppResult<Context> {
         )));
     }
 
+    let findings = findings_for(conn, &prep, action, point_id)?;
+    // A discussion question is helped from the person's own material: their
+    // text here, or findings from their study, never from the request alone.
+    if action == AssistAction::Question && text.is_empty() && findings.is_empty() {
+        return Err(write_first());
+    }
+
     let focus = match point_index {
         Some(i) => format!(
             "{} — {}",
@@ -353,7 +363,7 @@ pub fn assemble(conn: &Connection, input: &AssistInput) -> AppResult<Context> {
         ui_language: cut(&input.ui_language, 20),
         nearby: nearby(&prep, action, part, point_index),
         passages: passages(conn, &prep, point_id)?,
-        findings: findings_for(conn, &prep, action, point_id)?,
+        findings,
     })
 }
 
@@ -517,9 +527,10 @@ fn finding_context(f: &Finding) -> FindingContext {
                 }
                 Some(QuoteContext {
                     quote: cut(quote, QUOTE_MAX),
-                    citation,
+                    citation: cut(&citation, CITATION_MAX),
                 })
             })
+            .take(QUOTES_PER_FINDING)
             .collect(),
     }
 }
@@ -546,15 +557,23 @@ fn findings_for(
             chosen.push(&link.finding);
         }
     }
-    if chosen.is_empty() && action.wants_study_findings() {
+    let mut out: Vec<FindingContext> = if chosen.is_empty() && action.wants_study_findings() {
         let all = findings::list(conn, &prep.study_id)?;
-        return Ok(all.iter().take(FINDINGS_MAX).map(finding_context).collect());
+        all.iter().take(FINDINGS_MAX).map(finding_context).collect()
+    } else {
+        chosen
+            .into_iter()
+            .take(FINDINGS_MAX)
+            .map(finding_context)
+            .collect()
+    };
+    // Source quotations within one limit for the whole request.
+    let mut quotes = 0;
+    for f in &mut out {
+        f.quotes.truncate(QUOTES_MAX.saturating_sub(quotes));
+        quotes += f.quotes.len();
     }
-    Ok(chosen
-        .into_iter()
-        .take(FINDINGS_MAX)
-        .map(finding_context)
-        .collect())
+    Ok(out)
 }
 
 /// "What will be shared": one line per kind of thing, in plain words.
@@ -574,15 +593,8 @@ pub fn shared(context: &Context) -> Vec<SharedItem> {
             reference: None,
         });
     }
-    let about = [
-        &context.audience,
-        &context.purpose,
-        &context.central_message,
-    ]
-    .iter()
-    .filter(|v| v.is_some())
-    .count();
-    if about > 0 {
+    // The title and kind always go; audience, purpose and message when written.
+    {
         items.push(SharedItem {
             kind: "teaching",
             label: context.teaching_title.clone(),

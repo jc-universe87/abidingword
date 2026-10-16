@@ -270,9 +270,8 @@ impl World {
     }
 
     fn ask(&self, input: &AssistInput, service: &Scripted) -> AppResult<assistant::AssistReply> {
-        let prepared = self
-            .db
-            .with_conn(|conn| assistant::prepare(conn, &self.secrets, input))?;
+        let prepared = self.db.with_conn(|conn| assistant::prepare(conn, input))?;
+        let prepared = assistant::unlock(prepared, &self.secrets)?;
         block_on(assistant::run(service, &prepared))
     }
 
@@ -371,7 +370,6 @@ fn the_preview_lists_what_is_shared_and_where_it_goes() {
         w.db.with_conn(|conn| {
             Ok(assistant::preview(&assistant::prepare(
                 conn,
-                &w.secrets,
                 &w.input(AssistAction::Clarity, TEXT),
             )?))
         })
@@ -642,4 +640,117 @@ fn when_the_search_finds_nothing_no_story_is_made_up() {
         2,
         "no request to write a story from nothing"
     );
+}
+
+#[test]
+fn a_question_needs_the_persons_own_material_not_just_a_request() {
+    let w = world();
+    // Another teaching with nothing in it, in a study with no findings.
+    let (empty_prep, empty_point) =
+        w.db.with_conn(|conn| {
+            let s = study(conn, "Empty")?;
+            let p = teaching::create(
+                conn,
+                &CreateTeaching {
+                    study_id: s,
+                    title: "Blank".into(),
+                    kind: None,
+                },
+            )?;
+            let p = teaching::create_point(
+                conn,
+                &CreateTeachingPoint {
+                    preparation_id: p.id.clone(),
+                    ..Default::default()
+                },
+            )?;
+            Ok((p.id.clone(), p.points[0].id.clone()))
+        })
+        .unwrap();
+    let mut input = w.input(AssistAction::Question, "");
+    input.preparation_id = empty_prep;
+    input.point_id = Some(empty_point);
+    input.request = "Write me three questions on John 15".into();
+    let service = Scripted::new(vec![]);
+    assert_eq!(code(w.ask(&input, &service)), "assistant.writeFirst");
+    assert!(service.calls().is_empty());
+    // With the person's findings to work from, it may help.
+    let mut grounded = w.input(AssistAction::Question, "");
+    grounded.request = "notice the contrast in verses 4 and 5".into();
+    let service = Scripted::new(vec![says(
+        json!({"options": [{"text": "What does the branch do?", "note": "From your observation."}]}),
+    )]);
+    assert!(w.ask(&grounded, &service).is_ok());
+}
+
+#[test]
+fn other_ways_to_say_it_stay_about_as_long_as_the_persons_words() {
+    let w = world();
+    let mut input = w.input(AssistAction::Phrasing, "Stay.");
+    input.part = Some(Part::PointTitle);
+    let service = Scripted::new(vec![says(json!({"options": [
+        {"text": "Remain.", "note": "Short."},
+        {"text": "A long paragraph that turns a one-word title into a whole new section of somebody else's sermon. ".repeat(4), "note": "Too long."}
+    ]}))]);
+    let reply = w.ask(&input, &service).unwrap();
+    let AssistResult::Options { options, .. } = reply.result else {
+        panic!()
+    };
+    assert_eq!(
+        options.len(),
+        1,
+        "an option far longer than the text is dropped"
+    );
+    assert_eq!(options[0].text, "Remain.");
+}
+
+#[test]
+fn the_teaching_title_is_always_listed_as_shared_and_quotes_are_bounded() {
+    let w = world();
+    // Many quotations on one finding: only a few go.
+    w.db
+        .with_conn(|conn| {
+            let f = findings::list(conn, &w.study)?
+                .into_iter()
+                .find(|f| f.content.starts_with("Branches"))
+                .unwrap();
+            for i in 0..6 {
+                conn.execute(
+                    "INSERT INTO finding_sources (id, finding_id, source_id, cited_title, quote, created_at, updated_at)
+                     VALUES (?1, ?2, 'src-1', 'The Vine Book', ?3, 'T', 'T')",
+                    rusqlite::params![format!("q-{i}"), f.id, format!("QUOTE-{i}")],
+                )?;
+            }
+            // And a teaching with nothing but a title.
+            teaching::update(
+                conn,
+                &UpdateTeaching {
+                    id: w.prep.clone(),
+                    audience: Some("".into()),
+                    central_message: Some("".into()),
+                    ..Default::default()
+                },
+            )?;
+            Ok(())
+        })
+        .unwrap();
+    let preview =
+        w.db.with_conn(|conn| {
+            Ok(assistant::preview(&assistant::prepare(
+                conn,
+                &w.input(AssistAction::Review, TEXT),
+            )?))
+        })
+        .unwrap();
+    assert!(preview
+        .shared
+        .iter()
+        .any(|s| s.kind == "teaching" && s.label == "Sunday sermon"));
+    let source = preview.shared.iter().find(|s| s.kind == "source").unwrap();
+    assert_eq!(source.label, "2", "at most two quotations per finding");
+    let service = Scripted::new(vec![says(json!({"summary": "s", "comments": []}))]);
+    w.ask(&w.input(AssistAction::Review, TEXT), &service)
+        .unwrap();
+    let body = service.calls()[0].body.as_ref().unwrap().to_string();
+    assert!(!body.contains("QUOTE-5"));
 }
