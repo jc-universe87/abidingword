@@ -15,7 +15,20 @@ export function TemplateEditor({ templateId, onClose }: { templateId: string | n
   const templates = useLoad(useCallback(() => api.templateList(), [api]));
   const existing = templateId ? templates.data?.find((t) => t.id === templateId) : undefined;
   if (templateId && !existing) {
-    return <p className="p-8 text-text-muted">{templates.error ? templates.error.message : t("studies.templateEditor.opening")}</p>;
+    // Still opening (or it failed): a heading, Back and Escape, so the sheet can always be left.
+    return (
+      <div className="flex h-full flex-col gap-4 overflow-y-auto bg-bg p-8" onKeyDown={(e) => e.key === "Escape" && onClose()}>
+        <Button variant="quiet" className="self-start" autoFocus onClick={onClose}>
+          <ArrowLeft className="size-4" aria-hidden="true" /> {t("studies.templateEditor.back")}
+        </Button>
+        <h1 id="template-editor-title" className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
+          {t("studies.templateEditor.editTitle")}
+        </h1>
+        <p role={templates.error ? "alert" : "status"} className={`m-0 ${templates.error ? "text-danger" : "text-text-muted"}`}>
+          {templates.error ? templates.error.message : t("studies.templateEditor.opening")}
+        </p>
+      </div>
+    );
   }
   return <Form key={templateId ?? "new"} templateId={templateId} initial={existing} onClose={onClose} />;
 }
@@ -66,13 +79,26 @@ function Form({ templateId, initial, onClose }: FormProps) {
 
   const field = "h-10 rounded-aw border border-border bg-bg px-3 text-base";
   return (
-    <main aria-labelledby={`${id}-title`} className="min-h-0 flex-1 overflow-y-auto bg-bg">
+    <div
+      className="h-full overflow-y-auto bg-bg"
+      onKeyDown={(e) => {
+        // Escape closes the editor, as its Back and Cancel do, but not from a field: there it
+        // would throw away what is being typed (as in Settings).
+        if (e.key === "Escape" && !e.defaultPrevented && !(e.target as HTMLElement).closest("input, textarea, select")) {
+          e.preventDefault();
+          onClose();
+        }
+      }}
+    >
       <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-8">
-        <div className="flex flex-col items-start gap-4">
+        {/* Back stays in reach while the page scrolls. */}
+        <div className="sticky top-0 z-10 -mx-8 -mt-8 self-stretch border-b border-border-subtle bg-bg px-8 py-2">
           <Button variant="quiet" onClick={onClose}>
             <ArrowLeft className="size-4" aria-hidden="true" /> {t("studies.templateEditor.back")}
           </Button>
-          <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
+        </div>
+        <div className="flex flex-col items-start gap-4">
+          <h1 id="template-editor-title" ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
             {templateId ? t("studies.templateEditor.editTitle") : t("studies.templateEditor.newTitle")}
           </h1>
         </div>
@@ -87,7 +113,8 @@ function Form({ templateId, initial, onClose }: FormProps) {
         <label className="flex flex-col gap-1">
           <span className="font-medium text-text-strong">{t("studies.templateEditor.meantFor")}</span>
           <select value={studyType} onChange={(e) => setStudyType(e.target.value as StudyType)} className={field}>
-            {STUDY_TYPES.map((type) => (
+            {/* A teaching is prepared in Bible Teaching now; "teaching" stays only for a template already meant for it. */}
+            {STUDY_TYPES.filter((type) => type !== "teaching" || studyType === "teaching").map((type) => (
               <option key={type} value={type}>{studyTypeLabel(t, type)}</option>
             ))}
           </select>
@@ -116,13 +143,26 @@ function Form({ templateId, initial, onClose }: FormProps) {
                     <Trash2 className="size-4" aria-hidden="true" />
                   </button>
                 </div>
-                <input
-                  value={section.guidance ?? ""}
-                  onChange={(e) => update(index, { guidance: e.target.value })}
-                  placeholder={t("studies.templateEditor.guidancePlaceholder")}
-                  aria-label={t("studies.templateEditor.sectionGuidance", { number })}
-                  className="h-9 rounded-aw border border-border-subtle bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted"
-                />
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <input
+                    value={section.guidance ?? ""}
+                    onChange={(e) => update(index, { guidance: e.target.value })}
+                    placeholder={t("studies.templateEditor.guidancePlaceholder")}
+                    aria-label={t("studies.templateEditor.sectionGuidance", { number })}
+                    className="h-9 min-w-0 flex-1 basis-56 rounded-aw border border-border-subtle bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted"
+                  />
+                  {/* A part to add later is offered in the study, not made with it. */}
+                  <label className="inline-flex min-h-9 items-center gap-2 text-[0.9375rem] text-text">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(section.optional)}
+                      onChange={(e) => update(index, { optional: e.target.checked })}
+                      aria-label={t("studies.templateEditor.laterLabel", { number })}
+                      className="size-4 accent-[var(--aw-primary)]"
+                    />
+                    <span aria-hidden="true">{t("studies.templateEditor.later")}</span>
+                  </label>
+                </div>
               </li>
               );
             })}
@@ -140,6 +180,6 @@ function Form({ templateId, initial, onClose }: FormProps) {
           <Button onClick={onClose}>{t("common.cancel")}</Button>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

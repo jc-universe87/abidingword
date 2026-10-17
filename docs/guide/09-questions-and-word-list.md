@@ -1,6 +1,6 @@
 # ❓ 9. Questions and word list
 
-[← Settings, updates and backups](08-settings-updates-backups.md) · [Contents](README.md)
+[← Settings, updates and backups](08-settings-updates-backups.md) · [Contents](README.md) · Next: [Preparing to teach →](10-teaching.md)
 
 ---
 
@@ -25,18 +25,21 @@ one folder on your computer (see [Backups](08-settings-updates-backups.md#backup
 <details>
 <summary><strong>Does Abiding Word use artificial intelligence?</strong></summary>
 
-**Not yet, but it is planned.** In this version, everything it shows can be
-traced to something real: a verse in a Bible, a page or heading in a book,
-something you wrote. When it says a book "mentions John 15:5", the book really
-contains that reference.
+**Only if you want it, and only when you prepare to teach.** Everything else
+in Abiding Word can be traced to something real: a verse in a Bible, a page or
+heading in a book, something you wrote. When it says a book "mentions John
+15:5", the book really contains that reference.
 
-Optional **AI assistance** is planned for a later version, to help you study,
-not to replace Scripture or your own thinking. The plan is that it will:
+The **assistant** is optional and **off** until you turn it on in Settings. It
+helps with *your* writing in a teaching (see [Preparing to teach](10-teaching.md)):
 
-- be **optional**, and appear beside your work rather than take it over;
-- always show **where its answers come from** (the verse, the book, the page);
-- when books disagree, show who says what instead of blending them into one answer;
-- keep AI-written text clearly marked, separate from your own writing and from quotations.
+- it acts only when you ask, and says first what it will see and where it goes;
+- it suggests, comments and checks; it never writes your sermon or lesson, and
+  never changes your text unless you choose a suggestion (and you can undo it);
+- it keeps your voice instead of making your writing sound like someone else's;
+- it shows what its comments are based on, marks invented examples as
+  invented, and offers real stories only with the sources a search found;
+- it can run on your own computer (Ollama, LM Studio), so nothing leaves it.
 
 </details>
 
@@ -127,7 +130,7 @@ somewhere safe. See [Backups](08-settings-updates-backups.md#backups).
 
 ---
 
-[← Settings, updates and backups](08-settings-updates-backups.md) · [Contents](README.md)
+[← Settings, updates and backups](08-settings-updates-backups.md) · [Contents](README.md) · Next: [Preparing to teach →](10-teaching.md)
 
 *Something unclear or missing in this guide? Please
 [open an issue](https://github.com/jc-universe87/abidingword/issues) and tell us.*

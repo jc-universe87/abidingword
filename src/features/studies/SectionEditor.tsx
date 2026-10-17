@@ -1,13 +1,15 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowUp, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronRight, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { useSaveTracker } from "@/hooks/SaveTracker";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import type { StudySection } from "@/types/domain";
+import type { FindingType } from "@/types/studies";
 import { BlockEditor } from "./BlockEditor";
 import { sectionGuidance, sectionTitle } from "./builtinText";
+import { PartAdd } from "./PartAdd";
 
 interface SectionEditorProps {
   section: StudySection;
@@ -15,8 +17,18 @@ interface SectionEditorProps {
   isLast: boolean;
   /** Whether findings are assigned to this section. */
   hasFindings: boolean;
-  /** The section's findings, shown as notes after its writing (nothing when it has none). */
+  /** The section's notes, shown after its writing (nothing when it has none). */
   notes?: ReactNode;
+  /** How many notes it holds (said beside its title while it is folded away). */
+  noteCount: number;
+  /** A note being written in this part, shown above its notes. */
+  capture?: ReactNode;
+  /** Folded away to its title: the study reads as an outline. */
+  collapsed: boolean;
+  onCollapsedChange: (collapsed: boolean) => void;
+  /** Add, at the end of the part: more writing, or a note of a kind. */
+  onAddWriting: () => void;
+  onAddNote: (kind: FindingType) => void;
   onChange: (section: StudySection) => void;
   onMove: (delta: -1 | 1) => void;
   onDeleted: () => void;
@@ -35,7 +47,7 @@ interface SectionEditorProps {
 const tool = "inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong disabled:opacity-40";
 
 export function SectionEditor(props: SectionEditorProps) {
-  const { section, isFirst, isLast, hasFindings, notes, onChange, onMove, onDeleted, onRevealScripture, reveal = false, onActive, newBlockId, typed, onContent } = props;
+  const { section, isFirst, isLast, hasFindings, notes, noteCount, capture, collapsed, onCollapsedChange, onAddWriting, onAddNote, onChange, onMove, onDeleted, onRevealScripture, reveal = false, onActive, newBlockId, typed, onContent } = props;
   const { t } = useTranslation();
   const api = useApi();
   const { track, settled } = useSaveTracker();
@@ -52,6 +64,7 @@ export function SectionEditor(props: SectionEditorProps) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const headingId = `section-${section.id}`;
+  const bodyId = `section-body-${section.id}`;
   const title = sectionTitle(section);
   // Guidance is for a section with nothing in it yet; once there is writing it is out of the way.
   const guidance = section.blocks.some((b) => typed[b.id] ?? b.content.trim().length > 0) ? null : sectionGuidance(section);
@@ -107,7 +120,7 @@ export function SectionEditor(props: SectionEditorProps) {
     <section
       aria-labelledby={headingId}
       id={`section-anchor-${section.id}`}
-      className="scroll-mt-4 border-t border-border-subtle pt-6"
+      className="scroll-mt-4 border-t border-border-subtle pt-3"
       onFocusCapture={onActive}
       onKeyDown={(e) => {
         if (e.key !== "Escape") return;
@@ -121,10 +134,21 @@ export function SectionEditor(props: SectionEditorProps) {
       {renaming ? (
         <RenameForm initial={title} onSubmit={rename} onCancel={() => setRenaming(false)} />
       ) : (
-        <div className="flex items-baseline gap-2">
-          <h2 id={headingId} tabIndex={-1} className="m-0 min-w-0 break-words font-display text-[1.5rem] font-heading text-text-strong">
-            {title}
+        <div className="flex items-center gap-2">
+          {/* The heading folds the part away and opens it again. */}
+          <h2 id={headingId} tabIndex={-1} className="m-0 min-w-0 font-display text-[1.375rem] font-heading text-text-strong">
+            <button
+              type="button"
+              aria-expanded={!collapsed}
+              aria-controls={bodyId}
+              onClick={() => onCollapsedChange(!collapsed)}
+              className="-ml-1 flex min-h-11 items-center gap-1.5 rounded-aw px-1 text-left hover:bg-bg-secondary"
+            >
+              <ChevronRight className={`size-4 shrink-0 text-text-muted transition-transform ${collapsed ? "" : "rotate-90"}`} aria-hidden="true" />
+              <span className="min-w-0 break-words">{title}</span>
+            </button>
           </h2>
+          {collapsed && noteCount > 0 && <span className="shrink-0 text-[0.875rem] text-text-muted">{t("studies.findingCount", { count: noteCount })}</span>}
           <button
             ref={manageToggle}
             type="button"
@@ -181,9 +205,10 @@ export function SectionEditor(props: SectionEditorProps) {
           </div>
         </div>
       )}
-      {guidance && <p className="mt-1 mb-3 text-[0.9375rem] text-text-muted">{guidance}</p>}
+      <div id={bodyId} hidden={collapsed}>
+      {guidance && <p className="mb-2 mt-0 text-[0.9375rem] text-text-muted">{guidance}</p>}
 
-      <div className="mt-2 flex flex-col gap-1">
+      <div className="flex flex-col gap-1">
         {section.blocks.map((block, index) => (
           <BlockEditor
             key={block.id}
@@ -201,7 +226,12 @@ export function SectionEditor(props: SectionEditorProps) {
         ))}
       </div>
 
-      {notes && <div className="mt-4">{notes}</div>}
+      {capture && <div className="mt-3">{capture}</div>}
+      {notes && <div className="mt-3">{notes}</div>}
+      <div className="mt-1">
+        <PartAdd part={title} onWriting={onAddWriting} onNote={onAddNote} />
+      </div>
+      </div>
       {error && (
         <p role="alert" className="m-0 mt-2 text-[0.9375rem] text-danger">
           {error}

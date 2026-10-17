@@ -10,6 +10,7 @@
 
 pub mod annotations;
 pub mod app;
+pub mod assistant;
 pub mod bibles;
 pub mod blocks;
 pub mod findings;
@@ -22,6 +23,7 @@ pub mod settings;
 pub mod source_annotations;
 pub mod studies;
 pub mod study_passages;
+pub mod teaching;
 pub mod templates;
 pub mod workspaces;
 

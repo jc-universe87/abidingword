@@ -6,7 +6,7 @@
 //! ```text
 //! Abiding Word/
 //! ├── database/abiding-word.db
-//! ├── sources/    imported source files (later phase)
+//! ├── sources/    imported source files; teaching-images/ (kept generated images)
 //! ├── indexes/    search indexes (later phase)
 //! ├── cache/      disposable, can be deleted at any time
 //! ├── sync/       sync state (later phase)
@@ -79,6 +79,12 @@ impl DataDirs {
 
     pub fn logs(&self) -> PathBuf {
         self.root.join("logs")
+    }
+
+    /// Images the person generated with the assistant and chose to keep
+    /// (v0.16), under names the app chose.
+    pub fn teaching_images(&self) -> PathBuf {
+        self.root.join("sources").join("teaching-images")
     }
 }
 

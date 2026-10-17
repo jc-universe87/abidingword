@@ -1,9 +1,9 @@
 {
   "startup": {
-    "opening": "Ihr Arbeitsbereich wird geöffnet …",
+    "opening": "Dein Arbeitsbereich wird geöffnet …",
     "couldNotStart": "Abiding Word konnte nicht starten.",
     "logFiles": "Protokolldateien:",
-    "windowFailed": "Im Fenster ist ein unerwarteter Fehler aufgetreten. Bitte schließen Sie Abiding Word und öffnen Sie es erneut. Ihre gespeicherte Arbeit ist sicher."
+    "windowFailed": "Im Fenster ist ein unerwarteter Fehler aufgetreten. Bitte schließe Abiding Word und öffne es erneut. Deine gespeicherte Arbeit ist sicher."
   },
   "skipToStudy": "Zum Bibelstudium springen",
   "search": {
@@ -20,8 +20,8 @@
     },
     "placeholder": {
       "scripture": "In der Bibel suchen",
-      "studies": "Ihre Bibelstudien durchsuchen",
-      "library": "In Ihrer Bibliothek suchen",
+      "studies": "Deine Bibelstudien durchsuchen",
+      "library": "In deiner Bibliothek suchen",
       "noBible": "Zuerst eine Bibel hinzufügen"
     }
   },
@@ -56,7 +56,7 @@
     "checking": "Es wird gesucht …",
     "upToDate": "Abiding Word ist auf dem neuesten Stand.",
     "notIncluded": "Diese Version enthält keine automatischen Updates.",
-    "help": "Abiding Word sucht nur gelegentlich oder auf Wunsch nach einem Update. Die App braucht dafür kein Internet zum Arbeiten, und deine Studien bleiben unberührt.",
+    "help": "Abiding Word sucht nur gelegentlich oder auf Wunsch nach Updates. Zum Arbeiten brauchst du kein Internet, und deine Bibelstudien bleiben unberührt.",
     "errors": {
       "check": "Die Suche nach Updates war nicht möglich. Bitte prüfe deine Verbindung und versuche es erneut.",
       "install": "Das Update konnte nicht installiert werden. Deine Studien sind nicht betroffen. Du kannst es erneut versuchen."

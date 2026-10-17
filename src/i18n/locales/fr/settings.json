@@ -5,9 +5,11 @@
     "appearance": "Apparence",
     "language": "Langue",
     "bibleTexts": "Traductions de la Bible",
-    "templates": "Modèles d’étude",
+    "templates": "Modèles",
     "about": "À propos de cette installation",
-    "planned": "Dans les prochaines versions"
+    "planned": "Dans les prochaines versions",
+    "assistant": "Assistant IA",
+    "updates": "Mises à jour"
   },
   "language": {
     "label": "Langue de l’interface",
@@ -16,11 +18,8 @@
   "theme": {
     "legend": "Thème",
     "light": "Clair",
-    "lightHint": "Ivoire chaleureux, pour l’étude en journée.",
     "dark": "Sombre",
-    "darkHint": "Vert forêt profond, plus reposant avec peu de lumière.",
-    "system": "Comme mon ordinateur",
-    "systemHint": "Suit le réglage de votre système d’exploitation."
+    "system": "Comme mon ordinateur"
   },
   "layout": {
     "title": "Disposition de l’espace de travail",
@@ -39,11 +38,188 @@
     "backup": "Toutes vos études sont enregistrées dans le dossier de données de cet ordinateur. Pour les sauvegarder, copiez ce dossier entier pendant qu’Abiding Word est fermé."
   },
   "planned": {
-    "ai": "Assistance par IA",
-    "aiText": "Une aide facultative pour l’étude. Abiding Word fonctionnera toujours pleinement sans elle.",
     "sync": "Synchronisation",
     "syncText": "Gardez vos études à jour sur vos propres appareils, sous votre contrôle.",
     "integrations": "Intégrations",
     "integrationsText": "Connectez d’autres outils que vous utilisez déjà."
+  },
+  "assistant": {
+    "intro": "Une aide facultative par IA (intelligence artificielle) pour votre enseignement. Elle commente et propose ; vous restez l’auteur, et votre texte ne change que si vous le choisissez. Elle n’agit que quand vous le demandez.",
+    "enabled": "Utiliser l’assistant IA",
+    "provider": "Service",
+    "providers": {
+      "openai": "OpenAI (ChatGPT)",
+      "anthropic": "Anthropic (Claude)",
+      "google": "Google Gemini",
+      "ollama": "Ollama",
+      "lmstudio": "LM Studio",
+      "openai_compatible": "Autre service compatible",
+      "xai": "xAI (Grok)",
+      "perplexity": "Perplexity",
+      "deepseek": "DeepSeek",
+      "qwen": "Qwen (Alibaba Cloud)"
+    },
+    "remote": "Quand vous demandez de l’aide, le texte choisi est envoyé par Internet à ce service.",
+    "local": "Fonctionne sur cet ordinateur : votre texte ne le quitte pas.",
+    "model": "Modèle",
+    "modelPlaceholder": "Nom du modèle",
+    "modelHint": "Les noms de modèles changent souvent. Le modèle proposé est un point de départ ; le bouton ↗ à côté du champ ouvre la liste actuelle du service.",
+    "address": "Adresse du service",
+    "addressPlaceholder": "L’adresse habituelle du service",
+    "addressHint": "Laissez vide pour utiliser l’adresse habituelle du service. Utile seulement pour un autre serveur ou un programme sur un autre ordinateur.",
+    "key": "Clé",
+    "keyHint": "Conservée dans le coffre à mots de passe de cet ordinateur, jamais dans vos études, et plus jamais affichée.",
+    "keyKeptPlaceholder": "Clé conservée (tapez pour la remplacer)",
+    "keySave": "Garder la clé",
+    "keyRemove": "Supprimer la clé",
+    "keySaved": "La clé est conservée sur cet ordinateur.",
+    "keyRemoved": "La clé a été supprimée.",
+    "search": "Rechercher des histoires vraies",
+    "searchHint": "Abiding Word demande à un service de recherche des pages web sur des histoires réelles et vous les montre avec leurs liens. Un service de recherche ne fait que trouver des pages : il ne décide pas de ce qui est vrai. Lisez les sources avant d’utiliser une histoire.",
+    "searchKinds": {
+      "none": "Désactivé",
+      "brave": "Brave Search",
+      "searxng": "SearXNG",
+      "tavily": "Tavily",
+      "exa": "Exa",
+      "serpapi": "SerpApi"
+    },
+    "searchAddress": "Adresse SearXNG",
+    "searchKey": "Clé de recherche",
+    "images": "Images",
+    "findImages": "Trouver des images libres sur Wikimedia Commons (seuls les mots de recherche sont envoyés)",
+    "generateImages": "Autoriser la création d’images (toujours marquées comme créées par l’assistant)",
+    "perspective": "Comment l’IA doit-elle aborder les questions théologiques ?",
+    "perspectiveHint": "Facultatif. Il ne s’agit pas de votre parcours : si c’est utile, écrivez seulement une courte perspective théologique ou d’Église (p. ex. « protestant réformé »). L’IA en tient compte pour les questions théologiques débattues, et mentionne quand même les autres interprétations sérieuses. Laissé vide, aucune tradition n’est supposée.",
+    "save": "Enregistrer",
+    "saved": "Enregistré.",
+    "test": "Vérifier la connexion",
+    "testOk": "Connecté. L’assistant a répondu et il est prêt.",
+    "turnedOn": "L’assistant IA est activé.",
+    "turnedOff": "L’assistant IA est désactivé.",
+    "providerGroups": {
+      "internet": "Sur Internet",
+      "local": "Sur cet ordinateur",
+      "other": "Autre"
+    },
+    "localHelp": {
+      "title": "Comment installer {{service}} ?",
+      "what": "{{service}} est un programme gratuit qui fait tourner un modèle d’IA sur votre propre ordinateur. Il ne demande ni clé ni compte, et votre texte ne quitte jamais votre ordinateur. Il fonctionne mieux sur un ordinateur assez puissant, et les réponses peuvent être plus lentes.",
+      "steps": "Installez {{service}}, téléchargez-y un modèle et laissez-le ouvert. Puis saisissez le nom du modèle ci-dessous et vérifiez la connexion.",
+      "open": "Ouvrir le site de {{service}}"
+    },
+    "otherHelp": "Pour un service qui fonctionne comme celui d’OpenAI. Saisissez l’adresse indiquée dans ses instructions, une clé s’il en faut une, et le nom du modèle.",
+    "keyOptional": "Clé (si le service en demande une)",
+    "keyHelp": {
+      "title": "Comment obtenir une clé ?",
+      "whatA": "Une clé est un long code fourni par {{service}}. Elle permet à Abiding Word d’utiliser votre compte. Traitez-la comme un mot de passe.",
+      "open": "Ouvrir la page des clés de {{service}}",
+      "costA": "La plupart des services facturent un peu ce que vous utilisez et peuvent demander un moyen de paiement ou un crédit prépayé avant que la clé fonctionne. Cela se règle sur leur site, pas dans Abiding Word.",
+      "step1": "Ouvrez la page de {{service}} ci-dessous.",
+      "step2": "Connectez-vous, ou créez un compte si vous n’en avez pas.",
+      "step3": "Créez une nouvelle clé (elle peut s’appeler « clé API »).",
+      "step4": "Copiez-la tout de suite : elle n’est en général affichée qu’une fois.",
+      "step5": "Revenez dans Abiding Word.",
+      "step6": "Collez-la dans le champ « Clé » ci-dessus.",
+      "step7": "Appuyez sur « Garder la clé ».",
+      "step8": "Appuyez sur « Vérifier la connexion »."
+    },
+    "modelHintEmpty": "Saisissez le nom du modèle tel que {{service}} l’affiche.",
+    "advanced": "Avancé",
+    "checking": "Vérification de la connexion… Cela peut prendre quelques secondes.",
+    "why": {
+      "noKey": "Pour vérifier la connexion, collez d’abord votre clé et choisissez « Garder la clé ».",
+      "noModel": "Pour vérifier la connexion, saisissez d’abord le nom du modèle.",
+      "noAddress": "Pour vérifier la connexion, saisissez d’abord l’adresse du service.",
+      "badAddress": "L’adresse du service doit commencer par http:// ou https://."
+    },
+    "extras": "Options supplémentaires",
+    "optional": "(facultatif)",
+    "perspectiveExamples": "Exemples :",
+    "perspectiveExample": {
+      "reformed": "protestant réformé",
+      "catholic": "catholique romain",
+      "lutheran": "luthérien",
+      "pentecostal": "pentecôtiste",
+      "none": "aucune tradition particulière"
+    },
+    "modelsLink": "Voir les modèles actuels de {{service}}",
+    "modelsLocal": "Voir les modèles à télécharger pour {{service}}",
+    "searchAdvanced": "Autres (avancé)",
+    "imagesHelp": "Trouver des images cherche des images sous licence libre sur Wikimedia Commons ; seuls vos mots de recherche sont envoyés. Créer des images demande à un service d’images IA d’en dessiner une, toujours indiquée comme faite par l’assistant. Tous les services d’IA ne savent pas créer d’images.",
+    "imageService": "Créer les images avec",
+    "imageServices": {
+      "same": "Le même service d’IA (s’il le peut)",
+      "openai": "OpenAI (demande une clé OpenAI)"
+    },
+    "imageCapability": {
+      "supported": "{{service}} peut créer des images.",
+      "unsupported": "{{service}} ne peut pas créer d’images. Choisissez OpenAI pour les images, ou laissez désactivé.",
+      "unknown": "Abiding Word ne peut pas savoir si {{service}} peut créer des images avec votre compte. Vous pouvez essayer ; en cas d’échec, choisissez OpenAI pour les images."
+    },
+    "imageKey": "Clé OpenAI pour les images",
+    "imageKeyMissing": "Aucune clé OpenAI pour les images n’est encore gardée : collez-la ci-dessous et appuyez sur « Garder la clé ».",
+    "imagesLeave": "Les descriptions d’images sont envoyées à OpenAI par Internet, même si votre service d’écriture ne l’est pas.",
+    "searchShort": {
+      "brave": "recherche web générale et simple",
+      "tavily": "recherche conçue pour les assistants IA",
+      "exa": "trouve des sources et des passages pertinents",
+      "searxng": "auto-hébergé, demande l’adresse d’un serveur",
+      "serpapi": "résultats Google via SerpApi"
+    },
+    "searchOption": "{{name}} – {{short}}",
+    "searchRecommended": "Recommandés",
+    "searchWhat": {
+      "brave": "Brave Search est un moteur de recherche web indépendant. Son service pour les programmes (la « Search API ») renvoie des résultats web ordinaires avec un court extrait.",
+      "tavily": "Tavily est un service de recherche conçu pour les assistants IA. Il renvoie des pages web avec un extrait lisible de chacune, ce qui aide l’Assistant IA à montrer ce que dit une page.",
+      "exa": "Exa cherche selon le sens et pas seulement selon les mots. Il renvoie des pages avec les passages qui correspondent le mieux à votre demande.",
+      "searxng": "SearXNG est un programme de recherche libre que certaines personnes font tourner sur leur propre serveur. Il vous faut l’adresse d’un serveur SearXNG qui accepte les recherches venant de programmes (résultats « JSON »). Si cela ne vous dit rien, choisissez plutôt un des services recommandés.",
+      "serpapi": "SerpApi fournit aux programmes les résultats de recherche de Google. C’est un service payant avec un petit quota gratuit, destiné plutôt aux personnes qui l’utilisent déjà."
+    },
+    "searchSetup": {
+      "title": "Comment configurer {{service}} ?",
+      "step1": "Ouvrez la page de {{service}} ci-dessous et connectez-vous, ou créez un compte.",
+      "step2": "Créez-y une clé (elle peut s’appeler « API key ») et copiez-la.",
+      "step3": "Collez-la dans le champ de la clé de recherche et appuyez sur « Garder la clé ».",
+      "step4": "Appuyez sur « Vérifier la recherche ».",
+      "open": "Ouvrir la page de {{service}}",
+      "cost": "Les services de recherche offrent souvent un petit quota gratuit chaque mois et font payer au-delà. Cela se règle sur leur site, pas dans Abiding Word."
+    },
+    "searchTest": "Vérifier la recherche",
+    "searchTesting": "Interrogation du service de recherche…",
+    "searchTestOk": "Le service de recherche a répondu et a trouvé des pages web.",
+    "searchTestEmpty": "Le service de recherche a répondu, mais n’a rien trouvé pour une recherche d’essai.",
+    "searchWhy": {
+      "noKey": "Pour vérifier la recherche, collez d’abord sa clé et choisissez « Garder la clé ».",
+      "noAddress": "Pour vérifier la recherche, saisissez d’abord l’adresse SearXNG."
+    }
+  },
+  "jumpTo": "Aller à une section",
+  "summary": {
+    "version": "Version {{version}}",
+    "upToDate": "À jour",
+    "updateAvailable": "La version {{version}} est disponible",
+    "updateInstalling": "Installation de la mise à jour…",
+    "updateFailed": "Un problème est survenu : voir ci-dessous",
+    "updatesOff": "Non incluses dans cette version",
+    "bibleTexts": "Ajouter ou retirer des traductions",
+    "templates": "Structures de départ pour l’étude et l’enseignement",
+    "assistantOff": "Désactivé",
+    "assistantOn": "Activé · {{service}}",
+    "about": "Version {{version}} · où sont vos données"
+  },
+  "help": {
+    "about": "En savoir plus : {{topic}}"
+  },
+  "background": {
+    "legend": "Fond",
+    "help": "Des fonds calmes et peu éblouissants, pensés pour lire et écrire longtemps. Le texte reste bien lisible sur chacun. Ils s’appliquent au thème clair.",
+    "lightOnly": "Les fonds s’appliquent au thème clair.",
+    "parchment": "Parchemin",
+    "cream": "Crème",
+    "sage": "Sauge",
+    "stone": "Pierre",
+    "mist": "Brume",
+    "clear": "Neutre"
   }
 }

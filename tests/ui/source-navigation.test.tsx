@@ -376,7 +376,7 @@ describe("EPUB internal links", () => {
     await api.findingSourceAdd({ findingId: finding.id, segmentId: cited.id });
     const { user } = await renderApp(api, { pdfEngine: engine, width });
     await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /The True Vine/ }));
-    await user.click(await within(await screen.findByRole("list", { name: "Study notes" })).findByTitle("Open this source at the cited place"));
+    await user.click(await within(await screen.findByRole("list", { name: "Other notes" })).findByTitle("Open this source at the cited place"));
     const reader = width >= 1000 ? await within(sourcesPane()).findByRole("region", { name: title }) : await screen.findByRole("main");
     await waitFor(() => expect(reader.querySelector("[data-target]")).not.toBeNull());
     return { user, reader };

@@ -10,23 +10,18 @@
       "guidance": "The passage being studied, and any translation notes."
     },
     {
-      "key": "context",
-      "title": "Context",
-      "guidance": "Where the passage sits: the book, the surrounding argument, the historical setting."
-    },
-    {
       "key": "observations",
       "title": "Observations",
       "guidance": "What does the text say? Repeated words, connectors, contrasts, commands, questions."
     },
     {
-      "key": "structure",
-      "title": "Structure",
-      "guidance": "How the passage is built: its movements, main clauses and turning points."
+      "key": "context",
+      "title": "Context",
+      "guidance": "Where the passage sits: the book, the surrounding argument, the historical setting."
     },
     {
-      "key": "exegesis",
-      "title": "Exegesis",
+      "key": "meaning",
+      "title": "Meaning",
       "guidance": "What did the text mean for its first readers? Key words, grammar, difficult phrases."
     },
     {
@@ -40,14 +35,46 @@
       "guidance": "How the truth of the passage bears on belief, worship and life today."
     },
     {
+      "key": "structure",
+      "title": "Structure",
+      "guidance": "How the passage is built: its movements, main clauses and turning points.",
+      "optional": true
+    },
+    {
+      "key": "key-words",
+      "title": "Key Words",
+      "guidance": "Words that carry the passage: what they mean here and elsewhere.",
+      "optional": true
+    },
+    {
+      "key": "related-scripture",
+      "title": "Related Scripture",
+      "guidance": "Other passages that explain, echo or fulfil this one.",
+      "optional": true
+    },
+    {
+      "key": "open-questions",
+      "title": "Open Questions",
+      "guidance": "What you do not yet understand, to come back to.",
+      "optional": true
+    },
+    {
+      "key": "exegesis",
+      "title": "Exegesis",
+      "guidance": "What did the text mean for its first readers? Key words, grammar, difficult phrases.",
+      "retired": true
+    },
+    {
       "key": "audience",
       "title": "Audience",
-      "guidance": "Who will hear this teaching, what they need, and what may hinder them."
+      "guidance": "Who will hear this teaching, what they need, and what may hinder them.",
+      "retired": true
     },
     {
       "key": "teaching",
       "title": "Teaching",
-      "guidance": "Main idea, outline, illustrations and how to communicate it with love."
+      "guidance": "Main idea, outline, illustrations and how to communicate it with love.",
+      "retired": true
     }
   ]
 }

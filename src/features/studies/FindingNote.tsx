@@ -65,7 +65,6 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
   };
   const position = group.indexOf(finding.id);
   const linked = currentPassage && finding.passages.some((p) => p.reference.canonical === currentPassage.canonical);
-  const section = sections.find((s) => s.id === finding.sectionId);
   const excerpt = finding.content.slice(0, 60);
 
   const field = "h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2";
@@ -84,10 +83,8 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
           }
         }}
       >
-        <p className="m-0 text-[0.9375rem] font-medium text-text-muted">
-          {label}
-          {section && <span className="font-normal">{t("common.listSeparator")}{sectionTitle(section)}</span>}
-        </p>
+        {/* Its kind, as a quiet label: the part it is in is the heading it sits under. */}
+        <p className="m-0 text-[0.9375rem] font-medium text-text-muted">{label}</p>
 
         <textarea
           aria-label={t("studies.findings.text", { type: label })}

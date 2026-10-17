@@ -15,24 +15,9 @@
       "guidance": "The passages that speak most directly to it."
     },
     {
-      "key": "biblical-context",
-      "title": "Biblical Context",
-      "guidance": "Where and how the topic arises across the Bible."
-    },
-    {
       "key": "main-themes",
       "title": "Main Themes",
       "guidance": "The main lines of teaching that emerge."
-    },
-    {
-      "key": "difficult-passages",
-      "title": "Difficult Passages",
-      "guidance": "Texts that seem to point another way, and how to read them."
-    },
-    {
-      "key": "theology",
-      "title": "Theology",
-      "guidance": "How the passages fit together into coherent teaching."
     },
     {
       "key": "conclusions",
@@ -43,6 +28,24 @@
       "key": "application",
       "title": "Application",
       "guidance": "What this means for belief, worship and life."
+    },
+    {
+      "key": "biblical-context",
+      "title": "Biblical Context",
+      "guidance": "Where and how the topic arises across the Bible.",
+      "optional": true
+    },
+    {
+      "key": "difficult-passages",
+      "title": "Difficult Passages",
+      "guidance": "Texts that seem to point another way, and how to read them.",
+      "optional": true
+    },
+    {
+      "key": "theology",
+      "title": "Theology",
+      "guidance": "How the passages fit together into coherent teaching.",
+      "optional": true
     }
   ]
 }

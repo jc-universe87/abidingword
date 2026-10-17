@@ -5,9 +5,11 @@
     "appearance": "Apariencia",
     "language": "Idioma",
     "bibleTexts": "Traducciones de la Biblia",
-    "templates": "Plantillas de estudio",
+    "templates": "Plantillas",
     "about": "Acerca de esta instalación",
-    "planned": "En próximas versiones"
+    "planned": "En próximas versiones",
+    "assistant": "Asistente de IA",
+    "updates": "Actualizaciones"
   },
   "language": {
     "label": "Idioma de la interfaz",
@@ -16,11 +18,8 @@
   "theme": {
     "legend": "Tema",
     "light": "Claro",
-    "lightHint": "Marfil cálido, para estudiar de día.",
     "dark": "Oscuro",
-    "darkHint": "Verde bosque profundo, más cómodo con poca luz.",
-    "system": "Igual que mi equipo",
-    "systemHint": "Sigue la configuración de tu sistema operativo."
+    "system": "Igual que mi equipo"
   },
   "layout": {
     "title": "Disposición del espacio de trabajo",
@@ -39,11 +38,188 @@
     "backup": "Todos tus estudios se guardan en la carpeta de datos de este equipo. Para hacer una copia de seguridad, copia esa carpeta completa con Abiding Word cerrado."
   },
   "planned": {
-    "ai": "Asistencia con IA",
-    "aiText": "Ayuda opcional para el estudio. Abiding Word siempre funcionará plenamente sin ella.",
     "sync": "Sincronización",
     "syncText": "Mantén tus estudios al día en tus propios dispositivos, bajo tu control.",
     "integrations": "Integraciones",
     "integrationsText": "Conecta otras herramientas que ya usas."
+  },
+  "assistant": {
+    "intro": "Una ayuda opcional de IA (inteligencia artificial) para tu enseñanza. Comenta y sugiere; tú sigues siendo el autor, y tu texto solo cambia si lo eliges. Solo actúa cuando se lo pides.",
+    "enabled": "Usar el asistente de IA",
+    "provider": "Servicio",
+    "providers": {
+      "openai": "OpenAI (ChatGPT)",
+      "anthropic": "Anthropic (Claude)",
+      "google": "Google Gemini",
+      "ollama": "Ollama",
+      "lmstudio": "LM Studio",
+      "openai_compatible": "Otro servicio compatible",
+      "xai": "xAI (Grok)",
+      "perplexity": "Perplexity",
+      "deepseek": "DeepSeek",
+      "qwen": "Qwen (Alibaba Cloud)"
+    },
+    "remote": "Cuando pides ayuda, el texto elegido se envía por internet a este servicio.",
+    "local": "Funciona en este ordenador: tu texto no sale de él.",
+    "model": "Modelo",
+    "modelPlaceholder": "Nombre del modelo",
+    "modelHint": "Los nombres de los modelos cambian a menudo. El modelo sugerido es un punto de partida; el botón ↗ junto al campo abre la lista actual del servicio.",
+    "address": "Dirección del servicio",
+    "addressPlaceholder": "La dirección habitual del servicio",
+    "addressHint": "Déjalo vacío para usar la dirección habitual del servicio. Solo hace falta para otro servidor o un programa en otro ordenador.",
+    "key": "Clave",
+    "keyHint": "Se guarda en el almacén de contraseñas de este ordenador, nunca en tus estudios, y no vuelve a mostrarse.",
+    "keyKeptPlaceholder": "Clave guardada (escribe para reemplazarla)",
+    "keySave": "Guardar clave",
+    "keyRemove": "Quitar clave",
+    "keySaved": "La clave está guardada en este ordenador.",
+    "keyRemoved": "Se quitó la clave.",
+    "search": "Buscar historias reales",
+    "searchHint": "Abiding Word pide a un servicio de búsqueda páginas web sobre historias reales y te las muestra con sus enlaces. Un servicio de búsqueda solo encuentra páginas: no decide qué es verdad. Lee las fuentes antes de usar una historia.",
+    "searchKinds": {
+      "none": "Desactivado",
+      "brave": "Brave Search",
+      "searxng": "SearXNG",
+      "tavily": "Tavily",
+      "exa": "Exa",
+      "serpapi": "SerpApi"
+    },
+    "searchAddress": "Dirección de SearXNG",
+    "searchKey": "Clave de búsqueda",
+    "images": "Imágenes",
+    "findImages": "Buscar imágenes de licencia libre en Wikimedia Commons (solo se envían palabras de búsqueda)",
+    "generateImages": "Permitir crear imágenes (siempre marcadas como hechas por el asistente)",
+    "perspective": "¿Cómo debe abordar la IA las cuestiones teológicas?",
+    "perspectiveHint": "Opcional. No se trata de tu historia personal: si ayuda, escribe solo una breve perspectiva teológica o eclesial (p. ej. «evangélico reformado»). La IA la tiene en cuenta al comentar cuestiones teológicas discutidas y aun así menciona otras interpretaciones serias. Si lo dejas vacío, no se supone ninguna tradición.",
+    "save": "Guardar",
+    "saved": "Guardado.",
+    "test": "Comprobar la conexión",
+    "testOk": "Conectado. El asistente ha respondido y está listo.",
+    "turnedOn": "El asistente de IA está activado.",
+    "turnedOff": "El asistente de IA está desactivado.",
+    "providerGroups": {
+      "internet": "En internet",
+      "local": "En este ordenador",
+      "other": "Otro"
+    },
+    "localHelp": {
+      "title": "¿Cómo preparo {{service}}?",
+      "what": "{{service}} es un programa gratuito que ejecuta un modelo de IA en tu propio ordenador. No necesita clave ni cuenta, y tu texto nunca sale de tu ordenador. Funciona mejor en un ordenador bastante potente, y las respuestas pueden tardar más.",
+      "steps": "Instala {{service}}, descarga en él un modelo y déjalo abierto. Luego escribe abajo el nombre del modelo y comprueba la conexión.",
+      "open": "Abrir el sitio web de {{service}}"
+    },
+    "otherHelp": "Para un servicio que funciona como el de OpenAI. Escribe la dirección que indican sus instrucciones, una clave si la necesita y el nombre del modelo.",
+    "keyOptional": "Clave (si el servicio la necesita)",
+    "keyHelp": {
+      "title": "¿Cómo consigo una clave?",
+      "whatA": "Una clave es un código largo de {{service}}. Permite a Abiding Word usar tu cuenta allí. Trátala como una contraseña.",
+      "open": "Abrir la página de claves de {{service}}",
+      "costA": "La mayoría de los servicios cobran un poco por lo que usas y pueden pedir datos de pago o saldo prepago antes de que la clave funcione. Eso se gestiona en su sitio web, no en Abiding Word.",
+      "step1": "Abre abajo la página de {{service}}.",
+      "step2": "Inicia sesión o crea una cuenta si no tienes.",
+      "step3": "Crea una clave nueva (puede llamarse «clave de API»).",
+      "step4": "Cópiala enseguida: normalmente solo se muestra una vez.",
+      "step5": "Vuelve a Abiding Word.",
+      "step6": "Pégala en el campo «Clave» de arriba.",
+      "step7": "Pulsa «Guardar clave».",
+      "step8": "Pulsa «Comprobar la conexión»."
+    },
+    "modelHintEmpty": "Escribe el nombre del modelo tal como lo muestra {{service}}.",
+    "advanced": "Avanzado",
+    "checking": "Comprobando la conexión… Puede tardar unos segundos.",
+    "why": {
+      "noKey": "Para comprobar la conexión, primero pega tu clave y elige «Guardar clave».",
+      "noModel": "Para comprobar la conexión, primero escribe el nombre del modelo.",
+      "noAddress": "Para comprobar la conexión, primero escribe la dirección del servicio.",
+      "badAddress": "La dirección del servicio debe empezar por http:// o https://."
+    },
+    "extras": "Extras opcionales",
+    "optional": "(opcional)",
+    "perspectiveExamples": "Ejemplos:",
+    "perspectiveExample": {
+      "reformed": "evangélico reformado",
+      "catholic": "católico romano",
+      "lutheran": "luterano",
+      "pentecostal": "pentecostal",
+      "none": "ninguna tradición concreta"
+    },
+    "modelsLink": "Ver los modelos actuales de {{service}}",
+    "modelsLocal": "Ver modelos que puedes descargar para {{service}}",
+    "searchAdvanced": "Otros (avanzado)",
+    "imagesHelp": "Buscar imágenes busca imágenes con licencia libre en Wikimedia Commons; solo se envían tus palabras de búsqueda. Crear imágenes pide a un servicio de imágenes de IA que dibuje una, siempre marcada como hecha por el asistente. No todos los servicios de IA pueden crear imágenes.",
+    "imageService": "Crear imágenes con",
+    "imageServices": {
+      "same": "El mismo servicio de IA (si puede)",
+      "openai": "OpenAI (necesita una clave de OpenAI)"
+    },
+    "imageCapability": {
+      "supported": "{{service}} puede crear imágenes.",
+      "unsupported": "{{service}} no puede crear imágenes. Elige OpenAI para las imágenes o déjalo desactivado.",
+      "unknown": "Abiding Word no puede saber si {{service}} puede crear imágenes con tu cuenta. Puedes probar; si falla, elige OpenAI para las imágenes."
+    },
+    "imageKey": "Clave de OpenAI para imágenes",
+    "imageKeyMissing": "Aún no hay ninguna clave de OpenAI para imágenes: pégala abajo y pulsa «Guardar clave».",
+    "imagesLeave": "Las descripciones de imágenes se envían a OpenAI por internet, aunque tu servicio de escritura no lo haga.",
+    "searchShort": {
+      "brave": "búsqueda web general y sencilla",
+      "tavily": "búsqueda pensada para asistentes de IA",
+      "exa": "encuentra fuentes y pasajes relevantes",
+      "searxng": "autoalojado, necesita la dirección de un servidor",
+      "serpapi": "resultados de Google a través de SerpApi"
+    },
+    "searchOption": "{{name}} – {{short}}",
+    "searchRecommended": "Recomendados",
+    "searchWhat": {
+      "brave": "Brave Search es un buscador web independiente. Su servicio para programas (la «Search API») devuelve resultados web normales con un breve extracto.",
+      "tavily": "Tavily es un servicio de búsqueda pensado para asistentes de IA. Devuelve páginas web con un extracto legible de cada una, lo que ayuda al Asistente de IA a señalar lo que dice una página.",
+      "exa": "Exa busca por significado y no solo por palabras. Devuelve páginas con los pasajes que mejor responden a lo que pediste.",
+      "searxng": "SearXNG es un programa de búsqueda abierto que algunas personas ejecutan en su propio servidor. Necesitas la dirección de un servidor SearXNG que permita búsquedas desde programas (resultados «JSON»). Si esto no te dice nada, elige mejor uno de los servicios recomendados.",
+      "serpapi": "SerpApi ofrece a los programas los resultados de búsqueda de Google. Es un servicio de pago con una pequeña cuota gratuita, pensado para quien ya lo usa."
+    },
+    "searchSetup": {
+      "title": "¿Cómo configuro {{service}}?",
+      "step1": "Abre la página de {{service}} de abajo e inicia sesión o crea una cuenta.",
+      "step2": "Crea allí una clave (puede llamarse «API key») y cópiala.",
+      "step3": "Pégala en el campo de la clave de búsqueda y pulsa «Guardar clave».",
+      "step4": "Pulsa «Comprobar búsqueda».",
+      "open": "Abrir la página de {{service}}",
+      "cost": "Los servicios de búsqueda suelen ofrecer una pequeña cuota gratuita al mes y cobran por el resto. Eso se gestiona en su sitio web, no en Abiding Word."
+    },
+    "searchTest": "Comprobar búsqueda",
+    "searchTesting": "Consultando el servicio de búsqueda…",
+    "searchTestOk": "El servicio de búsqueda respondió y encontró páginas web.",
+    "searchTestEmpty": "El servicio de búsqueda respondió, pero no encontró nada en una búsqueda de prueba.",
+    "searchWhy": {
+      "noKey": "Para comprobar la búsqueda, pega primero su clave y elige «Guardar clave».",
+      "noAddress": "Para comprobar la búsqueda, escribe primero la dirección de SearXNG."
+    }
+  },
+  "jumpTo": "Ir a una sección",
+  "summary": {
+    "version": "Versión {{version}}",
+    "upToDate": "Al día",
+    "updateAvailable": "La versión {{version}} está disponible",
+    "updateInstalling": "Instalando la actualización…",
+    "updateFailed": "Algo salió mal: mira abajo",
+    "updatesOff": "No incluidas en esta versión",
+    "bibleTexts": "Añadir o quitar traducciones",
+    "templates": "Estructuras de partida para el estudio y la enseñanza",
+    "assistantOff": "Desactivado",
+    "assistantOn": "Activado · {{service}}",
+    "about": "Versión {{version}} · dónde están tus datos"
+  },
+  "help": {
+    "about": "Más información: {{topic}}"
+  },
+  "background": {
+    "legend": "Fondo",
+    "help": "Fondos tranquilos y con poco brillo, pensados para leer y escribir durante mucho tiempo. El texto se lee bien en todos. Se aplican al tema claro.",
+    "lightOnly": "Los fondos se aplican al tema claro.",
+    "parchment": "Pergamino",
+    "cream": "Crema",
+    "sage": "Salvia",
+    "stone": "Piedra",
+    "mist": "Niebla",
+    "clear": "Neutro"
   }
 }

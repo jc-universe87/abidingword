@@ -261,7 +261,7 @@ describe("finding citations", () => {
     await api.findingCreate({ studyId: study.study.id, findingType, content });
     const { user } = await renderApp(api, { width });
     await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /The True Vine/ }));
-    const findings = await screen.findByRole("list", { name: "Study notes" });
+    const findings = await screen.findByRole("list", { name: "Other notes" });
     return { api, user, findings };
   }
 
@@ -308,7 +308,7 @@ describe("finding citations", () => {
     await waitFor(() => expect(document.querySelector("[data-target]")).toHaveTextContent("Abiding is the heart"));
     // The layout choice is left alone: Sources stays hidden.
     await user.click(screen.getByRole("button", { name: "Back" }));
-    expect(await screen.findByRole("list", { name: "Study notes" })).toBeInTheDocument();
+    expect(await screen.findByRole("list", { name: "Other notes" })).toBeInTheDocument();
     expect(screen.queryByRole("complementary", { name: "Sources" })).not.toBeInTheDocument();
   });
 
@@ -332,7 +332,7 @@ describe("finding citations", () => {
     await openLibrary(user);
     await user.click(await screen.findByRole("button", { name: "Remove Notes on the Vine" }));
     const confirm = screen.getByRole("alertdialog", { name: "Remove Notes on the Vine?" });
-    expect(confirm).toHaveTextContent("Findings that cite it keep a record of the citation.");
+    expect(confirm).toHaveTextContent("Study notes that cite it keep a record of the citation.");
     expect(confirm).toHaveTextContent("your original file is not touched");
     await user.click(within(confirm).getByRole("button", { name: "Keep it" }));
     expect(api.state.library.sources[0]?.deleted).toBe(false);
@@ -343,7 +343,7 @@ describe("finding citations", () => {
 
     // The finding still says what it cited, marked as removed, not as a link.
     await user.click(screen.getByRole("button", { name: "Back to workspace" }));
-    const after = await screen.findByRole("list", { name: "Study notes" });
+    const after = await screen.findByRole("list", { name: "Other notes" });
     expect(await within(after).findByText("(removed from library)")).toBeInTheDocument();
     expect(within(after).queryByRole("button", { name: "J. Example, Notes on the Vine, p. 2" })).not.toBeInTheDocument();
     expect(api.state.findings.find((f) => f.studyId === studyId)?.sources[0]).toMatchObject({ removed: true, segmentId: null });

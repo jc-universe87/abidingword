@@ -9,7 +9,7 @@ import { toApiError } from "@/lib/api";
 import { refFromCanonical } from "@/lib/scripture";
 import { BOOKS } from "../support/scriptureFixture";
 import { createMemoryApi } from "../support/memoryApi";
-import { renderApp } from "../support/render";
+import { openSettingsSection, renderApp } from "../support/render";
 import studiesDe from "@/i18n/locales/de/studies.json";
 import appDe from "@/i18n/locales/de/app.json";
 import settingsDe from "@/i18n/locales/de/settings.json";
@@ -135,7 +135,7 @@ describe("switching language in the running app", () => {
     const scripture = await screen.findByRole("complementary", { name: "Scripture" });
     expect(await within(scripture).findByRole("heading", { name: "John 15" })).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Settings" }));
+    await openSettingsSection(user, "Language");
     await user.selectOptions(screen.getByLabelText("Interface language"), "Deutsch");
 
     expect(await screen.findByRole("heading", { level: 1, name: settingsDe.title })).toBeInTheDocument();

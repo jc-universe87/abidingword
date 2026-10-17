@@ -36,6 +36,10 @@
           "teaching": {
             "title": "Enseñanza",
             "guidance": "Cómo enseñar este tema con fidelidad y claridad."
+          },
+          "new-testament": {
+            "title": "Nuevo Testamento",
+            "guidance": "Cómo el tema llega a Cristo y cómo lo retoman los apóstoles."
           }
         }
       },
@@ -78,6 +82,22 @@
           "teaching": {
             "title": "Enseñanza",
             "guidance": "Idea principal, bosquejo, ilustraciones y cómo comunicarla con amor."
+          },
+          "meaning": {
+            "title": "Significado",
+            "guidance": "¿Qué significaba el texto para sus primeros lectores? Palabras clave, gramática, expresiones difíciles."
+          },
+          "key-words": {
+            "title": "Palabras clave",
+            "guidance": "Las palabras que sostienen el pasaje: qué significan aquí y en otros lugares."
+          },
+          "related-scripture": {
+            "title": "Otros pasajes",
+            "guidance": "Otros pasajes que explican, retoman o cumplen este."
+          },
+          "open-questions": {
+            "title": "Preguntas abiertas",
+            "guidance": "Lo que aún no entiendes, para volver a ello."
           }
         }
       },
@@ -352,7 +372,7 @@
     "heading": "¿Qué te gustaría estudiar?",
     "title": "Título",
     "template": "Plantilla",
-    "noTemplate": "Sin plantilla (una sección de Notas)",
+    "noTemplate": "Sin plantilla (una parte de Notas)",
     "yourTemplate": "{{name}} (tuya)",
     "optional": "(opcional)",
     "passagePlaceholder": "p. ej. John 15:1-11",
@@ -360,7 +380,6 @@
     "formLabel": "Nuevo estudio",
     "studyAs": "Enfoque del estudio",
     "subjectRequired": "Escribe lo que te gustaría estudiar.",
-    "teachingTitle": "{{passage}} — Enseñanza",
     "more": "Más opciones",
     "placeholder": {
       "word": "p. ej. justicia, o δικαιοσύνη",
@@ -414,7 +433,7 @@
     "duplicatePrompt": "Hacer una copia de “{{title}}” en este proyecto:",
     "structureOnly": "Solo la estructura",
     "structureAndContent": "Estructura y contenido",
-    "duplicateHelp": "“Solo la estructura” copia las secciones. Con el contenido, también se copian tus textos, apuntes y pasajes. Las notas sobre la Biblia nunca se duplican; pertenecen a los versículos.",
+    "duplicateHelp": "“Solo la estructura” copia las partes. Con el contenido, también se copian tus textos, apuntes y pasajes. Las notas sobre la Biblia nunca se duplican; pertenecen a los versículos.",
     "purpose": "Propósito",
     "purposePlaceholder": "¿Qué quieres entender o preparar?",
     "details": "Detalles: {{type}}",
@@ -453,62 +472,59 @@
   "editor": {
     "opening": "Abriendo el estudio…",
     "titleLabel": "Título del estudio",
-    "contents": "Contenido del estudio",
-    "findingsLink": "Apuntes del estudio",
-    "newSectionTitle": "Nueva sección",
+    "newSectionTitle": "Nueva parte",
     "allSaved": "Todos los cambios guardados.",
     "saved": "Guardado",
-    "start": "Empieza tu estudio",
-    "contentsToggle": "Contenido"
+    "backTo": "Volver a {{place}}"
   },
   "sections": {
-    "rename": "Cambiar el nombre de la sección {{title}}",
-    "renameTooltip": "Cambiar el nombre de la sección",
-    "moveUp": "Subir la sección {{title}}",
-    "moveDown": "Bajar la sección {{title}}",
-    "delete": "Eliminar la sección {{title}}",
-    "confirmLabel": "¿Eliminar la sección {{title}}?",
+    "rename": "Cambiar el nombre de la parte {{title}}",
+    "renameTooltip": "Cambiar el nombre de la parte",
+    "moveUp": "Subir la parte {{title}}",
+    "moveDown": "Bajar la parte {{title}}",
+    "delete": "Eliminar la parte {{title}}",
+    "confirmLabel": "¿Eliminar la parte {{title}}?",
     "confirm": "¿Eliminar “{{title}}” y el texto que contiene?",
-    "confirmWithFindings": "¿Eliminar “{{title}}” y el texto que contiene? Sus apuntes se quedan en el estudio como apuntes del estudio completo.",
-    "deleteSection": "Eliminar sección",
-    "titleLabel": "Título de la sección",
-    "options": "Opciones de la sección {{title}}",
-    "optionsTooltip": "Opciones de la sección",
-    "optionsGroup": "Opciones de la sección {{title}}"
+    "confirmWithFindings": "¿Eliminar “{{title}}” y el texto que contiene? Sus apuntes se quedan en el estudio, en Otros apuntes.",
+    "deleteSection": "Eliminar parte",
+    "titleLabel": "Título de la parte",
+    "options": "Opciones de la parte {{title}}",
+    "optionsTooltip": "Opciones de la parte",
+    "optionsGroup": "Opciones de la parte {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
     "confirmDelete": "¿Eliminar este bloque ({{type}})?",
     "deleteFailed": "No se pudo eliminar este bloque. Inténtalo de nuevo.",
-    "moveUp": "Subir el bloque ({{type}}) en {{section}}",
-    "moveDown": "Bajar el bloque ({{type}}) en {{section}}",
-    "delete": "Eliminar el bloque ({{type}}) en {{section}}",
+    "moveUp": "Subir el texto ({{type}}) en {{section}}",
+    "moveDown": "Bajar el texto ({{type}}) en {{section}}",
+    "delete": "Eliminar el texto ({{type}}) en {{section}}",
     "deleteTooltip": "Eliminar el bloque ({{type}})",
     "placeholder": "Escribe aquí…",
     "passagesMentioned": "Pasajes mencionados:",
-    "options": "Opciones del bloque ({{type}}) en {{section}}",
-    "optionsGroup": "Opciones del bloque ({{type}}) en {{section}}",
+    "options": "Opciones del texto ({{type}}) en {{section}}",
+    "optionsGroup": "Opciones del texto ({{type}}) en {{section}}",
     "optionsTooltip": "Opciones del bloque"
   },
   "findings": {
-    "heading": "Apuntes del estudio",
-    "addGroup": "Añadir un apunte",
+    "heading": "Otros apuntes",
+    "addGroup": "Escribir un apunte",
     "filterGroup": "Mostrar apuntes",
-    "all": "Todos ({{count}})",
+    "all": "Todos los apuntes ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Apuntes del estudio",
-    "writeFirst": "Primero escribe el apunte.",
+    "listLabel": "Otros apuntes",
+    "writeFirst": "Primero escribe algo.",
     "type": "Tipo",
     "in": "En",
     "inLower": "en",
-    "wholeStudy": "Estudio completo",
+    "wholeStudy": "Otros apuntes",
     "newLabel": "Nueva {{type}}",
     "linkCurrent": "Vincular el pasaje actual ({{passage}})",
-    "save": "Guardar apunte",
+    "save": "Guardar",
     "saveHint": "Ctrl+Intro guarda",
     "itemLabel": "{{type}}: {{excerpt}}",
     "typeLabel": "Tipo de apunte",
-    "section": "Sección",
+    "section": "Parte",
     "moveUp": "Subir {{type}}",
     "moveDown": "Bajar {{type}}",
     "delete": "Eliminar {{type}}",
@@ -518,7 +534,7 @@
     "tags": "Etiquetas",
     "tagsPlaceholder": "p. ej. pacto, sermón",
     "confirmDelete": "¿Eliminar esta {{type}}?",
-    "writePlaceholder": "Escribe un apunte…",
+    "writePlaceholder": "Escribe aquí…",
     "details": "Detalles",
     "detailsFor": "Detalles de {{type}}: {{excerpt}}",
     "kindGroup": "Tipo de apunte",
@@ -564,18 +580,18 @@
     "results": "Resultados de la búsqueda en los estudios",
     "location": {
       "study": "Título o propósito",
-      "section": "Título de la sección",
+      "section": "Título de una parte",
       "studyText": "Texto del estudio",
       "finding": "Apunte",
       "findingType": "Apunte: {{type}}"
     }
   },
   "templates": {
-    "intro": "Una plantilla da a un estudio nuevo sus secciones. Cambiar una plantilla nunca modifica los estudios ya creados a partir de ella.",
+    "intro": "Una plantilla es una estructura de partida: las partes con las que empieza un estudio nuevo, o la forma de una enseñanza. Cambiar una plantilla nunca modifica los estudios ya creados a partir de ella.",
     "listLabel": "Plantillas de estudio",
-    "sectionCount_one": "{{count}} sección",
-    "sectionCount_many": "{{count}} secciones",
-    "sectionCount_other": "{{count}} secciones",
+    "sectionCount_one": "{{count}} parte",
+    "sectionCount_many": "{{count}} partes",
+    "sectionCount_other": "{{count}} partes",
     "builtIn": "Integrada",
     "duplicateCustomise": "Duplicar y personalizar",
     "edit": "Editar {{name}}",
@@ -584,7 +600,8 @@
     "confirmLabel": "¿Eliminar {{name}}?",
     "confirm": "¿Eliminar la plantilla “{{name}}”? Los estudios ya creados a partir de ella no se ven afectados.",
     "deleteTemplate": "Eliminar plantilla",
-    "new": "Nueva plantilla…"
+    "new": "Nueva plantilla…",
+    "teachingListLabel": "Formatos de enseñanza"
   },
   "templateEditor": {
     "opening": "Abriendo la plantilla…",
@@ -594,26 +611,25 @@
     "name": "Nombre",
     "description": "Descripción",
     "meantFor": "Pensada para",
-    "sections": "Secciones",
-    "sectionsList": "Secciones de la plantilla",
-    "sectionTitle": "Título de la sección {{number}}",
-    "sectionGuidance": "Orientación de la sección {{number}}",
-    "guidancePlaceholder": "Orientación que se muestra bajo la sección (opcional)",
-    "untitledSection": "sección",
+    "sections": "Partes",
+    "sectionsList": "Partes de la plantilla",
+    "sectionTitle": "Título de la parte {{number}}",
+    "sectionGuidance": "Orientación de la parte {{number}}",
+    "guidancePlaceholder": "Orientación que se muestra bajo la parte (opcional)",
+    "untitledSection": "parte",
     "moveUp": "Subir {{title}}",
     "moveDown": "Bajar {{title}}",
     "remove": "Quitar {{title}}",
-    "addSection": "Añadir sección",
-    "save": "Guardar plantilla"
+    "addSection": "Añadir una parte",
+    "save": "Guardar plantilla",
+    "later": "Añadir más tarde",
+    "laterLabel": "Ofrecer la parte {{number}} más tarde en lugar de empezar con ella"
   },
   "add": {
     "toggle": "Añadir",
-    "group": "Añadir al estudio",
     "note": "Apunte",
-    "section": "Sección",
-    "textBlock": "Bloque de texto",
-    "blockGroup": "Bloque de texto en {{section}}",
-    "blockIn": "En {{section}}:"
+    "to": "Añadir a {{part}}",
+    "writing": "Texto"
   },
   "home": {
     "title": "Estudios",
@@ -625,12 +641,372 @@
     "title": "Añadir al estudio: {{study}}",
     "chooseStudy": "Estudio",
     "otherStudy": "Otro estudio…",
-    "noStudies": "Todavía no hay ningún estudio. Empiece uno en el panel Estudio y luego añada esto.",
-    "yourNote": "Su apunte (opcional)",
-    "placeholder": "¿Qué saca de esto?",
-    "placeholderRequired": "Escriba lo que saca de este lugar…",
+    "noStudies": "Todavía no hay ningún estudio. Empieza uno en el panel Estudio y luego añade esto.",
+    "yourNote": "Tu apunte (opcional)",
+    "placeholder": "¿Qué sacas de esto?",
+    "placeholderRequired": "Escribe lo que sacas de este lugar…",
     "save": "Añadir al estudio",
     "added": "Añadido a {{study}} · {{part}}.",
-    "loading": "Cargando sus estudios…"
+    "loading": "Cargando tus estudios…"
+  },
+  "view": {
+    "label": "Mostrar",
+    "study": "Estudio bíblico",
+    "teaching": "Enseñanza bíblica"
+  },
+  "teaching": {
+    "loading": "Abriendo la enseñanza…",
+    "which": "Enseñanza:",
+    "another": "Preparar otra enseñanza bíblica",
+    "empty": {
+      "title": "Preparar una enseñanza a partir de este estudio",
+      "text": "Un sermón, un estudio en grupo o una lección, escritos por ti. Puedes usar lo que encontraste en este estudio: tus apuntes y pasajes siguen en su sitio y aquí solo se usan. No se rellena nada por ti, y cada parte puede quedar vacía."
+    },
+    "kindLabel": "Tipo de enseñanza",
+    "kindNone": "Sin indicar",
+    "kind": {
+      "sermon": "Sermón",
+      "bible_study": "Estudio bíblico en grupo",
+      "youth": "Jóvenes",
+      "children": "Niños",
+      "lesson": "Lección",
+      "talk": "Charla",
+      "other": "Otro"
+    },
+    "titleLabel": "Título",
+    "start": "Empezar",
+    "delete": "Eliminar esta enseñanza",
+    "deleteConfirm": "¿Eliminar esta enseñanza? El estudio, sus apuntes y sus pasajes quedan como están.",
+    "about": "Sobre esta enseñanza",
+    "audience": "Para quién",
+    "audiencePlaceholder": "p. ej. toda la iglesia, un grupo de jóvenes",
+    "purpose": "Propósito",
+    "purposePlaceholder": "Lo que esperas de esta enseñanza",
+    "notes": "Notas para ti",
+    "notesHint": "Recordatorios mientras enseñas; no forman parte de lo que dices.",
+    "points": {
+      "whole": "toda la enseñanza",
+      "moveUp": "Subir «{{point}}»",
+      "moveDown": "Bajar «{{point}}»",
+      "delete": "Eliminar «{{point}}»"
+    },
+    "links": {
+      "used": "Usado en {{scope}}",
+      "wholeScope": "toda la enseñanza",
+      "passages": "Pasajes en {{scope}}",
+      "findings": "De tu estudio, en {{scope}}",
+      "materials": "Guardado del asistente en {{scope}}",
+      "useFinding": "Usar un apunte de tu estudio",
+      "chooseFinding": "De tu estudio",
+      "pick": "Elegir…",
+      "empty": "(vacío)",
+      "findingNote": "Sigue en tu estudio. Si lo cambias allí, también cambia aquí.",
+      "removeFinding": "Dejar de usarlo aquí",
+      "removeFindingHint": "Sigue en tu estudio.",
+      "addPassage": "Añadir un pasaje",
+      "passageLabel": "Pasaje para {{scope}}",
+      "removePassage": "Quitar {{passage}} de esta enseñanza"
+    },
+    "material": {
+      "story": "Historia real",
+      "illustration": "Idea de ilustración",
+      "image": "Imagen",
+      "visual": "Idea para un recurso visual",
+      "remove": "Quitar de esta enseñanza"
+    },
+    "standing": {
+      "verified": "Fuentes encontradas: dos sitios independientes de los resultados lo cuentan. La calidad de las fuentes varía: léelas antes de usarlo.",
+      "unverified": "Hay que comprobarlo: solo se encontró una fuente. Léela antes de usarlo.",
+      "hypothetical": "Ejemplo inventado, no un hecho real",
+      "found": "Imagen encontrada · {{licence}}",
+      "generated": "Hecha por el asistente: una ilustración, no una fotografía",
+      "suggestion": "Sugerencia del asistente"
+    },
+    "assist": {
+      "menu": "Ayuda IA",
+      "menuLabel": "Ayuda IA con {{part}}",
+      "action": {
+        "grammar": "Revisar gramática y ortografía",
+        "clarity": "Hacerlo más claro",
+        "shorten": "Acortar",
+        "natural": "Que suene natural",
+        "repetition": "Quitar repeticiones",
+        "spoken": "Más fácil de decir en voz alta",
+        "audience": "Adaptar a un público…",
+        "translate": "Traducir…",
+        "transition": "Ayuda con una transición",
+        "review": "Revisar lo que escribí",
+        "structure": "Comentar la estructura",
+        "application": "¿La aplicación sale del pasaje?",
+        "theology": "Revisar la teología y el pasaje",
+        "passages": "Sugerir pasajes para mirar",
+        "phrasing": "Otras formas de decirlo",
+        "question": "Ayuda con una pregunta para conversar…",
+        "restructure": "¿Cómo podría ordenar lo que tengo?",
+        "illustration": "Ideas para una ilustración",
+        "story": "Buscar una historia real…",
+        "visual": "Sugerir un recurso visual",
+        "free": "Pedir otra cosa…"
+      },
+      "title": "{{action}} · {{part}}",
+      "close": "Cerrar el asistente",
+      "selectionOnly": "Solo las palabras que seleccionaste.",
+      "request": {
+        "question": "¿Qué debe ayudar a notar la pregunta?",
+        "story": "¿Qué tipo de historia real buscas?",
+        "transition": "¿Qué debe conectar? (opcional)",
+        "phrasing": "¿Qué quieres decir? (opcional)",
+        "visual": "¿Qué debe ayudar a explicar la imagen? (opcional)",
+        "free": "¿Con qué quieres ayuda?"
+      },
+      "audienceLabel": "¿Para quién?",
+      "audiencePlaceholder": "p. ej. niños de 8 a 10 años",
+      "languageLabel": "¿A qué idioma?",
+      "languagePlaceholder": "p. ej. coreano",
+      "shared": {
+        "remote": "Para ayudar, esto se enviará a {{assistant}}:",
+        "local": "Esto se queda en este ordenador ({{assistant}}). Verá:",
+        "text": "tu parte «{{part}}»",
+        "selection": "las palabras seleccionadas",
+        "request": "lo que pediste",
+        "teaching": "el título y el tipo de la enseñanza, y su público, propósito y mensaje central si están escritos",
+        "nearby_one": "otra parte de esta enseñanza (para mantener tu estilo)",
+        "nearby_many": "{{count}} partes más de esta enseñanza (para mantener tu estilo)",
+        "nearby_other": "{{count}} partes más de esta enseñanza (para mantener tu estilo)",
+        "passages": "Escritura: {{passages}}",
+        "findings_one": "un apunte de tu estudio",
+        "findings_many": "{{count}} apuntes de tu estudio",
+        "findings_other": "{{count}} apuntes de tu estudio",
+        "quotes_one": "una cita de un libro de tu biblioteca, con su fuente",
+        "quotes_many": "{{count}} citas de libros de tu biblioteca, con sus fuentes",
+        "quotes_other": "{{count}} citas de libros de tu biblioteca, con sus fuentes",
+        "searches": "También se enviarán a tu servicio de búsqueda palabras basadas en tu petición (pueden incluir tus palabras)."
+      },
+      "ask": "Pedir",
+      "askHint": "Ctrl+Intro pide; Escape cierra. No se envía nada antes de pedir.",
+      "ready": "Sugerencia lista.",
+      "failed": "El asistente no pudo ayudar esta vez.",
+      "kept": "Guardado con esta enseñanza.",
+      "keptLabel": "Guardado",
+      "from": "De {{assistant}}",
+      "done": "Listo",
+      "applied": "Cambiado como elegiste.",
+      "undo": "Deshacer",
+      "undone": "Tu texto anterior ha vuelto.",
+      "proposal": {
+        "heading": "Redacción sugerida",
+        "headingStart": "Transición sugerida",
+        "notYet": "Todavía no ha cambiado nada. Tu texto queda como está si no eliges esto.",
+        "same": "No se sugieren cambios.",
+        "removed": "quitado:",
+        "added": "añadido:",
+        "changes": "Qué cambió: {{changes}}",
+        "use": "Usar esta redacción",
+        "useStart": "Ponerla al principio"
+      },
+      "comments": {
+        "heading": "Comentarios sobre lo que escribiste",
+        "none": "Nada que añadir.",
+        "suggested": "Para mirar:",
+        "add": "Añadir",
+        "addPassage": "Añadir {{passage}} a esta enseñanza"
+      },
+      "basis": {
+        "scripture": "Según el asistente, basado en la Escritura",
+        "study": "Según el asistente, basado en tu estudio",
+        "source": "Según el asistente, basado en un libro de tu biblioteca",
+        "reasoning": "Reflexión propia del asistente, para que la valores"
+      },
+      "options": {
+        "heading": "Sugerencias",
+        "headingInvented": "Ideas de ilustración",
+        "invented": "Son ejemplos inventados, no hechos reales. No los cuentes como si hubieran ocurrido.",
+        "insert": "Añadir debajo de mi texto",
+        "keepIdea": "Guardar como idea",
+        "use": "Usar esto"
+      },
+      "stories": {
+        "heading": "Historias reales encontradas",
+        "none": "No se pudo encontrar ni comprobar ninguna historia real en los resultados. No se ha inventado nada.",
+        "checkNote": "Comprobado solo con los resúmenes de los resultados. Abre las fuentes y lee toda la historia antes de usarla.",
+        "keep": "Guardar con esta enseñanza",
+        "sources": "Fuentes"
+      },
+      "visuals": {
+        "heading": "Ideas para un recurso visual",
+        "kind": {
+          "photo": "Foto",
+          "diagram": "Esquema sencillo",
+          "drawing": "Dibujo"
+        },
+        "find": "Buscar imágenes de licencia libre",
+        "make": "Crear una imagen",
+        "keepIdea": "Guardar esta idea",
+        "cannotMake": {
+          "off": "Crear imágenes está desactivado (Configuración → Asistente de IA). Buscar imágenes con licencia libre sigue funcionando.",
+          "unsupported": "Este servicio de IA no puede crear imágenes. Puedes elegir OpenAI para las imágenes en Configuración → Asistente de IA. Buscar imágenes con licencia libre sigue funcionando.",
+          "noKey": "Crear imágenes necesita la clave de OpenAI para imágenes (Configuración → Asistente de IA). Buscar imágenes con licencia libre sigue funcionando."
+        }
+      },
+      "images": {
+        "found": "Imágenes encontradas",
+        "none": "No se encontraron imágenes de licencia libre.",
+        "by": "de {{author}}",
+        "source": "De dónde procede",
+        "keep": "Guardar esta imagen",
+        "keepLabel": "Guardar la imagen «{{title}}»",
+        "generatedAlt": "Ilustración hecha por el asistente: {{description}}",
+        "nothingPlaced": "No se coloca nada en tu enseñanza a menos que lo guardes."
+      },
+      "changedMeanwhile": "Tu texto cambió después de que lo pidieras, así que no se usó esta sugerencia. Vuelve a pedirlo.",
+      "menuIntro": "¿Qué te ayudaría?",
+      "allHelp": "Toda la ayuda",
+      "category": {
+        "wording": "Mejorar mi redacción",
+        "review": "Revisar lo que escribí",
+        "structure": "Ayuda con la estructura",
+        "ideas": "Ideas e ilustraciones",
+        "research": "Buscar algo"
+      },
+      "freePlaceholder": "p. ej. ¿Es demasiado largo para un grupo de jóvenes?",
+      "freeHint": "El asistente ve esta parte y lo que necesita de esta enseñanza y este estudio. Responde con comentarios y preguntas; no escribe tu enseñanza por ti.",
+      "slow": "Está tardando más de lo normal. Puedes seguir esperando o parar.",
+      "stop": "Dejar de esperar",
+      "stopped": "Has dejado de esperar. No se ha cambiado nada. El servicio puede terminar igualmente la petición, y puede contar en tu uso.",
+      "pending": {
+        "ask": "Preguntando al asistente…",
+        "story": "Buscando fuentes… Puede tardar un poco.",
+        "findImages": "Buscando imágenes adecuadas…",
+        "makeImage": "Creando una imagen… Puede tardar un poco."
+      },
+      "menuTitle": "Ayuda del asistente de IA",
+      "minimise": "Minimizar",
+      "restore": "Volver a abrir el asistente de IA",
+      "panelLabel": "Asistente de IA: {{label}}",
+      "move": "Mover el panel (teclas de flecha)",
+      "sendsTo": "Crear una imagen envía la descripción de esta idea a {{service}} por internet."
+    },
+    "shape": {
+      "points": {
+        "title": "Puntos principales",
+        "none": "Aún no hay puntos. Añade los que necesites, de cualquier forma: un momento de un relato, una pregunta, un tema o unos versículos.",
+        "add": "Añadir un punto",
+        "number": "Punto {{number}}",
+        "label": "Punto {{number}}: {{title}}",
+        "untitled": "Punto {{number}}",
+        "titleLabel": "Título del punto {{number}}",
+        "titlePlaceholder": "Lo que dice este punto",
+        "explanation": "Explicación",
+        "application": "Aplicación",
+        "illustration": "Ilustración o ejemplo",
+        "added": "Punto añadido.",
+        "removed": "Punto eliminado.",
+        "moved": "Punto movido al lugar {{position}}.",
+        "deleteConfirm": "¿Eliminar este punto y lo que escribiste en él? Los apuntes usados aquí siguen en el estudio.",
+        "message": "Mensaje central",
+        "messageHint": "Lo principal que quieres que la gente se lleve",
+        "introduction": "Introducción",
+        "conclusion": "Conclusión"
+      },
+      "questions": {
+        "title": "Preguntas y respuestas",
+        "none": "Aún no hay preguntas. Añade las preguntas de las que queréis hablar, cada una con lo que muestra el pasaje.",
+        "add": "Añadir una pregunta",
+        "number": "Pregunta {{number}}",
+        "label": "Pregunta {{number}}: {{title}}",
+        "untitled": "Pregunta {{number}}",
+        "titleLabel": "Pregunta {{number}}",
+        "titlePlaceholder": "La pregunta que vas a hacer",
+        "explanation": "Hacia dónde puede llevar",
+        "application": "Preguntas de seguimiento",
+        "illustration": "Notas para guiar la conversación",
+        "added": "Pregunta añadida.",
+        "removed": "Pregunta eliminada.",
+        "moved": "Pregunta movida al lugar {{position}}.",
+        "deleteConfirm": "¿Eliminar esta pregunta y lo que escribiste con ella? Los apuntes usados aquí siguen en el estudio.",
+        "message": "Lo que el grupo debería descubrir",
+        "messageHint": "Lo principal a lo que debería llevar la conversación",
+        "introduction": "Apertura",
+        "conclusion": "Cierre"
+      },
+      "steps": {
+        "title": "Desarrollo de la lección",
+        "none": "Aún no hay pasos. Añade las partes de la lección en el orden en que suceden: bienvenida, historia, actividad, oración…",
+        "add": "Añadir un paso",
+        "number": "Paso {{number}}",
+        "label": "Paso {{number}}: {{title}}",
+        "untitled": "Paso {{number}}",
+        "titleLabel": "Título del paso {{number}}",
+        "titlePlaceholder": "Qué pasa en este paso",
+        "explanation": "Lo que vas a decir o hacer",
+        "application": "Lo que deberían llevarse",
+        "illustration": "Actividad, material o ejemplo",
+        "added": "Paso añadido.",
+        "removed": "Paso eliminado.",
+        "moved": "Paso movido al lugar {{position}}.",
+        "deleteConfirm": "¿Eliminar este paso y lo que escribiste en él? Los apuntes usados aquí siguen en el estudio.",
+        "message": "Lo que hay que recordar",
+        "messageHint": "En pocas palabras que puedan repetir después",
+        "introduction": "Apertura",
+        "conclusion": "Final"
+      }
+    },
+    "aboutEmpty": "Tipo, para quién, propósito, pasajes",
+    "aboutFor": "para {{audience}}",
+    "format": {
+      "points": "Puntos principales con explicación, aplicación e ilustración, entre una introducción y una conclusión.",
+      "questions": "Preguntas para el grupo, cada una con hacia dónde puede llevar y preguntas de seguimiento.",
+      "steps": "Una lección por pasos: enseñanza, lectura bíblica, preguntas, actividades e imágenes, en el orden en que ocurren."
+    },
+    "startsWith": "Empieza con: {{steps}}.",
+    "starts": {
+      "children": {
+        "welcome": "Bienvenida",
+        "story": "Historia bíblica",
+        "question": "Pregunta",
+        "activity": "Actividad",
+        "prayer": "Oración"
+      },
+      "lesson": {
+        "teaching": "Enseñanza",
+        "discussion": "Conversación",
+        "activity": "Actividad"
+      }
+    },
+    "stepKindLabel": "Tipo de paso: {{step}}",
+    "stepKind": {
+      "none": "Tipo sin indicar",
+      "text": "Enseñanza",
+      "scripture": "Lectura bíblica",
+      "question": "Pregunta",
+      "activity": "Actividad",
+      "image": "Imagen",
+      "audio": "Audio"
+    },
+    "step": {
+      "text": {
+        "explanation": "Lo que vas a decir"
+      },
+      "scripture": {
+        "explanation": "Cómo lo vas a leer o contar"
+      },
+      "question": {
+        "explanation": "Respuestas que esperar"
+      },
+      "activity": {
+        "explanation": "Cómo se hace",
+        "illustration": "Lo que necesitas"
+      },
+      "image": {
+        "explanation": "Qué muestra y cuándo la muestras"
+      }
+    }
+  },
+  "parts": {
+    "add": "Añadir una parte",
+    "suggested": "Partes que puedes añadir",
+    "own": "Tu propio título",
+    "collapseAll": "Plegar todo",
+    "expandAll": "Desplegar todo"
   }
 }

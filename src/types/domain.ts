@@ -93,6 +93,7 @@ export type ErrorKind =
   | "duplicateTranslation"
   | "integrity"
   | "backup"
+  | "assistant"
   | "unexpected";
 
 export interface ErrorPayload {

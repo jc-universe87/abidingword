@@ -936,6 +936,21 @@ The UI should make these domains distinguishable.
 
 Abiding Word should use a provider abstraction.
 
+> **Implemented (v0.16), for text:** `src-tauri/src/assistant/` — one request
+> builder for two wire formats (chat completions: OpenAI, Google, Ollama,
+> LM Studio, compatible servers; Anthropic Messages), keys in the OS credential
+> store (§36), a bounded context assembled from one teaching preparation and
+> its study (§25), labelled provenance (§26), research through a separate
+> search service, and images (Wikimedia Commons; OpenAI-style generation).
+> Embedding, transcription and OCR providers are not built. Presets after the
+> v0.16 refinement: OpenAI, Anthropic, Google, xAI, Perplexity, DeepSeek,
+> Qwen, Ollama, LM Studio and any other compatible service; none is preferred.
+> Presentation is a future output of a teaching (export, or audience and
+> presenter screens), not a third workspace view. Image creation has its own
+> service and capability (§18.4): writing and images can use different
+> providers. Details:
+> [`teaching-preparation-v0.16.md`](teaching-preparation-v0.16.md) §17–18.
+
 ## Providers
 
 ```text

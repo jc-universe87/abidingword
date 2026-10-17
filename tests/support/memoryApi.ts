@@ -57,6 +57,8 @@ import type {
   TemplateSection,
 } from "@/types/studies";
 
+import { newTeachingState, teachingApi, type TeachingState } from "./memoryTeaching";
+
 const BUILTIN_TEMPLATES = [passageStudy, wordStudy, topicalStudy, biblicalTheology, systematicTheology, teachingStudy];
 import { BOOKS, FIXTURE_VERSE_COUNT, fixtureChapters } from "./scriptureFixture";
 
@@ -112,6 +114,8 @@ export interface MemoryApi extends Api {
       /** Source annotations (v0.14); removed ones stay with `deleted`. */
       annotations: (SourceAnnotation & { deleted: boolean })[];
     };
+    /** Teaching preparations and the scripted assistant (v0.16). */
+    teaching: TeachingState;
   };
   /** Installs a fixture Bible directly (test setup). */
   installFixtureBible(shortName: string, wording: string): BibleTranslation;
@@ -320,6 +324,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     library: { sources: [], segments: [], mentions: [], links: [], nextChosenFile: null, openedLinks: [], openLinkFails: false, pending: null, annotations: [] },
     findings: [],
     relations: [],
+    teaching: newTeachingState(),
     templates: BUILTIN_TEMPLATES.map((t) => ({
       id: `tpl-${t.key}`,
       key: t.key,
@@ -639,6 +644,14 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         .slice(0, 30);
   };
   const api: MemoryApi = {
+    ...teachingApi(state.teaching, {
+      id,
+      now,
+      findings: () => state.findings,
+      studyExists: (studyId) => void find(state.studies, studyId, "study"),
+      studyPassages: () => state.passages,
+      ref: (canonical) => refFromCanonical(canonical, bookByCode),
+    }),
     libraryLocationsCalls: [],
     concordanceCalls: [],
     detectCalls: [],
@@ -692,7 +705,8 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         description: input.description ?? null, details: {}, createdAt: t, updatedAt: t, revision: 1,
       };
       state.studies.push(study);
-      (template?.sections ?? [{ title: "Notes" }]).forEach((section, position) => addSection(study.id, section, position));
+      // As the core: optional parts are offered later, retired ones are kept only for old studies.
+      (template?.sections.filter((sec) => !sec.optional && !sec.retired) ?? [{ title: "Notes" }]).forEach((section, position) => addSection(study.id, section, position));
       if (primary) state.passages.push({ id: id(), studyId: study.id, reference: primary, role: "primary", createdAt: t });
       return detail(study.id);
     },
@@ -863,7 +877,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
 
     templateList: async () => [...state.templates],
     templateCreate: async (input) => {
-      if (input.sections.length === 0) throw new ApiError("invalidInput", "A template needs at least one section.");
+      if (!input.sections.some((sec) => !sec.optional)) throw new ApiError("invalidInput", "A template needs at least one part to start with.");
       const t = now();
       const template: StudyTemplate = {
         id: id(), key: `user-${counter}`, name: requireTitle(input.name, "template"), description: input.description ?? null,
@@ -887,7 +901,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const original = find(state.templates, templateId, "template");
       return api.templateCreate({
         name: `${original.name} (copy)`, description: original.description ?? undefined,
-        studyType: original.studyType, sections: original.sections.map((sec) => ({ ...sec })),
+        studyType: original.studyType, sections: original.sections.filter((sec) => !sec.retired).map((sec) => ({ ...sec })),
       });
     },
     templateDelete: async (templateId) => {
@@ -1585,7 +1599,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       if (!content) throw new ApiError("invalidInput", "Write something to add first.");
       if (input.sectionId) {
         const section = state.sections.find((x) => x.id === input.sectionId);
-        if (!section || section.studyId !== input.studyId) throw new ApiError("invalidInput", "That section belongs to another study.");
+        if (!section || section.studyId !== input.studyId) throw new ApiError("invalidInput", "That part belongs to another study.");
       }
       const t = now();
       const finding: Finding = {

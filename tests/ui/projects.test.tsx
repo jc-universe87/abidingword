@@ -42,7 +42,7 @@ describe("the first study", () => {
     await setLanguage("de");
     try {
       const { api, user } = await renderApp();
-      await user.type(await screen.findByLabelText("Was möchten Sie studieren?"), "John 15:1-11");
+      await user.type(await screen.findByLabelText("Was möchtest du studieren?"), "John 15:1-11");
       await user.click(screen.getByRole("button", { name: "Bibelstudium erstellen" }));
       await waitFor(() => expect(api.state.projects).toHaveLength(1));
       expect(api.state.projects[0]!.title).toBe("Meine Bibelstudien");

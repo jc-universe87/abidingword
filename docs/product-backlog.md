@@ -192,92 +192,59 @@ author and Bible-study author.
   person from using AI heavily on their own. Abiding Word itself just does not
   position AI as the author.
 
-It should later shape command names, buttons, prompts, output size,
-provenance, UI wording and the review workflow. No AI is implemented.
+It shapes command names, buttons, prompts, output size, provenance, UI
+wording and the review workflow.
 
-## 3. Backup and sync versus export and publication
+**Built in v0.16** (see [`teaching-preparation-v0.16.md`](teaching-preparation-v0.16.md)):
+teaching preparations written by the person, and an optional, provider-neutral
+assistant beside each part of a teaching (wording, comments, ideas, real
+stories through search, images), which never changes the person's text
+without an explicit choice and lists what it will see before anything is sent.
 
-These are different problems and stay separate.
+**Refined after Windows testing** (§17 of the v0.16 record): calmer Settings,
+more provider presets with plain key help, a two-level Help menu with a
+free-text request answered only as comments, visible progress for long
+operations, and a Teaching view where the writing comes first.
 
-**A. Workspace sync / backup.** Abiding Word stays local-first; the internal
-workspace and database are authoritative. Possible providers: Nextcloud /
-WebDAV, Google Drive, Microsoft OneDrive, Dropbox, a local folder, other
-generic filesystem or cloud providers. Goals: backup, multi-device
-synchronisation, restore. The live SQLite file is never edited or synced
-directly; the planned change journal, conflict-aware synchronisation,
-backup-first approach and `SyncProvider` abstraction apply (see
-`architecture.md`, synchronisation sections).
+**Still open:** the assistant in the Study itself (findings, sections) and in
+the Library (summarising a source with provenance); research modes beyond one
+teaching ("my library only", "compare these three commentaries"); a record of
+accepted assistant wording; a persistent Linux key store; search through an AI
+service's own search tool; copying teaching preparations with a study and
+finding them in study search.
 
-**B. Document export / publication.** Users turn their own work into portable
-documents: Markdown, DOCX, PDF, PowerPoint, and plain text where useful.
-Material could include a Study, a sermon or teaching manuscript, a teaching
-outline, findings, study notes, selected Scripture references and
-bibliography/citations. An export may then optionally be saved to the local
-filesystem or a cloud destination.
+### Presentation (future; not a peer of Bible Study / Bible Teaching)
 
-```
-Abiding Word workspace
-   |-- Sync / Backup provider
-   `-- Exporter
-         |-- Markdown / DOCX / PDF / PowerPoint
-         `-- destination: local | cloud
-```
+Presentation is an **output of a teaching**, not a third view beside Bible
+Study and Bible Teaching. Two paths, both later:
 
-Cloud providers must not be hard-wired into the internal data model.
+- **A. Export or create a presentation** (PowerPoint or slides) from a
+  teaching's parts, Scripture and kept images.
+- **B. Present directly:** an audience screen (Scripture, images, key
+  sentences) and a presenter screen (manuscript, notes, current and next,
+  navigation), built on the multi-window work (§1).
 
-## 4. Formatted sources
+Keep the teaching model ordered and id-stable, and keep media out of the
+manuscript text, so neither path needs a migration of what people wrote.
 
-Today: PDF **Original** view, formatted EPUB and DOCX **Original** views (v0.8),
-**Contents** (the source's own PDF outline, EPUB table of contents or DOCX headings),
-**internal links and footnotes** in a PDF's Original view and in an EPUB's
-Reading and Original views, and **Back / Forward** reading history — see
-[`formatted-source-viewer.md`](formatted-source-viewer.md),
-[`source-navigation-v0.7.md`](source-navigation-v0.7.md) and
-[`formatted-epub-v0.8.md`](formatted-epub-v0.8.md) and
-[`formatted-docx-v0.8.md`](formatted-docx-v0.8.md). Backlog:
+### Image providers (next step after v0.16)
 
-- **PDF:** following links that leave the document (web links are shown to
-  nobody today), named actions such as "next page", and links inside
-  Reading's extracted text.
-- **EPUB:** embedded fonts, fixed-layout and
-  vertical-writing books, inline SVG/MathML, a text-size control, and
-  making marks directly on the formatted view (they are shown there since
-  v0.14).
-- **History** beyond one reading session (it is kept in memory only, per
-  source), and across sources.
-- **DOCX:** headers and footers, text boxes and shapes, charts and equations,
-  heading numbers from multilevel lists, other number formats, table widths and
-  borders, links inside Reading's text, caching the parsed document between
-  parts, and the EPUB items above that apply (text size, making marks there). Web links
-  open in the system browser (`http`/`https` only) in both formatted views;
-  `mailto:` and other schemes stay blocked until deliberately designed.
-- **Generated contents:** built in v0.13 (accepted): headings of
-  EPUB, Markdown and Word sources, and conservative probable headings of a PDF,
-  always labelled *Generated contents*. Open: bold type as PDF evidence (the
-  extractor does not report weight), a Word document's own TOC field, and
-  find marks drawn inside the EPUB / Word Original views.
-- **PDF Bible:** viewing the original document is distinct from Structured
-  Scripture. Future work is verified book/chapter/verse extraction with
-  uncertainty/confidence, provenance and versification handling, and **no
-  invented verse structure.**
+v0.16 separates the writing service from the image service (`ImageService`:
+the same service, or OpenAI) and decides image capability from the service
+(supported / unsupported / unknown). Next: Google's own image API and other
+image providers as further choices, each with its own request builder and
+key, without touching the writing set-up.
 
-## 5. Stable signed release and updater channel (infrastructure)
+### Format-specific teaching canvases, inline media, templates
 
-**BACKLOG / FUTURE — not built.** Today a milestone is released as a validated
-`main` plus an **annotated milestone tag** (`studies-v0.3`, `library-v0.4`,
-`scripture-annotations-v0.5`). The normal *Native builds* workflow attaches
-unsigned installers to the tag's run as short-lived workflow artifacts, and the
-only signed distribution is the **test** update channel, published
-automatically for every green `main` ([`updates.md`](updates.md)). There is no stable GitHub Release, no stable
-signed installer and no stable update endpoint, and test builds never read one.
+**Built in v0.17** (see [`study-teaching-simplification-v0.17.md`](study-teaching-simplification-v0.17.md)):
+a canvas per kind of teaching (points for a sermon, questions with where they
+may lead and follow-ups for a group study, steps for a lesson), lesson steps
+with a kind (teaching, Bible reading, question, activity, picture; audio
+reserved), starting steps for lessons, one Templates section for Study and
+Teaching, and "finding" dropped as a user-facing word.
 
-A production distribution channel is separate infrastructure work. It should
-later cover:
-
-- production signing of installers and updater artifacts;
-- a production updater endpoint and repository, with test builds still reading
-  only the test channel and stable builds never seeing test updates;
-- a stable release workflow, run from a tagged commit;
-- a GitHub Release / public artifact policy, if desired;
-- key and secret management, kept apart from the test key;
-- rollback and recovery (withdrawing a bad release, pointing clients back).
+**Still open:** user-defined Bible Teaching templates (own formats and
+starting steps); audio steps and a step-level media attachment; an
+"Add a step ▸ kind" menu; moving notes between parts by dragging; the
+assistant inside Bible Study.

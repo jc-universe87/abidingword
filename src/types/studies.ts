@@ -139,7 +139,14 @@ export interface TemplateSection {
   key?: string | null;
   title: string;
   guidance?: string | null;
+  /** Not made with a new study: offered later, when a part is added. */
+  optional?: boolean;
+  /** Built-in only: no longer offered; kept so that older studies still show it translated. */
+  retired?: boolean;
 }
+
+/** A part a new study starts with (not optional, not retired). */
+export const startsWith = (section: TemplateSection) => !section.optional && !section.retired;
 
 export interface StudyTemplate {
   id: string;

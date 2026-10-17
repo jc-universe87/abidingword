@@ -5,26 +5,25 @@
     "appearance": "Darstellung",
     "language": "Sprache",
     "bibleTexts": "Bibelübersetzungen",
-    "templates": "Vorlagen für Bibelstudien",
+    "templates": "Vorlagen",
     "about": "Über diese Installation",
-    "planned": "In späteren Versionen"
+    "planned": "In späteren Versionen",
+    "assistant": "KI-Assistent",
+    "updates": "Updates"
   },
   "language": {
     "label": "Sprache der Oberfläche",
-    "hint": "Ändert die Sprache von Menüs, Schaltflächen und Meldungen. Ihre Bibelstudien, Notizen, Ihre Bibliothek und die Bibeltexte bleiben unverändert."
+    "hint": "Ändert die Sprache von Menüs, Schaltflächen und Meldungen. Deine Bibelstudien, Notizen, deine Bibliothek und die Bibeltexte bleiben unverändert."
   },
   "theme": {
     "legend": "Farbschema",
     "light": "Hell",
-    "lightHint": "Warmes Elfenbein für das Studium bei Tag.",
     "dark": "Dunkel",
-    "darkHint": "Tiefes Waldgrün, angenehmer bei wenig Licht.",
-    "system": "Wie mein Computer",
-    "systemHint": "Folgt der Einstellung Ihres Betriebssystems."
+    "system": "Wie mein Computer"
   },
   "layout": {
     "title": "Anordnung des Arbeitsbereichs",
-    "description": "Stellt die Bereiche in ihrer üblichen Reihenfolge (Bibel, Bibelstudium, Quellen) und Breite wieder her und blendet sie wie beim ersten Start ein oder aus. Nur die Anordnung auf diesem Computer ändert sich; Ihre Bibelstudien und Ihre Bibliothek bleiben unberührt.",
+    "description": "Stellt die Bereiche in ihrer üblichen Reihenfolge (Bibel, Bibelstudium, Quellen) und Breite wieder her und blendet sie wie beim ersten Start ein oder aus. Nur die Anordnung auf diesem Computer ändert sich; deine Bibelstudien und deine Bibliothek bleiben unberührt.",
     "reset": "Anordnung zurücksetzen",
     "done": "Anordnung zurückgesetzt."
   },
@@ -36,14 +35,191 @@
     "logFiles": "Protokolldateien",
     "schema": "Datenbankschema",
     "schemaVersion": "Version {{version}}",
-    "backup": "Alle Ihre Bibelstudien werden im Datenordner auf diesem Computer gespeichert. Um sie zu sichern, kopieren Sie den ganzen Ordner, während Abiding Word geschlossen ist."
+    "backup": "Alle deine Bibelstudien werden im Datenordner auf diesem Computer gespeichert. Um sie zu sichern, kopiere den ganzen Ordner, während Abiding Word geschlossen ist."
   },
   "planned": {
-    "ai": "KI-Unterstützung",
-    "aiText": "Optionale Hilfe beim Bibelstudium. Abiding Word wird auch ohne sie immer vollständig funktionieren.",
     "sync": "Synchronisierung",
-    "syncText": "Halten Sie Ihre Bibelstudien auf Ihren eigenen Geräten auf dem gleichen Stand – unter Ihrer Kontrolle.",
+    "syncText": "Halte deine Bibelstudien auf deinen eigenen Geräten auf dem gleichen Stand – unter deiner Kontrolle.",
     "integrations": "Integrationen",
-    "integrationsText": "Verbinden Sie andere Werkzeuge, die Sie bereits verwenden."
+    "integrationsText": "Verbinde andere Werkzeuge, die du bereits verwendest."
+  },
+  "assistant": {
+    "intro": "Eine freiwillige Hilfe durch KI (künstliche Intelligenz) für deine Bibellehre. Sie kommentiert und macht Vorschläge; du bleibst der Autor, und an deinem Text ändert sich nichts, wenn du es nicht auswählst. Sie arbeitet nur, wenn du sie fragst.",
+    "enabled": "KI-Assistent verwenden",
+    "provider": "Dienst",
+    "providers": {
+      "openai": "OpenAI (ChatGPT)",
+      "anthropic": "Anthropic (Claude)",
+      "google": "Google Gemini",
+      "ollama": "Ollama",
+      "lmstudio": "LM Studio",
+      "openai_compatible": "Anderer kompatibler Dienst",
+      "xai": "xAI (Grok)",
+      "perplexity": "Perplexity",
+      "deepseek": "DeepSeek",
+      "qwen": "Qwen (Alibaba Cloud)"
+    },
+    "remote": "Wenn du um Hilfe bittest, wird der gewählte Text über das Internet an diesen Dienst gesendet.",
+    "local": "Läuft auf diesem Computer: Dein Text verlässt ihn nicht.",
+    "model": "Modell",
+    "modelPlaceholder": "Name des Modells",
+    "modelHint": "Modellnamen ändern sich oft. Das vorgeschlagene Modell ist ein Ausgangspunkt; der Knopf ↗ neben dem Feld öffnet die aktuelle Liste des Dienstes.",
+    "address": "Adresse des Dienstes",
+    "addressPlaceholder": "Die übliche Adresse des Dienstes",
+    "addressHint": "Leer lassen, um die übliche Adresse des Dienstes zu verwenden. Nur nötig für einen anderen Server oder ein Programm auf einem anderen Computer.",
+    "key": "Schlüssel",
+    "keyHint": "Wird im Passwortspeicher dieses Computers aufbewahrt, nie in deinen Bibelstudien, und nicht wieder angezeigt.",
+    "keyKeptPlaceholder": "Schlüssel gespeichert (zum Ersetzen eingeben)",
+    "keySave": "Schlüssel speichern",
+    "keyRemove": "Schlüssel entfernen",
+    "keySaved": "Der Schlüssel ist auf diesem Computer gespeichert.",
+    "keyRemoved": "Der Schlüssel wurde entfernt.",
+    "search": "Echte Geschichten recherchieren",
+    "searchHint": "Abiding Word fragt einen Suchdienst nach Webseiten zu echten Geschichten und zeigt sie dir mit ihren Links. Ein Suchdienst findet nur Seiten – er entscheidet nicht, was wahr ist. Lies die Quellen, bevor du eine Geschichte verwendest.",
+    "searchKinds": {
+      "none": "Aus",
+      "brave": "Brave Search",
+      "searxng": "SearXNG",
+      "tavily": "Tavily",
+      "exa": "Exa",
+      "serpapi": "SerpApi"
+    },
+    "searchAddress": "SearXNG-Adresse",
+    "searchKey": "Such-Schlüssel",
+    "images": "Bilder",
+    "findImages": "Frei lizenzierte Bilder auf Wikimedia Commons finden (nur Suchbegriffe werden gesendet)",
+    "generateImages": "Bilder erstellen erlauben (immer als vom Assistenten erstellt gekennzeichnet)",
+    "perspective": "Wie soll die KI theologische Fragen einordnen?",
+    "perspectiveHint": "Optional. Hier geht es nicht um deine Lebensgeschichte: Schreib, wenn es hilft, nur eine kurze theologische oder kirchliche Ausrichtung (z. B. „evangelisch-reformiert“). Die KI berücksichtigt sie bei umstrittenen theologischen Fragen und nennt trotzdem andere ernsthafte Auslegungen. Bleibt das Feld leer, wird keine Tradition vorausgesetzt.",
+    "save": "Speichern",
+    "saved": "Gespeichert.",
+    "test": "Verbindung prüfen",
+    "testOk": "Verbunden. Der Assistent hat geantwortet und ist bereit.",
+    "turnedOn": "Der KI-Assistent ist eingeschaltet.",
+    "turnedOff": "Der KI-Assistent ist ausgeschaltet.",
+    "providerGroups": {
+      "internet": "Im Internet",
+      "local": "Auf diesem Computer",
+      "other": "Andere"
+    },
+    "localHelp": {
+      "title": "Wie richte ich {{service}} ein?",
+      "what": "{{service}} ist ein kostenloses Programm, das ein KI-Modell auf deinem eigenen Computer ausführt. Es braucht keinen Schlüssel und kein Konto, und dein Text verlässt deinen Computer nie. Es läuft am besten auf einem recht leistungsstarken Computer, und Antworten können länger dauern.",
+      "steps": "Installiere {{service}}, lade darin ein Modell herunter und lass es laufen. Gib dann unten den Namen des Modells ein und prüfe die Verbindung.",
+      "open": "Website von {{service}} öffnen"
+    },
+    "otherHelp": "Für einen Dienst, der wie der von OpenAI funktioniert. Gib die Adresse aus seiner Anleitung ein, einen Schlüssel, falls er einen braucht, und den Namen des Modells.",
+    "keyOptional": "Schlüssel (falls der Dienst einen braucht)",
+    "keyHelp": {
+      "title": "Wie bekomme ich einen Schlüssel?",
+      "whatA": "Ein Schlüssel ist ein langer Code von {{service}}. Damit darf Abiding Word dein Konto dort nutzen. Behandle ihn wie ein Passwort.",
+      "open": "Schlüsselseite von {{service}} öffnen",
+      "costA": "Die meisten Dienste berechnen ein wenig für die Nutzung und verlangen eventuell Zahlungsdaten oder ein Guthaben, bevor der Schlüssel funktioniert. Das regelst du auf deren Website, nicht in Abiding Word.",
+      "step1": "Öffne unten die Seite von {{service}}.",
+      "step2": "Melde dich an oder leg ein Konto an, falls du noch keins hast.",
+      "step3": "Erstelle einen neuen Schlüssel (er heißt dort oft „API-Schlüssel“ oder „API key“).",
+      "step4": "Kopiere ihn sofort: Meist wird er nur einmal angezeigt.",
+      "step5": "Kehre zu Abiding Word zurück.",
+      "step6": "Füge ihn oben in das Feld „Schlüssel“ ein.",
+      "step7": "Drücke „Schlüssel speichern“.",
+      "step8": "Drücke „Verbindung prüfen“."
+    },
+    "modelHintEmpty": "Gib den Namen des Modells so ein, wie {{service}} ihn anzeigt.",
+    "advanced": "Erweitert",
+    "checking": "Die Verbindung wird geprüft … Das kann ein paar Sekunden dauern.",
+    "why": {
+      "noKey": "Um die Verbindung zu prüfen, füge zuerst deinen Schlüssel ein und wähle „Schlüssel speichern“.",
+      "noModel": "Um die Verbindung zu prüfen, gib zuerst den Namen des Modells ein.",
+      "noAddress": "Um die Verbindung zu prüfen, gib zuerst die Adresse des Dienstes ein.",
+      "badAddress": "Die Adresse des Dienstes muss mit http:// oder https:// beginnen."
+    },
+    "extras": "Weitere Möglichkeiten (optional)",
+    "optional": "(optional)",
+    "perspectiveExamples": "Beispiele:",
+    "perspectiveExample": {
+      "reformed": "evangelisch-reformiert",
+      "catholic": "römisch-katholisch",
+      "lutheran": "lutherisch",
+      "pentecostal": "pfingstlich",
+      "none": "keine bestimmte Tradition"
+    },
+    "modelsLink": "Aktuelle Modelle von {{service}} ansehen",
+    "modelsLocal": "Modelle ansehen, die du für {{service}} herunterladen kannst",
+    "searchAdvanced": "Weitere (für Fortgeschrittene)",
+    "imagesHelp": "„Bilder finden“ sucht auf Wikimedia Commons nach frei lizenzierten Bildern; gesendet werden nur deine Suchwörter. „Bilder erstellen“ lässt einen KI-Bilddienst ein Bild zeichnen, das immer als vom Assistenten erstellt gekennzeichnet ist. Nicht jeder KI-Dienst kann Bilder erstellen.",
+    "imageService": "Bilder erstellen mit",
+    "imageServices": {
+      "same": "Demselben KI-Dienst (falls er es kann)",
+      "openai": "OpenAI (braucht einen OpenAI-Schlüssel)"
+    },
+    "imageCapability": {
+      "supported": "{{service}} kann Bilder erstellen.",
+      "unsupported": "{{service}} kann keine Bilder erstellen. Wähle OpenAI für Bilder oder lass es aus.",
+      "unknown": "Abiding Word kann nicht erkennen, ob {{service}} mit deinem Konto Bilder erstellen kann. Du kannst es versuchen; wenn es nicht klappt, wähle OpenAI für Bilder."
+    },
+    "imageKey": "OpenAI-Schlüssel für Bilder",
+    "imageKeyMissing": "Noch kein OpenAI-Schlüssel für Bilder gespeichert: Füge ihn unten ein und drücke „Schlüssel speichern“.",
+    "imagesLeave": "Bildbeschreibungen werden über das Internet an OpenAI gesendet, auch wenn dein Schreibdienst das nicht tut.",
+    "searchShort": {
+      "brave": "einfache allgemeine Websuche",
+      "tavily": "Suche, die für KI-Assistenten gemacht ist",
+      "exa": "findet passende Quellen und Textstellen",
+      "searxng": "selbst betrieben, braucht eine Serveradresse",
+      "serpapi": "Google-Ergebnisse über SerpApi"
+    },
+    "searchOption": "{{name}} – {{short}}",
+    "searchRecommended": "Empfohlen",
+    "searchWhat": {
+      "brave": "Brave Search ist eine unabhängige Websuche. Ihr Suchdienst für Programme (die „Search API“) liefert gewöhnliche Web-Ergebnisse mit einem kurzen Auszug.",
+      "tavily": "Tavily ist ein Suchdienst, der für KI-Assistenten gemacht ist. Er liefert Webseiten mit einem gut lesbaren Auszug, sodass der KI-Assistent zeigen kann, was eine Seite sagt.",
+      "exa": "Exa sucht nach Bedeutung, nicht nur nach Wörtern. Es liefert Seiten mit den Textstellen, die am besten zu deiner Frage passen.",
+      "searxng": "SearXNG ist ein offenes Suchprogramm, das manche auf ihrem eigenen Server betreiben. Du brauchst die Adresse eines SearXNG-Servers, der Suchen von Programmen erlaubt („JSON“-Ergebnisse). Wenn dir das nichts sagt, wähle lieber einen der empfohlenen Dienste.",
+      "serpapi": "SerpApi liefert die Suchergebnisse von Google für Programme. Es ist ein kostenpflichtiger Dienst mit einem kleinen kostenlosen Kontingent und eher für Leute gedacht, die ihn schon nutzen."
+    },
+    "searchSetup": {
+      "title": "Wie richte ich {{service}} ein?",
+      "step1": "Öffne die Seite von {{service}} unten und melde dich an oder erstelle ein Konto.",
+      "step2": "Erstelle dort einen Schlüssel (er heißt vielleicht „API key“) und kopiere ihn.",
+      "step3": "Füge ihn in das Feld für den Suchschlüssel ein und klicke auf „Schlüssel speichern“.",
+      "step4": "Klicke auf „Suche prüfen“.",
+      "open": "Seite von {{service}} öffnen",
+      "cost": "Suchdienste bieten meist ein kleines kostenloses Kontingent pro Monat und berechnen mehr. Das regelst du auf ihrer Website, nicht in Abiding Word."
+    },
+    "searchTest": "Suche prüfen",
+    "searchTesting": "Der Suchdienst wird gefragt …",
+    "searchTestOk": "Der Suchdienst hat geantwortet und Webseiten gefunden.",
+    "searchTestEmpty": "Der Suchdienst hat geantwortet, aber bei einer Testsuche nichts gefunden.",
+    "searchWhy": {
+      "noKey": "Um die Suche zu prüfen, füge zuerst ihren Schlüssel ein und wähle „Schlüssel speichern“.",
+      "noAddress": "Um die Suche zu prüfen, gib zuerst die SearXNG-Adresse ein."
+    }
+  },
+  "jumpTo": "Zu einem Bereich springen",
+  "summary": {
+    "version": "Version {{version}}",
+    "upToDate": "Auf dem neuesten Stand",
+    "updateAvailable": "Version {{version}} ist verfügbar",
+    "updateInstalling": "Das Update wird installiert …",
+    "updateFailed": "Etwas hat nicht geklappt: siehe unten",
+    "updatesOff": "In dieser Version nicht enthalten",
+    "bibleTexts": "Übersetzungen hinzufügen oder entfernen",
+    "templates": "Startstrukturen für Bibelstudium und Bibellehre",
+    "assistantOff": "Aus",
+    "assistantOn": "An · {{service}}",
+    "about": "Version {{version}} · wo deine Daten liegen"
+  },
+  "help": {
+    "about": "Mehr dazu: {{topic}}"
+  },
+  "background": {
+    "legend": "Hintergrund",
+    "help": "Ruhige, blendarme Hintergründe für langes Lesen und Schreiben. Der Text bleibt auf jedem gut lesbar. Sie gelten für das helle Farbschema.",
+    "lightOnly": "Hintergründe gelten für das helle Farbschema.",
+    "parchment": "Pergament",
+    "cream": "Creme",
+    "sage": "Salbei",
+    "stone": "Stein",
+    "mist": "Nebel",
+    "clear": "Neutral"
   }
 }

@@ -17,7 +17,7 @@ interface BuiltinDefinition {
   key: string;
   name: string;
   description?: string | null;
-  sections: { key: string; title: string; guidance?: string | null }[];
+  sections: { key: string; title: string; guidance?: string | null; optional?: boolean; retired?: boolean }[];
 }
 
 const BUILTIN: BuiltinDefinition[] = [passage, word, topical, biblicalTheology, systematicTheology, teaching];
@@ -77,9 +77,13 @@ export function templateDescription(template: Pick<StudyTemplate, "key" | "descr
  */
 export function localizedSections(template: Pick<StudyTemplate, "key" | "isBuiltin" | "sections">): TemplateSection[] {
   if (!template.isBuiltin || !BY_KEY.has(template.key)) return template.sections;
-  return template.sections.map((s) => ({
-    key: s.key ?? null,
-    title: sectionTitle({ key: s.key, title: s.title }),
-    guidance: sectionGuidance({ key: s.key, guidance: s.guidance }),
-  }));
+  // Retired parts stay behind; the parts to add later stay optional in the copy.
+  return template.sections
+    .filter((s) => !s.retired)
+    .map((s) => ({
+      key: s.key ?? null,
+      title: sectionTitle({ key: s.key, title: s.title }),
+      guidance: sectionGuidance({ key: s.key, guidance: s.guidance }),
+      ...(s.optional ? { optional: true } : {}),
+    }));
 }

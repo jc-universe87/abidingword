@@ -15,19 +15,9 @@
       "guidance": "Where the theme begins and how it develops in the Law, Prophets and Writings."
     },
     {
-      "key": "gospels",
-      "title": "Gospels",
-      "guidance": "How the theme comes to Christ in the Gospels."
-    },
-    {
-      "key": "epistles",
-      "title": "Epistles",
-      "guidance": "How the apostles take up and apply the theme."
-    },
-    {
-      "key": "canonical-development",
-      "title": "Canonical Development",
-      "guidance": "How the theme grows and changes across the canon."
+      "key": "new-testament",
+      "title": "New Testament",
+      "guidance": "How the theme comes to Christ and how the apostles take it up."
     },
     {
       "key": "fulfilment",
@@ -40,9 +30,28 @@
       "guidance": "The whole-Bible picture in a few sentences."
     },
     {
+      "key": "gospels",
+      "title": "Gospels",
+      "guidance": "How the theme comes to Christ in the Gospels.",
+      "optional": true
+    },
+    {
+      "key": "epistles",
+      "title": "Epistles",
+      "guidance": "How the apostles take up and apply the theme.",
+      "optional": true
+    },
+    {
+      "key": "canonical-development",
+      "title": "Canonical Development",
+      "guidance": "How the theme grows and changes across the canon.",
+      "optional": true
+    },
+    {
       "key": "teaching",
       "title": "Teaching",
-      "guidance": "How to teach this theme faithfully and clearly."
+      "guidance": "How to teach this theme faithfully and clearly.",
+      "retired": true
     }
   ]
 }

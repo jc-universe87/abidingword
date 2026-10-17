@@ -36,6 +36,10 @@
           "teaching": {
             "title": "Teaching",
             "guidance": "How to teach this theme faithfully and clearly."
+          },
+          "new-testament": {
+            "title": "New Testament",
+            "guidance": "How the theme comes to Christ and how the apostles take it up."
           }
         }
       },
@@ -78,6 +82,22 @@
           "teaching": {
             "title": "Teaching",
             "guidance": "Main idea, outline, illustrations and how to communicate it with love."
+          },
+          "meaning": {
+            "title": "Meaning",
+            "guidance": "What did the text mean for its first readers? Key words, grammar, difficult phrases."
+          },
+          "key-words": {
+            "title": "Key Words",
+            "guidance": "Words that carry the passage: what they mean here and elsewhere."
+          },
+          "related-scripture": {
+            "title": "Related Scripture",
+            "guidance": "Other passages that explain, echo or fulfil this one."
+          },
+          "open-questions": {
+            "title": "Open Questions",
+            "guidance": "What you do not yet understand, to come back to."
           }
         }
       },
@@ -327,8 +347,8 @@
   "titleRequiredOnBlur": "A title is required. Leaving the field keeps the previous title.",
   "studyCount_one": "{{count}} study",
   "studyCount_other": "{{count}} studies",
-  "findingCount_one": "{{count}} finding",
-  "findingCount_other": "{{count}} findings",
+  "findingCount_one": "{{count}} note",
+  "findingCount_other": "{{count}} notes",
   "projects": {
     "title": "Projects",
     "intro": "A project gathers related studies: a sermon series, a Bible study course, or a doctrine.",
@@ -350,7 +370,7 @@
     "heading": "What would you like to study?",
     "title": "Title",
     "template": "Template",
-    "noTemplate": "No template (one Notes section)",
+    "noTemplate": "No template (one Notes part)",
     "yourTemplate": "{{name}} (yours)",
     "optional": "(optional)",
     "passagePlaceholder": "e.g. John 15:1-11",
@@ -358,7 +378,6 @@
     "formLabel": "New study",
     "studyAs": "Study approach",
     "subjectRequired": "Type what you would like to study.",
-    "teachingTitle": "{{passage}} — Teaching",
     "more": "More options",
     "placeholder": {
       "word": "e.g. righteousness, or δικαιοσύνη",
@@ -400,7 +419,7 @@
     "changed": "Changed {{date}}",
     "duplicate": "Duplicate…",
     "overview": "Overview",
-    "noFindings": "No findings yet",
+    "noFindings": "No notes yet",
     "questionCount_one": "{{count}} question",
     "questionCount_other": "{{count}} questions",
     "unresolvedCount_one": "{{count}} unresolved issue",
@@ -409,7 +428,7 @@
     "duplicatePrompt": "Make a copy of “{{title}}” in this project:",
     "structureOnly": "Structure only",
     "structureAndContent": "Structure and content",
-    "duplicateHelp": "Structure only copies the sections. With content, your writing, findings and passages are copied too. Notes on Scripture are never duplicated; they belong to the verses.",
+    "duplicateHelp": "Structure only copies the parts. With content, your writing, notes and passages are copied too. Notes on Scripture are never duplicated; they belong to the verses.",
     "purpose": "Purpose",
     "purposePlaceholder": "What are you trying to understand or prepare?",
     "details": "{{type}} details",
@@ -448,28 +467,25 @@
   "editor": {
     "opening": "Opening study…",
     "titleLabel": "Study title",
-    "contents": "Study contents",
-    "findingsLink": "Study notes",
-    "newSectionTitle": "New section",
+    "newSectionTitle": "New part",
     "allSaved": "All changes saved.",
     "saved": "Saved",
-    "start": "Start your study",
-    "contentsToggle": "Contents"
+    "backTo": "Back to {{place}}"
   },
   "sections": {
-    "rename": "Rename section {{title}}",
-    "renameTooltip": "Rename section",
-    "moveUp": "Move section {{title}} up",
-    "moveDown": "Move section {{title}} down",
-    "delete": "Delete section {{title}}",
-    "confirmLabel": "Delete section {{title}}?",
+    "rename": "Rename part {{title}}",
+    "renameTooltip": "Rename part",
+    "moveUp": "Move part {{title}} up",
+    "moveDown": "Move part {{title}} down",
+    "delete": "Delete part {{title}}",
+    "confirmLabel": "Delete part {{title}}?",
     "confirm": "Delete “{{title}}” and the writing in it?",
-    "confirmWithFindings": "Delete “{{title}}” and the writing in it? Its findings stay in the study as findings for the whole study.",
-    "deleteSection": "Delete section",
-    "titleLabel": "Section title",
-    "options": "Options for section {{title}}",
-    "optionsTooltip": "Section options",
-    "optionsGroup": "Options for section {{title}}"
+    "confirmWithFindings": "Delete “{{title}}” and the writing in it? Its notes stay in the study, under Other notes.",
+    "deleteSection": "Delete part",
+    "titleLabel": "Heading of the part",
+    "options": "Options for part {{title}}",
+    "optionsTooltip": "Options for this part",
+    "optionsGroup": "Options for part {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -486,24 +502,24 @@
     "optionsTooltip": "Text block options"
   },
   "findings": {
-    "heading": "Study notes",
-    "addGroup": "Add a finding",
-    "filterGroup": "Show findings",
-    "all": "All ({{count}})",
+    "heading": "Other notes",
+    "addGroup": "Write a note",
+    "filterGroup": "Show notes",
+    "all": "All notes ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Study notes",
-    "writeFirst": "Write the finding first.",
+    "listLabel": "Other notes",
+    "writeFirst": "Write something first.",
     "type": "Type",
     "in": "In",
     "inLower": "in",
-    "wholeStudy": "Whole study",
+    "wholeStudy": "Other notes",
     "newLabel": "New {{type}}",
     "linkCurrent": "Link current passage ({{passage}})",
-    "save": "Save finding",
+    "save": "Save",
     "saveHint": "Ctrl+Enter saves",
     "itemLabel": "{{type}}: {{excerpt}}",
-    "typeLabel": "Finding type",
-    "section": "Section",
+    "typeLabel": "Kind of note",
+    "section": "Part",
     "moveUp": "Move {{type}} up",
     "moveDown": "Move {{type}} down",
     "delete": "Delete {{type}}",
@@ -513,7 +529,7 @@
     "tags": "Tags",
     "tagsPlaceholder": "e.g. covenant, sermon",
     "confirmDelete": "Delete this {{type}}?",
-    "writePlaceholder": "Write a note…",
+    "writePlaceholder": "Write here…",
     "details": "Details",
     "detailsFor": "Details for {{type}}: {{excerpt}}",
     "kindGroup": "Kind of note",
@@ -558,17 +574,17 @@
     "results": "Study search results",
     "location": {
       "study": "Title or purpose",
-      "section": "Section title",
+      "section": "Heading of a part",
       "studyText": "Study text",
-      "finding": "Finding",
-      "findingType": "Finding: {{type}}"
+      "finding": "Note",
+      "findingType": "Note: {{type}}"
     }
   },
   "templates": {
-    "intro": "A template gives a new study its sections. Changing a template never changes studies already made from it.",
+    "intro": "A template is a starting structure: the parts a new Bible study begins with, or the shape of a teaching. Changing a template never changes studies already made from it.",
     "listLabel": "Study templates",
-    "sectionCount_one": "{{count}} section",
-    "sectionCount_other": "{{count}} sections",
+    "sectionCount_one": "{{count}} part",
+    "sectionCount_other": "{{count}} parts",
     "builtIn": "Built-in",
     "duplicateCustomise": "Duplicate and customise",
     "edit": "Edit {{name}}",
@@ -577,7 +593,8 @@
     "confirmLabel": "Delete {{name}}?",
     "confirm": "Delete the template “{{name}}”? Studies already made from it are not affected.",
     "deleteTemplate": "Delete template",
-    "new": "New template…"
+    "new": "New template…",
+    "teachingListLabel": "Bible Teaching formats"
   },
   "templateEditor": {
     "opening": "Opening template…",
@@ -587,26 +604,25 @@
     "name": "Name",
     "description": "Description",
     "meantFor": "Meant for",
-    "sections": "Sections",
-    "sectionsList": "Template sections",
-    "sectionTitle": "Section {{number}} title",
-    "sectionGuidance": "Section {{number}} guidance",
-    "guidancePlaceholder": "Guidance shown under the section (optional)",
-    "untitledSection": "section",
+    "sections": "Parts",
+    "sectionsList": "Parts of the template",
+    "sectionTitle": "Heading of part {{number}}",
+    "sectionGuidance": "Guidance for part {{number}}",
+    "guidancePlaceholder": "Guidance shown under the part (optional)",
+    "untitledSection": "part",
     "moveUp": "Move {{title}} up",
     "moveDown": "Move {{title}} down",
     "remove": "Remove {{title}}",
-    "addSection": "Add section",
-    "save": "Save template"
+    "addSection": "Add a part",
+    "save": "Save template",
+    "later": "Add later",
+    "laterLabel": "Offer part {{number}} later instead of starting with it"
   },
   "add": {
     "toggle": "Add",
-    "group": "Add to this study",
     "note": "Note",
-    "section": "Section",
-    "textBlock": "Text block",
-    "blockGroup": "Text block in {{section}}",
-    "blockIn": "In {{section}}:"
+    "to": "Add to {{part}}",
+    "writing": "Writing"
   },
   "home": {
     "title": "Studies",
@@ -625,5 +641,362 @@
     "save": "Add to Study",
     "added": "Added to {{study}} · {{part}}.",
     "loading": "Loading your studies…"
+  },
+  "view": {
+    "label": "Show",
+    "study": "Bible Study",
+    "teaching": "Bible Teaching"
+  },
+  "teaching": {
+    "loading": "Opening the teaching…",
+    "which": "Teaching:",
+    "another": "Prepare another Bible Teaching",
+    "empty": {
+      "title": "Prepare a teaching from this study",
+      "text": "A sermon, a group Bible study or a lesson, written by you. You can use what you noted in this study: your notes and passages stay where they are and are simply used here. Nothing is filled in for you, and every part may stay empty."
+    },
+    "kindLabel": "Kind of teaching",
+    "kindNone": "Not said",
+    "kind": {
+      "sermon": "Sermon",
+      "bible_study": "Group Bible study",
+      "youth": "Youth",
+      "children": "Children",
+      "lesson": "Lesson",
+      "talk": "Talk",
+      "other": "Other"
+    },
+    "titleLabel": "Title",
+    "start": "Start",
+    "delete": "Delete this teaching",
+    "deleteConfirm": "Delete this teaching? Your study, with its notes and passages, stays as it is.",
+    "about": "About this teaching",
+    "audience": "Who it is for",
+    "audiencePlaceholder": "e.g. the whole church, a youth group",
+    "purpose": "Purpose",
+    "purposePlaceholder": "What you hope this teaching will do",
+    "notes": "Notes for yourself",
+    "notesHint": "Reminders while you teach; not part of what you say.",
+    "points": {
+      "whole": "the whole teaching",
+      "moveUp": "Move “{{point}}” up",
+      "moveDown": "Move “{{point}}” down",
+      "delete": "Delete “{{point}}”"
+    },
+    "links": {
+      "used": "Used in {{scope}}",
+      "wholeScope": "the whole teaching",
+      "passages": "Passages in {{scope}}",
+      "findings": "From your study, in {{scope}}",
+      "materials": "Kept from the assistant in {{scope}}",
+      "useFinding": "Use something from your study",
+      "chooseFinding": "From your study",
+      "pick": "Choose…",
+      "empty": "(empty)",
+      "findingNote": "It stays in your study. If you change it there, it changes here too.",
+      "removeFinding": "Stop using this here",
+      "removeFindingHint": "It stays in your study.",
+      "addPassage": "Add a passage",
+      "passageLabel": "Passage for {{scope}}",
+      "removePassage": "Remove {{passage}} from this teaching"
+    },
+    "material": {
+      "story": "Real story",
+      "illustration": "Illustration idea",
+      "image": "Image",
+      "visual": "Idea for a visual",
+      "remove": "Remove from this teaching"
+    },
+    "standing": {
+      "verified": "Sources found: two independent sites in the search results report it. Source quality varies, so read them before you use it.",
+      "unverified": "Needs checking: only one source was found. Read it before you use it.",
+      "hypothetical": "Invented example, not a real event",
+      "found": "Found image · {{licence}}",
+      "generated": "Made by the assistant: an illustration, not a photograph",
+      "suggestion": "The assistant’s suggestion"
+    },
+    "assist": {
+      "menu": "AI Help",
+      "menuLabel": "AI Help with {{part}}",
+      "action": {
+        "grammar": "Check grammar and spelling",
+        "clarity": "Make it clearer",
+        "shorten": "Make it shorter",
+        "natural": "Make it sound natural",
+        "repetition": "Remove repetition",
+        "spoken": "Easier to say aloud",
+        "audience": "Adapt for an audience…",
+        "translate": "Translate…",
+        "transition": "Help with a transition",
+        "review": "Review what I wrote",
+        "structure": "Comment on the structure",
+        "application": "Does the application follow from the passage?",
+        "theology": "Check theology and the passage",
+        "passages": "Suggest passages to look at",
+        "phrasing": "Other ways to say this",
+        "question": "Help with a discussion question…",
+        "restructure": "How could I order what I have?",
+        "illustration": "Ideas for an illustration",
+        "story": "Find a real story…",
+        "visual": "Suggest a visual",
+        "free": "Ask for something else…"
+      },
+      "title": "{{action}} · {{part}}",
+      "close": "Close the assistant",
+      "selectionOnly": "Only the words you selected.",
+      "request": {
+        "question": "What should the question help people notice?",
+        "story": "What kind of real story are you looking for?",
+        "transition": "What should it connect? (optional)",
+        "phrasing": "What do you want to say? (optional)",
+        "visual": "What should the picture help explain? (optional)",
+        "free": "What would you like help with?"
+      },
+      "audienceLabel": "Who is it for?",
+      "audiencePlaceholder": "e.g. children aged 8 to 10",
+      "languageLabel": "Into which language?",
+      "languagePlaceholder": "e.g. Korean",
+      "shared": {
+        "remote": "To help, this will be sent to {{assistant}}:",
+        "local": "This stays on this computer ({{assistant}}). It will see:",
+        "text": "your {{part}}",
+        "selection": "the words you selected",
+        "request": "what you asked for",
+        "teaching": "the teaching’s title and kind, and its audience, purpose and central message where written",
+        "nearby_one": "one other part of this teaching (so it keeps your voice)",
+        "nearby_other": "{{count}} other parts of this teaching (so it keeps your voice)",
+        "passages": "Scripture: {{passages}}",
+        "findings_one": "one note from your study",
+        "findings_other": "{{count}} notes from your study",
+        "quotes_one": "one quotation from a book in your library, with its source",
+        "quotes_other": "{{count}} quotations from books in your library, with their sources",
+        "searches": "Search words based on your request (they may include your words) will also go to your search service."
+      },
+      "ask": "Ask",
+      "askHint": "Ctrl+Enter asks; Escape closes. Nothing is sent before you ask.",
+      "ready": "Suggestion ready.",
+      "failed": "The assistant could not help this time.",
+      "kept": "Kept with this teaching.",
+      "keptLabel": "Kept",
+      "from": "From {{assistant}}",
+      "done": "Done",
+      "applied": "Changed as you chose.",
+      "undo": "Undo",
+      "undone": "Your earlier text is back.",
+      "proposal": {
+        "heading": "Suggested wording",
+        "headingStart": "Suggested transition",
+        "notYet": "Nothing has changed yet. Your text stays as it is unless you choose this.",
+        "same": "No changes suggested.",
+        "removed": "removed:",
+        "added": "added:",
+        "changes": "What changed: {{changes}}",
+        "use": "Use this wording",
+        "useStart": "Put this at the start"
+      },
+      "comments": {
+        "heading": "Comments on what you wrote",
+        "none": "Nothing to add.",
+        "suggested": "To look at:",
+        "add": "Add",
+        "addPassage": "Add {{passage}} to this teaching"
+      },
+      "basis": {
+        "scripture": "The assistant says this draws on Scripture",
+        "study": "The assistant says this draws on your study",
+        "source": "The assistant says this draws on a book in your library",
+        "reasoning": "The assistant’s own thought, to weigh for yourself"
+      },
+      "options": {
+        "heading": "Suggestions",
+        "headingInvented": "Illustration ideas",
+        "invented": "These are invented examples, not real events. Do not tell them as if they happened.",
+        "insert": "Add below my text",
+        "keepIdea": "Keep as an idea",
+        "use": "Use this"
+      },
+      "stories": {
+        "heading": "Real stories found",
+        "none": "No real story could be found and checked in the search results. Nothing has been made up.",
+        "checkNote": "Checked only against the search results’ summaries. Open the sources and read the whole story before you use it.",
+        "keep": "Keep with this teaching",
+        "sources": "Sources"
+      },
+      "visuals": {
+        "heading": "Ideas for a visual",
+        "kind": {
+          "photo": "Photo",
+          "diagram": "Simple diagram",
+          "drawing": "Drawing"
+        },
+        "find": "Find freely licensed images",
+        "make": "Make an image",
+        "keepIdea": "Keep this idea",
+        "cannotMake": {
+          "off": "Making images is turned off (Settings → AI Assistant). Finding freely licensed images still works.",
+          "unsupported": "This AI service cannot make images. You can choose OpenAI for images in Settings → AI Assistant. Finding freely licensed images still works.",
+          "noKey": "Making images needs the OpenAI key for images (Settings → AI Assistant). Finding freely licensed images still works."
+        }
+      },
+      "images": {
+        "found": "Images found",
+        "none": "No freely licensed images were found.",
+        "by": "by {{author}}",
+        "source": "Where it is from",
+        "keep": "Keep this image",
+        "keepLabel": "Keep the image “{{title}}”",
+        "generatedAlt": "Illustration made by the assistant: {{description}}",
+        "nothingPlaced": "Nothing is placed in your teaching unless you keep it."
+      },
+      "changedMeanwhile": "Your text changed after you asked, so this suggestion was not used. Please ask again.",
+      "menuIntro": "What would help?",
+      "allHelp": "All help",
+      "category": {
+        "wording": "Improve my wording",
+        "review": "Review what I wrote",
+        "structure": "Help with structure",
+        "ideas": "Ideas and illustrations",
+        "research": "Look something up"
+      },
+      "freePlaceholder": "e.g. Is this too long for a youth group?",
+      "freeHint": "The assistant sees this part and what it needs from this teaching and study. It answers with comments and questions; it does not write your teaching for you.",
+      "slow": "This is taking longer than usual. You can keep waiting or stop.",
+      "stop": "Stop waiting",
+      "stopped": "Stopped waiting. Nothing was changed. The service may still finish the request, and it may count toward your use.",
+      "pending": {
+        "ask": "Asking the assistant…",
+        "story": "Looking for sources… This can take a little while.",
+        "findImages": "Finding suitable images…",
+        "makeImage": "Creating an image… This can take a little while."
+      },
+      "menuTitle": "Help from the AI Assistant",
+      "minimise": "Minimise",
+      "restore": "Open the AI Assistant again",
+      "panelLabel": "AI Assistant: {{label}}",
+      "move": "Move the panel (arrow keys)",
+      "sendsTo": "Making an image sends this idea’s description to {{service}} over the internet."
+    },
+    "shape": {
+      "points": {
+        "title": "Main points",
+        "none": "No points yet. Add as many as you need, in any shape: a movement of a story, a question, a theme or a few verses.",
+        "add": "Add a point",
+        "number": "Point {{number}}",
+        "label": "Point {{number}}: {{title}}",
+        "untitled": "Point {{number}}",
+        "titleLabel": "Title of point {{number}}",
+        "titlePlaceholder": "What this point says",
+        "explanation": "Explanation",
+        "application": "Application",
+        "illustration": "Illustration or example",
+        "added": "Point added.",
+        "removed": "Point removed.",
+        "moved": "Point moved to place {{position}}.",
+        "deleteConfirm": "Delete this point and what you wrote in it? Anything from your study used here stays in the study.",
+        "message": "Central message",
+        "messageHint": "The one thing you most want people to take away",
+        "introduction": "Introduction",
+        "conclusion": "Conclusion"
+      },
+      "questions": {
+        "title": "Questions and answers",
+        "none": "No questions yet. Add the questions you want to talk about, each with what the passage shows.",
+        "add": "Add a question",
+        "number": "Question {{number}}",
+        "label": "Question {{number}}: {{title}}",
+        "untitled": "Question {{number}}",
+        "titleLabel": "Question {{number}}",
+        "titlePlaceholder": "The question you will ask",
+        "explanation": "Where it may lead",
+        "application": "Follow-up questions",
+        "illustration": "Notes for leading the conversation",
+        "added": "Question added.",
+        "removed": "Question removed.",
+        "moved": "Question moved to place {{position}}.",
+        "deleteConfirm": "Delete this question and what you wrote with it? Anything from your study used here stays in the study.",
+        "message": "What the group should discover",
+        "messageHint": "The one thing the conversation should lead to",
+        "introduction": "Opening",
+        "conclusion": "Closing"
+      },
+      "steps": {
+        "title": "Lesson plan",
+        "none": "No steps yet. Add the parts of the lesson in the order they happen: a welcome, a story, an activity, a prayer…",
+        "add": "Add a step",
+        "number": "Step {{number}}",
+        "label": "Step {{number}}: {{title}}",
+        "untitled": "Step {{number}}",
+        "titleLabel": "Title of step {{number}}",
+        "titlePlaceholder": "What happens in this step",
+        "explanation": "What you will say or do",
+        "application": "What they should take away",
+        "illustration": "Activity, material or example",
+        "added": "Step added.",
+        "removed": "Step removed.",
+        "moved": "Step moved to place {{position}}.",
+        "deleteConfirm": "Delete this step and what you wrote in it? Anything from your study used here stays in the study.",
+        "message": "The one thing to remember",
+        "messageHint": "In a few words they could repeat afterwards",
+        "introduction": "Opening",
+        "conclusion": "Ending"
+      }
+    },
+    "aboutEmpty": "Kind, who it is for, purpose, passages",
+    "aboutFor": "for {{audience}}",
+    "format": {
+      "points": "Main points with explanation, application and illustration, between an introduction and a conclusion.",
+      "questions": "Questions for the group, each with where it may lead and follow-up questions.",
+      "steps": "A lesson in steps: teaching, Bible reading, questions, activities and pictures, in the order they happen."
+    },
+    "startsWith": "Starts with: {{steps}}.",
+    "starts": {
+      "children": {
+        "welcome": "Welcome",
+        "story": "Bible story",
+        "question": "Question",
+        "activity": "Activity",
+        "prayer": "Prayer"
+      },
+      "lesson": {
+        "teaching": "Teaching",
+        "discussion": "Discussion",
+        "activity": "Activity"
+      }
+    },
+    "stepKindLabel": "Kind of step: {{step}}",
+    "stepKind": {
+      "none": "Kind not said",
+      "text": "Teaching",
+      "scripture": "Bible reading",
+      "question": "Question",
+      "activity": "Activity",
+      "image": "Picture",
+      "audio": "Audio"
+    },
+    "step": {
+      "text": {
+        "explanation": "What you will say"
+      },
+      "scripture": {
+        "explanation": "How you will read or tell it"
+      },
+      "question": {
+        "explanation": "Answers to listen for"
+      },
+      "activity": {
+        "explanation": "How it works",
+        "illustration": "What you need"
+      },
+      "image": {
+        "explanation": "What it shows, and when you show it"
+      }
+    }
+  },
+  "parts": {
+    "add": "Add a part",
+    "suggested": "Parts you might add",
+    "own": "Your own heading",
+    "collapseAll": "Fold all",
+    "expandAll": "Unfold all"
   }
 }

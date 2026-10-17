@@ -21,6 +21,7 @@ pub mod source_annotations;
 pub mod studies;
 pub mod study_passages;
 pub mod study_search;
+pub mod teaching;
 pub mod templates;
 pub mod text_refresh;
 pub mod workspaces;

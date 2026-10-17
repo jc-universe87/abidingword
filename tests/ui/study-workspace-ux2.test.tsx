@@ -29,73 +29,42 @@ describe("contents", () => {
     expect(study().queryByRole("navigation", { name: "Study contents" })).not.toBeInTheDocument();
   });
 
-  it("offers one compact Contents control for a long study; choosing a section goes there", async () => {
+  it("has no Contents control for a long study either: its parts are headings in the study", async () => {
     const api = await withStudy();
-    const user = await open(api);
-    // Nine sections of the built-in template are not nine links on the page.
-    expect(study().queryByRole("navigation", { name: "Study contents" })).not.toBeInTheDocument();
-    const toggle = study().getByRole("button", { name: "Contents" });
-    expect(toggle).toHaveAttribute("aria-expanded", "false");
-    await user.click(toggle);
-    expect(toggle).toHaveAttribute("aria-expanded", "true");
-    const nav = study().getByRole("navigation", { name: "Study contents" });
-    expect(within(nav).getAllByRole("button")).toHaveLength(9);
-    await user.click(within(nav).getByRole("button", { name: "Application" }));
-    expect(study().queryByRole("navigation", { name: "Study contents" })).not.toBeInTheDocument();
-    expect(study().getByRole("heading", { level: 2, name: "Application" })).toHaveFocus();
-  });
-
-  it("lists the findings entry only when there are findings, and Escape closes and restores focus", async () => {
-    const api = await withStudy();
-    const user = await open(api);
-    await user.click(study().getByRole("button", { name: "Contents" }));
-    expect(within(study().getByRole("navigation", { name: "Study contents" })).queryByRole("button", { name: "Study notes" })).not.toBeInTheDocument();
-    await user.keyboard("{Escape}");
-    const toggle = study().getByRole("button", { name: "Contents" });
-    expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(toggle).toHaveFocus();
+    await open(api);
+    expect(study().queryByRole("button", { name: "Contents" })).not.toBeInTheDocument();
+    expect(study().getAllByRole("heading", { level: 2 }).length).toBeGreaterThan(4);
   });
 });
 
 describe("a new study", () => {
-  it("is calm: no findings area, no filters, no quick-add row, one way to begin", async () => {
+  it("is calm: its few parts, ready to write in, and nothing else to choose", async () => {
     const api = await withStudy();
     await open(api);
-    expect(study().getByText("Start your study")).toBeInTheDocument();
-    // one Add action, with its choices showing for a new study
-    expect(study().getByRole("button", { name: "Add" })).toHaveAttribute("aria-expanded", "true");
-    expect(study().getByRole("button", { name: "Note" })).toBeInTheDocument();
-    expect(study().getByRole("button", { name: "Section" })).toBeInTheDocument();
-    expect(study().getByRole("button", { name: "Text block" })).toBeInTheDocument();
-    expect(study().queryByRole("heading", { name: "Study notes" })).not.toBeInTheDocument();
-    expect(study().queryByRole("button", { name: "Question" })).not.toBeInTheDocument();
-    expect(study().queryByRole("combobox", { name: /More/ })).not.toBeInTheDocument();
-    // Template sections are still there, with their writing areas.
-    expect(study().getAllByRole("heading", { level: 2 })).toHaveLength(9);
-    // Per-section controls are tucked away.
-    expect(study().queryByRole("button", { name: "Move section Text down" })).not.toBeInTheDocument();
+    // Six parts, each with a writing area and its guidance; no notes area, no filter, no start prompt.
+    expect(study().getAllByRole("heading", { level: 2 })).toHaveLength(6);
+    expect(study().getAllByRole("textbox", { name: /: paragraph$/ })).toHaveLength(6);
+    expect(study().queryByText("Start your study")).not.toBeInTheDocument();
+    expect(study().queryByRole("heading", { name: "Other notes" })).not.toBeInTheDocument();
+    expect(study().queryByRole("combobox", { name: "Show notes" })).not.toBeInTheDocument();
+    // Per-part controls are tucked away until asked for.
+    expect(study().queryByRole("button", { name: "Move part Text down" })).not.toBeInTheDocument();
     expect(study().queryByRole("group", { name: "Add to Text" })).not.toBeInTheDocument();
+    expect(study().queryByRole("button", { name: "Question" })).not.toBeInTheDocument();
   });
 
-  it("turns into a single Add menu once there is writing, and Add opens the same choices", async () => {
+  it("puts a note that belongs to no part under Other notes, at the end of the study", async () => {
     const api = await withStudy();
     const user = await open(api);
     await user.click(study().getByRole("button", { name: "Note" }));
     await user.type(study().getByLabelText("New observation"), "Branches depend on the vine.");
-    await user.click(study().getByRole("button", { name: "Save finding" }));
+    await user.click(study().getByRole("button", { name: "Save" }));
     await waitFor(() => expect(api.state.findings).toHaveLength(1));
-    expect(api.state.findings[0]!.findingType).toBe("observation");
-
-    expect(study().queryByText("Start your study")).not.toBeInTheDocument();
-    const add = study().getByRole("button", { name: "Add" });
-    expect(add).toHaveAttribute("aria-expanded", "false");
-    await user.click(add);
-    expect(study().getByRole("button", { name: "Note" })).toBeInTheDocument();
-    await user.keyboard("{Escape}");
-    expect(add).toHaveFocus();
-    await user.click(add);
-    await user.click(study().getByRole("button", { name: "Section" }));
-    await waitFor(() => expect(api.state.sections.some((s) => s.title === "New section")).toBe(true));
+    expect(api.state.findings[0]).toMatchObject({ findingType: "observation", sectionId: null });
+    const other = await study().findByRole("region", { name: "Other notes" });
+    // after the last part
+    const lastPart = study().getByRole("region", { name: "Application" });
+    expect(lastPart.compareDocumentPosition(other) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("keeps the kind changeable while writing, and links a passage only when asked", async () => {
@@ -104,7 +73,7 @@ describe("a new study", () => {
     await user.click(study().getByRole("button", { name: "Note" }));
     await user.click(study().getByRole("radio", { name: "Application" }));
     await user.type(study().getByLabelText("New application"), "Stay close.");
-    await user.click(study().getByRole("button", { name: "Save finding" }));
+    await user.click(study().getByRole("button", { name: "Save" }));
     await waitFor(() => expect(api.state.findings[0]?.findingType).toBe("application"));
     expect(api.state.findings[0]?.passages).toHaveLength(0);
   });
@@ -115,7 +84,7 @@ describe("findings and sections in the page", () => {
     const api = await withStudy();
     await api.findingCreate({ studyId: api.state.studies[0]!.id, findingType: "question", content: "What is the fruit?" });
     const user = await open(api);
-    const list = await screen.findByRole("list", { name: "Study notes" });
+    const list = await screen.findByRole("list", { name: "Other notes" });
     const note = within(list).getByRole("article");
     expect(within(note).getByRole("textbox", { name: "Question text" })).toHaveValue("What is the fruit?");
     expect(within(note).queryByRole("combobox")).not.toBeInTheDocument();
@@ -132,7 +101,6 @@ describe("findings and sections in the page", () => {
     // Empty, a section says what it is for; once it has writing the guidance steps aside.
     const user0 = await open(api);
     expect(within(study().getByRole("region", { name: first.title })).getByText(/The passage being studied/)).toBeInTheDocument();
-    expect(study().getByText("Start your study")).toBeInTheDocument();
     await user0.click(screen.getByRole("button", { name: "Settings" }));
     await api.studyBlockUpdate({ id: first.blocks[0]!.id, content: "Abide in me." });
     await user0.click(screen.getByRole("button", { name: "Back to workspace" }));
@@ -141,19 +109,17 @@ describe("findings and sections in the page", () => {
     expect(study().queryByText("Start your study")).not.toBeInTheDocument();
     const user = user0;
 
-    const options = within(section).getByRole("button", { name: "Options for section Text" });
+    const options = within(section).getByRole("button", { name: "Options for part Text" });
     await user.click(options);
-    expect(within(section).getByRole("button", { name: "Rename section Text" })).toBeInTheDocument();
-    expect(within(section).getByRole("button", { name: "Move section Text down" })).toBeInTheDocument();
+    expect(within(section).getByRole("button", { name: "Rename part Text" })).toBeInTheDocument();
+    expect(within(section).getByRole("button", { name: "Move part Text down" })).toBeInTheDocument();
     await user.keyboard("{Escape}");
     expect(options).toHaveFocus();
 
-    // text blocks are added from the study's one Add, into the section last worked in
-    await user.click(within(section).getByRole("textbox", { name: /^Text: paragraph/ }));
-    await user.click(study().getByRole("button", { name: "Add" }));
-    await user.click(study().getByRole("button", { name: "Text block" }));
-    await user.click(within(study().getByRole("group", { name: "Text block in Text" })).getByRole("button", { name: "Remark" }));
-    await waitFor(() => expect(api.state.blocks.filter((b) => b.blockType === "note")).toHaveLength(1));
+    // more writing is added from the part's own Add
+    await user.click(within(section).getByRole("button", { name: "Add to Text" }));
+    await user.click(within(section).getByRole("button", { name: "Writing" }));
+    await waitFor(() => expect(within(section).getAllByRole("textbox", { name: /^Text: paragraph/ })).toHaveLength(2));
   });
 });
 

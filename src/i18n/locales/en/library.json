@@ -58,7 +58,7 @@
     "button": "Remove…",
     "label": "Remove {{title}}",
     "dialogLabel": "Remove {{title}}?",
-    "message": "Remove <strong>{{title}}</strong> from your library? Its text and Abiding Word’s copy of the file are deleted; your original file is not touched. Findings that cite it keep a record of the citation.",
+    "message": "Remove <strong>{{title}}</strong> from your library? Its text and Abiding Word’s copy of the file are deleted; your original file is not touched. Study notes that cite it keep a record of the citation.",
     "confirm": "Remove from library",
     "keep": "Keep it",
     "marks_one": "Your mark in it (a highlight, note or bookmark) is removed with it.",

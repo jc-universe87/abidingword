@@ -170,17 +170,17 @@ fn validated(input: &TemplateInput) -> AppResult<(String, Option<String>, Vec<Te
         DESCRIPTION_MAX_CHARS,
         "description",
     )?;
-    if input.sections.is_empty() {
+    if !input.sections.iter().any(|s| s.starts()) {
         return Err(AppError::InvalidInput(UserMessage::new(
             "templates.noSections",
-            "A template needs at least one section.",
+            "A template needs at least one part to start with.",
         )));
     }
     if input.sections.len() > MAX_SECTIONS {
         return Err(AppError::InvalidInput(
             UserMessage::new(
                 "templates.tooManySections",
-                format!("A template can have at most {MAX_SECTIONS} sections."),
+                format!("A template can have at most {MAX_SECTIONS} parts."),
             )
             .with("max", MAX_SECTIONS),
         ));
@@ -197,6 +197,9 @@ fn validated(input: &TemplateInput) -> AppResult<(String, Option<String>, Vec<Te
                     DESCRIPTION_MAX_CHARS,
                     "guidance",
                 )?,
+                // A person's own template may hold parts to add later; retiring is for built-ins.
+                optional: s.optional,
+                retired: false,
             })
         })
         .collect::<AppResult<Vec<_>>>()?;
@@ -266,7 +269,12 @@ pub fn duplicate(conn: &Connection, id: &str) -> AppResult<StudyTemplate> {
             name,
             description: original.description,
             study_type: original.study_type,
-            sections: original.sections,
+            // Retired parts are kept only for old studies; a copy starts without them.
+            sections: original
+                .sections
+                .into_iter()
+                .filter(|s| !s.retired)
+                .collect(),
         },
     )
 }

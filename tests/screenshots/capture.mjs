@@ -42,7 +42,76 @@ const openSource = async (page, title) => {
   await page.waitForTimeout(700);
 };
 
+const openTeaching = async (page) => {
+  await openStudy(page);
+  await page.getByRole("main").getByRole("button", { name: "Bible Teaching", exact: true }).click();
+  await page.waitForTimeout(800);
+};
+
 const scenes = {
+  async teaching() {
+    const page = await open("", { width: 1440, height: 1500 });
+    await openTeaching(page);
+    await shot(page, "teaching");
+    await page.close();
+  },
+  async "teaching-lesson"() {
+    const page = await open("", { width: 1440, height: 1500 });
+    await openTeaching(page);
+    const main = page.getByRole("main");
+    // A second teaching from the same study: a children's lesson, which starts with its steps.
+    await main.getByRole("button", { name: "Prepare another Bible Teaching" }).click();
+    await main.getByText("Children", { exact: true }).click();
+    await main.getByRole("button", { name: "Start" }).click();
+    await page.waitForTimeout(800);
+    await shot(page, "teaching-lesson", main);
+    await page.close();
+  },
+  async "teaching-help"() {
+    const page = await open("", { width: 1440, height: 1000 });
+    await openTeaching(page);
+    const main = page.getByRole("main");
+    await main.getByRole("button", { name: "AI Help with Introduction" }).click();
+    await main.getByRole("menuitem", { name: "Improve my wording" }).click();
+    await main.getByRole("menuitem", { name: "Make it sound natural" }).click();
+    const panel = page.getByTestId("assist-panel");
+    await panel.getByRole("button", { name: "Ask" }).click();
+    await panel.getByRole("heading", { name: "Suggested wording" }).waitFor();
+    // The whole window: the panel floats over the workspace, the teaching stays where it was.
+    await shot(page, "teaching-help");
+    await page.close();
+  },
+  async "teaching-menu"() {
+    const page = await open("", { width: 1440, height: 1400 });
+    await openTeaching(page);
+    const main = page.getByRole("main");
+    await main.getByRole("button", { name: "AI Help with Introduction" }).click();
+    const menu = main.getByRole("menu");
+    await menu.waitFor();
+    const box = await menu.boundingBox();
+    await shot(page, "teaching-menu", { screenshot: (o) => page.screenshot({ ...o, clip: { x: box.x - 420, y: box.y - 90, width: box.width + 440, height: box.height + 110 } }) });
+    await page.close();
+  },
+  async appearance() {
+    const page = await open();
+    await page.getByRole("button", { name: "Settings" }).click();
+    const section = page.getByRole("region", { name: "Appearance" });
+    await section.getByRole("button", { name: "Appearance" }).click();
+    await section.getByRole("radio", { name: "Sage" }).check({ force: true });
+    await page.waitForTimeout(400);
+    await shot(page, "appearance", section);
+    await page.close();
+  },
+  async "add-bible-sheet"() {
+    const page = await open();
+    await page.getByRole("button", { name: "Settings" }).click();
+    const section = page.getByRole("region", { name: "Bible texts" });
+    await section.getByRole("button", { name: "Bible texts" }).click();
+    await section.getByRole("button", { name: "Add a Bible…" }).click();
+    await page.getByRole("dialog", { name: "Add a Bible" }).waitFor();
+    await shot(page, "add-bible-sheet");
+    await page.close();
+  },
   async workspace() {
     const page = await open();
     await openStudy(page);
@@ -142,7 +211,7 @@ Object.assign(scenes, {
     await page.getByRole("button", { name: "Add a Bible…" }).first().click();
     await page.getByRole("combobox", { name: "Choose a Bible" }).selectOption({ label: "Berean Standard Bible (BSB)" });
     await page.getByRole("button", { name: "Add…" }).click();
-    await page.getByRole("dialog").waitFor();
+    await page.getByRole("dialog", { name: /^Add Berean/ }).waitFor();
     await shot(page, "add-bible-confirm");
     await page.close();
   },
@@ -157,7 +226,9 @@ Object.assign(scenes, {
   async "add-menu"() {
     const page = await open();
     await openStudy(page);
-    await page.getByRole("main").getByRole("button", { name: "Add", exact: true }).first().click();
+    // Add at the end of a part: writing, or a note of a kind.
+    await page.getByRole("main").getByRole("button", { name: "Add to Context", exact: true }).click();
+    await page.waitForTimeout(300);
     await shot(page, "add-menu", page.getByRole("main"));
     await page.close();
   },
@@ -209,18 +280,31 @@ Object.assign(scenes, {
   async "bible-texts"() {
     const page = await open();
     await page.getByRole("button", { name: "Settings" }).click();
-    const heading = page.getByRole("heading", { name: "Bible Texts" });
-    await heading.scrollIntoViewIfNeeded();
-    await page.evaluate(() => window.scrollBy(0, -40));
-    await shot(page, "bible-texts", page.locator("section", { has: heading }).first());
+    const section = page.getByRole("region", { name: "Bible texts" });
+    await section.getByRole("button", { name: "Bible texts" }).click();
+    await page.waitForTimeout(400);
+    await shot(page, "bible-texts", section);
     await page.close();
   },
   async updates() {
     const page = await open();
     await page.getByRole("button", { name: "Settings" }).click();
-    const heading = page.getByRole("heading", { name: "Updates" });
-    await heading.scrollIntoViewIfNeeded();
-    await shot(page, "updates", page.locator("section", { has: heading }).first());
+    const section = page.getByRole("region", { name: "Updates" });
+    await section.getByRole("button", { name: "Updates" }).click();
+    await page.waitForTimeout(400);
+    await shot(page, "updates", section);
+    await page.close();
+  },
+  async "settings-assistant"() {
+    const page = await open("", { width: 1440, height: 2600 });
+    await page.getByRole("button", { name: "Settings" }).click();
+    const section = page.getByRole("region", { name: "AI Assistant" });
+    await section.getByRole("button", { name: "AI Assistant" }).click();
+    await section.getByText("How do I get a key?").click();
+    await section.getByRole("combobox", { name: "Look up real stories" }).selectOption("tavily");
+    await page.waitForTimeout(400);
+    await page.waitForTimeout(400);
+    await shot(page, "settings-assistant", section);
     await page.close();
   },
   async "pdf-original"() {

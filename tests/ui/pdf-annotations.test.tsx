@@ -182,6 +182,6 @@ describe("from the Original PDF to a Study", () => {
     expect(finding.sources[0]).toMatchObject({ quote: "heart of fruitfulness", locator: "p. 1" });
     // The page is unchanged: no mark was made.
     expect(live(api)).toHaveLength(0);
-    expect(await screen.findByText("Added to Pruning · Whole study.")).toBeInTheDocument();
+    expect(await screen.findByText("Added to Pruning · Other notes.")).toBeInTheDocument();
   });
 });

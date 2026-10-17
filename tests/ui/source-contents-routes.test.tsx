@@ -75,7 +75,7 @@ async function cite(api: ReturnType<typeof createMemoryApi>, findingId: string, 
 async function openStudy(api: ReturnType<typeof createMemoryApi>, engine: ReturnType<typeof createFakePdfEngine>, width: number) {
   const { user } = await renderApp(api, { pdfEngine: engine, width });
   await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /The True Vine/ }));
-  const findings = await screen.findByRole("list", { name: "Study notes" });
+  const findings = await screen.findByRole("list", { name: "Other notes" });
   return { user, findings };
 }
 

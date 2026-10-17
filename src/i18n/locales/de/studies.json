@@ -36,6 +36,10 @@
           "teaching": {
             "title": "Vermittlung",
             "guidance": "Wie sich dieses Thema treu und klar lehren lässt."
+          },
+          "new-testament": {
+            "title": "Neues Testament",
+            "guidance": "Wie das Thema zu Christus kommt und wie die Apostel es aufnehmen."
           }
         }
       },
@@ -78,6 +82,22 @@
           "teaching": {
             "title": "Vermittlung",
             "guidance": "Hauptgedanke, Gliederung, Veranschaulichungen und wie sich die Botschaft in Liebe weitergeben lässt."
+          },
+          "meaning": {
+            "title": "Bedeutung",
+            "guidance": "Was bedeutete der Text für seine ersten Leser? Schlüsselwörter, Grammatik, schwierige Wendungen."
+          },
+          "key-words": {
+            "title": "Schlüsselwörter",
+            "guidance": "Wörter, die den Abschnitt tragen: was sie hier und anderswo bedeuten."
+          },
+          "related-scripture": {
+            "title": "Weitere Bibelstellen",
+            "guidance": "Andere Stellen, die diese erklären, aufgreifen oder erfüllen."
+          },
+          "open-questions": {
+            "title": "Offene Fragen",
+            "guidance": "Was du noch nicht verstehst – um später darauf zurückzukommen."
           }
         }
       },
@@ -111,7 +131,7 @@
           },
           "conclusions": {
             "title": "Schlussfolgerungen",
-            "guidance": "Ihre Schlussfolgerungen und wie fest Sie sie vertreten."
+            "guidance": "Deine Schlussfolgerungen und wie fest du sie vertrittst."
           },
           "application": {
             "title": "Anwendung",
@@ -161,7 +181,7 @@
           },
           "teaching-outline": {
             "title": "Gliederung",
-            "guidance": "Die Gliederung, nach der Sie lehren werden."
+            "guidance": "Die Gliederung, nach der du lehren wirst."
           }
         }
       },
@@ -171,7 +191,7 @@
         "sections": {
           "topic": {
             "title": "Frage / Thema",
-            "guidance": "Die Frage, die Sie stellen, so klar wie möglich formuliert."
+            "guidance": "Die Frage, die du stellst, so klar wie möglich formuliert."
           },
           "key-passages": {
             "title": "Zentrale Bibelstellen",
@@ -195,7 +215,7 @@
           },
           "conclusions": {
             "title": "Schlussfolgerungen",
-            "guidance": "Ihre Schlussfolgerungen, mit den Bibelstellen, die sie tragen."
+            "guidance": "Deine Schlussfolgerungen, mit den Bibelstellen, die sie tragen."
           },
           "application": {
             "title": "Anwendung",
@@ -233,7 +253,7 @@
           },
           "conclusions": {
             "title": "Schlussfolgerungen",
-            "guidance": "Was Sie gefolgert haben und was offen bleibt."
+            "guidance": "Was du gefolgert hast und was offen bleibt."
           }
         }
       }
@@ -323,12 +343,12 @@
     }
   },
   "keepIt": "Behalten",
-  "titleRequired": "Bitte geben Sie zuerst einen Titel ein.",
-  "titleRequiredOnBlur": "Ein Titel ist erforderlich. Wenn Sie das Feld verlassen, bleibt der bisherige Titel erhalten.",
+  "titleRequired": "Bitte gib zuerst einen Titel ein.",
+  "titleRequiredOnBlur": "Ein Titel ist erforderlich. Wenn du das Feld verlässt, bleibt der bisherige Titel erhalten.",
   "studyCount_one": "{{count}} Bibelstudium",
   "studyCount_other": "{{count}} Bibelstudien",
-  "findingCount_one": "{{count}} Eintrag",
-  "findingCount_other": "{{count}} Einträge",
+  "findingCount_one": "{{count}} Notiz",
+  "findingCount_other": "{{count}} Notizen",
   "projects": {
     "title": "Projekte",
     "intro": "Ein Projekt fasst zusammengehörige Bibelstudien zusammen: eine Predigtreihe, einen Bibelkurs oder eine Lehre.",
@@ -336,7 +356,7 @@
     "newPlaceholder": "z. B. Predigtreihe zum Römerbrief",
     "create": "Projekt erstellen",
     "loading": "Projekte werden geladen …",
-    "empty": "Noch keine Projekte. Erstellen Sie oben Ihr erstes Projekt.",
+    "empty": "Noch keine Projekte. Erstelle oben dein erstes Projekt.",
     "listLabel": "Projekte",
     "allStudies": "Alle Bibelstudien",
     "project": "Projekt",
@@ -347,25 +367,24 @@
     "defaultTitle": "Meine Bibelstudien"
   },
   "newStudy": {
-    "heading": "Was möchten Sie studieren?",
+    "heading": "Was möchtest du studieren?",
     "title": "Titel",
     "template": "Vorlage",
-    "noTemplate": "Keine Vorlage (ein Abschnitt „Notizen“)",
+    "noTemplate": "Keine Vorlage (ein Teil „Notizen“)",
     "yourTemplate": "{{name}} (eigene)",
     "optional": "(optional)",
     "passagePlaceholder": "z. B. John 15:1-11",
     "create": "Bibelstudium erstellen",
     "formLabel": "Neues Studium",
     "studyAs": "Art des Studiums",
-    "subjectRequired": "Geben Sie ein, was Sie studieren möchten.",
-    "teachingTitle": "{{passage}} – Lehre",
+    "subjectRequired": "Gib ein, was du studieren möchtest.",
     "more": "Weitere Optionen",
     "placeholder": {
       "word": "z. B. Gerechtigkeit oder δικαιοσύνη",
       "topical": "z. B. Vergebung",
       "biblical_theology": "z. B. der Tempel",
       "systematic_theology": "z. B. die Lehre von der Gnade",
-      "custom": "Was studieren Sie?"
+      "custom": "Was studierst du?"
     },
     "approach": {
       "passage": "Textstudium",
@@ -400,7 +419,7 @@
     "changed": "Geändert am {{date}}",
     "duplicate": "Duplizieren …",
     "overview": "Überblick",
-    "noFindings": "Noch keine Einträge",
+    "noFindings": "Noch keine Notizen",
     "questionCount_one": "{{count}} Frage",
     "questionCount_other": "{{count}} Fragen",
     "unresolvedCount_one": "{{count}} ungeklärter Punkt",
@@ -409,9 +428,9 @@
     "duplicatePrompt": "Eine Kopie von „{{title}}“ in diesem Projekt anlegen:",
     "structureOnly": "Nur Struktur",
     "structureAndContent": "Struktur und Inhalt",
-    "duplicateHelp": "„Nur Struktur“ kopiert die Abschnitte. Mit Inhalt werden auch Ihre Texte, Einträge und Bibelstellen kopiert. Notizen in der Bibel werden nie dupliziert; sie gehören zu den Versen.",
+    "duplicateHelp": "„Nur Struktur“ kopiert die Teile. Mit Inhalt werden auch deine Texte, Notizen und Bibelstellen kopiert. Notizen in der Bibel werden nie dupliziert; sie gehören zu den Versen.",
     "purpose": "Ziel",
-    "purposePlaceholder": "Was möchten Sie verstehen oder vorbereiten?",
+    "purposePlaceholder": "Was möchtest du verstehen oder vorbereiten?",
     "details": "Angaben – {{type}}",
     "detail": {
       "lemma": {
@@ -440,7 +459,7 @@
     },
     "detailsToggle": "Studiendetails",
     "typeLine": "Art: {{type}}",
-    "fromTemplate": "Aus Ihrer Vorlage: {{name}}",
+    "fromTemplate": "Aus deiner Vorlage: {{name}}",
     "groupAbout": "Über dieses Bibelstudium",
     "groupCopy": "Kopieren",
     "findOccurrences": "Vorkommen finden"
@@ -448,33 +467,30 @@
   "editor": {
     "opening": "Bibelstudium wird geöffnet …",
     "titleLabel": "Titel des Bibelstudiums",
-    "contents": "Inhalt des Bibelstudiums",
-    "findingsLink": "Studieneinträge",
-    "newSectionTitle": "Neuer Abschnitt",
+    "newSectionTitle": "Neuer Teil",
     "allSaved": "Alle Änderungen gespeichert.",
     "saved": "Gespeichert",
-    "start": "Beginnen Sie Ihr Bibelstudium",
-    "contentsToggle": "Inhalt"
+    "backTo": "Zurück zu {{place}}"
   },
   "sections": {
-    "rename": "Abschnitt „{{title}}“ umbenennen",
-    "renameTooltip": "Abschnitt umbenennen",
-    "moveUp": "Abschnitt „{{title}}“ nach oben verschieben",
-    "moveDown": "Abschnitt „{{title}}“ nach unten verschieben",
-    "delete": "Abschnitt „{{title}}“ löschen",
-    "confirmLabel": "Abschnitt „{{title}}“ löschen?",
+    "rename": "Teil „{{title}}“ umbenennen",
+    "renameTooltip": "Teil umbenennen",
+    "moveUp": "Teil „{{title}}“ nach oben verschieben",
+    "moveDown": "Teil „{{title}}“ nach unten verschieben",
+    "delete": "Teil „{{title}}“ löschen",
+    "confirmLabel": "Teil „{{title}}“ löschen?",
     "confirm": "„{{title}}“ mit dem darin geschriebenen Text löschen?",
-    "confirmWithFindings": "„{{title}}“ mit dem darin geschriebenen Text löschen? Die Einträge des Abschnitts bleiben als Einträge zum gesamten Bibelstudium erhalten.",
-    "deleteSection": "Abschnitt löschen",
-    "titleLabel": "Titel des Abschnitts",
-    "options": "Optionen für Abschnitt {{title}}",
-    "optionsTooltip": "Abschnittsoptionen",
-    "optionsGroup": "Optionen für Abschnitt {{title}}"
+    "confirmWithFindings": "„{{title}}“ mit dem darin geschriebenen Text löschen? Seine Notizen bleiben im Bibelstudium, unter „Weitere Notizen“.",
+    "deleteSection": "Teil löschen",
+    "titleLabel": "Überschrift des Teils",
+    "options": "Optionen für Teil {{title}}",
+    "optionsTooltip": "Optionen für diesen Teil",
+    "optionsGroup": "Optionen für Teil {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
     "confirmDelete": "{{type}} löschen?",
-    "deleteFailed": "Dieser Block konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+    "deleteFailed": "Dieser Block konnte nicht gelöscht werden. Bitte versuche es erneut.",
     "moveUp": "{{type}} in „{{section}}“ nach oben verschieben",
     "moveDown": "{{type}} in „{{section}}“ nach unten verschieben",
     "delete": "{{type}} in „{{section}}“ löschen",
@@ -486,24 +502,24 @@
     "optionsTooltip": "Optionen für den Textblock"
   },
   "findings": {
-    "heading": "Studieneinträge",
-    "addGroup": "Eintrag hinzufügen",
-    "filterGroup": "Einträge anzeigen",
-    "all": "Alle ({{count}})",
+    "heading": "Weitere Notizen",
+    "addGroup": "Notiz schreiben",
+    "filterGroup": "Notizen anzeigen",
+    "all": "Alle Notizen ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Studieneinträge",
-    "writeFirst": "Schreiben Sie zuerst den Eintrag.",
+    "listLabel": "Weitere Notizen",
+    "writeFirst": "Schreib zuerst etwas.",
     "type": "Art",
     "in": "In",
     "inLower": "in",
-    "wholeStudy": "Gesamtes Bibelstudium",
+    "wholeStudy": "Weitere Notizen",
     "newLabel": "Neu: {{type}}",
     "linkCurrent": "Aktuelle Bibelstelle verknüpfen ({{passage}})",
-    "save": "Eintrag speichern",
+    "save": "Speichern",
     "saveHint": "Strg+Eingabe speichert",
     "itemLabel": "{{type}}: {{excerpt}}",
-    "typeLabel": "Art des Eintrags",
-    "section": "Abschnitt",
+    "typeLabel": "Art der Notiz",
+    "section": "Teil",
     "moveUp": "{{type}} nach oben verschieben",
     "moveDown": "{{type}} nach unten verschieben",
     "delete": "{{type}} löschen",
@@ -513,13 +529,13 @@
     "tags": "Schlagwörter",
     "tagsPlaceholder": "z. B. Bund, Predigt",
     "confirmDelete": "{{type}} löschen?",
-    "writePlaceholder": "Eintrag schreiben…",
+    "writePlaceholder": "Hier schreiben …",
     "details": "Details",
     "detailsFor": "Details zu {{type}}: {{excerpt}}",
-    "kindGroup": "Art des Eintrags",
+    "kindGroup": "Art der Notiz",
     "moreTypes": "Weitere Arten",
     "options": "Optionen",
-    "inSection": "Einträge in {{section}}"
+    "inSection": "Notizen in {{section}}"
   },
   "passages": {
     "label": "Bibelstellen",
@@ -529,7 +545,7 @@
     "remove": "{{passage}} aus diesem Bibelstudium entfernen",
     "primary": "Hauptstelle",
     "related": "Weitere",
-    "addFirst": "Fügen Sie die Bibelstelle hinzu, um die es in diesem Bibelstudium geht",
+    "addFirst": "Füge die Bibelstelle hinzu, um die es in diesem Bibelstudium geht",
     "add": "Bibelstelle hinzufügen",
     "linkCurrent": "Aktuelle Bibelstelle verknüpfen ({{passage}})",
     "inputLabel": "Hinzuzufügende Bibelstelle",
@@ -551,24 +567,24 @@
   },
   "search": {
     "heading": "Bibelstudien mit „{{query}}“",
-    "searching": "Ihre Bibelstudien werden durchsucht …",
-    "none": "In Ihren Bibelstudien wurde nichts gefunden.",
+    "searching": "Deine Bibelstudien werden durchsucht …",
+    "none": "In deinen Bibelstudien wurde nichts gefunden.",
     "count_one": "{{count}} Treffer.",
     "count_other": "{{count}} Treffer.",
     "results": "Suchergebnisse in Bibelstudien",
     "location": {
       "study": "Titel oder Ziel",
-      "section": "Titel des Abschnitts",
+      "section": "Überschrift eines Teils",
       "studyText": "Text des Bibelstudiums",
-      "finding": "Eintrag",
-      "findingType": "Eintrag: {{type}}"
+      "finding": "Notiz",
+      "findingType": "Notiz: {{type}}"
     }
   },
   "templates": {
-    "intro": "Eine Vorlage gibt einem neuen Bibelstudium seine Abschnitte. Änderungen an einer Vorlage verändern nie Bibelstudien, die bereits damit erstellt wurden.",
+    "intro": "Eine Vorlage ist eine Startstruktur: die Teile, mit denen ein neues Bibelstudium beginnt, oder die Form einer Lehreinheit. Änderungen an einer Vorlage verändern nie Bibelstudien, die bereits damit erstellt wurden.",
     "listLabel": "Vorlagen für Bibelstudien",
-    "sectionCount_one": "{{count}} Abschnitt",
-    "sectionCount_other": "{{count}} Abschnitte",
+    "sectionCount_one": "{{count}} Teil",
+    "sectionCount_other": "{{count}} Teile",
     "builtIn": "Mitgeliefert",
     "duplicateCustomise": "Duplizieren und anpassen",
     "edit": "{{name}} bearbeiten",
@@ -577,7 +593,8 @@
     "confirmLabel": "{{name}} löschen?",
     "confirm": "Die Vorlage „{{name}}“ löschen? Bibelstudien, die bereits damit erstellt wurden, bleiben unverändert.",
     "deleteTemplate": "Vorlage löschen",
-    "new": "Neue Vorlage …"
+    "new": "Neue Vorlage …",
+    "teachingListLabel": "Formen der Bibellehre"
   },
   "templateEditor": {
     "opening": "Vorlage wird geöffnet …",
@@ -587,26 +604,25 @@
     "name": "Name",
     "description": "Beschreibung",
     "meantFor": "Gedacht für",
-    "sections": "Abschnitte",
-    "sectionsList": "Abschnitte der Vorlage",
-    "sectionTitle": "Titel von Abschnitt {{number}}",
-    "sectionGuidance": "Hinweis zu Abschnitt {{number}}",
-    "guidancePlaceholder": "Hinweis, der unter dem Abschnitt angezeigt wird (optional)",
-    "untitledSection": "Abschnitt",
+    "sections": "Teile",
+    "sectionsList": "Teile der Vorlage",
+    "sectionTitle": "Überschrift von Teil {{number}}",
+    "sectionGuidance": "Hinweis zu Teil {{number}}",
+    "guidancePlaceholder": "Hinweis, der unter dem Teil angezeigt wird (optional)",
+    "untitledSection": "Teil",
     "moveUp": "„{{title}}“ nach oben verschieben",
     "moveDown": "„{{title}}“ nach unten verschieben",
     "remove": "„{{title}}“ entfernen",
-    "addSection": "Abschnitt hinzufügen",
-    "save": "Vorlage speichern"
+    "addSection": "Teil hinzufügen",
+    "save": "Vorlage speichern",
+    "later": "Später hinzufügen",
+    "laterLabel": "Teil {{number}} erst später anbieten, statt damit zu beginnen"
   },
   "add": {
     "toggle": "Hinzufügen",
-    "group": "Zum Bibelstudium hinzufügen",
-    "note": "Eintrag",
-    "section": "Abschnitt",
-    "textBlock": "Textblock",
-    "blockGroup": "Textblock in {{section}}",
-    "blockIn": "In {{section}}:"
+    "note": "Notiz",
+    "to": "Zu {{part}} hinzufügen",
+    "writing": "Text"
   },
   "home": {
     "title": "Bibelstudien",
@@ -618,12 +634,369 @@
     "title": "Zum Bibelstudium hinzufügen: {{study}}",
     "chooseStudy": "Bibelstudium",
     "otherStudy": "Anderes Bibelstudium …",
-    "noStudies": "Es gibt noch kein Bibelstudium. Beginnen Sie eines im Bereich „Bibelstudium“ und fügen Sie dies dann hinzu.",
-    "yourNote": "Ihr Eintrag (freiwillig)",
-    "placeholder": "Was nehmen Sie daraus mit?",
-    "placeholderRequired": "Schreiben Sie, was Sie von dieser Stelle mitnehmen …",
+    "noStudies": "Es gibt noch kein Bibelstudium. Beginne eines im Bereich „Bibelstudium“ und füge dies dann hinzu.",
+    "yourNote": "Deine Notiz (freiwillig)",
+    "placeholder": "Was nimmst du daraus mit?",
+    "placeholderRequired": "Schreib, was du von dieser Stelle mitnimmst …",
     "save": "Hinzufügen",
     "added": "Zu {{study}} · {{part}} hinzugefügt.",
-    "loading": "Ihre Bibelstudien werden geladen …"
+    "loading": "Deine Bibelstudien werden geladen …"
+  },
+  "view": {
+    "label": "Anzeigen",
+    "study": "Bibelstudium",
+    "teaching": "Bibellehre"
+  },
+  "teaching": {
+    "loading": "Die Vorbereitung wird geöffnet …",
+    "which": "Vorbereitung:",
+    "another": "Weitere Bibellehre vorbereiten",
+    "empty": {
+      "title": "Aus diesem Bibelstudium eine Predigt oder Lehre vorbereiten",
+      "text": "Eine Predigt, ein Gruppenabend oder eine Lektion, von dir geschrieben. Du kannst verwenden, was du in diesem Bibelstudium notiert hast: deine Notizen und Bibelstellen bleiben, wo sie sind, und werden hier nur verwendet. Nichts wird für dich ausgefüllt, und jeder Teil darf leer bleiben."
+    },
+    "kindLabel": "Art",
+    "kindNone": "Keine Angabe",
+    "kind": {
+      "sermon": "Predigt",
+      "bible_study": "Bibelgesprächskreis",
+      "youth": "Jugend",
+      "children": "Kinder",
+      "lesson": "Lektion",
+      "talk": "Vortrag",
+      "other": "Andere"
+    },
+    "titleLabel": "Titel",
+    "start": "Beginnen",
+    "delete": "Diese Vorbereitung löschen",
+    "deleteConfirm": "Diese Vorbereitung löschen? Das Bibelstudium mit seinen Notizen und Bibelstellen bleibt unverändert.",
+    "about": "Über diese Bibellehre",
+    "audience": "Für wen",
+    "audiencePlaceholder": "z. B. die ganze Gemeinde, eine Jugendgruppe",
+    "purpose": "Ziel",
+    "purposePlaceholder": "Was diese Predigt oder Lehre bewirken soll",
+    "notes": "Notizen für dich selbst",
+    "notesHint": "Erinnerungen beim Halten; nicht Teil dessen, was du sagst.",
+    "points": {
+      "whole": "deine ganze Bibellehre",
+      "moveUp": "„{{point}}“ nach oben",
+      "moveDown": "„{{point}}“ nach unten",
+      "delete": "„{{point}}“ löschen"
+    },
+    "links": {
+      "used": "Verwendet in {{scope}}",
+      "wholeScope": "der ganzen Vorbereitung",
+      "passages": "Bibelstellen in {{scope}}",
+      "findings": "Aus deinem Bibelstudium, in {{scope}}",
+      "materials": "Vom Assistenten übernommen in {{scope}}",
+      "useFinding": "Etwas aus deinem Bibelstudium verwenden",
+      "chooseFinding": "Aus deinem Bibelstudium",
+      "pick": "Auswählen …",
+      "empty": "(leer)",
+      "findingNote": "Es bleibt in deinem Bibelstudium. Änderst du es dort, ändert es sich auch hier.",
+      "removeFinding": "Hier nicht mehr verwenden",
+      "removeFindingHint": "Es bleibt in deinem Bibelstudium.",
+      "addPassage": "Bibelstelle hinzufügen",
+      "passageLabel": "Bibelstelle für {{scope}}",
+      "removePassage": "{{passage}} aus dieser Vorbereitung entfernen"
+    },
+    "material": {
+      "story": "Wahre Begebenheit",
+      "illustration": "Idee zur Veranschaulichung",
+      "image": "Bild",
+      "visual": "Idee für ein Bild",
+      "remove": "Aus dieser Vorbereitung entfernen"
+    },
+    "standing": {
+      "verified": "Quellen gefunden: Zwei unabhängige Websites in den Suchergebnissen berichten davon. Die Qualität der Quellen ist unterschiedlich – lies sie, bevor du es verwendest.",
+      "unverified": "Muss geprüft werden: Es wurde nur eine Quelle gefunden. Lies sie, bevor du es verwendest.",
+      "hypothetical": "Erfundenes Beispiel, keine wahre Begebenheit",
+      "found": "Gefundenes Bild · {{licence}}",
+      "generated": "Vom Assistenten erstellt: eine Zeichnung, kein Foto",
+      "suggestion": "Vorschlag des Assistenten"
+    },
+    "assist": {
+      "menu": "KI-Hilfe",
+      "menuLabel": "KI-Hilfe: {{part}}",
+      "action": {
+        "grammar": "Grammatik und Rechtschreibung prüfen",
+        "clarity": "Klarer machen",
+        "shorten": "Kürzen",
+        "natural": "Natürlicher klingen lassen",
+        "repetition": "Wiederholungen entfernen",
+        "spoken": "Leichter vorzutragen",
+        "audience": "Für eine Zielgruppe anpassen …",
+        "translate": "Übersetzen …",
+        "transition": "Hilfe bei einem Übergang",
+        "review": "Meinen Text durchsehen",
+        "structure": "Zum Aufbau Rückmeldung geben",
+        "application": "Folgt die Anwendung aus dem Text?",
+        "theology": "Theologie und Bibeltext prüfen",
+        "passages": "Bibelstellen zum Nachschlagen vorschlagen",
+        "phrasing": "Andere Formulierungen",
+        "question": "Hilfe bei einer Gesprächsfrage …",
+        "restructure": "Wie könnte ich ordnen, was ich habe?",
+        "illustration": "Ideen zur Veranschaulichung",
+        "story": "Eine wahre Begebenheit finden …",
+        "visual": "Ein Bild vorschlagen",
+        "free": "Etwas anderes fragen …"
+      },
+      "title": "{{action}} · {{part}}",
+      "close": "Assistent schließen",
+      "selectionOnly": "Nur die markierten Wörter.",
+      "request": {
+        "question": "Was soll die Frage bewusst machen?",
+        "story": "Welche Art wahre Begebenheit suchst du?",
+        "transition": "Was soll er verbinden? (optional)",
+        "phrasing": "Was möchtest du sagen? (optional)",
+        "visual": "Was soll das Bild erklären helfen? (optional)",
+        "free": "Wobei möchtest du Hilfe?"
+      },
+      "audienceLabel": "Für wen?",
+      "audiencePlaceholder": "z. B. Kinder von 8 bis 10 Jahren",
+      "languageLabel": "In welche Sprache?",
+      "languagePlaceholder": "z. B. Koreanisch",
+      "shared": {
+        "remote": "Zum Helfen wird dies an {{assistant}} gesendet:",
+        "local": "Dies bleibt auf diesem Computer ({{assistant}}). Gesehen wird:",
+        "text": "Deinen Teil „{{part}}“",
+        "selection": "die markierten Wörter",
+        "request": "Deine Bitte",
+        "teaching": "Titel und Art der Vorbereitung sowie Zielgruppe, Ziel und Kernbotschaft, soweit geschrieben",
+        "nearby_one": "ein weiterer Teil dieser Vorbereitung (damit dein Stil erhalten bleibt)",
+        "nearby_other": "{{count}} weitere Teile dieser Vorbereitung (damit dein Stil erhalten bleibt)",
+        "passages": "Bibeltext: {{passages}}",
+        "findings_one": "eine Notiz aus deinem Bibelstudium",
+        "findings_other": "{{count}} Notizen aus deinem Bibelstudium",
+        "quotes_one": "ein Zitat aus einem Buch deiner Bibliothek, mit Quelle",
+        "quotes_other": "{{count}} Zitate aus Büchern deiner Bibliothek, mit Quellen",
+        "searches": "Suchbegriffe aus deiner Bitte (sie können deine Worte enthalten) gehen außerdem an deinen Suchdienst."
+      },
+      "ask": "Fragen",
+      "askHint": "Strg+Eingabe fragt, Esc schließt. Vorher wird nichts gesendet.",
+      "ready": "Vorschlag bereit.",
+      "failed": "Der Assistent konnte diesmal nicht helfen.",
+      "kept": "In dieser Vorbereitung aufbewahrt.",
+      "keptLabel": "Aufbewahrt",
+      "from": "Von {{assistant}}",
+      "done": "Fertig",
+      "applied": "Wie gewählt geändert.",
+      "undo": "Rückgängig",
+      "undone": "Dein vorheriger Text ist wieder da.",
+      "proposal": {
+        "heading": "Vorgeschlagene Formulierung",
+        "headingStart": "Vorgeschlagener Übergang",
+        "notYet": "Noch hat sich nichts geändert. Dein Text bleibt, wie er ist, wenn du dies nicht wählst.",
+        "same": "Keine Änderungen vorgeschlagen.",
+        "removed": "entfernt:",
+        "added": "hinzugefügt:",
+        "changes": "Was sich ändert: {{changes}}",
+        "use": "Diese Formulierung übernehmen",
+        "useStart": "An den Anfang setzen"
+      },
+      "comments": {
+        "heading": "Rückmeldung zu deinem Text",
+        "none": "Nichts hinzuzufügen.",
+        "suggested": "Zum Nachschlagen:",
+        "add": "Hinzufügen",
+        "addPassage": "{{passage}} zu dieser Vorbereitung hinzufügen"
+      },
+      "basis": {
+        "scripture": "Laut Assistent mit Bezug auf den Bibeltext",
+        "study": "Laut Assistent mit Bezug auf dein Bibelstudium",
+        "source": "Laut Assistent mit Bezug auf ein Buch deiner Bibliothek",
+        "reasoning": "Eigene Überlegung des Assistenten, zum selbst Abwägen"
+      },
+      "options": {
+        "heading": "Vorschläge",
+        "headingInvented": "Ideen zur Veranschaulichung",
+        "invented": "Dies sind erfundene Beispiele, keine wahren Begebenheiten. Erzähl sie nicht, als wären sie geschehen.",
+        "insert": "Unter meinem Text einfügen",
+        "keepIdea": "Als Idee aufbewahren",
+        "use": "Übernehmen"
+      },
+      "stories": {
+        "heading": "Gefundene wahre Begebenheiten",
+        "none": "In den Suchergebnissen ließ sich keine wahre Begebenheit finden und prüfen. Es wurde nichts erfunden.",
+        "checkNote": "Nur mit den Kurzfassungen der Suchergebnisse abgeglichen. Öffne die Quellen und lies die ganze Geschichte, bevor du sie verwendest.",
+        "keep": "In dieser Vorbereitung aufbewahren",
+        "sources": "Quellen"
+      },
+      "visuals": {
+        "heading": "Ideen für ein Bild",
+        "kind": {
+          "photo": "Foto",
+          "diagram": "Einfaches Schaubild",
+          "drawing": "Zeichnung"
+        },
+        "find": "Frei lizenzierte Bilder finden",
+        "make": "Bild erstellen",
+        "keepIdea": "Idee aufbewahren",
+        "cannotMake": {
+          "off": "Bilder erstellen ist ausgeschaltet (Einstellungen → KI-Assistent). Frei lizenzierte Bilder finden geht trotzdem.",
+          "unsupported": "Dieser KI-Dienst kann keine Bilder erstellen. In den Einstellungen → KI-Assistent kannst du OpenAI für Bilder wählen. Frei lizenzierte Bilder finden geht trotzdem.",
+          "noKey": "Bilder erstellen braucht den OpenAI-Schlüssel für Bilder (Einstellungen → KI-Assistent). Frei lizenzierte Bilder finden geht trotzdem."
+        }
+      },
+      "images": {
+        "found": "Gefundene Bilder",
+        "none": "Keine frei lizenzierten Bilder gefunden.",
+        "by": "von {{author}}",
+        "source": "Woher es stammt",
+        "keep": "Bild aufbewahren",
+        "keepLabel": "Bild „{{title}}“ aufbewahren",
+        "generatedAlt": "Vom Assistenten erstellte Zeichnung: {{description}}",
+        "nothingPlaced": "Nichts kommt in deine Vorbereitung, solange du es nicht aufbewahrst."
+      },
+      "changedMeanwhile": "Dein Text hat sich nach der Frage geändert; der Vorschlag wurde daher nicht übernommen. Bitte frag erneut.",
+      "menuIntro": "Was würde dir helfen?",
+      "allHelp": "Alle Hilfen",
+      "category": {
+        "wording": "Meine Formulierungen verbessern",
+        "review": "Meinen Text prüfen",
+        "structure": "Hilfe beim Aufbau",
+        "ideas": "Ideen und Veranschaulichungen",
+        "research": "Etwas nachschlagen"
+      },
+      "freePlaceholder": "z. B. Ist das für eine Jugendgruppe zu lang?",
+      "freeHint": "Der Assistent sieht diesen Teil und was er aus dieser Bibellehre und diesem Bibelstudium braucht. Er antwortet mit Kommentaren und Fragen; deine Bibellehre schreibt er nicht für dich.",
+      "slow": "Das dauert länger als sonst. Du kannst weiter warten oder abbrechen.",
+      "stop": "Nicht mehr warten",
+      "stopped": "Warten beendet. Nichts wurde geändert. Der Dienst kann die Anfrage trotzdem zu Ende bearbeiten, und sie kann zu deiner Nutzung zählen.",
+      "pending": {
+        "ask": "Der Assistent wird gefragt …",
+        "story": "Quellen werden gesucht … Das kann eine Weile dauern.",
+        "findImages": "Passende Bilder werden gesucht …",
+        "makeImage": "Ein Bild wird erstellt … Das kann eine Weile dauern."
+      },
+      "menuTitle": "Hilfe vom KI-Assistenten",
+      "minimise": "Minimieren",
+      "restore": "KI-Assistent wieder öffnen",
+      "panelLabel": "KI-Assistent: {{label}}",
+      "move": "Fenster verschieben (Pfeiltasten)",
+      "sendsTo": "Beim Erstellen eines Bildes wird die Beschreibung dieser Idee über das Internet an {{service}} gesendet."
+    },
+    "shape": {
+      "points": {
+        "title": "Hauptpunkte",
+        "none": "Noch keine Punkte. Füge so viele hinzu, wie du brauchst, in jeder Form: ein Abschnitt einer Geschichte, eine Frage, ein Thema oder einige Verse.",
+        "add": "Punkt hinzufügen",
+        "number": "Punkt {{number}}",
+        "label": "Punkt {{number}}: {{title}}",
+        "untitled": "Punkt {{number}}",
+        "titleLabel": "Titel von Punkt {{number}}",
+        "titlePlaceholder": "Was dieser Punkt sagt",
+        "explanation": "Erklärung",
+        "application": "Anwendung",
+        "illustration": "Veranschaulichung oder Beispiel",
+        "added": "Punkt hinzugefügt.",
+        "removed": "Punkt entfernt.",
+        "moved": "Punkt an Stelle {{position}} verschoben.",
+        "deleteConfirm": "Diesen Punkt mit deinem Text löschen? Verwendete Notizen bleiben im Bibelstudium.",
+        "message": "Kernbotschaft",
+        "messageHint": "Das eine, was die Hörer vor allem mitnehmen sollen",
+        "introduction": "Einleitung",
+        "conclusion": "Schluss"
+      },
+      "questions": {
+        "title": "Fragen und Antworten",
+        "none": "Noch keine Fragen. Füge die Fragen hinzu, über die ihr sprechen wollt, jeweils mit dem, was der Bibeltext zeigt.",
+        "add": "Frage hinzufügen",
+        "number": "Frage {{number}}",
+        "label": "Frage {{number}}: {{title}}",
+        "untitled": "Frage {{number}}",
+        "titleLabel": "Frage {{number}}",
+        "titlePlaceholder": "Die Frage, die du stellen wirst",
+        "explanation": "Wohin das Gespräch führen kann",
+        "application": "Weiterführende Fragen",
+        "illustration": "Hinweise für die Gesprächsleitung",
+        "added": "Frage hinzugefügt.",
+        "removed": "Frage entfernt.",
+        "moved": "Frage an Stelle {{position}} verschoben.",
+        "deleteConfirm": "Diese Frage mit deinem Text löschen? Verwendete Notizen bleiben im Bibelstudium.",
+        "message": "Was die Gruppe entdecken soll",
+        "messageHint": "Das eine, wohin das Gespräch führen soll",
+        "introduction": "Einstieg",
+        "conclusion": "Abschluss"
+      },
+      "steps": {
+        "title": "Ablauf",
+        "none": "Noch keine Schritte. Füge die Teile der Stunde in ihrer Reihenfolge hinzu: Begrüßung, Geschichte, Aktion, Gebet …",
+        "add": "Schritt hinzufügen",
+        "number": "Schritt {{number}}",
+        "label": "Schritt {{number}}: {{title}}",
+        "untitled": "Schritt {{number}}",
+        "titleLabel": "Titel von Schritt {{number}}",
+        "titlePlaceholder": "Was in diesem Schritt geschieht",
+        "explanation": "Was du sagst oder tust",
+        "application": "Was sie mitnehmen sollen",
+        "illustration": "Aktion, Material oder Beispiel",
+        "added": "Schritt hinzugefügt.",
+        "removed": "Schritt entfernt.",
+        "moved": "Schritt an Stelle {{position}} verschoben.",
+        "deleteConfirm": "Diesen Schritt mit deinem Text löschen? Verwendete Notizen bleiben im Bibelstudium.",
+        "message": "Das eine, was sie behalten sollen",
+        "messageHint": "In wenigen Worten, die sie hinterher nachsagen können",
+        "introduction": "Einstieg",
+        "conclusion": "Abschluss"
+      }
+    },
+    "aboutEmpty": "Art, für wen, Ziel, Bibelstellen",
+    "aboutFor": "für {{audience}}",
+    "format": {
+      "points": "Hauptpunkte mit Erklärung, Anwendung und Beispiel, zwischen Einleitung und Schluss.",
+      "questions": "Fragen für die Gruppe, jeweils mit der Richtung, in die das Gespräch führen kann, und weiterführenden Fragen.",
+      "steps": "Eine Einheit in Schritten: Erzählen, Bibellesen, Fragen, Aktionen und Bilder, in der Reihenfolge des Ablaufs."
+    },
+    "startsWith": "Beginnt mit: {{steps}}.",
+    "starts": {
+      "children": {
+        "welcome": "Begrüßung",
+        "story": "Biblische Geschichte",
+        "question": "Frage",
+        "activity": "Aktion",
+        "prayer": "Gebet"
+      },
+      "lesson": {
+        "teaching": "Lehre",
+        "discussion": "Gespräch",
+        "activity": "Aktion"
+      }
+    },
+    "stepKindLabel": "Art des Schritts: {{step}}",
+    "stepKind": {
+      "none": "Art nicht angegeben",
+      "text": "Erzählen und Erklären",
+      "scripture": "Bibeltext",
+      "question": "Frage",
+      "activity": "Aktion",
+      "image": "Bild",
+      "audio": "Audio"
+    },
+    "step": {
+      "text": {
+        "explanation": "Was du sagst"
+      },
+      "scripture": {
+        "explanation": "Wie du ihn liest oder erzählst"
+      },
+      "question": {
+        "explanation": "Antworten, auf die du achten kannst"
+      },
+      "activity": {
+        "explanation": "Wie es geht",
+        "illustration": "Was du brauchst"
+      },
+      "image": {
+        "explanation": "Was es zeigt und wann du es zeigst"
+      }
+    }
+  },
+  "parts": {
+    "add": "Teil hinzufügen",
+    "suggested": "Teile, die du hinzufügen kannst",
+    "own": "Eigene Überschrift",
+    "collapseAll": "Alle zuklappen",
+    "expandAll": "Alle aufklappen"
   }
 }

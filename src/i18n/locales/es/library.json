@@ -63,9 +63,9 @@
     "message": "¿Quitar <strong>{{title}}</strong> de tu biblioteca? Se eliminan su texto y la copia del archivo que guarda Abiding Word; tu archivo original no se toca. Los apuntes que la citan conservan un registro de la referencia.",
     "confirm": "Quitar de la biblioteca",
     "keep": "Conservarla",
-    "marks_one": "Su marca en esta fuente (resaltado, nota o marcador) se quita con ella.",
-    "marks_many": "Sus {{count}} marcas en esta fuente (resaltados, notas y marcadores) se quitan con ella.",
-    "marks_other": "Sus {{count}} marcas en esta fuente (resaltados, notas y marcadores) se quitan con ella."
+    "marks_one": "Tu marca en esta fuente (resaltado, nota o marcador) se quita con ella.",
+    "marks_many": "Tus {{count}} marcas en esta fuente (resaltados, notas y marcadores) se quitan con ella.",
+    "marks_other": "Tus {{count}} marcas en esta fuente (resaltados, notas y marcadores) se quitan con ella."
   },
   "add": {
     "title": "Añadir a la biblioteca",
@@ -216,7 +216,7 @@
     "label": "Buscar en esta fuente",
     "placeholder": "Buscar en esta fuente",
     "searching": "Buscando…",
-    "failed": "No se pudo completar la búsqueda. Inténtelo de nuevo.",
+    "failed": "No se pudo completar la búsqueda. Inténtalo de nuevo.",
     "none": "Sin coincidencias",
     "position": "{{current}} de {{total}}",
     "positionMore": "{{current}} de más de {{total}}",
@@ -254,14 +254,14 @@
     "colourIs": "Color: {{color}}",
     "wholeParagraph": "Párrafo completo",
     "unresolved": "Este lugar ya no se encuentra en el texto.",
-    "empty": "Todavía no hay marcas en esta fuente. Seleccione texto para resaltarlo o añadir una nota.",
+    "empty": "Todavía no hay marcas en esta fuente. Selecciona texto para resaltarlo o añadir una nota.",
     "for": "Marcas en {{title}}",
     "close": "Cerrar las marcas",
     "show": "Mostrar las marcas de esta fuente",
     "delete": "Eliminar",
     "panels": "Contenido o marcas",
     "notePage": "Nota sobre esta página",
-    "cannotPlace": "Estas palabras no se pueden marcar aquí con exactitud. Selecciónelas en Lectura para marcarlas."
+    "cannotPlace": "Estas palabras no se pueden marcar aquí con exactitud. Selecciónalas en Lectura para marcarlas."
   },
   "copy": {
     "quoted": "«{{quote}}»",

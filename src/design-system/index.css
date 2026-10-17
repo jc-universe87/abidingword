@@ -38,11 +38,23 @@
 }
 
 @layer base {
+  /* The window is the app: the document never scrolls, every pane scrolls
+     inside itself, and the shell is pinned to the window (see Shell.tsx), so
+     no part of the window is ever left unpainted below the panes. */
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
   html {
     font-size: 16px;
+    overflow: hidden;
+    background: var(--aw-bg);
   }
 
   body {
+    overflow: hidden;
     margin: 0;
     background: var(--aw-bg);
     color: var(--aw-text);

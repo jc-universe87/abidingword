@@ -49,14 +49,14 @@
     "later": "Later",
     "downloading": "Downloading the update…",
     "downloadingPercent": "Downloading the update… {{percent}}%",
-    "version": "Running version",
+    "version": "Installed version",
     "channel": "Update channel",
     "channelTest": "Development / test",
     "check": "Check for updates",
     "checking": "Checking…",
     "upToDate": "Abiding Word is up to date.",
     "notIncluded": "This build does not include automatic updates.",
-    "help": "Abiding Word looks for an update only now and then, or when you ask. It never needs the internet to work, and your studies are not affected.",
+    "help": "Abiding Word checks only occasionally or when you ask. You do not need an internet connection to work, and your studies are unaffected.",
     "errors": {
       "check": "Could not check for updates. Please check your connection and try again.",
       "install": "The update could not be installed. Your studies are not affected. You can try again."

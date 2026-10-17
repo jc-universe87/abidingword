@@ -87,21 +87,21 @@
     "originalUnavailable": "L’original de cette source ne peut pas être ouvert."
   },
   "templates": {
-    "noSections": "Un modèle doit comporter au moins une section.",
-    "tooManySections": "Un modèle peut comporter au plus {{max}} sections.",
+    "noSections": "Un modèle doit comporter au moins une partie de départ.",
+    "tooManySections": "Un modèle peut comporter au plus {{max}} parties.",
     "builtinReadOnly": "Les modèles intégrés ne peuvent pas être modifiés. Dupliquez-le pour créer votre propre version."
   },
   "sections": {
-    "hasContent": "« {{title}} » contient encore du texte ou des élément d’études."
+    "hasContent": "« {{title}} » contient encore du texte ou des notes."
   },
   "relations": {
     "self": "Une étude ne peut pas être liée à elle-même.",
     "exists": "Cette étude est déjà liée à « {{title}} »."
   },
   "findings": {
-    "tooLong": "Ce élément d’étude est trop long pour être enregistré.",
-    "otherStudySection": "Cette section appartient à une autre étude.",
-    "tooManyTags": "Un élément d’étude peut avoir au plus {{max}} étiquettes.",
+    "tooLong": "Cette note est trop longue pour être enregistrée.",
+    "otherStudySection": "Cette partie appartient à une autre étude.",
+    "tooManyTags": "Une note peut avoir au plus {{max}} étiquettes.",
     "tagTooLong": "L’étiquette « {{tag}} » est trop longue.",
     "writeFirst": "Écrivez d’abord quelque chose à ajouter."
   },
@@ -126,5 +126,45 @@
     "bookmarkPlace": "Un signet marque un endroit, pas des mots.",
     "wordsOnlyNotes": "Seules les notes ont un texte propre.",
     "bookmarkNotStudy": "Un signet marque seulement un endroit ; il n’y a rien à ajouter à une étude."
+  },
+  "assistant": {
+    "off": "L’assistant IA est désactivé. Vous pouvez l’activer dans Paramètres → Assistant IA.",
+    "notSetUp": "L’assistant IA n’est pas encore configuré. Vous pouvez le configurer dans Paramètres → Assistant IA.",
+    "noModel": "Choisissez le modèle à utiliser dans les Réglages.",
+    "noKey": "L’assistant IA a besoin de sa clé. Vous pouvez l’ajouter dans Paramètres → Assistant IA.",
+    "keyRefused": "Le service n’a pas accepté la clé. Vérifiez-la dans les Réglages.",
+    "modelMissing": "Le service d’IA ne connaît pas ce modèle. Vérifiez le nom du modèle dans Paramètres → Assistant IA (le ↗ à côté de « Modèle » montre les modèles actuels).",
+    "busy": "Le service est occupé ou la limite du compte est atteinte. Réessayez plus tard.",
+    "failed": "Le service n’a pas pu répondre cette fois. Réessayez.",
+    "badReply": "La réponse de l’assistant n’était pas utilisable. Rien n’a changé. Réessayez.",
+    "unreachable": "L’assistant est injoignable. Vérifiez la connexion Internet ou l’adresse dans les Réglages.",
+    "writeFirst": "Écrivez d’abord quelque chose ici. L’assistant aide avec ce que vous avez écrit.",
+    "sayWhat": "Dites en quelques mots ce que vous cherchez.",
+    "structureFirst": "Écrivez d’abord au moins deux points. L’assistant commente la structure que vous avez.",
+    "chooseAudience": "Indiquez pour qui c’est.",
+    "chooseLanguage": "Choisissez la langue cible.",
+    "textTooLong": "Ce texte est trop long pour être envoyé d’un coup. Sélectionnez-en une partie et réessayez.",
+    "tooMuch": "La suggestion était bien plus longue que votre texte ; elle n’a donc pas été affichée. Réessayez.",
+    "noSearch": "Les histoires vraies ne peuvent être trouvées et vérifiées qu’avec un service de recherche, qui n’est pas configuré. Ajoutez-en un dans les Réglages, ou demandez plutôt une illustration inventée.",
+    "noSearchKey": "Le service de recherche a besoin de sa clé. Ajoutez-la dans les Réglages.",
+    "searchFailed": "Le service de recherche n’a pas pu répondre. Rien n’a été trouvé ni vérifié.",
+    "imagesFailed": "Aucune image n’a pu être trouvée cette fois. Réessayez.",
+    "noImageSearch": "La recherche d’images est désactivée. Activez-la dans les Réglages.",
+    "noImageGeneration": "La création d’images n’est pas configurée, ou ce service d’IA ne peut pas créer d’images. Vous pouvez choisir un service pour les images dans Paramètres → Assistant IA.",
+    "imageFailed": "L’image n’a pas pu être créée cette fois. Réessayez.",
+    "keyStore": "La clé n’a pas pu être conservée dans le magasin d’identifiants de cet ordinateur.",
+    "badKey": "Cela ne ressemble pas à une clé. Collez-la à nouveau.",
+    "badAddress": "Saisissez une adresse web commençant par http:// ou https://.",
+    "badModel": "Ce nom de modèle est trop long.",
+    "noImageKey": "La création d’images demande la clé du service d’images. Vous pouvez l’ajouter dans Paramètres → Assistant IA.",
+    "searchNoKey": "Ce service de recherche n’utilise pas de clé."
+  },
+  "teaching": {
+    "tooLong": "Cette partie de l’enseignement est trop longue pour être enregistrée.",
+    "otherPoint": "Ce point appartient à un autre enseignement.",
+    "otherStudyFinding": "Cette note appartient à une autre étude.",
+    "badMaterial": "Cet élément ne peut pas être conservé.",
+    "notVerified": "Une histoire n’est conservée comme vérifiée qu’avec deux sources indépendantes.",
+    "imageGone": "Cette image n’est plus disponible. Recréez-la."
   }
 }

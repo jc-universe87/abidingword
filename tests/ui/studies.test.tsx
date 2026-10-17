@@ -21,18 +21,8 @@ describe("study selection and editing", () => {
     const sectionTitles = screen
       .getAllByRole("heading", { level: 2 })
       .map((h) => h.textContent)
-      .filter((t) => t !== "Study notes" && t !== "New study");
-    expect(sectionTitles).toEqual([
-      "Text",
-      "Context",
-      "Observations",
-      "Structure",
-      "Exegesis",
-      "Theology",
-      "Application",
-      "Audience",
-      "Teaching",
-    ]);
+      .filter((t) => t !== "Other notes" && t !== "New study");
+    expect(sectionTitles).toEqual(["Text", "Observations", "Context", "Meaning", "Theology", "Application"]);
   });
 
   it("creates a study inside the open project", async () => {
@@ -65,20 +55,16 @@ describe("study selection and editing", () => {
     expect(await screen.findByText("Saved")).toBeInTheDocument();
   });
 
-  it("adds a remark to the section being worked in", async () => {
+  it("adds writing to the part it was asked in", async () => {
     const api = await seed();
     const { user } = await renderApp(api);
     await user.click(await screen.findByRole("button", { name: /Romans 8:1–17/ }));
 
-    await user.click(await screen.findByRole("textbox", { name: "Context: paragraph" }));
-    await user.click(screen.getByRole("button", { name: "Add" }));
-    await user.click(screen.getByRole("button", { name: "Text block" }));
-    const kinds = screen.getByRole("group", { name: "Text block in Context" });
-    await user.click(within(kinds).getByRole("button", { name: "Remark" }));
-
-    const remark = await screen.findByRole("textbox", { name: "Context: remark" });
-    await waitFor(() => expect(remark).toHaveFocus());
-    expect(api.state.blocks.filter((b) => b.blockType === "note")).toHaveLength(1);
+    await user.click(await screen.findByRole("button", { name: "Add to Context" }));
+    await user.click(screen.getByRole("button", { name: "Writing" }));
+    const fields = await screen.findAllByRole("textbox", { name: "Context: paragraph" });
+    expect(fields).toHaveLength(2);
+    await waitFor(() => expect(fields[1]).toHaveFocus());
   });
 
   it("returns to the last open study after a restart", async () => {

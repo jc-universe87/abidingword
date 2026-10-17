@@ -403,14 +403,14 @@ fn study_search_covers_titles_sections_blocks_and_findings() {
         blocks::update(
             conn,
             &UpdateStudyBlock {
-                id: vine_sections[1].blocks[0].id.clone(),
+                id: vine_sections[2].blocks[0].id.clone(),
                 content: Some("Spoken on the way to Gethsemane.".into()),
             },
         )?;
         sections::update(
             conn,
             &UpdateStudySection {
-                id: vine_sections[8].id.clone(),
+                id: vine_sections[5].id.clone(),
                 title: Some("Sermon Outline".into()),
                 ..Default::default()
             },
@@ -488,7 +488,7 @@ fn study_search_covers_titles_sections_blocks_and_findings() {
         blocks::update(
             conn,
             &UpdateStudyBlock {
-                id: vine_sections[1].blocks[0].id.clone(),
+                id: vine_sections[2].blocks[0].id.clone(),
                 content: Some("Now about the garden.".into()),
             },
         )?;

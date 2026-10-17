@@ -4,10 +4,12 @@
   "sections": {
     "appearance": "Appearance",
     "language": "Language",
-    "bibleTexts": "Bible Texts",
-    "templates": "Study Templates",
+    "bibleTexts": "Bible texts",
+    "templates": "Templates",
     "about": "About this installation",
-    "planned": "Coming in later versions"
+    "planned": "Coming in later versions",
+    "assistant": "AI Assistant",
+    "updates": "Updates"
   },
   "language": {
     "label": "Interface language",
@@ -16,11 +18,8 @@
   "theme": {
     "legend": "Theme",
     "light": "Light",
-    "lightHint": "Warm ivory, for daytime study.",
     "dark": "Dark",
-    "darkHint": "Deep forest green, easier in low light.",
-    "system": "Match my computer",
-    "systemHint": "Follows your operating system setting."
+    "system": "Match my computer"
   },
   "layout": {
     "title": "Workspace layout",
@@ -39,11 +38,188 @@
     "backup": "All your studies are stored in the data folder on this computer. To back them up, copy that whole folder while Abiding Word is closed."
   },
   "planned": {
-    "ai": "AI assistance",
-    "aiText": "Optional help with study. Abiding Word will always work fully without it.",
     "sync": "Sync",
     "syncText": "Keep your studies in step across your own devices, under your control.",
     "integrations": "Integrations",
     "integrationsText": "Connect other tools you already use."
+  },
+  "assistant": {
+    "intro": "An optional AI (artificial intelligence) helper for your teaching. It comments and suggests; you stay the author, and nothing in your text changes unless you choose it. It works only when you ask.",
+    "enabled": "Use the AI Assistant",
+    "provider": "Service",
+    "providers": {
+      "openai": "OpenAI (ChatGPT)",
+      "anthropic": "Anthropic (Claude)",
+      "google": "Google Gemini",
+      "ollama": "Ollama",
+      "lmstudio": "LM Studio",
+      "openai_compatible": "Other compatible service",
+      "xai": "xAI (Grok)",
+      "perplexity": "Perplexity",
+      "deepseek": "DeepSeek",
+      "qwen": "Qwen (Alibaba Cloud)"
+    },
+    "remote": "When you ask for help, the text you chose is sent over the internet to this service.",
+    "local": "Runs on this computer: your text does not leave it.",
+    "model": "Model",
+    "modelPlaceholder": "The model's name",
+    "modelHint": "Model names change often. The suggested model is a starting point; the ↗ button beside the field opens the service’s current list.",
+    "address": "Address of the service",
+    "addressPlaceholder": "The service’s usual address",
+    "addressHint": "Leave empty to use the service’s usual address. Only needed for a different server, or a program running on another computer.",
+    "key": "Key",
+    "keyHint": "Kept in this computer’s password store, never in your studies, and not shown again.",
+    "keyKeptPlaceholder": "A key is kept (type to replace it)",
+    "keySave": "Keep key",
+    "keyRemove": "Remove key",
+    "keySaved": "The key is kept on this computer.",
+    "keyRemoved": "The key was removed.",
+    "search": "Look up real stories",
+    "searchHint": "Abiding Word asks a search service for web pages about real stories and shows them with their links. A search service only finds pages: it does not decide what is true. Read the sources before you use a story.",
+    "searchKinds": {
+      "none": "Off",
+      "brave": "Brave Search",
+      "searxng": "SearXNG",
+      "tavily": "Tavily",
+      "exa": "Exa",
+      "serpapi": "SerpApi"
+    },
+    "searchAddress": "SearXNG address",
+    "searchKey": "Search key",
+    "images": "Images",
+    "findImages": "Find freely licensed images on Wikimedia Commons (only search words are sent)",
+    "generateImages": "Allow making images (always marked as made by the assistant)",
+    "perspective": "How should the AI approach theological questions?",
+    "perspectiveHint": "Optional. This does not ask about your life: if it helps, write only a short theological or church perspective (e.g. “Reformed evangelical”). The AI uses it when it comments on disputed theological questions, and still mentions other serious interpretations. Left blank, no tradition is assumed.",
+    "save": "Save",
+    "saved": "Saved.",
+    "test": "Check the connection",
+    "testOk": "Connected. The assistant answered and is ready.",
+    "turnedOn": "The AI Assistant is on.",
+    "turnedOff": "The AI Assistant is off.",
+    "providerGroups": {
+      "internet": "On the internet",
+      "local": "On this computer",
+      "other": "Other"
+    },
+    "localHelp": {
+      "title": "How do I set up {{service}}?",
+      "what": "{{service}} is a free program that runs an AI model on your own computer. It needs no key and no account, and your text never leaves your computer. It works best on a fairly powerful computer, and answers can take longer.",
+      "steps": "Install {{service}}, download a model in it, and leave it running. Then enter the model’s name below and check the connection.",
+      "open": "Open the {{service}} website"
+    },
+    "otherHelp": "For a service that works like OpenAI’s. Enter the address from its instructions, a key if it needs one, and the model’s name.",
+    "keyOptional": "Key (if the service needs one)",
+    "keyHelp": {
+      "title": "How do I get a key?",
+      "whatA": "A key is a long code from {{service}}. It lets Abiding Word use your account there. Treat it like a password.",
+      "open": "Open the {{service}} key page",
+      "costA": "Most services charge a little for what you use and may ask for payment details or prepaid credit before the key works. You arrange this on their website, not in Abiding Word.",
+      "step1": "Open the {{service}} page below.",
+      "step2": "Sign in, or create an account if you do not have one.",
+      "step3": "Create a new key (it may be called an “API key”).",
+      "step4": "Copy it straight away: it is usually shown only once.",
+      "step5": "Come back to Abiding Word.",
+      "step6": "Paste it into the Key field above.",
+      "step7": "Press Keep key.",
+      "step8": "Press Check the connection."
+    },
+    "modelHintEmpty": "Type the model’s name as {{service}} shows it.",
+    "advanced": "Advanced",
+    "checking": "Checking the connection… This can take a few seconds.",
+    "why": {
+      "noKey": "To check the connection, first paste your key and choose Keep key.",
+      "noModel": "To check the connection, first enter the model’s name.",
+      "noAddress": "To check the connection, first enter the address of the service.",
+      "badAddress": "The address of the service must begin with http:// or https://."
+    },
+    "extras": "Optional extras",
+    "optional": "(optional)",
+    "perspectiveExamples": "Examples:",
+    "perspectiveExample": {
+      "reformed": "Reformed evangelical",
+      "catholic": "Roman Catholic",
+      "lutheran": "Lutheran",
+      "pentecostal": "Pentecostal",
+      "none": "No particular tradition"
+    },
+    "modelsLink": "See {{service}}’s current models",
+    "modelsLocal": "See models you can download for {{service}}",
+    "searchAdvanced": "Other (advanced)",
+    "imagesHelp": "Finding images searches Wikimedia Commons for freely licensed pictures; only your search words are sent. Making images asks an AI image service to draw one, always marked as made by the assistant. Not every AI service can make images.",
+    "imageService": "Make images with",
+    "imageServices": {
+      "same": "The same AI service (if it can)",
+      "openai": "OpenAI (needs an OpenAI key)"
+    },
+    "imageCapability": {
+      "supported": "{{service}} can make images.",
+      "unsupported": "{{service}} cannot make images. Choose OpenAI for images, or leave this off.",
+      "unknown": "Abiding Word cannot tell whether {{service}} can make images with your account. You can try; if it fails, choose OpenAI for images."
+    },
+    "imageKey": "OpenAI key for images",
+    "imageKeyMissing": "No OpenAI key for images is kept yet: paste it below and press Keep key.",
+    "imagesLeave": "Image descriptions are sent to OpenAI over the internet, even though your writing service is not.",
+    "searchShort": {
+      "brave": "simple general web search",
+      "tavily": "search designed for AI assistants",
+      "exa": "finds relevant sources and passages",
+      "searxng": "self-hosted, needs a server address",
+      "serpapi": "Google results through SerpApi"
+    },
+    "searchOption": "{{name}} – {{short}}",
+    "searchRecommended": "Recommended",
+    "searchWhat": {
+      "brave": "Brave Search is an independent web search. Its search service for programs (the “Search API”) returns ordinary web results with a short excerpt.",
+      "tavily": "Tavily is a search service made for AI assistants. It returns web pages with a readable excerpt of each, which helps the AI Assistant point to what a page says.",
+      "exa": "Exa searches by meaning rather than only by words. It returns pages with the passages that best match what you asked for.",
+      "searxng": "SearXNG is an open search program that some people run on their own server. You need the address of a SearXNG server that allows searches from programs (“JSON” results). If this means nothing to you, choose one of the recommended services instead.",
+      "serpapi": "SerpApi returns Google’s search results for programs. It is a paid service with a small free allowance, and is meant for people who already use it."
+    },
+    "searchSetup": {
+      "title": "How do I set up {{service}}?",
+      "step1": "Open the {{service}} page below and sign in, or create an account.",
+      "step2": "Create a key there (it may be called an “API key”) and copy it.",
+      "step3": "Paste it into the search key field and press Keep key.",
+      "step4": "Press Check search.",
+      "open": "Open the {{service}} page",
+      "cost": "Search services usually offer a small free allowance each month and charge for more. You arrange this on their website, not in Abiding Word."
+    },
+    "searchTest": "Check search",
+    "searchTesting": "Asking the search service…",
+    "searchTestOk": "The search service answered and found web pages.",
+    "searchTestEmpty": "The search service answered, but found nothing for a test search.",
+    "searchWhy": {
+      "noKey": "To check the search, first paste its key and choose Keep key.",
+      "noAddress": "To check the search, first enter the SearXNG address."
+    }
+  },
+  "jumpTo": "Go to a section",
+  "summary": {
+    "version": "Version {{version}}",
+    "upToDate": "Up to date",
+    "updateAvailable": "Version {{version}} is available",
+    "updateInstalling": "Installing the update…",
+    "updateFailed": "Something went wrong: see below",
+    "updatesOff": "Not included in this build",
+    "bibleTexts": "Add or remove translations",
+    "templates": "Starting structures for Bible Study and Bible Teaching",
+    "assistantOff": "Off",
+    "assistantOn": "On · {{service}}",
+    "about": "Version {{version}} · where your data is kept"
+  },
+  "help": {
+    "about": "More about: {{topic}}"
+  },
+  "background": {
+    "legend": "Background",
+    "help": "Calm backgrounds with little glare, made for long reading and writing. Text keeps good contrast on each. They apply to the light theme.",
+    "lightOnly": "Backgrounds apply to the light theme.",
+    "parchment": "Parchment",
+    "cream": "Cream",
+    "sage": "Sage",
+    "stone": "Stone",
+    "mist": "Mist",
+    "clear": "Neutral"
   }
 }

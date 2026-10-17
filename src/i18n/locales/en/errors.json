@@ -84,21 +84,21 @@
     "originalUnavailable": "The original of this source can’t be opened."
   },
   "templates": {
-    "noSections": "A template needs at least one section.",
-    "tooManySections": "A template can have at most {{max}} sections.",
+    "noSections": "A template needs at least one part to start with.",
+    "tooManySections": "A template can have at most {{max}} parts.",
     "builtinReadOnly": "Built-in templates can’t be changed. Duplicate it to make your own version."
   },
   "sections": {
-    "hasContent": "“{{title}}” still has writing or findings in it."
+    "hasContent": "“{{title}}” still has writing or notes in it."
   },
   "relations": {
     "self": "A study can’t be linked to itself.",
     "exists": "This study is already linked to “{{title}}”."
   },
   "findings": {
-    "tooLong": "This finding is too long to save.",
-    "otherStudySection": "That section belongs to another study.",
-    "tooManyTags": "A finding can have at most {{max}} tags.",
+    "tooLong": "This note is too long to save.",
+    "otherStudySection": "That part belongs to another study.",
+    "tooManyTags": "A note can have at most {{max}} tags.",
     "tagTooLong": "The tag “{{tag}}” is too long.",
     "writeFirst": "Write something to add first."
   },
@@ -123,5 +123,45 @@
     "bookmarkPlace": "A bookmark marks a place, not words.",
     "wordsOnlyNotes": "Only notes have words of their own.",
     "bookmarkNotStudy": "A bookmark marks a place; it has nothing to add to a study."
+  },
+  "assistant": {
+    "off": "The AI Assistant is turned off. You can turn it on in Settings → AI Assistant.",
+    "notSetUp": "The AI Assistant is not set up yet. You can set it up in Settings → AI Assistant.",
+    "noModel": "Choose which model to use in Settings.",
+    "noKey": "The AI Assistant needs its key. You can add it in Settings → AI Assistant.",
+    "keyRefused": "The assistant service did not accept the key. Check it in Settings.",
+    "modelMissing": "The AI service does not know that model. Check the model name in Settings → AI Assistant (the ↗ beside Model shows the current models).",
+    "busy": "The assistant service is busy or the account’s limit is reached. Please try again later.",
+    "failed": "The assistant service could not answer this time. Please try again.",
+    "badReply": "The assistant’s answer could not be used. Nothing was changed. Please try again.",
+    "unreachable": "The assistant could not be reached. Check the internet connection or the address in Settings.",
+    "writeFirst": "Write something here first. The assistant helps with what you have written.",
+    "sayWhat": "Say in a few words what you are looking for.",
+    "structureFirst": "Write at least two points first. The assistant comments on the structure you have.",
+    "chooseAudience": "Choose who this is for.",
+    "chooseLanguage": "Choose the language to translate into.",
+    "textTooLong": "This text is too long to send at once. Select a part of it and try again.",
+    "tooMuch": "The suggestion was much longer than your text, so it was not shown. Please try again.",
+    "noSearch": "Real stories can only be found and checked with a search service, which is not set up. You can add one in Settings, or ask for an invented illustration instead.",
+    "noSearchKey": "The search service needs its key. You can add it in Settings.",
+    "searchFailed": "The search service could not answer. Nothing was found or checked.",
+    "imagesFailed": "No images could be found this time. Please try again.",
+    "noImageSearch": "Finding images is turned off. You can turn it on in Settings.",
+    "noImageGeneration": "Making images is not set up, or this AI service cannot make images. You can choose a service for images in Settings → AI Assistant.",
+    "imageFailed": "The image could not be made this time. Please try again.",
+    "keyStore": "The key could not be kept in this computer’s credential store.",
+    "badKey": "That does not look like a key. Please paste it again.",
+    "badAddress": "Please enter a web address beginning with http:// or https://.",
+    "badModel": "That model name is too long.",
+    "noImageKey": "Making images needs the image service’s key. You can add it in Settings → AI Assistant.",
+    "searchNoKey": "This search service does not use a key."
+  },
+  "teaching": {
+    "tooLong": "This part of the teaching is too long to save.",
+    "otherPoint": "That point belongs to another teaching.",
+    "otherStudyFinding": "That note belongs to another study.",
+    "badMaterial": "This item cannot be kept.",
+    "notVerified": "A story is only kept as checked with two independent sources.",
+    "imageGone": "This image is no longer available. Please make it again."
   }
 }

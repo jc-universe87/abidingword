@@ -63,7 +63,10 @@ fn a_v6_database_is_backed_up_and_its_citations_read_as_before() {
     assert_eq!(migrations::current_version(&copy).unwrap(), 6);
 
     db.with_conn(|conn| {
-        assert_eq!(migrations::current_version(conn)?, 7);
+        assert_eq!(
+            migrations::current_version(conn)?,
+            MIGRATIONS.last().unwrap().version
+        );
         let finding = findings::get(conn, "f-1")?;
         assert_eq!(finding.content, "Abide in me.");
         assert_eq!(finding.sources.len(), 2);

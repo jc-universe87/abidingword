@@ -7,7 +7,9 @@
     "bibleTexts": "성경 번역본",
     "templates": "성경공부 틀",
     "about": "이 설치 정보",
-    "planned": "향후 버전에서 제공 예정"
+    "planned": "향후 버전에서 제공 예정",
+    "assistant": "AI 도우미",
+    "updates": "업데이트"
   },
   "language": {
     "label": "화면 언어",
@@ -16,11 +18,8 @@
   "theme": {
     "legend": "테마",
     "light": "밝게",
-    "lightHint": "따뜻한 아이보리색, 낮 시간 공부에 알맞습니다.",
     "dark": "어둡게",
-    "darkHint": "짙은 숲 녹색, 어두운 곳에서 눈이 편안합니다.",
-    "system": "컴퓨터 설정 따르기",
-    "systemHint": "운영 체제 설정을 따릅니다."
+    "system": "컴퓨터 설정 따르기"
   },
   "layout": {
     "title": "작업 공간 배치",
@@ -39,11 +38,188 @@
     "backup": "모든 성경공부는 이 컴퓨터의 데이터 폴더에 저장됩니다. 백업하려면 Abiding Word를 닫은 상태에서 폴더 전체를 복사하세요."
   },
   "planned": {
-    "ai": "AI 도움",
-    "aiText": "성경공부를 위한 선택적 도움입니다. Abiding Word는 AI 없이도 항상 모든 기능을 사용할 수 있습니다.",
     "sync": "동기화",
     "syncText": "내 기기들 사이에서 성경공부를 직접 관리하며 같은 상태로 유지합니다.",
     "integrations": "연동",
     "integrationsText": "이미 사용하는 다른 도구와 연결합니다."
+  },
+  "assistant": {
+    "intro": "가르침 준비를 돕는 선택 기능인 AI(인공지능) 도우미입니다. 의견과 제안을 주지만 글쓴이는 언제나 본인입니다. 직접 고르지 않으면 글은 바뀌지 않으며, 요청할 때만 작동합니다.",
+    "enabled": "AI 도우미 사용",
+    "provider": "서비스",
+    "providers": {
+      "openai": "OpenAI (ChatGPT)",
+      "anthropic": "Anthropic (Claude)",
+      "google": "Google Gemini",
+      "ollama": "Ollama",
+      "lmstudio": "LM Studio",
+      "openai_compatible": "다른 호환 서비스",
+      "xai": "xAI (Grok)",
+      "perplexity": "Perplexity",
+      "deepseek": "DeepSeek",
+      "qwen": "Qwen (Alibaba Cloud)"
+    },
+    "remote": "도움을 요청하면 고르신 글이 인터넷으로 이 서비스에 전송됩니다.",
+    "local": "이 컴퓨터에서 실행되므로 글이 밖으로 나가지 않습니다.",
+    "model": "모델",
+    "modelPlaceholder": "모델 이름",
+    "modelHint": "모델 이름은 자주 바뀝니다. 추천 모델은 출발점일 뿐이며, 칸 옆의 ↗ 버튼은 서비스의 현재 목록을 엽니다.",
+    "address": "서비스 주소",
+    "addressPlaceholder": "서비스 기본 주소",
+    "addressHint": "비워 두면 서비스의 기본 주소를 씁니다. 다른 서버나 다른 컴퓨터에서 실행되는 프로그램을 쓸 때만 필요합니다.",
+    "key": "키",
+    "keyHint": "이 컴퓨터의 암호 저장소에 보관되며, 성경공부에는 저장되지 않고 다시 표시되지 않습니다.",
+    "keyKeptPlaceholder": "키 보관됨 (바꾸려면 입력)",
+    "keySave": "키 저장",
+    "keyRemove": "키 삭제",
+    "keySaved": "키를 이 컴퓨터에 보관했습니다.",
+    "keyRemoved": "키를 삭제했습니다.",
+    "search": "실제 이야기 찾아보기",
+    "searchHint": "Abiding Word는 검색 서비스에 실제 이야기에 관한 웹 페이지를 찾아 달라고 요청하고, 그 링크와 함께 보여 줍니다. 검색 서비스는 페이지를 찾을 뿐, 무엇이 사실인지 판단하지 않습니다. 이야기를 사용하기 전에 출처를 직접 읽어 보세요.",
+    "searchKinds": {
+      "none": "끄기",
+      "brave": "Brave Search",
+      "searxng": "SearXNG",
+      "tavily": "Tavily",
+      "exa": "Exa",
+      "serpapi": "SerpApi"
+    },
+    "searchAddress": "SearXNG 주소",
+    "searchKey": "검색 키",
+    "images": "그림",
+    "findImages": "Wikimedia Commons에서 자유 이용 그림 찾기 (검색어만 보냄)",
+    "generateImages": "그림 만들기 허용 (항상 도우미가 만든 그림으로 표시)",
+    "perspective": "AI가 신학적 질문을 어떤 관점에서 다루면 좋을까요?",
+    "perspectiveHint": "선택 사항입니다. 개인 이야기를 묻는 것이 아닙니다. 도움이 된다면 짧은 신학적·교회적 관점만 적으세요(예: ‘개혁주의’). AI는 논쟁이 되는 신학적 질문에 의견을 줄 때 이를 참고하며, 다른 진지한 해석도 함께 알려 줍니다. 비워 두면 어떤 전통도 전제하지 않습니다.",
+    "save": "저장",
+    "saved": "저장했습니다.",
+    "test": "연결 확인",
+    "testOk": "연결되었습니다. 도우미가 응답했고 사용할 준비가 되었습니다.",
+    "turnedOn": "AI 도우미가 켜졌습니다.",
+    "turnedOff": "AI 도우미가 꺼졌습니다.",
+    "providerGroups": {
+      "internet": "인터넷 서비스",
+      "local": "이 컴퓨터에서",
+      "other": "기타"
+    },
+    "localHelp": {
+      "title": "{{service}}는 어떻게 준비하나요?",
+      "what": "{{service}}는 AI 모델을 내 컴퓨터에서 직접 실행하는 무료 프로그램입니다. 키나 계정이 필요 없고, 글이 컴퓨터 밖으로 나가지 않습니다. 성능이 좋은 컴퓨터에서 잘 작동하며, 답이 늦게 올 수 있습니다.",
+      "steps": "{{service}}를 설치하고, 그 안에서 모델을 내려받은 뒤 실행해 두세요. 그다음 아래에 모델 이름을 적고 연결을 확인하세요.",
+      "open": "{{service}} 웹사이트 열기"
+    },
+    "otherHelp": "OpenAI와 같은 방식으로 작동하는 서비스입니다. 안내서에 나온 주소, 필요하면 키, 그리고 모델 이름을 적으세요.",
+    "keyOptional": "키 (서비스에 필요한 경우)",
+    "keyHelp": {
+      "title": "키는 어떻게 받나요?",
+      "whatA": "키는 {{service}}에서 받는 긴 코드입니다. Abiding Word가 그곳의 내 계정을 쓸 수 있게 해 줍니다. 비밀번호처럼 다루세요.",
+      "open": "{{service}} 키 페이지 열기",
+      "costA": "대부분의 서비스는 사용한 만큼 조금 요금을 받으며, 키가 작동하기 전에 결제 정보나 선불 충전을 요구할 수 있습니다. 결제는 Abiding Word가 아니라 그 웹사이트에서 합니다.",
+      "step1": "아래에서 {{service}} 페이지를 여세요.",
+      "step2": "로그인하세요. 계정이 없으면 새로 만드세요.",
+      "step3": "새 키를 만드세요(‘API 키’라고 불릴 수 있습니다).",
+      "step4": "바로 복사하세요. 보통 한 번만 보여 줍니다.",
+      "step5": "Abiding Word로 돌아오세요.",
+      "step6": "위의 ‘키’ 칸에 붙여 넣으세요.",
+      "step7": "‘키 저장’을 누르세요.",
+      "step8": "‘연결 확인’을 누르세요."
+    },
+    "modelHintEmpty": "{{service}}에 표시된 그대로 모델 이름을 적으세요.",
+    "advanced": "고급",
+    "checking": "연결을 확인하는 중… 몇 초 걸릴 수 있습니다.",
+    "why": {
+      "noKey": "연결을 확인하려면 먼저 키를 붙여 넣고 ‘키 저장’을 누르세요.",
+      "noModel": "연결을 확인하려면 먼저 모델 이름을 적으세요.",
+      "noAddress": "연결을 확인하려면 먼저 서비스 주소를 적으세요.",
+      "badAddress": "서비스 주소는 http:// 또는 https://로 시작해야 합니다."
+    },
+    "extras": "추가 기능 (선택)",
+    "optional": "(선택)",
+    "perspectiveExamples": "예:",
+    "perspectiveExample": {
+      "reformed": "개혁주의",
+      "catholic": "로마 가톨릭",
+      "lutheran": "루터교",
+      "pentecostal": "오순절",
+      "none": "특정 전통 없음"
+    },
+    "modelsLink": "{{service}}의 현재 모델 보기",
+    "modelsLocal": "{{service}}에서 내려받을 수 있는 모델 보기",
+    "searchAdvanced": "기타 (고급)",
+    "imagesHelp": "이미지 찾기는 Wikimedia Commons에서 자유 이용 이미지를 찾으며, 검색어만 보냅니다. 이미지 만들기는 AI 이미지 서비스에 그림을 요청하며, 항상 도우미가 만든 것으로 표시됩니다. 모든 AI 서비스가 이미지를 만들 수 있는 것은 아닙니다.",
+    "imageService": "이미지를 만들 서비스",
+    "imageServices": {
+      "same": "같은 AI 서비스 (가능한 경우)",
+      "openai": "OpenAI (OpenAI 키 필요)"
+    },
+    "imageCapability": {
+      "supported": "{{service}}는 이미지를 만들 수 있습니다.",
+      "unsupported": "{{service}}는 이미지를 만들 수 없습니다. 이미지에는 OpenAI를 고르거나 꺼 두세요.",
+      "unknown": "Abiding Word는 {{service}}가 내 계정으로 이미지를 만들 수 있는지 알 수 없습니다. 시도해 보고, 안 되면 이미지에는 OpenAI를 고르세요."
+    },
+    "imageKey": "이미지용 OpenAI 키",
+    "imageKeyMissing": "아직 이미지용 OpenAI 키가 없습니다. 아래에 붙여 넣고 ‘키 저장’을 누르세요.",
+    "imagesLeave": "글쓰기 서비스와 달리, 이미지 설명은 인터넷으로 OpenAI에 전송됩니다.",
+    "searchShort": {
+      "brave": "간단한 일반 웹 검색",
+      "tavily": "AI 도우미를 위해 만든 검색",
+      "exa": "관련 출처와 구절을 찾아 줌",
+      "searxng": "직접 운영, 서버 주소 필요",
+      "serpapi": "SerpApi를 통한 Google 검색 결과"
+    },
+    "searchOption": "{{name}} – {{short}}",
+    "searchRecommended": "추천",
+    "searchWhat": {
+      "brave": "Brave Search는 독립적인 웹 검색입니다. 프로그램용 검색 서비스(“Search API”)는 짧은 발췌와 함께 일반 웹 검색 결과를 돌려줍니다.",
+      "tavily": "Tavily는 AI 도우미를 위해 만든 검색 서비스입니다. 각 웹 페이지의 읽기 쉬운 발췌를 함께 돌려주어, AI 도우미가 그 페이지의 내용을 가리킬 수 있게 돕습니다.",
+      "exa": "Exa는 단어뿐 아니라 의미로 검색합니다. 요청한 내용과 가장 잘 맞는 구절과 함께 페이지를 돌려줍니다.",
+      "searxng": "SearXNG는 일부 사람들이 자기 서버에서 직접 운영하는 공개 검색 프로그램입니다. 프로그램의 검색(“JSON” 결과)을 허용하는 SearXNG 서버 주소가 필요합니다. 무슨 말인지 잘 모르겠다면 추천 서비스 중 하나를 고르세요.",
+      "serpapi": "SerpApi는 프로그램에 Google 검색 결과를 제공합니다. 무료 사용량이 조금 있는 유료 서비스이며, 이미 이 서비스를 쓰는 분에게 알맞습니다."
+    },
+    "searchSetup": {
+      "title": "{{service}}는 어떻게 설정하나요?",
+      "step1": "아래의 {{service}} 페이지를 열고 로그인하거나 계정을 만드세요.",
+      "step2": "그곳에서 키(“API key”라고 부를 수 있음)를 만들고 복사하세요.",
+      "step3": "검색 키 칸에 붙여 넣고 ‘키 저장’을 누르세요.",
+      "step4": "‘검색 확인’을 누르세요.",
+      "open": "{{service}} 페이지 열기",
+      "cost": "검색 서비스는 보통 매달 약간의 무료 사용량을 주고, 그 이상은 요금을 받습니다. 이는 Abiding Word가 아니라 해당 웹사이트에서 정합니다."
+    },
+    "searchTest": "검색 확인",
+    "searchTesting": "검색 서비스에 묻는 중…",
+    "searchTestOk": "검색 서비스가 응답했고 웹 페이지를 찾았습니다.",
+    "searchTestEmpty": "검색 서비스가 응답했지만 시험 검색에서 아무것도 찾지 못했습니다.",
+    "searchWhy": {
+      "noKey": "검색을 확인하려면 먼저 키를 붙여 넣고 ‘키 저장’을 누르세요.",
+      "noAddress": "검색을 확인하려면 먼저 SearXNG 주소를 입력하세요."
+    }
+  },
+  "jumpTo": "항목으로 이동",
+  "summary": {
+    "version": "버전 {{version}}",
+    "upToDate": "최신 상태",
+    "updateAvailable": "버전 {{version}}을(를) 받을 수 있습니다",
+    "updateInstalling": "업데이트를 설치하는 중…",
+    "updateFailed": "문제가 생겼습니다. 아래를 보세요",
+    "updatesOff": "이 버전에는 없음",
+    "bibleTexts": "번역본 추가 또는 삭제",
+    "templates": "성경공부와 가르침의 시작 구성",
+    "assistantOff": "꺼짐",
+    "assistantOn": "켜짐 · {{service}}",
+    "about": "버전 {{version}} · 데이터 저장 위치"
+  },
+  "help": {
+    "about": "자세히: {{topic}}"
+  },
+  "background": {
+    "legend": "배경",
+    "help": "눈부심이 적은 차분한 배경으로, 오래 읽고 쓰기에 알맞습니다. 어느 배경에서도 글자가 잘 보입니다. 밝은 테마에 적용됩니다.",
+    "lightOnly": "배경은 밝은 테마에 적용됩니다.",
+    "parchment": "양피지",
+    "cream": "크림",
+    "sage": "세이지",
+    "stone": "돌빛",
+    "mist": "안개",
+    "clear": "무채색"
   }
 }

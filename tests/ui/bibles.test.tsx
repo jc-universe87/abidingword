@@ -2,7 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import i18n from "@/i18n";
 import { createMemoryApi } from "../support/memoryApi";
-import { renderApp } from "../support/render";
+import { openSettingsSection, renderApp } from "../support/render";
 
 describe("adding and managing Bibles", () => {
   it("adds the included Bible after reviewing it", async () => {
@@ -66,13 +66,15 @@ describe("adding and managing Bibles", () => {
     // focus starts in the dialog, on Cancel
     expect(within(dialog).getByRole("button", { name: "Cancel" })).toHaveFocus();
     await user.keyboard("{Escape}");
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "Add Lutherbibel 1912?" })).not.toBeInTheDocument();
+    // Escape closed only the question; Add a Bible stays open.
+    expect(screen.getByRole("dialog", { name: "Add a Bible" })).toBeInTheDocument();
     expect(add).toHaveFocus();
 
     await user.click(add);
     dialog = screen.getByRole("dialog", { name: "Add Lutherbibel 1912?" });
     await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "Add Lutherbibel 1912?" })).not.toBeInTheDocument();
     expect(api.state.pendingPreview).toBeNull();
     expect(screen.getByRole("heading", { level: 1, name: "Add a Bible" })).toBeInTheDocument();
   });
@@ -83,7 +85,7 @@ describe("adding and managing Bibles", () => {
     await i18n.changeLanguage("de");
     try {
       const { user } = await renderApp(api);
-      await user.click(screen.getByRole("button", { name: "Einstellungen" }));
+      await openSettingsSection(user, "Bibelübersetzungen");
       await user.click(await screen.findByRole("button", { name: /Bibel hinzufügen/ }));
       const select = await screen.findByRole("combobox", { name: "Bibel auswählen" });
       expect(within(select).getAllByRole("group")[0]).toHaveAttribute("label", "Deutsch");
@@ -133,7 +135,7 @@ describe("adding and managing Bibles", () => {
     api.installFixtureBible("FXA", "alpha");
     api.installFixtureBible("FXB", "beta");
     const { user } = await renderApp(api);
-    await user.click(screen.getByRole("button", { name: "Settings" }));
+    await openSettingsSection(user, "Bible texts");
 
     const list = await screen.findByRole("list", { name: "Installed Bibles" });
     expect(within(list).getAllByRole("listitem")).toHaveLength(2);

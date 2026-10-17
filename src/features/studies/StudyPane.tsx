@@ -73,7 +73,7 @@ export function StudyPane({ workspace, onRevealScripture, search, onCloseSearch 
       <PaneHeader id="pane-study-title" title={t("app.panes.name.study")} />
       <SaveTrackerProvider>
         <div data-scroll-root className="min-h-0 flex-1 overflow-y-auto">
-          <div className="@container mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-6">
+          <div className="@container mx-auto flex max-w-[50rem] flex-col gap-3 px-7 pb-24 pt-2">
             {search !== null ? (
               <StudySearchResults query={search} onOpen={openStudy} onClose={onCloseSearch} />
             ) : location.kind === "projectList" ? (
@@ -142,16 +142,24 @@ function ProjectScope({ workspaceId, projectId, location, setLocation, onMissing
   const inStudy = location.kind === "study";
   return (
     <>
-      <Breadcrumb
-        project={project.data}
-        onlyProject={onlyProject && inStudy}
-        inStudy={inStudy}
-        onProjects={() => setLocation({ kind: onlyProject && inStudy ? "projects" : projects.data!.length >= 2 ? "projects" : "projectList" })}
-        onProject={openProject}
-      />
+      {/* In a study the way back is one button beside its title, not a row of its own. */}
+      {!inStudy && (
+        <Breadcrumb
+          project={project.data}
+          onlyProject={false}
+          inStudy={false}
+          onProjects={() => setLocation({ kind: projects.data!.length >= 2 ? "projects" : "projectList" })}
+          onProject={openProject}
+        />
+      )}
       {location.kind === "study" ? (
         <StudyEditor
           key={location.studyId}
+          back={
+            onlyProject
+              ? { label: t("studies.home.back"), onBack: () => setLocation({ kind: "projects" }) }
+              : { label: t("studies.editor.backTo", { place: project.data.title }), onBack: openProject }
+          }
           studyId={location.studyId}
           revealPrimary={revealFor === location.studyId}
           onMissing={openProject}
@@ -167,12 +175,12 @@ function ProjectScope({ workspaceId, projectId, location, setLocation, onMissing
 
 function Breadcrumb(props: { project: Project; onlyProject: boolean; inStudy: boolean; onProjects: () => void; onProject: () => void }) {
   const { t } = useTranslation();
-  const link = "rounded px-1 text-link underline-offset-4 hover:underline";
+  const link = "inline-flex min-h-11 items-center rounded px-1 text-link underline-offset-4 hover:underline";
   // With a single project the project is not shown: the way back is simply "Studies".
   if (props.onlyProject) {
     return (
       <nav aria-label={t("studies.projects.breadcrumb")}>
-        <button type="button" className={`${link} min-h-11 text-[0.9375rem]`} onClick={props.onProjects}>
+        <button type="button" className={`${link} text-[0.875rem]`} onClick={props.onProjects}>
           {t("studies.home.back")}
         </button>
       </nav>
@@ -180,7 +188,7 @@ function Breadcrumb(props: { project: Project; onlyProject: boolean; inStudy: bo
   }
   return (
     <nav aria-label={t("studies.projects.breadcrumb")}>
-      <ol className="m-0 flex list-none flex-wrap items-center gap-1 p-0 text-[0.9375rem]">
+      <ol className="m-0 flex list-none flex-wrap items-center gap-1 p-0 text-[0.875rem]">
         <li>
           <button type="button" className={link} onClick={props.onProjects}>
             {t("studies.projects.title")}

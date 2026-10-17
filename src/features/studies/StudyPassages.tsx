@@ -54,7 +54,8 @@ export function StudyPassages({ studyId, title = "", passages, reload, onReveal 
   const quiet = "inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong";
 
   return (
-    <section aria-label={t("studies.passages.label")} className="flex flex-col gap-2">
+    // Sits in the line under the study's title; adding a passage takes the whole width.
+    <section aria-label={t("studies.passages.label")} className={`flex flex-col gap-2 ${adding || error ? "basis-full" : ""}`}>
       <div className="flex flex-wrap items-center gap-2">
         {titled && primary && (
           <button
@@ -77,7 +78,7 @@ export function StudyPassages({ studyId, title = "", passages, reload, onReveal 
               onReveal();
             }}
             title={t("studies.passages.open")}
-            className={`inline-flex min-h-11 items-center rounded-aw border px-3 text-[0.9375rem] text-link hover:bg-bg-secondary ${
+            className={`inline-flex min-h-11 items-center rounded-aw border px-2.5 text-[0.9375rem] text-link hover:bg-bg-secondary ${
               passage.id === primary?.id && passages.length > 1 ? "border-border bg-bg-secondary font-semibold" : "border-border-subtle font-medium"
             }`}
           >

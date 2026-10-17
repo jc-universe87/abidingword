@@ -127,6 +127,12 @@ pub enum AppError {
     #[error("pre-migration backup to {path} failed: {message}")]
     Backup { path: PathBuf, message: String },
 
+    /// The assistant could not help: it is off, not set up, unreachable, or
+    /// its reply could not be used. User-facing message; the person's own
+    /// writing is never affected.
+    #[error("assistant: {0}")]
+    Assistant(UserMessage),
+
     #[error("unexpected error: {0}")]
     Unexpected(String),
 }
@@ -146,6 +152,7 @@ pub enum ErrorKind {
     DuplicateTranslation,
     Integrity,
     Backup,
+    Assistant,
     Unexpected,
 }
 
@@ -178,6 +185,7 @@ impl AppError {
             Self::DuplicateTranslation(_) => ErrorKind::DuplicateTranslation,
             Self::Integrity(_) => ErrorKind::Integrity,
             Self::Backup { .. } => ErrorKind::Backup,
+            Self::Assistant(_) => ErrorKind::Assistant,
             Self::Unexpected(_) => ErrorKind::Unexpected,
         }
     }
@@ -190,7 +198,8 @@ impl AppError {
             | Self::Conflict(m)
             | Self::InvalidReference(m)
             | Self::Import(m)
-            | Self::UnsupportedFormat(m) => (m.code, m.params.clone()),
+            | Self::UnsupportedFormat(m)
+            | Self::Assistant(m) => (m.code, m.params.clone()),
             Self::DuplicateTranslation(short_name) => (
                 Some("duplicateTranslation"),
                 BTreeMap::from([("shortName", short_name.clone())]),
@@ -212,7 +221,8 @@ impl AppError {
             | Self::Conflict(message)
             | Self::InvalidReference(message)
             | Self::Import(message)
-            | Self::UnsupportedFormat(message) => message.text.clone(),
+            | Self::UnsupportedFormat(message)
+            | Self::Assistant(message) => message.text.clone(),
             Self::DuplicateTranslation(short_name) => format!(
                 "A Bible called “{short_name}” is already installed. \
                  Choose a different short name."
@@ -264,7 +274,8 @@ impl From<AppError> for ErrorPayload {
             | ErrorKind::Conflict
             | ErrorKind::InvalidReference
             | ErrorKind::UnsupportedFormat
-            | ErrorKind::DuplicateTranslation => log::warn!("{error}"),
+            | ErrorKind::DuplicateTranslation
+            | ErrorKind::Assistant => log::warn!("{error}"),
             _ => log::error!("{error}"),
         }
         let (code, params) = error.user_code();

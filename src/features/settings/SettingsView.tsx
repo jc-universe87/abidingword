@@ -1,18 +1,54 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/design-system/Button";
+import { HelpTip } from "@/design-system/HelpTip";
 import { toApiError } from "@/lib/api";
+import { readLocal, writeLocal } from "@/lib/storage";
+import { LANGUAGES, currentLanguage } from "@/i18n";
 import type { AppInfo, Theme } from "@/types/domain";
+import type { AssistantSettings as AssistantStatus } from "@/types/teaching";
+import { AssistantSettings } from "./AssistantSettings";
 import { BibleTexts } from "./BibleTexts";
 import { StudyTemplates } from "./StudyTemplates";
 import { UpdateSettings } from "@/features/updates/UpdateSettings";
+import { useUpdates, type UpdateState } from "@/features/updates/UpdatesContext";
 import { LanguageChoice } from "./LanguageChoice";
-import { useTheme } from "./ThemeContext";
+import { BACKGROUNDS, useTheme, type Background } from "./ThemeContext";
 
 const THEMES = ["light", "dark", "system"] as const satisfies readonly Theme[];
 
-const PLANNED = ["ai", "sync", "integrations"] as const;
+const PLANNED = ["sync", "integrations"] as const;
+
+/** The sections, in the order they appear. Ids are stable across languages. */
+export const SETTINGS_SECTIONS = [
+  "updates",
+  "appearance",
+  "bible-texts",
+  "study-templates",
+  "language",
+  "assistant",
+  "about-this-installation",
+  "coming-in-later-versions",
+] as const;
+type SectionName = (typeof SETTINGS_SECTIONS)[number];
+
+const TITLE_KEY = {
+  updates: "settings.sections.updates",
+  appearance: "settings.sections.appearance",
+  "bible-texts": "settings.sections.bibleTexts",
+  "study-templates": "settings.sections.templates",
+  language: "settings.sections.language",
+  assistant: "settings.sections.assistant",
+  "about-this-installation": "settings.sections.about",
+  "coming-in-later-versions": "settings.sections.planned",
+} as const satisfies Record<SectionName, string>;
+
+/** Open sections are remembered on this computer, so a visit to a template comes back to the same place. */
+const OPEN_KEY = "settings.openSections";
+
+/** An update that needs the person: Updates opens by itself for it. */
+const needsAttention = (state: UpdateState) => state.kind === "available" || state.kind === "installing" || state.kind === "failed";
 
 interface SettingsViewProps {
   info: AppInfo;
@@ -21,105 +57,282 @@ interface SettingsViewProps {
   onResetLayout: () => void;
   onAddBible: () => void;
   onEditTemplate: (templateId: string | null) => void;
+  /** Changes when the template editor closes, so the list shows what was saved. */
+  templatesVersion?: number;
 }
 
-export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditTemplate }: SettingsViewProps) {
-  const { t } = useTranslation();
+/**
+ * Settings: a short list of sections, each a single line with its title and
+ * where things stand, opened only when wanted. The header with "Back" and a
+ * jump list stays at the top while the page scrolls.
+ */
+export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditTemplate, templatesVersion = 0 }: SettingsViewProps) {
+  const { t, i18n } = useTranslation();
+  const { theme, background } = useTheme();
+  const updates = useUpdates();
+  const updateLine = useUpdateSummary();
   const heading = useRef<HTMLHeadingElement>(null);
+  const toggles = useRef(new Map<SectionName, HTMLButtonElement>());
   useEffect(() => heading.current?.focus(), []);
 
-  return (
-    <main aria-labelledby="settings-title" className="min-h-0 flex-1 overflow-y-auto bg-bg">
-      <div
-        className="mx-auto flex max-w-[46rem] flex-col gap-10 px-8 pb-24 pt-8"
-        onKeyDown={(e) => e.key === "Escape" && onClose()}
-      >
-        <div className="flex flex-col items-start gap-4">
-          <Button variant="quiet" onClick={onClose}>
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            {t("settings.backToWorkspace")}
-          </Button>
-          <h1
-            id="settings-title"
-            ref={heading}
-            tabIndex={-1}
-            className="m-0 font-display text-[1.875rem] font-heading text-text-strong"
-          >
-            {t("settings.title")}
-          </h1>
-        </div>
+  const [open, setOpen] = useState<ReadonlySet<SectionName>>(
+    () => new Set(readLocal<string[]>(OPEN_KEY, []).filter((n): n is SectionName => (SETTINGS_SECTIONS as readonly string[]).includes(n))),
+  );
+  // Closed by the person while an update needed them: stays closed for that state only.
+  const [updatesClosedFor, setUpdatesClosedFor] = useState<string | null>(null);
+  const updateKey = updates.state.kind === "available" || updates.state.kind === "installing" ? `${updates.state.kind}:${updates.state.update.version}` : updates.state.kind;
+  const [assistant, setAssistant] = useState<AssistantStatus | null>(null);
 
-        <Section id="appearance" title={t("settings.sections.appearance")}>
-          <ThemeChoice />
-          <LayoutReset onReset={onResetLayout} />
-        </Section>
+  const isOpen = (name: SectionName) => open.has(name) || (name === "updates" && needsAttention(updates.state) && updatesClosedFor !== updateKey);
+  const setSection = (name: SectionName, value: boolean) => {
+    if (name === "updates") setUpdatesClosedFor(value ? null : updateKey);
+    setOpen((current) => {
+      const next = new Set(current);
+      if (value) next.add(name);
+      else next.delete(name);
+      writeLocal(OPEN_KEY, [...next]);
+      return next;
+    });
+  };
 
-        <Section id="language" title={t("settings.sections.language")}>
-          <LanguageChoice />
-        </Section>
+  /** From the jump list: open the section, bring it into view and move focus to it. */
+  const jump = (name: SectionName) => {
+    setSection(name, true);
+    requestAnimationFrame(() => {
+      const toggle = toggles.current.get(name);
+      toggle?.closest("section")?.scrollIntoView?.({ block: "start" });
+      toggle?.focus({ preventScroll: true });
+    });
+  };
 
-        <Section id="bible-texts" title={t("settings.sections.bibleTexts")}>
-          <BibleTexts onAddBible={onAddBible} />
-        </Section>
+  const summary = (name: SectionName): string => {
+    switch (name) {
+      case "updates":
+        return updateLine;
+      case "appearance":
+        return theme === "dark" ? t("settings.theme.dark") : `${t(`settings.theme.${theme}`)} · ${t(`settings.background.${background}`)}`;
+      case "bible-texts":
+        return t("settings.summary.bibleTexts");
+      case "study-templates":
+        return t("settings.summary.templates");
+      case "language":
+        return LANGUAGES.find((l) => l.code === (i18n.language ? currentLanguage() : "en"))?.name ?? "";
+      case "assistant":
+        if (!assistant) return "";
+        return assistant.config.enabled
+          ? t("settings.summary.assistantOn", { service: t(`settings.assistant.providers.${assistant.config.provider}`) })
+          : t("settings.summary.assistantOff");
+      case "about-this-installation":
+        return t("settings.summary.about", { version: info.version });
+      case "coming-in-later-versions":
+        return PLANNED.map((item) => t(`settings.planned.${item}`)).join(" · ");
+    }
+  };
 
-        <Section id="study-templates" title={t("settings.sections.templates")}>
-          <StudyTemplates onEdit={onEditTemplate} />
-        </Section>
-
-        <Section id="updates" title={t("app.updates.title")}>
-          <UpdateSettings />
-        </Section>
-
-        <Section id="about-this-installation" title={t("settings.sections.about")}>
-          <dl className="m-0 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-[12rem_1fr]">
-            <Item term={t("settings.about.version")}>{t("settings.about.versionValue", { version: info.version })}</Item>
-            <Item term={t("settings.about.dataFolder")}>
-              <Path value={info.dataDirectory} />
-            </Item>
-            <Item term={t("settings.about.database")}>
-              <Path value={info.databasePath} />
-            </Item>
-            <Item term={t("settings.about.logFiles")}>
-              <Path value={info.logDirectory} />
-            </Item>
-            <Item term={t("settings.about.schema")}>
-              {info.schemaVersion === null
-                ? t("common.unknown")
-                : t("settings.about.schemaVersion", { version: info.schemaVersion })}
-            </Item>
-          </dl>
-          <p className="mt-4 mb-0 text-[0.9375rem] text-text-muted">{t("settings.about.backup")}</p>
-        </Section>
-
-        <Section id="coming-in-later-versions" title={t("settings.sections.planned")}>
-          <ul className="m-0 flex list-none flex-col gap-4 p-0">
+  const body = (name: SectionName): ReactNode => {
+    switch (name) {
+      case "updates":
+        return <UpdateSettings />;
+      case "appearance":
+        return (
+          <div className="flex flex-col gap-5">
+            <ThemeChoice />
+            <LayoutReset onReset={onResetLayout} />
+          </div>
+        );
+      case "bible-texts":
+        return <BibleTexts onAddBible={onAddBible} />;
+      case "study-templates":
+        return <StudyTemplates onEdit={onEditTemplate} version={templatesVersion} />;
+      case "language":
+        return <LanguageChoice />;
+      case "assistant":
+        return <AssistantSettings onStatus={setAssistant} />;
+      case "about-this-installation":
+        return <About info={info} />;
+      case "coming-in-later-versions":
+        return (
+          <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {PLANNED.map((item) => (
-              <li key={item} className="border-l-[3px] border-border pl-4">
-                <p className="m-0 font-semibold text-text-strong">{t(`settings.planned.${item}`)}</p>
-                <p className="m-0 mt-1 text-[0.9375rem] text-text-muted">{t(`settings.planned.${item}Text`)}</p>
+              <li key={item} className="flex items-center gap-1 border-l-[3px] border-border pl-4">
+                <span className="font-semibold text-text-strong">{t(`settings.planned.${item}`)}</span>
+                <HelpTip name={t("settings.help.about", { topic: t(`settings.planned.${item}`) })}>{t(`settings.planned.${item}Text`)}</HelpTip>
               </li>
             ))}
           </ul>
-        </Section>
+        );
+    }
+  };
+
+  return (
+    <main
+      aria-labelledby="settings-title"
+      className="min-h-0 flex-1 overflow-y-auto bg-bg"
+      onKeyDown={(e) => {
+        // Escape goes back, but not from a field: there it would throw away what is being typed.
+        const target = e.target as HTMLElement;
+        if (e.key !== "Escape" || e.defaultPrevented || target.closest("input, textarea, select, details")) return;
+        onClose();
+      }}
+    >
+      <header className="sticky top-0 z-10 border-b border-border-subtle bg-bg">
+        <div className="mx-auto flex max-w-[46rem] flex-col gap-2 px-4 pb-2 pt-3 sm:px-8">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <Button variant="quiet" onClick={onClose}>
+              <ArrowLeft className="size-4" aria-hidden="true" />
+              {t("settings.backToWorkspace")}
+            </Button>
+            <h1
+              id="settings-title"
+              ref={heading}
+              tabIndex={-1}
+              className="m-0 font-display text-[1.5rem] font-heading text-text-strong"
+            >
+              {t("settings.title")}
+            </h1>
+          </div>
+          <nav aria-label={t("settings.jumpTo")}>
+            <ul className="m-0 flex list-none flex-wrap gap-x-1 p-0 pb-1">
+              {SETTINGS_SECTIONS.map((name) => (
+                <li key={name} className="shrink-0">
+                  <a
+                    href={`#settings-section-${name}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      jump(name);
+                    }}
+                    className="inline-flex min-h-9 items-center rounded-aw px-2.5 text-[0.875rem] text-text-muted no-underline hover:bg-bg-secondary hover:text-text-strong"
+                  >
+                    {t(TITLE_KEY[name])}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <div className="mx-auto flex max-w-[46rem] flex-col px-4 pb-24 pt-2 sm:px-8">
+        {SETTINGS_SECTIONS.map((name) => (
+          <Section
+            key={name}
+            name={name}
+            title={t(TITLE_KEY[name])}
+            summary={summary(name)}
+            open={isOpen(name)}
+            onToggle={(value) => setSection(name, value)}
+            toggleRef={(el) => {
+              if (el) toggles.current.set(name, el);
+              else toggles.current.delete(name);
+            }}
+          >
+            {body(name)}
+          </Section>
+        ))}
       </div>
     </main>
   );
 }
 
-/** `id` is stable across languages (the heading's text is not). */
-function Section({ id: name, title, children }: { id: string; title: string; children: ReactNode }) {
+/** Updates in one line: where things stand, so the section needs opening only when something is to be done. */
+function useUpdateSummary(): string {
+  const { t } = useTranslation();
+  const { enabled, version, state } = useUpdates();
+  if (!enabled) return t("settings.summary.updatesOff");
+  switch (state.kind) {
+    case "checking":
+      return t("app.updates.checking");
+    case "upToDate":
+      return t("settings.summary.upToDate");
+    case "available":
+      return t("settings.summary.updateAvailable", { version: state.update.version });
+    case "installing":
+      return t("settings.summary.updateInstalling");
+    case "failed":
+      return t("settings.summary.updateFailed");
+    default:
+      return t("settings.summary.version", { version });
+  }
+}
+
+interface SectionProps {
+  name: SectionName;
+  title: string;
+  summary: string;
+  open: boolean;
+  onToggle: (open: boolean) => void;
+  toggleRef: (el: HTMLButtonElement | null) => void;
+  children: ReactNode;
+}
+
+/**
+ * One section: its heading is a button that shows or hides it (independently
+ * of the others), with a short line saying where things stand. The contents
+ * stay mounted while hidden, so nothing typed is lost.
+ */
+function Section({ name, title, summary, open, onToggle, toggleRef, children }: SectionProps) {
   const id = `settings-${name}`;
+  const summaryId = `${id}-summary`;
   return (
-    <section aria-labelledby={id} className="border-t border-border-subtle pt-6">
-      <h2 id={id} className="m-0 mb-4 font-display text-[1.5rem] font-heading text-text-strong">
-        {title}
+    <section id={`settings-section-${name}`} aria-labelledby={id} className="scroll-mt-32 border-b border-border-subtle">
+      <h2 aria-labelledby={id} className="m-0">
+        <button
+          ref={toggleRef}
+          type="button"
+          aria-expanded={open}
+          aria-controls={`${id}-body`}
+          aria-labelledby={id}
+          aria-describedby={summary ? summaryId : undefined}
+          onClick={() => onToggle(!open)}
+          className="flex min-h-14 w-full flex-wrap items-center gap-x-3 gap-y-0.5 rounded-aw py-3 text-left hover:bg-bg-secondary"
+        >
+          <ChevronRight className={`size-5 shrink-0 text-text-muted transition-transform ${open ? "rotate-90" : ""}`} aria-hidden="true" />
+          <span id={id} className="font-display text-[1.25rem] font-heading text-text-strong">
+            {title}
+          </span>
+          {summary && (
+            <span id={summaryId} className="ml-auto min-w-0 text-[0.9375rem] text-text-muted">
+              {summary}
+            </span>
+          )}
+        </button>
       </h2>
-      {children}
+      <div id={`${id}-body`} hidden={!open} className="pb-5 pl-8 pt-1">
+        {children}
+      </div>
     </section>
   );
 }
 
-function Item({ term, children }: { term: string; children: ReactNode }) {
+function About({ info }: { info: AppInfo }) {
+  const { t } = useTranslation();
+  return (
+    <dl className="m-0 grid grid-cols-1 gap-x-6 gap-y-2 text-[0.9375rem] sm:grid-cols-[12rem_1fr]">
+      <Item term={t("settings.about.version")}>{t("settings.about.versionValue", { version: info.version })}</Item>
+      <Item
+        term={
+          <span className="inline-flex items-center gap-1">
+            {t("settings.about.dataFolder")}
+            <HelpTip name={t("settings.help.about", { topic: t("settings.about.dataFolder") })}>{t("settings.about.backup")}</HelpTip>
+          </span>
+        }
+      >
+        <Path value={info.dataDirectory} />
+      </Item>
+      <Item term={t("settings.about.database")}>
+        <Path value={info.databasePath} />
+      </Item>
+      <Item term={t("settings.about.logFiles")}>
+        <Path value={info.logDirectory} />
+      </Item>
+      <Item term={t("settings.about.schema")}>
+        {info.schemaVersion === null ? t("common.unknown") : t("settings.about.schemaVersion", { version: info.schemaVersion })}
+      </Item>
+    </dl>
+  );
+}
+
+function Item({ term, children }: { term: ReactNode; children: ReactNode }) {
   return (
     <>
       <dt className="font-medium text-text-strong">{term}</dt>
@@ -138,29 +351,39 @@ function LayoutReset({ onReset }: { onReset: () => void }) {
   const { t } = useTranslation();
   const [done, setDone] = useState(false);
   return (
-    <div className="mt-6 flex flex-col items-start gap-2">
-      <p className="m-0 font-medium text-text-strong">{t("settings.layout.title")}</p>
-      <p className="m-0 text-[0.9375rem] text-text-muted">{t("settings.layout.description")}</p>
-      <div className="flex flex-wrap items-center gap-3">
-        <Button
-          onClick={() => {
-            onReset();
-            setDone(true);
-          }}
-        >
-          {t("settings.layout.reset")}
-        </Button>
-        <p role="status" className="m-0 text-[0.9375rem] text-text-muted">
-          {done ? t("settings.layout.done") : ""}
-        </p>
-      </div>
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <span className="inline-flex items-center gap-1 font-medium text-text-strong">
+        {t("settings.layout.title")}
+        <HelpTip name={t("settings.help.about", { topic: t("settings.layout.title") })}>{t("settings.layout.description")}</HelpTip>
+      </span>
+      <Button
+        onClick={() => {
+          onReset();
+          setDone(true);
+        }}
+      >
+        {t("settings.layout.reset")}
+      </Button>
+      <p role="status" className="m-0 text-[0.9375rem] text-text-muted">
+        {done ? t("settings.layout.done") : ""}
+      </p>
     </div>
   );
 }
 
+/** What each background looks like, for its swatch (the same colours as tokens.css). */
+const SWATCH: Record<Background, { bg: string; edge: string }> = {
+  parchment: { bg: "#f6f1e6", edge: "#ede6d8" },
+  cream: { bg: "#faf7ef", edge: "#f1ece0" },
+  sage: { bg: "#eef1e9", edge: "#e3e8dc" },
+  stone: { bg: "#efece7", edge: "#e5e1da" },
+  mist: { bg: "#eef1f3", edge: "#e3e7ea" },
+  clear: { bg: "#fbfbf9", edge: "#f1f1ee" },
+};
+
 function ThemeChoice() {
   const { t } = useTranslation();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, background, setBackground } = useTheme();
   const [error, setError] = useState<string | null>(null);
 
   const choose = async (next: Theme) => {
@@ -171,33 +394,64 @@ function ThemeChoice() {
       setError(toApiError(e).message);
     }
   };
+  // Dark now (chosen, or following a dark computer setting): backgrounds apply to the light theme only.
+  const darkOnly = theme === "dark" || (theme === "system" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   return (
-    <fieldset className="m-0 border-0 p-0">
-      <legend className="mb-3 font-medium text-text-strong">{t("settings.theme.legend")}</legend>
-      <div className="flex flex-col gap-3">
-        {THEMES.map((option) => (
-          <label key={option} className="flex cursor-pointer items-start gap-3">
-            <input
-              type="radio"
-              name="theme"
-              value={option}
-              checked={theme === option}
-              onChange={() => choose(option)}
-              className="mt-1 size-4 accent-[var(--aw-primary)]"
-            />
-            <span>
-              <span className="block">{t(`settings.theme.${option}`)}</span>
-              <span className="block text-[0.9375rem] text-text-muted">{t(`settings.theme.${option}Hint`)}</span>
-            </span>
-          </label>
-        ))}
+    <div className="flex flex-col gap-4">
+      <fieldset className="m-0 border-0 p-0">
+        <legend className="mb-2 font-medium text-text-strong">{t("settings.theme.legend")}</legend>
+        <div className="flex flex-wrap gap-x-5 gap-y-2">
+          {THEMES.map((option) => (
+            <label key={option} className="inline-flex min-h-9 cursor-pointer items-center gap-2">
+              <input
+                type="radio"
+                name="theme"
+                value={option}
+                checked={theme === option}
+                onChange={() => choose(option)}
+                className="size-4 accent-[var(--aw-primary)]"
+              />
+              <span>{t(`settings.theme.${option}`)}</span>
+            </label>
+          ))}
+        </div>
+        {error && (
+          <p role="alert" className="m-0 mt-2 text-[0.9375rem] text-danger">
+            {error}
+          </p>
+        )}
+      </fieldset>
+
+      <div role="radiogroup" aria-labelledby="settings-background-label">
+        <div className="mb-2 flex items-center gap-1">
+          <span id="settings-background-label" className="font-medium text-text-strong">
+            {t("settings.background.legend")}
+          </span>
+          <HelpTip name={t("settings.help.about", { topic: t("settings.background.legend") })}>{t("settings.background.help")}</HelpTip>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          {BACKGROUNDS.map((option) => (
+            <label key={option} className="flex w-[4.5rem] cursor-pointer flex-col items-center gap-1 text-center text-[0.8125rem]">
+              <input
+                type="radio"
+                name="background"
+                value={option}
+                checked={background === option}
+                onChange={() => setBackground(option)}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden="true"
+                style={{ background: `linear-gradient(135deg, ${SWATCH[option].bg} 55%, ${SWATCH[option].edge} 55%)` }}
+                className="block size-10 rounded-full border border-border shadow-sm peer-checked:ring-2 peer-checked:ring-[var(--aw-primary)] peer-checked:ring-offset-2 peer-checked:ring-offset-[var(--aw-bg)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[var(--aw-focus-ring)]"
+              />
+              <span className="text-text">{t(`settings.background.${option}`)}</span>
+            </label>
+          ))}
+        </div>
+        {darkOnly && <p className="m-0 mt-2 text-[0.875rem] text-text-muted">{t("settings.background.lightOnly")}</p>}
       </div>
-      {error && (
-        <p role="alert" className="m-0 mt-3 text-[0.9375rem] text-danger">
-          {error}
-        </p>
-      )}
-    </fieldset>
+    </div>
   );
 }

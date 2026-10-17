@@ -49,4 +49,6 @@ They are kept as written at the time.
 | [reference-context-v0.13.1.md](reference-context-v0.13.1.md) | v0.13.1: references without a book name, folding contents, EPUB text repair. |
 | [library-reading-v0.13.md](library-reading-v0.13.md) | v0.13: find in a book, generated contents, and clickable Bible references on PDF pages. |
 | [source-annotations-v0.14.md](source-annotations-v0.14.md) | v0.14: highlights, notes and bookmarks in your own books, on their pages too, and Marks for the Bible and your books together. |
-| [sources-to-study-v0.15.md](sources-to-study-v0.15.md) | v0.15 (in progress): bring what you read into your study with its source; copy a quotation with its citation. |
+| [sources-to-study-v0.15.md](sources-to-study-v0.15.md) | v0.15: bring what you read into your study with its source; copy a quotation with its citation. |
+| [teaching-preparation-v0.16.md](teaching-preparation-v0.16.md) | v0.16 (in progress): teaching preparations written from a study; the optional assistant ("AI assists; the human authors"): providers, keys, bounded context, provenance, real stories, images. |
+| [study-teaching-simplification-v0.17.md](study-teaching-simplification-v0.17.md) | v0.17 (in progress): Bible Study as parts with their own Add and notes (no more "findings"), small templates, a canvas for each kind of teaching, lesson steps with kinds; more search services for real stories. |
