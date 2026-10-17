@@ -55,6 +55,20 @@ const scenes = {
     await shot(page, "teaching");
     await page.close();
   },
+  async "teaching-lesson"() {
+    const page = await open("", { width: 1440, height: 1500 });
+    await openTeaching(page);
+    const main = page.getByRole("main");
+    // A second teaching from the same study: a children's lesson, which starts with its steps.
+    const about = main.getByRole("button", { name: /^About this teaching/ });
+    if ((await about.getAttribute("aria-expanded")) !== "true") await about.click();
+    await main.getByRole("button", { name: "Prepare another teaching" }).click();
+    await main.getByText("Children", { exact: true }).click();
+    await main.getByRole("button", { name: "Start" }).click();
+    await page.waitForTimeout(800);
+    await shot(page, "teaching-lesson", main);
+    await page.close();
+  },
   async "teaching-help"() {
     const page = await open("", { width: 1440, height: 1000 });
     await openTeaching(page);
@@ -214,7 +228,9 @@ Object.assign(scenes, {
   async "add-menu"() {
     const page = await open();
     await openStudy(page);
-    await page.getByRole("main").getByRole("button", { name: "Add", exact: true }).first().click();
+    // Add at the end of a part: writing, or a note of a kind.
+    await page.getByRole("main").getByRole("button", { name: "Add to Context", exact: true }).click();
+    await page.waitForTimeout(300);
     await shot(page, "add-menu", page.getByRole("main"));
     await page.close();
   },
@@ -287,6 +303,8 @@ Object.assign(scenes, {
     const section = page.getByRole("region", { name: "AI Assistant" });
     await section.getByRole("button", { name: "AI Assistant" }).click();
     await section.getByText("How do I get a key?").click();
+    await section.getByRole("combobox", { name: "Look up real stories" }).selectOption("tavily");
+    await page.waitForTimeout(400);
     await page.waitForTimeout(400);
     await shot(page, "settings-assistant", section);
     await page.close();

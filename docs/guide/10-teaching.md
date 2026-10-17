@@ -53,6 +53,10 @@ The main canvas follows the kind of teaching:
 | **Group Bible study** | What the group should discover · Opening · Closing | **Questions and answers** | the question, where it may lead, follow-up questions, notes for leading |
 | **Children**, Lesson | The one thing to remember | **Lesson plan**: steps in order | a kind of step and what that kind needs (see below) |
 
+<p align="center">
+  <img src="images/teaching-lesson.png" alt="A children's lesson just started: About this teaching open, 'The one thing to remember', and the lesson plan with Step 1 'Welcome' (Teaching) and Step 2 'Bible story' (Bible reading)" width="700">
+</p>
+
 In a lesson, each **step** says what kind of step it is, and shows the fields
 that kind needs:
 
