@@ -14,49 +14,59 @@ pair of eyes.
   <img src="images/teaching.png" alt="Bible Teaching for a study: the title, a folded 'About this teaching' line, the central message, the introduction and the main points" width="900">
 </p>
 
+A **Bible study** asks *what does this text mean?* A **Bible teaching** asks
+*how will I communicate it?* A teaching is always prepared from a study, so
+your notes, passages and sources are at hand without being copied.
+
 ## Starting
 
-1. Open your study.
-2. Under the study's passages, click **Bible Teaching** (click **Bible Study**
+1. Open your study. (Or, on the new-study form, choose **Teaching
+   preparation**: Abiding Word makes a passage study and opens its Bible
+   Teaching side.)
+2. Under the study's title, click **Bible Teaching** (click **Bible Study**
    to go back).
 3. Choose what you are preparing: *Sermon*, *Group Bible study*, *Youth*,
-   *Children*, *Lesson*, *Talk* or *Other*.
+   *Children*, *Lesson*, *Talk* or *Other*. A line under the choices says what
+   it gives you to work in, and what it starts with.
 4. Change the title if you like, and click **Start**.
 
-Nothing is filled in for you. Every part may stay empty until you need it.
-You can prepare **more than one teaching** from the same study (for example
-a Sunday sermon and a youth lesson): click **Prepare another teaching** (in
-*About this teaching* while there is only one), and switch between them with
-**Teaching:**.
+Nothing is written for you. A lesson starts with a few empty steps (for
+children: *Welcome, Bible story, Question, Activity, Prayer*); the other kinds
+start empty. You can prepare **more than one teaching** from the same study
+(for example a Sunday sermon and a youth lesson): click **Prepare another
+teaching** (in *About this teaching* while there is only one), and switch
+between them with **Teaching:**.
 
-## The parts of a teaching
+## A canvas for each kind of teaching
 
-Your writing comes first: the **central message**, the **introduction**, the
-main part and the **conclusion**. The details sit on one quiet line under the
-title, **About this teaching** (for example *Sermon · for families · Luke
-19:1–10*). Right after you start a teaching it is open, so you can fill in who
-it is for and why; when you come back later it is folded. Click it to open or
-close it.
+Your writing comes first. The details sit on one quiet line under the title,
+**About this teaching** (for example *Sermon · for families · Luke 19:1–10*):
+open right after you start, folded when you come back. It holds the *kind*,
+**who it is for**, the **purpose**, what the whole teaching uses from your
+study, and **Delete this teaching**.
 
-| Part | What to write |
+The main canvas follows the kind of teaching:
+
+| Kind | Around the main part | The main part | Each item has |
+|---|---|---|---|
+| **Sermon**, Youth, Talk, Other | Central message · Introduction · Conclusion | **Main points** | a title, an explanation, an application, an illustration or example |
+| **Group Bible study** | What the group should discover · Opening · Closing | **Questions and answers** | the question, where it may lead, follow-up questions, notes for leading |
+| **Children**, Lesson | The one thing to remember | **Lesson plan**: steps in order | a kind of step and what that kind needs (see below) |
+
+In a lesson, each **step** says what kind of step it is, and shows the fields
+that kind needs:
+
+| Kind of step | You write |
 |---|---|
-| **About this teaching** | the *kind*, **who it is for** (e.g. the whole church, a youth group, children aged 8–10), the **purpose**, and what the whole teaching uses from your study. **Delete this teaching** is here too |
-| **Central message** | in your own words, the one thing you most want people to take away |
-| **Introduction** | how you begin |
-| **The main part** | as many items as you need, in any order and any shape (see below) |
-| **Conclusion** | how you finish |
-| **Notes for yourself** | reminders while you teach; not part of what you say |
+| **Teaching** | what you will say |
+| **Bible reading** | how you will read or tell it (add the passage with *Scripture*) |
+| **Question** | the question, and the answers to listen for |
+| **Activity** | how it works, and what you need |
+| **Picture** | what it shows and when you show it (find or make the picture with the assistant) |
 
-The main part is named after the kind of teaching, so it fits what you are
-preparing:
-
-| Kind | The main part is called | Each item has |
-|---|---|---|
-| Sermon, Youth, Talk, Other | **Main points** | a title, an explanation, an application, an illustration or example |
-| Group Bible study | **Questions and answers** | the question, what the passage shows, what it means for us, notes for leading the conversation |
-| Lesson, Children | **Lesson plan** | the step, what you will say or do, what they should take away, an activity, material or example |
-
-Changing the kind only changes these names: nothing you wrote is lost.
+**Notes for yourself** (reminders while you teach) are at the end of every
+kind. Changing the kind of a teaching, or of a step, never loses anything:
+a field with writing in it is always shown.
 
 Everything is **saved as you type**. Move an item with the ▲ ▼ buttons
 beside it; delete it with 🗑 (if you wrote in it, you are asked first).
@@ -158,18 +168,21 @@ here first. The assistant helps with what you have written."*
 
 ### Real stories
 
-**Find a real story…** looks for true stories, events or examples. Describe
+**Find a real story…** looks for real stories, events or examples. Describe
 in a few words what you are looking for (e.g. *forgiveness after a conflict*).
 
 - This only works with a **search service** set up in Settings (**Look up
-  real stories**). An AI assistant cannot be trusted to remember facts, so the
+  real stories**: Brave Search, Tavily or Exa, or SearXNG or SerpApi). An AI assistant cannot be trusted to remember facts, so the
   stories come from real sources the search finds. Without a search service,
   the assistant tells you it cannot look up real stories; it does not make
   one up.
 - Each story shows **where it came from** (click a source to open it in your
-  browser) and how far it is checked:
-  - *Two independent sites in the search results report it (read them before using it)*, or
-  - *Not checked: only one source. Please check before you use it.*
+  browser) and what the search found:
+  - *Sources found: two independent sites in the search results report it.
+    Source quality varies, so read them before you use it*, or
+  - *Needs checking: only one source was found. Read it before you use it.*
+- A search finds pages; it never makes a story true. Abiding Word does not
+  call a story "true", only supported by sources or in need of checking.
 - Always read the sources yourself before you use a story.
 - **Keep with this teaching** stores the story with its sources under the
   part you asked about.

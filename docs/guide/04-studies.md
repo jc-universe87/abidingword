@@ -4,9 +4,12 @@
 
 ---
 
-A **study** is where your understanding grows: what you notice in the text,
-the questions you ask, what it means and how to teach it. Each study is about
-a passage, a word or a topic, and you write it in the middle pane.
+A **Bible study** is where you work to **understand the biblical text**: what
+you notice in it, the questions you ask, what it meant and what it means for
+us. Each study is about a passage, a word or a topic, and you write it in the
+middle pane, with the Bible on the left. Preparing to *communicate* it (a
+sermon, a group study, a lesson) is **Bible Teaching**: see
+[Preparing to teach](10-teaching.md).
 
 ## Starting a study
 
@@ -19,20 +22,21 @@ a passage, a word or a topic, and you write it in the middle pane.
    a topic (`prayer`).
 3. Choose the kind of study:
 
-   | Kind | Use it to… |
+   | Kind | Starts with |
    |---|---|
-   | **Passage study** | Work through a passage carefully: text, context, observations, meaning, application, teaching |
-   | **Word study** | Follow one word through the Bible |
-   | **Topic** | Gather what the Bible says about a theme |
-   | **Teaching preparation** | Prepare a sermon, lesson or talk (any study can also lead to a written teaching: see [Preparing to teach](10-teaching.md)) |
+   | **Passage study** | Text · Observations · Context · Meaning · Theology · Application |
+   | **Word study** | Word · Occurrences · Semantic Range · Key Passages · Conclusions |
+   | **Topic** | Question / Topic · Key Passages · Main Themes · Conclusions · Application |
+   | **Teaching preparation** | A passage study, opened straight on its **Bible Teaching** side, ready to choose a sermon, group study or lesson |
 
    Under **More options** you find more kinds (biblical theology, systematic
-   theology, your own), the template to start from and the project to put it in.
+   theology, no template, your own templates) and a title of your own.
 4. Click **Create study**.
 
-Each kind starts from a ready-made **template**: a set of headed sections with
-a short hint in each. You can change the sections in any study, and make your
-own templates in Settings.
+Each kind starts from a small **template**: a few headed parts, each with a
+short hint until you write in it. Parts you may want later (for a passage
+study: *Structure, Key Words, Related Scripture, Open Questions*) are offered
+when you click **Add a part** at the end of the study.
 
 ## Projects: keeping studies together
 
@@ -49,20 +53,23 @@ to use projects. Until you do, all studies simply sit together.
 ## Inside a study
 
 <p align="center">
-  <img src="images/study.png" alt="The study 'Abiding in the Vine' with its passages and the sections Text, Context and Observations" width="700">
+  <img src="images/study.png" alt="The study 'Abiding in the Vine': back button, title, Bible Study / Bible Teaching, passages, and the parts Text and Observations, each with its own Add" width="700">
 </p>
 
 From top to bottom:
 
 | Part | What it is |
 |---|---|
-| **Projects › Gospel of John** | Where the study lives; click to go back |
+| **←** beside the title | Back to the project or the list of studies |
 | **Title** | Click it to rename the study |
-| **Study details** | The study's purpose, its status (*active, paused, completed, archived*), a short overview, links to related studies, and **Duplicate…** to copy the study |
-| **Contents** | A clickable list of the study's sections, handy in long studies |
-| **Passage buttons** | The main passage (darker) and related passages. Click one to open it on the left. **+ Related passage** adds another. |
-| **+ Add** | Adds a note, a section or a block of text |
-| **Sections** | *Text, Context, Observations…* Write straight into them. The **…** button on a section or paragraph lets you move, rename or delete it. |
+| **Bible Study / Bible Teaching** | The study itself, or the teachings you prepare from it. A study opens again on the side you last used. |
+| **Study details** | The study's purpose, its status (*active, paused, completed, archived*), a short overview, which passage is the main one, related studies, and **Duplicate…** |
+| **Passage buttons** | The main passage and related passages. Click one to open it on the left. **+ Related passage** adds another. |
+| **Fold all / Unfold all** | Folds every part to its heading, so the study reads as an outline, and opens them again |
+| **The parts** | *Text, Observations, Context…* Write straight into them. Click a part's heading to fold it away (it then says how many notes it holds). The **…** button beside it renames, moves or deletes the part. |
+| **+ Add** at the end of each part | More writing, or a note of a kind: **Observation**, **Question**, **Interpretation**, **Application**, and under **More types** *Quotation, Doctrine, Illustration, Teaching idea, Unresolved issue, Conclusion* |
+| **Other notes** | Notes that belong to no particular part, after the last part |
+| **Add a part** · **Note** | At the very end: a new part (suggested ones, or your own heading), or a note for the whole study |
 
 Everything is **saved automatically** as you type.
 
@@ -71,34 +78,34 @@ Everything is **saved automatically** as you type.
 > Word recognises it. It appears under **Passages mentioned**, and one click
 > opens it in the Bible.
 
-## Study notes: capturing what you discover
+## Notes: what you observe, ask and conclude
 
-Besides your flowing text, a study collects short **notes**, each with a
-**kind**: an observation, a question, an application and so on. They help you
-see at a glance what you have learned.
-
-<p align="center">
-  <img src="images/add-menu.png" alt="The Add button open, offering Note, Section and Text block" width="700">
-</p>
-
-1. Click **+ Add**, then **Note**.
-2. Choose the kind. **Observation**, **Interpretation**, **Application** and
-   **Question** are shown first. **More types** offers *Quotation, Doctrine,
-   Illustration, Teaching idea, Unresolved issue* and *Conclusion*.
-3. Write your note. Under **Options** you can put it in a section and link it
-   to the passage you are reading.
-4. Press **Ctrl + Enter** (or click Save).
+Besides your flowing text, each part can hold short **notes**, each of a kind
+people use when they study the Bible: an observation, a question, an
+interpretation, an application and so on.
 
 <p align="center">
-  <img src="images/findings.png" alt="Two notes in the Observations section: an observation linked to John 15:4–5 and a question linked to John 15:7" width="640">
+  <img src="images/add-menu.png" alt="Add open at the end of the Context part, offering Writing, Observation, Question, Interpretation, Application and More types" width="700">
 </p>
 
-Each note shows its kind, its section and its passage. Open **Details** to add
-tags or to **cite a book from your library** (see
-[Your library](05-library.md#citing-a-book-in-a-study-note)).
+1. At the end of a part, click **+ Add**, then choose **Observation** (or
+   another kind).
+2. Write your note. You can still change its kind. Under **Options** you can
+   link it to the passage you are reading.
+3. Press **Ctrl + Enter** (or click **Save**). The note appears in that part.
+
+<p align="center">
+  <img src="images/findings.png" alt="Two notes in the Observations part: an observation linked to John 15:4–5 and a question linked to John 15:7" width="640">
+</p>
+
+Each note shows its kind and its passage. Open **Details** to change its kind,
+move it to another part, add tags or **cite a book from your library** (see
+[Your library](05-library.md#citing-a-book-in-a-study-note)). With many notes,
+**Show notes** in the study's top line narrows them to one kind.
 
 While reading a book you can also **add what you read straight into your
-study**: select the words and choose **Add to Study**. See
+study**: select the words and choose **Add to Study**. It keeps the book and
+the exact place. See
 [Using a book in your study](05-library.md#using-a-book-in-your-study).
 
 ## Finding a study again

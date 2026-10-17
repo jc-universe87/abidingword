@@ -51,3 +51,4 @@ They are kept as written at the time.
 | [source-annotations-v0.14.md](source-annotations-v0.14.md) | v0.14: highlights, notes and bookmarks in your own books, on their pages too, and Marks for the Bible and your books together. |
 | [sources-to-study-v0.15.md](sources-to-study-v0.15.md) | v0.15: bring what you read into your study with its source; copy a quotation with its citation. |
 | [teaching-preparation-v0.16.md](teaching-preparation-v0.16.md) | v0.16 (in progress): teaching preparations written from a study; the optional assistant ("AI assists; the human authors"): providers, keys, bounded context, provenance, real stories, images. |
+| [study-teaching-simplification-v0.17.md](study-teaching-simplification-v0.17.md) | v0.17 (in progress): Bible Study as parts with their own Add and notes (no more "findings"), small templates, a canvas for each kind of teaching, lesson steps with kinds; more search services for real stories. |

@@ -95,9 +95,19 @@ order and size. Your studies and library are not touched.
 
 ## Templates
 
-Templates are the ready-made section lists a new study starts with. The
-built-in ones can't be changed, but you can **duplicate** one and adjust the
-copy: rename sections, add hints, change the order.
+A template is a reusable **starting structure**. Settings shows two kinds:
+
+- **Bible Study** templates: the parts a new study starts with (a passage
+  study: *Text, Observations, Context, Meaning, Theology, Application*). The
+  built-in ones can't be changed, but you can **duplicate and customise** one:
+  rename parts, add hints, change the order, remove parts, and tick
+  **Add later** for a part you want offered under *Add a part* rather than
+  made at once.
+- **Bible Teaching** formats: what each kind of teaching gives you to work in
+  (main points for a sermon, questions for a group study, steps for a lesson)
+  and the steps a lesson starts with.
+
+Changing a template never changes a study already made from it.
 
 ## Language
 
@@ -157,16 +167,19 @@ server, or for Ollama or LM Studio running on another computer.
 **Optional extras**
 
 - **Look up real stories.** The AI Assistant can suggest ideas, but it may
-  remember real events incorrectly. A search service lets Abiding Word look
-  for actual web sources, so you can check a story before you use it.
-  - **Brave Search** is an internet search service. You need a Brave account
-    and a key: **What is Brave Search, and how do I set it up?** explains the
-    steps and opens Brave's own page. Brave may ask for payment details and
-    limits how many searches you can make each month.
-  - **SearXNG** (under *Other (advanced)*) is an independent, open search
-    service that some people run themselves. It only works with the address
-    of a SearXNG server that allows searches from programs. If that means
-    nothing to you, choose Brave Search.
+  remember real events incorrectly. A search service finds web pages about a
+  story; Abiding Word shows them with their links so you can read them. A
+  search service only *finds* pages: it does not decide what is true.
+  - **Recommended:** **Brave Search** (simple general web search),
+    **Tavily** (search designed for AI assistants) and **Exa** (finds
+    relevant sources and passages). Each needs an account and a key; **How do
+    I set up …?** gives the steps and opens the service's own page. Most offer
+    a small free allowance each month and charge for more.
+  - **Other (advanced):** **SearXNG** (a search program some people run on
+    their own server; you need its address) and **SerpApi** (Google results,
+    a paid service).
+  - **Check search** asks the service one test question and says whether it
+    answered. Each service keeps its own key, so switching keeps the others.
 - **Images.**
   - **Find freely licensed images** on Wikimedia Commons (only search words
     are sent). This always works, whatever service you use.
