@@ -232,7 +232,10 @@
     "stopShowing": "Dejar de mostrarlo",
     "backToPresenter": "Volver a la vista del presentador",
     "partOf": "{{reference}} · parte {{part}} de {{parts}}",
-    "showNextPart": "Mostrar la parte siguiente"
+    "showNextPart": "Mostrar la parte siguiente",
+    "timer": "Cronómetro",
+    "menu": "Opciones de la vista del presentador",
+    "keysToggle": "Atajos de teclado"
   },
   "audience": {
     "title": "Pantalla de la audiencia",

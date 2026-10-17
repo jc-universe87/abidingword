@@ -191,11 +191,27 @@ the window width (`layoutFor`: < 640 px phone, < 1024 px tablet, else desktop):
 |---|---|---|---|
 | main | speaker sheet: what the audience sees as large text, then manuscript and notes | current slide picture + next slide beside the manuscript and notes | all slides (jump list), current slide, next slide, manuscript and notes |
 | moving | big Back / Next at the bottom | Back / Next at the bottom | Back / Next under the slide, the list |
-| always | slide position (live region), timer (pause/reset), clock, Scripture, Audience screen, View, Exit |
+| top bar | slide position · timer · clock · one menu (Scripture, Audience screen, View) · Exit | title · slide position · timer · clock · the four doors as icons | title · slide position · timer · clock · Scripture, Audience screen, View, Exit |
+
+**The speaker's material is never moved by a control** (refined after the
+first Windows acceptance build, `0.5.0-dev.38`). The top bar has a fixed
+height (56 px) and holds only status and four doors. Everything else opens
+as a **floating panel** over the view — a side sheet (about 360 px; Scripture
+480 px) on a computer or tablet, a small popover for the timer, a bottom sheet
+on a phone — and never as a row above the presentation: measured in Chromium
+at 1920×1080, 1366×768, 1280×800, 820×1180 and 390×844, the speaker's area
+starts at 56 px and keeps its height whether View, Audience screen,
+Scripture or the timer is open (shift 0 px), with no horizontal scrolling.
+Each panel takes focus, keeps Tab inside, closes with Escape (also from its
+text field), Close or a click beside it, and gives focus back to its button.
+What the audience sees when it differs from the slide (empty screen, a
+passage, the audience window on) is a small floating note with *Back to the
+slide*, not a row. The timer shows only the time; a click opens its popover
+(pause/continue, reset). The keys are behind *Keyboard shortcuts* in View.
 
 *View* holds the options: text size (85–175 %), background (Light, Dark,
-Warm), timer and clock on/off, keep the screen on. Nothing can be edited in
-the Presenter View. Keys: → ↓ Page Down Space next; ← ↑ Page Up Backspace
+Warm), timer and clock on/off, keep the screen on, keyboard shortcuts.
+Nothing can be edited in the Presenter View. Keys: → ↓ Page Down Space next; ← ↑ Page Up Backspace
 back; Home/End; **B** or **.** empties the audience screen; **Esc** leaves
 (or closes an open panel, or returns from the one-window audience view).
 Focus starts on *Next* and returns to *Start Presenter View* on exit.

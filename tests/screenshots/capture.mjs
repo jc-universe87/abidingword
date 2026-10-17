@@ -76,7 +76,7 @@ const scenes = {
     await page.close();
   },
   async "presenter-desktop"() {
-    const page = await open("", { width: 1440, height: 900 });
+    const page = await open("", { width: 1366, height: 768 });
     await startPresenting(page);
     await shot(page, "presenter-desktop");
     await page.close();
@@ -91,6 +91,21 @@ const scenes = {
     const page = await open("", { width: 390, height: 844, scale: 2 });
     await startPresenting(page);
     await shot(page, "presenter-phone");
+    await page.close();
+  },
+  async "presenter-view-panel"() {
+    const page = await open("", { width: 1366, height: 768 });
+    await startPresenting(page);
+    await page.getByRole("dialog", { name: /Presenter View/ }).getByRole("button", { name: "View", exact: true }).click();
+    await shot(page, "presenter-view-panel");
+    await page.close();
+  },
+  async "presenter-audience-panel"() {
+    const page = await open("", { width: 1366, height: 768 });
+    await startPresenting(page);
+    await page.getByRole("dialog", { name: /Presenter View/ }).getByRole("button", { name: "Audience screen", exact: true }).click();
+    await page.waitForTimeout(400);
+    await shot(page, "presenter-audience-panel");
     await page.close();
   },
   async "presenter-scripture"() {

@@ -229,7 +229,10 @@
     "stopShowing": "Stop showing it",
     "backToPresenter": "Back to Presenter View",
     "partOf": "{{reference}} · part {{part}} of {{parts}}",
-    "showNextPart": "Show the next part"
+    "showNextPart": "Show the next part",
+    "timer": "Timer",
+    "menu": "Presenter options",
+    "keysToggle": "Keyboard shortcuts"
   },
   "audience": {
     "title": "Audience screen",

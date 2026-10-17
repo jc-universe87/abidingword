@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { BookOpen, ChevronLeft, ChevronRight, Minus, MonitorUp, Pause, Play, Plus, RotateCcw, Settings2, X } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, CircleHelp, Menu, Minus, MonitorUp, Pause, Play, Plus, RotateCcw, Settings2, X } from "lucide-react";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { readLocal, writeLocal } from "@/lib/storage";
@@ -39,9 +39,9 @@ function pressesControl(target: EventTarget | null, key: string): boolean {
   return (key === " " || key === "Enter") && target instanceof HTMLElement && target.closest("button, a, [role='button'], summary") !== null;
 }
 
-/** Tab stays inside the Presenter View (it covers the whole window). */
+/** Tab stays inside the open panel, else inside the Presenter View (it covers the whole window). */
 function keepTabInside(e: KeyboardEvent) {
-  const root = document.querySelector<HTMLElement>("[data-presenter-root]");
+  const root = document.querySelector<HTMLElement>("[data-presenter-panel]") ?? document.querySelector<HTMLElement>("[data-presenter-root]");
   if (!root) return;
   const items = Array.from(root.querySelectorAll<HTMLElement>("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")).filter(
     (el) => !el.hasAttribute("disabled") && el.getClientRects().length > 0,
@@ -90,7 +90,8 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   const [blank, setBlank] = useState(false);
   const [overlay, setOverlay] = useState<ScriptureOverlay | null>(null);
   const [audience, setAudience] = useState<AudienceMode>("none");
-  const [panel, setPanel] = useState<"none" | "scripture" | "settings" | "audience">("none");
+  // One floating panel at a time; none of them moves the speaker's material.
+  const [panel, setPanel] = useState<"none" | "scripture" | "settings" | "audience" | "timer" | "menu">("none");
   const [prefs, setPrefsState] = useState<Prefs>(() => ({ ...DEFAULT_PREFS, ...readLocal<Partial<Prefs>>("presenter", {}) }));
   const [notice, setNotice] = useState("");
   const nextButton = useRef<HTMLButtonElement>(null);
@@ -113,7 +114,12 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
     else exitButton.current?.focus();
   }, []);
   /** Back from a panel or the audience view: the keyboard returns to the button that opened it. */
-  const returnTo = (name: string) => requestAnimationFrame(() => toolButtons.current[name]?.focus());
+  const returnTo = (name: string) =>
+    requestAnimationFrame(() => {
+      // On a phone, Scripture, Audience screen and View are reached through the menu.
+      const target = [toolButtons.current[name], toolButtons.current.menu, exitButton.current].find((el) => el?.isConnected);
+      target?.focus();
+    });
 
   const go = useCallback(
     (to: number) => {
@@ -187,6 +193,11 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Tab") {
         keepTabInside(e);
+        return;
+      }
+      // Escape closes a panel even from its text field; other keys there are typing.
+      if (e.key === "Escape" && !e.ctrlKey && !e.metaKey) {
+        if (handleKey(e.key, false)) e.preventDefault();
         return;
       }
       if (isTyping(e.target) || e.ctrlKey || e.metaKey || pressesControl(e.target, e.key)) return;
@@ -340,63 +351,61 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
       className="fixed inset-0 z-50 flex flex-col overflow-hidden"
       style={{ backgroundColor: colours.background, color: colours.text }}
     >
-      <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-3 py-2" style={{ borderColor: `${colours.muted}55` }}>
+      {/* One calm bar of fixed height: what the speaker needs at a glance, and the four doors. */}
+      <header className="flex h-14 shrink-0 flex-nowrap items-center gap-3 border-b px-3" style={{ borderColor: `${colours.muted}55` }}>
         <h2 id={titleId} className={layout === "phone" ? "sr-only" : "m-0 min-w-0 flex-1 truncate text-[1rem] font-semibold"}>
           {layout === "phone" ? doc.title : t("presentation.presenter.titleWith", { title: doc.title })}
         </h2>
-        <p aria-live="polite" className="m-0 text-[1rem] font-medium tabular-nums">{position}</p>
-        {prefs.timer && (
-          <span className="inline-flex items-center gap-1 tabular-nums">
-            <span className="sr-only">{t("presentation.presenter.elapsed", { time: elapsedLabel(elapsed) })}</span>
-            <span aria-hidden="true">{elapsedLabel(elapsed)}</span>
+        <div className={`flex shrink-0 items-center gap-2 tabular-nums ${layout === "phone" ? "flex-1" : ""}`}>
+          <p aria-live="polite" className="m-0 whitespace-nowrap text-[1rem] font-medium">{position}</p>
+          {prefs.timer && (
             <button
-              type="button"
-              onClick={() => {
-                if (startedAt === null) setStartedAt(Date.now());
-                else {
-                  setBefore(elapsed);
-                  setStartedAt(null);
-                }
+              ref={(el) => {
+                toolButtons.current.timer = el;
               }}
-              aria-label={startedAt === null ? t("presentation.presenter.timerResume") : t("presentation.presenter.timerPause")}
-              title={startedAt === null ? t("presentation.presenter.timerResume") : t("presentation.presenter.timerPause")}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-aw hover:bg-black/10"
-            >
-              {startedAt === null ? <Play className="size-4" aria-hidden="true" /> : <Pause className="size-4" aria-hidden="true" />}
-            </button>
-            <button
               type="button"
-              onClick={() => {
-                setBefore(0);
-                setStartedAt(Date.now());
-              }}
-              aria-label={t("presentation.presenter.timerReset")}
-              title={t("presentation.presenter.timerReset")}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-aw hover:bg-black/10"
+              aria-haspopup="dialog"
+              aria-expanded={panel === "timer"}
+              aria-label={t("presentation.presenter.elapsed", { time: elapsedLabel(elapsed) })}
+              onClick={() => setPanel(panel === "timer" ? "none" : "timer")}
+              className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 hover:bg-black/10"
+              style={{ color: startedAt === null ? colours.muted : undefined }}
             >
-              <RotateCcw className="size-4" aria-hidden="true" />
+              <span aria-hidden="true">{elapsedLabel(elapsed)}</span>
+              {startedAt === null && <Pause className="size-3.5" aria-hidden="true" />}
             </button>
-          </span>
-        )}
-        {prefs.clock && (
-          <span className="tabular-nums">
-            <span className="sr-only">{t("presentation.presenter.clock", { time: clock })}</span>
-            <span aria-hidden="true">{clock}</span>
-          </span>
-        )}
-        <div className="ml-auto flex items-center gap-1">
-          <ToolButton buttonRef={(el) => (toolButtons.current.scripture = el)} label={t("presentation.presenter.scripture")} icon={<BookOpen className="size-5" aria-hidden="true" />} pressed={panel === "scripture"} onClick={() => setPanel(panel === "scripture" ? "none" : "scripture")} compact={layout === "phone"} />
-          <ToolButton buttonRef={(el) => (toolButtons.current.audience = el)} label={t("presentation.presenter.audience")} icon={<MonitorUp className="size-5" aria-hidden="true" />} pressed={panel === "audience"} onClick={() => setPanel(panel === "audience" ? "none" : "audience")} compact={layout === "phone"} />
-          <ToolButton buttonRef={(el) => (toolButtons.current.settings = el)} label={t("presentation.presenter.settings")} icon={<Settings2 className="size-5" aria-hidden="true" />} pressed={panel === "settings"} onClick={() => setPanel(panel === "settings" ? "none" : "settings")} compact={layout === "phone"} />
-          <ToolButton buttonRef={(el) => (exitButton.current = el)} label={t("presentation.presenter.exit")} icon={<X className="size-5" aria-hidden="true" />} onClick={close} compact={layout === "phone"} />
+          )}
+          {prefs.clock && (
+            <span className="whitespace-nowrap text-[0.9375rem]" style={{ color: colours.muted }}>
+              <span className="sr-only">{t("presentation.presenter.clock", { time: clock })}</span>
+              <span aria-hidden="true">{clock}</span>
+            </span>
+          )}
+        </div>
+        <div className="ml-auto flex shrink-0 items-center gap-1">
+          {layout === "phone" ? (
+            <ToolButton buttonRef={(el) => (toolButtons.current.menu = el)} label={t("presentation.presenter.menu")} icon={<Menu className="size-5" aria-hidden="true" />} pressed={panel === "menu"} haspopup onClick={() => setPanel(panel === "menu" ? "none" : "menu")} compact />
+          ) : (
+            <>
+              <ToolButton buttonRef={(el) => (toolButtons.current.scripture = el)} label={t("presentation.presenter.scripture")} icon={<BookOpen className="size-5" aria-hidden="true" />} pressed={panel === "scripture"} haspopup onClick={() => setPanel(panel === "scripture" ? "none" : "scripture")} compact={layout !== "desktop"} />
+              <ToolButton buttonRef={(el) => (toolButtons.current.audience = el)} label={t("presentation.presenter.audience")} icon={<MonitorUp className="size-5" aria-hidden="true" />} pressed={panel === "audience"} haspopup onClick={() => setPanel(panel === "audience" ? "none" : "audience")} compact={layout !== "desktop"} />
+              <ToolButton buttonRef={(el) => (toolButtons.current.settings = el)} label={t("presentation.presenter.settings")} icon={<Settings2 className="size-5" aria-hidden="true" />} pressed={panel === "settings"} haspopup onClick={() => setPanel(panel === "settings" ? "none" : "settings")} compact={layout !== "desktop"} />
+            </>
+          )}
+          <ToolButton buttonRef={(el) => (exitButton.current = el)} label={t("presentation.presenter.exit")} icon={<X className="size-5" aria-hidden="true" />} onClick={close} compact={layout !== "desktop"} />
         </div>
       </header>
 
+      {/* What the audience sees, when it differs from the slide: a small floating note, never a row that moves the speaker's text. */}
       {(blank || overlay || audience === "window") && (
-        <p className="m-0 flex flex-wrap items-center gap-2 px-3 py-1 text-[0.9375rem]" style={{ backgroundColor: `${colours.accent}22` }}>
-          {audience === "window" && <span>{t("presentation.presenter.audienceOn")}</span>}
-          {blank && <span>{t("presentation.presenter.blankOn")}</span>}
-          {overlay && <span>{t("presentation.presenter.showingScripture", { reference: overlay.label })}</span>}
+        <div
+          data-presenter-status=""
+          className="absolute left-3 top-16 z-10 flex max-w-[calc(100%-1.5rem)] flex-wrap items-center gap-x-2 rounded-full px-3 text-[0.875rem] shadow"
+          style={{ backgroundColor: colours.background, border: `1px solid ${colours.accent}`, color: colours.text }}
+        >
+          {audience === "window" && !blank && !overlay && <span className="py-2">{t("presentation.presenter.audienceOn")}</span>}
+          {blank && <span className="py-2">{t("presentation.presenter.blankOn")}</span>}
+          {overlay && <span className="py-2">{t("presentation.presenter.showingScripture", { reference: overlay.label })}</span>}
           {(blank || overlay) && (
             <button
               type="button"
@@ -409,25 +418,82 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
               {t("presentation.presenter.backToSlide")}
             </button>
           )}
-        </p>
+        </div>
       )}
       <p role="status" className="sr-only">{notice}</p>
 
       {panel !== "none" && (
-        <div className="max-h-[60vh] overflow-y-auto border-b px-3 py-3" style={{ borderColor: `${colours.muted}55` }}>
-          {panel === "scripture" && (
-            <ScripturePanel
-              doc={doc}
-              shown={overlay}
-              onShow={setOverlay}
-              onClose={() => {
-                setPanel("none");
-                returnTo("scripture");
-              }}
-              colours={colours}
-            />
-          )}
+        <FloatingPanel
+          title={
+            panel === "scripture"
+              ? t("presentation.presenter.scripture")
+              : panel === "audience"
+                ? t("presentation.presenter.audience")
+                : panel === "settings"
+                  ? t("presentation.presenter.settings")
+                  : panel === "timer"
+                    ? t("presentation.presenter.timer")
+                    : t("presentation.presenter.menu")
+          }
+          placement={layout === "phone" ? "bottom" : panel === "timer" ? "popover" : "side"}
+          wide={panel === "scripture"}
+          colours={colours}
+          onClose={() => {
+            const open = panel;
+            setPanel("none");
+            returnTo(open);
+          }}
+        >
+          {panel === "scripture" && <ScripturePanel doc={doc} shown={overlay} onShow={setOverlay} colours={colours} />}
           {panel === "settings" && <SettingsPanel prefs={prefs} setPrefs={setPrefs} awake={awake} />}
+          {panel === "timer" && (
+            <div className="flex flex-col gap-2">
+              <p className="m-0 text-[1.5rem] font-semibold tabular-nums">{elapsedLabel(elapsed)}</p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (startedAt === null) setStartedAt(Date.now());
+                    else {
+                      setBefore(elapsed);
+                      setStartedAt(null);
+                    }
+                  }}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-aw border px-3"
+                >
+                  {startedAt === null ? <Play className="size-4" aria-hidden="true" /> : <Pause className="size-4" aria-hidden="true" />}
+                  {startedAt === null ? t("presentation.presenter.timerResume") : t("presentation.presenter.timerPause")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBefore(0);
+                    setStartedAt(Date.now());
+                  }}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-aw border px-3"
+                >
+                  <RotateCcw className="size-4" aria-hidden="true" />
+                  {t("presentation.presenter.timerReset")}
+                </button>
+              </div>
+            </div>
+          )}
+          {panel === "menu" && (
+            <div className="flex flex-col gap-1">
+              {(
+                [
+                  ["scripture", t("presentation.presenter.scripture"), <BookOpen key="s" className="size-5" aria-hidden="true" />],
+                  ["audience", t("presentation.presenter.audience"), <MonitorUp key="a" className="size-5" aria-hidden="true" />],
+                  ["settings", t("presentation.presenter.settings"), <Settings2 key="v" className="size-5" aria-hidden="true" />],
+                ] as const
+              ).map(([name, label, icon]) => (
+                <button key={name} type="button" onClick={() => setPanel(name)} className="inline-flex min-h-12 items-center gap-3 rounded-aw px-3 text-left text-[1rem] hover:bg-black/10">
+                  {icon}
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
           {panel === "audience" && (
             <AudiencePanel
               doc={doc}
@@ -438,6 +504,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
               onWindow={() => {
                 setAudience("window");
                 setPanel("none");
+                returnTo("audience");
               }}
               onHere={() => {
                 setAudience("here");
@@ -449,7 +516,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
               }}
             />
           )}
-        </div>
+        </FloatingPanel>
       )}
 
       {layout === "phone" && (
@@ -526,6 +593,7 @@ function ToolButton({
   pressed,
   compact,
   buttonRef,
+  haspopup = false,
 }: {
   label: string;
   icon: ReactNode;
@@ -533,20 +601,85 @@ function ToolButton({
   pressed?: boolean;
   compact: boolean;
   buttonRef?: (el: HTMLButtonElement | null) => void;
+  /** Opens a floating panel (announced as expanded while it is open). */
+  haspopup?: boolean;
 }) {
   return (
     <button
       ref={buttonRef}
       type="button"
       onClick={onClick}
-      aria-pressed={pressed}
+      aria-haspopup={haspopup ? "dialog" : undefined}
+      aria-expanded={haspopup ? Boolean(pressed) : undefined}
       aria-label={compact ? label : undefined}
       title={compact ? label : undefined}
-      className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-aw px-2 text-[0.9375rem] hover:bg-black/10 aria-pressed:bg-black/15"
+      className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-aw px-2 text-[0.9375rem] hover:bg-black/10 aria-expanded:bg-black/15"
     >
       {icon}
       {!compact && <span>{label}</span>}
     </button>
+  );
+}
+
+/**
+ * A floating panel over the Presenter View: a side sheet on a computer or
+ * tablet, a small popover for the timer, a bottom sheet on a phone. It never
+ * takes room from the speaker's material. Focus goes into it and stays there
+ * (Tab), Escape or Close shuts it and the keyboard returns to its button.
+ */
+function FloatingPanel({
+  title,
+  placement,
+  wide = false,
+  colours,
+  onClose,
+  children,
+}: {
+  title: string;
+  placement: "side" | "popover" | "bottom";
+  wide?: boolean;
+  colours: { background: string; text: string; muted: string };
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  const { t } = useTranslation();
+  const titleId = useId();
+  const panelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel || panel.contains(document.activeElement)) return;
+    const first = panel.querySelector<HTMLElement>("[data-panel-body] input, [data-panel-body] button:not([disabled]), [data-panel-body] select");
+    (first ?? panel.querySelector<HTMLElement>("[data-panel-close]"))?.focus();
+  }, []);
+  const position = {
+    side: `right-3 top-16 max-h-[calc(100%-5rem)] ${wide ? "w-[min(30rem,calc(100%-1.5rem))]" : "w-[min(22.5rem,calc(100%-1.5rem))]"} rounded-aw`,
+    popover: "left-1/2 top-16 w-[min(18rem,calc(100%-1.5rem))] -translate-x-1/2 rounded-aw",
+    bottom: "inset-x-0 bottom-0 max-h-[85%] rounded-t-2xl",
+  }[placement];
+  return (
+    <>
+      {/* A click beside the panel closes it; the presentation stays exactly where it is. */}
+      <div aria-hidden="true" data-panel-backdrop="" className={`absolute inset-0 z-20 ${placement === "bottom" ? "bg-black/30" : ""}`} onMouseDown={onClose} />
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        data-presenter-panel=""
+        className={`absolute z-30 flex flex-col overflow-hidden border shadow-2xl ${position}`}
+        style={{ backgroundColor: colours.background, color: colours.text, borderColor: `${colours.muted}66` }}
+      >
+        <div className="flex shrink-0 items-center gap-2 border-b py-1 pl-4 pr-1" style={{ borderColor: `${colours.muted}44` }}>
+          <h3 id={titleId} className="m-0 flex-1 text-[1rem] font-semibold">{title}</h3>
+          <button type="button" data-panel-close="" onClick={onClose} aria-label={t("common.close")} title={t("common.close")} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-aw hover:bg-black/10">
+            <X className="size-5" aria-hidden="true" />
+          </button>
+        </div>
+        <div data-panel-body="" className="min-h-0 overflow-y-auto p-4">
+          {children}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -584,7 +717,7 @@ function SettingsPanel({ prefs, setPrefs, awake }: { prefs: Prefs; setPrefs: (p:
   const at = SCALES.findIndex((s) => s >= prefs.scale);
   const step = (delta: number) => setPrefs({ scale: SCALES[Math.max(0, Math.min(SCALES.length - 1, (at < 0 ? 1 : at) + delta))]! });
   return (
-    <div className="flex flex-col gap-3 text-[0.9375rem]">
+    <div className="flex flex-col gap-2 text-[0.9375rem]">
       <div role="group" aria-labelledby={`${id}-size`} className="flex flex-wrap items-center gap-2">
         <span id={`${id}-size`}>{t("presentation.presenter.textSize")}</span>
         <button type="button" onClick={() => step(-1)} disabled={at === 0} aria-label={t("presentation.presenter.smaller")} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-aw border disabled:opacity-50">
@@ -618,7 +751,27 @@ function SettingsPanel({ prefs, setPrefs, awake }: { prefs: Prefs; setPrefs: (p:
       </label>
       {(awake === "unsupported" || awake === "failed") && <p className="m-0 max-w-prose">{t("presentation.presenter.keepAwakeUnavailable")}</p>}
       {awake === "on" && <p className="m-0">{t("presentation.presenter.keepAwakeOn")}</p>}
-      <p className="m-0 max-w-prose opacity-80">{t("presentation.presenter.keys")}</p>
+      <KeysHelp />
+    </div>
+  );
+}
+
+/** The keys, only when asked for: a presenter who knows them should not have to look at them. */
+function KeysHelp() {
+  const { t } = useTranslation();
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="flex flex-col gap-1">
+      <button type="button" aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)} className="inline-flex min-h-11 items-center gap-2 self-start rounded-aw px-2 hover:bg-black/10">
+        <CircleHelp className="size-4" aria-hidden="true" />
+        {t("presentation.presenter.keysToggle")}
+      </button>
+      {open && (
+        <p id={id} className="m-0 max-w-prose opacity-80">
+          {t("presentation.presenter.keys")}
+        </p>
+      )}
     </div>
   );
 }
@@ -713,7 +866,6 @@ function AudiencePanel({
   const others = (screens ?? []).filter((s) => !s.primary);
   return (
     <div className="flex flex-col gap-3 text-[0.9375rem]">
-      <p className="m-0 max-w-prose">{t("presentation.presenter.audienceHelp")}</p>
       {mode === "window" ? (
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={onBlank} aria-pressed={blank} className="inline-flex min-h-11 items-center gap-1 rounded-aw border px-3">
@@ -745,6 +897,7 @@ function AudiencePanel({
       {screens !== null && screens.length === 0 && <p className="m-0 max-w-prose">{t("presentation.presenter.noSecondWindow")}</p>}
       {screens !== null && screens.length === 1 && mode !== "window" && <p className="m-0 max-w-prose">{t("presentation.presenter.oneScreen")}</p>}
       {error && <p role="alert" className="m-0 text-danger">{error}</p>}
+      <p className="m-0 max-w-prose text-[0.875rem] opacity-80">{t("presentation.presenter.audienceHelp")}</p>
     </div>
   );
 }
@@ -754,13 +907,11 @@ function ScripturePanel({
   doc,
   shown,
   onShow,
-  onClose,
   colours,
 }: {
   doc: PresentationDocument;
   shown: ScriptureOverlay | null;
   onShow: (overlay: ScriptureOverlay | null) => void;
-  onClose: () => void;
   colours: { muted: string; accent: string };
 }) {
   const { t } = useTranslation();
@@ -808,14 +959,12 @@ function ScripturePanel({
         <label htmlFor={`${id}-ref`} className="text-[0.9375rem]">{t("presentation.presenter.passage")}</label>
         <input
           id={`${id}-ref`}
-          autoFocus
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={t("presentation.presenter.passageHint")}
           className="h-11 min-w-0 flex-1 basis-40 rounded-aw border border-border bg-bg px-3 text-text"
         />
         <button type="submit" className="min-h-11 rounded-aw border px-3 font-medium">{t("presentation.presenter.lookUp")}</button>
-        <button type="button" onClick={onClose} className="min-h-11 rounded-aw px-3">{t("common.close")}</button>
       </form>
       {passages.length > 0 && (
         <div role="group" aria-label={t("presentation.presenter.passagesHere")} className="flex flex-wrap gap-2">

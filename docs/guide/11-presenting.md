@@ -58,16 +58,22 @@ Click **Start Presenter View**. It adapts to your screen:
 - **Next** and **Back**, or the keys **→ / Page Down** and **← / Page Up**
   (a presentation clicker works too). **B** empties the audience screen for a
   moment; press it again to come back. **Esc** leaves.
-- The **timer** starts with the Presenter View (pause it or reset it); the
-  **clock** shows the time of day.
+- The **timer** starts with the Presenter View; click it to pause or reset
+  it. The **clock** shows the time of day.
 - **View**: larger or smaller text, a Light, Dark or Warm background for
-  you, timer and clock on or off, and **Keep the screen on** (where your
-  computer allows it; otherwise it says so).
+  you, timer and clock on or off, **Keep the screen on** (where your computer
+  allows it; otherwise it says so) and the keyboard shortcuts.
+- Scripture, Audience screen and View open as a panel **over** the view (on
+  a phone, from the ☰ menu): your notes never move. Esc or ✕ closes it.
+
+<p align="center">
+  <img src="images/presenter-view-panel.png" alt="The View panel open on the right of the Presenter View, over the speaker's notes; the slides stay where they are" width="760">
+</p>
 - Nothing can be edited here, so nothing changes by accident.
 
 ### The audience screen
 
-Click **Audience screen**:
+Click **Audience screen** (on a phone: ☰ → **Audience screen**):
 
 - With a projector or second screen connected, choose **Show on screen 2**.
   The slides fill that screen and follow you; you keep your notes on yours.

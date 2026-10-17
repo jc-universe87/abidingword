@@ -226,7 +226,10 @@
     "stopShowing": "그만 보이기",
     "backToPresenter": "발표자 보기로 돌아가기",
     "partOf": "{{reference}} · {{parts}}부분 중 {{part}}",
-    "showNextPart": "다음 부분 보이기"
+    "showNextPart": "다음 부분 보이기",
+    "timer": "타이머",
+    "menu": "발표자 보기 옵션",
+    "keysToggle": "단축키"
   },
   "audience": {
     "title": "청중 화면",

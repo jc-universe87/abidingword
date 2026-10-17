@@ -232,7 +232,10 @@
     "stopShowing": "Parar de mostrar",
     "backToPresenter": "Voltar ao modo apresentador",
     "partOf": "{{reference}} · parte {{part}} de {{parts}}",
-    "showNextPart": "Mostrar a próxima parte"
+    "showNextPart": "Mostrar a próxima parte",
+    "timer": "Cronômetro",
+    "menu": "Opções do modo apresentador",
+    "keysToggle": "Atalhos de teclado"
   },
   "audience": {
     "title": "Tela do público",

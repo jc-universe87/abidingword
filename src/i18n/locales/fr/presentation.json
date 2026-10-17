@@ -232,7 +232,10 @@
     "stopShowing": "Ne plus le montrer",
     "backToPresenter": "Revenir au mode présentateur",
     "partOf": "{{reference}} · partie {{part}} sur {{parts}}",
-    "showNextPart": "Montrer la partie suivante"
+    "showNextPart": "Montrer la partie suivante",
+    "timer": "Minuteur",
+    "menu": "Options du mode présentateur",
+    "keysToggle": "Raccourcis clavier"
   },
   "audience": {
     "title": "Écran de l’auditoire",

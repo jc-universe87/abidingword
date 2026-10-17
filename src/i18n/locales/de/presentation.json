@@ -229,7 +229,10 @@
     "stopShowing": "Nicht mehr zeigen",
     "backToPresenter": "Zurück zur Referentenansicht",
     "partOf": "{{reference}} · Teil {{part}} von {{parts}}",
-    "showNextPart": "Nächsten Teil zeigen"
+    "showNextPart": "Nächsten Teil zeigen",
+    "timer": "Zeit",
+    "menu": "Optionen der Referentenansicht",
+    "keysToggle": "Tastenkürzel"
   },
   "audience": {
     "title": "Bildschirm für Zuhörer",
