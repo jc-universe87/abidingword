@@ -20,6 +20,7 @@ import { sectionTitle } from "./builtinText";
 import { useStudyFocus } from "./StudyFocus";
 import { StudyDetailsPanel } from "./StudyDetails";
 import { StudyPassages } from "./StudyPassages";
+import { lastView, rememberView, type StudyView } from "./studyView";
 import { TeachingView } from "@/features/teaching/TeachingView";
 
 interface StudyEditorProps {
@@ -65,7 +66,12 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
   // The kind the findings are narrowed to, in the study's own notes and in every section.
   const [kindFilter, setKindFilter] = useState<FindingType | null>(null);
   // The study itself, or what it leads to: teaching preparations (v0.16).
-  const [view, setView] = useState<"study" | "teaching">("study");
+  // Remembered per study, so a study opens again on the side last worked on.
+  const [view, setViewState] = useState<StudyView>(() => lastView(studyId));
+  const setView = (next: StudyView) => {
+    setViewState(next);
+    rememberView(studyId, next);
+  };
   const toggle = useRef<HTMLButtonElement>(null);
   const article = useRef<HTMLElement>(null);
   const openedId = detail.data?.study.id;

@@ -203,7 +203,7 @@
     "updateFailed": "Etwas hat nicht geklappt: siehe unten",
     "updatesOff": "In dieser Version nicht enthalten",
     "bibleTexts": "Übersetzungen hinzufügen oder entfernen",
-    "templates": "Gliederungen für neue Bibelstudien",
+    "templates": "Startstrukturen für Bibelstudium und Bibellehre",
     "assistantOff": "Aus",
     "assistantOn": "An · {{service}}",
     "about": "Version {{version}} · wo deine Daten liegen"

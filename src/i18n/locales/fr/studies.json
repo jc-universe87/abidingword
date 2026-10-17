@@ -380,7 +380,6 @@
     "formLabel": "Nouvelle étude",
     "studyAs": "Approche d’étude",
     "subjectRequired": "Saisissez ce que vous souhaitez étudier.",
-    "teachingTitle": "{{passage}} — Enseignement",
     "more": "Plus d’options",
     "placeholder": {
       "word": "p. ex. justice, ou δικαιοσύνη",
@@ -601,7 +600,8 @@
     "confirmLabel": "Supprimer {{name}} ?",
     "confirm": "Supprimer le modèle « {{name}} » ? Les études déjà créées à partir de lui ne sont pas concernées.",
     "deleteTemplate": "Supprimer le modèle",
-    "new": "Nouveau modèle…"
+    "new": "Nouveau modèle…",
+    "teachingListLabel": "Formes d’enseignement"
   },
   "templateEditor": {
     "opening": "Ouverture du modèle…",

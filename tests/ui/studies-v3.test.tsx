@@ -273,7 +273,11 @@ describe("templates", () => {
     const { user } = await renderApp(api);
     await openSettingsSection(user, "Templates");
     const templates = await screen.findByRole("list", { name: "Study templates" });
-    expect(within(templates).getAllByRole("listitem")).toHaveLength(6);
+    // The old "Teaching / Sermon" study template is not offered: teaching is prepared in Bible Teaching.
+    expect(within(templates).getAllByRole("listitem")).toHaveLength(5);
+    expect(within(templates).queryByText("Teaching / Sermon Preparation")).not.toBeInTheDocument();
+    const formats = screen.getByRole("list", { name: "Bible Teaching formats" });
+    expect(within(formats).getByText(/Starts with: Welcome · Bible story · Question · Activity · Prayer/)).toBeInTheDocument();
     const passage = within(templates).getByText("Passage Study").closest("li")!;
     await user.click(within(passage as HTMLElement).getByRole("button", { name: "Duplicate and customise" }));
 

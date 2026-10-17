@@ -376,7 +376,6 @@
     "formLabel": "새 성경공부",
     "studyAs": "공부 방법",
     "subjectRequired": "공부하려는 내용을 입력하세요.",
-    "teachingTitle": "{{passage}} — 가르침",
     "more": "추가 옵션",
     "placeholder": {
       "word": "예: 의, 또는 δικαιοσύνη",
@@ -587,7 +586,8 @@
     "confirmLabel": "{{name}}을(를) 삭제할까요?",
     "confirm": "“{{name}}” 공부 틀을 삭제할까요? 이미 이 틀로 만든 성경공부에는 영향이 없습니다.",
     "deleteTemplate": "공부 틀 삭제",
-    "new": "새 공부 틀…"
+    "new": "새 공부 틀…",
+    "teachingListLabel": "가르침 형식"
   },
   "templateEditor": {
     "opening": "공부 틀을 여는 중…",

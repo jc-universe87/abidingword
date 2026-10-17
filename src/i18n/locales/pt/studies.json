@@ -380,7 +380,6 @@
     "formLabel": "Novo estudo",
     "studyAs": "Abordagem do estudo",
     "subjectRequired": "Digite o que você gostaria de estudar.",
-    "teachingTitle": "{{passage}} — Ensino",
     "more": "Mais opções",
     "placeholder": {
       "word": "ex.: justiça, ou δικαιοσύνη",
@@ -601,7 +600,8 @@
     "confirmLabel": "Excluir {{name}}?",
     "confirm": "Excluir o modelo “{{name}}”? Os estudos já criados a partir dele não são afetados.",
     "deleteTemplate": "Excluir modelo",
-    "new": "Novo modelo…"
+    "new": "Novo modelo…",
+    "teachingListLabel": "Formatos de ensino"
   },
   "templateEditor": {
     "opening": "Abrindo modelo…",

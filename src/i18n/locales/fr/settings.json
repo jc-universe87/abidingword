@@ -203,7 +203,7 @@
     "updateFailed": "Un problème est survenu : voir ci-dessous",
     "updatesOff": "Non incluses dans cette version",
     "bibleTexts": "Ajouter ou retirer des traductions",
-    "templates": "Plans de départ pour les nouvelles études",
+    "templates": "Structures de départ pour l’étude et l’enseignement",
     "assistantOff": "Désactivé",
     "assistantOn": "Activé · {{service}}",
     "about": "Version {{version}} · où sont vos données"

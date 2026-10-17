@@ -203,7 +203,7 @@
     "updateFailed": "Algo salió mal: mira abajo",
     "updatesOff": "No incluidas en esta versión",
     "bibleTexts": "Añadir o quitar traducciones",
-    "templates": "Esquemas iniciales para nuevos estudios",
+    "templates": "Estructuras de partida para el estudio y la enseñanza",
     "assistantOff": "Desactivado",
     "assistantOn": "Activado · {{service}}",
     "about": "Versión {{version}} · dónde están tus datos"

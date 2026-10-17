@@ -378,7 +378,6 @@
     "formLabel": "New study",
     "studyAs": "Study approach",
     "subjectRequired": "Type what you would like to study.",
-    "teachingTitle": "{{passage}} — Teaching",
     "more": "More options",
     "placeholder": {
       "word": "e.g. righteousness, or δικαιοσύνη",
@@ -594,7 +593,8 @@
     "confirmLabel": "Delete {{name}}?",
     "confirm": "Delete the template “{{name}}”? Studies already made from it are not affected.",
     "deleteTemplate": "Delete template",
-    "new": "New template…"
+    "new": "New template…",
+    "teachingListLabel": "Bible Teaching formats"
   },
   "templateEditor": {
     "opening": "Opening template…",

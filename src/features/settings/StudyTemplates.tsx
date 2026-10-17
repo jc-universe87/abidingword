@@ -8,8 +8,21 @@ import { useApi } from "@/lib/ApiContext";
 import { localizedSections, templateDescription, templateName } from "@/features/studies/builtinText";
 import { studyTypeLabel } from "@/features/studies/labels";
 import { startsWith, type StudyTemplate } from "@/types/studies";
+import { TEACHING_KINDS } from "@/types/teaching";
+import { STARTING_STEPS, canvasShape, startingStepTitle, teachingKindLabel } from "@/features/teaching/labels";
 
-/** Settings → Study Templates: built-in and user templates. */
+/**
+ * Built-in templates no longer offered: the old "Teaching / Sermon" study is
+ * now Bible Teaching. Kept installed so older studies keep their translated
+ * headings; not listed.
+ */
+export const RETIRED_TEMPLATES = new Set(["teaching-study"]);
+
+/**
+ * Settings → Templates: reusable starting structures, for a Bible study
+ * (its parts; built-in and the person's own) and for a Bible teaching (each
+ * format's shape, and the steps a lesson starts with).
+ */
 export function StudyTemplates({ onEdit, version = 0 }: { onEdit: (templateId: string | null) => void; version?: number }) {
   const { t } = useTranslation();
   const api = useApi();
@@ -105,17 +118,38 @@ export function StudyTemplates({ onEdit, version = 0 }: { onEdit: (templateId: s
     );
   };
 
-  const list = templates.data ?? [];
+  const list = (templates.data ?? []).filter((template) => !(template.isBuiltin && RETIRED_TEMPLATES.has(template.key)));
+  const heading = "m-0 text-[1rem] font-semibold text-text-strong";
   return (
-    <div className="flex flex-col gap-4">
-      <ul aria-label={t("studies.templates.listLabel")} className="m-0 list-none border-t border-border-subtle p-0">
-        {list.map(row)}
-      </ul>
-      <div className="flex items-center gap-1">
-        <Button onClick={() => onEdit(null)}>{t("studies.templates.new")}</Button>
-        <HelpTip name={t("settings.help.about", { topic: t("settings.sections.templates") })}>{t("studies.templates.intro")}</HelpTip>
-      </div>
-      {error && <p role="alert" className="m-0 text-danger">{error}</p>}
+    <div className="flex flex-col gap-5">
+      <section aria-labelledby="templates-study" className="flex flex-col gap-3">
+        <div className="flex items-center gap-1">
+          <h3 id="templates-study" className={heading}>{t("studies.view.study")}</h3>
+          <HelpTip name={t("settings.help.about", { topic: t("settings.sections.templates") })}>{t("studies.templates.intro")}</HelpTip>
+        </div>
+        <ul aria-label={t("studies.templates.listLabel")} className="m-0 list-none border-t border-border-subtle p-0">
+          {list.map(row)}
+        </ul>
+        <div>
+          <Button onClick={() => onEdit(null)}>{t("studies.templates.new")}</Button>
+        </div>
+        {error && <p role="alert" className="m-0 text-danger">{error}</p>}
+      </section>
+      <section aria-labelledby="templates-teaching" className="flex flex-col gap-3">
+        <h3 id="templates-teaching" className={heading}>{t("studies.view.teaching")}</h3>
+        <ul aria-label={t("studies.templates.teachingListLabel")} className="m-0 list-none border-t border-border-subtle p-0">
+          {TEACHING_KINDS.map((kind) => (
+            <li key={kind} className="flex flex-col gap-0.5 border-b border-border-subtle py-3">
+              <p className="m-0 font-semibold text-text-strong">{teachingKindLabel(t, kind)}</p>
+              <p className="m-0 text-[0.9375rem] text-text-muted">
+                {t(`studies.teaching.format.${canvasShape(kind)}`)}
+                {STARTING_STEPS[kind] &&
+                  ` ${t("studies.teaching.startsWith", { steps: STARTING_STEPS[kind]!.map((step) => startingStepTitle(t, kind, step.key)).join(t("common.listSeparator")) })}`}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }

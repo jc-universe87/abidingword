@@ -378,7 +378,6 @@
     "formLabel": "Neues Studium",
     "studyAs": "Art des Studiums",
     "subjectRequired": "Gib ein, was du studieren möchtest.",
-    "teachingTitle": "{{passage}} – Lehre",
     "more": "Weitere Optionen",
     "placeholder": {
       "word": "z. B. Gerechtigkeit oder δικαιοσύνη",
@@ -594,7 +593,8 @@
     "confirmLabel": "{{name}} löschen?",
     "confirm": "Die Vorlage „{{name}}“ löschen? Bibelstudien, die bereits damit erstellt wurden, bleiben unverändert.",
     "deleteTemplate": "Vorlage löschen",
-    "new": "Neue Vorlage …"
+    "new": "Neue Vorlage …",
+    "teachingListLabel": "Formen der Bibellehre"
   },
   "templateEditor": {
     "opening": "Vorlage wird geöffnet …",

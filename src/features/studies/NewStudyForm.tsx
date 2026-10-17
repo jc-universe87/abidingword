@@ -9,6 +9,7 @@ import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import type { StudyType } from "@/types/studies";
 import { isPassageCentred } from "./labels";
+import { openInTeaching } from "./studyView";
 
 /** An example of what to type, for the kind of study. */
 function placeholderFor(t: TFunction, type: StudyType): string {
@@ -28,7 +29,12 @@ function placeholderFor(t: TFunction, type: StudyType): string {
   }
 }
 
-/** How the user chooses to study: a built-in kind of study, or one of their own templates. */
+/**
+ * How the user chooses to begin: a built-in kind of study, one of their own
+ * templates, or preparing a teaching. A teaching is prepared from a study of
+ * its passage (Bible Teaching is derived from Bible Study): "teaching" makes
+ * a passage study and opens its Bible Teaching side.
+ */
 type Approach = StudyType | "mine";
 
 /** Offered straight away; the rest are under "More options". */
@@ -74,7 +80,7 @@ export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false
   const own = list.filter((template) => !template.isBuiltin);
   const chosenOwn = own.find((template) => template.id === (mine ?? own[0]?.id));
   // A study of one's own template is the kind of study that template is for.
-  const type: StudyType = approach === "mine" ? (chosenOwn?.studyType ?? "custom") : approach;
+  const type: StudyType = approach === "mine" ? (chosenOwn?.studyType ?? "custom") : approach === "teaching" ? "passage" : approach;
   const aboutAPassage = isPassageCentred(type);
 
   const submit = async (event: FormEvent) => {
@@ -93,7 +99,7 @@ export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false
         const ref = await api.referenceParse(text);
         primary = ref.canonical;
         const label = referenceLabel(ref);
-        derived = type === "teaching" ? t("studies.newStudy.teachingTitle", { passage: label }) : label;
+        derived = label;
       }
       // Built-in kinds of study use their own template; "No template" and a
       // template of one's own are the other two ways in.
@@ -102,7 +108,7 @@ export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false
           ? chosenOwn?.id
           : approach === "custom"
             ? undefined
-            : list.find((template) => template.isBuiltin && template.studyType === approach)?.id;
+            : list.find((template) => template.isBuiltin && template.studyType === type)?.id;
       const detail = await api.studyCreate({
         projectId: typeof projectId === "string" ? projectId : await projectId(),
         title: customTitle.trim() || derived,
@@ -112,6 +118,7 @@ export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false
       });
       setSubject("");
       setCustomTitle("");
+      if (approach === "teaching") openInTeaching(detail.study.id);
       onCreated({ id: detail.study.id, projectId: detail.study.projectId });
     } catch (e) {
       setError(toApiError(e).message);

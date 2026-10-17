@@ -380,7 +380,6 @@
     "formLabel": "Nuevo estudio",
     "studyAs": "Enfoque del estudio",
     "subjectRequired": "Escribe lo que te gustaría estudiar.",
-    "teachingTitle": "{{passage}} — Enseñanza",
     "more": "Más opciones",
     "placeholder": {
       "word": "p. ej. justicia, o δικαιοσύνη",
@@ -601,7 +600,8 @@
     "confirmLabel": "¿Eliminar {{name}}?",
     "confirm": "¿Eliminar la plantilla “{{name}}”? Los estudios ya creados a partir de ella no se ven afectados.",
     "deleteTemplate": "Eliminar plantilla",
-    "new": "Nueva plantilla…"
+    "new": "Nueva plantilla…",
+    "teachingListLabel": "Formatos de enseñanza"
   },
   "templateEditor": {
     "opening": "Abriendo la plantilla…",

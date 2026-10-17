@@ -113,7 +113,8 @@ function Form({ templateId, initial, onClose }: FormProps) {
         <label className="flex flex-col gap-1">
           <span className="font-medium text-text-strong">{t("studies.templateEditor.meantFor")}</span>
           <select value={studyType} onChange={(e) => setStudyType(e.target.value as StudyType)} className={field}>
-            {STUDY_TYPES.map((type) => (
+            {/* A teaching is prepared in Bible Teaching now; "teaching" stays only for a template already meant for it. */}
+            {STUDY_TYPES.filter((type) => type !== "teaching" || studyType === "teaching").map((type) => (
               <option key={type} value={type}>{studyTypeLabel(t, type)}</option>
             ))}
           </select>

@@ -203,7 +203,7 @@
     "updateFailed": "문제가 생겼습니다. 아래를 보세요",
     "updatesOff": "이 버전에는 없음",
     "bibleTexts": "번역본 추가 또는 삭제",
-    "templates": "새 성경공부의 기본 틀",
+    "templates": "성경공부와 가르침의 시작 구성",
     "assistantOff": "꺼짐",
     "assistantOn": "켜짐 · {{service}}",
     "about": "버전 {{version}} · 데이터 저장 위치"

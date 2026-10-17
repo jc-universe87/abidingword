@@ -51,18 +51,35 @@ describe("project page", () => {
 });
 
 describe("creating a study", () => {
-  it("derives the title for a teaching study and keeps its template separate from its type", async () => {
+  it("prepares a teaching from a study of its passage, and opens it on the Bible Teaching side", async () => {
     const { api } = await withProject();
     const { user } = await renderApp(api);
     await openProject(user);
     await user.click(screen.getByRole("button", { name: "Teaching preparation" }));
     await user.type(ask(), "John 15:1-11");
     await user.click(screen.getByRole("button", { name: "Create study" }));
-    expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("John 15:1–11 — Teaching");
+    // Bible Teaching is derived from Bible Study: a passage study, with its simple template…
+    expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("John 15:1–11");
     const study = api.state.studies[0]!;
-    expect(study.studyType).toBe("teaching");
-    expect(study.templateId).toBe(api.state.templates.find((t) => t.studyType === "teaching" && t.isBuiltin)!.id);
+    expect(study.studyType).toBe("passage");
+    expect(study.templateId).toBe(api.state.templates.find((t) => t.key === "passage-study")!.id);
     expect(api.state.passages).toHaveLength(1);
+    // …opened where the teaching is prepared: choose a format and start.
+    expect(screen.getByRole("button", { name: "Bible Teaching", pressed: true })).toBeInTheDocument();
+    expect(await screen.findByRole("form", { name: "Prepare a teaching from this study" })).toBeInTheDocument();
+  });
+
+  it("opens a study again on the side last worked on", async () => {
+    const { api, project } = await withProject();
+    await api.studyCreate({ projectId: project.id, title: "Psalm 23", primaryPassage: "PSA.23" });
+    const { user } = await renderApp(api);
+    await openProject(user);
+    await user.click(await screen.findByRole("button", { name: /^Psalm 23/ }));
+    await user.click(await screen.findByRole("button", { name: "Bible Teaching" }));
+    const { cleanup } = await import("@testing-library/react");
+    cleanup();
+    await renderApp(api);
+    expect(await screen.findByRole("button", { name: "Bible Teaching", pressed: true })).toBeInTheDocument();
   });
 
   it("uses the typed text as the title of a topic study, and a custom title when given", async () => {

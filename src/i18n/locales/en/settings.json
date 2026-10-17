@@ -203,7 +203,7 @@
     "updateFailed": "Something went wrong: see below",
     "updatesOff": "Not included in this build",
     "bibleTexts": "Add or remove translations",
-    "templates": "Starting outlines for new studies",
+    "templates": "Starting structures for Bible Study and Bible Teaching",
     "assistantOff": "Off",
     "assistantOn": "On · {{service}}",
     "about": "Version {{version}} · where your data is kept"
