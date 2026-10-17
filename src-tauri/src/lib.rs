@@ -171,6 +171,7 @@ pub fn run() {
             commands::assistant::assistant_settings_set,
             commands::assistant::assistant_key_set,
             commands::assistant::assistant_test,
+            commands::assistant::assistant_search_test,
             commands::assistant::assistant_preview,
             commands::assistant::assistant_ask,
             commands::assistant::assistant_find_images,

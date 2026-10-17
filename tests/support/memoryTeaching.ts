@@ -29,7 +29,7 @@ export interface TeachingState {
   preparations: StoredPrep[];
   assistant: {
     config: AssistantConfig;
-    /** provider kind or "search" → key (never returned). */
+    /** provider kind, or "search:<kind>" → key (never returned). */
     keys: Map<string, string>;
     /** What the assistant answers, in order (a test sets these). */
     replies: (AssistReply | ApiError)[];
@@ -40,6 +40,7 @@ export interface TeachingState {
     findCalls: string[];
     generated: string[];
     tested: number;
+    searchTested: number;
     /** When set, asking, finding and making images wait for it: a test can see the waiting state. */
     hold: Promise<void> | null;
   };
@@ -74,6 +75,7 @@ export function newTeachingState(): TeachingState {
       findCalls: [],
       generated: [],
       tested: 0,
+      searchTested: 0,
       hold: null,
     },
   };
@@ -110,6 +112,7 @@ type TeachingApi = Pick<
   | "assistantSettingsSet"
   | "assistantKeySet"
   | "assistantTest"
+  | "assistantSearchTest"
   | "assistantPreview"
   | "assistantAsk"
   | "assistantFindImages"
@@ -117,6 +120,7 @@ type TeachingApi = Pick<
   | "assistantGenerateImage"
 >;
 
+const SEARCH_NEEDS_KEY = new Set(["brave", "tavily", "exa", "serpapi"]);
 const NEEDS_KEY = new Set(["openai", "anthropic", "google", "xai", "perplexity", "deepseek", "qwen"]);
 const LABELS: Record<string, string> = {
   openai: "OpenAI",
@@ -173,7 +177,7 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
     return {
       config: { ...c },
       hasKey: state.assistant.keys.has(c.provider),
-      hasSearchKey: state.assistant.keys.has("search"),
+      hasSearchKey: SEARCH_NEEDS_KEY.has(c.search) && state.assistant.keys.has(`search:${c.search}`),
       remote: remote(c),
       // As the core: the image service's key is needed too, when that service needs one.
       canGenerateImages:
@@ -348,10 +352,18 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
       return settings();
     },
     assistantKeySet: async (which, key) => {
-      const name = which === "search" ? "search" : which === "image" ? imageProvider(state.assistant.config) : state.assistant.config.provider;
+      const name = which === "search" ? `search:${state.assistant.config.search}` : which === "image" ? imageProvider(state.assistant.config) : state.assistant.config.provider;
       if (key.trim()) state.assistant.keys.set(name, key.trim());
       else state.assistant.keys.delete(name);
       return settings();
+    },
+    assistantSearchTest: async () => {
+      state.assistant.searchTested += 1;
+      const c = state.assistant.config;
+      if (c.search === "none") throw new ApiError("assistant", "Real stories can only be found and checked with a search service, which is not set up. You can add one in Settings, or ask for an invented illustration instead.");
+      if (SEARCH_NEEDS_KEY.has(c.search) && !state.assistant.keys.has(`search:${c.search}`))
+        throw new ApiError("assistant", "The search service needs its key. You can add it in Settings.");
+      return 3;
     },
     assistantTest: async () => {
       state.assistant.tested += 1;

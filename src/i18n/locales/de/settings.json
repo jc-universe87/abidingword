@@ -69,18 +69,20 @@
     "addressHint": "Leer lassen, um die übliche Adresse des Dienstes zu verwenden. Nur nötig für einen anderen Server oder ein Programm auf einem anderen Computer.",
     "key": "Schlüssel",
     "keyHint": "Wird im Passwortspeicher dieses Computers aufbewahrt, nie in deinen Bibelstudien, und nicht wieder angezeigt.",
-    "keyKept": "Ein Schlüssel ist auf diesem Computer gespeichert.",
     "keyKeptPlaceholder": "Schlüssel gespeichert (zum Ersetzen eingeben)",
     "keySave": "Schlüssel speichern",
     "keyRemove": "Schlüssel entfernen",
     "keySaved": "Der Schlüssel ist auf diesem Computer gespeichert.",
     "keyRemoved": "Der Schlüssel wurde entfernt.",
     "search": "Echte Geschichten recherchieren",
-    "searchHint": "Der KI-Assistent kann Ideen vorschlagen, erinnert sich aber womöglich falsch an echte Ereignisse. Mit einem Suchdienst sucht Abiding Word nach echten Quellen im Internet, damit du eine Geschichte prüfen kannst, bevor du sie verwendest.",
+    "searchHint": "Abiding Word fragt einen Suchdienst nach Webseiten zu echten Geschichten und zeigt sie dir mit ihren Links. Ein Suchdienst findet nur Seiten – er entscheidet nicht, was wahr ist. Lies die Quellen, bevor du eine Geschichte verwendest.",
     "searchKinds": {
-      "none": "Aus (keine echten Geschichten)",
+      "none": "Aus",
       "brave": "Brave Search",
-      "searxng": "SearXNG (braucht eine Serveradresse)"
+      "searxng": "SearXNG",
+      "tavily": "Tavily",
+      "exa": "Exa",
+      "serpapi": "SerpApi"
     },
     "searchAddress": "SearXNG-Adresse",
     "searchKey": "Such-Schlüssel",
@@ -93,7 +95,6 @@
     "saved": "Gespeichert.",
     "test": "Verbindung prüfen",
     "testOk": "Verbunden. Der Assistent hat geantwortet und ist bereit.",
-    "offHint": "Schalte den KI-Assistenten ein, um einen Dienst auszuwählen und die Verbindung zu prüfen.",
     "turnedOn": "Der KI-Assistent ist eingeschaltet.",
     "turnedOff": "Der KI-Assistent ist ausgeschaltet.",
     "providerGroups": {
@@ -142,22 +143,9 @@
       "pentecostal": "pfingstlich",
       "none": "keine bestimmte Tradition"
     },
-    "modelSuggested": "Vorgeschlagenes Modell. Du kannst es ändern.",
     "modelsLink": "Aktuelle Modelle von {{service}} ansehen",
     "modelsLocal": "Modelle ansehen, die du für {{service}} herunterladen kannst",
-    "searchAdvanced": "Andere (für Fortgeschrittene)",
-    "brave": {
-      "title": "Was ist Brave Search, und wie richte ich es ein?",
-      "what": "Brave Search ist eine Internetsuche. Abiding Word kann ihren Suchdienst für Programme (die „Search API“) nutzen, um Quellen zu finden. Dafür brauchst du ein kostenloses oder bezahltes Konto bei Brave und einen Schlüssel.",
-      "step1": "Öffne die Seite der Brave Search API und leg ein Konto an.",
-      "step2": "Wähle einen Tarif (eventuell gibt es einen kostenlosen), erstelle dort einen Schlüssel und kopiere ihn.",
-      "step3": "Füge ihn unten in das Feld für den Suchschlüssel ein und drücke „Schlüssel speichern“.",
-      "open": "Seite der Brave Search API öffnen",
-      "cost": "Brave verlangt eventuell Zahlungsdaten und begrenzt, wie viele Suchen du pro Monat machen kannst."
-    },
-    "searxng": {
-      "what": "SearXNG ist ein unabhängiger, offener Suchdienst, den manche selbst betreiben. Du brauchst die Adresse eines SearXNG-Servers, der Suchen durch Programme erlaubt („JSON“-Ergebnisse); es hier nur auszuwählen genügt nicht. Wenn dir das nichts sagt, ist Brave Search die einfachere Wahl."
-    },
+    "searchAdvanced": "Weitere (für Fortgeschrittene)",
     "imagesHelp": "„Bilder finden“ sucht auf Wikimedia Commons nach frei lizenzierten Bildern; gesendet werden nur deine Suchwörter. „Bilder erstellen“ lässt einen KI-Bilddienst ein Bild zeichnen, das immer als vom Assistenten erstellt gekennzeichnet ist. Nicht jeder KI-Dienst kann Bilder erstellen.",
     "imageService": "Bilder erstellen mit",
     "imageServices": {
@@ -171,7 +159,40 @@
     },
     "imageKey": "OpenAI-Schlüssel für Bilder",
     "imageKeyMissing": "Noch kein OpenAI-Schlüssel für Bilder gespeichert: Füge ihn unten ein und drücke „Schlüssel speichern“.",
-    "imagesLeave": "Bildbeschreibungen werden über das Internet an OpenAI gesendet, auch wenn dein Schreibdienst das nicht tut."
+    "imagesLeave": "Bildbeschreibungen werden über das Internet an OpenAI gesendet, auch wenn dein Schreibdienst das nicht tut.",
+    "searchShort": {
+      "brave": "einfache allgemeine Websuche",
+      "tavily": "Suche, die für KI-Assistenten gemacht ist",
+      "exa": "findet passende Quellen und Textstellen",
+      "searxng": "selbst betrieben, braucht eine Serveradresse",
+      "serpapi": "Google-Ergebnisse über SerpApi"
+    },
+    "searchOption": "{{name}} – {{short}}",
+    "searchRecommended": "Empfohlen",
+    "searchWhat": {
+      "brave": "Brave Search ist eine unabhängige Websuche. Ihr Suchdienst für Programme (die „Search API“) liefert gewöhnliche Web-Ergebnisse mit einem kurzen Auszug.",
+      "tavily": "Tavily ist ein Suchdienst, der für KI-Assistenten gemacht ist. Er liefert Webseiten mit einem gut lesbaren Auszug, sodass der KI-Assistent zeigen kann, was eine Seite sagt.",
+      "exa": "Exa sucht nach Bedeutung, nicht nur nach Wörtern. Es liefert Seiten mit den Textstellen, die am besten zu deiner Frage passen.",
+      "searxng": "SearXNG ist ein offenes Suchprogramm, das manche auf ihrem eigenen Server betreiben. Du brauchst die Adresse eines SearXNG-Servers, der Suchen von Programmen erlaubt („JSON“-Ergebnisse). Wenn dir das nichts sagt, wähle lieber einen der empfohlenen Dienste.",
+      "serpapi": "SerpApi liefert die Suchergebnisse von Google für Programme. Es ist ein kostenpflichtiger Dienst mit einem kleinen kostenlosen Kontingent und eher für Leute gedacht, die ihn schon nutzen."
+    },
+    "searchSetup": {
+      "title": "Wie richte ich {{service}} ein?",
+      "step1": "Öffne die Seite von {{service}} unten und melde dich an oder erstelle ein Konto.",
+      "step2": "Erstelle dort einen Schlüssel (er heißt vielleicht „API key“) und kopiere ihn.",
+      "step3": "Füge ihn in das Feld für den Suchschlüssel ein und klicke auf „Schlüssel speichern“.",
+      "step4": "Klicke auf „Suche prüfen“.",
+      "open": "Seite von {{service}} öffnen",
+      "cost": "Suchdienste bieten meist ein kleines kostenloses Kontingent pro Monat und berechnen mehr. Das regelst du auf ihrer Website, nicht in Abiding Word."
+    },
+    "searchTest": "Suche prüfen",
+    "searchTesting": "Der Suchdienst wird gefragt …",
+    "searchTestOk": "Der Suchdienst hat geantwortet und Webseiten gefunden.",
+    "searchTestEmpty": "Der Suchdienst hat geantwortet, aber bei einer Testsuche nichts gefunden.",
+    "searchWhy": {
+      "noKey": "Um die Suche zu prüfen, füge zuerst ihren Schlüssel ein und wähle „Schlüssel speichern“.",
+      "noAddress": "Um die Suche zu prüfen, gib zuerst die SearXNG-Adresse ein und speichere."
+    }
   },
   "jumpTo": "Zu einem Bereich springen",
   "summary": {

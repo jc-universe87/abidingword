@@ -696,8 +696,8 @@
       "remove": "Remove from this teaching"
     },
     "standing": {
-      "verified": "Two independent sites in the search results report it (read them before using it)",
-      "unverified": "Not checked: only one source. Please check before you use it.",
+      "verified": "Sources found: two independent sites in the search results report it. Source quality varies, so read them before you use it.",
+      "unverified": "Needs checking: only one source was found. Read it before you use it.",
       "hypothetical": "Invented example, not a real event",
       "found": "Found image · {{licence}}",
       "generated": "Made by the assistant: an illustration, not a photograph",

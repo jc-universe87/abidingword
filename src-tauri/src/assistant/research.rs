@@ -61,34 +61,55 @@ pub fn site_of(url: &str) -> Option<String> {
     Some(labels[n.saturating_sub(keep)..].join("."))
 }
 
-/// A search request for the configured service.
+fn no_search_key() -> AppError {
+    AppError::Assistant(UserMessage::new(
+        "assistant.noSearchKey",
+        "The search service needs its key. You can add it in Settings.",
+    ))
+}
+
+/// A search request for the configured service. Each service only finds
+/// candidate web pages: nothing here, or in what a service returns, decides
+/// whether a story is true.
 pub fn search_call(
     config: &AssistantConfig,
     key: Option<&str>,
     query: &str,
 ) -> AppResult<HttpCall> {
     let q = encode(query);
+    let key = || key.filter(|k| !k.is_empty()).ok_or_else(no_search_key);
+    let json = ("accept".to_string(), "application/json".to_string());
     match config.search {
         SearchKind::None => Err(no_search()),
-        SearchKind::Brave => {
-            let key = key.ok_or_else(|| {
-                AppError::Assistant(UserMessage::new(
-                    "assistant.noSearchKey",
-                    "The search service needs its key. You can add it in Settings.",
-                ))
-            })?;
-            Ok(HttpCall {
-                method: Method::Get,
-                url: format!(
-                    "https://api.search.brave.com/res/v1/web/search?q={q}&count={RESULTS_PER_QUERY}"
-                ),
-                headers: vec![
-                    ("accept".into(), "application/json".into()),
-                    ("x-subscription-token".into(), key.into()),
-                ],
-                body: None,
-            })
-        }
+        SearchKind::Brave => Ok(HttpCall {
+            method: Method::Get,
+            url: format!(
+                "https://api.search.brave.com/res/v1/web/search?q={q}&count={RESULTS_PER_QUERY}"
+            ),
+            headers: vec![json, ("x-subscription-token".into(), key()?.into())],
+            body: None,
+        }),
+        SearchKind::Tavily => Ok(HttpCall {
+            method: Method::Post,
+            url: "https://api.tavily.com/search".into(),
+            headers: vec![json, ("authorization".into(), format!("Bearer {}", key()?))],
+            body: Some(serde_json::json!({
+                "query": query,
+                "max_results": RESULTS_PER_QUERY,
+                "search_depth": "basic",
+                "include_answer": false,
+            })),
+        }),
+        SearchKind::Exa => Ok(HttpCall {
+            method: Method::Post,
+            url: "https://api.exa.ai/search".into(),
+            headers: vec![json, ("x-api-key".into(), key()?.into())],
+            body: Some(serde_json::json!({
+                "query": query,
+                "numResults": RESULTS_PER_QUERY,
+                "contents": { "highlights": true },
+            })),
+        }),
         SearchKind::Searxng => {
             if config.search_url.is_empty() {
                 return Err(no_search());
@@ -96,10 +117,21 @@ pub fn search_call(
             Ok(HttpCall {
                 method: Method::Get,
                 url: format!("{}/search?q={q}&format=json", config.search_url),
-                headers: vec![("accept".into(), "application/json".into())],
+                headers: vec![json],
                 body: None,
             })
         }
+        // SerpApi takes its key only in the address. The transport logs the
+        // host alone and never follows a redirect, so it goes nowhere else.
+        SearchKind::Serpapi => Ok(HttpCall {
+            method: Method::Get,
+            url: format!(
+                "https://serpapi.com/search.json?engine=google&q={q}&num={RESULTS_PER_QUERY}&api_key={}",
+                encode(key()?)
+            ),
+            headers: vec![json],
+            body: None,
+        }),
     }
 }
 
@@ -150,30 +182,44 @@ pub fn parse_results(kind: SearchKind, reply: &HttpReply) -> AppResult<Vec<Exter
             "The search service could not answer. Nothing was found or checked.",
         ))
     })?;
+    let list = |v: &Value| v.as_array().cloned().unwrap_or_default();
     let items = match kind {
-        SearchKind::Brave => value["web"]["results"]
-            .as_array()
-            .cloned()
-            .unwrap_or_default(),
-        SearchKind::Searxng => value["results"].as_array().cloned().unwrap_or_default(),
+        SearchKind::Brave => list(&value["web"]["results"]),
+        SearchKind::Tavily | SearchKind::Exa | SearchKind::Searxng => list(&value["results"]),
+        SearchKind::Serpapi => list(&value["organic_results"]),
         SearchKind::None => Vec::new(),
     };
     Ok(items
         .iter()
         .filter_map(|item| {
-            let url = item["url"].as_str()?.trim().to_string();
+            let url = item["url"]
+                .as_str()
+                .or_else(|| item["link"].as_str())?
+                .trim()
+                .to_string();
             if !crate::db::teaching::is_web_address(&url) {
                 return None;
             }
+            // Each service names its excerpt differently; Exa gives passages.
+            let highlights = item["highlights"].as_array().map(|h| {
+                h.iter()
+                    .filter_map(Value::as_str)
+                    .collect::<Vec<_>>()
+                    .join(" … ")
+            });
             let excerpt = item["description"]
                 .as_str()
                 .or_else(|| item["content"].as_str())
-                .unwrap_or("");
+                .or_else(|| item["snippet"].as_str())
+                .map(String::from)
+                .or(highlights)
+                .or_else(|| item["text"].as_str().map(String::from))
+                .unwrap_or_default();
             Some(ExternalSource {
                 title: truncate(&plain(item["title"].as_str().unwrap_or("")), 300),
                 site: site_of(&url).unwrap_or_default(),
                 url,
-                excerpt: truncate(&plain(excerpt), 600),
+                excerpt: truncate(&plain(&excerpt), 600),
             })
         })
         .take(RESULTS_PER_QUERY)
@@ -402,6 +448,92 @@ mod tests {
         assert_eq!(results[0].title, "A story");
         assert_eq!(results[0].excerpt, "It & more");
         assert_eq!(results[0].site, "example.org");
+    }
+
+    fn reply(value: Value) -> HttpReply {
+        HttpReply {
+            status: 200,
+            body: serde_json::to_vec(&value).unwrap(),
+        }
+    }
+
+    #[test]
+    fn every_service_is_read_the_same_way() {
+        let tavily = reply(json!({"results": [
+            {"title": "T", "url": "https://a.example.org/t", "content": "Tavily text", "score": 0.9}
+        ]}));
+        let exa = reply(json!({"results": [
+            {"title": "E", "url": "https://b.example.org/e", "highlights": ["One.", "Two."]}
+        ]}));
+        let serp = reply(json!({"organic_results": [
+            {"title": "S", "link": "https://c.example.org/s", "snippet": "Serp text"},
+            {"title": "Bad", "link": "file:///etc/passwd", "snippet": "x"}
+        ]}));
+        let searx = reply(json!({"results": [
+            {"title": "X", "url": "https://d.example.org/x", "content": "Searx text"}
+        ]}));
+        let t = parse_results(SearchKind::Tavily, &tavily).unwrap();
+        assert_eq!(
+            (t[0].url.as_str(), t[0].excerpt.as_str()),
+            ("https://a.example.org/t", "Tavily text")
+        );
+        let e = parse_results(SearchKind::Exa, &exa).unwrap();
+        assert_eq!(e[0].excerpt, "One. … Two.");
+        let s = parse_results(SearchKind::Serpapi, &serp).unwrap();
+        assert_eq!(s.len(), 1, "unsafe links are dropped");
+        assert_eq!(
+            (s[0].url.as_str(), s[0].excerpt.as_str()),
+            ("https://c.example.org/s", "Serp text")
+        );
+        let x = parse_results(SearchKind::Searxng, &searx).unwrap();
+        assert_eq!(x[0].site, "example.org");
+    }
+
+    #[test]
+    fn keys_travel_only_where_each_service_expects_them() {
+        let base = AssistantConfig::default();
+        for kind in [
+            SearchKind::Brave,
+            SearchKind::Tavily,
+            SearchKind::Exa,
+            SearchKind::Serpapi,
+        ] {
+            let config = AssistantConfig {
+                search: kind,
+                ..base.clone()
+            };
+            assert!(kind.needs_key());
+            let missing = search_call(&config, None, "grace").unwrap_err();
+            assert!(
+                matches!(missing, AppError::Assistant(ref m) if m.code == Some("assistant.noSearchKey"))
+            );
+            let call = search_call(&config, Some("SECRETKEY"), "grace").unwrap();
+            let in_headers = call.headers.iter().any(|(_, v)| v.contains("SECRETKEY"));
+            let in_body = call
+                .body
+                .as_ref()
+                .is_some_and(|b| b.to_string().contains("SECRETKEY"));
+            assert!(!in_body, "{kind:?}: never in the body");
+            if kind == SearchKind::Serpapi {
+                assert!(call.url.contains("api_key=SECRETKEY") && !in_headers);
+            } else {
+                assert!(
+                    in_headers && !call.url.contains("SECRETKEY"),
+                    "{kind:?}: a header, never the address"
+                );
+            }
+        }
+        assert!(!SearchKind::Searxng.needs_key());
+        let searx = AssistantConfig {
+            search: SearchKind::Searxng,
+            search_url: "https://search.example.org".into(),
+            ..base
+        };
+        let call = search_call(&searx, None, "a b").unwrap();
+        assert_eq!(
+            call.url,
+            "https://search.example.org/search?q=a%20b&format=json"
+        );
     }
 
     #[test]

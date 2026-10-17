@@ -242,6 +242,8 @@ export interface Api {
   /** Keeps a key in the computer's credential store; blank removes it. */
   assistantKeySet(which: "provider" | "search" | "image", key: string): Promise<AssistantSettings>;
   assistantTest(): Promise<void>;
+  /** Asks the chosen search service once; how many web pages it found. */
+  assistantSearchTest(): Promise<number>;
   /** What would be shared, and where it would go, before anything is sent. */
   assistantPreview(input: AssistInput): Promise<AssistPreview>;
   /** Asks the assistant. The answer is a suggestion; nothing is changed. */
@@ -442,6 +444,7 @@ export const tauriApi: Api = {
   assistantSettingsSet: (config) => call("assistant_settings_set", { config }),
   assistantKeySet: (which, key) => call("assistant_key_set", { which, key }),
   assistantTest: () => call("assistant_test"),
+  assistantSearchTest: () => call("assistant_search_test"),
   assistantPreview: (input) => call("assistant_preview", { input }),
   assistantAsk: (input) => call("assistant_ask", { input }),
   assistantFindImages: (terms) => call("assistant_find_images", { terms }),

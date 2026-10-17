@@ -696,8 +696,8 @@
       "remove": "Aus dieser Vorbereitung entfernen"
     },
     "standing": {
-      "verified": "Zwei unabhängige Websites in den Suchergebnissen berichten davon (vor dem Verwenden lesen)",
-      "unverified": "Nicht geprüft: nur eine Quelle. Bitte vor dem Verwenden prüfen.",
+      "verified": "Quellen gefunden: Zwei unabhängige Websites in den Suchergebnissen berichten davon. Die Qualität der Quellen ist unterschiedlich – lies sie, bevor du es verwendest.",
+      "unverified": "Muss geprüft werden: Es wurde nur eine Quelle gefunden. Lies sie, bevor du es verwendest.",
       "hypothetical": "Erfundenes Beispiel, keine wahre Begebenheit",
       "found": "Gefundenes Bild · {{licence}}",
       "generated": "Vom Assistenten erstellt: eine Zeichnung, kein Foto",

@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@/design-system/Button";
+import { HelpTip } from "@/design-system/HelpTip";
 import { DownloadStatus } from "./UpdateNotice";
 import { useUpdates } from "./UpdatesContext";
 
@@ -39,7 +40,7 @@ export function UpdateSettings() {
         <dt className="text-text-muted">{t("app.updates.channel")}</dt>
         <dd className="m-0">{t("app.updates.channelTest")}</dd>
       </dl>
-      <div>
+      <div className="flex items-center gap-1">
         <Button onClick={() => void check()} disabled={busy}>
           {state.kind === "checking" ? t("app.updates.checking") : t("app.updates.check")}
         </Button>
@@ -48,8 +49,8 @@ export function UpdateSettings() {
           {state.kind === "checking" && t("app.updates.checking")}
           {state.kind === "upToDate" && t("app.updates.upToDate")}
         </span>
+        <HelpTip name={t("settings.help.about", { topic: t("settings.sections.updates") })}>{t("app.updates.help")}</HelpTip>
       </div>
-      <p className="m-0 text-[0.8125rem] text-text-muted">{t("app.updates.help")}</p>
     </div>
   );
 }

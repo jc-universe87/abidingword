@@ -703,8 +703,8 @@
       "remove": "Quitar de esta enseñanza"
     },
     "standing": {
-      "verified": "Dos sitios independientes de los resultados lo cuentan (léelos antes de usarlo)",
-      "unverified": "Sin comprobar: solo una fuente. Compruébalo antes de usarlo.",
+      "verified": "Fuentes encontradas: dos sitios independientes de los resultados lo cuentan. La calidad de las fuentes varía: léelas antes de usarlo.",
+      "unverified": "Hay que comprobarlo: solo se encontró una fuente. Léela antes de usarlo.",
       "hypothetical": "Ejemplo inventado, no un hecho real",
       "found": "Imagen encontrada · {{licence}}",
       "generated": "Hecha por el asistente: una ilustración, no una fotografía",

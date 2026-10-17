@@ -152,11 +152,11 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
         return <About info={info} />;
       case "coming-in-later-versions":
         return (
-          <ul className="m-0 flex list-none flex-col gap-4 p-0">
+          <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {PLANNED.map((item) => (
-              <li key={item} className="border-l-[3px] border-border pl-4">
-                <p className="m-0 font-semibold text-text-strong">{t(`settings.planned.${item}`)}</p>
-                <p className="m-0 mt-1 text-[0.9375rem] text-text-muted">{t(`settings.planned.${item}Text`)}</p>
+              <li key={item} className="flex items-center gap-1 border-l-[3px] border-border pl-4">
+                <span className="font-semibold text-text-strong">{t(`settings.planned.${item}`)}</span>
+                <HelpTip name={t("settings.help.about", { topic: t(`settings.planned.${item}`) })}>{t(`settings.planned.${item}Text`)}</HelpTip>
               </li>
             ))}
           </ul>

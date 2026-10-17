@@ -27,10 +27,14 @@ describe("compact Updates", () => {
     expect(within(section).getByText("Installed version")).toBeVisible();
     expect(within(section).getByTestId("update-version")).toHaveTextContent("0.5.0-dev.34");
     expect(within(section).getByText("Development / test")).toBeVisible();
-    expect(within(section).getAllByRole("button").map((b) => b.textContent)).toEqual(["UpdatesUp to date", "Check for updates"]);
+    expect(within(section).getAllByRole("button").map((b) => b.textContent)).toEqual(["UpdatesUp to date", "Check for updates", ""]);
     // "Up to date" is said once, in the heading; the button row stays quiet.
     expect(within(section).getByRole("status")).toHaveClass("sr-only");
-    expect(within(section).getByText(/checks only occasionally or when you ask/)).toBeVisible();
+    // Why and how often it checks waits behind the help button.
+    const why = within(section).getByText(/checks only occasionally or when you ask/);
+    expect(why).not.toBeVisible();
+    await user.click(within(section).getByRole("button", { name: "More about: Updates" }));
+    expect(why).toBeVisible();
   });
 });
 

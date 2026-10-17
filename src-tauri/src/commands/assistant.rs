@@ -8,6 +8,7 @@ use super::CommandResult;
 use crate::assistant::config::{self, AssistantConfig};
 use crate::assistant::context::AssistInput;
 use crate::assistant::images::{self, FoundImage};
+use crate::assistant::research;
 use crate::assistant::{self, secrets, AssistPreview, AssistReply, AssistantSettings};
 use crate::error::{AppError, UserMessage};
 use crate::state::AppState;
@@ -50,7 +51,15 @@ pub fn assistant_key_set(
         let config = config::get(conn)?;
         let name = match which {
             KeyKind::Provider => secrets::provider_key_name(config.provider.as_str()),
-            KeyKind::Search => secrets::search_key_name("brave"),
+            KeyKind::Search => {
+                if !config.search.needs_key() {
+                    return Err(AppError::InvalidInput(UserMessage::new(
+                        "assistant.searchNoKey",
+                        "This search service does not use a key.",
+                    )));
+                }
+                secrets::search_key_name(config.search.as_str())
+            }
             KeyKind::Image => secrets::provider_key_name(config.image_provider().as_str()),
         };
         state.secrets().set(&name, key.as_deref())?;
@@ -70,6 +79,27 @@ pub async fn assistant_test(state: State<'_, AppState>) -> CommandResult<()> {
     assistant::test_connection(state.transport()?, &config, key.as_deref())
         .await
         .map_err(Into::into)
+}
+
+/// Asks the chosen search service one plain question, to show that it
+/// answers. Returns how many web pages it found; nothing is kept.
+#[tauri::command]
+pub async fn assistant_search_test(state: State<'_, AppState>) -> CommandResult<usize> {
+    let (config, key) = state.db(|conn| {
+        let config = config::get(conn)?;
+        let key = if config.search.needs_key() {
+            state
+                .secrets()
+                .get(&secrets::search_key_name(config.search.as_str()))?
+        } else {
+            None
+        };
+        Ok((config, key))
+    })?;
+    use crate::assistant::http::Transport as _;
+    let call = research::search_call(&config, key.as_deref(), "Psalm 23")?;
+    let reply = state.transport()?.send(call).await?;
+    Ok(research::parse_results(config.search, &reply)?.len())
 }
 
 /// What would be shared, and with whom, before anything is sent.

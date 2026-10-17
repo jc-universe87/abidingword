@@ -56,10 +56,10 @@ pub fn settings(conn: &Connection, secrets: &dyn SecretStore) -> AppResult<Assis
     let has_key = secrets
         .get(&secrets::provider_key_name(config.provider.as_str()))?
         .is_some();
-    let has_search_key = match config.search {
-        SearchKind::Brave => secrets.get(&secrets::search_key_name("brave"))?.is_some(),
-        _ => false,
-    };
+    let has_search_key = config.search.needs_key()
+        && secrets
+            .get(&secrets::search_key_name(config.search.as_str()))?
+            .is_some();
     let has_image_key = secrets
         .get(&secrets::provider_key_name(
             config.image_provider().as_str(),
@@ -124,8 +124,8 @@ pub fn unlock(mut prepared: Prepared, secrets: &dyn SecretStore) -> AppResult<Pr
             "The assistant needs its key. You can add it in Settings.",
         )));
     }
-    if prepared.context.action == AssistAction::Story && config.search == SearchKind::Brave {
-        prepared.search_key = secrets.get(&secrets::search_key_name("brave"))?;
+    if prepared.context.action == AssistAction::Story && config.search.needs_key() {
+        prepared.search_key = secrets.get(&secrets::search_key_name(config.search.as_str()))?;
     }
     prepared.key = key;
     Ok(prepared)

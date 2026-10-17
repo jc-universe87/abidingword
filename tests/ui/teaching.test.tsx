@@ -391,8 +391,8 @@ describe("the assistant", () => {
     await user.type(within(panel).getByRole("textbox", { name: "What kind of real story are you looking for?" }), "forgiveness after conflict");
     expect(await within(panel).findByText("Search words based on your request (they may include your words) will also go to your search service.")).toBeInTheDocument();
     await ask(user, panel);
-    expect(await within(panel).findByText("Two independent sites in the search results report it (read them before using it)")).toBeInTheDocument();
-    expect(within(panel).getByText("Not checked: only one source. Please check before you use it.")).toBeInTheDocument();
+    expect(await within(panel).findByText(/^Sources found: two independent sites in the search results report it\. Source quality varies/)).toBeInTheDocument();
+    expect(within(panel).getByText("Needs checking: only one source was found. Read it before you use it.")).toBeInTheDocument();
     await user.click(within(panel).getByRole("button", { name: /Report A/ }));
     expect(api.state.library.openedLinks).toEqual(["https://www.bbc.co.uk/a"]);
     await user.click(within(panel).getAllByRole("button", { name: "Keep with this teaching" })[0]!);
@@ -451,8 +451,7 @@ describe("assistant settings", () => {
     const region = await openSettingsSection(user, "AI Assistant");
     const enabled = await within(region).findByRole("checkbox", { name: "Use the AI Assistant" });
     expect(enabled).not.toBeChecked();
-    // Off: one plain sentence instead of a disabled form.
-    expect(within(region).getByText("Turn on the AI Assistant to choose a service and check the connection.")).toBeInTheDocument();
+    // Off: only the switch, no disabled form and no paragraph to read.
     expect(within(region).queryByRole("combobox", { name: "Service" })).toBeNull();
     expect(within(region).queryByRole("button", { name: "Check the connection" })).toBeNull();
 
@@ -516,7 +515,7 @@ describe("assistant settings", () => {
     api.state.teaching.assistant.keys.set("anthropic", "sk-ant");
     await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "anthropic");
     await waitFor(() => expect(api.state.teaching.assistant.config.provider).toBe("anthropic"));
-    expect(await within(region).findByText("A key is kept on this computer.")).toBeInTheDocument();
+    expect(await within(region).findByPlaceholderText("A key is kept (type to replace it)")).toBeInTheDocument();
     expect(within(region).getByRole("button", { name: "Check the connection" })).toBeEnabled();
   });
 
@@ -596,11 +595,11 @@ describe("assistant settings", () => {
     await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
     // The explanation waits behind the help button.
     const searchHelp = within(region).getByRole("button", { name: "More about: Look up real stories" });
-    const explanation = within(region).getByText(/may remember real events incorrectly/);
+    const explanation = within(region).getByText(/A search service only finds pages: it does not decide what is true/);
     expect(explanation).not.toBeVisible();
     await user.click(searchHelp);
     expect(explanation).toBeVisible();
-    expect(explanation).toHaveTextContent(/check a story before you use it/);
+    expect(explanation).toHaveTextContent(/Read the sources before you use a story/);
     const words = region.textContent ?? "";
     expect(words).not.toMatch(/proves?|guarantee|verified as true/i);
 
@@ -639,7 +638,7 @@ describe("assistant settings", () => {
     ];
     for (const [kind, name, url] of expected) {
       await user.selectOptions(service, kind);
-      expect(within(region).getByText("Suggested model. You can change it.")).toBeInTheDocument();
+      expect(within(region).getByRole("textbox", { name: "Model" })).not.toHaveValue("");
       await user.click(within(region).getByRole("button", { name: `See ${name}’s current models` }));
       expect(api.state.library.openedLinks.at(-1)).toBe(url);
     }
@@ -656,27 +655,64 @@ describe("assistant settings", () => {
     expect(model).toHaveValue("my-own-model");
   });
 
-  it("explains Brave Search simply and keeps SearXNG as the advanced choice", async () => {
+  it("offers Brave, Tavily and Exa plainly, keeps SearXNG and SerpApi apart, and never promises truth", async () => {
     const { user, api } = await renderApp(createMemoryApi());
     const region = await openSettingsSection(user, "AI Assistant");
     await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
     const search = within(region).getByRole("combobox", { name: "Look up real stories" });
-    // SearXNG sits under "Other (advanced)", apart from the simple choices.
+    const recommended = within(search).getByRole("group", { name: "Recommended" });
+    expect(within(recommended).getAllByRole("option").map((o) => o.textContent)).toEqual([
+      "Brave Search – simple general web search",
+      "Tavily – search designed for AI assistants",
+      "Exa – finds relevant sources and passages",
+    ]);
     const advanced = within(search).getByRole("group", { name: "Other (advanced)" });
-    expect(within(advanced).getByRole("option", { name: /SearXNG/ })).toBeInTheDocument();
+    expect(within(advanced).getAllByRole("option").map((o) => o.textContent)).toEqual([
+      "SearXNG – self-hosted, needs a server address",
+      "SerpApi – Google results through SerpApi",
+    ]);
 
-    await user.selectOptions(search, "brave");
-    await user.click(within(region).getByText("What is Brave Search, and how do I set it up?"));
-    expect(within(region).getByText(/an internet search service/)).toBeVisible();
-    expect(within(region).getByText(/limits how many searches/)).toBeVisible();
-    await user.click(within(region).getByRole("button", { name: "Open the Brave Search API page" }));
-    expect(api.state.library.openedLinks.at(-1)).toBe("https://brave.com/search/api/");
-    expect(within(region).getByLabelText("Search key")).toBeInTheDocument();
+    const pages: [string, string, string][] = [
+      ["brave", "Brave Search", "https://brave.com/search/api/"],
+      ["tavily", "Tavily", "https://app.tavily.com"],
+      ["exa", "Exa", "https://dashboard.exa.ai/api-keys"],
+      ["serpapi", "SerpApi", "https://serpapi.com/manage-api-key"],
+    ];
+    for (const [kind, name, url] of pages) {
+      await user.selectOptions(search, kind);
+      // Saved at once: the key status belongs to the chosen service.
+      await waitFor(() => expect(api.state.teaching.assistant.config.search).toBe(kind));
+      expect(within(region).getByRole("button", { name: "Check search" })).toBeDisabled();
+      expect(within(region).getByText("To check the search, first paste its key and choose Keep key.")).toBeInTheDocument();
+      // The set-up help is one closed line until asked.
+      const setup = within(region).getByText(`How do I set up ${name}?`);
+      await user.click(setup);
+      await user.click(within(region).getByRole("button", { name: `Open the ${name} page` }));
+      expect(api.state.library.openedLinks.at(-1)).toBe(url);
+      await user.click(setup);
+    }
 
+    // A key kept for Exa belongs to Exa only.
+    await user.selectOptions(search, "exa");
+    await user.type(within(region).getByLabelText("Search key"), "exa-key{Enter}");
+    await waitFor(() => expect(api.state.teaching.assistant.keys.get("search:exa")).toBe("exa-key"));
+    await user.click(within(region).getByRole("button", { name: "Check search" }));
+    expect(await within(region).findByText("The search service answered and found web pages.")).toBeInTheDocument();
+    expect(api.state.teaching.assistant.searchTested).toBe(1);
+    await user.selectOptions(search, "tavily");
+    await waitFor(() => expect(within(region).getByRole("button", { name: "Check search" })).toBeDisabled());
+    expect(within(region).getByPlaceholderText("Search key")).toBeInTheDocument();
+
+    // SearXNG: an address, no key, its explanation behind the set-up line.
     await user.selectOptions(search, "searxng");
-    expect(within(region).getByText(/choosing it here does not work on its own/)).toBeVisible();
-    expect(within(region).getByText(/Brave Search is the simpler choice/)).toBeVisible();
-    expect(within(region).getByRole("textbox", { name: "SearXNG address" })).toBeInTheDocument();
+    expect(within(region).queryByLabelText("Search key")).toBeNull();
+    expect(within(region).getByText(/If this means nothing to you, choose one of the recommended services/)).not.toBeVisible();
+    expect(within(region).getByText("To check the search, first enter the SearXNG address and save.")).toBeInTheDocument();
+    await user.type(within(region).getByRole("textbox", { name: "SearXNG address" }), "https://search.example.org");
+    expect(within(region).getByRole("button", { name: "Check search" })).toBeEnabled();
+
+    const words = region.textContent ?? "";
+    expect(words).not.toMatch(/verif|proves?|guarantee|(?<!what )is true/i);
   });
 
   it("says plainly whether images can be made, and lets OpenAI make them while another service writes", async () => {
@@ -685,7 +721,8 @@ describe("assistant settings", () => {
     await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
     await user.click(within(region).getByRole("checkbox", { name: /Allow making images/ }));
     const capability = () => within(region).getByTestId("image-capability");
-    expect(capability()).toHaveTextContent("OpenAI (ChatGPT) can make images.");
+    // Nothing to say while it works: the line appears only when something needs attention.
+    expect(within(region).queryByTestId("image-capability")).toBeNull();
 
     await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "anthropic");
     await waitFor(() => expect(capability()).toHaveTextContent("Anthropic (Claude) cannot make images. Choose OpenAI for images, or leave this off."));
@@ -699,7 +736,7 @@ describe("assistant settings", () => {
     // Write with Claude, make images with OpenAI.
     await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "anthropic");
     await user.selectOptions(within(region).getByRole("combobox", { name: "Make images with" }), "openai");
-    expect(capability()).toHaveTextContent("OpenAI (ChatGPT) can make images.");
+    expect(within(region).queryByTestId("image-capability")).toBeNull();
     // Until an OpenAI key for images is kept, that is said plainly.
     expect(within(region).getByText(/No OpenAI key for images is kept yet/)).toBeInTheDocument();
     await user.type(within(region).getByLabelText("OpenAI key for images"), "sk-img{Enter}");

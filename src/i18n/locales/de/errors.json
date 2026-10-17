@@ -153,7 +153,8 @@
     "badKey": "Das sieht nicht wie ein Schlüssel aus. Bitte erneut einfügen.",
     "badAddress": "Bitte eine Webadresse eingeben, die mit http:// oder https:// beginnt.",
     "badModel": "Dieser Modellname ist zu lang.",
-    "noImageKey": "Bilder erstellen braucht den Schlüssel des Bilddienstes. Du kannst ihn in den Einstellungen → KI-Assistent hinzufügen."
+    "noImageKey": "Bilder erstellen braucht den Schlüssel des Bilddienstes. Du kannst ihn in den Einstellungen → KI-Assistent hinzufügen.",
+    "searchNoKey": "Dieser Suchdienst braucht keinen Schlüssel."
   },
   "teaching": {
     "tooLong": "Dieser Teil der Vorbereitung ist zu lang zum Speichern.",

@@ -703,8 +703,8 @@
       "remove": "Retirer de cet enseignement"
     },
     "standing": {
-      "verified": "Deux sites indépendants dans les résultats le rapportent (lisez-les avant de l’utiliser)",
-      "unverified": "Non vérifié : une seule source. Vérifiez avant de l’utiliser.",
+      "verified": "Sources trouvées : deux sites indépendants des résultats en parlent. La qualité des sources varie : lisez-les avant de l’utiliser.",
+      "unverified": "À vérifier : une seule source a été trouvée. Lisez-la avant de l’utiliser.",
       "hypothetical": "Exemple inventé, pas un fait réel",
       "found": "Image trouvée · {{licence}}",
       "generated": "Créée par l’assistant : une illustration, pas une photographie",

@@ -99,10 +99,35 @@ pub enum SearchKind {
     /// No search: real stories and quotations cannot be checked.
     #[default]
     None,
-    /// Brave Search API (needs a key).
+    /// Brave Search API: general web search (needs a key).
     Brave,
-    /// A SearXNG instance the person runs or trusts (no key).
+    /// Tavily: search made for AI assistants (needs a key).
+    Tavily,
+    /// Exa: finds relevant pages and passages (needs a key).
+    Exa,
+    /// A SearXNG instance the person runs or trusts (no key). Advanced.
     Searxng,
+    /// SerpApi: Google results through SerpApi (needs a key). Advanced.
+    Serpapi,
+}
+
+impl SearchKind {
+    /// Stable name, used for the key's name in the credential store.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::None => "none",
+            Self::Brave => "brave",
+            Self::Tavily => "tavily",
+            Self::Exa => "exa",
+            Self::Searxng => "searxng",
+            Self::Serpapi => "serpapi",
+        }
+    }
+
+    /// Whether the service needs a key (kept per service, so switching keeps each).
+    pub fn needs_key(self) -> bool {
+        matches!(self, Self::Brave | Self::Tavily | Self::Exa | Self::Serpapi)
+    }
 }
 
 /// Which service makes images. The writing assistant and the image service

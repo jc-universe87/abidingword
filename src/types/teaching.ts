@@ -138,7 +138,7 @@ export type ProviderKind = (typeof PROVIDER_KINDS)[number];
 export const IMAGE_SERVICES = ["same", "openai"] as const;
 export type ImageService = (typeof IMAGE_SERVICES)[number];
 export type ImageCapability = "supported" | "unsupported" | "unknown";
-export const SEARCH_KINDS = ["none", "brave", "searxng"] as const;
+export const SEARCH_KINDS = ["none", "brave", "tavily", "exa", "searxng", "serpapi"] as const;
 export type SearchKind = (typeof SEARCH_KINDS)[number];
 
 export interface AssistantConfig {

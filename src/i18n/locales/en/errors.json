@@ -153,7 +153,8 @@
     "badKey": "That does not look like a key. Please paste it again.",
     "badAddress": "Please enter a web address beginning with http:// or https://.",
     "badModel": "That model name is too long.",
-    "noImageKey": "Making images needs the image service’s key. You can add it in Settings → AI Assistant."
+    "noImageKey": "Making images needs the image service’s key. You can add it in Settings → AI Assistant.",
+    "searchNoKey": "This search service does not use a key."
   },
   "teaching": {
     "tooLong": "This part of the teaching is too long to save.",

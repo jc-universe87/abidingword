@@ -156,7 +156,8 @@
     "badKey": "Cela ne ressemble pas à une clé. Collez-la à nouveau.",
     "badAddress": "Saisissez une adresse web commençant par http:// ou https://.",
     "badModel": "Ce nom de modèle est trop long.",
-    "noImageKey": "La création d’images demande la clé du service d’images. Vous pouvez l’ajouter dans Paramètres → Assistant IA."
+    "noImageKey": "La création d’images demande la clé du service d’images. Vous pouvez l’ajouter dans Paramètres → Assistant IA.",
+    "searchNoKey": "Ce service de recherche n’utilise pas de clé."
   },
   "teaching": {
     "tooLong": "Cette partie de l’enseignement est trop longue pour être enregistrée.",
