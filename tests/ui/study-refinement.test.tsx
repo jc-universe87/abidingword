@@ -391,16 +391,15 @@ describe("findings in sections", () => {
     expect(main().queryByDisplayValue("Study-wide first.")).not.toBeInTheDocument();
   });
 
-  it("offers Study notes in Contents only when the study has notes of its own", async () => {
+  it("has no separate Contents menu: every part of a long study is in the study itself, as a heading", async () => {
     const { api, studyId } = await emptyStudy();
-    // five sections make Contents appear
     const sections = (await api.studyGet(studyId)).sections;
-    await api.findingCreate({ studyId, findingType: "observation", content: "Here.", sectionId: sections[0]!.id });
+    expect(sections.length).toBeGreaterThanOrEqual(5);
     const { user } = await renderApp(api);
     await open(user, /The True Vine/);
-    await user.click(main().getByRole("button", { name: "Contents" }));
-    const contents = main().getByRole("navigation", { name: "Study contents" });
-    expect(within(contents).queryByRole("button", { name: "Study notes" })).not.toBeInTheDocument();
+    expect(main().queryByRole("button", { name: "Contents" })).not.toBeInTheDocument();
+    expect(main().queryByRole("navigation", { name: "Study contents" })).not.toBeInTheDocument();
+    for (const section of sections) expect(main().getByRole("heading", { level: 2, name: section.title })).toBeInTheDocument();
   });
 });
 
@@ -576,7 +575,7 @@ describe("six-language coverage of what v0.10 added", () => {
     "add.note", "add.section", "add.textBlock", "add.blockGroup", "add.blockIn",
     "blockType.note", "blockTypeInline.note", "blocks.options", "blocks.optionsGroup", "blocks.optionsTooltip",
     "findings.kindGroup", "findings.moreTypes", "findings.options", "findings.heading", "findings.listLabel", "findings.inSection",
-    "editor.findingsLink", "list.hideArchived", "relations.target", "relations.relation", "relations.describe",
+    "list.hideArchived", "relations.target", "relations.relation", "relations.describe",
   ];
 
   it("has every new or changed string in English, German, Korean, French, Spanish and Portuguese", async () => {

@@ -448,13 +448,11 @@
   "editor": {
     "opening": "Bibelstudium wird geöffnet …",
     "titleLabel": "Titel des Bibelstudiums",
-    "contents": "Inhalt des Bibelstudiums",
-    "findingsLink": "Studieneinträge",
     "newSectionTitle": "Neuer Abschnitt",
     "allSaved": "Alle Änderungen gespeichert.",
     "saved": "Gespeichert",
     "start": "Beginne dein Bibelstudium",
-    "contentsToggle": "Inhalt"
+    "backTo": "Zurück zu {{place}}"
   },
   "sections": {
     "rename": "Abschnitt „{{title}}“ umbenennen",

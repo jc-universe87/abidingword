@@ -453,13 +453,11 @@
   "editor": {
     "opening": "Ouverture de l’étude…",
     "titleLabel": "Titre de l’étude",
-    "contents": "Contenu de l’étude",
-    "findingsLink": "Éléments de l’étude",
     "newSectionTitle": "Nouvelle section",
     "allSaved": "Toutes les modifications sont enregistrées.",
     "saved": "Enregistré",
     "start": "Commencez votre étude",
-    "contentsToggle": "Sommaire"
+    "backTo": "Retour à {{place}}"
   },
   "sections": {
     "rename": "Renommer la section {{title}}",

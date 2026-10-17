@@ -29,31 +29,11 @@ describe("contents", () => {
     expect(study().queryByRole("navigation", { name: "Study contents" })).not.toBeInTheDocument();
   });
 
-  it("offers one compact Contents control for a long study; choosing a section goes there", async () => {
+  it("has no Contents control for a long study either: its parts are headings in the study", async () => {
     const api = await withStudy();
-    const user = await open(api);
-    // Nine sections of the built-in template are not nine links on the page.
-    expect(study().queryByRole("navigation", { name: "Study contents" })).not.toBeInTheDocument();
-    const toggle = study().getByRole("button", { name: "Contents" });
-    expect(toggle).toHaveAttribute("aria-expanded", "false");
-    await user.click(toggle);
-    expect(toggle).toHaveAttribute("aria-expanded", "true");
-    const nav = study().getByRole("navigation", { name: "Study contents" });
-    expect(within(nav).getAllByRole("button")).toHaveLength(9);
-    await user.click(within(nav).getByRole("button", { name: "Application" }));
-    expect(study().queryByRole("navigation", { name: "Study contents" })).not.toBeInTheDocument();
-    expect(study().getByRole("heading", { level: 2, name: "Application" })).toHaveFocus();
-  });
-
-  it("lists the findings entry only when there are findings, and Escape closes and restores focus", async () => {
-    const api = await withStudy();
-    const user = await open(api);
-    await user.click(study().getByRole("button", { name: "Contents" }));
-    expect(within(study().getByRole("navigation", { name: "Study contents" })).queryByRole("button", { name: "Study notes" })).not.toBeInTheDocument();
-    await user.keyboard("{Escape}");
-    const toggle = study().getByRole("button", { name: "Contents" });
-    expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(toggle).toHaveFocus();
+    await open(api);
+    expect(study().queryByRole("button", { name: "Contents" })).not.toBeInTheDocument();
+    expect(study().getAllByRole("heading", { level: 2 }).length).toBeGreaterThan(4);
   });
 });
 

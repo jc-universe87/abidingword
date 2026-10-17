@@ -453,13 +453,11 @@
   "editor": {
     "opening": "Abriendo el estudio…",
     "titleLabel": "Título del estudio",
-    "contents": "Contenido del estudio",
-    "findingsLink": "Apuntes del estudio",
     "newSectionTitle": "Nueva sección",
     "allSaved": "Todos los cambios guardados.",
     "saved": "Guardado",
     "start": "Empieza tu estudio",
-    "contentsToggle": "Contenido"
+    "backTo": "Volver a {{place}}"
   },
   "sections": {
     "rename": "Cambiar el nombre de la sección {{title}}",

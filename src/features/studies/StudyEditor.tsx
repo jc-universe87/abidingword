@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
 import { Notice } from "@/design-system/Notice";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 import { useSaveTracker } from "@/hooks/SaveTracker";
@@ -10,19 +10,20 @@ import { useApi } from "@/lib/ApiContext";
 import type { BlockType, StudySection } from "@/types/domain";
 import type { FindingType } from "@/types/studies";
 import { EditableTitle } from "./EditableTitle";
-import { FindingList, FindingsPanel, isStudyNote } from "./FindingsPanel";
+import { FindingList, FindingsPanel } from "./FindingsPanel";
 import { RelatedStudies } from "./RelatedStudies";
 import { SectionEditor } from "./SectionEditor";
 import { sectionTitle } from "./builtinText";
 import { StudyAdd } from "./StudyAdd";
 import { useStudyFocus } from "./StudyFocus";
-import { StudyContents } from "./StudyContents";
 import { StudyDetailsPanel } from "./StudyDetails";
 import { StudyPassages } from "./StudyPassages";
 import { TeachingView } from "@/features/teaching/TeachingView";
 
 interface StudyEditorProps {
   studyId: string;
+  /** The way back to where the study was opened from (its project, or the list of studies). */
+  back?: { label: string; onBack: () => void };
   /** True when the user just opened this study: show its primary passage. */
   revealPrimary: boolean;
   onMissing: () => void;
@@ -30,7 +31,7 @@ interface StudyEditorProps {
   onRevealScripture: () => void;
 }
 
-export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, onRevealScripture }: StudyEditorProps) {
+export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStudy, onRevealScripture }: StudyEditorProps) {
   const { t } = useTranslation();
   const api = useApi();
   const { goTo, setStudyPassage } = useScripture();
@@ -188,10 +189,10 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   };
 
   return (
-    <article ref={article} className="flex flex-col gap-4">
+    <article ref={article} className="flex flex-col gap-3">
       <header
         id="study-overview"
-        className="scroll-mt-4 flex flex-col gap-2"
+        className="scroll-mt-4 flex flex-col gap-1"
         onKeyDown={(e) => {
           if (e.key === "Escape" && showDetails) {
             e.stopPropagation();
@@ -200,9 +201,26 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
           }
         }}
       >
-        <EditableTitle key={study.id} label={t("studies.editor.titleLabel")} value={study.title} onSave={rename} />
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.9375rem] text-text-muted">
-          {/* The two ways of working with a study, on the same quiet line as its details: no row of its own. */}
+        <div className="flex items-start gap-1">
+          {back && (
+            <nav aria-label={t("studies.projects.breadcrumb")} className="-ml-3 shrink-0">
+              <button
+                type="button"
+                onClick={back.onBack}
+                aria-label={back.label}
+                title={back.label}
+                className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+              >
+                <ArrowLeft className="size-5" aria-hidden="true" />
+              </button>
+            </nav>
+          )}
+          <div className="min-w-0 flex-1">
+            <EditableTitle key={study.id} label={t("studies.editor.titleLabel")} value={study.title} onSave={rename} />
+          </div>
+        </div>
+        {/* One quiet line under the title: the two ways of working, the passages, the details. */}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.9375rem] text-text-muted">
           <div role="group" aria-label={t("studies.view.label")} className="flex gap-0.5 rounded-aw border border-border-subtle p-0.5">
             {(["study", "teaching"] as const).map((v) => (
               <button
@@ -227,10 +245,9 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
             {showDetails ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
             {t("studies.header.detailsToggle")}
           </button>
-          <StudyContents sections={sections} hasFindings={(findings.data ?? []).some((f) => isStudyNote(f, sections))} />
+          <StudyPassages studyId={study.id} title={study.title} passages={passages.data ?? []} reload={passages.reload} onReveal={onRevealScripture} />
           <SaveIndicator />
         </div>
-        <StudyPassages studyId={study.id} title={study.title} passages={passages.data ?? []} reload={passages.reload} onReveal={onRevealScripture} />
         <RelatedStudies relations={relations.data ?? []} onOpen={onOpenStudy} />
         {showDetails && (
           <StudyDetailsPanel

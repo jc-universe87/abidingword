@@ -443,13 +443,11 @@
   "editor": {
     "opening": "성경공부를 여는 중…",
     "titleLabel": "성경공부 제목",
-    "contents": "성경공부 내용",
-    "findingsLink": "성경공부 기록",
     "newSectionTitle": "새 부분",
     "allSaved": "모든 변경 사항을 저장했습니다.",
     "saved": "저장됨",
     "start": "성경공부를 시작하세요",
-    "contentsToggle": "목차"
+    "backTo": "{{place}}(으)로 돌아가기"
   },
   "sections": {
     "rename": "{{title}} 부분 이름 바꾸기",

@@ -448,13 +448,11 @@
   "editor": {
     "opening": "Opening study…",
     "titleLabel": "Study title",
-    "contents": "Study contents",
-    "findingsLink": "Study notes",
     "newSectionTitle": "New section",
     "allSaved": "All changes saved.",
     "saved": "Saved",
     "start": "Start your study",
-    "contentsToggle": "Contents"
+    "backTo": "Back to {{place}}"
   },
   "sections": {
     "rename": "Rename section {{title}}",
