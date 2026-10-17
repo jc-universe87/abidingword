@@ -175,6 +175,8 @@ async function seed(api: MemoryApi) {
   await api.teachingFindingLink({ preparationId: sermon.id, pointId: remainPoint.id, findingId: fruit.id });
   await api.teachingFindingLink({ preparationId: sermon.id, pointId: remainPoint.id, findingId: resting.id });
   await api.teachingPointCreate({ preparationId: sermon.id, title: "The Father is glorified", afterPointId: remainPoint.id });
+  await api.teachingPassageAdd({ preparationId: sermon.id, reference: "JHN.15.1-JHN.15.8" });
+  await api.teachingUpdate({ id: sermon.id, conclusion: "Stay close to him this week: begin each day with his words." });
   // The assistant, turned on for the guide's pictures, with one prepared answer (no network in the harness).
   api.state.teaching.assistant.config = { ...api.state.teaching.assistant.config, enabled: true, provider: "openai", model: "gpt-4.1" };
   api.state.teaching.assistant.keys.set("openai", "sample");

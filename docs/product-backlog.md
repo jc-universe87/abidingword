@@ -169,6 +169,11 @@ placement, and awareness of monitors being connected or removed.
 Until then: avoid making pane components depend on there being exactly one
 window or one React tree where that is easy to avoid.
 
+*v0.18 note:* the presentation's audience screen is the first second window
+(label `audience`, its own minimal capability, state relayed by the core with
+events and kept in the core for a reopened window). Detachable panes can
+reuse that pattern.
+
 ## 2. AI: the human is the primary author
 
 AI in Abiding Word is an **assistant to human study and teaching.** The user
@@ -213,19 +218,24 @@ accepted assistant wording; a persistent Linux key store; search through an AI
 service's own search tool; copying teaching preparations with a study and
 finding them in study search.
 
-### Presentation (future; not a peer of Bible Study / Bible Teaching)
+### Presentation — foundation built in v0.18
 
 Presentation is an **output of a teaching**, not a third view beside Bible
-Study and Bible Teaching. Two paths, both later:
+Study and Bible Teaching. **Built in v0.18** (see
+[`presentation-delivery-v0.18.md`](presentation-delivery-v0.18.md)): both
+paths on one pipeline — **A.** PowerPoint, PDF slides, a phone speaker sheet,
+Markdown and a delivery package; **B.** presenting directly with one
+responsive Presenter View and an audience screen in a second window (or this
+window), Scripture shown on request, notes never shown to the audience.
 
-- **A. Export or create a presentation** (PowerPoint or slides) from a
-  teaching's parts, Scripture and kept images.
-- **B. Present directly:** an audience screen (Scripture, images, key
-  sentences) and a presenter screen (manuscript, notes, current and next,
-  navigation), built on the multi-window work (§1).
+Still open:
 
-Keep the teaching model ordered and id-stable, and keep media out of the
-manuscript text, so neither path needs a migration of what people wrote.
+- a **mobile reader** for delivery packages (the package and the phone layout
+  of the Presenter View are its base), and controlling the desktop Presenter
+  View from a phone;
+- importing a delivery package on another desktop;
+- PowerPoint export of WebP images; OpenType (CFF) fonts in PDFs;
+- drag-and-drop ordering of slides; presentation slides in Study search.
 
 ### Image providers (next step after v0.16)
 

@@ -225,4 +225,4 @@ dashed border and their label, so they never look like your own writing.
 
 ---
 
-[← Questions and word list](09-questions-and-word-list.md) · [Contents](README.md)
+[← Questions and word list](09-questions-and-word-list.md) · [Contents](README.md) · [Presenting your teaching →](11-presenting.md)

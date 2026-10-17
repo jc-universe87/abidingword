@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { BookOpen, ChevronLeft, ChevronRight, Minus, MonitorUp, Pause, Plus, Settings2, X } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Minus, MonitorUp, Pause, Play, Plus, RotateCcw, Settings2, X } from "lucide-react";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { readLocal, writeLocal } from "@/lib/storage";
@@ -270,7 +270,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
       style={{ backgroundColor: colours.background, color: colours.text }}
     >
       <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-3 py-2" style={{ borderColor: `${colours.muted}55` }}>
-        <h2 id={titleId} className="m-0 min-w-0 flex-1 truncate text-[1rem] font-semibold">
+        <h2 id={titleId} className={layout === "phone" ? "sr-only" : "m-0 min-w-0 flex-1 truncate text-[1rem] font-semibold"}>
           {layout === "phone" ? doc.title : t("presentation.presenter.titleWith", { title: doc.title })}
         </h2>
         <p aria-live="polite" className="m-0 text-[1rem] font-medium tabular-nums">{position}</p>
@@ -286,9 +286,11 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
                   setStartedAt(null);
                 }
               }}
-              className="min-h-11 rounded-aw px-2 text-[0.875rem] underline-offset-2 hover:underline"
+              aria-label={startedAt === null ? t("presentation.presenter.timerResume") : t("presentation.presenter.timerPause")}
+              title={startedAt === null ? t("presentation.presenter.timerResume") : t("presentation.presenter.timerPause")}
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-aw hover:bg-black/10"
             >
-              {startedAt === null ? t("presentation.presenter.timerResume") : t("presentation.presenter.timerPause")}
+              {startedAt === null ? <Play className="size-4" aria-hidden="true" /> : <Pause className="size-4" aria-hidden="true" />}
             </button>
             <button
               type="button"
@@ -296,9 +298,11 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
                 setBefore(0);
                 setStartedAt(Date.now());
               }}
-              className="min-h-11 rounded-aw px-2 text-[0.875rem] underline-offset-2 hover:underline"
+              aria-label={t("presentation.presenter.timerReset")}
+              title={t("presentation.presenter.timerReset")}
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-aw hover:bg-black/10"
             >
-              {t("presentation.presenter.timerReset")}
+              <RotateCcw className="size-4" aria-hidden="true" />
             </button>
           </span>
         )}
@@ -307,7 +311,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
             <span aria-hidden="true">{clock}</span>
           </span>
         )}
-        <div className="flex items-center gap-1">
+        <div className="ml-auto flex items-center gap-1">
           <ToolButton label={t("presentation.presenter.scripture")} icon={<BookOpen className="size-5" aria-hidden="true" />} pressed={panel === "scripture"} onClick={() => setPanel(panel === "scripture" ? "none" : "scripture")} compact={layout === "phone"} />
           <ToolButton label={t("presentation.presenter.audience")} icon={<MonitorUp className="size-5" aria-hidden="true" />} pressed={panel === "audience"} onClick={() => setPanel(panel === "audience" ? "none" : "audience")} compact={layout === "phone"} />
           <ToolButton label={t("presentation.presenter.settings")} icon={<Settings2 className="size-5" aria-hidden="true" />} pressed={panel === "settings"} onClick={() => setPanel(panel === "settings" ? "none" : "settings")} compact={layout === "phone"} />
@@ -767,16 +771,19 @@ function HereAudience({
   onPrevious: () => void;
 }) {
   const { t } = useTranslation();
-  const back = useRef<HTMLButtonElement>(null);
+  const screenRef = useRef<HTMLDivElement>(null);
+  // The keyboard goes to the screen itself: the controls stay out of the audience's sight until wanted.
   useEffect(() => {
-    back.current?.focus();
+    screenRef.current?.focus();
   }, []);
   return (
     <div
+      ref={screenRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-label={t("presentation.audience.title")}
-      className="group fixed inset-0 z-50 flex items-center justify-center"
+      className="group fixed inset-0 z-50 flex items-center justify-center outline-none"
       style={{ backgroundColor: palette(doc.theme).background }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onNext();
@@ -793,7 +800,7 @@ function HereAudience({
         <button type="button" onClick={onNext} aria-label={t("presentation.presenter.next")} className="min-h-11 min-w-11 rounded-aw bg-black/60 px-2 text-white">
           <ChevronRight className="size-5" aria-hidden="true" />
         </button>
-        <button ref={back} type="button" onClick={onBack} className="min-h-11 rounded-aw bg-black/60 px-3 text-white">
+        <button type="button" onClick={onBack} className="min-h-11 rounded-aw bg-black/60 px-3 text-white">
           {t("presentation.presenter.backToPresenter")}
         </button>
       </div>

@@ -31,6 +31,7 @@ with pictures of the real program. You do not need any technical knowledge.
 | ⚙️ | [**8. Settings, updates and backups**](08-settings-updates-backups.md) | Theme, language, Bibles, updates, and keeping your work safe |
 | ❓ | [**9. Questions and word list**](09-questions-and-word-list.md) | Answers to common questions and a short explanation of the terms used |
 | 🎤 | [**10. Preparing to teach**](10-teaching.md) | Write a sermon, group study or lesson from your study, with an optional assistant that helps with your own writing |
+| 📽️ | [**11. Presenting your teaching**](11-presenting.md) | Slides made from your teaching, a Presenter View for you, an audience screen, and PowerPoint, PDF or a phone speaker sheet |
 
 ## Abiding Word in one minute
 

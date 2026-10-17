@@ -48,7 +48,80 @@ const openTeaching = async (page) => {
   await page.waitForTimeout(800);
 };
 
+/** The sermon's presentation (v0.18): made from the teaching, as a person would. */
+const openPresentation = async (page) => {
+  await openTeaching(page);
+  const main = page.getByRole("main");
+  await main.getByRole("button", { name: "Presentation", exact: true }).click();
+  await main.getByRole("button", { name: "Make slides from the teaching" }).click();
+  await main.getByRole("list", { name: "Slides" }).waitFor();
+  await page.waitForTimeout(900);
+  return main;
+};
+const startPresenting = async (page) => {
+  const main = await openPresentation(page);
+  await main.getByRole("button", { name: "Start Presenter View" }).click();
+  await page.waitForTimeout(600);
+  // On to the first point, where the speaker has a manuscript.
+  for (let i = 0; i < 4; i++) await page.keyboard.press("ArrowRight");
+  await page.waitForTimeout(600);
+};
+
 const scenes = {
+  async presentation() {
+    const page = await open("", { width: 1440, height: 1400 });
+    const main = await openPresentation(page);
+    await main.getByRole("listitem", { name: /^Slide 5:/ }).getByRole("button", { name: /Jesus is the true vine/ }).click();
+    await shot(page, "presentation", main);
+    await page.close();
+  },
+  async "presenter-desktop"() {
+    const page = await open("", { width: 1440, height: 900 });
+    await startPresenting(page);
+    await shot(page, "presenter-desktop");
+    await page.close();
+  },
+  async "presenter-tablet"() {
+    const page = await open("", { width: 900, height: 1180 });
+    await startPresenting(page);
+    await shot(page, "presenter-tablet");
+    await page.close();
+  },
+  async "presenter-phone"() {
+    const page = await open("", { width: 390, height: 844, scale: 2 });
+    await startPresenting(page);
+    await shot(page, "presenter-phone");
+    await page.close();
+  },
+  async "presenter-scripture"() {
+    const page = await open("", { width: 1440, height: 900 });
+    await startPresenting(page);
+    const view = page.getByRole("dialog", { name: /Presenter View/ });
+    await view.getByRole("button", { name: "Scripture", exact: true }).click();
+    await view.getByRole("group", { name: "Passages in this presentation" }).getByRole("button", { name: "Psalm 80:8–16" }).click();
+    await page.waitForTimeout(500);
+    await shot(page, "presenter-scripture");
+    await page.close();
+  },
+  async "presentation-audience"() {
+    const page = await open("", { width: 1280, height: 720 });
+    await startPresenting(page);
+    await page.keyboard.press("ArrowRight");
+    const view = page.getByRole("dialog", { name: /Presenter View/ });
+    await view.getByRole("button", { name: "Audience screen", exact: true }).click();
+    await view.getByRole("button", { name: "Show in this window" }).click();
+    await page.mouse.move(10, 10);
+    await shot(page, "presentation-audience");
+    await page.close();
+  },
+  async "presentation-export"() {
+    const page = await open("", { width: 1440, height: 900 });
+    const main = await openPresentation(page);
+    await main.getByRole("button", { name: "Export…" }).click();
+    await page.waitForTimeout(400);
+    await shot(page, "presentation-export", page.getByRole("dialog", { name: "Export the presentation" }));
+    await page.close();
+  },
   async teaching() {
     const page = await open("", { width: 1440, height: 1500 });
     await openTeaching(page);

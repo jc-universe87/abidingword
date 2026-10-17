@@ -1127,6 +1127,17 @@ This encodes the product principle:
 > Love God by understanding Scripture carefully.  
 > Love your neighbour by teaching it appropriately.
 
+**Delivery (v0.18).** A teaching is delivered through presentations: an
+output layer, never a third workspace and never a second copy of the
+teaching. A presentation's items name the teaching parts they show and follow
+them live; one `PresentationDocument` is built from them and every output is
+rendered from it (Presenter View and audience screen, PowerPoint, PDF slides
+and speaker sheet, Markdown, a self-contained delivery package for later
+offline/mobile delivery). The audience screen gets a separate audience-only
+type with no speaker fields. The audience screen is a second Tauri window
+(first use of multi-window, §1 of the backlog), with a one-window path. See
+[`presentation-delivery-v0.18.md`](presentation-delivery-v0.18.md).
+
 ---
 
 # 29. Publication architecture

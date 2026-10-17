@@ -1,5 +1,5 @@
 {
   "light": { "background": "#FFFFFF", "text": "#1D1B18", "muted": "#55504A", "accent": "#2F5D50" },
   "dark": { "background": "#121212", "text": "#F3F1EC", "muted": "#C9C4BB", "accent": "#9FCBB9" },
-  "warm": { "background": "#F6F1E6", "text": "#2A211B", "muted": "#5F5246", "accent": "#7A4A24" }
+  "warm": { "background": "#F6F1E6", "text": "#2A211B", "muted": "#54483D", "accent": "#6B401F" }
 }

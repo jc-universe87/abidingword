@@ -97,6 +97,19 @@ teaching, and it shows where everything comes from.
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top">
+
+### 📽️ Present what you teach
+Slides made from your Bible Teaching that keep following it, a Presenter View
+for your phone, tablet or computer, the slides on a second screen, and
+PowerPoint, PDF or a phone speaker sheet to take along. Your notes are never
+shown to the audience, and it all works without the internet.
+
+<img src="docs/guide/images/presenter-desktop.png" alt="The Presenter View: all slides, the current and next slide, and the speaker's notes" width="600">
+
+</td>
+</tr>
 </table>
 
 ## Get started
