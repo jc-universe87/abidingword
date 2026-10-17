@@ -12,7 +12,7 @@
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 
-use crate::db::{bibles, findings, settings as app_settings, study_passages, teaching};
+use crate::db::{bibles, findings, sections, settings as app_settings, study_passages, teaching};
 use crate::domain::{Finding, TeachingPoint, TeachingPreparation};
 use crate::error::{AppError, AppResult, UserMessage};
 use crate::scripture::reference::ScriptureRef;
@@ -189,6 +189,8 @@ pub struct QuoteContext {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FindingContext {
     pub kind: String,
+    /// The part of the study it was written in (its heading), when it has one.
+    pub part: Option<String>,
     pub content: String,
     pub quotes: Vec<QuoteContext>,
 }
@@ -594,9 +596,14 @@ fn passages(
     Ok(out)
 }
 
-fn finding_context(f: &Finding) -> FindingContext {
+fn finding_context(f: &Finding, parts: &[(String, String)]) -> FindingContext {
     FindingContext {
         kind: f.finding_type.as_str().replace('_', " "),
+        part: f
+            .section_id
+            .as_deref()
+            .and_then(|id| parts.iter().find(|(part, _)| part == id))
+            .map(|(_, title)| cut(title, 80)),
         content: cut(&f.content, FINDING_TEXT_MAX),
         quotes: f
             .sources
@@ -645,14 +652,22 @@ fn findings_for(
             chosen.push(&link.finding);
         }
     }
+    // The study's parts, so a note says where in the study it was written.
+    let parts: Vec<(String, String)> = sections::list(conn, &prep.study_id)?
+        .into_iter()
+        .map(|s| (s.id, s.title))
+        .collect();
     let mut out: Vec<FindingContext> = if chosen.is_empty() && action.wants_study_findings() {
         let all = findings::list(conn, &prep.study_id)?;
-        all.iter().take(FINDINGS_MAX).map(finding_context).collect()
+        all.iter()
+            .take(FINDINGS_MAX)
+            .map(|f| finding_context(f, &parts))
+            .collect()
     } else {
         chosen
             .into_iter()
             .take(FINDINGS_MAX)
-            .map(finding_context)
+            .map(|f| finding_context(f, &parts))
             .collect()
     };
     // Source quotations within one limit for the whole request.
@@ -755,9 +770,12 @@ pub fn render(context: &Context) -> String {
         }
     }
     if !context.findings.is_empty() {
-        out.push_str("\nSTUDY FINDINGS (the person's own notes from their study):\n");
+        out.push_str("\nSTUDY NOTES (the person's own notes from their study):\n");
         for f in &context.findings {
-            out.push_str(&format!("- [{}] {}\n", f.kind, f.content));
+            match &f.part {
+                Some(part) => out.push_str(&format!("- [{}, in “{part}”] {}\n", f.kind, f.content)),
+                None => out.push_str(&format!("- [{}] {}\n", f.kind, f.content)),
+            }
             for q in &f.quotes {
                 out.push_str(&format!(
                     "  SOURCE QUOTATION (words of a book in their library, not the person's; attribute it): “{}” — {}\n",

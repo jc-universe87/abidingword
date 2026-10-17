@@ -164,6 +164,11 @@ fn world() -> World {
                 },
             )?;
             let f = finding(conn, &s, FindingType::Observation, "Branches do not strain; they stay.")?;
+            // Written in the study's "Observations" part: the assistant is told where.
+            conn.execute(
+                "UPDATE findings SET section_id = (SELECT id FROM study_sections WHERE study_id = ?1 AND title = 'Observations') WHERE id = ?2",
+                [&s, &f],
+            )?;
             // A finding made from a book: its quotation is the book's words.
             conn.execute_batch(&format!(
                 "INSERT INTO sources (id, workspace_id, source_type, title, author, created_at, updated_at, passage_index_version)
@@ -340,8 +345,11 @@ fn the_request_carries_the_voice_rule_and_labelled_provenance_but_no_key() {
     assert!(body.contains("Do not write a sermon"));
     assert!(body.contains("TEXT TO WORK ON"));
     assert!(body.contains("(written by the person)"));
-    assert!(body.contains("STUDY FINDINGS (the person's own notes"));
-    assert!(body.contains("Branches do not strain"));
+    assert!(body.contains("STUDY NOTES (the person's own notes"));
+    assert!(
+        body.contains("[observation, in “Observations”] Branches do not strain"),
+        "a note says the part of the study it was written in"
+    );
     assert!(
         body.contains("SOURCE QUOTATION"),
         "a source's words are labelled as the source's"
