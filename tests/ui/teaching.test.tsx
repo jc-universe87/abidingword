@@ -70,12 +70,12 @@ afterEach(async () => {
 
 /** Help → (the category holding it) → the action, as a person would click it. */
 async function helpWith(user: User, scope: HTMLElement, part: string, action: string) {
-  await user.click(within(scope).getByRole("button", { name: `Help with ${part}` }));
-  const menu = await within(scope).findByRole("menu", { name: `Help with ${part}` });
+  await user.click(within(scope).getByRole("button", { name: `AI Help with ${part}` }));
+  const menu = await within(scope).findByRole("menu", { name: `AI Help with ${part}` });
   const direct = within(menu).queryByRole("menuitem", { name: action });
   if (direct) {
     await user.click(direct);
-    return within(scope).findByTestId("assist-panel");
+    return screen.findByTestId("assist-panel");
   }
   const categories = within(menu)
     .getAllByRole("menuitem")
@@ -87,7 +87,7 @@ async function helpWith(user: User, scope: HTMLElement, part: string, action: st
     const found = within(sub).queryByRole("menuitem", { name: action });
     if (found) {
       await user.click(found);
-      return within(scope).findByTestId("assist-panel");
+      return screen.findByTestId("assist-panel");
     }
     await user.click(within(sub).getByRole("menuitem", { name: "All help" }));
   }
@@ -108,8 +108,8 @@ describe("teaching preparation", () => {
     expect(field(article, "Central message")).toHaveValue("");
     expect(within(article).getByText(/No points yet/)).toBeInTheDocument();
 
-    // The details wait under "About this teaching"; the writing comes first.
-    expect(within(article).getByRole("button", { name: /^About this teaching/ })).toHaveAttribute("aria-expanded", "false");
+    // Just created: the details are open once, to be filled in.
+    expect(within(article).getByRole("button", { name: /^About this teaching/ })).toHaveAttribute("aria-expanded", "true");
     await openAbout(user, article);
     await user.type(field(article, "Who it is for"), "Families");
     await user.type(field(article, "Central message"), "Fruit comes from abiding.");
@@ -117,7 +117,7 @@ describe("teaching preparation", () => {
     await settle();
     expect(prep(api)).toMatchObject({ audience: "Families", centralMessage: "Fruit comes from abiding.", introduction: "Have you ever pruned a rose?" });
     // With the assistant off there is no assistant anywhere.
-    expect(within(article).queryByRole("button", { name: /^Help with/ })).toBeNull();
+    expect(within(article).queryByRole("button", { name: /^AI Help with/ })).toBeNull();
   });
 
   it("adds, orders and removes main points from the keyboard", async () => {
@@ -164,6 +164,7 @@ describe("teaching preparation", () => {
     await user.click(within(studyPane()).getByRole("button", { name: "Bible Teaching" }));
     expect(await within(studyPane()).findByText("Branches stay.")).toBeInTheDocument();
 
+    await openAbout(user, within(studyPane()).getByRole("article", { name: "Sermon · Abiding" }));
     await user.click(within(studyPane()).getByRole("button", { name: "Stop using this here" }));
     await waitFor(() => expect(within(studyPane()).queryByText("Branches stay.")).toBeNull());
     expect(api.state.findings.map((f) => f.content)).toEqual(["Branches stay."]);
@@ -256,7 +257,7 @@ describe("the assistant", () => {
     expect(prep(api).introduction).toBe("We dont produce fruit by trying harder.");
   });
 
-  it("closes on Escape or Cancel with nothing changed, and gives focus back to the text", async () => {
+  it("closes on Escape or Cancel with nothing changed, and gives focus back to its AI Help button", async () => {
     const { api } = await setup({ assistant: true });
     const { user } = await renderApp(api);
     const article = await startSermon(user);
@@ -269,8 +270,9 @@ describe("the assistant", () => {
     const heading = await within(panel).findByRole("heading", { name: "Suggested wording" });
     await waitFor(() => expect(heading).toHaveFocus());
     await user.keyboard("{Escape}");
-    await waitFor(() => expect(within(article).queryByTestId("assist-panel")).toBeNull());
-    await waitFor(() => expect(field(article, "Central message")).toHaveFocus());
+    await waitFor(() => expect(screen.queryByTestId("assist-panel")).toBeNull());
+    // Focus goes back to the AI Help button that opened it.
+    await waitFor(() => expect(within(article).getByRole("button", { name: "AI Help with Central message" })).toHaveFocus());
     expect(field(article, "Central message")).toHaveValue("Fruit comes from abiding.");
     expect(prep(api).centralMessage).toBe("Fruit comes from abiding.");
   });
@@ -437,7 +439,7 @@ describe("the assistant", () => {
     const { api } = await setup();
     const { user } = await renderApp(api);
     const article = await startSermon(user);
-    expect(within(article).queryByRole("button", { name: /^Help with/ })).toBeNull();
+    expect(within(article).queryByRole("button", { name: /^AI Help with/ })).toBeNull();
     // The core refuses too.
     await expect(api.assistantAsk({ preparationId: prep(api).id, action: "grammar", part: "introduction", text: "x" })).rejects.toBeInstanceOf(ApiError);
   });
@@ -446,16 +448,16 @@ describe("the assistant", () => {
 describe("assistant settings", () => {
   it("is off until turned on, keeps the key out of sight, and checks the connection", async () => {
     const { user, api } = await renderApp(createMemoryApi());
-    const region = await openSettingsSection(user, "Assistant");
-    const enabled = await within(region).findByRole("checkbox", { name: "Use the assistant" });
+    const region = await openSettingsSection(user, "AI Assistant");
+    const enabled = await within(region).findByRole("checkbox", { name: "Use the AI Assistant" });
     expect(enabled).not.toBeChecked();
     // Off: one plain sentence instead of a disabled form.
-    expect(within(region).getByText("Turn on the assistant to choose a service and check the connection.")).toBeInTheDocument();
+    expect(within(region).getByText("Turn on the AI Assistant to choose a service and check the connection.")).toBeInTheDocument();
     expect(within(region).queryByRole("combobox", { name: "Service" })).toBeNull();
     expect(within(region).queryByRole("button", { name: "Check the connection" })).toBeNull();
 
     await user.click(enabled);
-    expect(await within(region).findByText("The assistant is on.")).toBeInTheDocument();
+    expect(await within(region).findByText("The AI Assistant is on.")).toBeInTheDocument();
     expect(api.state.teaching.assistant.config.enabled).toBe(true);
     await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "anthropic");
     expect(within(region).getByRole("textbox", { name: "Model" })).toHaveValue("claude-sonnet-5-5");
@@ -494,8 +496,8 @@ describe("assistant settings", () => {
 
   it("review fixes: a first start fills the model, Enter keeps the key, Escape in a field stays, and a kept key follows its service", async () => {
     const { user, api } = await renderApp(createMemoryApi());
-    const region = await openSettingsSection(user, "Assistant");
-    await user.click(await within(region).findByRole("checkbox", { name: "Use the assistant" }));
+    const region = await openSettingsSection(user, "AI Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
     // The default service gets its suggested model without choosing it again.
     expect(within(region).getByRole("textbox", { name: "Model" })).toHaveValue("gpt-4.1");
 
@@ -520,8 +522,8 @@ describe("assistant settings", () => {
 
   it("offers each service by name, with a suggested model and plain help for its key", async () => {
     const { user, api } = await renderApp(createMemoryApi());
-    const region = await openSettingsSection(user, "Assistant");
-    await user.click(await within(region).findByRole("checkbox", { name: "Use the assistant" }));
+    const region = await openSettingsSection(user, "AI Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
     const service = within(region).getByRole("combobox", { name: "Service" });
     const offered = within(service).getAllByRole("option").map((o) => o.textContent);
     expect(offered).toEqual(
@@ -539,9 +541,11 @@ describe("assistant settings", () => {
     // "How do I get a key?": short answers and the service's own page.
     await user.selectOptions(service, "deepseek");
     await user.click(within(region).getByText("How do I get a key?"));
-    for (const question of ["What is a key?", "Why do I need one?", "Where do I get it?", "Does it cost money?", "Where do I paste it?"]) {
-      expect(within(region).getByText(question)).toBeVisible();
+    // Step by step, assuming no technical knowledge.
+    for (const step of [/Open the DeepSeek page/, /Sign in, or create an account/, /Create a new key/, /Copy it straight away/, /Come back to Abiding Word/, /Paste it into the Key field/, /Press Keep key/, /Press Check the connection/]) {
+      expect(within(region).getByText(step)).toBeVisible();
     }
+    expect(within(region).getByText(/may ask for payment details or prepaid credit/)).toBeVisible();
     await user.click(within(region).getByRole("button", { name: "Open the DeepSeek key page" }));
     expect(api.state.library.openedLinks).toContain("https://platform.deepseek.com/api_keys");
 
@@ -560,8 +564,8 @@ describe("assistant settings", () => {
 
   it("asks the generic service for its address and explains a bad one", async () => {
     const { user } = await renderApp(createMemoryApi());
-    const region = await openSettingsSection(user, "Assistant");
-    await user.click(await within(region).findByRole("checkbox", { name: "Use the assistant" }));
+    const region = await openSettingsSection(user, "AI Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
     await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "openai_compatible");
     const test = within(region).getByRole("button", { name: "Check the connection" });
     expect(test).toHaveAccessibleDescription("To check the connection, first enter the address of the service.");
@@ -577,8 +581,8 @@ describe("assistant settings", () => {
 
   it("says text leaves the computer for a look-alike local address", async () => {
     const { user } = await renderApp(createMemoryApi());
-    const region = await openSettingsSection(user, "Assistant");
-    await user.click(await within(region).findByRole("checkbox", { name: "Use the assistant" }));
+    const region = await openSettingsSection(user, "AI Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
     await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "ollama");
     expect(within(region).getByText("Runs on this computer: your text does not leave it.")).toBeInTheDocument();
     await user.click(within(region).getByText("Advanced"));
@@ -588,27 +592,116 @@ describe("assistant settings", () => {
 
   it("explains real-story research without promising truth, and keeps theology optional", async () => {
     const { user, api } = await renderApp(createMemoryApi());
-    const region = await openSettingsSection(user, "Assistant");
-    await user.click(await within(region).findByRole("checkbox", { name: "Use the assistant" }));
-    const search = within(region).getByRole("combobox", { name: "Look up real stories" });
-    expect(search).toHaveAccessibleDescription(/cannot be trusted to remember facts/);
-    expect(search).toHaveAccessibleDescription(/Read the sources yourself/);
+    const region = await openSettingsSection(user, "AI Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
+    // The explanation waits behind the help button.
+    const searchHelp = within(region).getByRole("button", { name: "More about: Look up real stories" });
+    const explanation = within(region).getByText(/may remember real events incorrectly/);
+    expect(explanation).not.toBeVisible();
+    await user.click(searchHelp);
+    expect(explanation).toBeVisible();
+    expect(explanation).toHaveTextContent(/check a story before you use it/);
     const words = region.textContent ?? "";
     expect(words).not.toMatch(/proves?|guarantee|verified as true/i);
 
-    const theology = within(region).getByRole("textbox", { name: /How should the assistant place theological questions\?/ });
+    const theology = within(region).getByRole("textbox", { name: /How should the AI approach theological questions\?/ });
     expect(within(region).getByText("(optional)")).toBeInTheDocument();
     expect(theology).toHaveValue("");
-    expect(theology).toHaveAccessibleDescription(/assumes no particular tradition/);
+    const help = within(region).getByRole("button", { name: "More about: How should the AI approach theological questions?" });
+    await user.click(help);
+    const note = within(region).getByText(/This does not ask about your life/);
+    expect(note).toBeVisible();
+    expect(note).toHaveTextContent(/still mentions other serious interpretations/);
+    expect(note).toHaveTextContent(/no tradition is assumed/);
     // Examples to start from; nothing about the person's life is asked.
     const examples = within(region).getByRole("group", { name: "Examples:" });
+    expect(within(examples).getAllByRole("button").map((b) => b.textContent)).toEqual(["Reformed evangelical", "Lutheran", "Roman Catholic", "Pentecostal", "No particular tradition"]);
     await user.click(within(examples).getByRole("button", { name: "Lutheran" }));
-    await user.click(within(examples).getByRole("button", { name: "On disputed questions, show the different views first." }));
-    expect(theology).toHaveValue("Lutheran On disputed questions, show the different views first.");
-    expect(words).not.toMatch(/biograph|your life|testimony/i);
+    expect(theology).toHaveValue("Lutheran");
+    expect(words).not.toMatch(/biograph|testimony/i);
     await user.click(within(region).getByRole("button", { name: "Save" }));
-    await waitFor(() => expect(api.state.teaching.assistant.config.perspective).toBe("Lutheran On disputed questions, show the different views first."));
+    await waitFor(() => expect(api.state.teaching.assistant.config.perspective).toBe("Lutheran"));
   });
+
+  it("links each cloud service's own current model list, and invents none for another service", async () => {
+    const { user, api } = await renderApp(createMemoryApi());
+    const region = await openSettingsSection(user, "AI Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
+    const service = within(region).getByRole("combobox", { name: "Service" });
+    const expected: [string, string, string][] = [
+      ["openai", "OpenAI", "https://platform.openai.com/docs/models"],
+      ["anthropic", "Anthropic", "https://docs.anthropic.com/en/docs/about-claude/models"],
+      ["google", "Google", "https://ai.google.dev/gemini-api/docs/models"],
+      ["xai", "xAI", "https://docs.x.ai/docs/models"],
+      ["perplexity", "Perplexity", "https://docs.perplexity.ai/getting-started/models"],
+      ["deepseek", "DeepSeek", "https://api-docs.deepseek.com/quick_start/pricing"],
+      ["qwen", "Alibaba Cloud", "https://www.alibabacloud.com/help/en/model-studio/models"],
+    ];
+    for (const [kind, name, url] of expected) {
+      await user.selectOptions(service, kind);
+      expect(within(region).getByText("Suggested model. You can change it.")).toBeInTheDocument();
+      await user.click(within(region).getByRole("button", { name: `See ${name}’s current models` }));
+      expect(api.state.library.openedLinks.at(-1)).toBe(url);
+    }
+    // Programs on this computer: their own lists of models to download.
+    await user.selectOptions(service, "ollama");
+    await user.click(within(region).getByRole("button", { name: "See models you can download for Ollama" }));
+    expect(api.state.library.openedLinks.at(-1)).toBe("https://ollama.com/library");
+    // Another compatible service: no list is made up.
+    await user.selectOptions(service, "openai_compatible");
+    expect(within(region).queryByRole("button", { name: /current models|models you can download/ })).toBeNull();
+    // The model stays editable.
+    const model = within(region).getByRole("textbox", { name: "Model" });
+    await user.type(model, "my-own-model");
+    expect(model).toHaveValue("my-own-model");
+  });
+
+  it("explains Brave Search simply and keeps SearXNG as the advanced choice", async () => {
+    const { user, api } = await renderApp(createMemoryApi());
+    const region = await openSettingsSection(user, "AI Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
+    const search = within(region).getByRole("combobox", { name: "Look up real stories" });
+    // SearXNG sits under "Other (advanced)", apart from the simple choices.
+    const advanced = within(search).getByRole("group", { name: "Other (advanced)" });
+    expect(within(advanced).getByRole("option", { name: /SearXNG/ })).toBeInTheDocument();
+
+    await user.selectOptions(search, "brave");
+    await user.click(within(region).getByText("What is Brave Search, and how do I set it up?"));
+    expect(within(region).getByText(/an internet search service/)).toBeVisible();
+    expect(within(region).getByText(/limits how many searches/)).toBeVisible();
+    await user.click(within(region).getByRole("button", { name: "Open the Brave Search API page" }));
+    expect(api.state.library.openedLinks.at(-1)).toBe("https://brave.com/search/api/");
+    expect(within(region).getByLabelText("Search key")).toBeInTheDocument();
+
+    await user.selectOptions(search, "searxng");
+    expect(within(region).getByText(/choosing it here does not work on its own/)).toBeVisible();
+    expect(within(region).getByText(/Brave Search is the simpler choice/)).toBeVisible();
+    expect(within(region).getByRole("textbox", { name: "SearXNG address" })).toBeInTheDocument();
+  });
+
+  it("says plainly whether images can be made, and lets OpenAI make them while another service writes", async () => {
+    const { user, api } = await renderApp(createMemoryApi());
+    const region = await openSettingsSection(user, "AI Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
+    await user.click(within(region).getByRole("checkbox", { name: /Allow making images/ }));
+    const capability = () => within(region).getByTestId("image-capability");
+    expect(capability()).toHaveTextContent("OpenAI (ChatGPT) can make images.");
+
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "anthropic");
+    await waitFor(() => expect(capability()).toHaveTextContent("Anthropic (Claude) cannot make images. Choose OpenAI for images, or leave this off."));
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "google");
+    await waitFor(() => expect(capability()).toHaveTextContent(/cannot tell whether Google Gemini can make images/));
+
+    // Write with Claude, make images with OpenAI.
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "anthropic");
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Make images with" }), "openai");
+    expect(capability()).toHaveTextContent("OpenAI (ChatGPT) can make images.");
+    await user.type(within(region).getByLabelText("OpenAI key for images"), "sk-img{Enter}");
+    await waitFor(() => expect(api.state.teaching.assistant.keys.get("openai")).toBe("sk-img"));
+    expect(api.state.teaching.assistant.config).toMatchObject({ provider: "anthropic", imageService: "openai", generateImages: true });
+    expect(api.state.teaching.assistant.keys.has("anthropic")).toBe(false);
+  });
+
 });
 
 describe("the comparison of a suggestion", () => {
@@ -745,8 +838,8 @@ describe("the help menu", () => {
     const { api } = await setup({ assistant: true });
     const { user } = await renderApp(api);
     const article = await startSermon(user);
-    await user.click(within(article).getByRole("button", { name: "Help with Introduction" }));
-    const menu = await within(article).findByRole("menu", { name: "Help with Introduction" });
+    await user.click(within(article).getByRole("button", { name: "AI Help with Introduction" }));
+    const menu = await within(article).findByRole("menu", { name: "AI Help with Introduction" });
     const items = within(menu).getAllByRole("menuitem").map((i) => i.textContent);
     expect(items).toEqual(["Improve my wording", "Review what I wrote", "Help with structure", "Ideas and illustrations", "Look something up", "Ask for something else…"]);
     expect(items.length).toBeLessThanOrEqual(6);
@@ -758,10 +851,10 @@ describe("the help menu", () => {
     const { api } = await setup({ assistant: true });
     const { user } = await renderApp(api);
     const article = await startSermon(user);
-    const help = within(article).getByRole("button", { name: "Help with Introduction" });
+    const help = within(article).getByRole("button", { name: "AI Help with Introduction" });
     help.focus();
     await user.keyboard("{Enter}");
-    await within(article).findByRole("menu", { name: "Help with Introduction" });
+    await within(article).findByRole("menu", { name: "AI Help with Introduction" });
     await user.keyboard("{ArrowDown}");
     expect(within(article).getByRole("menuitem", { name: "Review what I wrote" })).toHaveFocus();
     await user.keyboard("{ArrowRight}");
@@ -773,7 +866,7 @@ describe("the help menu", () => {
     expect(within(article).getByRole("menuitem", { name: "Review what I wrote" })).toHaveFocus();
     await user.keyboard("{Enter}");
     await user.keyboard("{ArrowLeft}");
-    expect(within(article).getByRole("menu", { name: "Help with Introduction" })).toBeInTheDocument();
+    expect(within(article).getByRole("menu", { name: "AI Help with Introduction" })).toBeInTheDocument();
     await user.keyboard("{End}");
     expect(within(article).getByRole("menuitem", { name: "Ask for something else…" })).toHaveFocus();
     await user.keyboard("{Escape}");
@@ -917,7 +1010,11 @@ describe("the teaching canvas", () => {
   it("puts the writing first and keeps the details folded away until wanted", async () => {
     const { api } = await setup();
     const { user } = await renderApp(api);
-    const article = await startSermon(user);
+    await startSermon(user);
+    // Visited again later: the details start folded, and the writing comes first.
+    await user.click(within(studyPane()).getByRole("button", { name: "Bible Study" }));
+    await user.click(within(studyPane()).getByRole("button", { name: "Bible Teaching" }));
+    const article = await within(studyPane()).findByRole("article", { name: "Sermon · Abiding" });
     const about = within(article).getByRole("button", { name: /^About this teaching/ });
     expect(about).toHaveAttribute("aria-expanded", "false");
     expect(within(article).queryByRole("textbox", { name: "Who it is for" })).toBeNull();
@@ -957,7 +1054,87 @@ describe("the teaching canvas", () => {
     await user.type(field(article, "Introduction"), "Abide.");
     await settle();
     expect(prep(api).introduction).toBe("Abide.");
-    expect(within(article).queryByRole("button", { name: /^Help with/ })).toBeNull();
+    expect(within(article).queryByRole("button", { name: /^AI Help with/ })).toBeNull();
     expect(within(article).queryByText(/assistant/i)).toBeNull();
+  });
+});
+
+describe("the floating AI panel", () => {
+  it("opens over the workspace without moving the teaching, as a non-modal dialog tied to its part", async () => {
+    const { api } = await setup({ assistant: true });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await user.type(field(article, "Introduction"), "We dont stay.");
+    await settle();
+    const panel = await helpWith(user, article, "Introduction", "Check grammar and spelling");
+    // Not inside the teaching: the text does not move.
+    expect(article).not.toContainElement(panel);
+    const floating = screen.getByRole("dialog", { name: "AI Assistant: Check grammar and spelling · Introduction" });
+    expect(floating).toHaveAttribute("aria-modal", "false");
+    expect(floating).toContainElement(panel);
+    // The teaching stays usable while it is open.
+    await user.type(field(article, "Conclusion"), "Abide.");
+    expect(field(article, "Conclusion")).toHaveValue("Abide.");
+    expect(screen.getByTestId("assist-panel")).toBeInTheDocument();
+    // The panel keeps the part it was opened for.
+    expect(within(panel).getByRole("heading", { level: 4 })).toHaveTextContent("Check grammar and spelling · Introduction");
+  });
+
+  it("minimises to a small chip and opens again with its request kept, by keyboard too", async () => {
+    const { api } = await setup({ assistant: true });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    const panel = await helpWith(user, article, "Introduction", "Ask for something else…");
+    await user.type(within(panel).getByRole("textbox", { name: "What would you like help with?" }), "Is this too long?");
+    await user.click(screen.getByRole("button", { name: "Minimise" }));
+    expect(screen.getByTestId("assist-panel")).not.toBeVisible();
+    expect(screen.queryByRole("dialog", { name: /^AI Assistant/ })).toBeNull();
+    const chip = screen.getByRole("button", { name: "Open the AI Assistant again: Ask for something else… · Introduction" });
+    await waitFor(() => expect(chip).toHaveFocus());
+    await user.keyboard("{Enter}");
+    const again = screen.getByTestId("assist-panel");
+    expect(again).toBeVisible();
+    expect(within(again).getByRole("textbox", { name: "What would you like help with?" })).toHaveValue("Is this too long?");
+  });
+
+  it("shows one panel at a time: asking about another part moves it there", async () => {
+    const { api } = await setup({ assistant: true });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await user.type(field(article, "Introduction"), "One.");
+    await user.type(field(article, "Conclusion"), "Two.");
+    await settle();
+    await helpWith(user, article, "Introduction", "Check grammar and spelling");
+    await helpWith(user, article, "Conclusion", "Make it clearer");
+    const panels = screen.getAllByTestId("assist-panel");
+    expect(panels).toHaveLength(1);
+    expect(within(panels[0]!).getByRole("heading", { level: 4 })).toHaveTextContent("Make it clearer · Conclusion");
+  });
+
+  it("offers Make an image only where the service can make images, with the reason, while Find stays", async () => {
+    const { api } = await setup({ assistant: true });
+    await api.assistantSettingsSet({ ...api.state.teaching.assistant.config, provider: "anthropic", generateImages: true });
+    await api.assistantKeySet("provider", "sk-ant");
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await user.type(field(article, "Introduction"), "Jesus is the vine.");
+    await settle();
+    // The menu says so beside the picture ideas.
+    await user.click(within(article).getByRole("button", { name: "AI Help with Introduction" }));
+    await user.click(within(article).getByRole("menuitem", { name: "Ideas and illustrations" }));
+    expect(within(article).getByText(/This AI service cannot make images/)).toBeInTheDocument();
+    await user.keyboard("{Escape}{Escape}");
+
+    api.state.teaching.assistant.replies.push({
+      result: { type: "visuals", ideas: [{ description: "A vine", kind: "photo", searchTerms: "grapevine" }] },
+      assistant: "Anthropic · test-model",
+      remote: true,
+    });
+    const panel = await helpWith(user, article, "Introduction", "Suggest a visual");
+    await ask(user, panel);
+    const make = await within(panel).findByRole("button", { name: "Make an image" });
+    expect(make).toBeDisabled();
+    expect(make).toHaveAccessibleDescription(/This AI service cannot make images/);
+    expect(within(panel).getByRole("button", { name: "Find freely licensed images" })).toBeEnabled();
   });
 });

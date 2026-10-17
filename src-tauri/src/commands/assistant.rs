@@ -33,6 +33,8 @@ pub fn assistant_settings_set(
 pub enum KeyKind {
     Provider,
     Search,
+    /// The image service's key, when images are made by another service.
+    Image,
 }
 
 /// Keeps (or, when blank, removes) a key in the credential store. The key
@@ -49,6 +51,7 @@ pub fn assistant_key_set(
         let name = match which {
             KeyKind::Provider => secrets::provider_key_name(config.provider.as_str()),
             KeyKind::Search => secrets::search_key_name("brave"),
+            KeyKind::Image => secrets::provider_key_name(config.image_provider().as_str()),
         };
         state.secrets().set(&name, key.as_deref())?;
         assistant::settings(conn, state.secrets())
@@ -163,9 +166,10 @@ pub async fn assistant_generate_image(
 ) -> CommandResult<GeneratedImage> {
     let (config, key) = state.db(|conn| {
         let config = config::get(conn)?;
-        let key = state
-            .secrets()
-            .get(&secrets::provider_key_name(config.provider.as_str()))?;
+        // The image service's own key: OpenAI's when images are made there.
+        let key = state.secrets().get(&secrets::provider_key_name(
+            config.image_provider().as_str(),
+        ))?;
         Ok((config, key))
     })?;
     let description: String = description.trim().chars().take(1_000).collect();
@@ -182,10 +186,10 @@ pub async fn assistant_generate_image(
     Ok(GeneratedImage {
         file,
         data_url,
-        assistant: if config.image_model.is_empty() {
-            format!("{} · gpt-image-1", config.provider.label())
-        } else {
-            format!("{} · {}", config.provider.label(), config.image_model)
-        },
+        assistant: format!(
+            "{} · {}",
+            config.image_provider().label(),
+            config.image_model_name()
+        ),
     })
 }

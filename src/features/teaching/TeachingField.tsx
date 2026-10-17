@@ -7,12 +7,16 @@ import type { AssistAction, KeepTeachingMaterial, TeachingPart } from "@/types/t
 import { DetectedReferences } from "@/features/studies/DetectedReferences";
 import { AssistMenu } from "./AssistMenu";
 import { AssistPanel, type AssistTarget } from "./AssistPanel";
+import { FloatingPanel, useAssistDock } from "./FloatingPanel";
+import { assistLabel } from "./labels";
 
 /** What a field needs to offer the assistant (absent when it is turned off). */
 export interface AssistantHooks {
   preparationId: string;
   canFindImages: boolean;
   canGenerateImages: boolean;
+  /** Why images cannot be made, when they cannot ("off" in Settings, or the service cannot). */
+  imagesNote: "off" | "unsupported" | null;
   keep: (material: Omit<KeepTeachingMaterial, "preparationId">) => Promise<void>;
   addPassage: (reference: ScriptureRef, pointId: string | null) => Promise<void>;
 }
@@ -54,6 +58,9 @@ export function TeachingField(props: TeachingFieldProps) {
   const [undo, setUndo] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const area = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
+  const root = useRef<HTMLDivElement>(null);
+  // One assistant panel at a time, over the workspace: this part's shows only while it owns it.
+  const dock = useAssistDock();
   const { schedule, flush } = useAutosave(save);
 
   useLayoutEffect(() => {
@@ -82,6 +89,7 @@ export function TeachingField(props: TeachingFieldProps) {
     const end = el?.selectionEnd ?? 0;
     const selected = end > start && text.slice(start, end).trim().length > 0;
     setNotice("");
+    dock.claim(fid);
     setAction({
       action: chosen,
       target: {
@@ -94,9 +102,13 @@ export function TeachingField(props: TeachingFieldProps) {
     });
   };
 
-  const close = () => {
+  /** Closes the panel. Focus goes back to this part's AI Help button, or to the text after a change was put in. */
+  const close = (toText = false) => {
     setAction(null);
-    requestAnimationFrame(() => area.current?.focus({ preventScroll: true }));
+    dock.release(fid);
+    requestAnimationFrame(() =>
+      (toText ? area.current : root.current?.querySelector<HTMLElement>("button[aria-haspopup='menu']"))?.focus({ preventScroll: true }),
+    );
   };
 
   /** One line for a single-line part (an input cannot hold line breaks). */
@@ -131,7 +143,7 @@ export function TeachingField(props: TeachingFieldProps) {
     change(next);
     flush();
     setNotice(t("studies.teaching.assist.applied"));
-    close();
+    close(true);
     return true;
   };
 
@@ -140,7 +152,7 @@ export function TeachingField(props: TeachingFieldProps) {
     change(text.trim() ? `${text.trimEnd()}\n\n${option.trim()}` : option.trim());
     flush();
     setNotice(t("studies.teaching.assist.applied"));
-    close();
+    close(true);
   };
 
   const field = emphasis
@@ -148,7 +160,7 @@ export function TeachingField(props: TeachingFieldProps) {
     : "reading block w-full resize-none overflow-hidden rounded-aw border border-border-subtle bg-bg px-3 py-2 text-text placeholder:text-text-muted hover:border-border focus:border-border";
 
   return (
-    <div className="flex flex-col gap-1">
+    <div ref={root} className="flex flex-col gap-1">
       {emphasis ? (
         <label htmlFor={fid} className="sr-only">
           {label}
@@ -158,7 +170,7 @@ export function TeachingField(props: TeachingFieldProps) {
           <label htmlFor={fid} className="text-[0.9375rem] font-semibold text-text-strong">
             {label}
           </label>
-          {assistant && !action && <AssistMenu part={part} partLabel={label} onChoose={choose} />}
+          {assistant && <AssistMenu part={part} partLabel={label} onChoose={choose} imagesNote={assistant.imagesNote} />}
         </div>
       )}
       {hint && (
@@ -200,7 +212,7 @@ export function TeachingField(props: TeachingFieldProps) {
             onBlur={flush}
             className={`${field} h-11 min-w-0 flex-1`}
           />
-          {emphasis && assistant && !action && <AssistMenu part={part} partLabel={label} onChoose={choose} />}
+          {emphasis && assistant && <AssistMenu part={part} partLabel={label} onChoose={choose} imagesNote={assistant.imagesNote} />}
         </div>
       )}
       {onRevealScripture && multiline && <DetectedReferences text={text} onOpen={onRevealScripture} />}
@@ -226,7 +238,8 @@ export function TeachingField(props: TeachingFieldProps) {
       <p aria-live="polite" className="sr-only">
         {notice}
       </p>
-      {assistant && action && (
+      {assistant && action && dock.owner === fid && (
+        <FloatingPanel label={`${assistLabel(t, action.action)} · ${label}`}>
         <AssistPanel
           key={action.action}
           preparationId={assistant.preparationId}
@@ -237,10 +250,12 @@ export function TeachingField(props: TeachingFieldProps) {
           singleLine={!multiline}
           onKeep={(material) => assistant.keep({ ...material, pointId })}
           onAddPassage={(reference) => assistant.addPassage(reference, pointId)}
-          onClose={close}
+          onClose={() => close()}
           canFindImages={assistant.canFindImages}
           canGenerateImages={assistant.canGenerateImages}
+          imagesNote={assistant.imagesNote}
         />
+        </FloatingPanel>
       )}
     </div>
   );

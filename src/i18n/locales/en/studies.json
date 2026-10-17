@@ -704,8 +704,8 @@
       "suggestion": "The assistant’s suggestion"
     },
     "assist": {
-      "menu": "Help",
-      "menuLabel": "Help with {{part}}",
+      "menu": "AI Help",
+      "menuLabel": "AI Help with {{part}}",
       "action": {
         "grammar": "Check grammar and spelling",
         "clarity": "Make it clearer",
@@ -819,7 +819,11 @@
         },
         "find": "Find freely licensed images",
         "make": "Make an image",
-        "keepIdea": "Keep this idea"
+        "keepIdea": "Keep this idea",
+        "cannotMake": {
+          "off": "Making images is turned off (Settings → AI Assistant). Finding freely licensed images still works.",
+          "unsupported": "This AI service cannot make images. You can choose OpenAI for images in Settings → AI Assistant. Finding freely licensed images still works."
+        }
       },
       "images": {
         "found": "Images found",
@@ -851,7 +855,11 @@
         "story": "Looking for sources… This can take a little while.",
         "findImages": "Finding suitable images…",
         "makeImage": "Creating an image… This can take a little while."
-      }
+      },
+      "menuTitle": "Help from the AI Assistant",
+      "minimise": "Minimise",
+      "restore": "Open the AI Assistant again: {{label}}",
+      "panelLabel": "AI Assistant: {{label}}"
     },
     "shape": {
       "points": {

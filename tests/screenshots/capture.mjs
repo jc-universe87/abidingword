@@ -59,26 +59,45 @@ const scenes = {
     const page = await open("", { width: 1440, height: 1000 });
     await openTeaching(page);
     const main = page.getByRole("main");
-    await main.getByRole("button", { name: "Help with Introduction" }).click();
+    await main.getByRole("button", { name: "AI Help with Introduction" }).click();
     await main.getByRole("menuitem", { name: "Improve my wording" }).click();
     await main.getByRole("menuitem", { name: "Make it sound natural" }).click();
-    const panel = main.getByTestId("assist-panel");
+    const panel = page.getByTestId("assist-panel");
     await panel.getByRole("button", { name: "Ask" }).click();
     await panel.getByRole("heading", { name: "Suggested wording" }).waitFor();
-    await panel.scrollIntoViewIfNeeded();
-    const box = await panel.boundingBox();
-    await shot(page, "teaching-help", { screenshot: (o) => page.screenshot({ ...o, clip: { x: box.x - 16, y: box.y - 150, width: box.width + 32, height: box.height + 166 } }) });
+    // The whole window: the panel floats over the workspace, the teaching stays where it was.
+    await shot(page, "teaching-help");
     await page.close();
   },
   async "teaching-menu"() {
     const page = await open("", { width: 1440, height: 1400 });
     await openTeaching(page);
     const main = page.getByRole("main");
-    await main.getByRole("button", { name: "Help with Introduction" }).click();
+    await main.getByRole("button", { name: "AI Help with Introduction" }).click();
     const menu = main.getByRole("menu");
     await menu.waitFor();
     const box = await menu.boundingBox();
     await shot(page, "teaching-menu", { screenshot: (o) => page.screenshot({ ...o, clip: { x: box.x - 420, y: box.y - 90, width: box.width + 440, height: box.height + 110 } }) });
+    await page.close();
+  },
+  async appearance() {
+    const page = await open();
+    await page.getByRole("button", { name: "Settings" }).click();
+    const section = page.getByRole("region", { name: "Appearance" });
+    await section.getByRole("button", { name: "Appearance" }).click();
+    await section.getByRole("radio", { name: "Sage" }).check({ force: true });
+    await page.waitForTimeout(400);
+    await shot(page, "appearance", section);
+    await page.close();
+  },
+  async "add-bible-sheet"() {
+    const page = await open();
+    await page.getByRole("button", { name: "Settings" }).click();
+    const section = page.getByRole("region", { name: "Bible texts" });
+    await section.getByRole("button", { name: "Bible texts" }).click();
+    await section.getByRole("button", { name: "Add a Bible…" }).click();
+    await page.getByRole("dialog", { name: "Add a Bible" }).waitFor();
+    await shot(page, "add-bible-sheet");
     await page.close();
   },
   async workspace() {
@@ -180,7 +199,7 @@ Object.assign(scenes, {
     await page.getByRole("button", { name: "Add a Bible…" }).first().click();
     await page.getByRole("combobox", { name: "Choose a Bible" }).selectOption({ label: "Berean Standard Bible (BSB)" });
     await page.getByRole("button", { name: "Add…" }).click();
-    await page.getByRole("dialog").waitFor();
+    await page.getByRole("dialog", { name: /^Add Berean/ }).waitFor();
     await shot(page, "add-bible-confirm");
     await page.close();
   },
@@ -265,8 +284,8 @@ Object.assign(scenes, {
   async "settings-assistant"() {
     const page = await open("", { width: 1440, height: 2600 });
     await page.getByRole("button", { name: "Settings" }).click();
-    const section = page.getByRole("region", { name: "Assistant" });
-    await section.getByRole("button", { name: "Assistant" }).click();
+    const section = page.getByRole("region", { name: "AI Assistant" });
+    await section.getByRole("button", { name: "AI Assistant" }).click();
     await section.getByText("How do I get a key?").click();
     await page.waitForTimeout(400);
     await shot(page, "settings-assistant", section);

@@ -1,21 +1,19 @@
-import { useCallback, useId, useMemo, useRef, useState, type FormEvent } from "react";
+import { useCallback, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowDown, ArrowUp, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
-import { readLocal, writeLocal } from "@/lib/storage";
 import { useApi } from "@/lib/ApiContext";
+import { referenceLabel } from "@/i18n/scripture";
 import type { Finding } from "@/types/studies";
 import { TEACHING_KINDS, type TeachingKind, type TeachingPoint, type TeachingPreparation } from "@/types/teaching";
 import { AssistMenu } from "./AssistMenu";
 import { AssistPanel } from "./AssistPanel";
-import { canvasShape, teachingKindLabel, type ShapeText } from "./labels";
+import { FloatingPanel, AssistDockProvider, useAssistDock } from "./FloatingPanel";
+import { assistLabel, canvasShape, teachingKindLabel, type ShapeText } from "./labels";
 import { TeachingField, type AssistantHooks } from "./TeachingField";
 import { TeachingLinks } from "./TeachingLinks";
-
-/** Whether "About this teaching" is open, remembered on this computer. */
-const ABOUT_KEY = "teaching.aboutOpen";
 
 interface TeachingViewProps {
   studyId: string;
@@ -36,6 +34,8 @@ export function TeachingView({ studyId, studyTitle, findings, onRevealScripture 
   const settings = useLoad(useCallback(() => api.assistantSettingsGet(), [api]));
   const [chosen, setChosen] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  // A teaching just created opens with its details, so they can be filled in; later visits start folded.
+  const [fresh, setFresh] = useState<string | null>(null);
   const id = useId();
 
   const preparations = list.data ?? [];
@@ -47,6 +47,7 @@ export function TeachingView({ studyId, studyTitle, findings, onRevealScripture 
   const created = (prep: TeachingPreparation) => {
     setCreating(false);
     setChosen(prep.id);
+    setFresh(prep.id);
     list.reload();
   };
 
@@ -62,38 +63,42 @@ export function TeachingView({ studyId, studyTitle, findings, onRevealScripture 
     );
   }
 
+  const another = (
+    <button
+      type="button"
+      onClick={() => setCreating(true)}
+      className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+    >
+      <Plus className="size-4" aria-hidden="true" />
+      {t("studies.teaching.another")}
+    </button>
+  );
+
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center gap-2">
-          {preparations.length > 1 && (
-            <>
-              <label htmlFor={`${id}-which`} className="text-[0.9375rem] text-text-muted">
-                {t("studies.teaching.which")}
-              </label>
-              <select
-                id={`${id}-which`}
-                value={currentId ?? ""}
-                onChange={(e) => setChosen(e.target.value)}
-                className="h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2 text-[0.9375rem]"
-              >
-                {preparations.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.kind ? `${p.title} · ${teachingKindLabel(t, p.kind)}` : p.title}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
-          <button
-            type="button"
-            onClick={() => setCreating(true)}
-            className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+    <div className="flex flex-col gap-3">
+      {/* Choosing between teachings needs a row only when there is more than one. */}
+      {preparations.length > 1 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <label htmlFor={`${id}-which`} className="text-[0.9375rem] text-text-muted">
+            {t("studies.teaching.which")}
+          </label>
+          <select
+            id={`${id}-which`}
+            value={currentId ?? ""}
+            onChange={(e) => setChosen(e.target.value)}
+            className="h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2 text-[0.9375rem]"
           >
-            <Plus className="size-4" aria-hidden="true" />
-            {t("studies.teaching.another")}
-          </button>
-      </div>
+            {preparations.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.kind ? `${p.title} · ${teachingKindLabel(t, p.kind)}` : p.title}
+              </option>
+            ))}
+          </select>
+          {another}
+        </div>
+      )}
       {currentId && (
+        <AssistDockProvider key={currentId}>
         <TeachingEditor
           key={currentId}
           preparationId={currentId}
@@ -105,7 +110,10 @@ export function TeachingView({ studyId, studyTitle, findings, onRevealScripture 
             list.reload();
           }}
           onRevealScripture={onRevealScripture}
+          startOpen={fresh === currentId}
+          another={preparations.length > 1 ? null : another}
         />
+        </AssistDockProvider>
       )}
     </div>
   );
@@ -205,13 +213,17 @@ function NewTeaching({
 interface EditorProps {
   preparationId: string;
   findings: Finding[];
-  assistant: { canGenerateImages: boolean; config: { findImages: boolean } } | null;
+  assistant: { canGenerateImages: boolean; config: { findImages: boolean; generateImages: boolean } } | null;
   onRenamed: () => void;
   onDeleted: () => void;
   onRevealScripture: () => void;
+  /** Just created: "About this teaching" starts open. */
+  startOpen: boolean;
+  /** "Prepare another teaching", kept with the details when there is only one teaching. */
+  another: ReactNode;
 }
 
-function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDeleted, onRevealScripture }: EditorProps) {
+function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDeleted, onRevealScripture, startOpen, another }: EditorProps) {
   const { t } = useTranslation();
   const api = useApi();
   const loaded = useLoad(useCallback(() => api.teachingGet(preparationId), [api, preparationId]));
@@ -221,8 +233,10 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
   const setPrep = loaded.setData;
   const [newPoint, setNewPoint] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  // "About this teaching" (kind, audience, purpose, what it uses) stays folded away unless wanted.
-  const [aboutOpen, setAboutOpen] = useState(() => readLocal<boolean>(ABOUT_KEY, false));
+  // "About this teaching" (kind, audience, purpose, what it uses) stays folded away unless wanted:
+  // open only right after the teaching was created, so its details can be filled in.
+  const [aboutOpen, setAboutOpen] = useState(startOpen);
+  const dock = useAssistDock();
   const [wholeAction, setWholeAction] = useState<"structure" | "restructure" | "free" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
@@ -253,6 +267,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
             preparationId: prep.id,
             canFindImages: assistant.config.findImages,
             canGenerateImages: assistant.canGenerateImages,
+            imagesNote: assistant.canGenerateImages ? null : assistant.config.generateImages ? "unsupported" : "off",
             keep: async (material) => {
               const next = await api.teachingMaterialKeep({ ...material, preparationId: prep.id });
               setPrep(next);
@@ -326,14 +341,18 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
     }
   };
 
-  const aboutSummary = [prep.kind ? teachingKindLabel(t, prep.kind) : "", prep.audience?.trim() ? t("studies.teaching.aboutFor", { audience: prep.audience.trim() }) : ""]
+  const firstPassage = prep.passages.find((p) => p.pointId === null);
+  const aboutSummary = [
+    prep.kind ? teachingKindLabel(t, prep.kind) : "",
+    prep.audience?.trim() ? t("studies.teaching.aboutFor", { audience: prep.audience.trim() }) : "",
+    firstPassage ? referenceLabel(firstPassage.reference) : "",
+  ]
     .filter(Boolean)
     .join(" · ");
   const toggleAbout = () => {
     // A delete question left open is withdrawn with the section, so focus is never left in a hidden place.
     if (aboutOpen) setConfirmDelete(false);
     setAboutOpen(!aboutOpen);
-    writeLocal(ABOUT_KEY, !aboutOpen);
   };
 
   const kindField = (
@@ -355,7 +374,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
   );
 
   return (
-    <article aria-label={prep.title} className="flex flex-col gap-6">
+    <article aria-label={prep.title} className="flex flex-col gap-5">
       <header className="flex flex-col gap-1">
         <TeachingField
           key={`title-${prep.id}`}
@@ -400,7 +419,8 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         <TeachingField key={`audience-${prep.id}`} label={t("studies.teaching.audience")} value={prep.audience ?? ""} save={save("audience")} part="audience" multiline={false} placeholder={t("studies.teaching.audiencePlaceholder")} assistant={hooks} />
         <TeachingField key={`purpose-${prep.id}`} label={t("studies.teaching.purpose")} value={prep.purpose ?? ""} save={save("purpose")} part="purpose" multiline={false} placeholder={t("studies.teaching.purposePlaceholder")} assistant={hooks} />
         <TeachingLinks preparation={prep} pointId={null} scope={t("studies.teaching.links.wholeScope")} studyFindings={findings} onChanged={setPrep} onRevealScripture={onRevealScripture} />
-        <div>
+        <div className="flex flex-wrap items-center gap-2">
+          {another}
           {confirmDelete ? (
             <span className="flex flex-wrap items-center gap-2 rounded-aw border border-border bg-bg px-2 py-1 text-[0.9375rem]">
               <span>{t("studies.teaching.deleteConfirm")}</span>
@@ -443,10 +463,21 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
           <h3 id={`points-${prep.id}`} className="m-0 font-display text-[1.25rem] font-heading text-text-strong">
             {shape("title")}
           </h3>
-          {hooks && !wholeAction && <AssistMenu part="whole" partLabel={t("studies.teaching.points.whole")} onChoose={(a) => setWholeAction(a as "structure" | "restructure" | "free")} />}
+          {hooks && (
+            <AssistMenu
+              part="whole"
+              partLabel={t("studies.teaching.points.whole")}
+              imagesNote={hooks.imagesNote}
+              onChoose={(a) => {
+                dock.claim("whole");
+                setWholeAction(a as "structure" | "restructure" | "free");
+              }}
+            />
+          )}
         </div>
         {prep.points.length === 0 && <p className="m-0 text-text-muted">{shape("none")}</p>}
-        {hooks && wholeAction && (
+        {hooks && wholeAction && dock.owner === "whole" && (
+          <FloatingPanel label={`${assistLabel(t, wholeAction)} · ${t("studies.teaching.points.whole")}`}>
           <AssistPanel
             preparationId={prep.id}
             target={{ part: "whole", pointId: null, label: t("studies.teaching.points.whole"), text: "", selection: null }}
@@ -456,11 +487,14 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
             onAddPassage={(r) => hooks.addPassage(r, null)}
             onClose={() => {
               setWholeAction(null);
+              dock.release("whole");
               requestAnimationFrame(() => wholeButton.current?.querySelector<HTMLButtonElement>("button[aria-haspopup]")?.focus());
             }}
             canFindImages={hooks.canFindImages}
             canGenerateImages={hooks.canGenerateImages}
+            imagesNote={hooks.imagesNote}
           />
+          </FloatingPanel>
         )}
         <ol className="m-0 flex list-none flex-col gap-6 p-0">
           {prep.points.map((point, index) => {

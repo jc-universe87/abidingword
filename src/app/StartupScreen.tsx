@@ -11,7 +11,7 @@ interface StartupScreenProps {
 export function StartupScreen({ message, logDirectory }: StartupScreenProps) {
   const { t } = useTranslation();
   return (
-    <main className="flex h-screen flex-col items-center justify-center gap-6 bg-bg px-8 text-center text-text">
+    <main className="fixed inset-0 flex flex-col items-center justify-center gap-6 bg-bg px-8 text-center text-text">
       <Logomark height={56} />
       <p className="m-0 font-display text-[1.875rem] font-heading text-text-strong">{t("common.appName")}</p>
       {message ? (

@@ -227,6 +227,14 @@ Study and Bible Teaching. Two paths, both later:
 Keep the teaching model ordered and id-stable, and keep media out of the
 manuscript text, so neither path needs a migration of what people wrote.
 
+### Image providers (next step after v0.16)
+
+v0.16 separates the writing service from the image service (`ImageService`:
+the same service, or OpenAI) and decides image capability from the service
+(supported / unsupported / unknown). Next: Google's own image API and other
+image providers as further choices, each with its own request builder and
+key, without touching the writing set-up.
+
 ### Format-specific teaching canvases, inline media, templates
 
 Recorded in [`teaching-preparation-v0.16.md`](teaching-preparation-v0.16.md)

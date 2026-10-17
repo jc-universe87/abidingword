@@ -2,36 +2,46 @@ import { useCallback, useEffect, useId, useState, type FormEvent, type KeyboardE
 import { useTranslation } from "react-i18next";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/design-system/Button";
+import { HelpTip } from "@/design-system/HelpTip";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { isLocalAddress } from "@/lib/localAddress";
-import { SEARCH_KINDS, type AssistantConfig, type AssistantSettings as Settings, type ProviderKind } from "@/types/teaching";
+import { IMAGE_SERVICES, type AssistantConfig, type AssistantSettings as Settings, type ImageCapability, type ImageService, type ProviderKind } from "@/types/teaching";
 
 interface Service {
   /** The company or program, as it names itself (used in the help texts). */
   name: string;
-  /** A sensible model to start with; the person can type any other. */
+  /** A suggested model to start with; the person can type any other. */
   model: string;
   /** The official page where a key is made (services on the internet). */
   keyPage?: string;
+  /** The service's own, current list of its models. Model names change often, so
+   * Abiding Word links to the official list rather than keeping one itself. */
+  modelsPage?: string;
   /** The official download page (programs on this computer). */
   download?: string;
 }
 
-/** What the setup needs to know about each service. No service is preferred. */
+/** What the setup needs to know about each service. No service is preferred. Official pages only. */
 const SERVICES: Record<ProviderKind, Service> = {
-  openai: { name: "OpenAI", model: "gpt-4.1", keyPage: "https://platform.openai.com/api-keys" },
-  anthropic: { name: "Anthropic", model: "claude-sonnet-5-5", keyPage: "https://console.anthropic.com/settings/keys" },
-  google: { name: "Google", model: "gemini-2.5-flash", keyPage: "https://aistudio.google.com/apikey" },
-  xai: { name: "xAI", model: "grok-4", keyPage: "https://console.x.ai" },
-  perplexity: { name: "Perplexity", model: "sonar-pro", keyPage: "https://www.perplexity.ai/settings/api" },
-  deepseek: { name: "DeepSeek", model: "deepseek-chat", keyPage: "https://platform.deepseek.com/api_keys" },
-  qwen: { name: "Alibaba Cloud", model: "qwen-plus", keyPage: "https://www.alibabacloud.com/help/en/model-studio/get-api-key" },
-  ollama: { name: "Ollama", model: "llama3.1", download: "https://ollama.com/download" },
-  lmstudio: { name: "LM Studio", model: "", download: "https://lmstudio.ai" },
+  openai: { name: "OpenAI", model: "gpt-4.1", keyPage: "https://platform.openai.com/api-keys", modelsPage: "https://platform.openai.com/docs/models" },
+  anthropic: { name: "Anthropic", model: "claude-sonnet-5-5", keyPage: "https://console.anthropic.com/settings/keys", modelsPage: "https://docs.anthropic.com/en/docs/about-claude/models" },
+  google: { name: "Google", model: "gemini-2.5-flash", keyPage: "https://aistudio.google.com/apikey", modelsPage: "https://ai.google.dev/gemini-api/docs/models" },
+  xai: { name: "xAI", model: "grok-4", keyPage: "https://console.x.ai", modelsPage: "https://docs.x.ai/docs/models" },
+  perplexity: { name: "Perplexity", model: "sonar-pro", keyPage: "https://www.perplexity.ai/settings/api", modelsPage: "https://docs.perplexity.ai/getting-started/models" },
+  deepseek: { name: "DeepSeek", model: "deepseek-chat", keyPage: "https://platform.deepseek.com/api_keys", modelsPage: "https://api-docs.deepseek.com/quick_start/pricing" },
+  qwen: { name: "Alibaba Cloud", model: "qwen-plus", keyPage: "https://www.alibabacloud.com/help/en/model-studio/get-api-key", modelsPage: "https://www.alibabacloud.com/help/en/model-studio/models" },
+  // Programs on this computer: their own lists of models to download, not a cloud catalogue.
+  ollama: { name: "Ollama", model: "llama3.1", download: "https://ollama.com/download", modelsPage: "https://ollama.com/library" },
+  lmstudio: { name: "LM Studio", model: "", download: "https://lmstudio.ai", modelsPage: "https://lmstudio.ai/models" },
+  // Another compatible service: Abiding Word cannot know its models, so no link is invented.
   openai_compatible: { name: "", model: "" },
 };
+
+/** Brave Search's own page for its search API and keys. */
+const BRAVE_PAGE = "https://brave.com/search/api/";
+const KEY_STEPS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
 
 /** The choices, grouped as a person thinks of them: on the internet, on this computer, anything else. */
 const GROUPS = [
@@ -40,7 +50,7 @@ const GROUPS = [
   { name: "other", kinds: ["openai_compatible"] },
 ] as const satisfies readonly { name: string; kinds: readonly ProviderKind[] }[];
 
-const PERSPECTIVE_EXAMPLES = ["reformed", "catholic", "lutheran", "pentecostal", "none", "views"] as const;
+const PERSPECTIVE_EXAMPLES = ["reformed", "lutheran", "catholic", "pentecostal", "none"] as const;
 
 const URL_START = "https://";
 
@@ -136,6 +146,16 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
       return next;
     }, t("settings.assistant.keySaved"));
   };
+  const [imageKey, setImageKey] = useState("");
+  const keepImageKey = () => {
+    if (busy || !imageKey.trim()) return;
+    void run(async () => {
+      await api.assistantSettingsSet(config);
+      const next = await api.assistantKeySet("image", imageKey);
+      setImageKey("");
+      return next;
+    }, t("settings.assistant.keySaved"));
+  };
   /** Enter in a key field keeps the key (it would otherwise save the form and leave the key behind). */
   const onEnter = (keep: () => void) => (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -171,6 +191,11 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
   const field = "h-11 w-full max-w-md rounded-aw border border-border bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted";
   const labelText = "text-[0.9375rem] font-semibold text-text-strong";
   const hint = "m-0 max-w-prose text-[0.875rem] text-text-muted";
+  const about = (topic: string) => t("settings.help.about", { topic });
+  const imageProvider: ProviderKind = config.imageService === "openai" ? "openai" : provider;
+  // The capability shown is the core's for the saved set-up; for an unsaved choice it is worked out the same way.
+  const imageCapability = config.imageService === settings.config.imageService && provider === settings.config.provider ? settings.imageCapability : capabilityOf(imageProvider);
+  const needsImageKey = config.imageService === "openai" && provider !== "openai";
 
   return (
     <form
@@ -178,30 +203,31 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
         e.preventDefault();
         void run(() => api.assistantSettingsSet(config), t("settings.assistant.saved"));
       }}
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-5"
       noValidate
     >
-      <p className="m-0 max-w-prose text-text">{t("settings.assistant.intro")}</p>
-
       <div className="flex flex-col gap-1">
-        <label className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            checked={config.enabled}
-            disabled={busy !== null}
-            onChange={(e) => {
-              const enabled = e.target.checked;
-              set("enabled", enabled);
-              void run(
-                () => api.assistantSettingsSet({ ...config, enabled }),
-                enabled ? t("settings.assistant.turnedOn") : t("settings.assistant.turnedOff"),
-                () => set("enabled", !enabled),
-              );
-            }}
-            className="size-5"
-          />
-          <span className={labelText}>{t("settings.assistant.enabled")}</span>
-        </label>
+        <div className="flex items-center gap-1">
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={config.enabled}
+              disabled={busy !== null}
+              onChange={(e) => {
+                const enabled = e.target.checked;
+                set("enabled", enabled);
+                void run(
+                  () => api.assistantSettingsSet({ ...config, enabled }),
+                  enabled ? t("settings.assistant.turnedOn") : t("settings.assistant.turnedOff"),
+                  () => set("enabled", !enabled),
+                );
+              }}
+              className="size-5"
+            />
+            <span className={labelText}>{t("settings.assistant.enabled")}</span>
+          </label>
+          <HelpTip name={about(t("settings.sections.assistant"))}>{t("settings.assistant.intro")}</HelpTip>
+        </div>
         {!config.enabled && <p className={`${hint} pl-8`}>{t("settings.assistant.offHint")}</p>}
       </div>
 
@@ -240,17 +266,20 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                 <OfficialLink url={service.download} text={t("settings.assistant.localHelp.open", { service: label })} />
               </Help>
             )}
-            {provider === "openai_compatible" && <p className={hint}>{t("settings.assistant.otherHelp")}</p>}
           </Step>
 
           {provider === "openai_compatible" && (
-            <Step title={t("settings.assistant.address")} htmlFor={`${id}-address`}>
+            <Step title={t("settings.assistant.address")} htmlFor={`${id}-address`} help={<HelpTip name={about(t("settings.assistant.address"))}>{t("settings.assistant.otherHelp")}</HelpTip>}>
               <input id={`${id}-address`} value={config.baseUrl} onChange={(e) => set("baseUrl", e.target.value)} placeholder={URL_START} className={field} />
             </Step>
           )}
 
           {(service.keyPage || provider === "openai_compatible") && (
-            <Step title={service.keyPage ? t("settings.assistant.key") : t("settings.assistant.keyOptional")} htmlFor={`${id}-key`}>
+            <Step
+              title={service.keyPage ? t("settings.assistant.key") : t("settings.assistant.keyOptional")}
+              htmlFor={`${id}-key`}
+              help={<HelpTip name={about(t("settings.assistant.key"))}>{t("settings.assistant.keyHint")}</HelpTip>}
+            >
               <div className="flex flex-wrap items-center gap-2">
                 <input
                   id={`${id}-key`}
@@ -271,24 +300,44 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                   </Button>
                 )}
               </div>
-              <p className={hint}>{keyShown ? t("settings.assistant.keyKept") : t("settings.assistant.keyHint")}</p>
+              {keyShown && <p className={hint}>{t("settings.assistant.keyKept")}</p>}
               {service.keyPage && (
                 <Help summary={t("settings.assistant.keyHelp.title")}>
-                  <QA q={t("settings.assistant.keyHelp.whatQ")} a={t("settings.assistant.keyHelp.whatA", { service: label })} />
-                  <QA q={t("settings.assistant.keyHelp.whyQ")} a={t("settings.assistant.keyHelp.whyA", { service: label })} />
-                  <QA q={t("settings.assistant.keyHelp.whereQ")} a={t("settings.assistant.keyHelp.whereA", { service: label })}>
-                    <OfficialLink url={service.keyPage} text={t("settings.assistant.keyHelp.open", { service: label })} />
-                  </QA>
-                  <QA q={t("settings.assistant.keyHelp.costQ")} a={t("settings.assistant.keyHelp.costA", { service: label })} />
-                  <QA q={t("settings.assistant.keyHelp.pasteQ")} a={t("settings.assistant.keyHelp.pasteA")} />
+                  <p className="m-0">{t("settings.assistant.keyHelp.whatA", { service: label })}</p>
+                  <ol className="m-0 flex list-decimal flex-col gap-1 pl-5">
+                    {KEY_STEPS.map((n) => (
+                      <li key={n}>
+                        {t(`settings.assistant.keyHelp.step${n}`, { service: label })}
+                        {n === 1 && <OfficialLink url={service.keyPage!} text={t("settings.assistant.keyHelp.open", { service: label })} />}
+                      </li>
+                    ))}
+                  </ol>
+                  <p className="m-0 text-text-muted">{t("settings.assistant.keyHelp.costA", { service: label })}</p>
                 </Help>
               )}
             </Step>
           )}
 
-          <Step title={t("settings.assistant.model")} htmlFor={`${id}-model`}>
-            <input id={`${id}-model`} value={config.model} onChange={(e) => set("model", e.target.value)} placeholder={t("settings.assistant.modelPlaceholder")} className={field} />
-            <p className={hint}>{service.model ? t("settings.assistant.modelHint") : t("settings.assistant.modelHintEmpty", { service: label })}</p>
+          <Step
+            title={t("settings.assistant.model")}
+            htmlFor={`${id}-model`}
+            help={<HelpTip name={about(t("settings.assistant.model"))}>{service.model ? t("settings.assistant.modelHint") : t("settings.assistant.modelHintEmpty", { service: label })}</HelpTip>}
+          >
+            <div className="flex items-center gap-1">
+              <input id={`${id}-model`} value={config.model} onChange={(e) => set("model", e.target.value)} placeholder={t("settings.assistant.modelPlaceholder")} className={field} />
+              {service.modelsPage && (
+                <button
+                  type="button"
+                  aria-label={t(service.download ? "settings.assistant.modelsLocal" : "settings.assistant.modelsLink", { service: label })}
+                  title={t(service.download ? "settings.assistant.modelsLocal" : "settings.assistant.modelsLink", { service: label })}
+                  onClick={() => void api.openExternalLink(service.modelsPage!).catch(() => undefined)}
+                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+                >
+                  <ExternalLink className="size-4" aria-hidden="true" />
+                </button>
+              )}
+            </div>
+            {service.model && config.model === service.model && <p className={hint}>{t("settings.assistant.modelSuggested")}</p>}
           </Step>
 
           <div className="flex flex-col gap-2">
@@ -300,13 +349,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
               role="status"
               className={`m-0 text-[0.9375rem] ${connection?.tone === "error" ? "text-danger" : connection || busy === "check" ? "text-text-strong" : "text-text-muted"}`}
             >
-              {busy === "check"
-                ? t("settings.assistant.checking")
-                : connection
-                  ? connection.text
-                  : blocker
-                    ? t(`settings.assistant.why.${blocker}`)
-                    : ""}
+              {busy === "check" ? t("settings.assistant.checking") : connection ? connection.text : blocker ? t(`settings.assistant.why.${blocker}`) : ""}
             </p>
           </div>
 
@@ -322,57 +365,71 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
             </Help>
           )}
 
-          <div className="flex flex-col gap-5 border-t border-border-subtle pt-5">
+          <div className="flex flex-col gap-4 border-t border-border-subtle pt-4">
             <h3 className="m-0 text-[1rem] font-semibold text-text-strong">{t("settings.assistant.extras")}</h3>
 
             <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-              <legend className={`${labelText} mb-1`}>{t("settings.assistant.search")}</legend>
-              <p id={`${id}-search-hint`} className={hint}>
-                {t("settings.assistant.searchHint")}
-              </p>
-              <select
-                aria-label={t("settings.assistant.search")}
-                aria-describedby={`${id}-search-hint`}
-                value={config.search}
-                onChange={(e) => set("search", e.target.value as AssistantConfig["search"])}
-                className={field}
-              >
-                {SEARCH_KINDS.map((s) => (
-                  <option key={s} value={s}>
-                    {t(`settings.assistant.searchKinds.${s}`)}
-                  </option>
-                ))}
+              <legend className={`${labelText} mb-1 flex items-center gap-1`}>
+                {t("settings.assistant.search")}
+                <HelpTip name={about(t("settings.assistant.search"))}>{t("settings.assistant.searchHint")}</HelpTip>
+              </legend>
+              <select aria-label={t("settings.assistant.search")} value={config.search} onChange={(e) => set("search", e.target.value as AssistantConfig["search"])} className={field}>
+                <option value="none">{t("settings.assistant.searchKinds.none")}</option>
+                <option value="brave">{t("settings.assistant.searchKinds.brave")}</option>
+                <optgroup label={t("settings.assistant.searchAdvanced")}>
+                  <option value="searxng">{t("settings.assistant.searchKinds.searxng")}</option>
+                </optgroup>
               </select>
-              {config.search === "searxng" && (
-                <label className="flex flex-col gap-1">
-                  <span className="text-[0.9375rem] text-text-strong">{t("settings.assistant.searchAddress")}</span>
-                  <input value={config.searchUrl} onChange={(e) => set("searchUrl", e.target.value)} placeholder={URL_START} className={field} />
-                </label>
-              )}
               {config.search === "brave" && (
-                <div className="flex flex-wrap items-center gap-2">
-                  <label htmlFor={`${id}-skey`} className="sr-only">
-                    {t("settings.assistant.searchKey")}
+                <>
+                  <Help summary={t("settings.assistant.brave.title")}>
+                    <p className="m-0">{t("settings.assistant.brave.what")}</p>
+                    <ol className="m-0 flex list-decimal flex-col gap-1 pl-5">
+                      <li>
+                        {t("settings.assistant.brave.step1")}
+                        <OfficialLink url={BRAVE_PAGE} text={t("settings.assistant.brave.open")} />
+                      </li>
+                      <li>{t("settings.assistant.brave.step2")}</li>
+                      <li>{t("settings.assistant.brave.step3")}</li>
+                    </ol>
+                    <p className="m-0 text-text-muted">{t("settings.assistant.brave.cost")}</p>
+                  </Help>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label htmlFor={`${id}-skey`} className="sr-only">
+                      {t("settings.assistant.searchKey")}
+                    </label>
+                    <input
+                      id={`${id}-skey`}
+                      type="password"
+                      autoComplete="off"
+                      value={searchKey}
+                      onChange={(e) => setSearchKey(e.target.value)}
+                      onKeyDown={onEnter(keepSearchKey)}
+                      placeholder={settings.hasSearchKey ? t("settings.assistant.keyKeptPlaceholder") : t("settings.assistant.searchKey")}
+                      className={field}
+                    />
+                    <Button className="min-h-11" disabled={busy !== null || !searchKey.trim()} onClick={keepSearchKey}>
+                      {t("settings.assistant.keySave")}
+                    </Button>
+                  </div>
+                </>
+              )}
+              {config.search === "searxng" && (
+                <>
+                  <p className={hint}>{t("settings.assistant.searxng.what")}</p>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-[0.9375rem] text-text-strong">{t("settings.assistant.searchAddress")}</span>
+                    <input value={config.searchUrl} onChange={(e) => set("searchUrl", e.target.value)} placeholder={URL_START} className={field} />
                   </label>
-                  <input
-                    id={`${id}-skey`}
-                    type="password"
-                    autoComplete="off"
-                    value={searchKey}
-                    onChange={(e) => setSearchKey(e.target.value)}
-                    onKeyDown={onEnter(keepSearchKey)}
-                    placeholder={settings.hasSearchKey ? t("settings.assistant.keyKeptPlaceholder") : t("settings.assistant.searchKey")}
-                    className={field}
-                  />
-                  <Button className="min-h-11" disabled={busy !== null || !searchKey.trim()} onClick={keepSearchKey}>
-                    {t("settings.assistant.keySave")}
-                  </Button>
-                </div>
+                </>
               )}
             </fieldset>
 
             <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-              <legend className={`${labelText} mb-1`}>{t("settings.assistant.images")}</legend>
+              <legend className={`${labelText} mb-1 flex items-center gap-1`}>
+                {t("settings.assistant.images")}
+                <HelpTip name={about(t("settings.assistant.images"))}>{t("settings.assistant.imagesHelp")}</HelpTip>
+              </legend>
               <label className="flex items-center gap-3">
                 <input type="checkbox" checked={config.findImages} onChange={(e) => set("findImages", e.target.checked)} className="size-5" />
                 <span>{t("settings.assistant.findImages")}</span>
@@ -381,26 +438,63 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                 <input type="checkbox" checked={config.generateImages} onChange={(e) => set("generateImages", e.target.checked)} className="size-5" />
                 <span>{t("settings.assistant.generateImages")}</span>
               </label>
-              {config.generateImages && provider !== "openai" && provider !== "openai_compatible" && <p className={hint}>{t("settings.assistant.generateOnlyOpenai")}</p>}
+              {config.generateImages && (
+                <div className="flex flex-col gap-2 pl-8">
+                  <label className="flex flex-col gap-1">
+                    <span className="text-[0.9375rem] text-text-strong">{t("settings.assistant.imageService")}</span>
+                    <select value={config.imageService} onChange={(e) => set("imageService", e.target.value as ImageService)} className={field}>
+                      {IMAGE_SERVICES.map((s) => (
+                        <option key={s} value={s}>
+                          {t(`settings.assistant.imageServices.${s}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <p data-testid="image-capability" className={`m-0 text-[0.875rem] ${imageCapability === "unsupported" ? "text-danger" : "text-text-muted"}`}>
+                    {t(`settings.assistant.imageCapability.${imageCapability}`, { service: t(`settings.assistant.providers.${imageProvider}`) })}
+                  </p>
+                  {needsImageKey && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <label htmlFor={`${id}-ikey`} className="sr-only">
+                        {t("settings.assistant.imageKey")}
+                      </label>
+                      <input
+                        id={`${id}-ikey`}
+                        type="password"
+                        autoComplete="off"
+                        value={imageKey}
+                        onChange={(e) => setImageKey(e.target.value)}
+                        onKeyDown={onEnter(keepImageKey)}
+                        placeholder={settings.hasImageKey && settings.config.imageService === "openai" ? t("settings.assistant.keyKeptPlaceholder") : t("settings.assistant.imageKey")}
+                        className={field}
+                      />
+                      <Button className="min-h-11" disabled={busy !== null || !imageKey.trim()} onClick={keepImageKey}>
+                        {t("settings.assistant.keySave")}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </fieldset>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor={`${id}-perspective`} className={labelText}>
-                {t("settings.assistant.perspective")} <span className="font-normal text-text-muted">{t("settings.assistant.optional")}</span>
-              </label>
-              <p id={`${id}-perspective-hint`} className={hint}>
-                {t("settings.assistant.perspectiveHint")}
-              </p>
+              <div className="flex items-center gap-1">
+                <label htmlFor={`${id}-perspective`} className={labelText}>
+                  {t("settings.assistant.perspective")} <span className="font-normal text-text-muted">{t("settings.assistant.optional")}</span>
+                </label>
+                <HelpTip name={about(t("settings.assistant.perspective"))} align="end">
+                  {t("settings.assistant.perspectiveHint")}
+                </HelpTip>
+              </div>
               <textarea
                 id={`${id}-perspective`}
-                aria-describedby={`${id}-perspective-hint`}
-                rows={3}
+                rows={2}
                 value={config.perspective}
                 onChange={(e) => set("perspective", e.target.value)}
                 className="w-full max-w-xl rounded-aw border border-border bg-bg px-3 py-2 text-[0.9375rem]"
               />
-              <div role="group" aria-label={t("settings.assistant.perspectiveExamples")} className="flex flex-wrap items-center gap-2">
-                <span className="text-[0.875rem] text-text-muted">{t("settings.assistant.perspectiveExamples")}</span>
+              <div role="group" aria-label={t("settings.assistant.perspectiveExamples")} className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[0.8125rem] text-text-muted">{t("settings.assistant.perspectiveExamples")}</span>
                 {PERSPECTIVE_EXAMPLES.map((example) => {
                   const text = t(`settings.assistant.perspectiveExample.${example}`);
                   return (
@@ -408,7 +502,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                       key={example}
                       type="button"
                       onClick={() => set("perspective", config.perspective.trim() ? `${config.perspective.trim()} ${text}` : text)}
-                      className="min-h-9 rounded-full border border-border-subtle px-3 text-[0.875rem] text-text hover:bg-bg-secondary"
+                      className="min-h-8 rounded-full border border-border-subtle px-2.5 text-[0.8125rem] text-text hover:bg-bg-secondary"
                     >
                       {text}
                     </button>
@@ -432,12 +526,22 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
   );
 }
 
-function Step({ title, htmlFor, children }: { title: string; htmlFor: string; children: ReactNode }) {
+/** As the core decides it (config.rs `image_capability`): from the service, never from a model's name. */
+function capabilityOf(provider: ProviderKind): ImageCapability {
+  if (provider === "openai") return "supported";
+  if (provider === "google" || provider === "openai_compatible") return "unknown";
+  return "unsupported";
+}
+
+function Step({ title, htmlFor, help, children }: { title: string; htmlFor: string; help?: ReactNode; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={htmlFor} className="text-[0.9375rem] font-semibold text-text-strong">
-        {title}
-      </label>
+      <div className="flex items-center gap-1">
+        <label htmlFor={htmlFor} className="text-[0.9375rem] font-semibold text-text-strong">
+          {title}
+        </label>
+        {help}
+      </div>
       {children}
     </div>
   );
@@ -450,16 +554,6 @@ function Help({ summary, children }: { summary: string; children: ReactNode }) {
       <summary className="min-h-9 cursor-pointer py-1.5 text-text-strong underline-offset-2 hover:underline">{summary}</summary>
       <div className="mt-1 flex flex-col gap-3 border-l-[3px] border-border-subtle pl-4 text-text">{children}</div>
     </details>
-  );
-}
-
-function QA({ q, a, children }: { q: string; a: string; children?: ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <p className="m-0 font-semibold text-text-strong">{q}</p>
-      <p className="m-0">{a}</p>
-      {children}
-    </div>
   );
 }
 

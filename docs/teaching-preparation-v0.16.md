@@ -775,3 +775,179 @@ Not changed: the generic service's label ("Other compatible service") is
 recorded in English in "From …" lines, like the other service names; the Qwen
 link opens Alibaba Cloud's help page on getting a key (the console address
 differs by region); suggested model names are defaults the person can edit.
+
+## 18. Layout and usability pass after Windows acceptance (0.5.0-dev.34)
+
+Principle: reduce what is visible at once. Information is there when wanted
+(progressive disclosure); the Bible Study / Bible Teaching workspace gets the
+space.
+
+### 18.1 Full-window workspace
+
+The panes stopped short of the bottom of the Windows window. The shell was
+sized `h-screen` (100vh) inside an unsized `html`/`body`/`#root`. Now:
+
+- `html`, `body`, `#root` are `height: 100%`, the document never scrolls
+  (`overflow: hidden`), and the shell is pinned to the window
+  (`fixed inset-0 flex flex-col`, `data-testid="app-shell"`), so it fills the
+  window at any size, maximised or not, and at any display scale. Every pane
+  scrolls inside itself (`min-h-0 flex-1 overflow-y-auto`); the Sources
+  overview had lost its `flex-1` and now grows to the pane's bottom too.
+- The native window gets the app's background (`backgroundColor` in
+  `tauri.conf.json`), so even a moment of resizing never shows white.
+- Checked in Chromium at 1280×800, 1920×1080, 1366×768 at 150 %, and
+  800×600 at 125 %, before and after resizing: every pane's bottom equals the
+  window's. `tests/ui/settings-compact.test.tsx` guards the structure; the
+  Windows behaviour itself needs the acceptance check (§18.9).
+
+### 18.2 Settings: compact, with contextual help
+
+- **Updates** opened: installed version, channel, one *Check for updates*
+  button and one small note. The result ("Up to date") is said once, in the
+  heading line; the button row only announces it to screen readers.
+- **Contextual help** (`src/design-system/HelpTip.tsx`): a quiet "?" beside a
+  label. Hover peeks; click, tap, Enter or Space pins it open; Escape (which
+  then does not close Settings), the button again or a click elsewhere
+  closes it. The explanation follows the button in the document (the
+  disclosure pattern), floats over the page, and never makes it taller.
+  Used for: the theme background, workspace layout, language, templates,
+  the data folder, the AI Assistant's purpose, key, model, address, real
+  stories, images and theological guidance. What must be seen stays inline:
+  a missing key, a failed check, the assistant being off, an update, an
+  invalid address, whether images can be made.
+- **Appearance:** the theme as three inline choices, and six **backgrounds**
+  for the light theme (Parchment = the brand ivory, Cream, Sage, Stone,
+  Mist, Neutral) shown as swatches. Tokens in `tokens.css`
+  (`[data-theme="light"][data-paper=…]`); a device preference
+  (`appearance.background`). A test checks body text contrast above 11:1 and
+  muted text above 5:1 on each.
+- **Add a Bible** and **Template editor** open in a `Sheet`
+  (`src/design-system/Sheet.tsx`) over the current page: modal (Tab stays
+  inside; a dialog opened inside keeps Tab itself), focus returns to what
+  opened it, Escape and the content's own Back/Cancel close it, the backdrop
+  does not (nothing is lost by a stray click). Settings stays mounted
+  behind, so its open sections and scroll position are kept. The Bible import
+  and template code are unchanged; only their page roots became sheet
+  content.
+
+### 18.3 AI Assistant naming and setup
+
+- Named **AI Assistant** (DE *KI-Assistent*, KO *AI 도우미*, FR *Assistant
+  IA*, ES *Asistente de IA*, PT *Assistente de IA*) in Settings and Teaching.
+  The Teaching button reads **AI Help** (DE *KI-Hilfe*); its tooltip says
+  *Help from the AI Assistant*, its accessible name *AI Help with
+  {part}*.
+- **Current models:** each predefined cloud service has its official model
+  list in `SERVICES.modelsPage` (OpenAI, Anthropic, Google, xAI, Perplexity,
+  DeepSeek, Alibaba Cloud/Qwen); the ↗ button beside Model opens it. Ollama
+  and LM Studio link their own model libraries; the generic service gets no
+  invented link. The suggested model is labelled as a suggestion; the field
+  stays free text.
+- **Keys for people who have never heard of an API:** eight numbered steps
+  (open the page, sign in or create an account, create a key, copy it, come
+  back, paste into Key, Keep key, Check the connection), and a plain line on
+  payment details or prepaid credit.
+- **Real stories:** the help explains why a search service is needed. Brave
+  Search has its own explanation, steps and official link
+  (`brave.com/search/api`). SearXNG sits under *Other (advanced)* and says
+  plainly that it needs a server address that allows program searches, and
+  that Brave is simpler.
+- **Theological guidance:** *How should the AI approach theological
+  questions?* with the explanation behind "?" (optional, not personal
+  history, a short perspective only, used on disputed questions, other
+  serious interpretations still mentioned, blank means no tradition), and
+  five light example chips.
+
+### 18.4 Image creation: explicit capability, separate image service
+
+- Core: `ImageCapability` (`supported` / `unsupported` / `unknown`) from
+  `AssistantConfig::image_capability()`, decided from the **service**, never
+  from the model's name: OpenAI supported; Google (its compatible endpoint
+  offers image models only on some accounts) and other compatible services
+  unknown (may be tried); Anthropic, xAI, Perplexity, DeepSeek, Qwen, Ollama
+  and LM Studio unsupported. `can_generate` refuses only *unsupported*.
+- **Separate image service (implemented, small):** `ImageService` = `same`
+  (default) or `openai`. With `openai`, image requests go to OpenAI with the
+  OpenAI key kept on this computer (keys were already stored per service), so
+  a person can write with Claude and make images with OpenAI. A key for it is
+  kept through `assistant_key_set` with `which = "image"`. Settings shows the
+  capability line and, when needed, the OpenAI key field.
+- In Teaching, **Make an image** is shown disabled with its reason
+  (`visuals.cannotMake.off` / `.unsupported`), and the *Ideas and
+  illustrations* menu says so too; **Find freely licensed images** is
+  unaffected.
+- Next step (not built): Google's own image API and other image providers as
+  further `ImageService` choices with their own request builders.
+
+### 18.5 The floating AI panel
+
+The assistant's panel no longer opens inside the teaching (which moved the
+person's text). `FloatingPanel` (`src/features/teaching/FloatingPanel.tsx`)
+renders it over the workspace (portal, `position: fixed`), at the upper right
+of the Study pane:
+
+- a non-modal dialog (`role="dialog"`, `aria-modal="false"`, named *AI
+  Assistant: {action} · {part}*); the teaching stays usable;
+- movable by its top bar, resizable by the browser's own corner, sized to
+  its content until resized; position and size are remembered for the
+  session; kept inside the window when the window shrinks;
+- **Minimise** keeps it mounted (the typed request and any answer are kept)
+  and shows a small *AI Help · {action} · {part}* chip; focus moves to the
+  chip and back to the panel's heading;
+- one panel at a time (`AssistDockProvider`): asking about another part
+  moves it there; each part keeps its own request;
+- opening moves focus into it (the request field, else Ask); Escape, Close
+  and Done close it and return focus to that part's AI Help button (after
+  *Use this wording*, focus goes to the changed text); while asking, focus
+  moves to *Stop waiting*. Live status announcements are unchanged (§17.4).
+
+### 18.6 Long operations
+
+Unchanged in substance (§17.4), checked again: *Creating an image… This can
+take a little while.* and *Finding suitable images…* appear at once with a
+spinner and a delayed live announcement; no percentages; one request at a
+time; errors are shown; *Stop waiting* for asking.
+
+### 18.7 Study / Teaching: content first
+
+- Study pane: top padding 24 → 12 px, gaps 24 → 20 px, the content column
+  46 → 50 rem wide; the study header's gaps are smaller.
+- The **Bible Study / Bible Teaching** switch moved onto the study's details
+  line (no row of its own).
+- Bible Teaching: the *Teaching:* picker row appears only with two or more
+  teachings; otherwise *Prepare another teaching* sits inside *About this
+  teaching*. **About this teaching** is open right after a teaching is
+  created (to fill in audience and purpose) and folded on later visits; its
+  summary now includes the first passage (e.g. *Sermon · for families ·
+  Luke 19:1–10*). The Study's own details were already folded by default.
+- The kind-aware main part (§17.7) is unchanged and remains the primary
+  content.
+
+### 18.8 Unchanged direction
+
+- **Inline media later:** a teaching's content should become ordered blocks
+  (text, Scripture, question, image, activity, audio), e.g. a picture at a
+  point in a children's lesson. Kept material is already separate, typed and
+  id-stable; nothing in this pass ties the canvas to fixed fields more than
+  before.
+- **Presentation** stays an output of Bible Teaching (export to slides, or
+  audience + presenter screens), not a third workspace (§17.8).
+
+### 18.9 Windows acceptance for this pass
+
+1. Maximise, restore and resize the window, also on a second monitor with a
+   different scale: the three panes always reach the bottom; no white band.
+2. Settings: sections one line each; Updates opened is four short lines; every
+   "?" opens by click, by Enter and on hover, and Escape closes only it.
+3. Appearance: each background, then Dark; restart: the background is kept.
+4. Add a Bible and New/Edit template open over Settings; Escape and Back close
+   them; focus and open sections are where they were.
+5. AI Assistant: the ↗ beside Model opens the provider's model page; *How do
+   I get a key?* steps; Brave and SearXNG help; theology "?".
+6. Images: with Claude, *Make an image* is greyed with its reason; set *Make
+   images with → OpenAI*, keep an OpenAI key, make an image.
+7. Teaching: AI Help opens the floating panel without moving the text; drag,
+   resize, minimise and restore it; write elsewhere meanwhile; Escape returns
+   to the AI Help button.
+8. New teaching: About is open; open the teaching again later: folded; the
+   central message is visible without scrolling at 1280×800.

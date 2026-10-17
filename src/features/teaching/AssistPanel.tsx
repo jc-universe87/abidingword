@@ -105,6 +105,8 @@ interface AssistPanelProps {
   onClose: () => void;
   canGenerateImages: boolean;
   canFindImages: boolean;
+  /** Why images cannot be made, when they cannot. */
+  imagesNote?: "off" | "unsupported" | null;
 }
 
 /**
@@ -115,7 +117,7 @@ interface AssistPanelProps {
  * Escape or Dismiss leaves everything as it was.
  */
 export function AssistPanel(props: AssistPanelProps) {
-  const { preparationId, target, action, onKeep, onAddPassage, onClose, canGenerateImages, canFindImages, singleLine = false } = props;
+  const { preparationId, target, action, onKeep, onAddPassage, onClose, canGenerateImages, canFindImages, imagesNote = null, singleLine = false } = props;
   const { t, i18n } = useTranslation();
   const api = useApi();
   const id = useId();
@@ -383,6 +385,7 @@ export function AssistPanel(props: AssistPanelProps) {
             onAddPassage={onAddPassage}
             canFindImages={canFindImages}
             canGenerateImages={canGenerateImages}
+            imagesNote={imagesNote}
           />
           <p className="m-0 text-[0.8125rem] text-text-muted">{t("studies.teaching.assist.from", { assistant: reply.assistant })}</p>
           <div>
@@ -446,6 +449,7 @@ interface ResultProps {
   onAddPassage: AssistPanelProps["onAddPassage"];
   canFindImages: boolean;
   canGenerateImages: boolean;
+  imagesNote: "off" | "unsupported" | null;
 }
 
 function Heading({ heading, children, icon }: { heading: ResultProps["heading"]; children: ReactNode; icon: ReactNode }) {
@@ -686,7 +690,7 @@ export function Sources({ sources }: { sources: { title: string; url: string; si
   );
 }
 
-function Visuals({ reply, heading, kept, onKeep, canFindImages, canGenerateImages, ideas }: ResultProps & { ideas: VisualIdea[] }) {
+function Visuals({ reply, heading, kept, onKeep, canFindImages, canGenerateImages, imagesNote, ideas }: ResultProps & { ideas: VisualIdea[] }) {
   const { t } = useTranslation();
   const api = useApi();
   const [found, setFound] = useState<Record<number, FoundImage[] | "loading">>({});
@@ -745,11 +749,19 @@ function Visuals({ reply, heading, kept, onKeep, canFindImages, canGenerateImage
                     {t("studies.teaching.assist.visuals.find")}
                   </Button>
                 )}
-                {canGenerateImages && (
+                {canGenerateImages ? (
                   <Button className="min-h-11 aria-disabled:cursor-not-allowed aria-disabled:opacity-60" aria-disabled={generated === "loading"} onClick={() => void make(i, idea.description)}>
                     <ImageIcon className="size-4" aria-hidden="true" />
                     {t("studies.teaching.assist.visuals.make")}
                   </Button>
+                ) : (
+                  imagesNote && (
+                    // Not available: shown, with the reason, so it is clear why (finding images still works).
+                    <Button className="min-h-11" disabled aria-describedby={`no-make-${i}`}>
+                      <ImageIcon className="size-4" aria-hidden="true" />
+                      {t("studies.teaching.assist.visuals.make")}
+                    </Button>
+                  )
                 )}
                 {kept.has(`v${i}`) ? (
                   <span className="self-center text-text-muted">{t("studies.teaching.assist.keptLabel")}</span>
@@ -764,6 +776,11 @@ function Visuals({ reply, heading, kept, onKeep, canFindImages, canGenerateImage
                   </Button>
                 )}
               </div>
+              {!canGenerateImages && imagesNote && (
+                <p id={`no-make-${i}`} className="m-0 text-[0.8125rem] text-text-muted">
+                  {t(`studies.teaching.assist.visuals.cannotMake.${imagesNote}`)}
+                </p>
+              )}
               {images === "loading" && <Pending message={t("studies.teaching.assist.pending.findImages")} />}
               {Array.isArray(images) && images.length === 0 && <p className="m-0 text-text-muted">{t("studies.teaching.assist.images.none")}</p>}
               {Array.isArray(images) && images.length > 0 && (

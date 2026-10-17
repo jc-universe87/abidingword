@@ -697,8 +697,8 @@
       "suggestion": "도우미의 제안"
     },
     "assist": {
-      "menu": "도움 받기",
-      "menuLabel": "{{part}} 도움 받기",
+      "menu": "AI 도움",
+      "menuLabel": "{{part}} AI 도움 받기",
       "action": {
         "grammar": "맞춤법·문법 확인",
         "clarity": "더 분명하게",
@@ -809,7 +809,11 @@
         },
         "find": "자유 이용 그림 찾기",
         "make": "그림 만들기",
-        "keepIdea": "이 아이디어 보관"
+        "keepIdea": "이 아이디어 보관",
+        "cannotMake": {
+          "off": "이미지 만들기가 꺼져 있습니다(설정 → AI 도우미). 자유 이용 이미지 찾기는 그대로 됩니다.",
+          "unsupported": "이 AI 서비스는 이미지를 만들 수 없습니다. 설정 → AI 도우미에서 이미지용으로 OpenAI를 고를 수 있습니다. 자유 이용 이미지 찾기는 그대로 됩니다."
+        }
       },
       "images": {
         "found": "찾은 그림",
@@ -841,7 +845,11 @@
         "story": "출처를 찾는 중… 조금 걸릴 수 있습니다.",
         "findImages": "알맞은 이미지를 찾는 중…",
         "makeImage": "이미지를 만드는 중… 조금 걸릴 수 있습니다."
-      }
+      },
+      "menuTitle": "AI 도우미의 도움",
+      "minimise": "최소화",
+      "restore": "AI 도우미 다시 열기: {{label}}",
+      "panelLabel": "AI 도우미: {{label}}"
     },
     "shape": {
       "points": {

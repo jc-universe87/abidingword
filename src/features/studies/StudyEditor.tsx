@@ -188,10 +188,10 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
   };
 
   return (
-    <article ref={article} className="flex flex-col gap-6">
+    <article ref={article} className="flex flex-col gap-4">
       <header
         id="study-overview"
-        className="scroll-mt-4 flex flex-col gap-3"
+        className="scroll-mt-4 flex flex-col gap-2"
         onKeyDown={(e) => {
           if (e.key === "Escape" && showDetails) {
             e.stopPropagation();
@@ -202,6 +202,20 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
       >
         <EditableTitle key={study.id} label={t("studies.editor.titleLabel")} value={study.title} onSave={rename} />
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.9375rem] text-text-muted">
+          {/* The two ways of working with a study, on the same quiet line as its details: no row of its own. */}
+          <div role="group" aria-label={t("studies.view.label")} className="flex gap-0.5 rounded-aw border border-border-subtle p-0.5">
+            {(["study", "teaching"] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={view === v}
+                onClick={() => setView(v)}
+                className="min-h-11 rounded-aw px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-bg-secondary aria-pressed:bg-primary aria-pressed:text-on-primary"
+              >
+                {t(`studies.view.${v}`)}
+              </button>
+            ))}
+          </div>
           <button
             ref={toggle}
             type="button"
@@ -234,20 +248,6 @@ export function StudyEditor({ studyId, revealPrimary, onMissing, onOpenStudy, on
           />
         )}
       </header>
-
-      <div role="group" aria-label={t("studies.view.label")} className="flex flex-wrap gap-1 self-start rounded-aw border border-border-subtle p-1">
-        {(["study", "teaching"] as const).map((v) => (
-          <button
-            key={v}
-            type="button"
-            aria-pressed={view === v}
-            onClick={() => setView(v)}
-            className="min-h-11 rounded-aw px-4 text-[0.9375rem] font-medium text-text-strong hover:bg-bg-secondary aria-pressed:bg-primary aria-pressed:text-on-primary"
-          >
-            {t(`studies.view.${v}`)}
-          </button>
-        ))}
-      </div>
 
       {view === "teaching" ? (
         <TeachingView studyId={study.id} studyTitle={study.title} findings={findings.data ?? []} onRevealScripture={onRevealScripture} />

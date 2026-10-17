@@ -49,14 +49,14 @@
     "later": "Mais tarde",
     "downloading": "Baixando a atualização…",
     "downloadingPercent": "Baixando a atualização… {{percent}}%",
-    "version": "Versão em uso",
+    "version": "Versão instalada",
     "channel": "Canal de atualizações",
     "channelTest": "Desenvolvimento / teste",
     "check": "Verificar atualizações",
     "checking": "Verificando…",
     "upToDate": "O Abiding Word está atualizado.",
     "notIncluded": "Esta versão não inclui atualizações automáticas.",
-    "help": "O Abiding Word procura uma atualização apenas de vez em quando ou quando você pede. Ele nunca precisa da internet para funcionar e seus estudos não são afetados.",
+    "help": "O Abiding Word verifica só de vez em quando ou quando você pede. Você não precisa de internet para trabalhar, e seus estudos não são afetados.",
     "errors": {
       "check": "Não foi possível verificar atualizações. Verifique sua conexão e tente novamente.",
       "install": "Não foi possível instalar a atualização. Seus estudos não são afetados. Você pode tentar novamente."

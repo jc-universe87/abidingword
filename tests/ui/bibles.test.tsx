@@ -66,13 +66,15 @@ describe("adding and managing Bibles", () => {
     // focus starts in the dialog, on Cancel
     expect(within(dialog).getByRole("button", { name: "Cancel" })).toHaveFocus();
     await user.keyboard("{Escape}");
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "Add Lutherbibel 1912?" })).not.toBeInTheDocument();
+    // Escape closed only the question; Add a Bible stays open.
+    expect(screen.getByRole("dialog", { name: "Add a Bible" })).toBeInTheDocument();
     expect(add).toHaveFocus();
 
     await user.click(add);
     dialog = screen.getByRole("dialog", { name: "Add Lutherbibel 1912?" });
     await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "Add Lutherbibel 1912?" })).not.toBeInTheDocument();
     expect(api.state.pendingPreview).toBeNull();
     expect(screen.getByRole("heading", { level: 1, name: "Add a Bible" })).toBeInTheDocument();
   });

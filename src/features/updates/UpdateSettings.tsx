@@ -18,9 +18,9 @@ export function UpdateSettings() {
   const busy = state.kind === "checking" || state.kind === "installing";
   const retry = state.kind === "failed" && state.step === "install" && state.update;
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {(state.kind === "available" || state.kind === "installing" || state.kind === "failed") && (
-        <div className="flex flex-col items-start gap-3 rounded-aw border border-border bg-bg-secondary p-4">
+        <div className="flex flex-col items-start gap-2 rounded-aw border border-border bg-bg-secondary px-3 py-2">
           <p role="status" className="m-0 text-text-strong">
             {state.kind === "available" && t("app.updates.available", { version: state.update.version })}
             {state.kind === "installing" && <DownloadStatus />}
@@ -33,22 +33,23 @@ export function UpdateSettings() {
           )}
         </div>
       )}
-      <dl className="m-0 grid grid-cols-1 gap-x-6 gap-y-2 text-[0.9375rem] sm:grid-cols-[12rem_1fr]">
-        <dt className="font-medium text-text-strong">{t("app.updates.version")}</dt>
+      <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-[0.9375rem]">
+        <dt className="text-text-muted">{t("app.updates.version")}</dt>
         <dd className="m-0" data-testid="update-version">{version}</dd>
-        <dt className="font-medium text-text-strong">{t("app.updates.channel")}</dt>
+        <dt className="text-text-muted">{t("app.updates.channel")}</dt>
         <dd className="m-0">{t("app.updates.channelTest")}</dd>
       </dl>
-      <div className="flex flex-wrap items-center gap-3">
+      <div>
         <Button onClick={() => void check()} disabled={busy}>
-          {t("app.updates.check")}
+          {state.kind === "checking" ? t("app.updates.checking") : t("app.updates.check")}
         </Button>
-        <span role="status" className="text-[0.9375rem]">
+        {/* The section's heading line already shows the result; this only tells screen readers. */}
+        <span role="status" className="sr-only">
           {state.kind === "checking" && t("app.updates.checking")}
           {state.kind === "upToDate" && t("app.updates.upToDate")}
         </span>
       </div>
-      <p className="m-0 text-[0.9375rem] text-text-muted">{t("app.updates.help")}</p>
+      <p className="m-0 text-[0.8125rem] text-text-muted">{t("app.updates.help")}</p>
     </div>
   );
 }

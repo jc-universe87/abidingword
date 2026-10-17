@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { HelpTip } from "@/design-system/HelpTip";
 import { LANGUAGES, currentLanguage, setLanguage, type Language } from "@/i18n";
 
 /**
@@ -10,10 +11,13 @@ export function LanguageChoice() {
   const { t, i18n } = useTranslation();
   const active = i18n.language ? currentLanguage() : "en";
   return (
-    <div className="flex flex-col items-start gap-2">
-      <label htmlFor="settings-ui-language" className="font-medium text-text-strong">
-        {t("settings.language.label")}
-      </label>
+    <div className="flex flex-col items-start gap-1">
+      <span className="inline-flex items-center gap-1">
+        <label htmlFor="settings-ui-language" className="font-medium text-text-strong">
+          {t("settings.language.label")}
+        </label>
+        <HelpTip name={t("settings.help.about", { topic: t("settings.language.label") })}>{t("settings.language.hint")}</HelpTip>
+      </span>
       <select
         id="settings-ui-language"
         value={active}
@@ -26,7 +30,6 @@ export function LanguageChoice() {
           </option>
         ))}
       </select>
-      <p className="m-0 text-[0.9375rem] text-text-muted">{t("settings.language.hint")}</p>
     </div>
   );
 }

@@ -15,7 +15,18 @@ import { assistCategories, assistLabel, type AssistCategory } from "./labels";
  * A real menu: arrow keys move; Enter or → opens a category; ← or Escape goes
  * back a level; Escape at the first level closes it and gives focus back.
  */
-export function AssistMenu({ part, partLabel, onChoose }: { part: TeachingPart; partLabel: string; onChoose: (action: AssistAction) => void }) {
+export function AssistMenu({
+  part,
+  partLabel,
+  onChoose,
+  imagesNote = null,
+}: {
+  part: TeachingPart;
+  partLabel: string;
+  onChoose: (action: AssistAction) => void;
+  /** Why images cannot be made, shown with the picture ideas. */
+  imagesNote?: "off" | "unsupported" | null;
+}) {
   const { t } = useTranslation();
   const id = useId();
   const [open, setOpen] = useState(false);
@@ -107,6 +118,7 @@ export function AssistMenu({ part, partLabel, onChoose }: { part: TeachingPart; 
         aria-expanded={open}
         aria-controls={open ? id : undefined}
         aria-label={t("studies.teaching.assist.menuLabel", { part: partLabel })}
+        title={t("studies.teaching.assist.menuTitle")}
         onClick={() => (open ? close(false) : setOpen(true))}
         className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
       >
@@ -138,6 +150,11 @@ export function AssistMenu({ part, partLabel, onChoose }: { part: TeachingPart; 
                   </button>
                 ))}
               </div>
+              {category === "ideas" && imagesNote && (
+                <p role="none" className="m-0 border-t border-border-subtle px-3 py-1.5 text-[0.8125rem] text-text-muted">
+                  {t(`studies.teaching.assist.visuals.cannotMake.${imagesNote}`)}
+                </p>
+              )}
             </>
           ) : (
             <>

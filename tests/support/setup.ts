@@ -13,4 +13,5 @@ afterEach(async () => {
   // Each test starts in English, the language the tests are written in.
   if (i18n.language !== "en") await i18n.changeLanguage("en");
   delete document.documentElement.dataset.theme;
+  delete document.documentElement.dataset.paper;
 });

@@ -66,7 +66,15 @@ export function AddBibleView({ onClose }: { onClose: () => void }) {
   }[step.kind];
 
   return (
-    <main aria-labelledby="add-bible-title" className="min-h-0 flex-1 overflow-y-auto bg-bg" onKeyDown={(e) => e.key === "Escape" && step.kind !== "checking" && cancel()}>
+    <div
+      className="h-full overflow-y-auto bg-bg"
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && !e.defaultPrevented && step.kind !== "checking") {
+          e.preventDefault();
+          cancel();
+        }
+      }}
+    >
       <div className="mx-auto flex max-w-[46rem] flex-col gap-8 px-8 pb-24 pt-8">
         <div className="flex flex-col items-start gap-4">
           <Button variant="quiet" onClick={cancel} disabled={step.kind === "checking"}>
@@ -124,7 +132,7 @@ export function AddBibleView({ onClose }: { onClose: () => void }) {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }
 

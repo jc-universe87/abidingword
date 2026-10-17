@@ -704,8 +704,8 @@
       "suggestion": "Vorschlag des Assistenten"
     },
     "assist": {
-      "menu": "Hilfe",
-      "menuLabel": "Hilfe: {{part}}",
+      "menu": "KI-Hilfe",
+      "menuLabel": "KI-Hilfe: {{part}}",
       "action": {
         "grammar": "Grammatik und Rechtschreibung prüfen",
         "clarity": "Klarer machen",
@@ -819,7 +819,11 @@
         },
         "find": "Frei lizenzierte Bilder finden",
         "make": "Bild erstellen",
-        "keepIdea": "Idee aufbewahren"
+        "keepIdea": "Idee aufbewahren",
+        "cannotMake": {
+          "off": "Bilder erstellen ist ausgeschaltet (Einstellungen → KI-Assistent). Frei lizenzierte Bilder finden geht trotzdem.",
+          "unsupported": "Dieser KI-Dienst kann keine Bilder erstellen. In den Einstellungen → KI-Assistent kannst du OpenAI für Bilder wählen. Frei lizenzierte Bilder finden geht trotzdem."
+        }
       },
       "images": {
         "found": "Gefundene Bilder",
@@ -851,7 +855,11 @@
         "story": "Quellen werden gesucht … Das kann eine Weile dauern.",
         "findImages": "Passende Bilder werden gesucht …",
         "makeImage": "Ein Bild wird erstellt … Das kann eine Weile dauern."
-      }
+      },
+      "menuTitle": "Hilfe vom KI-Assistenten",
+      "minimise": "Minimieren",
+      "restore": "KI-Assistent wieder öffnen: {{label}}",
+      "panelLabel": "KI-Assistent: {{label}}"
     },
     "shape": {
       "points": {

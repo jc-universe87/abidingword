@@ -120,3 +120,50 @@
   --aw-hl-rose: #6b3b41;
   --aw-hl-grey: #4a4a46;
 }
+
+/*
+ * Backgrounds for the light theme (Settings → Appearance), for long reading
+ * and writing: low glare, no saturated colour. "parchment" is the brand's
+ * own ivory (the tokens above). Text stays Charcoal and Forest on all of them
+ * (contrast at least 11:1 for body text and 5:1 for muted text on the
+ * secondary colour; tests/ui/appearance.test.tsx checks it).
+ */
+[data-theme="light"][data-paper="cream"] {
+  --aw-bg: #faf7ef;
+  --aw-bg-secondary: #f1ece0;
+  --aw-surface: #faf7ef;
+  --aw-border: #d8d0c1;
+  --aw-border-subtle: #e9e3d6;
+}
+
+[data-theme="light"][data-paper="sage"] {
+  --aw-bg: #eef1e9;
+  --aw-bg-secondary: #e3e8dc;
+  --aw-surface: #eef1e9;
+  --aw-border: #c7cfbe;
+  --aw-border-subtle: #dae0d2;
+}
+
+[data-theme="light"][data-paper="stone"] {
+  --aw-bg: #efece7;
+  --aw-bg-secondary: #e5e1da;
+  --aw-surface: #efece7;
+  --aw-border: #cfc8be;
+  --aw-border-subtle: #e0dbd3;
+}
+
+[data-theme="light"][data-paper="mist"] {
+  --aw-bg: #eef1f3;
+  --aw-bg-secondary: #e3e7ea;
+  --aw-surface: #eef1f3;
+  --aw-border: #c8cfd5;
+  --aw-border-subtle: #dce1e5;
+}
+
+[data-theme="light"][data-paper="clear"] {
+  --aw-bg: #fbfbf9;
+  --aw-bg-secondary: #f1f1ee;
+  --aw-surface: #fbfbf9;
+  --aw-border: #d5d5d0;
+  --aw-border-subtle: #e7e7e3;
+}

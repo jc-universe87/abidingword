@@ -73,7 +73,7 @@ export function StudyPane({ workspace, onRevealScripture, search, onCloseSearch 
       <PaneHeader id="pane-study-title" title={t("app.panes.name.study")} />
       <SaveTrackerProvider>
         <div data-scroll-root className="min-h-0 flex-1 overflow-y-auto">
-          <div className="@container mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-6">
+          <div className="@container mx-auto flex max-w-[50rem] flex-col gap-5 px-7 pb-24 pt-3">
             {search !== null ? (
               <StudySearchResults query={search} onOpen={openStudy} onClose={onCloseSearch} />
             ) : location.kind === "projectList" ? (

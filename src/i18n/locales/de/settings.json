@@ -8,7 +8,7 @@
     "templates": "Vorlagen",
     "about": "Über diese Installation",
     "planned": "In späteren Versionen",
-    "assistant": "Assistent",
+    "assistant": "KI-Assistent",
     "updates": "Updates"
   },
   "language": {
@@ -18,11 +18,8 @@
   "theme": {
     "legend": "Farbschema",
     "light": "Hell",
-    "lightHint": "Warmes Elfenbein für das Studium bei Tag.",
     "dark": "Dunkel",
-    "darkHint": "Tiefes Waldgrün, angenehmer bei wenig Licht.",
-    "system": "Wie mein Computer",
-    "systemHint": "Folgt der Einstellung deines Betriebssystems."
+    "system": "Wie mein Computer"
   },
   "layout": {
     "title": "Anordnung des Arbeitsbereichs",
@@ -47,8 +44,8 @@
     "integrationsText": "Verbinde andere Werkzeuge, die du bereits verwendest."
   },
   "assistant": {
-    "intro": "Eine freiwillige Hilfe für deine Bibellehre. Der Assistent kommentiert und macht Vorschläge; du bleibst der Autor, und an deinem Text ändert sich nichts, wenn du es nicht auswählst. Er arbeitet nur, wenn du ihn fragst.",
-    "enabled": "Assistenten verwenden",
+    "intro": "Eine freiwillige Hilfe durch KI (künstliche Intelligenz) für deine Bibellehre. Sie kommentiert und macht Vorschläge; du bleibst der Autor, und an deinem Text ändert sich nichts, wenn du es nicht auswählst. Sie arbeitet nur, wenn du sie fragst.",
+    "enabled": "KI-Assistent verwenden",
     "provider": "Dienst",
     "providers": {
       "openai": "OpenAI (ChatGPT)",
@@ -66,7 +63,7 @@
     "local": "Läuft auf diesem Computer: Dein Text verlässt ihn nicht.",
     "model": "Modell",
     "modelPlaceholder": "Name des Modells",
-    "modelHint": "Ein empfohlenes Modell ist schon eingetragen. Ändere es nur, wenn du ein anderes möchtest.",
+    "modelHint": "Modellnamen ändern sich oft. Das vorgeschlagene Modell ist ein Ausgangspunkt; der Knopf ↗ neben dem Feld öffnet die aktuelle Liste des Dienstes.",
     "address": "Adresse des Dienstes",
     "addressPlaceholder": "Die übliche Adresse des Dienstes",
     "addressHint": "Leer lassen, um die übliche Adresse des Dienstes zu verwenden. Nur nötig für einen anderen Server oder ein Programm auf einem anderen Computer.",
@@ -79,27 +76,26 @@
     "keySaved": "Der Schlüssel ist auf diesem Computer gespeichert.",
     "keyRemoved": "Der Schlüssel wurde entfernt.",
     "search": "Echte Geschichten recherchieren",
-    "searchHint": "Auf das Gedächtnis eines KI-Assistenten ist bei Fakten kein Verlass: Er kann eine Geschichte erzählen, die echt klingt, aber nie passiert ist. Darum fragt Abiding Word für echte Geschichten einen Suchdienst nach echten Quellen und zeigt sie dir. Lies die Quellen selbst, bevor du eine Geschichte verwendest.",
+    "searchHint": "Der KI-Assistent kann Ideen vorschlagen, erinnert sich aber womöglich falsch an echte Ereignisse. Mit einem Suchdienst sucht Abiding Word nach echten Quellen im Internet, damit du eine Geschichte prüfen kannst, bevor du sie verwendest.",
     "searchKinds": {
       "none": "Aus (keine echten Geschichten)",
-      "brave": "Brave Search (braucht einen eigenen Schlüssel)",
-      "searxng": "SearXNG (eine Suchadresse, der du vertraust)"
+      "brave": "Brave Search",
+      "searxng": "SearXNG (braucht eine Serveradresse)"
     },
     "searchAddress": "SearXNG-Adresse",
     "searchKey": "Such-Schlüssel",
     "images": "Bilder",
     "findImages": "Frei lizenzierte Bilder auf Wikimedia Commons finden (nur Suchbegriffe werden gesendet)",
     "generateImages": "Bilder erstellen erlauben (immer als vom Assistenten erstellt gekennzeichnet)",
-    "generateOnlyOpenai": "Bilder erstellen geht nur mit OpenAI oder einem anderen kompatiblen Dienst.",
-    "perspective": "Wie soll der Assistent theologische Fragen einordnen?",
-    "perspectiveHint": "In wenigen Worten: deine kirchliche Tradition oder wie umstrittene Fragen behandelt werden sollen. Bleibt das Feld leer, geht der Assistent von keiner bestimmten Tradition aus und sagt, wo Christen eine Stelle unterschiedlich verstehen.",
+    "perspective": "Wie soll die KI theologische Fragen einordnen?",
+    "perspectiveHint": "Optional. Hier geht es nicht um deine Lebensgeschichte: Schreib, wenn es hilft, nur eine kurze theologische oder kirchliche Ausrichtung (z. B. „evangelisch-reformiert“). Die KI berücksichtigt sie bei umstrittenen theologischen Fragen und nennt trotzdem andere ernsthafte Auslegungen. Bleibt das Feld leer, wird keine Tradition vorausgesetzt.",
     "save": "Speichern",
     "saved": "Gespeichert.",
     "test": "Verbindung prüfen",
     "testOk": "Verbunden. Der Assistent hat geantwortet und ist bereit.",
-    "offHint": "Schalte den Assistenten ein, um einen Dienst auszuwählen und die Verbindung zu prüfen.",
-    "turnedOn": "Der Assistent ist eingeschaltet.",
-    "turnedOff": "Der Assistent ist ausgeschaltet.",
+    "offHint": "Schalte den KI-Assistenten ein, um einen Dienst auszuwählen und die Verbindung zu prüfen.",
+    "turnedOn": "Der KI-Assistent ist eingeschaltet.",
+    "turnedOff": "Der KI-Assistent ist ausgeschaltet.",
     "providerGroups": {
       "internet": "Im Internet",
       "local": "Auf diesem Computer",
@@ -115,17 +111,17 @@
     "keyOptional": "Schlüssel (falls der Dienst einen braucht)",
     "keyHelp": {
       "title": "Wie bekomme ich einen Schlüssel?",
-      "whatQ": "Was ist ein Schlüssel?",
-      "whatA": "Ein langer Code von {{service}}, mit dem Abiding Word dein Konto dort nutzen darf. Behandle ihn wie ein Passwort und gib ihn nicht weiter.",
-      "whyQ": "Wozu brauche ich ihn?",
-      "whyA": "{{service}} betreibt den Assistenten auf eigenen Rechnern. Am Schlüssel erkennt der Dienst, dass eine Anfrage von deinem Konto kommt.",
-      "whereQ": "Wo bekomme ich ihn?",
-      "whereA": "Melde dich auf der Website von {{service}} an (oder leg ein Konto an), öffne die Seite für API-Schlüssel und erstelle einen neuen Schlüssel. Kopiere ihn sofort: Meist wird er nur einmal angezeigt.",
+      "whatA": "Ein Schlüssel ist ein langer Code von {{service}}. Damit darf Abiding Word dein Konto dort nutzen. Behandle ihn wie ein Passwort.",
       "open": "Schlüsselseite von {{service}} öffnen",
-      "costQ": "Kostet das Geld?",
-      "costA": "Meist ja, ein wenig: {{service}} berechnet, was du nutzt, oft ein paar Cent pro Anfrage. Manche Dienste schenken zum Start ein Guthaben. Die Bezahlung regelst du auf deren Website, nicht in Abiding Word.",
-      "pasteQ": "Wo füge ich ihn ein?",
-      "pasteA": "Oben in das Feld „Schlüssel“. Wähle danach „Schlüssel speichern“."
+      "costA": "Die meisten Dienste berechnen ein wenig für die Nutzung und verlangen eventuell Zahlungsdaten oder ein Guthaben, bevor der Schlüssel funktioniert. Das regelst du auf deren Website, nicht in Abiding Word.",
+      "step1": "Öffne unten die Seite von {{service}}.",
+      "step2": "Melde dich an oder leg ein Konto an, falls du noch keins hast.",
+      "step3": "Erstelle einen neuen Schlüssel (er heißt dort oft „API-Schlüssel“ oder „API key“).",
+      "step4": "Kopiere ihn sofort: Meist wird er nur einmal angezeigt.",
+      "step5": "Kehre zu Abiding Word zurück.",
+      "step6": "Füge ihn oben in das Feld „Schlüssel“ ein.",
+      "step7": "Drücke „Schlüssel speichern“.",
+      "step8": "Drücke „Verbindung prüfen“."
     },
     "modelHintEmpty": "Gib den Namen des Modells so ein, wie {{service}} ihn anzeigt.",
     "advanced": "Erweitert",
@@ -144,9 +140,36 @@
       "catholic": "römisch-katholisch",
       "lutheran": "lutherisch",
       "pentecostal": "pfingstlich",
-      "none": "keine bestimmte Tradition",
-      "views": "Bei umstrittenen Fragen zuerst verschiedene Sichtweisen zeigen."
-    }
+      "none": "keine bestimmte Tradition"
+    },
+    "modelSuggested": "Vorgeschlagenes Modell. Du kannst es ändern.",
+    "modelsLink": "Aktuelle Modelle von {{service}} ansehen",
+    "modelsLocal": "Modelle ansehen, die du für {{service}} herunterladen kannst",
+    "searchAdvanced": "Andere (für Fortgeschrittene)",
+    "brave": {
+      "title": "Was ist Brave Search, und wie richte ich es ein?",
+      "what": "Brave Search ist eine Internetsuche. Abiding Word kann ihren Suchdienst für Programme (die „Search API“) nutzen, um Quellen zu finden. Dafür brauchst du ein kostenloses oder bezahltes Konto bei Brave und einen Schlüssel.",
+      "step1": "Öffne die Seite der Brave Search API und leg ein Konto an.",
+      "step2": "Wähle einen Tarif (eventuell gibt es einen kostenlosen), erstelle dort einen Schlüssel und kopiere ihn.",
+      "step3": "Füge ihn unten in das Feld für den Suchschlüssel ein und drücke „Schlüssel speichern“.",
+      "open": "Seite der Brave Search API öffnen",
+      "cost": "Brave verlangt eventuell Zahlungsdaten und begrenzt, wie viele Suchen du pro Monat machen kannst."
+    },
+    "searxng": {
+      "what": "SearXNG ist ein unabhängiger, offener Suchdienst, den manche selbst betreiben. Du brauchst die Adresse eines SearXNG-Servers, der Suchen durch Programme erlaubt („JSON“-Ergebnisse); es hier nur auszuwählen genügt nicht. Wenn dir das nichts sagt, ist Brave Search die einfachere Wahl."
+    },
+    "imagesHelp": "„Bilder finden“ sucht auf Wikimedia Commons nach frei lizenzierten Bildern; gesendet werden nur deine Suchwörter. „Bilder erstellen“ lässt einen KI-Bilddienst ein Bild zeichnen, das immer als vom Assistenten erstellt gekennzeichnet ist. Nicht jeder KI-Dienst kann Bilder erstellen.",
+    "imageService": "Bilder erstellen mit",
+    "imageServices": {
+      "same": "Demselben KI-Dienst (falls er es kann)",
+      "openai": "OpenAI (braucht einen OpenAI-Schlüssel)"
+    },
+    "imageCapability": {
+      "supported": "{{service}} kann Bilder erstellen.",
+      "unsupported": "{{service}} kann keine Bilder erstellen. Wähle OpenAI für Bilder oder lass es aus.",
+      "unknown": "Abiding Word kann nicht erkennen, ob {{service}} mit deinem Konto Bilder erstellen kann. Du kannst es versuchen; wenn es nicht klappt, wähle OpenAI für Bilder."
+    },
+    "imageKey": "OpenAI-Schlüssel für Bilder"
   },
   "jumpTo": "Zu einem Bereich springen",
   "summary": {
@@ -161,5 +184,19 @@
     "assistantOff": "Aus",
     "assistantOn": "An · {{service}}",
     "about": "Version {{version}} · wo deine Daten liegen"
+  },
+  "help": {
+    "about": "Mehr dazu: {{topic}}"
+  },
+  "background": {
+    "legend": "Hintergrund",
+    "help": "Ruhige, blendarme Hintergründe für langes Lesen und Schreiben. Der Text bleibt auf jedem gut lesbar. Sie gelten für das helle Farbschema.",
+    "lightOnly": "Hintergründe gelten für das helle Farbschema.",
+    "parchment": "Pergament",
+    "cream": "Creme",
+    "sage": "Salbei",
+    "stone": "Stein",
+    "mist": "Nebel",
+    "clear": "Neutral"
   }
 }

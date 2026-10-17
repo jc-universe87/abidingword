@@ -49,14 +49,14 @@
     "later": "Plus tard",
     "downloading": "Téléchargement de la mise à jour…",
     "downloadingPercent": "Téléchargement de la mise à jour… {{percent}} %",
-    "version": "Version utilisée",
+    "version": "Version installée",
     "channel": "Canal de mise à jour",
     "channelTest": "Développement / test",
     "check": "Rechercher des mises à jour",
     "checking": "Recherche en cours…",
     "upToDate": "Abiding Word est à jour.",
     "notIncluded": "Cette version ne comprend pas les mises à jour automatiques.",
-    "help": "Abiding Word cherche une mise à jour de temps en temps ou à votre demande. L’application n’a jamais besoin d’Internet pour fonctionner, et vos études ne sont pas touchées.",
+    "help": "Abiding Word vérifie seulement de temps en temps ou à votre demande. Vous n’avez pas besoin d’Internet pour travailler, et vos études ne sont pas touchées.",
     "errors": {
       "check": "Impossible de rechercher les mises à jour. Vérifiez votre connexion et réessayez.",
       "install": "La mise à jour n’a pas pu être installée. Vos études ne sont pas touchées. Vous pouvez réessayer."

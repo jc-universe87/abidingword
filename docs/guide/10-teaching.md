@@ -25,15 +25,18 @@ pair of eyes.
 
 Nothing is filled in for you. Every part may stay empty until you need it.
 You can prepare **more than one teaching** from the same study (for example
-a Sunday sermon and a youth lesson): click **Prepare another teaching**, and
-switch between them with **Teaching:**.
+a Sunday sermon and a youth lesson): click **Prepare another teaching** (in
+*About this teaching* while there is only one), and switch between them with
+**Teaching:**.
 
 ## The parts of a teaching
 
 Your writing comes first: the **central message**, the **introduction**, the
 main part and the **conclusion**. The details sit on one quiet line under the
-title, **About this teaching** (for example *Sermon · for families*). Click it
-to open or close it.
+title, **About this teaching** (for example *Sermon · for families · Luke
+19:1–10*). Right after you start a teaching it is open, so you can fill in who
+it is for and why; when you come back later it is folded. Click it to open or
+close it.
 
 | Part | What to write |
 |---|---|
@@ -71,12 +74,13 @@ beside it; delete it with 🗑 (if you wrote in it, you are asked first).
 
 ## The assistant (optional)
 
-The assistant is **off** until you turn it on in **Settings → Assistant**
-(see [Settings](08-settings-updates-backups.md#assistant)). When it is on,
-each part of your teaching has a small **💡 Help** button.
+The AI Assistant is **off** until you turn it on in **Settings → AI
+Assistant** (see [Settings](08-settings-updates-backups.md#ai-assistant)).
+When it is on, each part of your teaching has a small **💡 AI Help** button
+(*Help from the AI Assistant*).
 
 <p align="center">
-  <img src="images/teaching-help.png" alt="The assistant beside the introduction: what will be shared, and a suggested wording shown as a comparison, with Use this wording" width="800">
+  <img src="images/teaching-help.png" alt="The AI Assistant's panel floating over the workspace: a suggested wording for the introduction shown as a comparison, with Use this wording; the teaching underneath has not moved" width="900">
 </p>
 
 > [!IMPORTANT]
@@ -85,7 +89,7 @@ each part of your teaching has a small **💡 Help** button.
 
 ### What you can ask
 
-**💡 Help** opens a short menu. Choose a category, then what you want
+**💡 AI Help** opens a short menu. Choose a category, then what you want
 (arrow keys move, **Enter** or **→** opens a category, **←** or **Escape**
 goes back, **Escape** again closes the menu):
 
@@ -112,7 +116,14 @@ there is nothing to paste into your text.
 
 ### How it works
 
-1. Click **Help** beside a part and choose what you want.
+1. Click **AI Help** beside a part and choose what you want. The AI
+   Assistant opens in its own **panel over the workspace**, at the upper
+   right: your text does not move, and you can keep reading and writing
+   while it is open. Drag its top bar to move it, drag its lower corner to
+   make it bigger or smaller, and use **–** to shrink it to a small *AI Help*
+   chip at the bottom right (click it to bring the panel back, with your
+   request kept). Only one panel is open at a time: asking about another part
+   moves it there.
    *Tip:* select a few words first to work on just those.
 2. The assistant says **what will be shared and where it goes**, for example
    "To help, this will be sent to OpenAI: your Introduction; your central
@@ -130,8 +141,8 @@ there is nothing to paste into your text.
      A suggested passage is added to your teaching only if you click **Add**.
    - **Illustration ideas** are always marked **invented examples, not real
      events**. Do not tell them as if they happened.
-4. Press **Escape** or click **Done** to close it. Nothing has changed unless
-   you chose it.
+4. Press **Escape** or click **Done** to close it; the cursor goes back to
+   the **AI Help** button you used. Nothing has changed unless you chose it.
 
 While the assistant works you see it at once, in words: *Asking the
 assistant…*, *Looking for sources… This can take a little while.*, *Finding
@@ -169,8 +180,11 @@ For each idea you can:
 
 - **Find freely licensed images** (from Wikimedia Commons): each shows its
   licence and author, and **Where it is from**.
-- **Make an image**, if you turned this on in Settings: always marked
-  *Made by the assistant: an illustration, not a photograph*.
+- **Make an image**, if you turned this on in Settings and your AI service
+  can make images: always marked *Made by the assistant: an illustration,
+  not a photograph*. If your service cannot (Claude, DeepSeek and others are
+  text-only), the button is greyed out and says why; you can choose OpenAI
+  for images in Settings. Finding freely licensed images still works.
 - **Keep** an idea or an image. Nothing is placed in your teaching unless you
   keep it.
 

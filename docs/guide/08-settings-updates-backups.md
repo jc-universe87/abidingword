@@ -12,20 +12,34 @@ workspace** stays at the top while you scroll (or press **Escape**).
 </p>
 
 Settings is a short list. Each section is **one line**: its name and where
-things stand (for example *Updates · Up to date* or *Assistant · Off*). Click
+things stand (for example *Updates · Up to date* or *AI Assistant · Off*). Click
 a line, or press **Enter** or **Space** on it, to open or close that section;
 the others stay as they are. The row of names at the top jumps straight to a
 section and opens it. Abiding Word remembers which sections you left open.
 
 The sections, in order: **Updates**, **Appearance**, **Bible texts**,
-**Templates**, **Language**, **Assistant**, **About this installation** and
-**Coming in later versions**.
+**Templates**, **Language**, **AI Assistant**, **About this installation**
+and **Coming in later versions**.
+
+> [!TIP]
+> Explanations wait behind a small **?** beside a setting, so Settings stays
+> short. Point at it, click or tap it, or press **Enter** on it to read the
+> explanation; press **Escape** or click elsewhere to close it. What you must
+> know right away (a missing key, a failed check, an update) is always shown
+> directly.
+
+**Adding a Bible** and **editing a template** open over Settings: Settings
+stays behind, exactly as you left it. Close them with **Cancel**/**Back** or
+**Escape**.
 
 ## Updates
 
 <p align="center">
-  <img src="images/updates.png" alt="Updates opened: running version 0.5.0-dev.26, Development / test channel, and a 'Check for updates' button" width="660">
+  <img src="images/updates.png" alt="Updates opened: installed version, Development / test channel, one 'Check for updates' button and a short note" width="660">
 </p>
+
+Opened, it shows only the **installed version**, the **update channel**, one
+**Check for updates** button and a one-line note.
 
 Normally Updates is a single line: *Up to date*, or your version. It opens by
 itself only when there is something to do: an update is available, it is
@@ -48,11 +62,16 @@ exists. If there is one, a slim notice appears under the app bar:
 
 ## Appearance
 
-| Theme | Looks like |
-|---|---|
-| **Light** | Warm ivory, for daytime study |
-| **Dark** | Deep forest green, easier in low light |
-| **Match my computer** | Follows your Windows setting |
+<p align="center">
+  <img src="images/appearance.png" alt="Appearance: Theme Light, Dark or Match my computer; six background swatches (Parchment, Cream, Sage, Stone, Mist, Neutral); Reset layout" width="560">
+</p>
+
+- **Theme:** *Light*, *Dark*, or *Match my computer* (follows your Windows
+  setting).
+- **Background:** six calm, low-glare backgrounds for long reading and
+  writing (*Parchment*, *Cream*, *Sage*, *Stone*, *Mist*, *Neutral*). Text
+  stays easy to read on each. They apply to the light theme, and the choice
+  is remembered on this computer.
 
 <p align="center">
   <img src="images/workspace-dark.png" alt="The workspace in the dark theme" width="900">
@@ -90,14 +109,15 @@ notes and Bibles stay exactly as they are.
   <img src="images/german-ui.png" alt="Abiding Word with German menus and buttons" width="900">
 </p>
 
-## Assistant
+## AI Assistant
 
-The assistant helps when you [prepare to teach](10-teaching.md). It is
-**off** until you tick **Use the assistant**; until then this section only
-says *Turn on the assistant to choose a service and check the connection.*
+The AI Assistant (artificial intelligence) helps when you
+[prepare to teach](10-teaching.md). It is **off** until you tick **Use the AI
+Assistant**; until then this section only says *Turn on the AI Assistant to
+choose a service and check the connection.*
 
 <p align="center">
-  <img src="images/settings-assistant.png" alt="Assistant opened: Use the assistant, Service, Key with 'How do I get a key?' opened, Model, Check the connection, Advanced, and the optional extras" width="560">
+  <img src="images/settings-assistant.png" alt="AI Assistant opened: Use the AI Assistant, Service, Key with 'How do I get a key?' opened as numbered steps, Model with a link to the current models, Check the connection, Advanced, and the optional extras" width="560">
 </p>
 
 Once it is on, set it up from top to bottom:
@@ -107,52 +127,65 @@ Once it is on, set it up from top to bottom:
      OpenAI (ChatGPT), Perplexity, Qwen (Alibaba Cloud) or xAI (Grok). Your
      text is sent to that company when you ask, and you need a **key** from
      it.
-   - *On this computer:* **Ollama** or **LM Studio**. These are free programs
-     that run an AI model on your own computer: no key, no account, and your
-     text never leaves the computer. Install the program, download a model in
-     it and leave it running. **How do I set up …?** explains this and opens
-     the program's website.
+   - *On this computer:* **Ollama** or **LM Studio**. Free programs that run
+     an AI model on your own computer: no key, no account, and your text never
+     leaves the computer. **How do I set up …?** explains it and opens the
+     program's website.
    - *Other compatible service:* for anything else that works the same way.
      Enter the address its instructions give.
-2. **Key** (services on the internet). Paste it and click **Keep key**. It is
-   kept in your computer's own password store (on Windows: the *Credential
-   Manager*), never in your studies, and is not shown again. **Remove key**
-   deletes it. Not sure what a key is? Open **How do I get a key?**: what it
-   is, why it is needed, where to get it (with a button to the company's own
-   page), whether it costs money (usually a little, paid on their website)
-   and where to paste it.
-3. **Model.** A suggested model is filled in. Change it only if you want a
-   different one.
-4. **Check the connection.** The button sits right under the model. If it
-   cannot be used yet, the reason is written beside it, for example *first
-   paste your key and choose Keep key*. When it works: *Connected. The
-   assistant answered and is ready.*
+2. **Key** (services on the internet). Never heard of one? Open **How do I
+   get a key?** It walks you through it: open the company's page (a button
+   opens their official page), sign in or create an account, create a key
+   (it may be called an *API key*), copy it, come back, paste it into **Key**,
+   press **Keep key**, then **Check the connection**. Most services charge a
+   little for what you use and may ask for payment details or prepaid credit
+   first; that is arranged on their website. The key is kept in your
+   computer's own password store (on Windows: the *Credential Manager*), never
+   in your studies, and is not shown again.
+3. **Model.** A suggested model is filled in (*Suggested model. You can
+   change it.*). Model names change often: the **↗** button beside the field
+   opens the company's own, current list of models. For Ollama and LM Studio
+   it opens their list of models to download. For another compatible service
+   there is no such list.
+4. **Check the connection.** If it cannot be used yet, the reason is written
+   beside it, for example *first paste your key and choose Keep key*. When it
+   works: *Connected. The assistant answered and is ready.*
 
 **Advanced** holds the service's address. You need it only for a different
 server, or for Ollama or LM Studio running on another computer.
 
 **Optional extras**
 
-- **Look up real stories.** An AI assistant cannot be trusted to remember
-  facts: it can tell a story that sounds true but never happened. So for real
-  stories Abiding Word asks a **search service** for real sources and shows
-  them to you: *Brave Search* (needs its own key) or a *SearXNG* address you
-  trust. Read the sources yourself before you use a story. Without a search
-  service, the assistant says it cannot look up real stories; it never makes
-  one up.
-- **Images.** Finding freely licensed images on Wikimedia Commons is on (only
-  search words are sent). **Allow making images** works with OpenAI or another
-  compatible service; such images are always marked as made by the assistant.
-- **How should the assistant place theological questions?** (optional). In a
-  few words: your church tradition, or how disputed questions should be
-  handled. The examples (*Evangelical Reformed*, *Roman Catholic*,
-  *Lutheran*, *Pentecostal*, *No particular tradition*, *On disputed
-  questions, show the different views first.*) fill it in with one click.
-  Left empty, the assistant assumes no particular tradition and says where
-  Christians read a passage differently.
+- **Look up real stories.** The AI Assistant can suggest ideas, but it may
+  remember real events incorrectly. A search service lets Abiding Word look
+  for actual web sources, so you can check a story before you use it.
+  - **Brave Search** is an internet search service. You need a Brave account
+    and a key: **What is Brave Search, and how do I set it up?** explains the
+    steps and opens Brave's own page. Brave may ask for payment details and
+    limits how many searches you can make each month.
+  - **SearXNG** (under *Other (advanced)*) is an independent, open search
+    service that some people run themselves. It only works with the address
+    of a SearXNG server that allows searches from programs. If that means
+    nothing to you, choose Brave Search.
+- **Images.**
+  - **Find freely licensed images** on Wikimedia Commons (only search words
+    are sent). This always works, whatever service you use.
+  - **Allow making images** asks an AI image service to draw a picture,
+    always marked as made by the assistant. Not every AI service can: the
+    line below says whether yours *can*, *cannot*, or whether Abiding Word
+    *cannot tell* (Google, other compatible services: you can try). With
+    **Make images with → OpenAI** you can keep writing with another service
+    (for example Claude) and make images with OpenAI, using an OpenAI key
+    kept for images.
+- **How should the AI approach theological questions?** (optional). Open
+  the **?** for what it is for: not your life story, only a short theological
+  or church perspective if it helps (e.g. *Reformed evangelical*). The
+  examples fill it in with one click. The AI uses it on disputed theological
+  questions and still mentions other serious interpretations; left blank, no
+  tradition is assumed.
 
-Click **Save** for the extras. (Turning the assistant on or off, keeping a
-key and checking the connection save by themselves.)
+Click **Save** for the extras. (Turning the assistant on or off, choosing a
+service, keeping a key and checking the connection save by themselves.)
 
 ## About this installation
 

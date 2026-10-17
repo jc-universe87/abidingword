@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/design-system/Button";
+import { HelpTip } from "@/design-system/HelpTip";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
@@ -105,14 +106,12 @@ export function StudyTemplates({ onEdit }: { onEdit: (templateId: string | null)
   const list = templates.data ?? [];
   return (
     <div className="flex flex-col gap-4">
-      <p className="m-0 text-[0.9375rem] text-text-muted">
-        {t("studies.templates.intro")}
-      </p>
       <ul aria-label={t("studies.templates.listLabel")} className="m-0 list-none border-t border-border-subtle p-0">
         {list.map(row)}
       </ul>
-      <div>
+      <div className="flex items-center gap-1">
         <Button onClick={() => onEdit(null)}>{t("studies.templates.new")}</Button>
+        <HelpTip name={t("settings.help.about", { topic: t("settings.sections.templates") })}>{t("studies.templates.intro")}</HelpTip>
       </div>
       {error && <p role="alert" className="m-0 text-danger">{error}</p>}
     </div>

@@ -4,7 +4,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { openSettingsSection, renderApp } from "../support/render";
 
-const ORDER = ["Updates", "Appearance", "Bible texts", "Templates", "Language", "Assistant", "About this installation", "Coming in later versions"];
+const ORDER = ["Updates", "Appearance", "Bible texts", "Templates", "Language", "AI Assistant", "About this installation", "Coming in later versions"];
 
 describe("settings", () => {
   it("lists the sections in order, each one line with where it stands, all closed", async () => {
@@ -18,10 +18,10 @@ describe("settings", () => {
       expect(toggle).toHaveAttribute("aria-expanded", "false");
     }
     // Short summaries say where things stand without opening anything.
-    expect(within(screen.getByRole("region", { name: "Appearance" })).getByRole("button", { name: "Appearance" })).toHaveAccessibleDescription("Light");
+    expect(within(screen.getByRole("region", { name: "Appearance" })).getByRole("button", { name: "Appearance" })).toHaveAccessibleDescription("Light · Parchment");
     expect(within(screen.getByRole("region", { name: "Language" })).getByRole("button", { name: "Language" })).toHaveAccessibleDescription("English");
     await waitFor(() =>
-      expect(within(screen.getByRole("region", { name: "Assistant" })).getByRole("button", { name: "Assistant" })).toHaveAccessibleDescription("Off"),
+      expect(within(screen.getByRole("region", { name: "AI Assistant" })).getByRole("button", { name: "AI Assistant" })).toHaveAccessibleDescription("Off"),
     );
     expect(within(screen.getByRole("region", { name: "Coming in later versions" })).getByRole("button", { name: "Coming in later versions" })).toHaveAccessibleDescription("Sync · Integrations");
   });
@@ -58,11 +58,11 @@ describe("settings", () => {
     const nav = await screen.findByRole("navigation", { name: "Go to a section" });
     expect(within(nav).getAllByRole("link").map((l) => l.textContent)).toEqual(ORDER);
 
-    await user.click(within(nav).getByRole("link", { name: "Assistant" }));
-    const toggle = within(screen.getByRole("region", { name: "Assistant" })).getByRole("button", { name: "Assistant" });
+    await user.click(within(nav).getByRole("link", { name: "AI Assistant" }));
+    const toggle = within(screen.getByRole("region", { name: "AI Assistant" })).getByRole("button", { name: "AI Assistant" });
     expect(toggle).toHaveAttribute("aria-expanded", "true");
     await waitFor(() => expect(toggle).toHaveFocus());
-    expect(await screen.findByRole("checkbox", { name: "Use the assistant" })).toBeVisible();
+    expect(await screen.findByRole("checkbox", { name: "Use the AI Assistant" })).toBeVisible();
   });
 
   it("keeps Back in the header that stays at the top", async () => {

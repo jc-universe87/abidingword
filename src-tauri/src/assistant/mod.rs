@@ -45,6 +45,10 @@ pub struct AssistantSettings {
     /// Text leaves this computer when the assistant is asked.
     pub remote: bool,
     pub can_generate_images: bool,
+    /// Whether the chosen image service can make images.
+    pub image_capability: config::ImageCapability,
+    /// A key is kept for the image service when it is not the writing service.
+    pub has_image_key: bool,
 }
 
 pub fn settings(conn: &Connection, secrets: &dyn SecretStore) -> AppResult<AssistantSettings> {
@@ -56,9 +60,16 @@ pub fn settings(conn: &Connection, secrets: &dyn SecretStore) -> AppResult<Assis
         SearchKind::Brave => secrets.get(&secrets::search_key_name("brave"))?.is_some(),
         _ => false,
     };
+    let has_image_key = secrets
+        .get(&secrets::provider_key_name(
+            config.image_provider().as_str(),
+        ))?
+        .is_some();
     Ok(AssistantSettings {
         remote: config.is_remote(),
         can_generate_images: images::can_generate(&config),
+        image_capability: config.image_capability(),
+        has_image_key,
         config,
         has_key,
         has_search_key,

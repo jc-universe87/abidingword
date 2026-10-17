@@ -711,8 +711,8 @@
       "suggestion": "Sugestão do assistente"
     },
     "assist": {
-      "menu": "Ajuda",
-      "menuLabel": "Ajuda com {{part}}",
+      "menu": "Ajuda IA",
+      "menuLabel": "Ajuda IA com {{part}}",
       "action": {
         "grammar": "Verificar gramática e ortografia",
         "clarity": "Deixar mais claro",
@@ -829,7 +829,11 @@
         },
         "find": "Encontrar imagens de licença livre",
         "make": "Criar uma imagem",
-        "keepIdea": "Guardar esta ideia"
+        "keepIdea": "Guardar esta ideia",
+        "cannotMake": {
+          "off": "Criar imagens está desligado (Configurações → Assistente de IA). Encontrar imagens de licença livre continua funcionando.",
+          "unsupported": "Este serviço de IA não pode criar imagens. Você pode escolher a OpenAI para imagens em Configurações → Assistente de IA. Encontrar imagens de licença livre continua funcionando."
+        }
       },
       "images": {
         "found": "Imagens encontradas",
@@ -861,7 +865,11 @@
         "story": "Procurando fontes… Pode levar um tempinho.",
         "findImages": "Procurando imagens adequadas…",
         "makeImage": "Criando uma imagem… Pode levar um tempinho."
-      }
+      },
+      "menuTitle": "Ajuda do assistente de IA",
+      "minimise": "Minimizar",
+      "restore": "Abrir de novo o assistente de IA: {{label}}",
+      "panelLabel": "Assistente de IA: {{label}}"
     },
     "shape": {
       "points": {

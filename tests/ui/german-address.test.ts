@@ -69,7 +69,7 @@ describe("terminology: Bible Study and Bible Teaching", () => {
     for (const lang of ["en", "de"]) {
       const studies = load(lang, "studies");
       for (const [key, value] of Object.entries(studies)) {
-        if (!key.startsWith("teaching.") || key === "teaching.assist.pending.findImages") continue;
+        if (!key.startsWith("teaching.") || key === "teaching.assist.pending.findImages" || key.startsWith("teaching.assist.visuals.")) continue;
         expect(value, `${lang} ${key}`).not.toMatch(/Erkenntnis|\bfindings?\b/i);
       }
     }

@@ -66,7 +66,16 @@ function Form({ templateId, initial, onClose }: FormProps) {
 
   const field = "h-10 rounded-aw border border-border bg-bg px-3 text-base";
   return (
-    <main aria-labelledby={`${id}-title`} className="min-h-0 flex-1 overflow-y-auto bg-bg">
+    <div
+      className="h-full overflow-y-auto bg-bg"
+      onKeyDown={(e) => {
+        // Escape closes the editor, as its Back and Cancel do (nothing unsaved is kept).
+        if (e.key === "Escape" && !e.defaultPrevented) {
+          e.preventDefault();
+          onClose();
+        }
+      }}
+    >
       <div className="mx-auto flex max-w-[46rem] flex-col gap-6 px-8 pb-24 pt-8">
         {/* Back stays in reach while the page scrolls. */}
         <div className="sticky top-0 z-10 -mx-8 -mt-8 self-stretch border-b border-border-subtle bg-bg px-8 py-2">
@@ -75,7 +84,7 @@ function Form({ templateId, initial, onClose }: FormProps) {
           </Button>
         </div>
         <div className="flex flex-col items-start gap-4">
-          <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
+          <h1 id="template-editor-title" ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
             {templateId ? t("studies.templateEditor.editTitle") : t("studies.templateEditor.newTitle")}
           </h1>
         </div>
@@ -143,6 +152,6 @@ function Form({ templateId, initial, onClose }: FormProps) {
           <Button onClick={onClose}>{t("common.cancel")}</Button>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

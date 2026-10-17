@@ -7,7 +7,7 @@ use base64::Engine as _;
 use serde::Serialize;
 use serde_json::{json, Value};
 
-use super::config::{AssistantConfig, ProviderKind};
+use super::config::{AssistantConfig, ImageCapability};
 use super::http::{encode, HttpCall, HttpReply, Method};
 use crate::error::{AppError, AppResult, UserMessage};
 
@@ -170,14 +170,12 @@ pub fn parse_found(reply: &HttpReply) -> AppResult<Vec<FoundImage>> {
         .collect())
 }
 
-/// Image generation needs an OpenAI-style image endpoint.
+/// Image generation needs a service that can make images (or may: see
+/// [`ImageCapability::Unknown`]), and the person's permission.
 pub fn can_generate(config: &AssistantConfig) -> bool {
     config.enabled
         && config.generate_images
-        && matches!(
-            config.provider,
-            ProviderKind::Openai | ProviderKind::OpenaiCompatible
-        )
+        && config.image_capability() != ImageCapability::Unsupported
 }
 
 pub fn generate_call(
@@ -188,19 +186,17 @@ pub fn generate_call(
     if !can_generate(config) {
         return Err(AppError::Assistant(UserMessage::new(
             "assistant.noImageGeneration",
-            "Making images is not set up. You can turn it on in Settings (OpenAI image models only).",
+            "Making images is not set up, or this AI service cannot make images. You can choose a service for images in Settings.",
         )));
     }
-    let base = config.base_url().ok_or_else(super::provider::not_set_up)?;
-    let model = if config.image_model.is_empty() {
-        "gpt-image-1"
-    } else {
-        &config.image_model
-    };
+    let base = config
+        .image_base_url()
+        .ok_or_else(super::provider::not_set_up)?;
+    let model = config.image_model_name();
     let mut headers = vec![("content-type".to_string(), "application/json".to_string())];
     match key {
         Some(key) => headers.push(("authorization".into(), format!("Bearer {key}"))),
-        None if config.provider.needs_key() => {
+        None if config.image_provider().needs_key() => {
             return Err(AppError::Assistant(UserMessage::new(
                 "assistant.noKey",
                 "The assistant needs its key. You can add it in Settings.",
@@ -254,6 +250,7 @@ pub fn data_url(png: &[u8]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::assistant::config::{ImageService, ProviderKind};
 
     #[test]
     fn found_images_keep_licence_author_and_source() {
@@ -330,6 +327,17 @@ mod tests {
             .unwrap()
             .contains("not a photograph"));
         config.provider = ProviderKind::Anthropic;
-        assert!(generate_call(&config, Some("k"), "a vine").is_err());
+        assert!(
+            generate_call(&config, Some("k"), "a vine").is_err(),
+            "Claude makes no images"
+        );
+        // Writing with Claude, images with OpenAI: the request goes to OpenAI.
+        config.image_service = ImageService::Openai;
+        let call = generate_call(&config, Some("k"), "a vine").unwrap();
+        assert_eq!(call.url, "https://api.openai.com/v1/images/generations");
+        assert!(
+            generate_call(&config, None, "a vine").is_err(),
+            "the OpenAI key is needed"
+        );
     }
 }

@@ -711,8 +711,8 @@
       "suggestion": "Suggestion de l’assistant"
     },
     "assist": {
-      "menu": "Aide",
-      "menuLabel": "Aide pour {{part}}",
+      "menu": "Aide IA",
+      "menuLabel": "Aide IA pour {{part}}",
       "action": {
         "grammar": "Vérifier grammaire et orthographe",
         "clarity": "Rendre plus clair",
@@ -829,7 +829,11 @@
         },
         "find": "Trouver des images libres",
         "make": "Créer une image",
-        "keepIdea": "Garder cette idée"
+        "keepIdea": "Garder cette idée",
+        "cannotMake": {
+          "off": "La création d’images est désactivée (Paramètres → Assistant IA). Trouver des images sous licence libre fonctionne toujours.",
+          "unsupported": "Ce service d’IA ne peut pas créer d’images. Vous pouvez choisir OpenAI pour les images dans Paramètres → Assistant IA. Trouver des images sous licence libre fonctionne toujours."
+        }
       },
       "images": {
         "found": "Images trouvées",
@@ -861,7 +865,11 @@
         "story": "Recherche de sources… Cela peut prendre un moment.",
         "findImages": "Recherche d’images adaptées…",
         "makeImage": "Création d’une image… Cela peut prendre un moment."
-      }
+      },
+      "menuTitle": "Aide de l’assistant IA",
+      "minimise": "Réduire",
+      "restore": "Rouvrir l’assistant IA : {{label}}",
+      "panelLabel": "Assistant IA : {{label}}"
     },
     "shape": {
       "points": {

@@ -56,6 +56,7 @@ export function defaultAssistantConfig(): AssistantConfig {
     findImages: true,
     generateImages: false,
     imageModel: "",
+    imageService: "same",
     perspective: "",
   };
 }
@@ -130,6 +131,13 @@ const LABELS: Record<string, string> = {
   openai_compatible: "Other compatible service",
 };
 
+const imageProvider = (c: AssistantConfig) => (c.imageService === "openai" ? "openai" : c.provider);
+/** As the core decides it: from the service, never from a model's name. */
+const imageCapability = (c: AssistantConfig) => {
+  const p = imageProvider(c);
+  return p === "openai" ? "supported" : p === "google" || p === "openai_compatible" ? "unknown" : "unsupported";
+};
+
 export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
   const prep = (prepId: string): StoredPrep => {
     const p = state.preparations.find((x) => x.id === prepId);
@@ -167,7 +175,9 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
       hasKey: state.assistant.keys.has(c.provider),
       hasSearchKey: state.assistant.keys.has("search"),
       remote: remote(c),
-      canGenerateImages: c.enabled && c.generateImages && (c.provider === "openai" || c.provider === "openai_compatible"),
+      canGenerateImages: c.enabled && c.generateImages && imageCapability(c) !== "unsupported",
+      imageCapability: imageCapability(c),
+      hasImageKey: state.assistant.keys.has(imageProvider(c)),
     };
   };
   const label = () => {
@@ -336,7 +346,7 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
       return settings();
     },
     assistantKeySet: async (which, key) => {
-      const name = which === "search" ? "search" : state.assistant.config.provider;
+      const name = which === "search" ? "search" : which === "image" ? imageProvider(state.assistant.config) : state.assistant.config.provider;
       if (key.trim()) state.assistant.keys.set(name, key.trim());
       else state.assistant.keys.delete(name);
       return settings();

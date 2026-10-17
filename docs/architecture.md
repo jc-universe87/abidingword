@@ -946,8 +946,10 @@ Abiding Word should use a provider abstraction.
 > v0.16 refinement: OpenAI, Anthropic, Google, xAI, Perplexity, DeepSeek,
 > Qwen, Ollama, LM Studio and any other compatible service; none is preferred.
 > Presentation is a future output of a teaching (export, or audience and
-> presenter screens), not a third workspace view. Details:
-> [`teaching-preparation-v0.16.md`](teaching-preparation-v0.16.md) §17.
+> presenter screens), not a third workspace view. Image creation has its own
+> service and capability (§18.4): writing and images can use different
+> providers. Details:
+> [`teaching-preparation-v0.16.md`](teaching-preparation-v0.16.md) §17–18.
 
 ## Providers
 

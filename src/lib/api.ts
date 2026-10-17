@@ -240,7 +240,7 @@ export interface Api {
   assistantSettingsGet(): Promise<AssistantSettings>;
   assistantSettingsSet(config: AssistantConfig): Promise<AssistantSettings>;
   /** Keeps a key in the computer's credential store; blank removes it. */
-  assistantKeySet(which: "provider" | "search", key: string): Promise<AssistantSettings>;
+  assistantKeySet(which: "provider" | "search" | "image", key: string): Promise<AssistantSettings>;
   assistantTest(): Promise<void>;
   /** What would be shared, and where it would go, before anything is sent. */
   assistantPreview(input: AssistInput): Promise<AssistPreview>;

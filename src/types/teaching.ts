@@ -135,6 +135,9 @@ export interface KeepTeachingMaterial {
 /** Services on the internet, then on this computer, then any other compatible one (as the core lists them). */
 export const PROVIDER_KINDS = ["openai", "anthropic", "google", "xai", "perplexity", "deepseek", "qwen", "ollama", "lmstudio", "openai_compatible"] as const;
 export type ProviderKind = (typeof PROVIDER_KINDS)[number];
+export const IMAGE_SERVICES = ["same", "openai"] as const;
+export type ImageService = (typeof IMAGE_SERVICES)[number];
+export type ImageCapability = "supported" | "unsupported" | "unknown";
 export const SEARCH_KINDS = ["none", "brave", "searxng"] as const;
 export type SearchKind = (typeof SEARCH_KINDS)[number];
 
@@ -148,6 +151,8 @@ export interface AssistantConfig {
   findImages: boolean;
   generateImages: boolean;
   imageModel: string;
+  /** Where images are made: the writing service, or OpenAI. */
+  imageService: ImageService;
   perspective: string;
 }
 
@@ -158,6 +163,10 @@ export interface AssistantSettings {
   /** Text leaves this computer when the assistant is asked. */
   remote: boolean;
   canGenerateImages: boolean;
+  /** Whether the chosen image service can make images. */
+  imageCapability: ImageCapability;
+  /** A key is kept for the image service. */
+  hasImageKey: boolean;
 }
 
 export const WORDING_ACTIONS = ["grammar", "clarity", "shorten", "natural", "repetition", "spoken", "audience", "translate", "transition"] as const;

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/design-system/Button";
+import { HelpTip } from "@/design-system/HelpTip";
 import { toApiError } from "@/lib/api";
 import { readLocal, writeLocal } from "@/lib/storage";
 import { LANGUAGES, currentLanguage } from "@/i18n";
@@ -13,7 +14,7 @@ import { StudyTemplates } from "./StudyTemplates";
 import { UpdateSettings } from "@/features/updates/UpdateSettings";
 import { useUpdates, type UpdateState } from "@/features/updates/UpdatesContext";
 import { LanguageChoice } from "./LanguageChoice";
-import { useTheme } from "./ThemeContext";
+import { BACKGROUNDS, useTheme, type Background } from "./ThemeContext";
 
 const THEMES = ["light", "dark", "system"] as const satisfies readonly Theme[];
 
@@ -65,7 +66,7 @@ interface SettingsViewProps {
  */
 export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditTemplate }: SettingsViewProps) {
   const { t, i18n } = useTranslation();
-  const { theme } = useTheme();
+  const { theme, background } = useTheme();
   const updates = useUpdates();
   const updateLine = useUpdateSummary();
   const heading = useRef<HTMLHeadingElement>(null);
@@ -107,7 +108,7 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
       case "updates":
         return updateLine;
       case "appearance":
-        return t(`settings.theme.${theme}`);
+        return theme === "dark" ? t("settings.theme.dark") : `${t(`settings.theme.${theme}`)} · ${t(`settings.background.${background}`)}`;
       case "bible-texts":
         return t("settings.summary.bibleTexts");
       case "study-templates":
@@ -132,10 +133,10 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
         return <UpdateSettings />;
       case "appearance":
         return (
-          <>
+          <div className="flex flex-col gap-5">
             <ThemeChoice />
             <LayoutReset onReset={onResetLayout} />
-          </>
+          </div>
         );
       case "bible-texts":
         return <BibleTexts onAddBible={onAddBible} />;
@@ -294,7 +295,7 @@ function Section({ name, title, summary, open, onToggle, toggleRef, children }: 
           )}
         </button>
       </h2>
-      <div id={`${id}-body`} hidden={!open} className="pb-8 pl-8 pt-2">
+      <div id={`${id}-body`} hidden={!open} className="pb-5 pl-8 pt-1">
         {children}
       </div>
     </section>
@@ -304,29 +305,32 @@ function Section({ name, title, summary, open, onToggle, toggleRef, children }: 
 function About({ info }: { info: AppInfo }) {
   const { t } = useTranslation();
   return (
-    <>
-      <dl className="m-0 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-[12rem_1fr]">
-        <Item term={t("settings.about.version")}>{t("settings.about.versionValue", { version: info.version })}</Item>
-        <Item term={t("settings.about.dataFolder")}>
-          <Path value={info.dataDirectory} />
-        </Item>
-        <Item term={t("settings.about.database")}>
-          <Path value={info.databasePath} />
-        </Item>
-        <Item term={t("settings.about.logFiles")}>
-          <Path value={info.logDirectory} />
-        </Item>
-        <Item term={t("settings.about.schema")}>
-          {info.schemaVersion === null
-            ? t("common.unknown")
-            : t("settings.about.schemaVersion", { version: info.schemaVersion })}
-        </Item>
-      </dl>
-      <p className="mt-4 mb-0 text-[0.9375rem] text-text-muted">{t("settings.about.backup")}</p>
-    </>
+    <dl className="m-0 grid grid-cols-1 gap-x-6 gap-y-2 text-[0.9375rem] sm:grid-cols-[12rem_1fr]">
+      <Item term={t("settings.about.version")}>{t("settings.about.versionValue", { version: info.version })}</Item>
+      <Item
+        term={
+          <span className="inline-flex items-center gap-1">
+            {t("settings.about.dataFolder")}
+            <HelpTip name={t("settings.help.about", { topic: t("settings.about.dataFolder") })}>{t("settings.about.backup")}</HelpTip>
+          </span>
+        }
+      >
+        <Path value={info.dataDirectory} />
+      </Item>
+      <Item term={t("settings.about.database")}>
+        <Path value={info.databasePath} />
+      </Item>
+      <Item term={t("settings.about.logFiles")}>
+        <Path value={info.logDirectory} />
+      </Item>
+      <Item term={t("settings.about.schema")}>
+        {info.schemaVersion === null ? t("common.unknown") : t("settings.about.schemaVersion", { version: info.schemaVersion })}
+      </Item>
+    </dl>
   );
 }
-function Item({ term, children }: { term: string; children: ReactNode }) {
+
+function Item({ term, children }: { term: ReactNode; children: ReactNode }) {
   return (
     <>
       <dt className="font-medium text-text-strong">{term}</dt>
@@ -345,29 +349,39 @@ function LayoutReset({ onReset }: { onReset: () => void }) {
   const { t } = useTranslation();
   const [done, setDone] = useState(false);
   return (
-    <div className="mt-6 flex flex-col items-start gap-2">
-      <p className="m-0 font-medium text-text-strong">{t("settings.layout.title")}</p>
-      <p className="m-0 text-[0.9375rem] text-text-muted">{t("settings.layout.description")}</p>
-      <div className="flex flex-wrap items-center gap-3">
-        <Button
-          onClick={() => {
-            onReset();
-            setDone(true);
-          }}
-        >
-          {t("settings.layout.reset")}
-        </Button>
-        <p role="status" className="m-0 text-[0.9375rem] text-text-muted">
-          {done ? t("settings.layout.done") : ""}
-        </p>
-      </div>
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <span className="inline-flex items-center gap-1 font-medium text-text-strong">
+        {t("settings.layout.title")}
+        <HelpTip name={t("settings.help.about", { topic: t("settings.layout.title") })}>{t("settings.layout.description")}</HelpTip>
+      </span>
+      <Button
+        onClick={() => {
+          onReset();
+          setDone(true);
+        }}
+      >
+        {t("settings.layout.reset")}
+      </Button>
+      <p role="status" className="m-0 text-[0.9375rem] text-text-muted">
+        {done ? t("settings.layout.done") : ""}
+      </p>
     </div>
   );
 }
 
+/** What each background looks like, for its swatch (the same colours as tokens.css). */
+const SWATCH: Record<Background, { bg: string; edge: string }> = {
+  parchment: { bg: "#f6f1e6", edge: "#ede6d8" },
+  cream: { bg: "#faf7ef", edge: "#f1ece0" },
+  sage: { bg: "#eef1e9", edge: "#e3e8dc" },
+  stone: { bg: "#efece7", edge: "#e5e1da" },
+  mist: { bg: "#eef1f3", edge: "#e3e7ea" },
+  clear: { bg: "#fbfbf9", edge: "#f1f1ee" },
+};
+
 function ThemeChoice() {
   const { t } = useTranslation();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, background, setBackground } = useTheme();
   const [error, setError] = useState<string | null>(null);
 
   const choose = async (next: Theme) => {
@@ -378,33 +392,61 @@ function ThemeChoice() {
       setError(toApiError(e).message);
     }
   };
+  const darkOnly = theme === "dark";
 
   return (
-    <fieldset className="m-0 border-0 p-0">
-      <legend className="mb-3 font-medium text-text-strong">{t("settings.theme.legend")}</legend>
-      <div className="flex flex-col gap-3">
-        {THEMES.map((option) => (
-          <label key={option} className="flex cursor-pointer items-start gap-3">
-            <input
-              type="radio"
-              name="theme"
-              value={option}
-              checked={theme === option}
-              onChange={() => choose(option)}
-              className="mt-1 size-4 accent-[var(--aw-primary)]"
-            />
-            <span>
-              <span className="block">{t(`settings.theme.${option}`)}</span>
-              <span className="block text-[0.9375rem] text-text-muted">{t(`settings.theme.${option}Hint`)}</span>
-            </span>
-          </label>
-        ))}
-      </div>
-      {error && (
-        <p role="alert" className="m-0 mt-3 text-[0.9375rem] text-danger">
-          {error}
-        </p>
-      )}
-    </fieldset>
+    <div className="flex flex-col gap-4">
+      <fieldset className="m-0 border-0 p-0">
+        <legend className="mb-2 font-medium text-text-strong">{t("settings.theme.legend")}</legend>
+        <div className="flex flex-wrap gap-x-5 gap-y-2">
+          {THEMES.map((option) => (
+            <label key={option} className="inline-flex min-h-9 cursor-pointer items-center gap-2">
+              <input
+                type="radio"
+                name="theme"
+                value={option}
+                checked={theme === option}
+                onChange={() => choose(option)}
+                className="size-4 accent-[var(--aw-primary)]"
+              />
+              <span>{t(`settings.theme.${option}`)}</span>
+            </label>
+          ))}
+        </div>
+        {error && (
+          <p role="alert" className="m-0 mt-2 text-[0.9375rem] text-danger">
+            {error}
+          </p>
+        )}
+      </fieldset>
+
+      <fieldset className="m-0 border-0 p-0">
+        <legend className="mb-2 flex items-center gap-1 font-medium text-text-strong">
+          {t("settings.background.legend")}
+          <HelpTip name={t("settings.help.about", { topic: t("settings.background.legend") })}>{t("settings.background.help")}</HelpTip>
+        </legend>
+        <div className="flex flex-wrap gap-3">
+          {BACKGROUNDS.map((option) => (
+            <label key={option} className="flex w-[4.5rem] cursor-pointer flex-col items-center gap-1 text-center text-[0.8125rem]">
+              <input
+                type="radio"
+                name="background"
+                value={option}
+                checked={background === option}
+                onChange={() => setBackground(option)}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden="true"
+                style={{ background: `linear-gradient(135deg, ${SWATCH[option].bg} 55%, ${SWATCH[option].edge} 55%)` }}
+                className="block size-10 rounded-full border border-border shadow-sm peer-checked:ring-2 peer-checked:ring-[var(--aw-primary)] peer-checked:ring-offset-2 peer-checked:ring-offset-[var(--aw-bg)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[var(--aw-focus-ring)]"
+              />
+              <span className="text-text">{t(`settings.background.${option}`)}</span>
+            </label>
+          ))}
+        </div>
+        {darkOnly && <p className="m-0 mt-2 text-[0.875rem] text-text-muted">{t("settings.background.lightOnly")}</p>}
+      </fieldset>
+    </div>
   );
 }

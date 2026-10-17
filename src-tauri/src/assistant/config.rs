@@ -105,6 +105,32 @@ pub enum SearchKind {
     Searxng,
 }
 
+/// Which service makes images. The writing assistant and the image service
+/// are kept apart, so a person can write with one service (e.g. Claude) and
+/// make images with another (OpenAI) without changing their writing set-up.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum ImageService {
+    /// The writing assistant's own service, when it can make images.
+    #[default]
+    Same,
+    /// OpenAI's image models, with the OpenAI key kept on this computer.
+    Openai,
+}
+
+/// Whether the configured image service can make images. Decided from the
+/// service, never guessed from a model's name.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ImageCapability {
+    Supported,
+    Unsupported,
+    /// A service whose image support Abiding Word cannot know (another
+    /// compatible service, or Google's compatible endpoint, which offers
+    /// image models only on some accounts): it may be tried.
+    Unknown,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct AssistantConfig {
@@ -122,6 +148,8 @@ pub struct AssistantConfig {
     /// Generate images (OpenAI image models only).
     pub generate_images: bool,
     pub image_model: String,
+    /// Where images are made (see [`ImageService`]).
+    pub image_service: ImageService,
     /// The person's own description of their theological tradition or way of
     /// reading Scripture, in their words. Empty: no position is assumed.
     pub perspective: String,
@@ -139,6 +167,7 @@ impl Default for AssistantConfig {
             find_images: true,
             generate_images: false,
             image_model: String::new(),
+            image_service: ImageService::Same,
             perspective: String::new(),
         }
     }
@@ -202,6 +231,49 @@ impl AssistantConfig {
             self.provider.default_base_url().map(String::from)
         } else {
             Some(self.base_url.clone())
+        }
+    }
+
+    /// The service that makes images.
+    pub fn image_provider(&self) -> ProviderKind {
+        match self.image_service {
+            ImageService::Same => self.provider,
+            ImageService::Openai => ProviderKind::Openai,
+        }
+    }
+
+    /// Whether images can be made with this set-up.
+    pub fn image_capability(&self) -> ImageCapability {
+        match self.image_provider() {
+            ProviderKind::Openai => ImageCapability::Supported,
+            ProviderKind::Google | ProviderKind::OpenaiCompatible => ImageCapability::Unknown,
+            // Text-only services, and programs on this computer.
+            ProviderKind::Anthropic
+            | ProviderKind::Xai
+            | ProviderKind::Perplexity
+            | ProviderKind::Deepseek
+            | ProviderKind::Qwen
+            | ProviderKind::Ollama
+            | ProviderKind::Lmstudio => ImageCapability::Unsupported,
+        }
+    }
+
+    /// The image model: the person's own choice, else the service's usual one.
+    pub fn image_model_name(&self) -> &str {
+        if !self.image_model.is_empty() {
+            return &self.image_model;
+        }
+        match self.image_provider() {
+            ProviderKind::Google => "imagen-3.0-generate-002",
+            _ => "gpt-image-1",
+        }
+    }
+
+    /// Where image requests go: the writing service's address, or OpenAI's.
+    pub fn image_base_url(&self) -> Option<String> {
+        match self.image_service {
+            ImageService::Same => self.base_url(),
+            ImageService::Openai => ProviderKind::Openai.default_base_url().map(String::from),
         }
     }
 
@@ -298,6 +370,51 @@ mod tests {
         assert!(!OpenaiCompatible.needs_key());
         let parsed: ProviderKind = serde_json::from_str("\"xai\"").unwrap();
         assert_eq!(parsed, Xai);
+    }
+
+    #[test]
+    fn image_capability_comes_from_the_service_not_the_model_name() {
+        let mut config = AssistantConfig::default();
+        assert_eq!(
+            config.image_capability(),
+            ImageCapability::Supported,
+            "OpenAI"
+        );
+        config.provider = ProviderKind::Anthropic;
+        // Whatever the model is called, a text-only service makes no images.
+        config.model = "claude-image-pro".into();
+        assert_eq!(config.image_capability(), ImageCapability::Unsupported);
+        for kind in [
+            ProviderKind::Deepseek,
+            ProviderKind::Xai,
+            ProviderKind::Perplexity,
+            ProviderKind::Qwen,
+            ProviderKind::Ollama,
+            ProviderKind::Lmstudio,
+        ] {
+            config.provider = kind;
+            assert_eq!(
+                config.image_capability(),
+                ImageCapability::Unsupported,
+                "{}",
+                kind.as_str()
+            );
+        }
+        config.provider = ProviderKind::Google;
+        assert_eq!(config.image_capability(), ImageCapability::Unknown);
+        config.provider = ProviderKind::OpenaiCompatible;
+        assert_eq!(config.image_capability(), ImageCapability::Unknown);
+
+        // Writing with Claude, images with OpenAI.
+        config.provider = ProviderKind::Anthropic;
+        config.image_service = ImageService::Openai;
+        assert_eq!(config.image_capability(), ImageCapability::Supported);
+        assert_eq!(config.image_provider(), ProviderKind::Openai);
+        assert_eq!(
+            config.image_base_url().as_deref(),
+            Some("https://api.openai.com/v1")
+        );
+        assert_eq!(config.image_model_name(), "gpt-image-1");
     }
 
     #[test]

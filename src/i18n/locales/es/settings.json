@@ -8,7 +8,7 @@
     "templates": "Plantillas",
     "about": "Acerca de esta instalación",
     "planned": "En próximas versiones",
-    "assistant": "Asistente",
+    "assistant": "Asistente de IA",
     "updates": "Actualizaciones"
   },
   "language": {
@@ -18,11 +18,8 @@
   "theme": {
     "legend": "Tema",
     "light": "Claro",
-    "lightHint": "Marfil cálido, para estudiar de día.",
     "dark": "Oscuro",
-    "darkHint": "Verde bosque profundo, más cómodo con poca luz.",
-    "system": "Igual que mi equipo",
-    "systemHint": "Sigue la configuración de tu sistema operativo."
+    "system": "Igual que mi equipo"
   },
   "layout": {
     "title": "Disposición del espacio de trabajo",
@@ -47,8 +44,8 @@
     "integrationsText": "Conecta otras herramientas que ya usas."
   },
   "assistant": {
-    "intro": "Una ayuda opcional para tu enseñanza. Comenta y sugiere; tú sigues siendo el autor, y tu texto solo cambia si tú lo eliges. Solo actúa cuando se lo pides.",
-    "enabled": "Usar el asistente",
+    "intro": "Una ayuda opcional de IA (inteligencia artificial) para tu enseñanza. Comenta y sugiere; tú sigues siendo el autor, y tu texto solo cambia si lo eliges. Solo actúa cuando se lo pides.",
+    "enabled": "Usar el asistente de IA",
     "provider": "Servicio",
     "providers": {
       "openai": "OpenAI (ChatGPT)",
@@ -66,7 +63,7 @@
     "local": "Funciona en este ordenador: tu texto no sale de él.",
     "model": "Modelo",
     "modelPlaceholder": "Nombre del modelo",
-    "modelHint": "Ya hay un modelo sugerido. Cámbialo solo si quieres otro.",
+    "modelHint": "Los nombres de los modelos cambian a menudo. El modelo sugerido es un punto de partida; el botón ↗ junto al campo abre la lista actual del servicio.",
     "address": "Dirección del servicio",
     "addressPlaceholder": "La dirección habitual del servicio",
     "addressHint": "Déjalo vacío para usar la dirección habitual del servicio. Solo hace falta para otro servidor o un programa en otro ordenador.",
@@ -79,27 +76,26 @@
     "keySaved": "La clave está guardada en este ordenador.",
     "keyRemoved": "Se quitó la clave.",
     "search": "Buscar historias reales",
-    "searchHint": "No puedes fiarte de la memoria de un asistente de IA para los hechos: puede contar una historia que parece verdadera pero nunca ocurrió. Por eso, para encontrar historias reales, Abiding Word pide fuentes reales a un servicio de búsqueda y te las muestra. Lee tú mismo las fuentes antes de usar una historia.",
+    "searchHint": "El asistente de IA puede sugerir ideas, pero puede recordar mal hechos reales. Un servicio de búsqueda permite a Abiding Word buscar fuentes reales en la web, para que compruebes una historia antes de usarla.",
     "searchKinds": {
       "none": "Desactivado (sin historias reales)",
-      "brave": "Brave Search (necesita su propia clave)",
-      "searxng": "SearXNG (una dirección de búsqueda de confianza)"
+      "brave": "Brave Search",
+      "searxng": "SearXNG (necesita la dirección de un servidor)"
     },
     "searchAddress": "Dirección de SearXNG",
     "searchKey": "Clave de búsqueda",
     "images": "Imágenes",
     "findImages": "Buscar imágenes de licencia libre en Wikimedia Commons (solo se envían palabras de búsqueda)",
     "generateImages": "Permitir crear imágenes (siempre marcadas como hechas por el asistente)",
-    "generateOnlyOpenai": "Crear imágenes solo funciona con OpenAI u otro servicio compatible.",
-    "perspective": "¿Cómo debe situar el asistente las cuestiones teológicas?",
-    "perspectiveHint": "En pocas palabras: tu tradición eclesial, o cómo tratar las cuestiones discutidas. Si lo dejas vacío, el asistente no supone ninguna tradición concreta y señala dónde los cristianos leen un pasaje de forma distinta.",
+    "perspective": "¿Cómo debe abordar la IA las cuestiones teológicas?",
+    "perspectiveHint": "Opcional. No se trata de tu historia personal: si ayuda, escribe solo una breve perspectiva teológica o eclesial (p. ej. «evangélico reformado»). La IA la tiene en cuenta al comentar cuestiones teológicas discutidas y aun así menciona otras interpretaciones serias. Si lo dejas vacío, no se supone ninguna tradición.",
     "save": "Guardar",
     "saved": "Guardado.",
     "test": "Comprobar la conexión",
     "testOk": "Conectado. El asistente ha respondido y está listo.",
-    "offHint": "Activa el asistente para elegir un servicio y comprobar la conexión.",
-    "turnedOn": "El asistente está activado.",
-    "turnedOff": "El asistente está desactivado.",
+    "offHint": "Activa el asistente de IA para elegir un servicio y comprobar la conexión.",
+    "turnedOn": "El asistente de IA está activado.",
+    "turnedOff": "El asistente de IA está desactivado.",
     "providerGroups": {
       "internet": "En internet",
       "local": "En este ordenador",
@@ -115,17 +111,17 @@
     "keyOptional": "Clave (si el servicio la necesita)",
     "keyHelp": {
       "title": "¿Cómo consigo una clave?",
-      "whatQ": "¿Qué es una clave?",
-      "whatA": "Un código largo de {{service}} que permite a Abiding Word usar tu cuenta allí. Trátalo como una contraseña y no lo compartas.",
-      "whyQ": "¿Para qué la necesito?",
-      "whyA": "{{service}} hace funcionar el asistente en sus propios ordenadores. La clave le indica que la petición viene de tu cuenta.",
-      "whereQ": "¿Dónde la consigo?",
-      "whereA": "Inicia sesión en el sitio web de {{service}} (o crea una cuenta), abre la página de claves API y crea una clave nueva. Cópiala enseguida: normalmente solo se muestra una vez.",
+      "whatA": "Una clave es un código largo de {{service}}. Permite a Abiding Word usar tu cuenta allí. Trátala como una contraseña.",
       "open": "Abrir la página de claves de {{service}}",
-      "costQ": "¿Cuesta dinero?",
-      "costA": "Normalmente sí, un poco: {{service}} cobra lo que usas, a menudo unos céntimos por petición. Algunos servicios dan saldo gratis para empezar. El pago se organiza en su sitio web, no en Abiding Word.",
-      "pasteQ": "¿Dónde la pego?",
-      "pasteA": "En el campo «Clave» de arriba. Después elige «Guardar clave»."
+      "costA": "La mayoría de los servicios cobran un poco por lo que usas y pueden pedir datos de pago o saldo prepago antes de que la clave funcione. Eso se gestiona en su sitio web, no en Abiding Word.",
+      "step1": "Abre abajo la página de {{service}}.",
+      "step2": "Inicia sesión o crea una cuenta si no tienes.",
+      "step3": "Crea una clave nueva (puede llamarse «clave de API»).",
+      "step4": "Cópiala enseguida: normalmente solo se muestra una vez.",
+      "step5": "Vuelve a Abiding Word.",
+      "step6": "Pégala en el campo «Clave» de arriba.",
+      "step7": "Pulsa «Guardar clave».",
+      "step8": "Pulsa «Comprobar la conexión»."
     },
     "modelHintEmpty": "Escribe el nombre del modelo tal como lo muestra {{service}}.",
     "advanced": "Avanzado",
@@ -144,9 +140,36 @@
       "catholic": "católico romano",
       "lutheran": "luterano",
       "pentecostal": "pentecostal",
-      "none": "ninguna tradición concreta",
-      "views": "En cuestiones discutidas, mostrar primero los distintos puntos de vista."
-    }
+      "none": "ninguna tradición concreta"
+    },
+    "modelSuggested": "Modelo sugerido. Puedes cambiarlo.",
+    "modelsLink": "Ver los modelos actuales de {{service}}",
+    "modelsLocal": "Ver modelos que puedes descargar para {{service}}",
+    "searchAdvanced": "Otro (avanzado)",
+    "brave": {
+      "title": "¿Qué es Brave Search y cómo lo configuro?",
+      "what": "Brave Search es un buscador de internet. Abiding Word puede usar su servicio de búsqueda para programas (su «Search API») para encontrar fuentes. Para ello necesitas una cuenta de Brave, gratuita o de pago, y una clave.",
+      "step1": "Abre la página de la Brave Search API y crea una cuenta.",
+      "step2": "Elige un plan (puede haber uno gratuito), crea allí una clave y cópiala.",
+      "step3": "Pégala en el campo de la clave de búsqueda de abajo y pulsa «Guardar clave».",
+      "open": "Abrir la página de la Brave Search API",
+      "cost": "Brave puede pedir datos de pago y limita cuántas búsquedas puedes hacer al mes."
+    },
+    "searxng": {
+      "what": "SearXNG es un servicio de búsqueda independiente y abierto que algunas personas ejecutan por su cuenta. Necesitas la dirección de un servidor SearXNG que permita búsquedas desde programas (resultados «JSON»); elegirlo aquí no basta. Si esto no te dice nada, Brave Search es la opción más sencilla."
+    },
+    "imagesHelp": "Buscar imágenes busca imágenes con licencia libre en Wikimedia Commons; solo se envían tus palabras de búsqueda. Crear imágenes pide a un servicio de imágenes de IA que dibuje una, siempre marcada como hecha por el asistente. No todos los servicios de IA pueden crear imágenes.",
+    "imageService": "Crear imágenes con",
+    "imageServices": {
+      "same": "El mismo servicio de IA (si puede)",
+      "openai": "OpenAI (necesita una clave de OpenAI)"
+    },
+    "imageCapability": {
+      "supported": "{{service}} puede crear imágenes.",
+      "unsupported": "{{service}} no puede crear imágenes. Elige OpenAI para las imágenes o déjalo desactivado.",
+      "unknown": "Abiding Word no puede saber si {{service}} puede crear imágenes con tu cuenta. Puedes probar; si falla, elige OpenAI para las imágenes."
+    },
+    "imageKey": "Clave de OpenAI para imágenes"
   },
   "jumpTo": "Ir a una sección",
   "summary": {
@@ -161,5 +184,19 @@
     "assistantOff": "Desactivado",
     "assistantOn": "Activado · {{service}}",
     "about": "Versión {{version}} · dónde están tus datos"
+  },
+  "help": {
+    "about": "Más información: {{topic}}"
+  },
+  "background": {
+    "legend": "Fondo",
+    "help": "Fondos tranquilos y con poco brillo, pensados para leer y escribir durante mucho tiempo. El texto se lee bien en todos. Se aplican al tema claro.",
+    "lightOnly": "Los fondos se aplican al tema claro.",
+    "parchment": "Pergamino",
+    "cream": "Crema",
+    "sage": "Salvia",
+    "stone": "Piedra",
+    "mist": "Niebla",
+    "clear": "Neutro"
   }
 }

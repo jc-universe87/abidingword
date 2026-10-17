@@ -9,6 +9,7 @@ import { LibraryView } from "@/features/library/LibraryView";
 import { SourceReader, type ReaderPosition } from "@/features/library/SourceReader";
 import { SourcesPane, type PaneSource } from "@/features/library/SourcesPane";
 import { UpdateNotice } from "@/features/updates/UpdateNotice";
+import { Sheet } from "@/design-system/Sheet";
 import { SettingsView } from "@/features/settings/SettingsView";
 import { TemplateEditor } from "@/features/settings/TemplateEditor";
 import { StudyPane } from "@/features/studies/StudyPane";
@@ -17,13 +18,15 @@ import { NARROW_WIDTH, useWorkspaceLayout } from "@/layouts/layoutPrefs";
 import { WorkspaceLayout } from "@/layouts/WorkspaceLayout";
 import type { AppInfo, Workspace } from "@/types/domain";
 
-type View = "workspace" | "settings" | "addBible" | "template" | "library" | "source" | "addSource";
+type View = "workspace" | "settings" | "library" | "source" | "addSource";
+/** Tasks that open over the current page, which stays as it was behind them. */
+type Overlay = { kind: "addBible" } | { kind: "template"; templateId: string | null } | null;
 
 export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace }) {
   const { t } = useTranslation();
   const [view, setView] = useState<View>("workspace");
   const [returnTo, setReturnTo] = useState<View>("workspace");
-  const [editingTemplate, setEditingTemplate] = useState<string | null>(null);
+  const [overlay, setOverlay] = useState<Overlay>(null);
   const [studySearch, setStudySearch] = useState<string | null>(null);
   // Each request to open the library (id) remembers its latest search.
   const [library, setLibrary] = useState<{ id: number; query?: string }>({ id: 0 });
@@ -36,10 +39,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
   const { goTo } = useScripture();
   const { open, setOpen } = layout;
 
-  const addBible = () => {
-    setReturnTo(view);
-    setView("addBible");
-  };
+  const addBible = () => setOverlay({ kind: "addBible" });
   const revealScripture = () => {
     if (!open.scripture) setOpen("scripture", true);
   };
@@ -88,7 +88,8 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
 
   return (
     <LibraryNavProvider value={libraryNav}>
-    <div className="flex h-screen flex-col bg-bg text-text">
+    {/* Pinned to the window, not sized from 100vh: it fills the window at any size or display scale. */}
+    <div data-testid="app-shell" className="fixed inset-0 flex min-h-0 flex-col overflow-hidden bg-bg text-text">
       <a
         href="#pane-study"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-10 focus:rounded-aw focus:bg-primary focus:px-4 focus:py-2 focus:text-on-primary"
@@ -121,10 +122,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
           onClose={() => setView("workspace")}
           onResetLayout={layout.reset}
           onAddBible={addBible}
-          onEditTemplate={(templateId) => {
-            setEditingTemplate(templateId);
-            setView("template");
-          }}
+          onEditTemplate={(templateId) => setOverlay({ kind: "template", templateId })}
         />
       )}
       {view === "library" && (
@@ -155,8 +153,16 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
           }}
         />
       )}
-      {view === "addBible" && <AddBibleView onClose={() => setView(returnTo)} />}
-      {view === "template" && <TemplateEditor templateId={editingTemplate} onClose={() => setView("settings")} />}
+      {overlay?.kind === "addBible" && (
+        <Sheet labelledBy="add-bible-title">
+          <AddBibleView onClose={() => setOverlay(null)} />
+        </Sheet>
+      )}
+      {overlay?.kind === "template" && (
+        <Sheet labelledBy="template-editor-title">
+          <TemplateEditor templateId={overlay.templateId} onClose={() => setOverlay(null)} />
+        </Sheet>
+      )}
       {view === "workspace" && (
         <WorkspaceLayout
           layout={layout}
