@@ -170,7 +170,8 @@
       "found": "Imagem encontrada",
       "generated": "Imagem gerada",
       "suggestion": "Sugestão"
-    }
+    },
+    "fileFallback": "Apresentação"
   },
   "presenter": {
     "title": "Modo apresentador",
@@ -229,7 +230,9 @@
     "passagesHere": "Passagens desta apresentação",
     "showToAudience": "Mostrar ao público",
     "stopShowing": "Parar de mostrar",
-    "backToPresenter": "Voltar ao modo apresentador"
+    "backToPresenter": "Voltar ao modo apresentador",
+    "partOf": "{{reference}} · parte {{part}} de {{parts}}",
+    "showNextPart": "Mostrar a próxima parte"
   },
   "audience": {
     "title": "Tela do público",

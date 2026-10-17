@@ -284,6 +284,10 @@ export interface Api {
   onAudienceState(handler: (state: AudienceState) => void): Promise<() => void>;
   /** On the main window: the audience screen was closed. */
   onAudienceClosed(handler: () => void): Promise<() => void>;
+  /** On the audience screen: hands a key (a clicker) to the Presenter View. */
+  presentationAudienceKey(key: string): Promise<void>;
+  /** On the main window: a key pressed on the audience screen. */
+  onAudienceKey(handler: (key: string) => void): Promise<() => void>;
 
   /** The assistant's set-up (never a key, only whether one is kept). */
   assistantSettingsGet(): Promise<AssistantSettings>;
@@ -514,6 +518,8 @@ export const tauriApi: Api = {
   presentationAudienceClose: () => call("presentation_audience_close"),
   onAudienceState: (handler) => listen<AudienceState>("presentation-audience", (event) => handler(event.payload)),
   onAudienceClosed: (handler) => listen("presentation-audience-closed", () => handler()),
+  presentationAudienceKey: (key) => call("presentation_audience_key", { key }),
+  onAudienceKey: (handler) => listen<string>("presentation-audience-key", (event) => handler(event.payload)),
   assistantSettingsGet: () => call("assistant_settings_get"),
   assistantSettingsSet: (config) => call("assistant_settings_set", { config }),
   assistantKeySet: (which, key) => call("assistant_key_set", { which, key }),

@@ -33,6 +33,7 @@ export interface PresentationState {
   audienceShown: AudienceState[];
   audienceHandlers: ((state: AudienceState) => void)[];
   closedHandlers: (() => void)[];
+  keyHandlers: ((key: string) => void)[];
   savedImages: string[];
   /** Data addresses of images available on "this computer", by asset id. */
   imageData: Map<string, string>;
@@ -49,6 +50,7 @@ export function newPresentationState(): PresentationState {
     audienceShown: [],
     audienceHandlers: [],
     closedHandlers: [],
+    keyHandlers: [],
     savedImages: [],
     imageData: new Map(),
   };
@@ -78,6 +80,8 @@ type PresentationApi = Pick<
   | "presentationAudienceClose"
   | "onAudienceState"
   | "onAudienceClosed"
+  | "presentationAudienceKey"
+  | "onAudienceKey"
 >;
 
 interface Helpers {
@@ -385,6 +389,15 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
       state.audienceHandlers.push(handler);
       return () => {
         state.audienceHandlers = state.audienceHandlers.filter((x) => x !== handler);
+      };
+    },
+    presentationAudienceKey: async (key) => {
+      for (const handler of state.keyHandlers) handler(key);
+    },
+    onAudienceKey: async (handler) => {
+      state.keyHandlers.push(handler);
+      return () => {
+        state.keyHandlers = state.keyHandlers.filter((x) => x !== handler);
       };
     },
     onAudienceClosed: async (handler) => {

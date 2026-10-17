@@ -166,5 +166,16 @@
     "badMaterial": "Este item não pode ser guardado.",
     "notVerified": "Uma história só é guardada como verificada com duas fontes independentes.",
     "imageGone": "Esta imagem não está mais disponível. Crie de novo."
+  },
+  "presentation": {
+    "imageGone": "Esta imagem não está neste computador.",
+    "imageSaveFailed": "Não foi possível salvar a imagem. Verifique a conexão com a internet e tente de novo.",
+    "noFile": "Escolha onde salvar o arquivo.",
+    "fileExists": "Já existe um arquivo “{{name}}”. Escolha outro nome.",
+    "noSlides": "Esta apresentação não tem slides para exportar.",
+    "audienceFailed": "Não foi possível abrir a tela do público.",
+    "otherTeaching": "Essa parte pertence a outro ensino.",
+    "tooLong": "Este texto é longo demais para o slide.",
+    "tooMany": "Esta apresentação já tem todos os slides que pode ter."
   }
 }

@@ -134,12 +134,43 @@ export function exportLocale(t: TFunction): ExportLocale {
 }
 
 /** A file name from the title: letters, numbers, spaces and dashes only. */
-export function fileName(title: string, suffix: string, extension: string): string {
+export function fileName(title: string, suffix: string, extension: string, fallback = "Presentation"): string {
   const visible = [...title].map((c) => (c.charCodeAt(0) < 32 ? " " : c)).join("");
-  const base = visible.replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 80) || "Presentation";
+  const cleaned = visible.replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim();
+  // Cut by characters, never inside one.
+  const base = [...cleaned].slice(0, 80).join("").trim() || fallback;
   return `${base}${suffix ? ` – ${suffix}` : ""}.${extension}`;
 }
 
 export function slideText(t: TFunction, kind: ItemKind, heading: string | null, body: string | null, ref: RefInfo | null): string {
   return heading || body || (ref ? refLabel(ref) : "") || itemKindLabel(t, kind);
+}
+
+/** How much room a text takes; a Hangul or CJK character counts as two (as in the core). */
+export function textWeight(text: string): number {
+  let n = 0;
+  for (const c of text) {
+    const code = c.codePointAt(0) ?? 0;
+    const wide = (code >= 0x1100 && code <= 0x11ff) || (code >= 0x2e80 && code <= 0x9fff) || (code >= 0xac00 && code <= 0xd7af) || (code >= 0xf900 && code <= 0xfaff) || (code >= 0xff00 && code <= 0xffef);
+    n += wide ? 2 : 1;
+  }
+  return n;
+}
+
+/** Whole verses, about 600 of room per slide: the core's rule for Scripture slides (document.rs). */
+export function splitVerses<V extends { text: string }>(verses: V[]): V[][] {
+  const groups: V[][] = [];
+  let size = 0;
+  for (const verse of verses) {
+    const len = textWeight(verse.text);
+    const last = groups.at(-1);
+    if (last && size + len <= 600) {
+      size += len;
+      last.push(verse);
+    } else {
+      size = len;
+      groups.push([verse]);
+    }
+  }
+  return groups;
 }

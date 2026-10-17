@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import i18n from "@/i18n";
 import themes from "../../resources/presentation/themes.json";
-import { exportLocale, fileName, palette } from "@/features/presentation/labels";
+import { exportLocale, fileName, palette, splitVerses, textWeight } from "@/features/presentation/labels";
 
 // Helpers of the presentation interface (v0.18).
 
@@ -32,5 +32,13 @@ describe("presentation helpers", () => {
   it("use the same three backgrounds as the exports", () => {
     expect(Object.keys(themes)).toEqual(["light", "dark", "warm"]);
     expect(palette("warm")).toEqual(themes.warm);
+  });
+
+  it("split a long passage shown to the audience like the core splits Scripture slides (Hangul counts double)", () => {
+    expect(textWeight("ab 나무")).toBe(7);
+    const v = (verse: number, text: string) => ({ verse, text });
+    expect(splitVerses([v(1, "a".repeat(300)), v(2, "a".repeat(250)), v(3, "a".repeat(100))]).map((g) => g.map((x) => x.verse))).toEqual([[1, 2], [3]]);
+    expect(splitVerses([v(1, "나".repeat(200)), v(2, "나".repeat(200))])).toHaveLength(2);
+    expect(fileName("가".repeat(90), "", "md")).toBe(`${"가".repeat(80)}.md`);
   });
 });

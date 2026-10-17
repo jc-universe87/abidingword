@@ -207,8 +207,8 @@ pub async fn presentation_image_save(
     .into())
 }
 
-/// A large Wikimedia preview (1600 pixels wide) first, then the file
-/// itself, then the small preview: only Wikimedia's image servers.
+/// A large Wikimedia preview (1600 pixels wide) first, then the small
+/// preview: only Wikimedia's image servers, never the full original file.
 fn offline_candidates(info: &crate::domain::ImageInfo) -> Vec<String> {
     let mut out = Vec::new();
     if let Some(thumb) = info.thumb_url.as_deref() {
@@ -219,7 +219,7 @@ fn offline_candidates(info: &crate::domain::ImageInfo) -> Vec<String> {
             }
         }
     }
-    out.extend(info.url.clone());
+    // The original file can be very large: only Commons previews are fetched.
     out.extend(info.thumb_url.clone());
     out.retain(|u| found_images::is_commons_file(u));
     out.dedup();
@@ -230,8 +230,22 @@ fn write_atomically(target: &Path, bytes: &[u8]) -> Result<(), AppError> {
     if let Some(dir) = target.parent() {
         std::fs::create_dir_all(dir).map_err(|e| AppError::filesystem(dir, e))?;
     }
-    let temp = target.with_extension("abidingword-part");
-    std::fs::write(&temp, bytes).map_err(|e| AppError::filesystem(&temp, e))?;
+    let mut name = target
+        .file_name()
+        .map(|n| n.to_os_string())
+        .unwrap_or_default();
+    name.push(".abidingword-part");
+    let temp = target.with_file_name(name);
+    let written = (|| {
+        use std::io::Write as _;
+        let mut file = std::fs::File::create(&temp)?;
+        file.write_all(bytes)?;
+        file.sync_all()
+    })();
+    if let Err(e) = written {
+        let _ = std::fs::remove_file(&temp);
+        return Err(AppError::filesystem(&temp, e));
+    }
     std::fs::rename(&temp, target).map_err(|e| {
         let _ = std::fs::remove_file(&temp);
         AppError::filesystem(target, e)
@@ -329,7 +343,18 @@ pub fn presentation_export(
     let doc = state.db(|conn| package::build(conn, &input.id, &store))?;
     let bytes = render(&doc, &input.format, &input.options, FontSet::system)?;
     write_atomically(&path, &bytes)?;
-    let missing_images = doc.images.iter().filter(|i| !i.available).count();
+    // Images shown as a placeholder: not on this computer, or of a kind this format cannot hold.
+    let missing_images = doc
+        .images
+        .iter()
+        .filter(|i| {
+            let kind = i.media_type.as_deref().unwrap_or("");
+            !i.available
+                || (matches!(input.format.as_str(), "pdf" | "speaker_pdf")
+                    && !matches!(kind, "image/png" | "image/jpeg"))
+                || (input.format == "pptx" && kind == "image/webp")
+        })
+        .count();
     Ok(ExportResult {
         path: path.to_string_lossy().into_owned(),
         slides: doc.slides.len(),
@@ -403,17 +428,30 @@ pub async fn presentation_audience_open(
     shown.presentation_id = input.presentation_id.clone();
     state.set_audience(Some(shown.clone()))?;
 
+    let id: String = input
+        .presentation_id
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '-')
+        .collect();
     let window = match app.get_webview_window(AUDIENCE_WINDOW) {
-        Some(window) => window,
+        Some(window) => {
+            // A window left from another presentation shows this one now.
+            if let Ok(mut url) = window.url() {
+                let wanted = format!("audience={id}");
+                if url.query() != Some(wanted.as_str()) {
+                    url.set_query(Some(&wanted));
+                    window.navigate(url).map_err(window_error)?;
+                }
+            }
+            let _ = window.set_title(input.title.trim());
+            window
+        }
         None => {
-            let id: String = input
-                .presentation_id
-                .chars()
-                .filter(|c| c.is_ascii_alphanumeric() || *c == '-')
-                .collect();
             let url = WebviewUrl::App(format!("index.html?audience={id}").into());
             let window = WebviewWindowBuilder::new(&app, AUDIENCE_WINDOW, url)
                 .title(input.title.trim())
+                // The presenter keeps the keyboard (and a clicker) on their own screen.
+                .focused(false)
                 .inner_size(960.0, 540.0)
                 .background_color(tauri::window::Color(0, 0, 0, 255))
                 .build()
@@ -440,7 +478,42 @@ pub async fn presentation_audience_open(
             window.set_fullscreen(true).map_err(window_error)?;
         }
     }
+    if let Some(main) = app.get_webview_window("main") {
+        let _ = main.set_focus();
+    }
     let _ = app.emit_to(AUDIENCE_WINDOW, AUDIENCE_EVENT, &shown);
+    Ok(())
+}
+
+pub const AUDIENCE_KEY_EVENT: &str = "presentation-audience-key";
+
+/// A key pressed on the audience screen (a clicker, or the keyboard when that
+/// window has focus) is handed to the Presenter View, which moves the slides.
+#[tauri::command]
+pub async fn presentation_audience_key(app: AppHandle, key: String) -> CommandResult<()> {
+    const KEYS: &[&str] = &[
+        "ArrowRight",
+        "ArrowDown",
+        "PageDown",
+        " ",
+        "Enter",
+        "ArrowLeft",
+        "ArrowUp",
+        "PageUp",
+        "Backspace",
+        "Home",
+        "End",
+        "b",
+        "B",
+        ".",
+        "Escape",
+    ];
+    if KEYS.contains(&key.as_str()) {
+        let _ = app.emit_to("main", AUDIENCE_KEY_EVENT, key);
+        if let Some(main) = app.get_webview_window("main") {
+            let _ = main.set_focus();
+        }
+    }
     Ok(())
 }
 

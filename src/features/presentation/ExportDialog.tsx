@@ -36,7 +36,7 @@ export function ExportDialog({ doc, onClose }: { doc: PresentationDocument; onCl
     try {
       const suffix = format === "speaker_pdf" ? t("presentation.export.speakerSuffix") : "";
       const path = await api.choosePresentationFile({
-        defaultName: fileName(doc.title, suffix, EXTENSIONS[format]),
+        defaultName: fileName(doc.title, suffix, EXTENSIONS[format], t("presentation.export.fileFallback")),
         format,
         filterName: t(`presentation.export.formats.${format}.name`),
       });

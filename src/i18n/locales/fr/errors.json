@@ -166,5 +166,16 @@
     "badMaterial": "Cet élément ne peut pas être conservé.",
     "notVerified": "Une histoire n’est conservée comme vérifiée qu’avec deux sources indépendantes.",
     "imageGone": "Cette image n’est plus disponible. Recréez-la."
+  },
+  "presentation": {
+    "imageGone": "Cette image n’est pas sur cet ordinateur.",
+    "imageSaveFailed": "L’image n’a pas pu être enregistrée. Vérifiez la connexion Internet et réessayez.",
+    "noFile": "Veuillez choisir où enregistrer le fichier.",
+    "fileExists": "Un fichier « {{name}} » existe déjà. Veuillez choisir un autre nom.",
+    "noSlides": "Cette présentation n’a aucune diapositive à exporter.",
+    "audienceFailed": "L’écran de l’auditoire n’a pas pu être ouvert.",
+    "otherTeaching": "Cette partie appartient à un autre enseignement.",
+    "tooLong": "Ce texte est trop long pour la diapositive.",
+    "tooMany": "Cette présentation contient déjà le nombre maximal de diapositives."
   }
 }

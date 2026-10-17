@@ -135,8 +135,8 @@
         "hint": "Alles in einer Datei, mit Bildern, um später ohne diese Datenbank zu präsentieren."
       }
     },
-    "includeNotes": "Mein Manuskript und meine Notizen mitnehmen",
-    "includeSources": "Quellen mitnehmen",
+    "includeNotes": "Mein Manuskript und meine Notizen beifügen",
+    "includeSources": "Quellen beifügen",
     "private": "Die Datei wird auf diesem Computer erstellt und nur dort gespeichert, wo du es wählst. Nichts wird verschickt, und die Bibellehre wird nicht verändert.",
     "save": "Speicherort wählen …",
     "saving": "Wird gespeichert …",
@@ -167,7 +167,8 @@
       "found": "Gefundenes Bild",
       "generated": "Erzeugtes Bild",
       "suggestion": "Vorschlag"
-    }
+    },
+    "fileFallback": "Präsentation"
   },
   "presenter": {
     "title": "Referentenansicht",
@@ -226,7 +227,9 @@
     "passagesHere": "Bibelstellen in dieser Präsentation",
     "showToAudience": "Den Zuhörern zeigen",
     "stopShowing": "Nicht mehr zeigen",
-    "backToPresenter": "Zurück zur Referentenansicht"
+    "backToPresenter": "Zurück zur Referentenansicht",
+    "partOf": "{{reference}} · Teil {{part}} von {{parts}}",
+    "showNextPart": "Nächsten Teil zeigen"
   },
   "audience": {
     "title": "Bildschirm für Zuhörer",

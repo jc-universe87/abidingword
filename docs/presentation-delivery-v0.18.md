@@ -213,7 +213,19 @@ Focus starts on *Next* and returns to *Start Presenter View* on exit.
   (`presentation_audience_state`). Closing the window tells the main window
   (`presentation-audience-closed`); leaving the Presenter View closes it.
   The window's capability (`capabilities/audience.json`) is
-  `core:event:default` only: no dialogs, updater or links.
+  `core:event:default` only: no dialogs, updater or links. (The app's own
+  commands are not limited per window yet — there is no app command manifest
+  — so the audience page could technically call them; it is the app's own
+  bundled page and calls only `presentation_audience`, `presentation_audience_state`,
+  `presentation_image` and `presentation_audience_key`. Limiting commands per
+  window is a hardening follow-up, §20.)
+- The audience window opens **without taking focus** and focus is given back
+  to the main window, so the keyboard and a clicker stay with the Presenter
+  View. Keys pressed while the audience window has focus are handed to the
+  Presenter View (`presentation_audience_key`, an allow-list of navigation
+  keys); Esc there closes the audience screen. Closing the main window closes
+  the audience window. A window left from another presentation is pointed at
+  the new one.
 - **One window:** *Show in this window* fills this window with the audience
   slide (for a mirrored or shared screen, and where no second window can be
   opened, e.g. the web harness). The controls stay invisible until the
@@ -269,10 +281,17 @@ network, and the teaching is not changed.
   when needed), large type (17 pt text, 22 pt headings), *Slide n / N*, what
   the audience sees with an accent bar, then the manuscript and notes, and
   the sources when chosen.
+- **Overwriting** — the save dialog asks before replacing a file. When the
+  name typed has no extension, the extension is added and, if a file with that
+  name exists, the export is refused with *A file named … already exists*
+  (the dialog never saw that name). A presentation with no slides shown cannot
+  be exported as PowerPoint or PDF.
 - **Fonts in PDFs** — the computer's own TrueType fonts, only where their
   licence allows embedding (OS/2 `fsType`): Windows Segoe UI, Arial, Malgun
   Gothic, Nirmala; macOS Arial, Arial Unicode, Apple Gothic; Linux DejaVu Sans,
-  Liberation Sans, Nanum Gothic, WenQuanYi Zen Hei, FreeSans. Each character
+  Liberation Sans, Nanum Gothic, WenQuanYi Zen Hei, FreeSans. Fonts whose
+  licence forbids embedding or subsetting, and fonts whose tables cannot be
+  read, are left out. Each character
   takes the first font that has it. Fonts are embedded as **subsets** (only
   the glyphs used; glyph numbers kept, composite glyphs followed) as
   CID-keyed TrueType with Identity-H and a ToUnicode map, so text can be
@@ -307,8 +326,9 @@ reader's design.
 - Found images (Wikimedia Commons) were kept as addresses. In the editor an
   image slide without a local copy says *This image is not on this computer
   yet* and offers **Save a copy** (only on that click; only from
-  `upload.wikimedia.org`; a 1600-px Commons preview first, then the file, then
-  the small preview; at most 25 MB; must really be an image). The copy is
+  `upload.wikimedia.org`; a 1600-px Commons preview first, then the small
+  preview — never the full original file, which can be very large; at most
+  25 MB; must really be an image). The copy is
   saved under `sources/presentation-images/<sha256 of the address>`; the
   teaching is not changed.
 - An image without a local copy is a framed placeholder (*Image not available
@@ -373,27 +393,54 @@ German uses *du* throughout and *Bibellehre* for the teaching.
 - Rust `tests/migration_v10.rs` (1); unit tests in `presentation/*` (image
   headers, verse splitting, references in other languages, font subsetting,
   composite glyphs, text wrapping with Hangul).
-- Interface `tests/ui/presentation.test.tsx` (12) and
-  `tests/unit/presentation-labels.test.ts` (3): proposal; live/own wording;
+- Interface `tests/ui/presentation.test.tsx` (15) and
+  `tests/unit/presentation-labels.test.ts` (4): proposal; live/own wording;
   notes; leave out / move / add; the Presenter View at phone, tablet and
   desktop widths with keys and focus; text size, three backgrounds and the
   wake-lock limitation; one-window audience view without notes; the second
   screen following the presenter with pause and Scripture; the audience
   window given audience content only; exports through the save dialog,
-  cancelled saves; German wording; export words in German and Korean.
+  cancelled saves; German wording; export words in German and Korean; a
+  clicker on the audience screen, Space on buttons, Tab kept inside, focus
+  after moving to the first place; splitting with Hangul.
 
 ## 20. Deferred, on purpose
 
 - A mobile app reading delivery packages (the package and phone layout are
   ready for it); remote control of the desktop Presenter View from a phone.
 - Importing a delivery package back into the desktop app.
-- PowerPoint export of WebP images (needs an image decoder); CFF/OpenType
-  fonts in PDFs.
+- PowerPoint export of WebP images and PDF export of GIF/WebP images (they
+  are framed placeholders, counted in the export's notice); CFF/OpenType fonts
+  in PDFs.
+- Limiting the app's commands per window (an app command manifest), so the
+  audience window could call only what it uses.
 - Drag-and-drop reordering (buttons and keyboard are there); per-slide
   backgrounds; transitions (deliberately none).
 - Showing a presentation's slides in Study search.
 
-## 21. Windows acceptance checklist
+## 21. Independent review and fixes
+
+An independent review of the whole diff against `main` checked the single
+pipeline, privacy boundary, determinism, OOXML/PDF structure, font
+subsetting, migration and accessibility; it confirmed those and found:
+
+| Finding | Fix |
+|---|---|
+| Opening the audience window took keyboard focus; a clicker then did nothing and Esc could not close it | window opens unfocused, focus returns to the main window; keys on the audience screen are handed to the Presenter View; Esc there closes it |
+| Core error messages for presentations were not translated | `errors.presentation.*` in all six languages |
+| A typed name without extension could replace an existing file unasked | refused when the added-extension name exists |
+| Korean passages could overflow a slide; a long passage shown from *Scripture* was never split | Hangul/CJK count double when splitting (core and interface); a shown passage goes a slide's worth at a time (*Show the next part*) |
+| Closing the main window left the audience window | it is closed with the main window |
+| Space on a focused button turned the page | Space/Enter press the focused control |
+| Tab could leave the Presenter View | Tab stays inside it |
+| Moving a slide to the first/last place lost focus | focus goes to the other arrow (or the slide) |
+| Fonts forbidding subsetting were subset | such fonts are left out |
+| Nits: missing PDF image object, long words after a line break, empty exports, reused audience window, missed first move, refused saves treated as saved, GIF count, WinAnsi punctuation, unreadable fonts, wake-lock release, focus after panels, large downloads, temp-file names, 13-px warnings, timer label, German/French wording | all fixed (see the commit) |
+
+Not changed: per-window command limits (§10, §20); the editor reading and
+hashing each image on refresh (small, local files; kept simple).
+
+## 22. Windows acceptance checklist
 
 1. Open a Bible Teaching → *Presentation* → *Make slides from the teaching*:
    the slides follow the teaching's order; nothing in the teaching changes.
@@ -406,9 +453,10 @@ German uses *du* throughout and *Bibellehre* for the teaching.
    text size, Light/Dark/Warm; resize the window narrow (phone sheet) and
    medium (tablet).
 5. With a second display (or projector): *Audience screen* → *Show on screen
-   2*: the audience window fills that display, follows Next/Back, B empties
-   it, a passage from *Scripture* is shown and removed, notes never appear;
-   Exit closes it. Without one: *Show in this window*.
+   2*: the audience window fills that display, the keyboard stays in the
+   Presenter View, a clicker moves the slides, B empties it, a passage from
+   *Scripture* is shown and removed, notes never appear; Exit (or closing the
+   app) closes it. Without one: *Show in this window*.
 6. *Keep the screen on*: the screen does not dim during a long pause (or the
    limitation is shown).
 7. *Export…* → PowerPoint with and without notes → open in **PowerPoint**

@@ -2,7 +2,7 @@
   "open": "Présentation",
   "backToTeaching": "Retour à l’enseignement",
   "title": "Présentation de « {{title}} »",
-  "intro": "Choisissez ce que votre auditoire voit, dans quel ordre, et ce que vous seul voyez. Les diapositives suivent votre enseignement : quand vous le modifiez, elles changent aussi.",
+  "intro": "Choisissez ce que votre auditoire voit, dans quel ordre, et ce qui reste visible pour vous seulement. Les diapositives suivent votre enseignement : quand vous le modifiez, elles changent aussi.",
   "loading": "Chargement de la présentation…",
   "which": "Présentation :",
   "another": "Nouvelle présentation à partir de cet enseignement",
@@ -97,9 +97,9 @@
     "imageOffline": "Cette image n’est pas encore sur cet ordinateur. Enregistrez-en une copie pour présenter sans Internet.",
     "saveImage": "Enregistrer une copie",
     "savingImage": "Enregistrement…",
-    "manuscript": "Tiré de votre enseignement (vous seul le voyez)",
+    "manuscript": "Tiré de votre enseignement (visible pour vous seulement)",
     "notes": "Notes du présentateur",
-    "notesHint": "Vous seul les voyez, dans le mode présentateur et le feuillet de l’orateur. Jamais sur l’écran de l’auditoire.",
+    "notesHint": "Elles ne sont visibles que pour vous, dans le mode présentateur et le feuillet de l’orateur. Jamais sur l’écran de l’auditoire.",
     "add": "Ajouter une diapositive",
     "fromTeaching": "De l’enseignement",
     "ownSlide": "Votre propre diapositive"
@@ -170,7 +170,8 @@
       "found": "Image trouvée",
       "generated": "Image générée",
       "suggestion": "Suggestion"
-    }
+    },
+    "fileFallback": "Présentation"
   },
   "presenter": {
     "title": "Mode présentateur",
@@ -229,7 +230,9 @@
     "passagesHere": "Passages de cette présentation",
     "showToAudience": "Montrer à l’auditoire",
     "stopShowing": "Ne plus le montrer",
-    "backToPresenter": "Revenir au mode présentateur"
+    "backToPresenter": "Revenir au mode présentateur",
+    "partOf": "{{reference}} · partie {{part}} sur {{parts}}",
+    "showNextPart": "Montrer la partie suivante"
   },
   "audience": {
     "title": "Écran de l’auditoire",

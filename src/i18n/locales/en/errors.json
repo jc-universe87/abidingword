@@ -163,5 +163,16 @@
     "badMaterial": "This item cannot be kept.",
     "notVerified": "A story is only kept as checked with two independent sources.",
     "imageGone": "This image is no longer available. Please make it again."
+  },
+  "presentation": {
+    "imageGone": "This image is not available on this computer.",
+    "imageSaveFailed": "The image could not be saved. Check the internet connection and try again.",
+    "noFile": "Please choose where to save the file.",
+    "fileExists": "A file named “{{name}}” already exists. Please choose another name.",
+    "noSlides": "This presentation has no slides to export.",
+    "audienceFailed": "The audience screen could not be opened.",
+    "otherTeaching": "That part belongs to another teaching.",
+    "tooLong": "This text is too long for the slide.",
+    "tooMany": "This presentation has as many slides as it can hold."
   }
 }

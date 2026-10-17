@@ -170,7 +170,8 @@
       "found": "Imagen encontrada",
       "generated": "Imagen generada",
       "suggestion": "Sugerencia"
-    }
+    },
+    "fileFallback": "Presentación"
   },
   "presenter": {
     "title": "Vista del presentador",
@@ -229,7 +230,9 @@
     "passagesHere": "Pasajes de esta presentación",
     "showToAudience": "Mostrar a la audiencia",
     "stopShowing": "Dejar de mostrarlo",
-    "backToPresenter": "Volver a la vista del presentador"
+    "backToPresenter": "Volver a la vista del presentador",
+    "partOf": "{{reference}} · parte {{part}} de {{parts}}",
+    "showNextPart": "Mostrar la parte siguiente"
   },
   "audience": {
     "title": "Pantalla de la audiencia",

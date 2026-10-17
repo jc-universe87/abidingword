@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { AudienceSlide, ItemKind, PresentationTheme, ScriptureOverlay } from "@/types/presentation";
-import { palette, refLabel } from "./labels";
+import { palette, refLabel, textWeight } from "./labels";
 
 interface SlideViewProps {
   slide: AudienceSlide;
@@ -44,7 +44,7 @@ type Pt = (points: number) => string;
 
 /** A size that keeps long text on the slide, never below 22 points. */
 function fitting(text: string, max: number, roomy: number): number {
-  const length = text.length;
+  const length = textWeight(text);
   if (length <= roomy) return max;
   return Math.max(22, Math.round(max * Math.sqrt(roomy / length)));
 }

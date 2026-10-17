@@ -167,7 +167,8 @@
       "found": "Found image",
       "generated": "Generated image",
       "suggestion": "Suggestion"
-    }
+    },
+    "fileFallback": "Presentation"
   },
   "presenter": {
     "title": "Presenter View",
@@ -226,7 +227,9 @@
     "passagesHere": "Passages in this presentation",
     "showToAudience": "Show to the audience",
     "stopShowing": "Stop showing it",
-    "backToPresenter": "Back to Presenter View"
+    "backToPresenter": "Back to Presenter View",
+    "partOf": "{{reference}} · part {{part}} of {{parts}}",
+    "showNextPart": "Show the next part"
   },
   "audience": {
     "title": "Audience screen",

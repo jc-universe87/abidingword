@@ -190,7 +190,13 @@ function PresentationEditor({
     const next = await act(() => api.presentationItemReorder({ parentId: presentation.id, ids }));
     if (next) {
       setNotice(t("presentation.editor.moved", { position: target + 1 }));
-      requestAnimationFrame(() => document.getElementById(`slide-move-${ids[target]}-${delta < 0 ? "up" : "down"}`)?.focus());
+      // At the first or last place that button is disabled: the other one (or the slide) takes the keyboard.
+      const atEnd = (delta < 0 && target === 0) || (delta > 0 && target === ids.length - 1);
+      const focusId = atEnd ? `slide-move-${ids[target]}-${delta < 0 ? "down" : "up"}` : `slide-move-${ids[target]}-${delta < 0 ? "up" : "down"}`;
+      requestAnimationFrame(() => {
+        const button = document.getElementById(focusId) as HTMLButtonElement | null;
+        (button && !button.disabled ? button : document.getElementById(`slide-${ids[target]}`))?.focus();
+      });
     }
   };
   const add = async (kind: ItemKind, source: ItemSource | null) => {
@@ -230,7 +236,7 @@ function PresentationEditor({
           <Play className="size-4" aria-hidden="true" />
           {t("presentation.startPresenting")}
         </Button>
-        <Button className="min-h-11" disabled={!doc} onClick={() => setExporting(true)}>
+        <Button className="min-h-11" disabled={!doc || doc.slides.length === 0} onClick={() => setExporting(true)}>
           <Download className="size-4" aria-hidden="true" />
           {t("presentation.export.open")}
         </Button>
@@ -243,7 +249,14 @@ function PresentationEditor({
           <DraftField
             label={t("presentation.editor.name")}
             value={presentation.title}
-            onSave={(value) => (value.trim() ? act(() => api.presentationUpdate({ id: presentation.id, title: value })).then((n) => n && onRenamed()) : Promise.resolve())}
+            onSave={(value) =>
+              value.trim()
+                ? act(() => api.presentationUpdate({ id: presentation.id, title: value })).then((n) => {
+                    if (n) onRenamed();
+                    return n;
+                  })
+                : Promise.resolve(null)
+            }
           />
           <label className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
             <span className="text-text-muted">{t("presentation.editor.background")}</span>
@@ -347,6 +360,7 @@ function DraftField({
 }: {
   label: string;
   value: string;
+  /** Resolves to null when the core refused the text (it is then saved again on the next change or leave). */
   onSave: (value: string) => Promise<unknown>;
   multiline?: boolean;
   rows?: number;
@@ -362,8 +376,16 @@ function DraftField({
     if (timer.current !== null) window.clearTimeout(timer.current);
     timer.current = null;
     if (text === saved.current) return;
+    const before = saved.current;
     saved.current = text;
-    void onSave(text);
+    void onSave(text).then(
+      (result) => {
+        if (result === null && saved.current === text) saved.current = before;
+      },
+      () => {
+        if (saved.current === text) saved.current = before;
+      },
+    );
   };
   useEffect(() => () => {
     if (timer.current !== null) window.clearTimeout(timer.current);
@@ -537,7 +559,7 @@ function SlideRow({
                 .join(" · ")}
             </span>
             {warnings.map((w) => (
-              <span key={w.code} className="text-[0.8125rem] font-medium text-danger">{t(`presentation.warnings.${w.code}`)}</span>
+              <span key={w.code} className="text-[0.9375rem] font-medium text-danger">{t(`presentation.warnings.${w.code}`)}</span>
             ))}
           </span>
         </button>

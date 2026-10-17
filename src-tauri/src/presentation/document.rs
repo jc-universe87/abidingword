@@ -27,8 +27,9 @@ pub const FORMAT: &str = "abiding-word/presentation";
 /// Raised whenever a reader of an older version could misread the document.
 pub const SCHEMA_VERSION: u32 = 1;
 
-/// A long passage is shown over several slides of about this many
-/// characters, never splitting a verse, so the audience text stays large.
+/// A long passage is shown over several slides of about this much text
+/// (a Hangul or CJK character counts as two), never splitting a verse, so
+/// the audience text stays large.
 pub const SCRIPTURE_SLIDE_CHARS: usize = 600;
 /// Above this the audience text of one slide is too long to read.
 pub const LONG_TEXT_CHARS: usize = 500;
@@ -678,7 +679,7 @@ pub fn split_verses(verses: Vec<SlideVerse>) -> Vec<Vec<SlideVerse>> {
     let mut groups: Vec<Vec<SlideVerse>> = Vec::new();
     let mut size = 0;
     for verse in verses {
-        let len = verse.text.chars().count();
+        let len = super::text::weight(&verse.text);
         match groups.last_mut() {
             Some(group) if size + len <= SCRIPTURE_SLIDE_CHARS => {
                 size += len;
@@ -805,6 +806,18 @@ mod tests {
             .collect();
         assert_eq!(sizes, vec![vec![1, 2], vec![3], vec![4]]);
         assert!(split_verses(Vec::new()).is_empty());
+    }
+
+    #[test]
+    fn hangul_counts_double_so_korean_passages_fit_their_slides() {
+        let ko = |n: u16, len: usize| SlideVerse {
+            chapter: 1,
+            verse: n,
+            text: "나".repeat(len),
+        };
+        // 200 Hangul characters take the room of 400 Latin ones: two verses no longer share a slide.
+        let groups = split_verses(vec![ko(1, 200), ko(2, 200)]);
+        assert_eq!(groups.len(), 2);
     }
 
     #[test]

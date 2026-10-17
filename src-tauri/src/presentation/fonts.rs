@@ -44,11 +44,15 @@ impl Font {
         let raw = face.raw_face();
         raw.table(Tag::from_bytes(b"glyf"))?;
         raw.table(Tag::from_bytes(b"loca"))?;
+        // Only fonts whose licence allows embedding a subset of their outlines.
         if matches!(face.permissions(), Some(Permissions::Restricted))
             || !face.is_outline_embedding_allowed()
+            || !face.is_subsetting_allowed()
         {
             return None;
         }
+        // A font whose tables cannot be read is left out, so it never stops an export.
+        subset(&face, &BTreeSet::new())?;
         let name = face
             .names()
             .into_iter()

@@ -5,7 +5,7 @@ import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { readLocal, writeLocal } from "@/lib/storage";
 import { PRESENTATION_THEMES, type AudienceState, type PresentationDocument, type PresentationTheme, type ScriptureOverlay, type Screen, type Slide } from "@/types/presentation";
-import { palette, refLabel, slideText, themeLabel } from "./labels";
+import { palette, refLabel, slideText, splitVerses, themeLabel } from "./labels";
 import { SlideView } from "./SlideView";
 import { layoutFor, useSlideImages, useViewportWidth } from "./useSlideImages";
 
@@ -32,6 +32,34 @@ const DEFAULT_PREFS: Prefs = { scale: 1, theme: "warm", timer: true, clock: true
 
 function isTyping(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
+}
+
+/** Space and Enter on a button or link press it; they do not turn the page. */
+function pressesControl(target: EventTarget | null, key: string): boolean {
+  return (key === " " || key === "Enter") && target instanceof HTMLElement && target.closest("button, a, [role='button'], summary") !== null;
+}
+
+/** Tab stays inside the Presenter View (it covers the whole window). */
+function keepTabInside(e: KeyboardEvent) {
+  const root = document.querySelector<HTMLElement>("[data-presenter-root]");
+  if (!root) return;
+  const items = Array.from(root.querySelectorAll<HTMLElement>("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")).filter(
+    (el) => !el.hasAttribute("disabled") && el.getClientRects().length > 0,
+  );
+  if (items.length === 0) {
+    e.preventDefault();
+    return;
+  }
+  const first = items[0]!;
+  const last = items[items.length - 1]!;
+  const inside = root.contains(document.activeElement);
+  if (e.shiftKey && (document.activeElement === first || !inside)) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && (document.activeElement === last || !inside)) {
+    e.preventDefault();
+    first.focus();
+  }
 }
 
 function elapsedLabel(ms: number): string {
@@ -77,9 +105,15 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
       return updated;
     });
 
+  const exitButton = useRef<HTMLButtonElement>(null);
+  const toolButtons = useRef<Record<string, HTMLButtonElement | null>>({});
   useEffect(() => {
-    nextButton.current?.focus();
+    const next = nextButton.current;
+    if (next && !next.disabled) next.focus();
+    else exitButton.current?.focus();
   }, []);
+  /** Back from a panel or the audience view: the keyboard returns to the button that opened it. */
+  const returnTo = (name: string) => requestAnimationFrame(() => toolButtons.current[name]?.focus());
 
   const go = useCallback(
     (to: number) => {
@@ -120,37 +154,70 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
     onClose();
   }, [api, audience, onClose]);
 
+  // One set of keys for this window and for the audience screen (a clicker there).
+  const handleKey = useCallback(
+    (key: string, fromAudience: boolean): boolean => {
+      if (key === "Escape") {
+        if (fromAudience) {
+          void api.presentationAudienceClose().catch(() => undefined);
+          setAudience("none");
+        } else if (audience === "here") {
+          setAudience("none");
+          returnTo("audience");
+        } else if (panel !== "none") {
+          const open = panel;
+          setPanel("none");
+          returnTo(open);
+        } else close();
+        return true;
+      }
+      if (panel !== "none" && audience !== "here" && !fromAudience) return false;
+      if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"].includes(key)) go(index + 1);
+      else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(key)) go(index - 1);
+      else if (key === "Home") go(0);
+      else if (key === "End") go(total - 1);
+      else if (key === "b" || key === "B" || key === ".") setBlank((b) => !b);
+      else return false;
+      return true;
+    },
+    [api, audience, close, go, index, panel, total],
+  );
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (isTyping(e.target) || e.ctrlKey || e.metaKey) return;
-      if (e.key === "Escape") {
-        e.preventDefault();
-        if (audience === "here") setAudience("none");
-        else if (panel !== "none") setPanel("none");
-        else close();
+      if (e.key === "Tab") {
+        keepTabInside(e);
         return;
       }
-      if (panel !== "none" && audience !== "here") return;
-      if (["ArrowRight", "ArrowDown", "PageDown", " "].includes(e.key)) {
-        e.preventDefault();
-        go(index + 1);
-      } else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(e.key)) {
-        e.preventDefault();
-        go(index - 1);
-      } else if (e.key === "Home") {
-        e.preventDefault();
-        go(0);
-      } else if (e.key === "End") {
-        e.preventDefault();
-        go(total - 1);
-      } else if (e.key === "b" || e.key === "B" || e.key === ".") {
-        e.preventDefault();
-        setBlank((b) => !b);
-      }
+      if (isTyping(e.target) || e.ctrlKey || e.metaKey || pressesControl(e.target, e.key)) return;
+      // Enter only turns the page from the audience screen (where nothing can be pressed).
+      if (e.key === "Enter") return;
+      if (handleKey(e.key, false)) e.preventDefault();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [audience, close, go, index, panel, total]);
+  }, [handleKey]);
+
+  // Keys pressed while the audience window has focus come back here.
+  const keyHandler = useRef(handleKey);
+  useEffect(() => {
+    keyHandler.current = handleKey;
+  }, [handleKey]);
+  useEffect(() => {
+    let stop: (() => void) | null = null;
+    let active = true;
+    void api.onAudienceKey((key) => keyHandler.current(key, true)).then(
+      (unlisten) => {
+        if (active) stop = unlisten;
+        else unlisten();
+      },
+      () => undefined,
+    );
+    return () => {
+      active = false;
+      stop?.();
+    };
+  }, [api]);
 
   // Timer and clock.
   const [startedAt, setStartedAt] = useState<number | null>(() => Date.now());
@@ -189,7 +256,10 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
         blank={blank}
         overlay={overlay}
         label={position}
-        onBack={() => setAudience("none")}
+        onBack={() => {
+          setAudience("none");
+          returnTo("audience");
+        }}
         onNext={() => go(index + 1)}
         onPrevious={() => go(index - 1)}
       />
@@ -266,6 +336,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
       aria-modal="true"
       aria-labelledby={titleId}
       data-layout={layout}
+      data-presenter-root=""
       className="fixed inset-0 z-50 flex flex-col overflow-hidden"
       style={{ backgroundColor: colours.background, color: colours.text }}
     >
@@ -275,7 +346,8 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
         </h2>
         <p aria-live="polite" className="m-0 text-[1rem] font-medium tabular-nums">{position}</p>
         {prefs.timer && (
-          <span className="inline-flex items-center gap-1 tabular-nums" aria-label={t("presentation.presenter.elapsed", { time: elapsedLabel(elapsed) })}>
+          <span className="inline-flex items-center gap-1 tabular-nums">
+            <span className="sr-only">{t("presentation.presenter.elapsed", { time: elapsedLabel(elapsed) })}</span>
             <span aria-hidden="true">{elapsedLabel(elapsed)}</span>
             <button
               type="button"
@@ -307,15 +379,16 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
           </span>
         )}
         {prefs.clock && (
-          <span className="tabular-nums" aria-label={t("presentation.presenter.clock", { time: clock })}>
+          <span className="tabular-nums">
+            <span className="sr-only">{t("presentation.presenter.clock", { time: clock })}</span>
             <span aria-hidden="true">{clock}</span>
           </span>
         )}
         <div className="ml-auto flex items-center gap-1">
-          <ToolButton label={t("presentation.presenter.scripture")} icon={<BookOpen className="size-5" aria-hidden="true" />} pressed={panel === "scripture"} onClick={() => setPanel(panel === "scripture" ? "none" : "scripture")} compact={layout === "phone"} />
-          <ToolButton label={t("presentation.presenter.audience")} icon={<MonitorUp className="size-5" aria-hidden="true" />} pressed={panel === "audience"} onClick={() => setPanel(panel === "audience" ? "none" : "audience")} compact={layout === "phone"} />
-          <ToolButton label={t("presentation.presenter.settings")} icon={<Settings2 className="size-5" aria-hidden="true" />} pressed={panel === "settings"} onClick={() => setPanel(panel === "settings" ? "none" : "settings")} compact={layout === "phone"} />
-          <ToolButton label={t("presentation.presenter.exit")} icon={<X className="size-5" aria-hidden="true" />} onClick={close} compact={layout === "phone"} />
+          <ToolButton buttonRef={(el) => (toolButtons.current.scripture = el)} label={t("presentation.presenter.scripture")} icon={<BookOpen className="size-5" aria-hidden="true" />} pressed={panel === "scripture"} onClick={() => setPanel(panel === "scripture" ? "none" : "scripture")} compact={layout === "phone"} />
+          <ToolButton buttonRef={(el) => (toolButtons.current.audience = el)} label={t("presentation.presenter.audience")} icon={<MonitorUp className="size-5" aria-hidden="true" />} pressed={panel === "audience"} onClick={() => setPanel(panel === "audience" ? "none" : "audience")} compact={layout === "phone"} />
+          <ToolButton buttonRef={(el) => (toolButtons.current.settings = el)} label={t("presentation.presenter.settings")} icon={<Settings2 className="size-5" aria-hidden="true" />} pressed={panel === "settings"} onClick={() => setPanel(panel === "settings" ? "none" : "settings")} compact={layout === "phone"} />
+          <ToolButton buttonRef={(el) => (exitButton.current = el)} label={t("presentation.presenter.exit")} icon={<X className="size-5" aria-hidden="true" />} onClick={close} compact={layout === "phone"} />
         </div>
       </header>
 
@@ -342,7 +415,18 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
 
       {panel !== "none" && (
         <div className="max-h-[60vh] overflow-y-auto border-b px-3 py-3" style={{ borderColor: `${colours.muted}55` }}>
-          {panel === "scripture" && <ScripturePanel doc={doc} shown={overlay} onShow={setOverlay} onClose={() => setPanel("none")} colours={colours} />}
+          {panel === "scripture" && (
+            <ScripturePanel
+              doc={doc}
+              shown={overlay}
+              onShow={setOverlay}
+              onClose={() => {
+                setPanel("none");
+                returnTo("scripture");
+              }}
+              colours={colours}
+            />
+          )}
           {panel === "settings" && <SettingsPanel prefs={prefs} setPrefs={setPrefs} awake={awake} />}
           {panel === "audience" && (
             <AudiencePanel
@@ -435,9 +519,24 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   );
 }
 
-function ToolButton({ label, icon, onClick, pressed, compact }: { label: string; icon: ReactNode; onClick: () => void; pressed?: boolean; compact: boolean }) {
+function ToolButton({
+  label,
+  icon,
+  onClick,
+  pressed,
+  compact,
+  buttonRef,
+}: {
+  label: string;
+  icon: ReactNode;
+  onClick: () => void;
+  pressed?: boolean;
+  compact: boolean;
+  buttonRef?: (el: HTMLButtonElement | null) => void;
+}) {
   return (
     <button
+      ref={buttonRef}
       type="button"
       onClick={onClick}
       aria-pressed={pressed}
@@ -528,6 +627,7 @@ type WakeState = "off" | "on" | "unsupported" | "failed";
 
 interface WakeLockSentinelLike {
   release(): Promise<void>;
+  addEventListener(type: "release", listener: () => void): void;
 }
 
 /** Keeps the screen on while presenting, where the system allows it. */
@@ -548,6 +648,8 @@ function useWakeLock(wanted: boolean): WakeState {
           }
           lock = sentinel;
           setState("on");
+          // The system can let go of the lock (a hidden window, low battery): say so.
+          sentinel.addEventListener("release", () => active && setState("off"));
         },
         () => active && setState("failed"),
       );
@@ -667,6 +769,12 @@ function ScripturePanel({
   const [text, setText] = useState("");
   const [found, setFound] = useState<ScriptureOverlay | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // A long passage goes to the audience a slide's worth at a time, as on the Scripture slides.
+  const parts = useMemo(() => (found ? splitVerses(found.verses) : []), [found]);
+  const labelFor = (i: number) => (found && parts.length > 1 ? t("presentation.presenter.partOf", { reference: found.label, part: i + 1, parts: parts.length }) : (found?.label ?? ""));
+  const at = found && shown ? parts.findIndex((_, i) => shown.label === labelFor(i)) : -1;
+  const shownPart = at < 0 ? null : at;
+  const showPart = (i: number) => found && onShow({ label: labelFor(i), bible: found.bible, verses: parts[i] ?? [] });
   const passages = useMemo(() => {
     const seen = new Map<string, string>();
     if (doc.primaryPassage) seen.set(doc.primaryPassage.canonical, refLabel(doc.primaryPassage));
@@ -732,14 +840,21 @@ function ScripturePanel({
             ))}
           </p>
           <div className="flex flex-wrap gap-2">
-            {shown?.label === found.label ? (
-              <button type="button" onClick={() => onShow(null)} className="min-h-11 rounded-aw border px-3 font-medium">
-                {t("presentation.presenter.stopShowing")}
-              </button>
-            ) : (
-              <button type="button" onClick={() => onShow(found)} disabled={found.verses.length === 0} className="min-h-11 rounded-aw border px-3 font-medium disabled:opacity-50">
+            {shownPart === null ? (
+              <button type="button" onClick={() => showPart(0)} disabled={found.verses.length === 0} className="min-h-11 rounded-aw border px-3 font-medium disabled:opacity-50">
                 {t("presentation.presenter.showToAudience")}
               </button>
+            ) : (
+              <>
+                {shownPart < parts.length - 1 && (
+                  <button type="button" onClick={() => showPart(shownPart + 1)} className="min-h-11 rounded-aw border px-3 font-medium">
+                    {t("presentation.presenter.showNextPart")}
+                  </button>
+                )}
+                <button type="button" onClick={() => onShow(null)} className="min-h-11 rounded-aw border px-3 font-medium">
+                  {t("presentation.presenter.stopShowing")}
+                </button>
+              </>
             )}
           </div>
         </section>
@@ -780,6 +895,7 @@ function HereAudience({
     <div
       ref={screenRef}
       tabIndex={-1}
+      data-presenter-root=""
       role="dialog"
       aria-modal="true"
       aria-label={t("presentation.audience.title")}
@@ -793,7 +909,7 @@ function HereAudience({
         <SlideView slide={slide.audience} kind={slide.kind} theme={doc.theme} image={image} overlay={overlay} blank={blank} label={label} />
       </div>
       {/* Hardly visible until the pointer or keyboard is on it, so the audience is not distracted. */}
-      <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-90">
+      <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 transition-opacity focus-within:opacity-100 hover:opacity-90">
         <button type="button" onClick={onPrevious} aria-label={t("presentation.presenter.previous")} className="min-h-11 min-w-11 rounded-aw bg-black/60 px-2 text-white">
           <ChevronLeft className="size-5" aria-hidden="true" />
         </button>

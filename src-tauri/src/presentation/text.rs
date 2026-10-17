@@ -44,6 +44,22 @@ fn helvetica_width(c: char, bold: bool) -> f32 {
     }
 }
 
+/// A character's code in the built-in font's WinAnsi encoding; `?` when it has none.
+fn winansi(c: char) -> u16 {
+    match c as u32 {
+        0x20..=0x7E | 0xA0..=0xFF => c as u16,
+        0x2013 => 0x96,
+        0x2014 => 0x97,
+        0x2018 => 0x91,
+        0x2019 => 0x92,
+        0x201C => 0x93,
+        0x201D => 0x94,
+        0x2022 => 0x95,
+        0x2026 => 0x85,
+        _ => u16::from(b'?'),
+    }
+}
+
 /// Characters a line may break after even without a space (Hangul, CJK).
 pub fn breaks_anywhere(c: char) -> bool {
     matches!(c as u32,
@@ -81,11 +97,12 @@ impl Shaper<'_> {
                     f32::from(advance) / f32::from(f.units_per_em.max(1)),
                 ),
                 None => {
-                    let code = match c as u32 {
-                        0x20..=0x7E | 0xA0..=0xFF => c as u16,
-                        _ => u16::from(b'?'),
+                    let code = winansi(c);
+                    let shown = if !(0x80..0xA0).contains(&code) {
+                        char::from_u32(u32::from(code)).unwrap_or('?')
+                    } else {
+                        'n'
                     };
-                    let shown = char::from_u32(u32::from(code)).unwrap_or('?');
                     (
                         FontRef::Builtin { bold },
                         code,
@@ -118,35 +135,42 @@ impl Shaper<'_> {
     pub fn wrap(&self, text: &str, bold: bool, size: f32, max: f32) -> Vec<String> {
         let mut lines = Vec::new();
         for paragraph in text.split('\n') {
-            let words = tokens(paragraph);
             let mut line = String::new();
-            for word in words {
+            for word in tokens(paragraph) {
                 let candidate = format!("{line}{word}");
                 if line.is_empty() || self.width(candidate.trim_end(), bold, size) <= max {
                     line = candidate;
-                    // A single word wider than the line is broken between characters.
-                    if self.width(line.trim_end(), bold, size) > max {
-                        let mut part = String::new();
-                        for c in line.chars() {
-                            let next = format!("{part}{c}");
-                            if !part.is_empty() && self.width(&next, bold, size) > max {
-                                lines.push(part.trim_end().to_string());
-                                part = c.to_string();
-                            } else {
-                                part = next;
-                            }
-                        }
-                        line = part;
-                    }
                 } else {
                     lines.push(line.trim_end().to_string());
                     line = word.trim_start().to_string();
+                }
+                // A word wider than the line is broken between characters.
+                if self.width(line.trim_end(), bold, size) > max {
+                    let mut part = String::new();
+                    for c in line.chars() {
+                        let next = format!("{part}{c}");
+                        if !part.is_empty() && self.width(&next, bold, size) > max {
+                            lines.push(part.trim_end().to_string());
+                            part = c.to_string();
+                        } else {
+                            part = next;
+                        }
+                    }
+                    line = part;
                 }
             }
             lines.push(line.trim_end().to_string());
         }
         lines
     }
+}
+
+/// How much room a text takes, counting a Hangul or CJK character as two:
+/// they are about twice as wide as Latin letters.
+pub fn weight(text: &str) -> usize {
+    text.chars()
+        .map(|c| if breaks_anywhere(c) { 2 } else { 1 })
+        .sum()
 }
 
 /// Words with their following space; CJK characters each on their own.

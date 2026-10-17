@@ -23,15 +23,22 @@ export function AudienceWindow({ presentationId }: { presentationId: string }) {
   useEffect(() => {
     let active = true;
     let stop: (() => void) | null = null;
-    void api.presentationAudienceState().then((s) => active && s && s.presentationId === presentationId && setState(s), () => undefined);
+    // Listen first, then ask where the presentation is: no move is missed in between.
     void api
       .onAudienceState((s) => {
         if (s.presentationId === presentationId) setState(s);
       })
       .then(
         (unlisten) => {
-          if (active) stop = unlisten;
-          else unlisten();
+          if (!active) {
+            unlisten();
+            return;
+          }
+          stop = unlisten;
+          void api.presentationAudienceState().then(
+            (s) => active && s && s.presentationId === presentationId && setState((current) => current ?? s),
+            () => undefined,
+          );
         },
         () => undefined,
       );
@@ -40,6 +47,16 @@ export function AudienceWindow({ presentationId }: { presentationId: string }) {
       stop?.();
     };
   }, [api, presentationId]);
+
+  // A clicker or keyboard used on this screen moves the slides in the Presenter View.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      e.preventDefault();
+      void api.presentationAudienceKey(e.key).catch(() => undefined);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [api]);
 
   const theme = doc.data?.theme ?? "dark";
   const slide = doc.data?.slides[state?.index ?? 0];

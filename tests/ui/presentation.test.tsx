@@ -297,6 +297,59 @@ describe("what the audience sees", () => {
   });
 });
 
+describe("review fixes", () => {
+  it("a clicker on the audience screen moves the Presenter View; Space presses buttons instead of turning pages", async () => {
+    const { api } = await setup();
+    api.state.presentation.screens = [
+      { index: 0, name: "Built-in", width: 1440, height: 900, primary: true },
+      { index: 1, name: "Projector", width: 1920, height: 1080, primary: false },
+    ];
+    const { user } = await renderApp(api);
+    const region = await makeSlides(user);
+    await user.click(within(region).getByRole("button", { name: "Start Presenter View" }));
+    const view = await screen.findByRole("dialog", { name: /Presenter View/ });
+    await user.click(within(view).getByRole("button", { name: "Audience screen" }));
+    await user.click(await within(view).findByRole("button", { name: "Show on screen 2 (1920 × 1080)" }));
+    await act(async () => {
+      await api.presentationAudienceKey("PageDown");
+    });
+    expect(within(view).getByText("Slide 2 of 6")).toBeInTheDocument();
+    await act(async () => {
+      await api.presentationAudienceKey("Escape");
+    });
+    expect(api.state.presentation.audienceOpen).toBeNull();
+    expect(within(view).getByText("Slide 2 of 6")).toBeInTheDocument();
+    // Space on a focused button presses it.
+    within(view).getByRole("button", { name: "Back" }).focus();
+    await user.keyboard(" ");
+    expect(within(view).getByText("Slide 1 of 6")).toBeInTheDocument();
+  });
+
+  it("keeps Tab inside the Presenter View and returns focus to the button that opened a panel", async () => {
+    const { api } = await setup();
+    const { user } = await renderApp(api);
+    const region = await makeSlides(user);
+    await user.click(within(region).getByRole("button", { name: "Start Presenter View" }));
+    const view = await screen.findByRole("dialog", { name: /Presenter View/ });
+    for (let i = 0; i < 40; i++) {
+      await user.tab();
+      expect(view.contains(document.activeElement)).toBe(true);
+    }
+    await user.click(within(view).getByRole("button", { name: "View" }));
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => expect(within(view).getByRole("button", { name: "View" })).toHaveFocus());
+  });
+
+  it("moving a slide to the first place keeps the keyboard on it", async () => {
+    const { api } = await setup();
+    const { user } = await renderApp(api);
+    const region = await makeSlides(user);
+    await user.click(within(region).getByRole("button", { name: "Move slide 2 up" }));
+    await waitFor(() => expect(within(region).getByRole("listitem", { name: "Slide 1: Introduction" })).toBeInTheDocument());
+    await waitFor(() => expect(within(region).getByRole("button", { name: "Move slide 1 down" })).toHaveFocus());
+  });
+});
+
 describe("exports", () => {
   it("saves through the system's save dialog with words in the person's language, and does nothing when cancelled", async () => {
     const { api } = await setup();

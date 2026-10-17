@@ -40,6 +40,22 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
+        // Closing the main window also closes a presentation's audience screen.
+        .on_window_event(|window, event| {
+            if window.label() == "main"
+                && matches!(
+                    event,
+                    tauri::WindowEvent::CloseRequested { .. } | tauri::WindowEvent::Destroyed
+                )
+            {
+                if let Some(audience) = window
+                    .app_handle()
+                    .get_webview_window(commands::presentations::AUDIENCE_WINDOW)
+                {
+                    let _ = audience.close();
+                }
+            }
+        })
         .setup(|app| {
             if updates_configured(app.handle()) {
                 app.handle()
@@ -187,6 +203,7 @@ pub fn run() {
             commands::presentations::presentation_audience_show,
             commands::presentations::presentation_audience_state,
             commands::presentations::presentation_audience_close,
+            commands::presentations::presentation_audience_key,
             commands::assistant::assistant_settings_get,
             commands::assistant::assistant_settings_set,
             commands::assistant::assistant_key_set,

@@ -213,11 +213,28 @@ impl<'a> Pdf<'a> {
         let mut xobjects = Dictionary::new();
         let wanted: BTreeSet<&String> = self.pages.iter().flat_map(|p| &p.images).collect();
         for id in wanted {
-            if let Some((bytes, header)) = image_data.get(id) {
-                if let Some(object) = embed_image(&mut doc, bytes, header) {
-                    xobjects.set(format!("Im{}", image_name(id)), object);
-                }
-            }
+            let embedded = image_data
+                .get(id)
+                .and_then(|(bytes, header)| embed_image(&mut doc, bytes, header));
+            // A page never names an image that is not there: an unreadable
+            // file becomes a plain grey square.
+            let object = embedded.unwrap_or_else(|| {
+                doc.add_object(
+                    Stream::new(
+                        dictionary! {
+                            "Type" => "XObject",
+                            "Subtype" => "Image",
+                            "Width" => 1,
+                            "Height" => 1,
+                            "ColorSpace" => "DeviceGray",
+                            "BitsPerComponent" => 8,
+                        },
+                        vec![0xC8],
+                    )
+                    .with_compression(false),
+                )
+            });
+            xobjects.set(format!("Im{}", image_name(id)), object);
         }
         let resources = doc.add_object(dictionary! {
             "Font" => fonts,

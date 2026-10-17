@@ -163,5 +163,16 @@
     "badMaterial": "Dieses Element kann nicht aufbewahrt werden.",
     "notVerified": "Eine Begebenheit gilt nur mit zwei unabhängigen Quellen als geprüft.",
     "imageGone": "Dieses Bild ist nicht mehr verfügbar. Bitte erneut erstellen."
+  },
+  "presentation": {
+    "imageGone": "Dieses Bild ist nicht auf diesem Computer.",
+    "imageSaveFailed": "Das Bild konnte nicht gespeichert werden. Prüfe die Internetverbindung und versuch es noch einmal.",
+    "noFile": "Bitte wähle, wo die Datei gespeichert werden soll.",
+    "fileExists": "Eine Datei „{{name}}“ gibt es schon. Bitte wähle einen anderen Namen.",
+    "noSlides": "Diese Präsentation hat keine Folien zum Exportieren.",
+    "audienceFailed": "Der Bildschirm für die Zuhörer konnte nicht geöffnet werden.",
+    "otherTeaching": "Dieser Teil gehört zu einer anderen Bibellehre.",
+    "tooLong": "Dieser Text ist zu lang für die Folie.",
+    "tooMany": "Diese Präsentation hat schon so viele Folien, wie sie fassen kann."
   }
 }
