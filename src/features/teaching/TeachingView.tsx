@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowUp, ChevronRight, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronRight, Plus, Presentation, Trash2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
@@ -14,6 +14,7 @@ import { FloatingPanel, AssistDockProvider, useAssistDock } from "./FloatingPane
 import { STARTING_STEPS, assistLabel, canvasShape, pointFields, showsFrame, startingStepTitle, stepFieldLabel, teachingKindLabel, type ShapeText } from "./labels";
 import { TeachingField, type AssistantHooks } from "./TeachingField";
 import { TeachingLinks } from "./TeachingLinks";
+import { PresentationView } from "@/features/presentation/PresentationView";
 
 interface TeachingViewProps {
   studyId: string;
@@ -271,6 +272,8 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
   // "About this teaching" (kind, audience, purpose, what it uses) stays folded away unless wanted:
   // open only right after the teaching was created, so its details can be filled in.
   const [aboutOpen, setAboutOpen] = useState(startOpen);
+  // How the teaching is delivered (v0.18): its presentation, made from it, shown in its place.
+  const [delivering, setDelivering] = useState(false);
   const dock = useAssistDock();
   const [wholeRequest, setWholeRequest] = useState(0);
   const [wholeAction, setWholeAction] = useState<"structure" | "restructure" | "free" | null>(null);
@@ -417,6 +420,19 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
     </label>
   );
 
+  if (delivering) {
+    return (
+      <PresentationView
+        preparation={prep}
+        labels={{ introduction: shape("introduction"), conclusion: shape("conclusion") }}
+        onBack={() => {
+          setDelivering(false);
+          requestAnimationFrame(() => document.getElementById(`present-${prep.id}`)?.focus());
+        }}
+      />
+    );
+  }
+
   return (
     <article aria-label={prep.title} className="flex flex-col gap-5">
       <header className="flex flex-col gap-1">
@@ -437,17 +453,28 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
           emphasis
           assistant={null}
         />
-        <button
-          type="button"
-          aria-expanded={aboutOpen}
-          aria-controls={`about-${prep.id}`}
-          onClick={toggleAbout}
-          className="inline-flex min-h-11 flex-wrap items-center gap-x-2 self-start rounded-aw px-2 text-left text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
-        >
-          <ChevronRight className={`size-4 shrink-0 transition-transform ${aboutOpen ? "rotate-90" : ""}`} aria-hidden="true" />
-          <span className="font-medium text-text-strong">{t("studies.teaching.about")}</span>
-          <span>{aboutSummary || t("studies.teaching.aboutEmpty")}</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-1">
+          <button
+            type="button"
+            aria-expanded={aboutOpen}
+            aria-controls={`about-${prep.id}`}
+            onClick={toggleAbout}
+            className="inline-flex min-h-11 min-w-0 flex-wrap items-center gap-x-2 rounded-aw px-2 text-left text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+          >
+            <ChevronRight className={`size-4 shrink-0 transition-transform ${aboutOpen ? "rotate-90" : ""}`} aria-hidden="true" />
+            <span className="font-medium text-text-strong">{t("studies.teaching.about")}</span>
+            <span>{aboutSummary || t("studies.teaching.aboutEmpty")}</span>
+          </button>
+          <button
+            id={`present-${prep.id}`}
+            type="button"
+            onClick={() => setDelivering(true)}
+            className="ml-auto inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] font-medium text-link hover:bg-bg-secondary"
+          >
+            <Presentation className="size-4" aria-hidden="true" />
+            {t("presentation.open")}
+          </button>
+        </div>
       </header>
 
       <section

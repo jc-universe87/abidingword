@@ -222,11 +222,13 @@ describe("committed configuration", () => {
     expect(read("src-tauri/updater/test-channel.json")).not.toMatch(/secret key|PRIVATE/i);
   });
 
-  it("grants the window only the permissions it needs (updater, the open dialog, and opening http(s) links), and no wider CSP", () => {
+  it("grants the window only the permissions it needs (updater, the open and save dialogs, and opening http(s) links), and no wider CSP", () => {
     const capability = JSON.parse(read("src-tauri/capabilities/default.json"));
     expect(capability.permissions).toEqual([
       "core:default",
       "dialog:allow-open",
+      // Choosing where a presentation export is saved (v0.18).
+      "dialog:allow-save",
       "updater:default",
       // A clicked web link opens in the default browser: only http and https, and no other opener permission.
       { identifier: "opener:allow-open-url", allow: [{ url: "https://*" }, { url: "http://*" }] },
@@ -234,6 +236,12 @@ describe("committed configuration", () => {
     const csp: string = JSON.parse(read("src-tauri/tauri.conf.json")).app.security.csp;
     expect(csp).toContain("connect-src ipc: http://ipc.localhost");
     expect(csp).not.toMatch(/https?:\/\/(?!ipc\.localhost)/);
+  });
+
+  it("gives the audience screen's window nothing but the events that tell it which slide to show", () => {
+    const capability = JSON.parse(read("src-tauri/capabilities/audience.json"));
+    expect(capability.windows).toEqual(["audience"]);
+    expect(capability.permissions).toEqual(["core:event:default"]);
   });
 
   describe("the publish workflow", () => {

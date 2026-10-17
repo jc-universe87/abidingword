@@ -3,7 +3,8 @@
 // an in-memory implementation.
 import { localizeError } from "@/i18n/messages";
 import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
+import { listen } from "@tauri-apps/api/event";
+import { open, save } from "@tauri-apps/plugin-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { safeExternalUrl } from "./externalLink";
 import type {
@@ -110,6 +111,20 @@ import type {
   CreateFindingFromSource,
   CitationPlace,
 } from "@/types/library";
+import type {
+  AudienceDocument,
+  AudienceState,
+  CreatePresentationItem,
+  ExportFormat,
+  ExportOptions,
+  ExportResult,
+  Presentation,
+  PresentationDocument,
+  PresentationSummary,
+  PresentationTheme,
+  Screen,
+  UpdatePresentationItem,
+} from "@/types/presentation";
 
 export interface Api {
   appInfo(): Promise<AppInfo>;
@@ -237,6 +252,38 @@ export interface Api {
   teachingMaterialRemove(id: string): Promise<TeachingPreparation>;
   /** A kept generated image, as a data: address. */
   teachingImage(file: string): Promise<string>;
+
+  // Presentation & Delivery (v0.18): the teaching stays the source of truth.
+  presentationList(preparationId: string): Promise<PresentationSummary[]>;
+  presentationGet(id: string): Promise<Presentation>;
+  /** A first presentation proposed from the teaching by fixed rules (no AI). */
+  presentationCreate(input: { preparationId: string; title?: string | null; propose: boolean; labels: { introduction: string; conclusion: string } }): Promise<Presentation>;
+  presentationUpdate(input: { id: string; title?: string; theme?: PresentationTheme; translationId?: string }): Promise<Presentation>;
+  presentationDelete(id: string): Promise<void>;
+  presentationItemCreate(input: CreatePresentationItem): Promise<Presentation>;
+  presentationItemUpdate(input: UpdatePresentationItem): Promise<Presentation>;
+  presentationItemDelete(id: string): Promise<Presentation>;
+  presentationItemReorder(input: Reorder): Promise<Presentation>;
+  /** The slides as they are now (speaker and audience content). */
+  presentationDocument(id: string): Promise<PresentationDocument>;
+  /** Audience content only, for the audience screen. */
+  presentationAudience(id: string): Promise<AudienceDocument>;
+  presentationImage(id: string, assetId: string): Promise<string>;
+  /** Saves a copy of a found image on this computer (Wikimedia only), on request. */
+  presentationImageSave(input: { presentationId: string; assetId: string }): Promise<void>;
+  /** The system's save dialog; null when cancelled. It asks before replacing a file. */
+  choosePresentationFile(input: { defaultName: string; format: ExportFormat; filterName: string }): Promise<string | null>;
+  presentationExport(input: { id: string; format: ExportFormat; path: string; options: ExportOptions }): Promise<ExportResult>;
+  /** The displays connected; empty where a second window cannot be opened. */
+  presentationScreens(): Promise<Screen[]>;
+  presentationAudienceOpen(input: { presentationId: string; screen: number | null; title: string; state: AudienceState }): Promise<void>;
+  presentationAudienceShow(state: AudienceState): Promise<void>;
+  presentationAudienceState(): Promise<AudienceState | null>;
+  presentationAudienceClose(): Promise<void>;
+  /** On the audience screen: what to show, as the presenter moves. */
+  onAudienceState(handler: (state: AudienceState) => void): Promise<() => void>;
+  /** On the main window: the audience screen was closed. */
+  onAudienceClosed(handler: () => void): Promise<() => void>;
 
   /** The assistant's set-up (never a key, only whether one is kept). */
   assistantSettingsGet(): Promise<AssistantSettings>;
@@ -442,6 +489,31 @@ export const tauriApi: Api = {
   teachingMaterialKeep: (input) => call("teaching_material_keep", { input }),
   teachingMaterialRemove: (id) => call("teaching_material_remove", { id }),
   teachingImage: (file) => call("teaching_image", { file }),
+  presentationList: (preparationId) => call("presentation_list", { preparationId }),
+  presentationGet: (id) => call("presentation_get", { id }),
+  presentationCreate: (input) => call("presentation_create", { input }),
+  presentationUpdate: (input) => call("presentation_update", { input }),
+  presentationDelete: (id) => call("presentation_delete", { id }),
+  presentationItemCreate: (input) => call("presentation_item_create", { input }),
+  presentationItemUpdate: (input) => call("presentation_item_update", { input }),
+  presentationItemDelete: (id) => call("presentation_item_delete", { id }),
+  presentationItemReorder: (input) => call("presentation_item_reorder", { input }),
+  presentationDocument: (id) => call("presentation_document", { id }),
+  presentationAudience: (id) => call("presentation_audience", { id }),
+  presentationImage: (id, assetId) => call("presentation_image", { id, assetId }),
+  presentationImageSave: (input) => call("presentation_image_save", { input }),
+  choosePresentationFile: async ({ defaultName, format, filterName }) => {
+    const extension = { pptx: "pptx", pdf: "pdf", speaker_pdf: "pdf", markdown: "md", package: "json" }[format];
+    return save({ defaultPath: defaultName, filters: [{ name: filterName, extensions: [extension] }] });
+  },
+  presentationExport: (input) => call("presentation_export", { input }),
+  presentationScreens: () => call("presentation_screens"),
+  presentationAudienceOpen: (input) => call("presentation_audience_open", { input }),
+  presentationAudienceShow: (state) => call("presentation_audience_show", { input: state }),
+  presentationAudienceState: () => call("presentation_audience_state"),
+  presentationAudienceClose: () => call("presentation_audience_close"),
+  onAudienceState: (handler) => listen<AudienceState>("presentation-audience", (event) => handler(event.payload)),
+  onAudienceClosed: (handler) => listen("presentation-audience-closed", () => handler()),
   assistantSettingsGet: () => call("assistant_settings_get"),
   assistantSettingsSet: (config) => call("assistant_settings_set", { config }),
   assistantKeySet: (which, key) => call("assistant_key_set", { which, key }),

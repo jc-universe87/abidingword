@@ -13,14 +13,26 @@ import "./design-system/index.css";
 import "./i18n";
 
 import { App } from "./app/App";
+import { AudienceWindow } from "./features/presentation/AudienceWindow";
 import { tauriApi } from "./lib/api";
+import { ApiProvider } from "./lib/ApiContext";
 import { createTauriUpdater } from "./lib/updater";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Missing #root element");
 
+// The audience screen of a presentation (v0.18) is a second window of the
+// same app showing only the slides.
+const audience = new URLSearchParams(window.location.search).get("audience");
+
 createRoot(root).render(
   <StrictMode>
-    <App api={tauriApi} updater={createTauriUpdater()} />
+    {audience ? (
+      <ApiProvider api={tauriApi}>
+        <AudienceWindow presentationId={audience} />
+      </ApiProvider>
+    ) : (
+      <App api={tauriApi} updater={createTauriUpdater()} />
+    )}
   </StrictMode>,
 );

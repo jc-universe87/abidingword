@@ -7,12 +7,13 @@ import books from "./locales/en/books.json";
 import common from "./locales/en/common.json";
 import errors from "./locales/en/errors.json";
 import library from "./locales/en/library.json";
+import presentation from "./locales/en/presentation.json";
 import scripture from "./locales/en/scripture.json";
 import settings from "./locales/en/settings.json";
 import studies from "./locales/en/studies.json";
 import type { Language } from "./languages";
 
-export const english = { app, books, common, errors, library, scripture, settings, studies };
+export const english = { app, books, common, errors, library, presentation, scripture, settings, studies };
 
 export type Messages = typeof english;
 export const AREAS = Object.keys(english) as (keyof Messages)[];

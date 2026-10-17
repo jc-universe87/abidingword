@@ -58,6 +58,7 @@ import type {
 } from "@/types/studies";
 
 import { newTeachingState, teachingApi, type TeachingState } from "./memoryTeaching";
+import { newPresentationState, presentationApi, type PresentationState } from "./memoryPresentation";
 
 const BUILTIN_TEMPLATES = [passageStudy, wordStudy, topicalStudy, biblicalTheology, systematicTheology, teachingStudy];
 import { BOOKS, FIXTURE_VERSE_COUNT, fixtureChapters } from "./scriptureFixture";
@@ -116,6 +117,8 @@ export interface MemoryApi extends Api {
     };
     /** Teaching preparations and the scripted assistant (v0.16). */
     teaching: TeachingState;
+    /** Presentations, exports and the audience screen (v0.18). */
+    presentation: PresentationState;
   };
   /** Installs a fixture Bible directly (test setup). */
   installFixtureBible(shortName: string, wording: string): BibleTranslation;
@@ -325,6 +328,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     findings: [],
     relations: [],
     teaching: newTeachingState(),
+    presentation: newPresentationState(),
     templates: BUILTIN_TEMPLATES.map((t) => ({
       id: `tpl-${t.key}`,
       key: t.key,
@@ -644,6 +648,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         .slice(0, 30);
   };
   const api: MemoryApi = {
+    ...presentationApi(state.presentation, { id, now, api: () => api }),
     ...teachingApi(state.teaching, {
       id,
       now,
