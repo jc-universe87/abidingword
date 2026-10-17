@@ -110,6 +110,10 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   const toolButtons = useRef<Record<string, HTMLButtonElement | null>>({});
   // The timer's popover opens under it.
   const [timerButton, setTimerButton] = useState<HTMLButtonElement | null>(null);
+  const timerRef = useCallback((el: HTMLButtonElement | null) => {
+    toolButtons.current.timer = el;
+    setTimerButton(el);
+  }, []);
   useEffect(() => {
     const next = nextButton.current;
     if (next && !next.disabled) next.focus();
@@ -365,7 +369,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
           </h2>
           {/* What the audience sees, when it differs from the slide: a chip in the bar, covering nothing. */}
           {(blank || overlay || audience === "window") && (
-            <div data-presenter-status="" className="flex min-w-0 max-w-full shrink-0 items-center gap-1 rounded-full border pl-2 text-[0.875rem]" style={{ borderColor: colours.accent }}>
+            <div data-presenter-status="" className={`flex min-w-0 shrink-0 items-center gap-1 rounded-full border pl-2 text-[0.875rem] ${layout === "desktop" ? "max-w-[65%]" : ""}`} style={{ borderColor: colours.accent }}>
               <MonitorUp className="size-4 shrink-0" aria-hidden="true" style={{ color: colours.accent }} />
               <span className={layout === "desktop" ? "min-w-0 truncate" : "sr-only"}>
                 {blank
@@ -396,10 +400,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
           <p aria-live="polite" className="m-0 min-w-0 truncate whitespace-nowrap text-[1rem] font-medium">{position}</p>
           {prefs.timer && (
             <button
-              ref={(el) => {
-                toolButtons.current.timer = el;
-                setTimerButton(el);
-              }}
+              ref={timerRef}
               type="button"
               aria-haspopup="dialog"
               aria-expanded={panel === "timer"}
@@ -441,7 +442,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
         <FloatingPanel
           key={panel}
           initialFocus={panel === "audience" ? "close" : "first"}
-          anchor={panel === "timer" ? timerButton : null}
+          anchor={panel === "timer" && layout !== "phone" ? timerButton : null}
           title={
             panel === "scripture"
               ? t("presentation.presenter.scripture")
@@ -678,12 +679,20 @@ function FloatingPanel({
     // Only when the panel opens.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [left] = useState<number | null>(() => {
-    if (!anchor) return null;
+  const underAnchor = useCallback(() => {
+    if (!anchor || placement !== "popover") return null;
     const rect = anchor.getBoundingClientRect();
     const width = Math.min(288, window.innerWidth - 24);
     return Math.max(12, Math.min(rect.left, window.innerWidth - width - 12));
-  });
+  }, [anchor, placement]);
+  const [left, setLeft] = useState<number | null>(underAnchor);
+  useEffect(() => {
+    // Follows the button when the window is resized (or the layout changes).
+    const follow = () => setLeft(underAnchor());
+    follow();
+    window.addEventListener("resize", follow);
+    return () => window.removeEventListener("resize", follow);
+  }, [underAnchor]);
   const position = {
     side: `right-3 top-16 max-h-[calc(100%-5rem)] ${wide ? "w-[min(30rem,calc(100%-1.5rem))]" : "w-[min(22.5rem,calc(100%-1.5rem))]"} rounded-aw`,
     popover: `top-16 w-[min(18rem,calc(100%-1.5rem))] rounded-aw ${left === null ? "left-1/2 -translate-x-1/2" : ""}`,

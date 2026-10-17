@@ -458,6 +458,24 @@ describe("presenter layout: controls float, the speaker's material never moves",
     fireEvent.mouseDown(backdrop);
     await waitFor(() => expect(within(view).queryByRole("dialog")).toBeNull());
     await waitFor(() => expect(within(view).getByRole("button", { name: "View" })).toHaveFocus());
+    // With a panel open, another door in the bar still works and takes the keyboard into its panel.
+    await user.click(within(view).getByRole("button", { name: "View" }));
+    await within(view).findByRole("dialog", { name: "View" });
+    await user.click(within(view).getByRole("button", { name: "Scripture" }));
+    const scripture = await within(view).findByRole("dialog", { name: "Scripture" });
+    expect(within(view).queryByRole("dialog", { name: "View" })).toBeNull();
+    await waitFor(() => expect(scripture.contains(document.activeElement)).toBe(true));
+    // Escape while an input method is composing belongs to the input method.
+    fireEvent.keyDown(document.activeElement!, { key: "Escape", isComposing: true });
+    expect(within(view).getByRole("dialog", { name: "Scripture" })).toBeInTheDocument();
+  });
+
+  it("on a phone the timer opens as a full-width bottom sheet, not a popover placed under the button", async () => {
+    const { user, view } = await presenting(390);
+    await user.click(within(view).getByRole("button", { name: /Time so far/ }));
+    const timer = await within(view).findByRole("dialog", { name: "Timer" });
+    expect(timer.className).toMatch(/inset-x-0/);
+    expect(timer.style.left).toBe("");
   });
 
   it("the Audience screen panel starts on Close, and showing on screen 2 returns the keyboard to its button", async () => {

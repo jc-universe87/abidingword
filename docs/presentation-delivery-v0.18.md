@@ -197,8 +197,13 @@ the window width (`layoutFor`: < 640 px phone, < 1024 px tablet, else desktop):
 first Windows acceptance build, `0.5.0-dev.38`). The top bar has a fixed
 height (56 px) and holds only status and four doors: a three-column grid
 (`minmax(0,1fr) auto minmax(min-content,1fr)`) keeps the slide position and
-timer exactly centred (measured offset 0 px at 820–1920 px, in all six
-languages, with and without the status chip); the title truncates first. On a
+timer centred (measured offset 0 px at 820 px and from 1200 px up in all six
+languages, with and without the status chip; just above 1024 px the labelled
+German and French doors are wide enough that the centre gives way up to 51 px
+to the left rather than overlap); the title truncates first, and the status
+chip takes at most 65 % of the title's column. The timer's popover follows
+the button when the window is resized; on a phone the timer opens as a
+full-width bottom sheet. On a
 phone the clock is left out of the bar and the title is for screen readers
 only, so the bar fits at 360 px in every language. Everything else opens
 as a **floating panel** over the view — a side sheet (about 360 px; Scripture
@@ -430,7 +435,7 @@ German uses *du* throughout and *Bibellehre* for the teaching.
   cancelled saves; German wording; export words in German and Korean; a
   clicker on the audience screen, Space on buttons, Tab kept inside, focus
   after moving to the first place; splitting with Hangul. The layout
-  refinement adds 9 (26 in the file): opening View, Audience screen, Scripture
+  refinement adds 10 (27 in the file): opening View, Audience screen, Scripture
   or the timer at 1920, 1366, 1280 and 820 px inserts nothing into the layout,
   keeps the same `main`, and moves focus in and back; the top bar's buttons
   and its left / centre / right columns; the timer popover and the paused
@@ -481,6 +486,12 @@ window* first (now *Close*); Escape during IME composition closed panels;
 focus after closing the audience window; a click beside a panel could land on
 the bar; no *paused* label; the timer popover was not under the timer; page
 keys stopped while the timer popover was open; and missing tests for each.
+A last review of those fixes found the phone timer sheet offset by the
+popover's anchor (fixed: anchoring applies to the popover only), a popover
+position that did not follow a resize, a ref that re-rendered the view every
+tick, and a long Scripture chip hiding the title; all fixed, with tests for
+the phone timer sheet, a door clicked while a panel is open, and Escape
+during IME composition.
 
 Not changed: per-window command limits (§10, §20); the editor reading and
 hashing each image on refresh (small, local files; kept simple).
