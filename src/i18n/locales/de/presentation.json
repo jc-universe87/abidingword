@@ -232,7 +232,8 @@
     "showNextPart": "Nächsten Teil zeigen",
     "timer": "Zeit",
     "menu": "Optionen der Referentenansicht",
-    "keysToggle": "Tastenkürzel"
+    "keysToggle": "Tastenkürzel",
+    "elapsedPaused": "Bisherige Zeit: {{time}} (angehalten)"
   },
   "audience": {
     "title": "Bildschirm für Zuhörer",

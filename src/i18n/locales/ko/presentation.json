@@ -229,7 +229,8 @@
     "showNextPart": "다음 부분 보이기",
     "timer": "타이머",
     "menu": "발표자 보기 옵션",
-    "keysToggle": "단축키"
+    "keysToggle": "단축키",
+    "elapsedPaused": "지난 시간: {{time}} (멈춤)"
   },
   "audience": {
     "title": "청중 화면",

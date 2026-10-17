@@ -191,23 +191,34 @@ the window width (`layoutFor`: < 640 px phone, < 1024 px tablet, else desktop):
 |---|---|---|---|
 | main | speaker sheet: what the audience sees as large text, then manuscript and notes | current slide picture + next slide beside the manuscript and notes | all slides (jump list), current slide, next slide, manuscript and notes |
 | moving | big Back / Next at the bottom | Back / Next at the bottom | Back / Next under the slide, the list |
-| top bar | slide position · timer · clock · one menu (Scripture, Audience screen, View) · Exit | title · slide position · timer · clock · the four doors as icons | title · slide position · timer · clock · Scripture, Audience screen, View, Exit |
+| top bar | slide position · timer · one menu (Scripture, Audience screen, View) · Exit | title left · slide position, timer, clock centred · the four doors as icons right | title left · slide position, timer, clock centred · Scripture, Audience screen, View, Exit right |
 
 **The speaker's material is never moved by a control** (refined after the
 first Windows acceptance build, `0.5.0-dev.38`). The top bar has a fixed
-height (56 px) and holds only status and four doors. Everything else opens
+height (56 px) and holds only status and four doors: a three-column grid
+(`minmax(0,1fr) auto minmax(min-content,1fr)`) keeps the slide position and
+timer exactly centred (measured offset 0 px at 820–1920 px, in all six
+languages, with and without the status chip); the title truncates first. On a
+phone the clock is left out of the bar and the title is for screen readers
+only, so the bar fits at 360 px in every language. Everything else opens
 as a **floating panel** over the view — a side sheet (about 360 px; Scripture
 480 px) on a computer or tablet, a small popover for the timer, a bottom sheet
 on a phone — and never as a row above the presentation: measured in Chromium
 at 1920×1080, 1366×768, 1280×800, 820×1180 and 390×844, the speaker's area
 starts at 56 px and keeps its height whether View, Audience screen,
 Scripture or the timer is open (shift 0 px), with no horizontal scrolling.
-Each panel takes focus, keeps Tab inside, closes with Escape (also from its
-text field), Close or a click beside it, and gives focus back to its button.
+Each panel takes focus (the first control; *Close* in Audience screen, so
+nothing is chosen by accident), keeps Tab inside, closes with Escape (also
+from its text field, not while an IME is composing), Close or a click beside
+it, and gives focus back to its button (on a phone, to the menu). A click
+beside a panel never lands on the top bar, which stays usable. Choosing from
+the phone menu opens the new sheet with focus inside it.
 What the audience sees when it differs from the slide (empty screen, a
-passage, the audience window on) is a small floating note with *Back to the
-slide*, not a row. The timer shows only the time; a click opens its popover
-(pause/continue, reset). The keys are behind *Keyboard shortcuts* in View.
+passage, the audience window on) is a small chip beside the title with *Back
+to the slide* (an icon below desktop width) — in the bar, covering nothing,
+not a row. The timer shows only the time (its name says *paused* when paused); a click
+opens its popover under it (pause/continue, reset), and page keys still turn
+slides while it is open. The clock is plain text. The keys are behind *Keyboard shortcuts* in View.
 
 *View* holds the options: text size (85–175 %), background (Light, Dark,
 Warm), timer and clock on/off, keep the screen on, keyboard shortcuts.
@@ -418,7 +429,14 @@ German uses *du* throughout and *Bibellehre* for the teaching.
   window given audience content only; exports through the save dialog,
   cancelled saves; German wording; export words in German and Korean; a
   clicker on the audience screen, Space on buttons, Tab kept inside, focus
-  after moving to the first place; splitting with Hangul.
+  after moving to the first place; splitting with Hangul. The layout
+  refinement adds 9 (26 in the file): opening View, Audience screen, Scripture
+  or the timer at 1920, 1366, 1280 and 820 px inserts nothing into the layout,
+  keeps the same `main`, and moves focus in and back; the top bar's buttons
+  and its left / centre / right columns; the timer popover and the paused
+  label; keys help behind its toggle; Tab trapped in a panel; the phone menu,
+  its bottom sheets and focus inside each; a click beside a panel; Audience
+  screen starting on *Close* and focus after opening and closing screen 2.
 
 ## 20. Deferred, on purpose
 
@@ -452,6 +470,17 @@ subsetting, migration and accessibility; it confirmed those and found:
 | Moving a slide to the first/last place lost focus | focus goes to the other arrow (or the slide) |
 | Fonts forbidding subsetting were subset | such fonts are left out |
 | Nits: missing PDF image object, long words after a line break, empty exports, reused audience window, missed first move, refused saves treated as saved, GIF count, WinAnsi punctuation, unreadable fonts, wake-lock release, focus after panels, large downloads, temp-file names, 13-px warnings, timer label, German/French wording | all fixed (see the commit) |
+
+A second independent review, of the Presenter View layout refinement (diff
+from `ac4e027`), found and the branch fixed: focus fell to the page when a
+phone-menu choice opened its sheet (blocker; the panel now remounts per
+choice); the floating status note covered the speaker's material (now a chip
+in the bar); the bar could overflow at 390 px in French and Spanish (the
+position truncates, no clock on a phone); Audience screen focused *In this
+window* first (now *Close*); Escape during IME composition closed panels;
+focus after closing the audience window; a click beside a panel could land on
+the bar; no *paused* label; the timer popover was not under the timer; page
+keys stopped while the timer popover was open; and missing tests for each.
 
 Not changed: per-window command limits (§10, §20); the editor reading and
 hashing each image on refresh (small, local files; kept simple).

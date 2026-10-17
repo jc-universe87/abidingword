@@ -232,7 +232,8 @@
     "showNextPart": "Show the next part",
     "timer": "Timer",
     "menu": "Presenter options",
-    "keysToggle": "Keyboard shortcuts"
+    "keysToggle": "Keyboard shortcuts",
+    "elapsedPaused": "Time so far: {{time}} (paused)"
   },
   "audience": {
     "title": "Audience screen",

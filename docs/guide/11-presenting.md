@@ -65,11 +65,14 @@ Click **Start Presenter View**. It adapts to your screen:
   allows it; otherwise it says so) and the keyboard shortcuts.
 - Scripture, Audience screen and View open as a panel **over** the view (on
   a phone, from the ☰ menu): your notes never move. Esc or ✕ closes it.
+- When the audience sees something other than the slide (an empty screen or
+  a passage), a small note beside the title says so, with **Back to the
+  slide**.
+- Nothing can be edited here, so nothing changes by accident.
 
 <p align="center">
   <img src="images/presenter-view-panel.png" alt="The View panel open on the right of the Presenter View, over the speaker's notes; the slides stay where they are" width="760">
 </p>
-- Nothing can be edited here, so nothing changes by accident.
 
 ### The audience screen
 
@@ -82,6 +85,10 @@ Click **Audience screen** (on a phone: ☰ → **Audience screen**):
 
 The audience sees **only the slides**: never your notes, your manuscript or
 where your stories came from.
+
+<p align="center">
+  <img src="images/presenter-audience-panel.png" alt="The Audience screen panel open over the Presenter View, offering Show in this window, with a quiet note that the audience sees only the slides" width="760">
+</p>
 
 <p align="center">
   <img src="images/presentation-audience.png" alt="The audience screen showing Psalm 80:8–16 in large type" width="640">

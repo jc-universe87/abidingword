@@ -235,7 +235,8 @@
     "showNextPart": "Mostrar la parte siguiente",
     "timer": "Cronómetro",
     "menu": "Opciones de la vista del presentador",
-    "keysToggle": "Atajos de teclado"
+    "keysToggle": "Atajos de teclado",
+    "elapsedPaused": "Tiempo transcurrido: {{time}} (en pausa)"
   },
   "audience": {
     "title": "Pantalla de la audiencia",

@@ -108,6 +108,8 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
 
   const exitButton = useRef<HTMLButtonElement>(null);
   const toolButtons = useRef<Record<string, HTMLButtonElement | null>>({});
+  // The timer's popover opens under it.
+  const [timerButton, setTimerButton] = useState<HTMLButtonElement | null>(null);
   useEffect(() => {
     const next = nextButton.current;
     if (next && !next.disabled) next.focus();
@@ -177,7 +179,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
         } else close();
         return true;
       }
-      if (panel !== "none" && audience !== "here" && !fromAudience) return false;
+      if (panel !== "none" && panel !== "timer" && audience !== "here" && !fromAudience) return false;
       if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"].includes(key)) go(index + 1);
       else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(key)) go(index - 1);
       else if (key === "Home") go(0);
@@ -196,7 +198,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
         return;
       }
       // Escape closes a panel even from its text field; other keys there are typing.
-      if (e.key === "Escape" && !e.ctrlKey && !e.metaKey) {
+      if (e.key === "Escape" && !e.ctrlKey && !e.metaKey && !e.isComposing) {
         if (handleKey(e.key, false)) e.preventDefault();
         return;
       }
@@ -351,79 +353,95 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
       className="fixed inset-0 z-50 flex flex-col overflow-hidden"
       style={{ backgroundColor: colours.background, color: colours.text }}
     >
-      {/* One calm bar of fixed height: what the speaker needs at a glance, and the four doors. */}
-      <header className="flex h-14 shrink-0 flex-nowrap items-center gap-3 border-b px-3" style={{ borderColor: `${colours.muted}55` }}>
-        <h2 id={titleId} className={layout === "phone" ? "sr-only" : "m-0 min-w-0 flex-1 truncate text-[1rem] font-semibold"}>
-          {layout === "phone" ? doc.title : t("presentation.presenter.titleWith", { title: doc.title })}
-        </h2>
-        <div className={`flex shrink-0 items-center gap-2 tabular-nums ${layout === "phone" ? "flex-1" : ""}`}>
-          <p aria-live="polite" className="m-0 whitespace-nowrap text-[1rem] font-medium">{position}</p>
+      {/* One calm bar of fixed height: the title (and what the audience sees) left, slide and timer
+          centred, the four doors right. On a phone: slide, timer and one menu door. */}
+      <header
+        className={`h-14 shrink-0 items-center gap-3 border-b px-3 ${layout === "phone" ? "flex flex-nowrap" : "grid grid-cols-[minmax(0,1fr)_auto_minmax(min-content,1fr)]"}`}
+        style={{ borderColor: `${colours.muted}55` }}
+      >
+        <div className={`flex min-w-0 items-center gap-2 ${layout === "phone" ? "shrink-0" : ""}`}>
+          <h2 id={titleId} className={layout === "phone" ? "sr-only" : "m-0 min-w-0 truncate text-[1rem] font-semibold"}>
+            {layout === "phone" ? doc.title : t("presentation.presenter.titleWith", { title: doc.title })}
+          </h2>
+          {/* What the audience sees, when it differs from the slide: a chip in the bar, covering nothing. */}
+          {(blank || overlay || audience === "window") && (
+            <div data-presenter-status="" className="flex min-w-0 max-w-full shrink-0 items-center gap-1 rounded-full border pl-2 text-[0.875rem]" style={{ borderColor: colours.accent }}>
+              <MonitorUp className="size-4 shrink-0" aria-hidden="true" style={{ color: colours.accent }} />
+              <span className={layout === "desktop" ? "min-w-0 truncate" : "sr-only"}>
+                {blank
+                  ? t("presentation.presenter.blankOn")
+                  : overlay
+                    ? t("presentation.presenter.showingScripture", { reference: overlay.label })
+                    : t("presentation.presenter.audienceOn")}
+              </span>
+              {blank || overlay ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBlank(false);
+                    setOverlay(null);
+                  }}
+                  aria-label={layout === "desktop" ? undefined : t("presentation.presenter.backToSlide")}
+                  className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full px-2 font-medium underline"
+                >
+                  {layout === "desktop" ? t("presentation.presenter.backToSlide") : <RotateCcw className="size-4" aria-hidden="true" />}
+                </button>
+              ) : (
+                <span className="pr-2" />
+              )}
+            </div>
+          )}
+        </div>
+        <div className={`flex min-w-0 items-center gap-2 tabular-nums ${layout === "phone" ? "flex-1" : "justify-center"}`}>
+          <p aria-live="polite" className="m-0 min-w-0 truncate whitespace-nowrap text-[1rem] font-medium">{position}</p>
           {prefs.timer && (
             <button
               ref={(el) => {
                 toolButtons.current.timer = el;
+                setTimerButton(el);
               }}
               type="button"
               aria-haspopup="dialog"
               aria-expanded={panel === "timer"}
-              aria-label={t("presentation.presenter.elapsed", { time: elapsedLabel(elapsed) })}
+              aria-label={t(startedAt === null ? "presentation.presenter.elapsedPaused" : "presentation.presenter.elapsed", { time: elapsedLabel(elapsed) })}
               onClick={() => setPanel(panel === "timer" ? "none" : "timer")}
-              className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 hover:bg-black/10"
+              className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-aw px-2 hover:bg-black/10"
               style={{ color: startedAt === null ? colours.muted : undefined }}
             >
               <span aria-hidden="true">{elapsedLabel(elapsed)}</span>
               {startedAt === null && <Pause className="size-3.5" aria-hidden="true" />}
             </button>
           )}
-          {prefs.clock && (
-            <span className="whitespace-nowrap text-[0.9375rem]" style={{ color: colours.muted }}>
+          {prefs.clock && layout !== "phone" && (
+            <span className="shrink-0 whitespace-nowrap text-[0.9375rem]" style={{ color: colours.muted }}>
               <span className="sr-only">{t("presentation.presenter.clock", { time: clock })}</span>
               <span aria-hidden="true">{clock}</span>
             </span>
           )}
         </div>
-        <div className="ml-auto flex shrink-0 items-center gap-1">
-          {layout === "phone" ? (
-            <ToolButton buttonRef={(el) => (toolButtons.current.menu = el)} label={t("presentation.presenter.menu")} icon={<Menu className="size-5" aria-hidden="true" />} pressed={panel === "menu"} haspopup onClick={() => setPanel(panel === "menu" ? "none" : "menu")} compact />
-          ) : (
-            <>
-              <ToolButton buttonRef={(el) => (toolButtons.current.scripture = el)} label={t("presentation.presenter.scripture")} icon={<BookOpen className="size-5" aria-hidden="true" />} pressed={panel === "scripture"} haspopup onClick={() => setPanel(panel === "scripture" ? "none" : "scripture")} compact={layout !== "desktop"} />
-              <ToolButton buttonRef={(el) => (toolButtons.current.audience = el)} label={t("presentation.presenter.audience")} icon={<MonitorUp className="size-5" aria-hidden="true" />} pressed={panel === "audience"} haspopup onClick={() => setPanel(panel === "audience" ? "none" : "audience")} compact={layout !== "desktop"} />
-              <ToolButton buttonRef={(el) => (toolButtons.current.settings = el)} label={t("presentation.presenter.settings")} icon={<Settings2 className="size-5" aria-hidden="true" />} pressed={panel === "settings"} haspopup onClick={() => setPanel(panel === "settings" ? "none" : "settings")} compact={layout !== "desktop"} />
-            </>
-          )}
-          <ToolButton buttonRef={(el) => (exitButton.current = el)} label={t("presentation.presenter.exit")} icon={<X className="size-5" aria-hidden="true" />} onClick={close} compact={layout !== "desktop"} />
+        <div className="flex shrink-0 items-center justify-end">
+          <div className="flex shrink-0 items-center gap-1">
+            {layout === "phone" ? (
+              <ToolButton buttonRef={(el) => (toolButtons.current.menu = el)} label={t("presentation.presenter.menu")} icon={<Menu className="size-5" aria-hidden="true" />} pressed={panel === "menu"} haspopup onClick={() => setPanel(panel === "menu" ? "none" : "menu")} compact />
+            ) : (
+              <>
+                <ToolButton buttonRef={(el) => (toolButtons.current.scripture = el)} label={t("presentation.presenter.scripture")} icon={<BookOpen className="size-5" aria-hidden="true" />} pressed={panel === "scripture"} haspopup onClick={() => setPanel(panel === "scripture" ? "none" : "scripture")} compact={layout !== "desktop"} />
+                <ToolButton buttonRef={(el) => (toolButtons.current.audience = el)} label={t("presentation.presenter.audience")} icon={<MonitorUp className="size-5" aria-hidden="true" />} pressed={panel === "audience"} haspopup onClick={() => setPanel(panel === "audience" ? "none" : "audience")} compact={layout !== "desktop"} />
+                <ToolButton buttonRef={(el) => (toolButtons.current.settings = el)} label={t("presentation.presenter.settings")} icon={<Settings2 className="size-5" aria-hidden="true" />} pressed={panel === "settings"} haspopup onClick={() => setPanel(panel === "settings" ? "none" : "settings")} compact={layout !== "desktop"} />
+              </>
+            )}
+            <ToolButton buttonRef={(el) => (exitButton.current = el)} label={t("presentation.presenter.exit")} icon={<X className="size-5" aria-hidden="true" />} onClick={close} compact={layout !== "desktop"} />
+          </div>
         </div>
       </header>
 
-      {/* What the audience sees, when it differs from the slide: a small floating note, never a row that moves the speaker's text. */}
-      {(blank || overlay || audience === "window") && (
-        <div
-          data-presenter-status=""
-          className="absolute left-3 top-16 z-10 flex max-w-[calc(100%-1.5rem)] flex-wrap items-center gap-x-2 rounded-full px-3 text-[0.875rem] shadow"
-          style={{ backgroundColor: colours.background, border: `1px solid ${colours.accent}`, color: colours.text }}
-        >
-          {audience === "window" && !blank && !overlay && <span className="py-2">{t("presentation.presenter.audienceOn")}</span>}
-          {blank && <span className="py-2">{t("presentation.presenter.blankOn")}</span>}
-          {overlay && <span className="py-2">{t("presentation.presenter.showingScripture", { reference: overlay.label })}</span>}
-          {(blank || overlay) && (
-            <button
-              type="button"
-              onClick={() => {
-                setBlank(false);
-                setOverlay(null);
-              }}
-              className="min-h-11 rounded-aw px-2 font-medium underline"
-            >
-              {t("presentation.presenter.backToSlide")}
-            </button>
-          )}
-        </div>
-      )}
       <p role="status" className="sr-only">{notice}</p>
 
       {panel !== "none" && (
         <FloatingPanel
+          key={panel}
+          initialFocus={panel === "audience" ? "close" : "first"}
+          anchor={panel === "timer" ? timerButton : null}
           title={
             panel === "scripture"
               ? t("presentation.presenter.scripture")
@@ -513,6 +531,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
               onCloseWindow={() => {
                 void api.presentationAudienceClose().catch(() => undefined);
                 setAudience("none");
+                requestAnimationFrame(() => document.querySelector<HTMLElement>("[data-presenter-panel] [data-panel-close]")?.focus());
               }}
             />
           )}
@@ -631,6 +650,8 @@ function FloatingPanel({
   title,
   placement,
   wide = false,
+  initialFocus = "first",
+  anchor = null,
   colours,
   onClose,
   children,
@@ -638,6 +659,10 @@ function FloatingPanel({
   title: string;
   placement: "side" | "popover" | "bottom";
   wide?: boolean;
+  /** Where the keyboard starts: the first control, or Close (when the first control would act at once). */
+  initialFocus?: "first" | "close";
+  /** A popover opens under the button it belongs to. */
+  anchor?: HTMLElement | null;
   colours: { background: string; text: string; muted: string };
   onClose: () => void;
   children: ReactNode;
@@ -648,18 +673,26 @@ function FloatingPanel({
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel || panel.contains(document.activeElement)) return;
-    const first = panel.querySelector<HTMLElement>("[data-panel-body] input, [data-panel-body] button:not([disabled]), [data-panel-body] select");
+    const first = initialFocus === "first" ? panel.querySelector<HTMLElement>("[data-panel-body] input, [data-panel-body] button:not([disabled]), [data-panel-body] select") : null;
     (first ?? panel.querySelector<HTMLElement>("[data-panel-close]"))?.focus();
+    // Only when the panel opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const [left] = useState<number | null>(() => {
+    if (!anchor) return null;
+    const rect = anchor.getBoundingClientRect();
+    const width = Math.min(288, window.innerWidth - 24);
+    return Math.max(12, Math.min(rect.left, window.innerWidth - width - 12));
+  });
   const position = {
     side: `right-3 top-16 max-h-[calc(100%-5rem)] ${wide ? "w-[min(30rem,calc(100%-1.5rem))]" : "w-[min(22.5rem,calc(100%-1.5rem))]"} rounded-aw`,
-    popover: "left-1/2 top-16 w-[min(18rem,calc(100%-1.5rem))] -translate-x-1/2 rounded-aw",
+    popover: `top-16 w-[min(18rem,calc(100%-1.5rem))] rounded-aw ${left === null ? "left-1/2 -translate-x-1/2" : ""}`,
     bottom: "inset-x-0 bottom-0 max-h-[85%] rounded-t-2xl",
   }[placement];
   return (
     <>
       {/* A click beside the panel closes it; the presentation stays exactly where it is. */}
-      <div aria-hidden="true" data-panel-backdrop="" className={`absolute inset-0 z-20 ${placement === "bottom" ? "bg-black/30" : ""}`} onMouseDown={onClose} />
+      <div aria-hidden="true" data-panel-backdrop="" className={`absolute inset-x-0 bottom-0 z-20 ${placement === "bottom" ? "top-0 bg-black/30" : "top-14"}`} onMouseDown={onClose} />
       <div
         ref={panelRef}
         role="dialog"
@@ -667,7 +700,7 @@ function FloatingPanel({
         aria-labelledby={titleId}
         data-presenter-panel=""
         className={`absolute z-30 flex flex-col overflow-hidden border shadow-2xl ${position}`}
-        style={{ backgroundColor: colours.background, color: colours.text, borderColor: `${colours.muted}66` }}
+        style={{ backgroundColor: colours.background, color: colours.text, borderColor: `${colours.muted}66`, ...(left !== null ? { left } : {}) }}
       >
         <div className="flex shrink-0 items-center gap-2 border-b py-1 pl-4 pr-1" style={{ borderColor: `${colours.muted}44` }}>
           <h3 id={titleId} className="m-0 flex-1 text-[1rem] font-semibold">{title}</h3>

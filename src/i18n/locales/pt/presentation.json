@@ -235,7 +235,8 @@
     "showNextPart": "Mostrar a próxima parte",
     "timer": "Cronômetro",
     "menu": "Opções do modo apresentador",
-    "keysToggle": "Atalhos de teclado"
+    "keysToggle": "Atalhos de teclado",
+    "elapsedPaused": "Tempo decorrido: {{time}} (pausado)"
   },
   "audience": {
     "title": "Tela do público",

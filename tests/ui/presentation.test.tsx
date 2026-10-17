@@ -435,12 +435,68 @@ describe("presenter layout: controls float, the speaker's material never moves",
     await waitFor(() => expect(within(header).getByRole("button", { name: "Presenter options" })).toHaveFocus());
   });
 
+  it("on a phone: a choice in the menu puts the keyboard inside the new sheet", async () => {
+    const { user, view } = await presenting(390);
+    await user.click(within(view).getByRole("button", { name: "Presenter options" }));
+    for (const name of ["View", "Audience screen", "Scripture"]) {
+      const menu = await within(view).findByRole("dialog", { name: "Presenter options" });
+      await user.click(within(menu).getByRole("button", { name }));
+      const panel = await within(view).findByRole("dialog", { name });
+      await waitFor(() => expect(panel.contains(document.activeElement)).toBe(true));
+      fireEvent.keyDown(document.activeElement ?? window, { key: "Escape" });
+      await waitFor(() => expect(within(view).getByRole("button", { name: "Presenter options" })).toHaveFocus());
+      await user.click(within(view).getByRole("button", { name: "Presenter options" }));
+    }
+  });
+
+  it("a click beside a panel closes it and returns the keyboard; the top bar stays usable", async () => {
+    const { user, view } = await presenting(1366);
+    await user.click(within(view).getByRole("button", { name: "View" }));
+    await within(view).findByRole("dialog", { name: "View" });
+    const backdrop = view.querySelector("[data-panel-backdrop]")!;
+    expect(backdrop.className).toMatch(/top-14/);
+    fireEvent.mouseDown(backdrop);
+    await waitFor(() => expect(within(view).queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(within(view).getByRole("button", { name: "View" })).toHaveFocus());
+  });
+
+  it("the Audience screen panel starts on Close, and showing on screen 2 returns the keyboard to its button", async () => {
+    const { api, user, view } = await presenting(1366);
+    await user.click(within(view).getByRole("button", { name: "Audience screen" }));
+    const panel = await within(view).findByRole("dialog", { name: "Audience screen" });
+    expect(within(panel).getByRole("button", { name: "Close" })).toHaveFocus();
+    await user.click(await within(panel).findByRole("button", { name: "Show on screen 2 (1920 × 1080)" }));
+    expect(api.state.presentation.audienceOpen).not.toBeNull();
+    await waitFor(() => expect(within(view).queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(within(view).getByRole("button", { name: "Audience screen" })).toHaveFocus());
+    // Closing the audience window keeps the keyboard in the panel.
+    await user.click(within(view).getByRole("button", { name: "Audience screen" }));
+    const again = await within(view).findByRole("dialog", { name: "Audience screen" });
+    await user.click(within(again).getByRole("button", { name: "Close the audience screen" }));
+    await waitFor(() => expect(within(again).getByRole("button", { name: "Close" })).toHaveFocus());
+  });
+
+  it("the timer says when it is paused, and page keys still turn slides while its popover is open", async () => {
+    const { user, view } = await presenting(1366);
+    await user.click(within(view).getByRole("button", { name: /Time so far/ }));
+    const timer = await within(view).findByRole("dialog", { name: "Timer" });
+    await user.click(within(timer).getByRole("button", { name: "Pause timer" }));
+    expect(within(view).getByRole("button", { name: "Time so far: 0:00 (paused)" })).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: "PageDown" });
+    await waitFor(() => expect(within(view).getByText("Slide 2 of 6")).toBeInTheDocument());
+  });
+
   it("what the audience sees now is a floating note, not a row above the speaker's material", async () => {
     const { user, view } = await presenting(1366);
     const before = flow(view);
     fireEvent.keyDown(window, { key: "b" });
     const note = await within(view).findByText("The audience screen is empty.");
     expect(note.closest("[data-presenter-status]")).not.toBeNull();
+    // Beside the title, so the slide position and timer stay centred and the doors stay put.
+    const [left, centre, right] = Array.from(view.querySelector("header")!.children);
+    expect(left!.contains(note)).toBe(true);
+    expect(centre!.textContent).toMatch(/^Slide 1 of 6/);
+    expect(within(right as HTMLElement).getAllByRole("button").map((b) => b.textContent)).toEqual(["Scripture", "Audience screen", "View", "Exit"]);
     expect(flow(view)).toEqual(before);
     await user.click(within(view).getByRole("button", { name: "Back to the slide" }));
     expect(within(view).queryByText("The audience screen is empty.")).toBeNull();

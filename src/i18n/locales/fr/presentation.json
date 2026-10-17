@@ -235,7 +235,8 @@
     "showNextPart": "Montrer la partie suivante",
     "timer": "Minuteur",
     "menu": "Options du mode présentateur",
-    "keysToggle": "Raccourcis clavier"
+    "keysToggle": "Raccourcis clavier",
+    "elapsedPaused": "Temps écoulé : {{time}} (en pause)"
   },
   "audience": {
     "title": "Écran de l’auditoire",
