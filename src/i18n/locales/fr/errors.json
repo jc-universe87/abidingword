@@ -92,16 +92,16 @@
     "builtinReadOnly": "Les modèles intégrés ne peuvent pas être modifiés. Dupliquez-le pour créer votre propre version."
   },
   "sections": {
-    "hasContent": "« {{title}} » contient encore du texte ou des élément d’études."
+    "hasContent": "« {{title}} » contient encore du texte ou des notes."
   },
   "relations": {
     "self": "Une étude ne peut pas être liée à elle-même.",
     "exists": "Cette étude est déjà liée à « {{title}} »."
   },
   "findings": {
-    "tooLong": "Ce élément d’étude est trop long pour être enregistré.",
+    "tooLong": "Cette note est trop longue pour être enregistrée.",
     "otherStudySection": "Cette section appartient à une autre étude.",
-    "tooManyTags": "Un élément d’étude peut avoir au plus {{max}} étiquettes.",
+    "tooManyTags": "Une note peut avoir au plus {{max}} étiquettes.",
     "tagTooLong": "L’étiquette « {{tag}} » est trop longue.",
     "writeFirst": "Écrivez d’abord quelque chose à ajouter."
   },

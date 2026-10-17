@@ -142,13 +142,26 @@ function Form({ templateId, initial, onClose }: FormProps) {
                     <Trash2 className="size-4" aria-hidden="true" />
                   </button>
                 </div>
-                <input
-                  value={section.guidance ?? ""}
-                  onChange={(e) => update(index, { guidance: e.target.value })}
-                  placeholder={t("studies.templateEditor.guidancePlaceholder")}
-                  aria-label={t("studies.templateEditor.sectionGuidance", { number })}
-                  className="h-9 rounded-aw border border-border-subtle bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted"
-                />
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <input
+                    value={section.guidance ?? ""}
+                    onChange={(e) => update(index, { guidance: e.target.value })}
+                    placeholder={t("studies.templateEditor.guidancePlaceholder")}
+                    aria-label={t("studies.templateEditor.sectionGuidance", { number })}
+                    className="h-9 min-w-0 flex-1 basis-56 rounded-aw border border-border-subtle bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted"
+                  />
+                  {/* A part to add later is offered in the study, not made with it. */}
+                  <label className="inline-flex min-h-9 items-center gap-2 text-[0.9375rem] text-text">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(section.optional)}
+                      onChange={(e) => update(index, { optional: e.target.checked })}
+                      aria-label={t("studies.templateEditor.laterLabel", { number })}
+                      className="size-4 accent-[var(--aw-primary)]"
+                    />
+                    <span aria-hidden="true">{t("studies.templateEditor.later")}</span>
+                  </label>
+                </div>
               </li>
               );
             })}

@@ -1,20 +1,22 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown, Plus } from "lucide-react";
 import { Notice } from "@/design-system/Notice";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 import { useSaveTracker } from "@/hooks/SaveTracker";
 import { useLoad } from "@/hooks/useLoad";
+import { readLocal, writeLocal } from "@/lib/storage";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
-import type { BlockType, StudySection } from "@/types/domain";
-import type { FindingType } from "@/types/studies";
+import type { StudySection } from "@/types/domain";
+import { FINDING_TYPES, type FindingType } from "@/types/studies";
+import { Button } from "@/design-system/Button";
 import { EditableTitle } from "./EditableTitle";
-import { FindingList, FindingsPanel } from "./FindingsPanel";
+import { AddPart } from "./AddPart";
+import { FindingList, FindingsPanel, KindFilter, QuickCapture } from "./FindingsPanel";
 import { RelatedStudies } from "./RelatedStudies";
 import { SectionEditor } from "./SectionEditor";
 import { sectionTitle } from "./builtinText";
-import { StudyAdd } from "./StudyAdd";
 import { useStudyFocus } from "./StudyFocus";
 import { StudyDetailsPanel } from "./StudyDetails";
 import { StudyPassages } from "./StudyPassages";
@@ -42,7 +44,17 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
   const relations = useLoad(useCallback(() => api.studyRelationList(studyId), [api, studyId]));
   const detailsId = useId();
   const [showDetails, setShowDetails] = useState(false);
-  const [capturing, setCapturing] = useState(false);
+  // A note being written: in a part (its id), or among the study's other notes (null), with its kind.
+  const [capturing, setCapturing] = useState<{ sectionId: string | null; kind: FindingType } | null>(null);
+  // Parts folded away, remembered for this study on this computer (a convenience, never study data).
+  const [collapsed, setCollapsedState] = useState<ReadonlySet<string>>(() => new Set(readLocal<string[]>(collapsedKey(studyId), [])));
+  const setCollapsed = useCallback(
+    (next: ReadonlySet<string>) => {
+      setCollapsedState(next);
+      writeLocal(collapsedKey(studyId), [...next]);
+    },
+    [studyId],
+  );
   // What the user has typed but the saved copy may not hold yet (block id -> has writing).
   const [typed, setTyped] = useState<Record<string, boolean>>({});
   const onContent = useCallback((blockId: string, has: boolean) => setTyped((prev) => (prev[blockId] === has ? prev : { ...prev, [blockId]: has })), []);
@@ -129,8 +141,13 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
 
   const { study } = detail.data;
   const current = detail.data;
-  // Nothing of the user's yet: no findings and no writing in any section.
-  const blank = (findings.data ?? []).length === 0 && sections.every((sec) => sec.blocks.every((b) => !(typed[b.id] ?? b.content.trim().length > 0)));
+  // The template whose parts-for-later are offered: the one the study was made with, else the built-in for its kind.
+  const template =
+    (templates.data ?? []).find((tpl) => tpl.id === study.templateId) ?? (templates.data ?? []).find((tpl) => tpl.isBuiltin && tpl.studyType === study.studyType) ?? null;
+  const expand = (sectionId: string) => {
+    if (collapsed.has(sectionId)) setCollapsed(new Set([...collapsed].filter((id) => id !== sectionId)));
+  };
+  const allCollapsed = sections.length > 0 && sections.every((sec) => collapsed.has(sec.id));
   const updateSection = (section: StudySection) =>
     detail.setData({ ...current, sections: sections.map((s) => (s.id === section.id ? section : s)) });
 
@@ -149,10 +166,10 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
     }
   };
 
-  const addSection = async () => {
+  const addSection = async (part: { title: string; guidance?: string }) => {
     setError(null);
     try {
-      const created = await api.studySectionCreate({ studyId: study.id, title: t("studies.editor.newSectionTitle") });
+      const created = await api.studySectionCreate({ studyId: study.id, title: part.title, guidance: part.guidance });
       setNewSection(created.id);
       detail.reload();
     } catch (e) {
@@ -175,18 +192,33 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
       />
     );
   };
-  const target = sections.find((s) => s.id === activeSection) ?? sections[sections.length - 1];
-  const addBlock = async (blockType: BlockType) => {
-    if (!target) return;
+  const addWriting = async (target: StudySection) => {
     setError(null);
     try {
-      const block = await api.studyBlockCreate({ sectionId: target.id, blockType });
+      const block = await api.studyBlockCreate({ sectionId: target.id, blockType: "paragraph" });
+      expand(target.id);
       setNewBlock(block.id);
       updateSection({ ...target, blocks: [...target.blocks, block] });
     } catch (e) {
       setError(toApiError(e).message);
     }
   };
+  const capture = (section: StudySection) =>
+    capturing?.sectionId === section.id ? (
+      <QuickCapture
+        key={`${section.id}-${capturing.kind}`}
+        ref={(el) => el?.focus()}
+        studyId={study.id}
+        sections={sections}
+        initialType={capturing.kind}
+        sectionId={section.id}
+        onDone={() => {
+          setCapturing(null);
+          findings.reload();
+        }}
+        onCancel={() => setCapturing(null)}
+      />
+    ) : null;
 
   return (
     <article ref={article} className="flex flex-col gap-3">
@@ -246,6 +278,17 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
             {t("studies.header.detailsToggle")}
           </button>
           <StudyPassages studyId={study.id} title={study.title} passages={passages.data ?? []} reload={passages.reload} onReveal={onRevealScripture} />
+          {view === "study" && <KindFilter findings={findings.data ?? []} filter={kindFilter} onFilter={setKindFilter} />}
+          {view === "study" && sections.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setCollapsed(allCollapsed ? new Set() : new Set(sections.map((sec) => sec.id)))}
+              className="inline-flex min-h-11 items-center gap-1 rounded-aw px-1 hover:text-text-strong"
+            >
+              {allCollapsed ? <ChevronsUpDown className="size-4" aria-hidden="true" /> : <ChevronsDownUp className="size-4" aria-hidden="true" />}
+              {allCollapsed ? t("studies.parts.expandAll") : t("studies.parts.collapseAll")}
+            </button>
+          )}
           <SaveIndicator />
         </div>
         <RelatedStudies relations={relations.data ?? []} onOpen={onOpenStudy} />
@@ -270,26 +313,6 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
         <TeachingView studyId={study.id} studyTitle={study.title} findings={findings.data ?? []} onRevealScripture={onRevealScripture} />
       ) : (
       <>
-      <StudyAdd
-        empty={blank}
-        targetSection={target ? sectionTitle(target) : null}
-        onAddNote={() => setCapturing(true)}
-        onAddSection={addSection}
-        onAddBlock={addBlock}
-      />
-
-      <FindingsPanel
-        studyId={study.id}
-        findings={findings.data ?? []}
-        sections={sections}
-        filter={kindFilter}
-        onFilter={setKindFilter}
-        capturing={capturing}
-        onCaptureClose={() => setCapturing(false)}
-        onChanged={findings.reload}
-        onRevealScripture={onRevealScripture}
-      />
-
       {sections.map((section, index) => (
         <SectionEditor
           key={section.id}
@@ -298,6 +321,15 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
           isLast={index === sections.length - 1}
           hasFindings={(findings.data ?? []).some((f) => f.sectionId === section.id)}
           notes={sectionNotes(section.id)}
+          noteCount={(findings.data ?? []).filter((f) => f.sectionId === section.id).length}
+          capture={capture(section)}
+          collapsed={collapsed.has(section.id)}
+          onCollapsedChange={(fold) => setCollapsed(fold ? new Set([...collapsed, section.id]) : new Set([...collapsed].filter((id) => id !== section.id)))}
+          onAddWriting={() => void addWriting(section)}
+          onAddNote={(kind) => {
+            expand(section.id);
+            setCapturing({ sectionId: section.id, kind });
+          }}
           onChange={updateSection}
           onMove={(delta) => moveSection(section.id, delta)}
           onDeleted={() => {
@@ -312,11 +344,39 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
           onContent={onContent}
         />
       ))}
+
+      <FindingsPanel
+        studyId={study.id}
+        findings={findings.data ?? []}
+        sections={sections}
+        filter={kindFilter}
+        capturing={capturing?.sectionId === null ? capturing.kind : null}
+        onCaptureClose={() => setCapturing(null)}
+        onChanged={findings.reload}
+        onRevealScripture={onRevealScripture}
+      />
+
+      {/* The end of the study: another part, or a note that belongs to no part. */}
+      <div className="flex flex-wrap items-start gap-2 border-t border-border-subtle pt-3">
+        <AddPart template={template} sections={sections} onAdd={addSection} />
+        <Button variant="quiet" className="min-h-11" onClick={() => setCapturing({ sectionId: null, kind: lastNoteKind(study.id) })}>
+          <Plus className="size-4" aria-hidden="true" />
+          {t("studies.add.note")}
+        </Button>
+      </div>
       </>
       )}
       {error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{error}</p>}
     </article>
   );
+}
+
+const collapsedKey = (studyId: string) => `study.collapsed.${studyId}`;
+
+/** The kind of note last written in this study (as the note form remembers it), else an observation. */
+function lastNoteKind(studyId: string): FindingType {
+  const stored = readLocal<string | null>(`study.lastFindingType.${studyId}`, null);
+  return FINDING_TYPES.find((type) => type === stored) ?? "observation";
 }
 
 /**

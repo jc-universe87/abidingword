@@ -21,9 +21,8 @@ const study = () => within(screen.getByRole("main", { name: "Study" }));
 const guidance = /The passage being studied/;
 
 describe("empty prompt and guidance follow what is typed, not what is saved", () => {
-  it("shows the start prompt and section guidance for an empty study", async () => {
+  it("shows section guidance for an empty study", async () => {
     await openStudy();
-    expect(study().getByText("Start your study")).toBeInTheDocument();
     expect(study().getByText(guidance)).toBeInTheDocument();
   });
 
@@ -42,7 +41,6 @@ describe("empty prompt and guidance follow what is typed, not what is saved", ()
     const box = () => study().getByRole("textbox", { name: "Text: paragraph" });
     await user.type(box(), "Abide");
     await user.clear(box());
-    expect(study().getByText("Start your study")).toBeInTheDocument();
     expect(study().getByText(guidance)).toBeInTheDocument();
     await user.type(box(), "   ");
     expect(study().getByText(guidance)).toBeInTheDocument();

@@ -60,27 +60,24 @@ export function FindingList({ label, findings, all, sections, canMove, onChanged
 
 interface FindingsPanelProps {
   studyId: string;
-  /** Every finding of the study. */
+  /** Every note of the study. */
   findings: Finding[];
   sections: StudySection[];
-  /** The kind the findings are narrowed to (everywhere in the study), or null. */
+  /** The kind the notes are narrowed to (everywhere in the study), or null. */
   filter: FindingType | null;
-  onFilter: (type: FindingType | null) => void;
-  /** Whether the "add a note" form is open (opened from the study's one Add action). */
-  capturing: boolean;
+  /** The kind of a note being written here (study-wide, in no part), or null when none is. */
+  capturing: FindingType | null;
   onCaptureClose: () => void;
   onChanged: () => void;
   onRevealScripture: () => void;
 }
 
 /**
- * The study's own notes: findings that belong to no section, as notes in the
- * flow of the study. Findings of a section are shown in that section (see
- * `SectionEditor`); this area is nothing at all until there is one of the
- * study's own or the user is writing one. Adding is the study's one Add action.
- * With many findings, one menu narrows what is shown by kind, everywhere.
+ * The study's other notes: those in no part (or in a part that is gone),
+ * after the parts. Nothing at all until there is one, or one is being
+ * written. Notes of a part are shown in that part (see `SectionEditor`).
  */
-export function FindingsPanel({ studyId, findings, sections, filter, onFilter, capturing, onCaptureClose, onChanged, onRevealScripture }: FindingsPanelProps) {
+export function FindingsPanel({ studyId, findings, sections, filter, capturing, onCaptureClose, onChanged, onRevealScripture }: FindingsPanelProps) {
   const { t } = useTranslation();
   const id = useId();
   const captureRef = useRef<HTMLTextAreaElement>(null);
@@ -90,56 +87,24 @@ export function FindingsPanel({ studyId, findings, sections, filter, onFilter, c
     if (capturing) captureRef.current?.focus();
   }, [capturing]);
 
-  const counts = new Map<FindingType, number>();
-  for (const f of findings) counts.set(f.findingType, (counts.get(f.findingType) ?? 0) + 1);
-  const active = filter && counts.has(filter) ? filter : null;
   const own = findings.filter((f) => isStudyNote(f, sections));
-  const shown = active ? own.filter((f) => f.findingType === active) : own;
-  const filterable = findings.length >= FILTER_MIN;
+  const shown = filter ? own.filter((f) => f.findingType === filter) : own;
 
-  if (own.length === 0 && !capturing && !filterable) return null;
+  if (shown.length === 0 && !capturing) return null;
 
   return (
-    <section
-      id="study-findings"
-      aria-labelledby={own.length > 0 ? `${id}-title` : undefined}
-      aria-label={own.length === 0 ? t("studies.findings.heading") : undefined}
-      className="scroll-mt-4 flex flex-col gap-4 border-t border-border-subtle pt-6"
-    >
-      {(own.length > 0 || filterable) && (
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-          {own.length > 0 ? (
-            <h2 id={`${id}-title`} className="m-0 font-display text-[1.375rem] font-heading text-text-strong">
-              {t("studies.findings.heading")}
-            </h2>
-          ) : (
-            <span />
-          )}
-          {filterable && (
-            <label className="flex items-center gap-2 text-[0.9375rem] text-text-muted">
-              <span>{t("studies.findings.filterGroup")}</span>
-              <select
-                value={active ?? ""}
-                onChange={(e) => onFilter((e.target.value || null) as FindingType | null)}
-                className="h-11 max-w-full rounded-aw border border-border bg-bg px-2 text-text-strong"
-              >
-                <option value="">{t("studies.findings.all", { count: findings.length })}</option>
-                {FINDING_TYPES.filter((type) => counts.has(type)).map((type) => (
-                  <option key={type} value={type}>
-                    {t("studies.findings.filterType", { type: findingPlural(t, type), count: counts.get(type) })}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-        </div>
-      )}
+    <section id="study-findings" aria-labelledby={`${id}-title`} className="scroll-mt-4 flex flex-col gap-3 border-t border-border-subtle pt-4">
+      <h2 id={`${id}-title`} className="m-0 font-display text-[1.25rem] font-heading text-text-strong">
+        {t("studies.findings.heading")}
+      </h2>
 
       {capturing && (
         <QuickCapture
+          key={capturing}
           ref={captureRef}
           studyId={studyId}
           sections={sections}
+          initialType={capturing}
           onDone={() => {
             onCaptureClose();
             onChanged();
@@ -153,7 +118,7 @@ export function FindingsPanel({ studyId, findings, sections, filter, onFilter, c
         findings={shown}
         all={findings}
         sections={sections}
-        canMove={active === null}
+        canMove={filter === null}
         onChanged={onChanged}
         onRevealScripture={onRevealScripture}
       />
@@ -161,9 +126,38 @@ export function FindingsPanel({ studyId, findings, sections, filter, onFilter, c
   );
 }
 
+/** Narrows the notes shown, everywhere in the study, to one kind; only worth having with many notes. */
+export function KindFilter({ findings, filter, onFilter }: { findings: Finding[]; filter: FindingType | null; onFilter: (type: FindingType | null) => void }) {
+  const { t } = useTranslation();
+  if (findings.length < FILTER_MIN) return null;
+  const counts = new Map<FindingType, number>();
+  for (const f of findings) counts.set(f.findingType, (counts.get(f.findingType) ?? 0) + 1);
+  return (
+    <label className="flex items-center gap-2">
+      <span>{t("studies.findings.filterGroup")}</span>
+      <select
+        value={filter && counts.has(filter) ? filter : ""}
+        onChange={(e) => onFilter((e.target.value || null) as FindingType | null)}
+        className="h-11 max-w-full rounded-aw border border-border bg-bg px-2 text-text-strong"
+      >
+        <option value="">{t("studies.findings.all", { count: findings.length })}</option>
+        {FINDING_TYPES.filter((type) => counts.has(type)).map((type) => (
+          <option key={type} value={type}>
+            {t("studies.findings.filterType", { type: findingPlural(t, type), count: counts.get(type) })}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 interface QuickCaptureProps {
   studyId: string;
   sections: StudySection[];
+  /** The kind chosen from Add; else the kind last used in this study. */
+  initialType?: FindingType;
+  /** The part the note goes in, when it was added there (no choice of place is offered then). */
+  sectionId?: string;
   onDone: () => void;
   onCancel: () => void;
 }
@@ -187,22 +181,23 @@ function lastType(studyId: string): FindingType {
  * four common choices (the rest under "More types"), remembered per study; where
  * it belongs and linking the passage being read are under "Options".
  */
-const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(function QuickCapture({ studyId, sections, onDone, onCancel }, ref) {
+export const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(function QuickCapture({ studyId, sections, initialType, sectionId: fixedSection, onDone, onCancel }, ref) {
   const { t } = useTranslation();
   const api = useApi();
   const { currentPassage } = useScripture();
   const id = useId();
-  const [type, setType] = useState<FindingType>(() => lastType(studyId));
+  const [type, setType] = useState<FindingType>(() => initialType ?? lastType(studyId));
   const [more, setMore] = useState(false);
   const [options, setOptions] = useState(false);
   const [text, setText] = useState("");
-  const [sectionId, setSectionId] = useState("");
+  const [sectionId, setSectionId] = useState(fixedSection ?? "");
   const [linkPassage, setLinkPassage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   // A kind outside the common four, chosen now or remembered, stays on show.
   const kinds = more ? [...FINDING_TYPES] : COMMON_TYPES.includes(type) ? COMMON_TYPES : [...COMMON_TYPES, type];
-  const hasOptions = sections.length > 0 || currentPassage !== null;
+  const choosePlace = fixedSection === undefined && sections.length > 0;
+  const hasOptions = choosePlace || currentPassage !== null;
 
   const save = async () => {
     if (!text.trim()) {
@@ -313,7 +308,7 @@ const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(function
           </button>
           {options && (
             <div id={`${id}-options`} className="flex flex-col gap-2 text-[0.9375rem] @md:flex-row @md:flex-wrap @md:items-center @md:gap-4">
-              {sections.length > 0 && (
+              {choosePlace && (
                 <label className="flex items-center gap-2">
                   <span className="text-text-muted">{t("studies.findings.in")}</span>
                   <select value={sectionId} onChange={(e) => setSectionId(e.target.value)} className={field}>

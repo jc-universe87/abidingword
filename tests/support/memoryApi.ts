@@ -705,7 +705,8 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         description: input.description ?? null, details: {}, createdAt: t, updatedAt: t, revision: 1,
       };
       state.studies.push(study);
-      (template?.sections ?? [{ title: "Notes" }]).forEach((section, position) => addSection(study.id, section, position));
+      // As the core: optional parts are offered later, retired ones are kept only for old studies.
+      (template?.sections.filter((sec) => !sec.optional && !sec.retired) ?? [{ title: "Notes" }]).forEach((section, position) => addSection(study.id, section, position));
       if (primary) state.passages.push({ id: id(), studyId: study.id, reference: primary, role: "primary", createdAt: t });
       return detail(study.id);
     },
@@ -876,7 +877,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
 
     templateList: async () => [...state.templates],
     templateCreate: async (input) => {
-      if (input.sections.length === 0) throw new ApiError("invalidInput", "A template needs at least one section.");
+      if (!input.sections.some((sec) => !sec.optional)) throw new ApiError("invalidInput", "A template needs at least one section.");
       const t = now();
       const template: StudyTemplate = {
         id: id(), key: `user-${counter}`, name: requireTitle(input.name, "template"), description: input.description ?? null,
@@ -900,7 +901,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const original = find(state.templates, templateId, "template");
       return api.templateCreate({
         name: `${original.name} (copy)`, description: original.description ?? undefined,
-        studyType: original.studyType, sections: original.sections.map((sec) => ({ ...sec })),
+        studyType: original.studyType, sections: original.sections.filter((sec) => !sec.retired).map((sec) => ({ ...sec })),
       });
     },
     templateDelete: async (templateId) => {

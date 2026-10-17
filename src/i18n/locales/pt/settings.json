@@ -75,7 +75,7 @@
     "keySaved": "A chave está guardada neste computador.",
     "keyRemoved": "A chave foi removida.",
     "search": "Pesquisar histórias reais",
-    "searchHint": "O Abiding Word pede a um serviço de pesquisa páginas web sobre histórias reais e mostra-as com os seus links. Um serviço de pesquisa apenas encontra páginas: não decide o que é verdade. Leia as fontes antes de usar uma história.",
+    "searchHint": "O Abiding Word pede a um serviço de busca páginas da web sobre histórias reais e as mostra com seus links. Um serviço de busca só encontra páginas: ele não decide o que é verdade. Leia as fontes antes de usar uma história.",
     "searchKinds": {
       "none": "Desligado",
       "brave": "Brave Search",
@@ -161,37 +161,37 @@
     "imageKeyMissing": "Ainda não há chave da OpenAI para imagens: cole abaixo e clique em “Guardar chave”.",
     "imagesLeave": "As descrições de imagens são enviadas para a OpenAI pela internet, mesmo que seu serviço de escrita não seja.",
     "searchShort": {
-      "brave": "pesquisa web geral e simples",
-      "tavily": "pesquisa pensada para assistentes de IA",
-      "exa": "encontra fontes e passagens relevantes",
-      "searxng": "auto-alojado, precisa do endereço de um servidor",
-      "serpapi": "resultados do Google através do SerpApi"
+      "brave": "busca geral e simples na web",
+      "tavily": "busca feita para assistentes de IA",
+      "exa": "encontra fontes e trechos relevantes",
+      "searxng": "auto-hospedado, precisa do endereço de um servidor",
+      "serpapi": "resultados do Google pelo SerpApi"
     },
     "searchOption": "{{name}} – {{short}}",
     "searchRecommended": "Recomendados",
     "searchWhat": {
-      "brave": "O Brave Search é um motor de pesquisa web independente. O seu serviço para programas (a «Search API») devolve resultados web normais com um breve excerto.",
-      "tavily": "O Tavily é um serviço de pesquisa pensado para assistentes de IA. Devolve páginas web com um excerto legível de cada uma, o que ajuda o Assistente de IA a indicar o que uma página diz.",
-      "exa": "O Exa pesquisa pelo significado e não apenas pelas palavras. Devolve páginas com as passagens que melhor correspondem ao que pediu.",
-      "searxng": "O SearXNG é um programa de pesquisa aberto que algumas pessoas executam no seu próprio servidor. Precisa do endereço de um servidor SearXNG que permita pesquisas a partir de programas (resultados «JSON»). Se isto não lhe diz nada, escolha antes um dos serviços recomendados.",
-      "serpapi": "O SerpApi fornece aos programas os resultados de pesquisa do Google. É um serviço pago com uma pequena quota gratuita, pensado para quem já o usa."
+      "brave": "O Brave Search é uma busca independente na web. O serviço dele para programas (a “Search API”) traz resultados comuns da web com um pequeno trecho.",
+      "tavily": "O Tavily é um serviço de busca feito para assistentes de IA. Ele traz páginas da web com um trecho fácil de ler de cada uma, o que ajuda o Assistente de IA a mostrar o que uma página diz.",
+      "exa": "O Exa busca pelo sentido, e não só pelas palavras. Ele traz páginas com os trechos que mais combinam com o que você pediu.",
+      "searxng": "O SearXNG é um programa de busca aberto que algumas pessoas rodam no próprio servidor. Você precisa do endereço de um servidor SearXNG que aceite buscas de programas (resultados “JSON”). Se isso não diz nada para você, escolha um dos serviços recomendados.",
+      "serpapi": "O SerpApi entrega aos programas os resultados de busca do Google. É um serviço pago com uma pequena cota gratuita, pensado para quem já o usa."
     },
     "searchSetup": {
       "title": "Como configuro o {{service}}?",
-      "step1": "Abra a página do {{service}} abaixo e inicie sessão, ou crie uma conta.",
-      "step2": "Crie aí uma chave (pode chamar-se «API key») e copie-a.",
-      "step3": "Cole-a no campo da chave de pesquisa e carregue em «Guardar chave».",
-      "step4": "Carregue em «Verificar pesquisa».",
+      "step1": "Abra a página do {{service}} abaixo e faça login, ou crie uma conta.",
+      "step2": "Crie uma chave lá (ela pode se chamar “API key”) e copie.",
+      "step3": "Cole no campo da chave de busca e clique em “Guardar chave”.",
+      "step4": "Clique em “Verificar busca”.",
       "open": "Abrir a página do {{service}}",
-      "cost": "Os serviços de pesquisa costumam oferecer uma pequena quota gratuita por mês e cobram o resto. Isso trata-se no site deles, não no Abiding Word."
+      "cost": "Os serviços de busca costumam oferecer uma pequena cota gratuita por mês e cobram pelo resto. Isso é resolvido no site deles, não no Abiding Word."
     },
-    "searchTest": "Verificar pesquisa",
-    "searchTesting": "A consultar o serviço de pesquisa…",
-    "searchTestOk": "O serviço de pesquisa respondeu e encontrou páginas web.",
-    "searchTestEmpty": "O serviço de pesquisa respondeu, mas não encontrou nada numa pesquisa de teste.",
+    "searchTest": "Verificar busca",
+    "searchTesting": "Consultando o serviço de busca…",
+    "searchTestOk": "O serviço de busca respondeu e encontrou páginas da web.",
+    "searchTestEmpty": "O serviço de busca respondeu, mas não encontrou nada em uma busca de teste.",
     "searchWhy": {
-      "noKey": "Para verificar a pesquisa, cole primeiro a sua chave e escolha «Guardar chave».",
-      "noAddress": "Para verificar a pesquisa, escreva primeiro o endereço do SearXNG e guarde."
+      "noKey": "Para verificar a busca, primeiro cole a chave dela e escolha “Guardar chave”.",
+      "noAddress": "Para verificar a busca, primeiro digite o endereço do SearXNG e salve."
     }
   },
   "jumpTo": "Ir para uma seção",

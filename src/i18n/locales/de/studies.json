@@ -36,6 +36,10 @@
           "teaching": {
             "title": "Vermittlung",
             "guidance": "Wie sich dieses Thema treu und klar lehren lässt."
+          },
+          "new-testament": {
+            "title": "Neues Testament",
+            "guidance": "Wie das Thema zu Christus kommt und wie die Apostel es aufnehmen."
           }
         }
       },
@@ -78,6 +82,22 @@
           "teaching": {
             "title": "Vermittlung",
             "guidance": "Hauptgedanke, Gliederung, Veranschaulichungen und wie sich die Botschaft in Liebe weitergeben lässt."
+          },
+          "meaning": {
+            "title": "Bedeutung",
+            "guidance": "Was bedeutete der Text für seine ersten Leser? Schlüsselwörter, Grammatik, schwierige Wendungen."
+          },
+          "key-words": {
+            "title": "Schlüsselwörter",
+            "guidance": "Wörter, die den Abschnitt tragen: was sie hier und anderswo bedeuten."
+          },
+          "related-scripture": {
+            "title": "Weitere Bibelstellen",
+            "guidance": "Andere Stellen, die diese erklären, aufgreifen oder erfüllen."
+          },
+          "open-questions": {
+            "title": "Offene Fragen",
+            "guidance": "Was du noch nicht verstehst – um später darauf zurückzukommen."
           }
         }
       },
@@ -327,8 +347,8 @@
   "titleRequiredOnBlur": "Ein Titel ist erforderlich. Wenn du das Feld verlässt, bleibt der bisherige Titel erhalten.",
   "studyCount_one": "{{count}} Bibelstudium",
   "studyCount_other": "{{count}} Bibelstudien",
-  "findingCount_one": "{{count}} Eintrag",
-  "findingCount_other": "{{count}} Einträge",
+  "findingCount_one": "{{count}} Notiz",
+  "findingCount_other": "{{count}} Notizen",
   "projects": {
     "title": "Projekte",
     "intro": "Ein Projekt fasst zusammengehörige Bibelstudien zusammen: eine Predigtreihe, einen Bibelkurs oder eine Lehre.",
@@ -350,7 +370,7 @@
     "heading": "Was möchtest du studieren?",
     "title": "Titel",
     "template": "Vorlage",
-    "noTemplate": "Keine Vorlage (ein Abschnitt „Notizen“)",
+    "noTemplate": "Keine Vorlage (ein Teil „Notizen“)",
     "yourTemplate": "{{name}} (eigene)",
     "optional": "(optional)",
     "passagePlaceholder": "z. B. John 15:1-11",
@@ -400,7 +420,7 @@
     "changed": "Geändert am {{date}}",
     "duplicate": "Duplizieren …",
     "overview": "Überblick",
-    "noFindings": "Noch keine Einträge",
+    "noFindings": "Noch keine Notizen",
     "questionCount_one": "{{count}} Frage",
     "questionCount_other": "{{count}} Fragen",
     "unresolvedCount_one": "{{count}} ungeklärter Punkt",
@@ -409,7 +429,7 @@
     "duplicatePrompt": "Eine Kopie von „{{title}}“ in diesem Projekt anlegen:",
     "structureOnly": "Nur Struktur",
     "structureAndContent": "Struktur und Inhalt",
-    "duplicateHelp": "„Nur Struktur“ kopiert die Abschnitte. Mit Inhalt werden auch deine Texte, Einträge und Bibelstellen kopiert. Notizen in der Bibel werden nie dupliziert; sie gehören zu den Versen.",
+    "duplicateHelp": "„Nur Struktur“ kopiert die Teile. Mit Inhalt werden auch deine Texte, Notizen und Bibelstellen kopiert. Notizen in der Bibel werden nie dupliziert; sie gehören zu den Versen.",
     "purpose": "Ziel",
     "purposePlaceholder": "Was möchtest du verstehen oder vorbereiten?",
     "details": "Angaben – {{type}}",
@@ -448,26 +468,25 @@
   "editor": {
     "opening": "Bibelstudium wird geöffnet …",
     "titleLabel": "Titel des Bibelstudiums",
-    "newSectionTitle": "Neuer Abschnitt",
+    "newSectionTitle": "Neuer Teil",
     "allSaved": "Alle Änderungen gespeichert.",
     "saved": "Gespeichert",
-    "start": "Beginne dein Bibelstudium",
     "backTo": "Zurück zu {{place}}"
   },
   "sections": {
-    "rename": "Abschnitt „{{title}}“ umbenennen",
-    "renameTooltip": "Abschnitt umbenennen",
-    "moveUp": "Abschnitt „{{title}}“ nach oben verschieben",
-    "moveDown": "Abschnitt „{{title}}“ nach unten verschieben",
-    "delete": "Abschnitt „{{title}}“ löschen",
-    "confirmLabel": "Abschnitt „{{title}}“ löschen?",
+    "rename": "Teil „{{title}}“ umbenennen",
+    "renameTooltip": "Teil umbenennen",
+    "moveUp": "Teil „{{title}}“ nach oben verschieben",
+    "moveDown": "Teil „{{title}}“ nach unten verschieben",
+    "delete": "Teil „{{title}}“ löschen",
+    "confirmLabel": "Teil „{{title}}“ löschen?",
     "confirm": "„{{title}}“ mit dem darin geschriebenen Text löschen?",
-    "confirmWithFindings": "„{{title}}“ mit dem darin geschriebenen Text löschen? Die Einträge des Abschnitts bleiben als Einträge zum gesamten Bibelstudium erhalten.",
-    "deleteSection": "Abschnitt löschen",
-    "titleLabel": "Titel des Abschnitts",
-    "options": "Optionen für Abschnitt {{title}}",
-    "optionsTooltip": "Abschnittsoptionen",
-    "optionsGroup": "Optionen für Abschnitt {{title}}"
+    "confirmWithFindings": "„{{title}}“ mit dem darin geschriebenen Text löschen? Seine Notizen bleiben im Bibelstudium, unter „Weitere Notizen“.",
+    "deleteSection": "Teil löschen",
+    "titleLabel": "Überschrift des Teils",
+    "options": "Optionen für Teil {{title}}",
+    "optionsTooltip": "Optionen für diesen Teil",
+    "optionsGroup": "Optionen für Teil {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -484,24 +503,24 @@
     "optionsTooltip": "Optionen für den Textblock"
   },
   "findings": {
-    "heading": "Studieneinträge",
-    "addGroup": "Eintrag hinzufügen",
-    "filterGroup": "Einträge anzeigen",
-    "all": "Alle ({{count}})",
+    "heading": "Weitere Notizen",
+    "addGroup": "Notiz schreiben",
+    "filterGroup": "Notizen anzeigen",
+    "all": "Alle Notizen ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Studieneinträge",
-    "writeFirst": "Schreib zuerst den Eintrag.",
+    "listLabel": "Weitere Notizen",
+    "writeFirst": "Schreib zuerst etwas.",
     "type": "Art",
     "in": "In",
     "inLower": "in",
-    "wholeStudy": "Gesamtes Bibelstudium",
+    "wholeStudy": "Weitere Notizen",
     "newLabel": "Neu: {{type}}",
     "linkCurrent": "Aktuelle Bibelstelle verknüpfen ({{passage}})",
-    "save": "Eintrag speichern",
+    "save": "Speichern",
     "saveHint": "Strg+Eingabe speichert",
     "itemLabel": "{{type}}: {{excerpt}}",
-    "typeLabel": "Art des Eintrags",
-    "section": "Abschnitt",
+    "typeLabel": "Art der Notiz",
+    "section": "Teil",
     "moveUp": "{{type}} nach oben verschieben",
     "moveDown": "{{type}} nach unten verschieben",
     "delete": "{{type}} löschen",
@@ -511,13 +530,13 @@
     "tags": "Schlagwörter",
     "tagsPlaceholder": "z. B. Bund, Predigt",
     "confirmDelete": "{{type}} löschen?",
-    "writePlaceholder": "Eintrag schreiben…",
+    "writePlaceholder": "Hier schreiben …",
     "details": "Details",
     "detailsFor": "Details zu {{type}}: {{excerpt}}",
-    "kindGroup": "Art des Eintrags",
+    "kindGroup": "Art der Notiz",
     "moreTypes": "Weitere Arten",
     "options": "Optionen",
-    "inSection": "Einträge in {{section}}"
+    "inSection": "Notizen in {{section}}"
   },
   "passages": {
     "label": "Bibelstellen",
@@ -556,17 +575,17 @@
     "results": "Suchergebnisse in Bibelstudien",
     "location": {
       "study": "Titel oder Ziel",
-      "section": "Titel des Abschnitts",
+      "section": "Überschrift eines Teils",
       "studyText": "Text des Bibelstudiums",
-      "finding": "Eintrag",
-      "findingType": "Eintrag: {{type}}"
+      "finding": "Notiz",
+      "findingType": "Notiz: {{type}}"
     }
   },
   "templates": {
-    "intro": "Eine Vorlage gibt einem neuen Bibelstudium seine Abschnitte. Änderungen an einer Vorlage verändern nie Bibelstudien, die bereits damit erstellt wurden.",
+    "intro": "Eine Vorlage ist eine Startstruktur: die Teile, mit denen ein neues Bibelstudium beginnt, oder die Form einer Lehreinheit. Änderungen an einer Vorlage verändern nie Bibelstudien, die bereits damit erstellt wurden.",
     "listLabel": "Vorlagen für Bibelstudien",
-    "sectionCount_one": "{{count}} Abschnitt",
-    "sectionCount_other": "{{count}} Abschnitte",
+    "sectionCount_one": "{{count}} Teil",
+    "sectionCount_other": "{{count}} Teile",
     "builtIn": "Mitgeliefert",
     "duplicateCustomise": "Duplizieren und anpassen",
     "edit": "{{name}} bearbeiten",
@@ -585,26 +604,25 @@
     "name": "Name",
     "description": "Beschreibung",
     "meantFor": "Gedacht für",
-    "sections": "Abschnitte",
-    "sectionsList": "Abschnitte der Vorlage",
-    "sectionTitle": "Titel von Abschnitt {{number}}",
-    "sectionGuidance": "Hinweis zu Abschnitt {{number}}",
-    "guidancePlaceholder": "Hinweis, der unter dem Abschnitt angezeigt wird (optional)",
-    "untitledSection": "Abschnitt",
+    "sections": "Teile",
+    "sectionsList": "Teile der Vorlage",
+    "sectionTitle": "Überschrift von Teil {{number}}",
+    "sectionGuidance": "Hinweis zu Teil {{number}}",
+    "guidancePlaceholder": "Hinweis, der unter dem Teil angezeigt wird (optional)",
+    "untitledSection": "Teil",
     "moveUp": "„{{title}}“ nach oben verschieben",
     "moveDown": "„{{title}}“ nach unten verschieben",
     "remove": "„{{title}}“ entfernen",
-    "addSection": "Abschnitt hinzufügen",
-    "save": "Vorlage speichern"
+    "addSection": "Teil hinzufügen",
+    "save": "Vorlage speichern",
+    "later": "Später hinzufügen",
+    "laterLabel": "Teil {{number}} erst später anbieten, statt damit zu beginnen"
   },
   "add": {
     "toggle": "Hinzufügen",
-    "group": "Zum Bibelstudium hinzufügen",
-    "note": "Eintrag",
-    "section": "Abschnitt",
-    "textBlock": "Textblock",
-    "blockGroup": "Textblock in {{section}}",
-    "blockIn": "In {{section}}:"
+    "note": "Notiz",
+    "to": "Zu {{part}} hinzufügen",
+    "writing": "Text"
   },
   "home": {
     "title": "Bibelstudien",
@@ -917,5 +935,12 @@
     },
     "aboutEmpty": "Art, für wen, Ziel, Bibelstellen",
     "aboutFor": "für {{audience}}"
+  },
+  "parts": {
+    "add": "Teil hinzufügen",
+    "suggested": "Teile, die du hinzufügen kannst",
+    "own": "Eigene Überschrift",
+    "collapseAll": "Alle zuklappen",
+    "expandAll": "Alle aufklappen"
   }
 }

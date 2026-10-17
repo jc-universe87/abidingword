@@ -83,20 +83,22 @@ fn a_new_study_gets_the_template_sections_in_order() {
         let found = sections::list(conn, &study_id)?;
         let titles: Vec<_> = found.iter().map(|s| s.title.as_str()).collect();
         let template = &templates::builtin_definitions()?[0];
-        let expected: Vec<_> = template.sections.iter().map(|s| s.title.as_str()).collect();
+        let expected: Vec<_> = template
+            .sections
+            .iter()
+            .filter(|s| s.starts())
+            .map(|s| s.title.as_str())
+            .collect();
         assert_eq!(titles, expected);
         assert_eq!(
             titles,
             [
                 "Text",
-                "Context",
                 "Observations",
-                "Structure",
-                "Exegesis",
+                "Context",
+                "Meaning",
                 "Theology",
-                "Application",
-                "Audience",
-                "Teaching"
+                "Application"
             ]
         );
         for (index, section) in found.iter().enumerate() {

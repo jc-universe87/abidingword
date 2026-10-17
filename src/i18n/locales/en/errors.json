@@ -89,16 +89,16 @@
     "builtinReadOnly": "Built-in templates can’t be changed. Duplicate it to make your own version."
   },
   "sections": {
-    "hasContent": "“{{title}}” still has writing or findings in it."
+    "hasContent": "“{{title}}” still has writing or notes in it."
   },
   "relations": {
     "self": "A study can’t be linked to itself.",
     "exists": "This study is already linked to “{{title}}”."
   },
   "findings": {
-    "tooLong": "This finding is too long to save.",
+    "tooLong": "This note is too long to save.",
     "otherStudySection": "That section belongs to another study.",
-    "tooManyTags": "A finding can have at most {{max}} tags.",
+    "tooManyTags": "A note can have at most {{max}} tags.",
     "tagTooLong": "The tag “{{tag}}” is too long.",
     "writeFirst": "Write something to add first."
   },

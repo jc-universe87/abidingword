@@ -109,7 +109,7 @@ describe("selected text → Study", () => {
     // No highlight was made along the way.
     expect(api.state.library.annotations).toHaveLength(0);
     // Said politely, and the Study shows the new note without reopening.
-    expect(await within(reader).findByTestId("reader-notice")).toHaveTextContent("Added to Abiding · Whole study.");
+    expect(await within(reader).findByTestId("reader-notice")).toHaveTextContent("Added to Abiding · Other notes.");
     await waitFor(() => expect(within(studyPane()).getAllByText("bear fruit by itself").length).toBeGreaterThan(0));
     // Focus comes back to the text the words were in.
     await waitFor(() => expect(paragraph(reader, "As the branch")).toHaveFocus());
@@ -455,7 +455,7 @@ describe("source marks in the Marks view", () => {
     const form = await within(row).findByRole("region", { name: "Add to Study: Abiding" });
     await user.click(within(form).getByRole("button", { name: "Add to Study" }));
     await waitFor(() => expect(findingsOf(api, studyIds[0]!)).toHaveLength(1));
-    expect(await within(scripture).findByText("Added to Abiding · Whole study.")).toBeInTheDocument();
+    expect(await within(scripture).findByText("Added to Abiding · Other notes.")).toBeInTheDocument();
     await waitFor(() => expect(within(row).getByRole("button", { name: "More actions" })).toHaveFocus());
   });
 });

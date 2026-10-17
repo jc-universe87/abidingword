@@ -92,16 +92,16 @@
     "builtinReadOnly": "Os modelos incluídos não podem ser alterados. Duplique-o para criar sua própria versão."
   },
   "sections": {
-    "hasContent": "“{{title}}” ainda tem texto ou registros."
+    "hasContent": "“{{title}}” ainda tem texto ou anotações."
   },
   "relations": {
     "self": "Um estudo não pode ser vinculado a si mesmo.",
     "exists": "Este estudo já está vinculado a “{{title}}”."
   },
   "findings": {
-    "tooLong": "Este registro é longo demais para ser salvo.",
+    "tooLong": "Esta anotação é longa demais para ser salva.",
     "otherStudySection": "Essa seção pertence a outro estudo.",
-    "tooManyTags": "Um registro pode ter no máximo {{max}} etiquetas.",
+    "tooManyTags": "Uma anotação pode ter no máximo {{max}} etiquetas.",
     "tagTooLong": "A etiqueta “{{tag}}” é longa demais.",
     "writeFirst": "Escreva primeiro algo para adicionar."
   },
@@ -157,7 +157,7 @@
     "badAddress": "Digite um endereço que comece com http:// ou https://.",
     "badModel": "Esse nome de modelo é longo demais.",
     "noImageKey": "Criar imagens precisa da chave do serviço de imagens. Você pode adicioná-la em Configurações → Assistente de IA.",
-    "searchNoKey": "Este serviço de pesquisa não usa chave."
+    "searchNoKey": "Este serviço de busca não usa chave."
   },
   "teaching": {
     "tooLong": "Esta parte do ensino é longa demais para salvar.",

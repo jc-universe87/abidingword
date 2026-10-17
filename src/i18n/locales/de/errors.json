@@ -89,16 +89,16 @@
     "builtinReadOnly": "Mitgelieferte Vorlagen können nicht geändert werden. Dupliziere die Vorlage, um eine eigene Fassung zu erstellen."
   },
   "sections": {
-    "hasContent": "„{{title}}“ enthält noch Text oder Einträge."
+    "hasContent": "„{{title}}“ enthält noch Text oder Notizen."
   },
   "relations": {
     "self": "Ein Bibelstudium kann nicht mit sich selbst verknüpft werden.",
     "exists": "Dieses Bibelstudium ist bereits mit „{{title}}“ verknüpft."
   },
   "findings": {
-    "tooLong": "Dieser Eintrag ist zu lang zum Speichern.",
+    "tooLong": "Diese Notiz ist zu lang zum Speichern.",
     "otherStudySection": "Dieser Abschnitt gehört zu einem anderen Bibelstudium.",
-    "tooManyTags": "Ein Eintrag kann höchstens {{max}} Schlagwörter haben.",
+    "tooManyTags": "Eine Notiz kann höchstens {{max}} Schlagwörter haben.",
     "tagTooLong": "Das Schlagwort „{{tag}}“ ist zu lang.",
     "writeFirst": "Schreib zuerst etwas, das hinzugefügt werden soll."
   },

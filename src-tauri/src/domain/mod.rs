@@ -185,6 +185,24 @@ pub struct TemplateSection {
     pub title: String,
     #[serde(default)]
     pub guidance: Option<String>,
+    /// Not made with a new study: offered later, when the person adds a part.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub optional: bool,
+    /// No longer offered at all. Kept so that studies made with it still show
+    /// its title and guidance in the interface language.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub retired: bool,
+}
+
+impl TemplateSection {
+    /// A part a new study starts with.
+    pub fn starts(&self) -> bool {
+        !self.optional && !self.retired
+    }
+}
+
+fn is_false(value: &bool) -> bool {
+    !value
 }
 
 // ---------------------------------------------------------------------------

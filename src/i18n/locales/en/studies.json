@@ -36,6 +36,10 @@
           "teaching": {
             "title": "Teaching",
             "guidance": "How to teach this theme faithfully and clearly."
+          },
+          "new-testament": {
+            "title": "New Testament",
+            "guidance": "How the theme comes to Christ and how the apostles take it up."
           }
         }
       },
@@ -78,6 +82,22 @@
           "teaching": {
             "title": "Teaching",
             "guidance": "Main idea, outline, illustrations and how to communicate it with love."
+          },
+          "meaning": {
+            "title": "Meaning",
+            "guidance": "What did the text mean for its first readers? Key words, grammar, difficult phrases."
+          },
+          "key-words": {
+            "title": "Key Words",
+            "guidance": "Words that carry the passage: what they mean here and elsewhere."
+          },
+          "related-scripture": {
+            "title": "Related Scripture",
+            "guidance": "Other passages that explain, echo or fulfil this one."
+          },
+          "open-questions": {
+            "title": "Open Questions",
+            "guidance": "What you do not yet understand, to come back to."
           }
         }
       },
@@ -327,8 +347,8 @@
   "titleRequiredOnBlur": "A title is required. Leaving the field keeps the previous title.",
   "studyCount_one": "{{count}} study",
   "studyCount_other": "{{count}} studies",
-  "findingCount_one": "{{count}} finding",
-  "findingCount_other": "{{count}} findings",
+  "findingCount_one": "{{count}} note",
+  "findingCount_other": "{{count}} notes",
   "projects": {
     "title": "Projects",
     "intro": "A project gathers related studies: a sermon series, a Bible study course, or a doctrine.",
@@ -350,7 +370,7 @@
     "heading": "What would you like to study?",
     "title": "Title",
     "template": "Template",
-    "noTemplate": "No template (one Notes section)",
+    "noTemplate": "No template (one Notes part)",
     "yourTemplate": "{{name}} (yours)",
     "optional": "(optional)",
     "passagePlaceholder": "e.g. John 15:1-11",
@@ -400,7 +420,7 @@
     "changed": "Changed {{date}}",
     "duplicate": "Duplicate…",
     "overview": "Overview",
-    "noFindings": "No findings yet",
+    "noFindings": "No notes yet",
     "questionCount_one": "{{count}} question",
     "questionCount_other": "{{count}} questions",
     "unresolvedCount_one": "{{count}} unresolved issue",
@@ -409,7 +429,7 @@
     "duplicatePrompt": "Make a copy of “{{title}}” in this project:",
     "structureOnly": "Structure only",
     "structureAndContent": "Structure and content",
-    "duplicateHelp": "Structure only copies the sections. With content, your writing, findings and passages are copied too. Notes on Scripture are never duplicated; they belong to the verses.",
+    "duplicateHelp": "Structure only copies the parts. With content, your writing, notes and passages are copied too. Notes on Scripture are never duplicated; they belong to the verses.",
     "purpose": "Purpose",
     "purposePlaceholder": "What are you trying to understand or prepare?",
     "details": "{{type}} details",
@@ -448,26 +468,25 @@
   "editor": {
     "opening": "Opening study…",
     "titleLabel": "Study title",
-    "newSectionTitle": "New section",
+    "newSectionTitle": "New part",
     "allSaved": "All changes saved.",
     "saved": "Saved",
-    "start": "Start your study",
     "backTo": "Back to {{place}}"
   },
   "sections": {
-    "rename": "Rename section {{title}}",
-    "renameTooltip": "Rename section",
-    "moveUp": "Move section {{title}} up",
-    "moveDown": "Move section {{title}} down",
-    "delete": "Delete section {{title}}",
-    "confirmLabel": "Delete section {{title}}?",
+    "rename": "Rename part {{title}}",
+    "renameTooltip": "Rename part",
+    "moveUp": "Move part {{title}} up",
+    "moveDown": "Move part {{title}} down",
+    "delete": "Delete part {{title}}",
+    "confirmLabel": "Delete part {{title}}?",
     "confirm": "Delete “{{title}}” and the writing in it?",
-    "confirmWithFindings": "Delete “{{title}}” and the writing in it? Its findings stay in the study as findings for the whole study.",
-    "deleteSection": "Delete section",
-    "titleLabel": "Section title",
-    "options": "Options for section {{title}}",
-    "optionsTooltip": "Section options",
-    "optionsGroup": "Options for section {{title}}"
+    "confirmWithFindings": "Delete “{{title}}” and the writing in it? Its notes stay in the study, under Other notes.",
+    "deleteSection": "Delete part",
+    "titleLabel": "Heading of the part",
+    "options": "Options for part {{title}}",
+    "optionsTooltip": "Options for this part",
+    "optionsGroup": "Options for part {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -484,24 +503,24 @@
     "optionsTooltip": "Text block options"
   },
   "findings": {
-    "heading": "Study notes",
-    "addGroup": "Add a finding",
-    "filterGroup": "Show findings",
-    "all": "All ({{count}})",
+    "heading": "Other notes",
+    "addGroup": "Write a note",
+    "filterGroup": "Show notes",
+    "all": "All notes ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Study notes",
-    "writeFirst": "Write the finding first.",
+    "listLabel": "Other notes",
+    "writeFirst": "Write something first.",
     "type": "Type",
     "in": "In",
     "inLower": "in",
-    "wholeStudy": "Whole study",
+    "wholeStudy": "Other notes",
     "newLabel": "New {{type}}",
     "linkCurrent": "Link current passage ({{passage}})",
-    "save": "Save finding",
+    "save": "Save",
     "saveHint": "Ctrl+Enter saves",
     "itemLabel": "{{type}}: {{excerpt}}",
-    "typeLabel": "Finding type",
-    "section": "Section",
+    "typeLabel": "Kind of note",
+    "section": "Part",
     "moveUp": "Move {{type}} up",
     "moveDown": "Move {{type}} down",
     "delete": "Delete {{type}}",
@@ -511,7 +530,7 @@
     "tags": "Tags",
     "tagsPlaceholder": "e.g. covenant, sermon",
     "confirmDelete": "Delete this {{type}}?",
-    "writePlaceholder": "Write a note…",
+    "writePlaceholder": "Write here…",
     "details": "Details",
     "detailsFor": "Details for {{type}}: {{excerpt}}",
     "kindGroup": "Kind of note",
@@ -556,17 +575,17 @@
     "results": "Study search results",
     "location": {
       "study": "Title or purpose",
-      "section": "Section title",
+      "section": "Heading of a part",
       "studyText": "Study text",
-      "finding": "Finding",
-      "findingType": "Finding: {{type}}"
+      "finding": "Note",
+      "findingType": "Note: {{type}}"
     }
   },
   "templates": {
-    "intro": "A template gives a new study its sections. Changing a template never changes studies already made from it.",
+    "intro": "A template is a starting structure: the parts a new Bible study begins with, or the shape of a teaching. Changing a template never changes studies already made from it.",
     "listLabel": "Study templates",
-    "sectionCount_one": "{{count}} section",
-    "sectionCount_other": "{{count}} sections",
+    "sectionCount_one": "{{count}} part",
+    "sectionCount_other": "{{count}} parts",
     "builtIn": "Built-in",
     "duplicateCustomise": "Duplicate and customise",
     "edit": "Edit {{name}}",
@@ -585,26 +604,25 @@
     "name": "Name",
     "description": "Description",
     "meantFor": "Meant for",
-    "sections": "Sections",
-    "sectionsList": "Template sections",
-    "sectionTitle": "Section {{number}} title",
-    "sectionGuidance": "Section {{number}} guidance",
-    "guidancePlaceholder": "Guidance shown under the section (optional)",
-    "untitledSection": "section",
+    "sections": "Parts",
+    "sectionsList": "Parts of the template",
+    "sectionTitle": "Heading of part {{number}}",
+    "sectionGuidance": "Guidance for part {{number}}",
+    "guidancePlaceholder": "Guidance shown under the part (optional)",
+    "untitledSection": "part",
     "moveUp": "Move {{title}} up",
     "moveDown": "Move {{title}} down",
     "remove": "Remove {{title}}",
-    "addSection": "Add section",
-    "save": "Save template"
+    "addSection": "Add a part",
+    "save": "Save template",
+    "later": "Add later",
+    "laterLabel": "Offer part {{number}} later instead of starting with it"
   },
   "add": {
     "toggle": "Add",
-    "group": "Add to this study",
     "note": "Note",
-    "section": "Section",
-    "textBlock": "Text block",
-    "blockGroup": "Text block in {{section}}",
-    "blockIn": "In {{section}}:"
+    "to": "Add to {{part}}",
+    "writing": "Writing"
   },
   "home": {
     "title": "Studies",
@@ -917,5 +935,12 @@
     },
     "aboutEmpty": "Kind, who it is for, purpose, passages",
     "aboutFor": "for {{audience}}"
+  },
+  "parts": {
+    "add": "Add a part",
+    "suggested": "Parts you might add",
+    "own": "Your own heading",
+    "collapseAll": "Fold all",
+    "expandAll": "Unfold all"
   }
 }

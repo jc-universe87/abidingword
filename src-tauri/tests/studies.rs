@@ -64,11 +64,11 @@ fn every_study_type_gets_its_scaffold_and_persists() {
     with_db(|conn| {
         let p = project(conn, "All kinds")?;
         let expected = [
-            (StudyType::Passage, "Text", 9),
-            (StudyType::Word, "Word", 7),
-            (StudyType::Topical, "Question / Topic", 8),
-            (StudyType::BiblicalTheology, "Theme", 8),
-            (StudyType::SystematicTheology, "Doctrine", 8),
+            (StudyType::Passage, "Text", 6),
+            (StudyType::Word, "Word", 5),
+            (StudyType::Topical, "Question / Topic", 5),
+            (StudyType::BiblicalTheology, "Theme", 5),
+            (StudyType::SystematicTheology, "Doctrine", 5),
             (StudyType::Teaching, "Text", 10),
             (StudyType::Custom, "Notes", 1),
         ];
@@ -248,7 +248,7 @@ fn a_section_with_content_needs_confirmation_and_its_findings_are_kept() {
     with_db(|conn| {
         let p = project(conn, "John")?;
         let s = study(conn, &p, "John 15", StudyType::Passage)?;
-        let context = sections::list(conn, &s)?[1].clone();
+        let context = sections::list(conn, &s)?[2].clone();
         blocks::update(
             conn,
             &UpdateStudyBlock {
@@ -385,12 +385,92 @@ fn six_built_in_templates_exist_and_are_protected() {
 }
 
 #[test]
+fn built_in_templates_start_small_and_offer_the_rest_later() {
+    with_db(|conn| {
+        let p = project(conn, "P")?;
+        let passage = templates::get_by_key(conn, "passage-study")?;
+        let starts: Vec<_> = passage
+            .sections
+            .iter()
+            .filter(|s| s.starts())
+            .map(|s| s.title.as_str())
+            .collect();
+        assert_eq!(
+            starts,
+            [
+                "Text",
+                "Observations",
+                "Context",
+                "Meaning",
+                "Theology",
+                "Application"
+            ]
+        );
+        // A new study gets only the parts it starts with.
+        let id = study(conn, &p, "John 15", StudyType::Passage)?;
+        assert_eq!(section_titles(conn, &id)?, starts);
+        // Optional parts are there to be offered; retired ones only for old studies.
+        let optional: Vec<_> = passage
+            .sections
+            .iter()
+            .filter(|s| s.optional)
+            .map(|s| s.title.as_str())
+            .collect();
+        assert_eq!(
+            optional,
+            [
+                "Structure",
+                "Key Words",
+                "Related Scripture",
+                "Open Questions"
+            ]
+        );
+        assert!(passage
+            .sections
+            .iter()
+            .any(|s| s.retired && s.key.as_deref() == Some("exegesis")));
+        // No built-in study template starts with more than six parts.
+        for template in templates::list(conn)?
+            .iter()
+            .filter(|t| t.is_builtin && t.key != "teaching-study")
+        {
+            let count = template.sections.iter().filter(|s| s.starts()).count();
+            assert!((4..=6).contains(&count), "{}: {count}", template.key);
+        }
+        // A copy keeps the optional parts and leaves the retired ones behind.
+        let copy = templates::duplicate(conn, &passage.id)?;
+        assert!(copy.sections.iter().all(|s| !s.retired));
+        assert_eq!(copy.sections.iter().filter(|s| s.optional).count(), 4);
+        // A template of only optional parts would start a study with nothing.
+        let empty = templates::create(
+            conn,
+            &TemplateInput {
+                name: "Later".into(),
+                description: None,
+                study_type: StudyType::Custom,
+                sections: vec![TemplateSection {
+                    key: None,
+                    title: "Later".into(),
+                    guidance: None,
+                    optional: true,
+                    retired: false,
+                }],
+            },
+        );
+        assert!(matches!(empty, Err(AppError::InvalidInput(_))));
+        Ok(())
+    });
+}
+
+#[test]
 fn user_templates_can_be_created_duplicated_edited_and_deleted() {
     with_db(|conn| {
         let section = |title: &str| TemplateSection {
             key: None,
             title: title.into(),
             guidance: None,
+            optional: false,
+            retired: false,
         };
         let mine = templates::create(
             conn,
@@ -407,7 +487,8 @@ fn user_templates_can_be_created_duplicated_edited_and_deleted() {
         let copy = templates::duplicate(conn, &passage.id)?;
         assert_eq!(copy.name, "Passage Study (copy)");
         assert!(!copy.is_builtin);
-        assert_eq!(copy.sections.len(), 9);
+        // The six parts it starts with and the four offered later; not the retired ones.
+        assert_eq!(copy.sections.len(), 10);
 
         let mut sections_now = copy.sections.clone();
         sections_now.retain(|s| s.title != "Audience");
@@ -426,13 +507,13 @@ fn user_templates_can_be_created_duplicated_edited_and_deleted() {
             },
         )?;
         let titles: Vec<_> = edited.sections.iter().map(|s| s.title.as_str()).collect();
-        assert_eq!(titles.first(), Some(&"Context"));
+        assert_eq!(titles.first(), Some(&"Observations"));
         assert_eq!(titles.last(), Some(&"Prayer"));
         assert!(!titles.contains(&"Audience"));
         assert_eq!(edited.study_type, StudyType::Teaching);
         assert_eq!(
             templates::get_by_key(conn, "passage-study")?.sections.len(),
-            9,
+            13,
             "built-in untouched"
         );
 
@@ -462,6 +543,8 @@ fn a_study_copies_its_template_and_does_not_follow_later_changes() {
             key: None,
             title: title.into(),
             guidance: Some(format!("About {title}")),
+            optional: false,
+            retired: false,
         };
         let template = templates::create(
             conn,
@@ -554,7 +637,7 @@ fn duplicating_copies_structure_by_default_and_content_on_request() {
             },
         )?;
         assert_eq!(structure.study.title, "John 15 (copy)");
-        assert_eq!(structure.sections.len(), 9);
+        assert_eq!(structure.sections.len(), 6);
         assert!(structure
             .sections
             .iter()
@@ -752,7 +835,7 @@ fn study_data_survives_a_restart() {
         );
         assert_eq!(
             section_titles(conn, &first)?.first().map(String::as_str),
-            Some("Teaching")
+            Some("Application")
         );
         Ok(())
     })

@@ -171,7 +171,11 @@ fn project_study_and_section_survive_a_restart() {
         );
         let detail = studies::get_detail(conn, &study_id)?;
         assert_eq!(detail.study.title, "Romans 8:1–17");
-        assert_eq!(detail.sections.len(), 9);
+        assert_eq!(
+            detail.sections.len(),
+            6,
+            "the passage study starts with six parts"
+        );
         let section = sections::get(conn, &section_id)?;
         assert_eq!(section.title, "What I notice");
         assert_eq!(section.revision, 2);

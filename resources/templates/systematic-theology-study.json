@@ -20,21 +20,6 @@
       "guidance": "What these texts teach together."
     },
     {
-      "key": "historical-theology",
-      "title": "Historical Theology",
-      "guidance": "How the church has understood the doctrine through its history."
-    },
-    {
-      "key": "confessional-witness",
-      "title": "Confessional Witness",
-      "guidance": "What the creeds and confessions say."
-    },
-    {
-      "key": "alternative-positions",
-      "title": "Alternative Positions",
-      "guidance": "Other views, fairly stated, with their reasons."
-    },
-    {
       "key": "conclusions",
       "title": "Conclusions",
       "guidance": "Your conclusions and how firmly you hold them."
@@ -43,6 +28,24 @@
       "key": "application",
       "title": "Application",
       "guidance": "Why this doctrine matters for faith and life."
+    },
+    {
+      "key": "historical-theology",
+      "title": "Historical Theology",
+      "guidance": "How the church has understood the doctrine through its history.",
+      "optional": true
+    },
+    {
+      "key": "confessional-witness",
+      "title": "Confessional Witness",
+      "guidance": "What the creeds and confessions say.",
+      "optional": true
+    },
+    {
+      "key": "alternative-positions",
+      "title": "Alternative Positions",
+      "guidance": "Other views, fairly stated, with their reasons.",
+      "optional": true
     }
   ]
 }

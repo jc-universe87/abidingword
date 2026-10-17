@@ -58,7 +58,7 @@
     "button": "Entfernen …",
     "label": "{{title}} entfernen",
     "dialogLabel": "{{title}} entfernen?",
-    "message": "<strong>{{title}}</strong> aus deiner Bibliothek entfernen? Der Text und die Kopie der Datei, die Abiding Word angelegt hat, werden gelöscht; deine Originaldatei bleibt unberührt. Einträge, die diese Quelle anführen, behalten einen Vermerk der Quellenangabe.",
+    "message": "<strong>{{title}}</strong> aus deiner Bibliothek entfernen? Der Text und die Kopie der Datei, die Abiding Word angelegt hat, werden gelöscht; deine Originaldatei bleibt unberührt. Notizen in deinen Bibelstudien, die diese Quelle anführen, behalten einen Vermerk der Quellenangabe.",
     "confirm": "Aus der Bibliothek entfernen",
     "keep": "Behalten",
     "marks_one": "Deine Anmerkung darin (Markierung, Notiz oder Lesezeichen) wird mit entfernt.",

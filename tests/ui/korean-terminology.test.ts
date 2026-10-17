@@ -46,7 +46,7 @@ describe("Korean terminology", () => {
 
   it("calls a Section 부분 and never shows 블록", () => {
     expect(studies["findings.section"]).toBe("부분");
-    expect(studies["add.section"]).toBe("부분");
+    expect(studies["parts.add"]).toBe("부분 추가");
     for (const [key, value] of Object.entries(everything)) expect(value, key).not.toContain("블록");
   });
 

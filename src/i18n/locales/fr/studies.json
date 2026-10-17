@@ -36,6 +36,10 @@
           "teaching": {
             "title": "Enseignement",
             "guidance": "Comment enseigner ce thème avec fidélité et clarté."
+          },
+          "new-testament": {
+            "title": "Nouveau Testament",
+            "guidance": "Comment le thème aboutit au Christ et comment les apôtres le reprennent."
           }
         }
       },
@@ -78,6 +82,22 @@
           "teaching": {
             "title": "Enseignement",
             "guidance": "Idée principale, plan, illustrations et manière de le transmettre avec amour."
+          },
+          "meaning": {
+            "title": "Sens",
+            "guidance": "Que signifiait le texte pour ses premiers lecteurs ? Mots clés, grammaire, expressions difficiles."
+          },
+          "key-words": {
+            "title": "Mots clés",
+            "guidance": "Les mots qui portent le passage : ce qu’ils veulent dire ici et ailleurs."
+          },
+          "related-scripture": {
+            "title": "Autres passages",
+            "guidance": "D’autres passages qui expliquent, reprennent ou accomplissent celui-ci."
+          },
+          "open-questions": {
+            "title": "Questions ouvertes",
+            "guidance": "Ce que vous ne comprenez pas encore, pour y revenir."
           }
         }
       },
@@ -328,9 +348,9 @@
   "studyCount_one": "{{count}} étude",
   "studyCount_many": "{{count}} études",
   "studyCount_other": "{{count}} études",
-  "findingCount_one": "{{count}} élément d’étude",
+  "findingCount_one": "{{count}} note",
   "findingCount_many": "{{count}} éléments d’étude",
-  "findingCount_other": "{{count}} éléments d’étude",
+  "findingCount_other": "{{count}} notes",
   "projects": {
     "title": "Projets",
     "intro": "Un projet regroupe des études liées : une série de prédications, un cours biblique ou une doctrine.",
@@ -352,7 +372,7 @@
     "heading": "Que souhaitez-vous étudier ?",
     "title": "Titre",
     "template": "Modèle",
-    "noTemplate": "Aucun modèle (une seule section Notes)",
+    "noTemplate": "Aucun modèle (une seule partie Notes)",
     "yourTemplate": "{{name}} (le vôtre)",
     "optional": "(facultatif)",
     "passagePlaceholder": "p. ex. John 15:1-11",
@@ -403,7 +423,7 @@
     "changed": "Modifiée le {{date}}",
     "duplicate": "Dupliquer…",
     "overview": "Vue d’ensemble",
-    "noFindings": "Aucun élément d’étude pour l’instant",
+    "noFindings": "Aucune note pour l’instant",
     "questionCount_one": "{{count}} question",
     "questionCount_many": "{{count}} questions",
     "questionCount_other": "{{count}} questions",
@@ -414,7 +434,7 @@
     "duplicatePrompt": "Faire une copie de « {{title}} » dans ce projet :",
     "structureOnly": "Structure seule",
     "structureAndContent": "Structure et contenu",
-    "duplicateHelp": "« Structure seule » copie les sections. Avec le contenu, votre texte, vos élément d’études et vos passages sont aussi copiés. Les notes sur la Bible ne sont jamais dupliquées ; elles appartiennent aux versets.",
+    "duplicateHelp": "« Structure seule » copie les parties. Avec le contenu, votre texte, vos notes et vos passages sont aussi copiés. Les notes sur la Bible ne sont jamais dupliquées ; elles appartiennent aux versets.",
     "purpose": "Objectif",
     "purposePlaceholder": "Que cherchez-vous à comprendre ou à préparer ?",
     "details": "Détails : {{type}}",
@@ -453,26 +473,25 @@
   "editor": {
     "opening": "Ouverture de l’étude…",
     "titleLabel": "Titre de l’étude",
-    "newSectionTitle": "Nouvelle section",
+    "newSectionTitle": "Nouvelle partie",
     "allSaved": "Toutes les modifications sont enregistrées.",
     "saved": "Enregistré",
-    "start": "Commencez votre étude",
     "backTo": "Retour à {{place}}"
   },
   "sections": {
-    "rename": "Renommer la section {{title}}",
-    "renameTooltip": "Renommer la section",
-    "moveUp": "Monter la section {{title}}",
-    "moveDown": "Descendre la section {{title}}",
-    "delete": "Supprimer la section {{title}}",
-    "confirmLabel": "Supprimer la section {{title}} ?",
+    "rename": "Renommer la partie {{title}}",
+    "renameTooltip": "Renommer la partie",
+    "moveUp": "Monter la partie {{title}}",
+    "moveDown": "Descendre la partie {{title}}",
+    "delete": "Supprimer la partie {{title}}",
+    "confirmLabel": "Supprimer la partie {{title}} ?",
     "confirm": "Supprimer « {{title}} » et le texte qu’elle contient ?",
-    "confirmWithFindings": "Supprimer « {{title}} » et le texte qu’elle contient ? Ses élément d’études restent dans l’étude, rattachés à l’étude entière.",
-    "deleteSection": "Supprimer la section",
-    "titleLabel": "Titre de la section",
-    "options": "Options de la section {{title}}",
-    "optionsTooltip": "Options de la section",
-    "optionsGroup": "Options de la section {{title}}"
+    "confirmWithFindings": "Supprimer « {{title}} » et le texte qu’elle contient ? Ses notes restent dans l’étude, sous Autres notes.",
+    "deleteSection": "Supprimer la partie",
+    "titleLabel": "Titre de la partie",
+    "options": "Options de la partie {{title}}",
+    "optionsTooltip": "Options de la partie",
+    "optionsGroup": "Options de la partie {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}} : {{type}}",
@@ -489,24 +508,24 @@
     "optionsTooltip": "Options du bloc"
   },
   "findings": {
-    "heading": "Éléments de l’étude",
-    "addGroup": "Ajouter un élément d’étude",
-    "filterGroup": "Afficher les éléments d’étude",
-    "all": "Tous ({{count}})",
+    "heading": "Autres notes",
+    "addGroup": "Écrire une note",
+    "filterGroup": "Afficher les notes",
+    "all": "Toutes les notes ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Éléments de l’étude",
-    "writeFirst": "Rédigez d’abord l’élément.",
+    "listLabel": "Autres notes",
+    "writeFirst": "Écrivez d’abord quelque chose.",
     "type": "Type",
     "in": "Dans",
     "inLower": "dans",
-    "wholeStudy": "Toute l’étude",
+    "wholeStudy": "Autres notes",
     "newLabel": "Nouveau élément d’étude : {{type}}",
     "linkCurrent": "Lier le passage actuel ({{passage}})",
-    "save": "Enregistrer l’élément",
+    "save": "Enregistrer",
     "saveHint": "Ctrl+Entrée pour enregistrer",
     "itemLabel": "{{type}} : {{excerpt}}",
-    "typeLabel": "Type d’élément",
-    "section": "Section",
+    "typeLabel": "Type de note",
+    "section": "Partie",
     "moveUp": "Monter le élément d’étude ({{type}})",
     "moveDown": "Descendre le élément d’étude ({{type}})",
     "delete": "Supprimer le élément d’étude ({{type}})",
@@ -519,10 +538,10 @@
     "writePlaceholder": "Écrivez ici…",
     "details": "Détails",
     "detailsFor": "Détails de {{type}} : {{excerpt}}",
-    "kindGroup": "Type d’élément",
+    "kindGroup": "Type de note",
     "moreTypes": "Autres types",
     "options": "Options",
-    "inSection": "Éléments d’étude dans {{section}}"
+    "inSection": "Notes dans {{section}}"
   },
   "passages": {
     "label": "Passages",
@@ -562,18 +581,18 @@
     "results": "Résultats de la recherche dans les études",
     "location": {
       "study": "Titre ou objectif",
-      "section": "Titre de section",
+      "section": "Titre d’une partie",
       "studyText": "Texte de l’étude",
-      "finding": "Élément d’étude",
-      "findingType": "Élément d’étude : {{type}}"
+      "finding": "Note",
+      "findingType": "Note : {{type}}"
     }
   },
   "templates": {
-    "intro": "Un modèle donne ses sections à une nouvelle étude. Modifier un modèle ne change jamais les études déjà créées à partir de lui.",
+    "intro": "Un modèle est une structure de départ : les parties par lesquelles commence une nouvelle étude, ou la forme d’un enseignement. Modifier un modèle ne change jamais les études déjà créées à partir de lui.",
     "listLabel": "Modèles d’étude",
-    "sectionCount_one": "{{count}} section",
+    "sectionCount_one": "{{count}} partie",
     "sectionCount_many": "{{count}} sections",
-    "sectionCount_other": "{{count}} sections",
+    "sectionCount_other": "{{count}} parties",
     "builtIn": "Intégré",
     "duplicateCustomise": "Dupliquer et personnaliser",
     "edit": "Modifier {{name}}",
@@ -592,26 +611,25 @@
     "name": "Nom",
     "description": "Description",
     "meantFor": "Destiné à",
-    "sections": "Sections",
-    "sectionsList": "Sections du modèle",
-    "sectionTitle": "Titre de la section {{number}}",
-    "sectionGuidance": "Indications de la section {{number}}",
-    "guidancePlaceholder": "Indications affichées sous la section (facultatif)",
-    "untitledSection": "section",
+    "sections": "Parties",
+    "sectionsList": "Parties du modèle",
+    "sectionTitle": "Titre de la partie {{number}}",
+    "sectionGuidance": "Indications de la partie {{number}}",
+    "guidancePlaceholder": "Indications affichées sous la partie (facultatif)",
+    "untitledSection": "partie",
     "moveUp": "Monter {{title}}",
     "moveDown": "Descendre {{title}}",
     "remove": "Retirer {{title}}",
-    "addSection": "Ajouter une section",
-    "save": "Enregistrer le modèle"
+    "addSection": "Ajouter une partie",
+    "save": "Enregistrer le modèle",
+    "later": "Ajouter plus tard",
+    "laterLabel": "Proposer la partie {{number}} plus tard au lieu de commencer avec"
   },
   "add": {
     "toggle": "Ajouter",
-    "group": "Ajouter à l’étude",
-    "note": "Élément d’étude",
-    "section": "Section",
-    "textBlock": "Bloc de texte",
-    "blockGroup": "Bloc de texte dans {{section}}",
-    "blockIn": "Dans {{section}} :"
+    "note": "Note",
+    "to": "Ajouter à {{part}}",
+    "writing": "Texte"
   },
   "home": {
     "title": "Études",
@@ -927,5 +945,12 @@
     },
     "aboutEmpty": "Type, pour qui, but, passages",
     "aboutFor": "pour {{audience}}"
+  },
+  "parts": {
+    "add": "Ajouter une partie",
+    "suggested": "Parties que vous pouvez ajouter",
+    "own": "Votre propre titre",
+    "collapseAll": "Tout replier",
+    "expandAll": "Tout déplier"
   }
 }

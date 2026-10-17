@@ -148,11 +148,14 @@ pub fn create(conn: &Connection, input: &CreateStudy) -> AppResult<StudyDetail> 
         None => None,
     };
     let section_list: Vec<TemplateSection> = match &template {
-        Some(t) => t.sections.clone(),
+        // Optional parts are offered later; retired ones are kept only for old studies.
+        Some(t) => t.sections.iter().filter(|s| s.starts()).cloned().collect(),
         None => vec![TemplateSection {
             key: None,
             title: "Notes".into(),
             guidance: None,
+            optional: false,
+            retired: false,
         }],
     };
 

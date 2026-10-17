@@ -36,6 +36,10 @@
           "teaching": {
             "title": "Enseñanza",
             "guidance": "Cómo enseñar este tema con fidelidad y claridad."
+          },
+          "new-testament": {
+            "title": "Nuevo Testamento",
+            "guidance": "Cómo el tema llega a Cristo y cómo lo retoman los apóstoles."
           }
         }
       },
@@ -78,6 +82,22 @@
           "teaching": {
             "title": "Enseñanza",
             "guidance": "Idea principal, bosquejo, ilustraciones y cómo comunicarla con amor."
+          },
+          "meaning": {
+            "title": "Significado",
+            "guidance": "¿Qué significaba el texto para sus primeros lectores? Palabras clave, gramática, expresiones difíciles."
+          },
+          "key-words": {
+            "title": "Palabras clave",
+            "guidance": "Las palabras que sostienen el pasaje: qué significan aquí y en otros lugares."
+          },
+          "related-scripture": {
+            "title": "Otros pasajes",
+            "guidance": "Otros pasajes que explican, retoman o cumplen este."
+          },
+          "open-questions": {
+            "title": "Preguntas abiertas",
+            "guidance": "Lo que aún no entiendes, para volver a ello."
           }
         }
       },
@@ -352,7 +372,7 @@
     "heading": "¿Qué te gustaría estudiar?",
     "title": "Título",
     "template": "Plantilla",
-    "noTemplate": "Sin plantilla (una sección de Notas)",
+    "noTemplate": "Sin plantilla (una parte de Notas)",
     "yourTemplate": "{{name}} (tuya)",
     "optional": "(opcional)",
     "passagePlaceholder": "p. ej. John 15:1-11",
@@ -414,7 +434,7 @@
     "duplicatePrompt": "Hacer una copia de “{{title}}” en este proyecto:",
     "structureOnly": "Solo la estructura",
     "structureAndContent": "Estructura y contenido",
-    "duplicateHelp": "“Solo la estructura” copia las secciones. Con el contenido, también se copian tus textos, apuntes y pasajes. Las notas sobre la Biblia nunca se duplican; pertenecen a los versículos.",
+    "duplicateHelp": "“Solo la estructura” copia las partes. Con el contenido, también se copian tus textos, apuntes y pasajes. Las notas sobre la Biblia nunca se duplican; pertenecen a los versículos.",
     "purpose": "Propósito",
     "purposePlaceholder": "¿Qué quieres entender o preparar?",
     "details": "Detalles: {{type}}",
@@ -453,26 +473,25 @@
   "editor": {
     "opening": "Abriendo el estudio…",
     "titleLabel": "Título del estudio",
-    "newSectionTitle": "Nueva sección",
+    "newSectionTitle": "Nueva parte",
     "allSaved": "Todos los cambios guardados.",
     "saved": "Guardado",
-    "start": "Empieza tu estudio",
     "backTo": "Volver a {{place}}"
   },
   "sections": {
-    "rename": "Cambiar el nombre de la sección {{title}}",
-    "renameTooltip": "Cambiar el nombre de la sección",
-    "moveUp": "Subir la sección {{title}}",
-    "moveDown": "Bajar la sección {{title}}",
-    "delete": "Eliminar la sección {{title}}",
-    "confirmLabel": "¿Eliminar la sección {{title}}?",
+    "rename": "Cambiar el nombre de la parte {{title}}",
+    "renameTooltip": "Cambiar el nombre de la parte",
+    "moveUp": "Subir la parte {{title}}",
+    "moveDown": "Bajar la parte {{title}}",
+    "delete": "Eliminar la parte {{title}}",
+    "confirmLabel": "¿Eliminar la parte {{title}}?",
     "confirm": "¿Eliminar “{{title}}” y el texto que contiene?",
-    "confirmWithFindings": "¿Eliminar “{{title}}” y el texto que contiene? Sus apuntes se quedan en el estudio como apuntes del estudio completo.",
-    "deleteSection": "Eliminar sección",
-    "titleLabel": "Título de la sección",
-    "options": "Opciones de la sección {{title}}",
-    "optionsTooltip": "Opciones de la sección",
-    "optionsGroup": "Opciones de la sección {{title}}"
+    "confirmWithFindings": "¿Eliminar “{{title}}” y el texto que contiene? Sus apuntes se quedan en el estudio, en Otros apuntes.",
+    "deleteSection": "Eliminar parte",
+    "titleLabel": "Título de la parte",
+    "options": "Opciones de la parte {{title}}",
+    "optionsTooltip": "Opciones de la parte",
+    "optionsGroup": "Opciones de la parte {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -489,24 +508,24 @@
     "optionsTooltip": "Opciones del bloque"
   },
   "findings": {
-    "heading": "Apuntes del estudio",
-    "addGroup": "Añadir un apunte",
+    "heading": "Otros apuntes",
+    "addGroup": "Escribir un apunte",
     "filterGroup": "Mostrar apuntes",
-    "all": "Todos ({{count}})",
+    "all": "Todos los apuntes ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Apuntes del estudio",
-    "writeFirst": "Primero escribe el apunte.",
+    "listLabel": "Otros apuntes",
+    "writeFirst": "Primero escribe algo.",
     "type": "Tipo",
     "in": "En",
     "inLower": "en",
-    "wholeStudy": "Estudio completo",
+    "wholeStudy": "Otros apuntes",
     "newLabel": "Nueva {{type}}",
     "linkCurrent": "Vincular el pasaje actual ({{passage}})",
-    "save": "Guardar apunte",
+    "save": "Guardar",
     "saveHint": "Ctrl+Intro guarda",
     "itemLabel": "{{type}}: {{excerpt}}",
     "typeLabel": "Tipo de apunte",
-    "section": "Sección",
+    "section": "Parte",
     "moveUp": "Subir {{type}}",
     "moveDown": "Bajar {{type}}",
     "delete": "Eliminar {{type}}",
@@ -516,7 +535,7 @@
     "tags": "Etiquetas",
     "tagsPlaceholder": "p. ej. pacto, sermón",
     "confirmDelete": "¿Eliminar esta {{type}}?",
-    "writePlaceholder": "Escribe un apunte…",
+    "writePlaceholder": "Escribe aquí…",
     "details": "Detalles",
     "detailsFor": "Detalles de {{type}}: {{excerpt}}",
     "kindGroup": "Tipo de apunte",
@@ -562,18 +581,18 @@
     "results": "Resultados de la búsqueda en los estudios",
     "location": {
       "study": "Título o propósito",
-      "section": "Título de la sección",
+      "section": "Título de una parte",
       "studyText": "Texto del estudio",
       "finding": "Apunte",
       "findingType": "Apunte: {{type}}"
     }
   },
   "templates": {
-    "intro": "Una plantilla da a un estudio nuevo sus secciones. Cambiar una plantilla nunca modifica los estudios ya creados a partir de ella.",
+    "intro": "Una plantilla es una estructura de partida: las partes con las que empieza un estudio nuevo, o la forma de una enseñanza. Cambiar una plantilla nunca modifica los estudios ya creados a partir de ella.",
     "listLabel": "Plantillas de estudio",
-    "sectionCount_one": "{{count}} sección",
+    "sectionCount_one": "{{count}} parte",
     "sectionCount_many": "{{count}} secciones",
-    "sectionCount_other": "{{count}} secciones",
+    "sectionCount_other": "{{count}} partes",
     "builtIn": "Integrada",
     "duplicateCustomise": "Duplicar y personalizar",
     "edit": "Editar {{name}}",
@@ -592,26 +611,25 @@
     "name": "Nombre",
     "description": "Descripción",
     "meantFor": "Pensada para",
-    "sections": "Secciones",
-    "sectionsList": "Secciones de la plantilla",
-    "sectionTitle": "Título de la sección {{number}}",
-    "sectionGuidance": "Orientación de la sección {{number}}",
-    "guidancePlaceholder": "Orientación que se muestra bajo la sección (opcional)",
-    "untitledSection": "sección",
+    "sections": "Partes",
+    "sectionsList": "Partes de la plantilla",
+    "sectionTitle": "Título de la parte {{number}}",
+    "sectionGuidance": "Orientación de la parte {{number}}",
+    "guidancePlaceholder": "Orientación que se muestra bajo la parte (opcional)",
+    "untitledSection": "parte",
     "moveUp": "Subir {{title}}",
     "moveDown": "Bajar {{title}}",
     "remove": "Quitar {{title}}",
-    "addSection": "Añadir sección",
-    "save": "Guardar plantilla"
+    "addSection": "Añadir una parte",
+    "save": "Guardar plantilla",
+    "later": "Añadir más tarde",
+    "laterLabel": "Ofrecer la parte {{number}} más tarde en lugar de empezar con ella"
   },
   "add": {
     "toggle": "Añadir",
-    "group": "Añadir al estudio",
     "note": "Apunte",
-    "section": "Sección",
-    "textBlock": "Bloque de texto",
-    "blockGroup": "Bloque de texto en {{section}}",
-    "blockIn": "En {{section}}:"
+    "to": "Añadir a {{part}}",
+    "writing": "Texto"
   },
   "home": {
     "title": "Estudios",
@@ -927,5 +945,12 @@
     },
     "aboutEmpty": "Tipo, para quién, propósito, pasajes",
     "aboutFor": "para {{audience}}"
+  },
+  "parts": {
+    "add": "Añadir una parte",
+    "suggested": "Partes que puedes añadir",
+    "own": "Tu propio título",
+    "collapseAll": "Plegar todo",
+    "expandAll": "Desplegar todo"
   }
 }

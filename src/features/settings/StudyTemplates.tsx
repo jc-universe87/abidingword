@@ -7,7 +7,7 @@ import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { localizedSections, templateDescription, templateName } from "@/features/studies/builtinText";
 import { studyTypeLabel } from "@/features/studies/labels";
-import type { StudyTemplate } from "@/types/studies";
+import { startsWith, type StudyTemplate } from "@/types/studies";
 
 /** Settings → Study Templates: built-in and user templates. */
 export function StudyTemplates({ onEdit, version = 0 }: { onEdit: (templateId: string | null) => void; version?: number }) {
@@ -65,7 +65,7 @@ export function StudyTemplates({ onEdit, version = 0 }: { onEdit: (templateId: s
             <p className="m-0 text-[0.9375rem] text-text-muted">
               {[
                 studyTypeLabel(t, template.studyType),
-                t("studies.templates.sectionCount", { count: template.sections.length }),
+                t("studies.templates.sectionCount", { count: template.sections.filter(startsWith).length }),
                 template.isBuiltin && t("studies.templates.builtIn"),
               ]
                 .filter(Boolean)

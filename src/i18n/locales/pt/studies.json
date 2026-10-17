@@ -36,6 +36,10 @@
           "teaching": {
             "title": "Ensino",
             "guidance": "Como ensinar este tema com fidelidade e clareza."
+          },
+          "new-testament": {
+            "title": "Novo Testamento",
+            "guidance": "Como o tema chega a Cristo e como os apóstolos o retomam."
           }
         }
       },
@@ -78,6 +82,22 @@
           "teaching": {
             "title": "Ensino",
             "guidance": "Ideia principal, esboço, ilustrações e como comunicá-la com amor."
+          },
+          "meaning": {
+            "title": "Significado",
+            "guidance": "O que o texto significava para os primeiros leitores? Palavras-chave, gramática, expressões difíceis."
+          },
+          "key-words": {
+            "title": "Palavras-chave",
+            "guidance": "As palavras que sustentam a passagem: o que elas significam aqui e em outros lugares."
+          },
+          "related-scripture": {
+            "title": "Outras passagens",
+            "guidance": "Outras passagens que explicam, ecoam ou cumprem esta."
+          },
+          "open-questions": {
+            "title": "Perguntas em aberto",
+            "guidance": "O que você ainda não entende, para voltar depois."
           }
         }
       },
@@ -328,9 +348,9 @@
   "studyCount_one": "{{count}} estudo",
   "studyCount_many": "{{count}} estudos",
   "studyCount_other": "{{count}} estudos",
-  "findingCount_one": "{{count}} registro",
+  "findingCount_one": "{{count}} anotação",
   "findingCount_many": "{{count}} registros",
-  "findingCount_other": "{{count}} registros",
+  "findingCount_other": "{{count}} anotações",
   "projects": {
     "title": "Projetos",
     "intro": "Um projeto reúne estudos relacionados: uma série de sermões, um curso bíblico ou uma doutrina.",
@@ -352,7 +372,7 @@
     "heading": "O que você gostaria de estudar?",
     "title": "Título",
     "template": "Modelo",
-    "noTemplate": "Sem modelo (uma seção Notas)",
+    "noTemplate": "Sem modelo (uma parte Notas)",
     "yourTemplate": "{{name}} (seu)",
     "optional": "(opcional)",
     "passagePlaceholder": "ex.: John 15:1-11",
@@ -403,7 +423,7 @@
     "changed": "Alterado em {{date}}",
     "duplicate": "Duplicar…",
     "overview": "Visão geral",
-    "noFindings": "Ainda não há registros",
+    "noFindings": "Ainda não há anotações",
     "questionCount_one": "{{count}} pergunta",
     "questionCount_many": "{{count}} perguntas",
     "questionCount_other": "{{count}} perguntas",
@@ -414,7 +434,7 @@
     "duplicatePrompt": "Fazer uma cópia de “{{title}}” neste projeto:",
     "structureOnly": "Somente a estrutura",
     "structureAndContent": "Estrutura e conteúdo",
-    "duplicateHelp": "“Somente a estrutura” copia as seções. Com o conteúdo, seu texto, registros e passagens também são copiados. Notas na Bíblia nunca são duplicadas; elas pertencem aos versículos.",
+    "duplicateHelp": "“Somente a estrutura” copia as partes. Com o conteúdo, seu texto, anotações e passagens também são copiados. Notas na Bíblia nunca são duplicadas; elas pertencem aos versículos.",
     "purpose": "Propósito",
     "purposePlaceholder": "O que você está procurando entender ou preparar?",
     "details": "Detalhes: {{type}}",
@@ -453,26 +473,25 @@
   "editor": {
     "opening": "Abrindo estudo…",
     "titleLabel": "Título do estudo",
-    "newSectionTitle": "Nova seção",
+    "newSectionTitle": "Nova parte",
     "allSaved": "Todas as alterações foram salvas.",
     "saved": "Salvo",
-    "start": "Comece seu estudo",
     "backTo": "Voltar a {{place}}"
   },
   "sections": {
-    "rename": "Renomear a seção {{title}}",
-    "renameTooltip": "Renomear seção",
-    "moveUp": "Mover a seção {{title}} para cima",
-    "moveDown": "Mover a seção {{title}} para baixo",
-    "delete": "Excluir a seção {{title}}",
-    "confirmLabel": "Excluir a seção {{title}}?",
+    "rename": "Renomear a parte {{title}}",
+    "renameTooltip": "Renomear parte",
+    "moveUp": "Mover a parte {{title}} para cima",
+    "moveDown": "Mover a parte {{title}} para baixo",
+    "delete": "Excluir a parte {{title}}",
+    "confirmLabel": "Excluir a parte {{title}}?",
     "confirm": "Excluir “{{title}}” e o texto que ela contém?",
-    "confirmWithFindings": "Excluir “{{title}}” e o texto que ela contém? Os registros dela permanecem no estudo como registros do estudo inteiro.",
-    "deleteSection": "Excluir seção",
-    "titleLabel": "Título da seção",
-    "options": "Opções da seção {{title}}",
-    "optionsTooltip": "Opções da seção",
-    "optionsGroup": "Opções da seção {{title}}"
+    "confirmWithFindings": "Excluir “{{title}}” e o texto que ela contém? As anotações dela continuam no estudo, em Outras anotações.",
+    "deleteSection": "Excluir parte",
+    "titleLabel": "Título da parte",
+    "options": "Opções da parte {{title}}",
+    "optionsTooltip": "Opções da parte",
+    "optionsGroup": "Opções da parte {{title}}"
   },
   "blocks": {
     "fieldLabel": "{{section}}: {{type}}",
@@ -489,24 +508,24 @@
     "optionsTooltip": "Opções do bloco"
   },
   "findings": {
-    "heading": "Registros do estudo",
-    "addGroup": "Adicionar um registro",
-    "filterGroup": "Mostrar registros",
-    "all": "Todos ({{count}})",
+    "heading": "Outras anotações",
+    "addGroup": "Escrever uma anotação",
+    "filterGroup": "Mostrar anotações",
+    "all": "Todas as anotações ({{count}})",
     "filterType": "{{type}} ({{count}})",
-    "listLabel": "Registros do estudo",
-    "writeFirst": "Escreva o registro primeiro.",
+    "listLabel": "Outras anotações",
+    "writeFirst": "Escreva algo primeiro.",
     "type": "Tipo",
     "in": "Em",
     "inLower": "em",
-    "wholeStudy": "Estudo inteiro",
+    "wholeStudy": "Outras anotações",
     "newLabel": "Nova {{type}}",
     "linkCurrent": "Vincular a passagem atual ({{passage}})",
-    "save": "Salvar registro",
+    "save": "Salvar",
     "saveHint": "Ctrl+Enter salva",
     "itemLabel": "{{type}}: {{excerpt}}",
-    "typeLabel": "Tipo de registro",
-    "section": "Seção",
+    "typeLabel": "Tipo de anotação",
+    "section": "Parte",
     "moveUp": "Mover {{type}} para cima",
     "moveDown": "Mover {{type}} para baixo",
     "delete": "Excluir {{type}}",
@@ -516,13 +535,13 @@
     "tags": "Etiquetas",
     "tagsPlaceholder": "ex.: aliança, sermão",
     "confirmDelete": "Excluir esta {{type}}?",
-    "writePlaceholder": "Escreva um registro…",
+    "writePlaceholder": "Escreva aqui…",
     "details": "Detalhes",
     "detailsFor": "Detalhes de {{type}}: {{excerpt}}",
-    "kindGroup": "Tipo de registro",
+    "kindGroup": "Tipo de anotação",
     "moreTypes": "Mais tipos",
     "options": "Opções",
-    "inSection": "Registros em {{section}}"
+    "inSection": "Anotações em {{section}}"
   },
   "passages": {
     "label": "Passagens",
@@ -562,18 +581,18 @@
     "results": "Resultados da pesquisa nos estudos",
     "location": {
       "study": "Título ou propósito",
-      "section": "Título da seção",
+      "section": "Título de uma parte",
       "studyText": "Texto do estudo",
-      "finding": "Registro",
-      "findingType": "Registro: {{type}}"
+      "finding": "Anotação",
+      "findingType": "Anotação: {{type}}"
     }
   },
   "templates": {
-    "intro": "Um modelo dá as seções a um novo estudo. Alterar um modelo nunca altera os estudos já criados a partir dele.",
+    "intro": "Um modelo é uma estrutura inicial: as partes com que um novo estudo começa, ou a forma de um ensino. Alterar um modelo nunca altera os estudos já criados a partir dele.",
     "listLabel": "Modelos de estudo",
-    "sectionCount_one": "{{count}} seção",
+    "sectionCount_one": "{{count}} parte",
     "sectionCount_many": "{{count}} seções",
-    "sectionCount_other": "{{count}} seções",
+    "sectionCount_other": "{{count}} partes",
     "builtIn": "Incluído",
     "duplicateCustomise": "Duplicar e personalizar",
     "edit": "Editar {{name}}",
@@ -592,26 +611,25 @@
     "name": "Nome",
     "description": "Descrição",
     "meantFor": "Destinado a",
-    "sections": "Seções",
-    "sectionsList": "Seções do modelo",
-    "sectionTitle": "Título da seção {{number}}",
-    "sectionGuidance": "Orientação da seção {{number}}",
-    "guidancePlaceholder": "Orientação exibida abaixo da seção (opcional)",
-    "untitledSection": "seção",
+    "sections": "Partes",
+    "sectionsList": "Partes do modelo",
+    "sectionTitle": "Título da parte {{number}}",
+    "sectionGuidance": "Orientação da parte {{number}}",
+    "guidancePlaceholder": "Orientação exibida abaixo da parte (opcional)",
+    "untitledSection": "parte",
     "moveUp": "Mover {{title}} para cima",
     "moveDown": "Mover {{title}} para baixo",
     "remove": "Remover {{title}}",
-    "addSection": "Adicionar seção",
-    "save": "Salvar modelo"
+    "addSection": "Adicionar uma parte",
+    "save": "Salvar modelo",
+    "later": "Adicionar depois",
+    "laterLabel": "Oferecer a parte {{number}} depois, em vez de começar com ela"
   },
   "add": {
     "toggle": "Adicionar",
-    "group": "Adicionar ao estudo",
-    "note": "Registro",
-    "section": "Seção",
-    "textBlock": "Bloco de texto",
-    "blockGroup": "Bloco de texto em {{section}}",
-    "blockIn": "Em {{section}}:"
+    "note": "Anotação",
+    "to": "Adicionar a {{part}}",
+    "writing": "Texto"
   },
   "home": {
     "title": "Estudos",
@@ -701,8 +719,8 @@
       "remove": "Remover deste ensino"
     },
     "standing": {
-      "verified": "Fontes encontradas: dois sites independentes dos resultados relatam-no. A qualidade das fontes varia: leia-as antes de o usar.",
-      "unverified": "Precisa de verificação: só foi encontrada uma fonte. Leia-a antes de o usar.",
+      "verified": "Fontes encontradas: dois sites independentes nos resultados da busca relatam isso. A qualidade das fontes varia: leia antes de usar.",
+      "unverified": "Precisa ser verificado: só uma fonte foi encontrada. Leia antes de usar.",
       "hypothetical": "Exemplo inventado, não um fato real",
       "found": "Imagem encontrada · {{licence}}",
       "generated": "Feita pelo assistente: uma ilustração, não uma fotografia",
@@ -927,5 +945,12 @@
     },
     "aboutEmpty": "Tipo, para quem, propósito, passagens",
     "aboutFor": "para {{audience}}"
+  },
+  "parts": {
+    "add": "Adicionar uma parte",
+    "suggested": "Partes que você pode adicionar",
+    "own": "Seu próprio título",
+    "collapseAll": "Recolher tudo",
+    "expandAll": "Expandir tudo"
   }
 }
