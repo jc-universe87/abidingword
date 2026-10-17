@@ -1,4 +1,4 @@
-import { useCallback, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowDown, ArrowUp, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
@@ -37,6 +37,14 @@ export function TeachingView({ studyId, studyTitle, findings, onRevealScripture 
   // A teaching just created opens with its details, so they can be filled in; later visits start folded.
   const [fresh, setFresh] = useState<string | null>(null);
   const id = useId();
+  // After a new teaching is put away or one is deleted, the keyboard goes back to "Prepare another".
+  const anotherButton = useRef<HTMLButtonElement>(null);
+  const focusAnother = useRef(false);
+  useEffect(() => {
+    if (!focusAnother.current || !anotherButton.current) return;
+    anotherButton.current.focus();
+    focusAnother.current = false;
+  });
 
   const preparations = list.data ?? [];
   const currentId = chosen && preparations.some((p) => p.id === chosen) ? chosen : (preparations[0]?.id ?? null);
@@ -58,45 +66,52 @@ export function TeachingView({ studyId, studyTitle, findings, onRevealScripture 
         studyTitle={studyTitle}
         first={preparations.length === 0}
         onCreated={created}
-        onCancel={preparations.length > 0 ? () => setCreating(false) : undefined}
+        onCancel={
+          preparations.length > 0
+            ? () => {
+                setCreating(false);
+                focusAnother.current = true;
+              }
+            : undefined
+        }
       />
     );
   }
 
-  const another = (
-    <button
-      type="button"
-      onClick={() => setCreating(true)}
-      className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
-    >
-      <Plus className="size-4" aria-hidden="true" />
-      {t("studies.teaching.another")}
-    </button>
-  );
-
   return (
     <div className="flex flex-col gap-3">
-      {/* Choosing between teachings needs a row only when there is more than one. */}
-      {preparations.length > 1 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <label htmlFor={`${id}-which`} className="text-[0.9375rem] text-text-muted">
-            {t("studies.teaching.which")}
-          </label>
-          <select
-            id={`${id}-which`}
-            value={currentId ?? ""}
-            onChange={(e) => setChosen(e.target.value)}
-            className="h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2 text-[0.9375rem]"
-          >
-            {preparations.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.kind ? `${p.title} · ${teachingKindLabel(t, p.kind)}` : p.title}
-              </option>
-            ))}
-          </select>
-          {another}
-        </div>
-      )}
+      {/* One study can lead to several teachings: the way to another is always in sight, with the
+          choice between them once there is more than one. */}
+      <div className="flex flex-wrap items-center gap-2">
+        {preparations.length > 1 && (
+          <>
+            <label htmlFor={`${id}-which`} className="text-[0.9375rem] text-text-muted">
+              {t("studies.teaching.which")}
+            </label>
+            <select
+              id={`${id}-which`}
+              value={currentId ?? ""}
+              onChange={(e) => setChosen(e.target.value)}
+              className="h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2 text-[0.9375rem]"
+            >
+              {preparations.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.kind ? `${p.title} · ${teachingKindLabel(t, p.kind)}` : p.title}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
+        <button
+          ref={anotherButton}
+          type="button"
+          onClick={() => setCreating(true)}
+          className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] font-medium text-link hover:bg-bg-secondary"
+        >
+          <Plus className="size-4" aria-hidden="true" />
+          {t("studies.teaching.another")}
+        </button>
+      </div>
       {currentId && (
         <AssistDockProvider key={currentId}>
         <TeachingEditor
@@ -107,11 +122,12 @@ export function TeachingView({ studyId, studyTitle, findings, onRevealScripture 
           onRenamed={list.reload}
           onDeleted={() => {
             setChosen(null);
+            // Back to "Prepare another" while another teaching remains; after the last one the first-teaching form shows.
+            focusAnother.current = preparations.length > 1;
             list.reload();
           }}
           onRevealScripture={onRevealScripture}
           startOpen={fresh === currentId}
-          another={preparations.length > 1 ? null : another}
         />
         </AssistDockProvider>
       )}
@@ -135,6 +151,11 @@ function NewTeaching({
   const { t } = useTranslation();
   const api = useApi();
   const id = useId();
+  const heading = useRef<HTMLHeadingElement>(null);
+  // Asked for from a teaching already there: the keyboard moves to the new form (the first one needs no move).
+  useEffect(() => {
+    if (!first) heading.current?.focus();
+  }, [first]);
   const [kind, setKind] = useState<TeachingKind>("sermon");
   const [title, setTitle] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -169,7 +190,7 @@ function NewTeaching({
       aria-labelledby={`${id}-title`}
       className="flex flex-col gap-4 rounded-aw border border-border-subtle bg-bg-secondary px-5 py-4"
     >
-      <h3 id={`${id}-title`} className="m-0 font-display text-[1.375rem] font-heading text-text-strong">
+      <h3 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.375rem] font-heading text-text-strong">
         {first ? t("studies.teaching.empty.title") : t("studies.teaching.another")}
       </h3>
       {first && <p className="m-0 max-w-prose text-text">{t("studies.teaching.empty.text")}</p>}
@@ -235,11 +256,9 @@ interface EditorProps {
   onRevealScripture: () => void;
   /** Just created: "About this teaching" starts open. */
   startOpen: boolean;
-  /** "Prepare another teaching", kept with the details when there is only one teaching. */
-  another: ReactNode;
 }
 
-function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDeleted, onRevealScripture, startOpen, another }: EditorProps) {
+function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDeleted, onRevealScripture, startOpen }: EditorProps) {
   const { t } = useTranslation();
   const api = useApi();
   const loaded = useLoad(useCallback(() => api.teachingGet(preparationId), [api, preparationId]));
@@ -445,7 +464,6 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         <TeachingField key={`purpose-${prep.id}`} label={t("studies.teaching.purpose")} value={prep.purpose ?? ""} save={save("purpose")} part="purpose" multiline={false} placeholder={t("studies.teaching.purposePlaceholder")} assistant={hooks} />
         <TeachingLinks preparation={prep} pointId={null} scope={t("studies.teaching.links.wholeScope")} studyFindings={findings} onChanged={setPrep} onRevealScripture={onRevealScripture} />
         <div className="flex flex-wrap items-center gap-2">
-          {another}
           {confirmDelete ? (
             <span className="flex flex-wrap items-center gap-2 rounded-aw border border-border bg-bg px-2 py-1 text-[0.9375rem]">
               <span>{t("studies.teaching.deleteConfirm")}</span>

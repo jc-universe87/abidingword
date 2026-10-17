@@ -32,10 +32,14 @@ your notes, passages and sources are at hand without being copied.
 
 Nothing is written for you. A lesson starts with a few empty steps (for
 children: *Welcome, Bible story, Question, Activity, Prayer*); the other kinds
-start empty. You can prepare **more than one teaching** from the same study
-(for example a Sunday sermon and a youth lesson): click **Prepare another
-teaching** (in *About this teaching* while there is only one), and switch
-between them with **Teaching:**.
+start empty.
+
+One study can lead to **several teachings**, for example a Sunday sermon, a
+group Bible study and a children's lesson. Above the teaching, click
+**+ Prepare another Bible Teaching**, choose its kind and click **Start**.
+Each teaching is its own: nothing in the study or in your other teachings
+changes. Once there is more than one, switch between them with
+**Teaching:** beside that button.
 
 ## A canvas for each kind of teaching
 

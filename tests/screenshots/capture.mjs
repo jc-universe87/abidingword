@@ -60,9 +60,7 @@ const scenes = {
     await openTeaching(page);
     const main = page.getByRole("main");
     // A second teaching from the same study: a children's lesson, which starts with its steps.
-    const about = main.getByRole("button", { name: /^About this teaching/ });
-    if ((await about.getAttribute("aria-expanded")) !== "true") await about.click();
-    await main.getByRole("button", { name: "Prepare another teaching" }).click();
+    await main.getByRole("button", { name: "Prepare another Bible Teaching" }).click();
     await main.getByText("Children", { exact: true }).click();
     await main.getByRole("button", { name: "Start" }).click();
     await page.waitForTimeout(800);

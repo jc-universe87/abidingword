@@ -184,16 +184,72 @@ describe("teaching preparation", () => {
 
   it("keeps several teachings for one study, each on its own", async () => {
     const { api } = await setup();
+    const studyId = api.state.studies[0]!.id;
+    const studyBefore = JSON.stringify({ study: api.state.studies, findings: api.state.findings, passages: await api.studyPassageList(studyId) });
     const { user } = await renderApp(api);
-    await startSermon(user);
-    await user.click(within(studyPane()).getByRole("button", { name: "Prepare another teaching" }));
-    await user.click(within(studyPane()).getByText("Youth"));
-    await user.click(within(studyPane()).getByRole("button", { name: "Start" }));
-    await within(studyPane()).findByRole("article", { name: "Youth · Abiding" });
+    const sermon = await startSermon(user);
+    await user.type(field(sermon, "Introduction"), "Have you pruned a rose?");
+    await settle();
+    // "About this teaching" folded away: the way to another teaching is still in sight, with no picker yet.
+    const about = within(sermon).getByRole("button", { name: /^About this teaching/ });
+    if (about.getAttribute("aria-expanded") === "true") await user.click(about);
+    expect(within(studyPane()).queryByRole("combobox", { name: "Teaching:" })).toBeNull();
+    const another = within(studyPane()).getByRole("button", { name: "Prepare another Bible Teaching" });
+    expect(another).toBeVisible();
+
+    // By keyboard: the form opens with the focus on it, the kind is chosen as for the first teaching.
+    another.focus();
+    await user.keyboard("{Enter}");
+    const form = await within(studyPane()).findByRole("form", { name: "Prepare another Bible Teaching" });
+    expect(within(form).getByRole("heading", { name: "Prepare another Bible Teaching" })).toHaveFocus();
+    await user.click(within(form).getByRole("radio", { name: "Group Bible study" }));
+    await user.click(within(form).getByRole("button", { name: "Start" }));
+    await within(studyPane()).findByRole("article", { name: "Group Bible study · Abiding" });
+
+    // Two independent teachings of the same study, both in the picker.
+    const preps = api.state.teaching.preparations;
+    expect(preps.map((p) => [p.kind, p.studyId])).toEqual([["sermon", studyId], ["bible_study", studyId]]);
+    expect(preps[0]!.introduction).toBe("Have you pruned a rose?");
+    expect(preps[1]!.introduction).toBe("");
     const which = within(studyPane()).getByRole("combobox", { name: "Teaching:" });
-    expect(within(which).getAllByRole("option").map((o) => o.textContent)).toEqual(["Sermon · Abiding · Sermon", "Youth · Abiding · Youth"]);
-    await user.selectOptions(which, prep(api).id);
+    expect(within(which).getAllByRole("option").map((o) => o.textContent)).toEqual(["Sermon · Abiding · Sermon", "Group Bible study · Abiding · Group Bible study"]);
+    expect(within(studyPane()).getByRole("button", { name: "Prepare another Bible Teaching" })).toBeVisible();
+
+    // Switch both ways.
+    await user.selectOptions(which, preps[0]!.id);
+    expect(field(await within(studyPane()).findByRole("article", { name: "Sermon · Abiding" }), "Introduction")).toHaveValue("Have you pruned a rose?");
+    await user.selectOptions(which, preps[1]!.id);
+    await within(studyPane()).findByRole("article", { name: "Group Bible study · Abiding" });
+
+    // Cancelling another new teaching changes nothing and returns to the button.
+    await user.click(within(studyPane()).getByRole("button", { name: "Prepare another Bible Teaching" }));
+    await user.click(within(studyPane()).getByRole("button", { name: "Cancel" }));
+    expect(api.state.teaching.preparations).toHaveLength(2);
+    await waitFor(() => expect(within(studyPane()).getByRole("button", { name: "Prepare another Bible Teaching" })).toHaveFocus());
+
+    // Deleting one leaves the other, and the study as it was.
+    const group = await within(studyPane()).findByRole("article", { name: "Group Bible study · Abiding" });
+    const groupAbout = await openAbout(user, group);
+    await user.click(within(groupAbout).getByRole("button", { name: "Delete this teaching" }));
+    await user.click(within(groupAbout).getByRole("button", { name: "Delete" }));
+    await waitFor(() => expect(api.state.teaching.preparations.map((p) => p.kind)).toEqual(["sermon"]));
     expect(await within(studyPane()).findByRole("article", { name: "Sermon · Abiding" })).toBeInTheDocument();
+    expect(within(studyPane()).queryByRole("combobox", { name: "Teaching:" })).toBeNull();
+    await waitFor(() => expect(within(studyPane()).getByRole("button", { name: "Prepare another Bible Teaching" })).toHaveFocus());
+    expect(JSON.stringify({ study: api.state.studies, findings: api.state.findings, passages: await api.studyPassageList(studyId) })).toBe(studyBefore);
+  });
+
+  it("after the only teaching is deleted, offers the first-teaching form again without moving focus later", async () => {
+    const { api } = await setup();
+    const { user } = await renderApp(api);
+    const sermon = await startSermon(user);
+    const about = await openAbout(user, sermon);
+    await user.click(within(about).getByRole("button", { name: "Delete this teaching" }));
+    await user.click(within(about).getByRole("button", { name: "Delete" }));
+    const form = await within(studyPane()).findByRole("form", { name: "Prepare a teaching from this study" });
+    await user.click(within(form).getByRole("button", { name: "Start" }));
+    await within(studyPane()).findByRole("article", { name: "Sermon · Abiding" });
+    expect(within(studyPane()).getByRole("button", { name: "Prepare another Bible Teaching" })).not.toHaveFocus();
   });
 
   it("shows the teaching in Korean with natural teaching words", async () => {
