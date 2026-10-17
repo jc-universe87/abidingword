@@ -126,8 +126,7 @@ pub enum ImageCapability {
     Supported,
     Unsupported,
     /// A service whose image support Abiding Word cannot know (another
-    /// compatible service, or Google's compatible endpoint, which offers
-    /// image models only on some accounts): it may be tried.
+    /// compatible service): it may be tried.
     Unknown,
 }
 
@@ -246,9 +245,12 @@ impl AssistantConfig {
     pub fn image_capability(&self) -> ImageCapability {
         match self.image_provider() {
             ProviderKind::Openai => ImageCapability::Supported,
-            ProviderKind::Google | ProviderKind::OpenaiCompatible => ImageCapability::Unknown,
-            // Text-only services, and programs on this computer.
-            ProviderKind::Anthropic
+            ProviderKind::OpenaiCompatible => ImageCapability::Unknown,
+            // Text-only services, and programs on this computer. Google's image
+            // models need their own request (not the OpenAI-style one used here),
+            // which is not built yet: until then, not offered.
+            ProviderKind::Google
+            | ProviderKind::Anthropic
             | ProviderKind::Xai
             | ProviderKind::Perplexity
             | ProviderKind::Deepseek
@@ -258,14 +260,12 @@ impl AssistantConfig {
         }
     }
 
-    /// The image model: the person's own choice, else the service's usual one.
+    /// The image model: the person's own choice, else OpenAI's usual one.
     pub fn image_model_name(&self) -> &str {
-        if !self.image_model.is_empty() {
-            return &self.image_model;
-        }
-        match self.image_provider() {
-            ProviderKind::Google => "imagen-3.0-generate-002",
-            _ => "gpt-image-1",
+        if self.image_model.is_empty() {
+            "gpt-image-1"
+        } else {
+            &self.image_model
         }
     }
 
@@ -401,7 +401,11 @@ mod tests {
             );
         }
         config.provider = ProviderKind::Google;
-        assert_eq!(config.image_capability(), ImageCapability::Unknown);
+        assert_eq!(
+            config.image_capability(),
+            ImageCapability::Unsupported,
+            "not built for Google yet"
+        );
         config.provider = ProviderKind::OpenaiCompatible;
         assert_eq!(config.image_capability(), ImageCapability::Unknown);
 

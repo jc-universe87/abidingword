@@ -7,7 +7,7 @@ import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { referenceLabel } from "@/i18n/scripture";
 import type { Finding } from "@/types/studies";
-import { TEACHING_KINDS, type TeachingKind, type TeachingPoint, type TeachingPreparation } from "@/types/teaching";
+import { TEACHING_KINDS, type ImageCapability, type ProviderKind, type TeachingKind, type TeachingPoint, type TeachingPreparation } from "@/types/teaching";
 import { AssistMenu } from "./AssistMenu";
 import { AssistPanel } from "./AssistPanel";
 import { FloatingPanel, AssistDockProvider, useAssistDock } from "./FloatingPanel";
@@ -213,7 +213,11 @@ function NewTeaching({
 interface EditorProps {
   preparationId: string;
   findings: Finding[];
-  assistant: { canGenerateImages: boolean; config: { findImages: boolean; generateImages: boolean } } | null;
+  assistant: {
+    canGenerateImages: boolean;
+    imageCapability: ImageCapability;
+    config: { findImages: boolean; generateImages: boolean; provider: ProviderKind; imageService: "same" | "openai" };
+  } | null;
   onRenamed: () => void;
   onDeleted: () => void;
   onRevealScripture: () => void;
@@ -237,6 +241,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
   // open only right after the teaching was created, so its details can be filled in.
   const [aboutOpen, setAboutOpen] = useState(startOpen);
   const dock = useAssistDock();
+  const [wholeRequest, setWholeRequest] = useState(0);
   const [wholeAction, setWholeAction] = useState<"structure" | "restructure" | "free" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
@@ -267,7 +272,14 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
             preparationId: prep.id,
             canFindImages: assistant.config.findImages,
             canGenerateImages: assistant.canGenerateImages,
-            imagesNote: assistant.canGenerateImages ? null : assistant.config.generateImages ? "unsupported" : "off",
+            imagesNote: assistant.canGenerateImages
+              ? null
+              : !assistant.config.generateImages
+                ? "off"
+                : assistant.imageCapability === "unsupported"
+                  ? "unsupported"
+                  : "noKey",
+            imageService: t(`settings.assistant.providers.${assistant.config.imageService === "openai" ? "openai" : assistant.config.provider}`),
             keep: async (material) => {
               const next = await api.teachingMaterialKeep({ ...material, preparationId: prep.id });
               setPrep(next);
@@ -470,6 +482,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
               imagesNote={hooks.imagesNote}
               onChoose={(a) => {
                 dock.claim("whole");
+                setWholeRequest((n) => n + 1);
                 setWholeAction(a as "structure" | "restructure" | "free");
               }}
             />
@@ -477,8 +490,9 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         </div>
         {prep.points.length === 0 && <p className="m-0 text-text-muted">{shape("none")}</p>}
         {hooks && wholeAction && dock.owner === "whole" && (
-          <FloatingPanel label={`${assistLabel(t, wholeAction)} · ${t("studies.teaching.points.whole")}`}>
+          <FloatingPanel key={wholeRequest} label={`${assistLabel(t, wholeAction)} · ${t("studies.teaching.points.whole")}`}>
           <AssistPanel
+            key={wholeRequest}
             preparationId={prep.id}
             target={{ part: "whole", pointId: null, label: t("studies.teaching.points.whole"), text: "", selection: null }}
             action={wholeAction}
@@ -493,6 +507,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
             canFindImages={hooks.canFindImages}
             canGenerateImages={hooks.canGenerateImages}
             imagesNote={hooks.imagesNote}
+            imageService={hooks.imageService}
           />
           </FloatingPanel>
         )}

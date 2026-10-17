@@ -862,16 +862,22 @@ sized `h-screen` (100vh) inside an unsized `html`/`body`/`#root`. Now:
 
 - Core: `ImageCapability` (`supported` / `unsupported` / `unknown`) from
   `AssistantConfig::image_capability()`, decided from the **service**, never
-  from the model's name: OpenAI supported; Google (its compatible endpoint
-  offers image models only on some accounts) and other compatible services
-  unknown (may be tried); Anthropic, xAI, Perplexity, DeepSeek, Qwen, Ollama
-  and LM Studio unsupported. `can_generate` refuses only *unsupported*.
+  from the model's name: OpenAI supported; other compatible services unknown
+  (may be tried); Google (its image models need their own request, not built
+  yet), Anthropic, xAI, Perplexity, DeepSeek, Qwen, Ollama and LM Studio
+  unsupported. `can_generate` refuses *unsupported*, and Settings reports
+  images as available only when the image service's key is kept too
+  (`can_generate_images`); a missing image key has its own message
+  (`assistant.noImageKey`) and is said inline in Settings.
 - **Separate image service (implemented, small):** `ImageService` = `same`
   (default) or `openai`. With `openai`, image requests go to OpenAI with the
   OpenAI key kept on this computer (keys were already stored per service), so
   a person can write with Claude and make images with OpenAI. A key for it is
   kept through `assistant_key_set` with `which = "image"`. Settings shows the
-  capability line and, when needed, the OpenAI key field.
+  capability line and, when needed, the OpenAI key field, a missing-key line,
+  and, when the writing service runs on this computer, that image
+  descriptions still go to OpenAI over the internet. Before an image is made,
+  the panel says where the description is sent.
 - In Teaching, **Make an image** is shown disabled with its reason
   (`visuals.cannotMake.off` / `.unsupported`), and the *Ideas and
   illustrations* menu says so too; **Find freely licensed images** is
@@ -884,18 +890,24 @@ sized `h-screen` (100vh) inside an unsized `html`/`body`/`#root`. Now:
 The assistant's panel no longer opens inside the teaching (which moved the
 person's text). `FloatingPanel` (`src/features/teaching/FloatingPanel.tsx`)
 renders it over the workspace (portal, `position: fixed`), at the upper right
-of the Study pane:
+of the window, over the side pane there, so the teaching's text and its AI
+Help buttons stay uncovered where there is room (AI Help menus open above the
+panel):
 
 - a non-modal dialog (`role="dialog"`, `aria-modal="false"`, named *AI
   Assistant: {action} · {part}*); the teaching stays usable;
-- movable by its top bar, resizable by the browser's own corner, sized to
-  its content until resized; position and size are remembered for the
-  session; kept inside the window when the window shrinks;
+- movable by its top bar, or with the arrow keys on its move button (Shift
+  for larger steps); resizable by the browser's own corner, sized to its
+  content until resized; position and size are remembered for the session;
+  kept inside the window when the window shrinks; Escape on its top bar
+  minimises it;
 - **Minimise** keeps it mounted (the typed request and any answer are kept)
   and shows a small *AI Help · {action} · {part}* chip; focus moves to the
   chip and back to the panel's heading;
 - one panel at a time (`AssistDockProvider`): asking about another part
-  moves it there; each part keeps its own request;
+  moves it there and closes the previous request; every new request starts a
+  fresh panel (an earlier answer can never be applied to a later selection,
+  and a minimised panel opens again);
 - opening moves focus into it (the request field, else Ask); Escape, Close
   and Done close it and return focus to that part's AI Help button (after
   *Use this wording*, focus goes to the changed text); while asking, focus
@@ -951,3 +963,41 @@ time; errors are shown; *Stop waiting* for asking.
    to the AI Help button.
 8. New teaching: About is open; open the teaching again later: folded; the
    central message is visible without scrolling at 1280×800.
+
+### 18.10 Independent review of this pass, and what changed
+
+Fixed:
+
+- The template list did not refresh after saving in the sheet (Settings
+  stays mounted now): it reloads when the editor closes.
+- A second request of the same kind in one part kept the first answer, so
+  *Use this wording* could replace the new selection with text written for
+  the old one: each request now has its own panel (also for the whole
+  teaching), and a minimised panel opens again for a new request.
+- Image descriptions could go to OpenAI unannounced with a local writing
+  service: Settings and the panel now say where they go.
+- The template editor's loading or error state had no heading, Back or
+  Escape inside the sheet: it has all three.
+- A resized panel's height snapped back after a move: the size is kept in
+  the panel's state.
+- The panel opened over the AI Help buttons: it opens over the side pane;
+  AI Help menus open above it; it can be moved by keyboard; the minimised
+  chip is named by its visible text; Escape on its top bar minimises it.
+- A missing OpenAI key for images was not shown and led to a misleading
+  error: Settings says so, Teaching explains it, and the error names it.
+- Localized image and assistant errors were outdated: updated in all six
+  languages (and say *AI Assistant* / *KI-Assistent*).
+- Escape inside a field closed a sheet and lost the typing: fields keep it,
+  as in Settings.
+- Google's image path would almost certainly fail: Google is now
+  *unsupported* for images until its own request builder exists.
+- Help buttons inside fieldset legends became part of the group names: the
+  groups are now named by their label only. An explanation pinned open
+  closes when focus moves on. The background note also shows for a dark
+  "Match my computer". The start-up screen scrolls when needed.
+
+Not changed: the native window background stays light (a dark start can
+flash briefly); the image capability is written once in Rust and mirrored in
+the interface and the test double (tests check both); the Anthropic pages
+redirect to their new domain and still work; the "each part keeps its own
+request" claim was removed instead of keeping hidden panels mounted.

@@ -119,11 +119,12 @@ there is nothing to paste into your text.
 1. Click **AI Help** beside a part and choose what you want. The AI
    Assistant opens in its own **panel over the workspace**, at the upper
    right: your text does not move, and you can keep reading and writing
-   while it is open. Drag its top bar to move it, drag its lower corner to
-   make it bigger or smaller, and use **–** to shrink it to a small *AI Help*
-   chip at the bottom right (click it to bring the panel back, with your
-   request kept). Only one panel is open at a time: asking about another part
-   moves it there.
+   while it is open. Drag its top bar to move it (or use the arrow keys on
+   its move button), drag its lower corner to make it bigger or smaller, and
+   use **–** to shrink it to a small *AI Help* chip at the bottom right
+   (click it to bring the panel back, with your request kept). Only one panel
+   is open at a time: asking about another part, or asking again, starts a
+   new request there.
    *Tip:* select a few words first to work on just those.
 2. The assistant says **what will be shared and where it goes**, for example
    "To help, this will be sent to OpenAI: your Introduction; your central

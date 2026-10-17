@@ -27,6 +27,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
   const [view, setView] = useState<View>("workspace");
   const [returnTo, setReturnTo] = useState<View>("workspace");
   const [overlay, setOverlay] = useState<Overlay>(null);
+  const [templatesVersion, setTemplatesVersion] = useState(0);
   const [studySearch, setStudySearch] = useState<string | null>(null);
   // Each request to open the library (id) remembers its latest search.
   const [library, setLibrary] = useState<{ id: number; query?: string }>({ id: 0 });
@@ -123,6 +124,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
           onResetLayout={layout.reset}
           onAddBible={addBible}
           onEditTemplate={(templateId) => setOverlay({ kind: "template", templateId })}
+          templatesVersion={templatesVersion}
         />
       )}
       {view === "library" && (
@@ -160,7 +162,13 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
       )}
       {overlay?.kind === "template" && (
         <Sheet labelledBy="template-editor-title">
-          <TemplateEditor templateId={overlay.templateId} onClose={() => setOverlay(null)} />
+          <TemplateEditor
+            templateId={overlay.templateId}
+            onClose={() => {
+              setOverlay(null);
+              setTemplatesVersion((v) => v + 1);
+            }}
+          />
         </Sheet>
       )}
       {view === "workspace" && (

@@ -128,12 +128,12 @@
     "bookmarkNotStudy": "Un signet marque seulement un endroit ; il n’y a rien à ajouter à une étude."
   },
   "assistant": {
-    "off": "L’assistant est désactivé. Vous pouvez l’activer dans les Réglages.",
-    "notSetUp": "L’assistant n’est pas encore configuré. Vous pouvez le faire dans les Réglages.",
+    "off": "L’assistant IA est désactivé. Vous pouvez l’activer dans Paramètres → Assistant IA.",
+    "notSetUp": "L’assistant IA n’est pas encore configuré. Vous pouvez le configurer dans Paramètres → Assistant IA.",
     "noModel": "Choisissez le modèle à utiliser dans les Réglages.",
-    "noKey": "L’assistant a besoin de sa clé. Vous pouvez l’ajouter dans les Réglages.",
+    "noKey": "L’assistant IA a besoin de sa clé. Vous pouvez l’ajouter dans Paramètres → Assistant IA.",
     "keyRefused": "Le service n’a pas accepté la clé. Vérifiez-la dans les Réglages.",
-    "modelMissing": "Le service ne connaît pas ce modèle. Vérifiez son nom dans les Réglages.",
+    "modelMissing": "Le service d’IA ne connaît pas ce modèle. Vérifiez le nom du modèle dans Paramètres → Assistant IA (le ↗ à côté de « Modèle » montre les modèles actuels).",
     "busy": "Le service est occupé ou la limite du compte est atteinte. Réessayez plus tard.",
     "failed": "Le service n’a pas pu répondre cette fois. Réessayez.",
     "badReply": "La réponse de l’assistant n’était pas utilisable. Rien n’a changé. Réessayez.",
@@ -150,12 +150,13 @@
     "searchFailed": "Le service de recherche n’a pas pu répondre. Rien n’a été trouvé ni vérifié.",
     "imagesFailed": "Aucune image n’a pu être trouvée cette fois. Réessayez.",
     "noImageSearch": "La recherche d’images est désactivée. Activez-la dans les Réglages.",
-    "noImageGeneration": "La création d’images n’est pas configurée. Activez-la dans les Réglages (modèles d’image OpenAI uniquement).",
+    "noImageGeneration": "La création d’images n’est pas configurée, ou ce service d’IA ne peut pas créer d’images. Vous pouvez choisir un service pour les images dans Paramètres → Assistant IA.",
     "imageFailed": "L’image n’a pas pu être créée cette fois. Réessayez.",
     "keyStore": "La clé n’a pas pu être conservée dans le magasin d’identifiants de cet ordinateur.",
     "badKey": "Cela ne ressemble pas à une clé. Collez-la à nouveau.",
     "badAddress": "Saisissez une adresse web commençant par http:// ou https://.",
-    "badModel": "Ce nom de modèle est trop long."
+    "badModel": "Ce nom de modèle est trop long.",
+    "noImageKey": "La création d’images demande la clé du service d’images. Vous pouvez l’ajouter dans Paramètres → Assistant IA."
   },
   "teaching": {
     "tooLong": "Cette partie de l’enseignement est trop longue pour être enregistrée.",

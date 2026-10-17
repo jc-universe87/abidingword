@@ -169,7 +169,9 @@
       "unsupported": "{{service}}는 이미지를 만들 수 없습니다. 이미지에는 OpenAI를 고르거나 꺼 두세요.",
       "unknown": "Abiding Word는 {{service}}가 내 계정으로 이미지를 만들 수 있는지 알 수 없습니다. 시도해 보고, 안 되면 이미지에는 OpenAI를 고르세요."
     },
-    "imageKey": "이미지용 OpenAI 키"
+    "imageKey": "이미지용 OpenAI 키",
+    "imageKeyMissing": "아직 이미지용 OpenAI 키가 없습니다. 아래에 붙여 넣고 ‘키 저장’을 누르세요.",
+    "imagesLeave": "글쓰기 서비스와 달리, 이미지 설명은 인터넷으로 OpenAI에 전송됩니다."
   },
   "jumpTo": "항목으로 이동",
   "summary": {

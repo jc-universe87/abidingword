@@ -368,11 +368,13 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
           <div className="flex flex-col gap-4 border-t border-border-subtle pt-4">
             <h3 className="m-0 text-[1rem] font-semibold text-text-strong">{t("settings.assistant.extras")}</h3>
 
-            <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-              <legend className={`${labelText} mb-1 flex items-center gap-1`}>
-                {t("settings.assistant.search")}
+            <div role="group" aria-labelledby={`${id}-search-label`} className="flex flex-col gap-2">
+              <div className="mb-1 flex items-center gap-1">
+                <span id={`${id}-search-label`} className={labelText}>
+                  {t("settings.assistant.search")}
+                </span>
                 <HelpTip name={about(t("settings.assistant.search"))}>{t("settings.assistant.searchHint")}</HelpTip>
-              </legend>
+              </div>
               <select aria-label={t("settings.assistant.search")} value={config.search} onChange={(e) => set("search", e.target.value as AssistantConfig["search"])} className={field}>
                 <option value="none">{t("settings.assistant.searchKinds.none")}</option>
                 <option value="brave">{t("settings.assistant.searchKinds.brave")}</option>
@@ -423,13 +425,15 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                   </label>
                 </>
               )}
-            </fieldset>
+            </div>
 
-            <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-              <legend className={`${labelText} mb-1 flex items-center gap-1`}>
-                {t("settings.assistant.images")}
+            <div role="group" aria-labelledby={`${id}-images-label`} className="flex flex-col gap-2">
+              <div className="mb-1 flex items-center gap-1">
+                <span id={`${id}-images-label`} className={labelText}>
+                  {t("settings.assistant.images")}
+                </span>
                 <HelpTip name={about(t("settings.assistant.images"))}>{t("settings.assistant.imagesHelp")}</HelpTip>
-              </legend>
+              </div>
               <label className="flex items-center gap-3">
                 <input type="checkbox" checked={config.findImages} onChange={(e) => set("findImages", e.target.checked)} className="size-5" />
                 <span>{t("settings.assistant.findImages")}</span>
@@ -453,6 +457,10 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                   <p data-testid="image-capability" className={`m-0 text-[0.875rem] ${imageCapability === "unsupported" ? "text-danger" : "text-text-muted"}`}>
                     {t(`settings.assistant.imageCapability.${imageCapability}`, { service: t(`settings.assistant.providers.${imageProvider}`) })}
                   </p>
+                  {needsImageKey && remote === false && <p className={hint}>{t("settings.assistant.imagesLeave")}</p>}
+                  {needsImageKey && !(settings.hasImageKey && settings.config.imageService === "openai") && (
+                    <p className="m-0 text-[0.875rem] text-danger">{t("settings.assistant.imageKeyMissing")}</p>
+                  )}
                   {needsImageKey && (
                     <div className="flex flex-wrap items-center gap-2">
                       <label htmlFor={`${id}-ikey`} className="sr-only">
@@ -475,7 +483,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                   )}
                 </div>
               )}
-            </fieldset>
+            </div>
 
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-1">
@@ -529,7 +537,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
 /** As the core decides it (config.rs `image_capability`): from the service, never from a model's name. */
 function capabilityOf(provider: ProviderKind): ImageCapability {
   if (provider === "openai") return "supported";
-  if (provider === "google" || provider === "openai_compatible") return "unknown";
+  if (provider === "openai_compatible") return "unknown";
   return "unsupported";
 }
 

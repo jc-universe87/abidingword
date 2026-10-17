@@ -26,10 +26,14 @@ let remembered: {
 const DEFAULT_WIDTH = 420;
 const MARGIN = 12;
 
-/** The place to open: the upper right of the main (Study) pane, inside the window. */
+/**
+ * The place to open: the upper right of the window, over the side pane on that
+ * side (secondary to the teaching), so the teaching's text and its AI Help
+ * buttons stay uncovered wherever there is room.
+ */
 function defaultPlace(width: number) {
   const pane = document.getElementById("pane-study")?.getBoundingClientRect();
-  const right = pane && pane.width > 0 ? pane.right : window.innerWidth;
+  const right = window.innerWidth;
   const top = pane && pane.height > 0 ? pane.top : 64;
   const height = Math.min(
     Math.round(window.innerHeight * 0.7),
@@ -69,7 +73,7 @@ interface FloatingPanelProps {
 /**
  * The AI Assistant's panel, floating over the workspace instead of being put
  * into the teaching: opening it never moves the person's text. It can be
- * moved (drag the top bar), resized (the lower corner), minimised to a small
+ * moved (drag the top bar, or its move button with the arrow keys), resized (the lower corner), minimised to a small
  * "AI" chip and opened again, and it stays open while the person writes
  * elsewhere. It is a non-modal dialog: the teaching stays usable. The content
  * (the assistant's panel) has its own heading, Close and Escape.
@@ -90,6 +94,8 @@ export function FloatingPanel({ label, children }: FloatingPanelProps) {
     );
   });
   const [minimised, setMinimised] = useState(false);
+  // Resized by the person (the browser's corner): from then on it keeps that height.
+  const [sized, setSized] = useState(Boolean(remembered?.height));
   const panel = useRef<HTMLElement>(null);
   const chip = useRef<HTMLButtonElement>(null);
   const drag = useRef<{
@@ -104,12 +110,17 @@ export function FloatingPanel({ label, children }: FloatingPanelProps) {
   const rememberSize = () => {
     const el = panel.current;
     if (!el || !el.style.height) return;
-    remembered = {
-      left: box.left,
-      top: box.top,
-      width: el.offsetWidth,
-      height: el.offsetHeight,
-    };
+    const next = { left: box.left, top: box.top, width: el.offsetWidth, height: el.offsetHeight };
+    remembered = next;
+    setBox(next);
+    setSized(true);
+  };
+
+  /** Moves the panel with the arrow keys on its top bar: dragging is never the only way. */
+  const nudge = (dx: number, dy: number) => {
+    const next = clamp({ ...box, left: box.left + dx, top: box.top + dy });
+    setBox(next);
+    remembered = { ...remembered, left: next.left, top: next.top, width: next.width };
   };
 
   // Keep it inside the window when the window gets smaller.
@@ -160,7 +171,7 @@ export function FloatingPanel({ label, children }: FloatingPanelProps) {
           ref={chip}
           type="button"
           onClick={() => setMinimised(false)}
-          aria-label={t("studies.teaching.assist.restore", { label })}
+          title={t("studies.teaching.assist.restore")}
           className="fixed bottom-4 right-4 z-30 inline-flex min-h-11 max-w-[min(24rem,calc(100vw-2rem))] items-center gap-2 rounded-full border border-border bg-bg px-4 text-[0.9375rem] font-medium text-text-strong shadow-lg hover:bg-bg-secondary"
         >
           <Lightbulb
@@ -182,7 +193,7 @@ export function FloatingPanel({ label, children }: FloatingPanelProps) {
         onPointerUp={rememberSize}
         // Until the person resizes it, it is as tall as its content (up to most of the window).
         style={
-          remembered?.height
+          sized
             ? {
                 left: box.left,
                 top: box.top,
@@ -203,9 +214,32 @@ export function FloatingPanel({ label, children }: FloatingPanelProps) {
           onPointerMove={moveDrag}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
+          onKeyDown={(e) => {
+            // Escape on the top bar minimises (the content's own Escape closes it).
+            if (e.key === "Escape") {
+              e.stopPropagation();
+              setMinimised(true);
+            }
+          }}
           className="flex shrink-0 cursor-move select-none items-center gap-2 border-b border-border-subtle px-3 py-1 text-[0.8125rem] text-text-muted"
         >
-          <GripHorizontal className="size-4" aria-hidden="true" />
+          <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              const step = e.shiftKey ? 80 : 20;
+              const moves: Record<string, [number, number]> = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+              const move = moves[e.key];
+              if (!move) return;
+              e.preventDefault();
+              nudge(...move);
+            }}
+            aria-label={t("studies.teaching.assist.move")}
+            title={t("studies.teaching.assist.move")}
+            className="-ml-2 inline-flex size-11 cursor-move items-center justify-center rounded-aw hover:bg-bg hover:text-text-strong"
+          >
+            <GripHorizontal className="size-4" aria-hidden="true" />
+          </button>
           <span className="flex-1 truncate font-medium">
             {t("studies.teaching.assist.menuTitle")}
           </span>
@@ -228,8 +262,8 @@ export function FloatingPanel({ label, children }: FloatingPanelProps) {
 }
 
 /**
- * Only one assistant panel at a time: the part that opened it last owns it.
- * Each part keeps its own request; the panel shows for the owner only.
+ * Only one assistant panel at a time: the part that opened it last owns it,
+ * and the panel of the part it moved from closes.
  */
 interface Dock {
   owner: string | null;

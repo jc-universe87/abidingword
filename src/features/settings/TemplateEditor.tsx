@@ -15,7 +15,20 @@ export function TemplateEditor({ templateId, onClose }: { templateId: string | n
   const templates = useLoad(useCallback(() => api.templateList(), [api]));
   const existing = templateId ? templates.data?.find((t) => t.id === templateId) : undefined;
   if (templateId && !existing) {
-    return <p className="p-8 text-text-muted">{templates.error ? templates.error.message : t("studies.templateEditor.opening")}</p>;
+    // Still opening (or it failed): a heading, Back and Escape, so the sheet can always be left.
+    return (
+      <div className="flex h-full flex-col gap-4 overflow-y-auto bg-bg p-8" onKeyDown={(e) => e.key === "Escape" && onClose()}>
+        <Button variant="quiet" className="self-start" autoFocus onClick={onClose}>
+          <ArrowLeft className="size-4" aria-hidden="true" /> {t("studies.templateEditor.back")}
+        </Button>
+        <h1 id="template-editor-title" className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
+          {t("studies.templateEditor.editTitle")}
+        </h1>
+        <p role={templates.error ? "alert" : "status"} className={`m-0 ${templates.error ? "text-danger" : "text-text-muted"}`}>
+          {templates.error ? templates.error.message : t("studies.templateEditor.opening")}
+        </p>
+      </div>
+    );
   }
   return <Form key={templateId ?? "new"} templateId={templateId} initial={existing} onClose={onClose} />;
 }
@@ -69,8 +82,9 @@ function Form({ templateId, initial, onClose }: FormProps) {
     <div
       className="h-full overflow-y-auto bg-bg"
       onKeyDown={(e) => {
-        // Escape closes the editor, as its Back and Cancel do (nothing unsaved is kept).
-        if (e.key === "Escape" && !e.defaultPrevented) {
+        // Escape closes the editor, as its Back and Cancel do, but not from a field: there it
+        // would throw away what is being typed (as in Settings).
+        if (e.key === "Escape" && !e.defaultPrevented && !(e.target as HTMLElement).closest("input, textarea, select")) {
           e.preventDefault();
           onClose();
         }

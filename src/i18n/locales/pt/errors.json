@@ -128,12 +128,12 @@
     "bookmarkNotStudy": "Um marcador apenas assinala um lugar; não há nada a adicionar a um estudo."
   },
   "assistant": {
-    "off": "O assistente está desligado. Você pode ligá-lo em Configurações.",
-    "notSetUp": "O assistente ainda não está configurado. Você pode configurá-lo em Configurações.",
+    "off": "O assistente de IA está desligado. Você pode ligá-lo em Configurações → Assistente de IA.",
+    "notSetUp": "O assistente de IA ainda não está configurado. Você pode configurá-lo em Configurações → Assistente de IA.",
     "noModel": "Escolha qual modelo usar em Configurações.",
-    "noKey": "O assistente precisa da chave. Você pode adicioná-la em Configurações.",
+    "noKey": "O assistente de IA precisa da chave. Você pode adicioná-la em Configurações → Assistente de IA.",
     "keyRefused": "O serviço não aceitou a chave. Verifique-a em Configurações.",
-    "modelMissing": "O serviço não conhece esse modelo. Verifique o nome em Configurações.",
+    "modelMissing": "O serviço de IA não conhece esse modelo. Confira o nome do modelo em Configurações → Assistente de IA (o ↗ ao lado de “Modelo” mostra os modelos atuais).",
     "busy": "O serviço está ocupado ou o limite da conta foi atingido. Tente mais tarde.",
     "failed": "O serviço não conseguiu responder desta vez. Tente de novo.",
     "badReply": "A resposta do assistente não pôde ser usada. Nada mudou. Tente de novo.",
@@ -150,12 +150,13 @@
     "searchFailed": "O serviço de busca não conseguiu responder. Nada foi encontrado ou verificado.",
     "imagesFailed": "Desta vez não foi possível encontrar imagens. Tente de novo.",
     "noImageSearch": "A busca de imagens está desligada. Você pode ligá-la em Configurações.",
-    "noImageGeneration": "Criar imagens não está configurado. Você pode ligar em Configurações (só modelos de imagem da OpenAI).",
+    "noImageGeneration": "Criar imagens não está configurado, ou este serviço de IA não pode criar imagens. Você pode escolher um serviço para imagens em Configurações → Assistente de IA.",
     "imageFailed": "Desta vez não foi possível criar a imagem. Tente de novo.",
     "keyStore": "Não foi possível guardar a chave no cofre de credenciais deste computador.",
     "badKey": "Isso não parece uma chave. Cole de novo.",
     "badAddress": "Digite um endereço que comece com http:// ou https://.",
-    "badModel": "Esse nome de modelo é longo demais."
+    "badModel": "Esse nome de modelo é longo demais.",
+    "noImageKey": "Criar imagens precisa da chave do serviço de imagens. Você pode adicioná-la em Configurações → Assistente de IA."
   },
   "teaching": {
     "tooLong": "Esta parte do ensino é longa demais para salvar.",

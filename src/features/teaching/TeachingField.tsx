@@ -15,8 +15,10 @@ export interface AssistantHooks {
   preparationId: string;
   canFindImages: boolean;
   canGenerateImages: boolean;
-  /** Why images cannot be made, when they cannot ("off" in Settings, or the service cannot). */
-  imagesNote: "off" | "unsupported" | null;
+  /** Why images cannot be made, when they cannot ("off" in Settings, the service cannot, or its key is missing). */
+  imagesNote: "off" | "unsupported" | "noKey" | null;
+  /** The service images are sent to, by name. */
+  imageService: string;
   keep: (material: Omit<KeepTeachingMaterial, "preparationId">) => Promise<void>;
   addPassage: (reference: ScriptureRef, pointId: string | null) => Promise<void>;
 }
@@ -56,6 +58,9 @@ export function TeachingField(props: TeachingFieldProps) {
   const [text, setText] = useState(value);
   const [action, setAction] = useState<{ action: AssistAction; target: AssistTarget } | null>(null);
   const [undo, setUndo] = useState<string | null>(null);
+  // Each request gets its own panel: an earlier answer can never be applied to a later selection,
+  // and a minimised panel opens again for a new request.
+  const [request, setRequest] = useState(0);
   const [notice, setNotice] = useState("");
   const area = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
   const root = useRef<HTMLDivElement>(null);
@@ -90,6 +95,7 @@ export function TeachingField(props: TeachingFieldProps) {
     const selected = end > start && text.slice(start, end).trim().length > 0;
     setNotice("");
     dock.claim(fid);
+    setRequest((n) => n + 1);
     setAction({
       action: chosen,
       target: {
@@ -239,9 +245,9 @@ export function TeachingField(props: TeachingFieldProps) {
         {notice}
       </p>
       {assistant && action && dock.owner === fid && (
-        <FloatingPanel label={`${assistLabel(t, action.action)} · ${label}`}>
+        <FloatingPanel key={request} label={`${assistLabel(t, action.action)} · ${label}`}>
         <AssistPanel
-          key={action.action}
+          key={request}
           preparationId={assistant.preparationId}
           target={action.target}
           action={action.action}
@@ -254,6 +260,7 @@ export function TeachingField(props: TeachingFieldProps) {
           canFindImages={assistant.canFindImages}
           canGenerateImages={assistant.canGenerateImages}
           imagesNote={assistant.imagesNote}
+          imageService={assistant.imageService}
         />
         </FloatingPanel>
       )}

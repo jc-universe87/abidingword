@@ -832,7 +832,8 @@
         "keepIdea": "Garder cette idée",
         "cannotMake": {
           "off": "La création d’images est désactivée (Paramètres → Assistant IA). Trouver des images sous licence libre fonctionne toujours.",
-          "unsupported": "Ce service d’IA ne peut pas créer d’images. Vous pouvez choisir OpenAI pour les images dans Paramètres → Assistant IA. Trouver des images sous licence libre fonctionne toujours."
+          "unsupported": "Ce service d’IA ne peut pas créer d’images. Vous pouvez choisir OpenAI pour les images dans Paramètres → Assistant IA. Trouver des images sous licence libre fonctionne toujours.",
+          "noKey": "La création d’images demande la clé OpenAI pour les images (Paramètres → Assistant IA). Trouver des images sous licence libre fonctionne toujours."
         }
       },
       "images": {
@@ -868,8 +869,10 @@
       },
       "menuTitle": "Aide de l’assistant IA",
       "minimise": "Réduire",
-      "restore": "Rouvrir l’assistant IA : {{label}}",
-      "panelLabel": "Assistant IA : {{label}}"
+      "restore": "Rouvrir l’assistant IA",
+      "panelLabel": "Assistant IA : {{label}}",
+      "move": "Déplacer le panneau (touches fléchées)",
+      "sendsTo": "Créer une image envoie la description de cette idée à {{service}} par Internet."
     },
     "shape": {
       "points": {

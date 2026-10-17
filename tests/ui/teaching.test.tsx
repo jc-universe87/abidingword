@@ -689,14 +689,21 @@ describe("assistant settings", () => {
 
     await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "anthropic");
     await waitFor(() => expect(capability()).toHaveTextContent("Anthropic (Claude) cannot make images. Choose OpenAI for images, or leave this off."));
+    // Google's image models need their own request, not built yet: not offered.
     await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "google");
-    await waitFor(() => expect(capability()).toHaveTextContent(/cannot tell whether Google Gemini can make images/));
+    await waitFor(() => expect(capability()).toHaveTextContent("Google Gemini cannot make images."));
+    // Another compatible service: Abiding Word cannot tell.
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "openai_compatible");
+    await waitFor(() => expect(capability()).toHaveTextContent(/cannot tell whether Other compatible service can make images/));
 
     // Write with Claude, make images with OpenAI.
     await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "anthropic");
     await user.selectOptions(within(region).getByRole("combobox", { name: "Make images with" }), "openai");
     expect(capability()).toHaveTextContent("OpenAI (ChatGPT) can make images.");
+    // Until an OpenAI key for images is kept, that is said plainly.
+    expect(within(region).getByText(/No OpenAI key for images is kept yet/)).toBeInTheDocument();
     await user.type(within(region).getByLabelText("OpenAI key for images"), "sk-img{Enter}");
+    await waitFor(() => expect(within(region).queryByText(/No OpenAI key for images is kept yet/)).toBeNull());
     await waitFor(() => expect(api.state.teaching.assistant.keys.get("openai")).toBe("sk-img"));
     expect(api.state.teaching.assistant.config).toMatchObject({ provider: "anthropic", imageService: "openai", generateImages: true });
     expect(api.state.teaching.assistant.keys.has("anthropic")).toBe(false);
@@ -1089,7 +1096,8 @@ describe("the floating AI panel", () => {
     await user.click(screen.getByRole("button", { name: "Minimise" }));
     expect(screen.getByTestId("assist-panel")).not.toBeVisible();
     expect(screen.queryByRole("dialog", { name: /^AI Assistant/ })).toBeNull();
-    const chip = screen.getByRole("button", { name: "Open the AI Assistant again: Ask for something else… · Introduction" });
+    // Named by what it shows.
+    const chip = screen.getByRole("button", { name: "AI Help · Ask for something else… · Introduction" });
     await waitFor(() => expect(chip).toHaveFocus());
     await user.keyboard("{Enter}");
     const again = screen.getByTestId("assist-panel");
@@ -1136,5 +1144,88 @@ describe("the floating AI panel", () => {
     expect(make).toBeDisabled();
     expect(make).toHaveAccessibleDescription(/This AI service cannot make images/);
     expect(within(panel).getByRole("button", { name: "Find freely licensed images" })).toBeEnabled();
+  });
+});
+
+describe("review fixes: the floating panel and images", () => {
+  it("never applies an earlier answer to a later selection: a new request starts a new panel", async () => {
+    const { api } = await setup({ assistant: true });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await user.type(field(article, "Introduction"), "Alpha one. Beta two.");
+    await settle();
+    const area = field(article, "Introduction") as HTMLTextAreaElement;
+    api.state.teaching.assistant.replies.push(proposal("Alpha ONE."));
+    area.setSelectionRange(0, 10);
+    let panel = await helpWith(user, article, "Introduction", "Make it clearer");
+    await ask(user, panel);
+    await within(panel).findByRole("button", { name: "Use this wording" });
+    // Ask again about another selection: the old answer is gone.
+    area.setSelectionRange(11, 20);
+    panel = await helpWith(user, article, "Introduction", "Make it clearer");
+    expect(within(panel).queryByRole("button", { name: "Use this wording" })).toBeNull();
+    expect(within(panel).getByRole("button", { name: "Ask" })).toBeInTheDocument();
+    expect(area).toHaveValue("Alpha one. Beta two.");
+  });
+
+  it("opens again from minimised when a new request is chosen", async () => {
+    const { api } = await setup({ assistant: true });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await helpWith(user, article, "Introduction", "Ask for something else…");
+    await user.click(screen.getByRole("button", { name: "Minimise" }));
+    expect(screen.getByTestId("assist-panel")).not.toBeVisible();
+    const panel = await helpWith(user, article, "Introduction", "Ask for something else…");
+    expect(panel).toBeVisible();
+    expect(screen.queryByRole("button", { name: /^AI Help · / })).toBeNull();
+  });
+
+  it("can be moved with the arrow keys and minimised with Escape on its top bar", async () => {
+    const { api } = await setup({ assistant: true });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await helpWith(user, article, "Introduction", "Ask for something else…");
+    const floating = screen.getByTestId("assist-floating");
+    const move = within(floating).getByRole("button", { name: "Move the panel (arrow keys)" });
+    const before = floating.style.top;
+    move.focus();
+    await user.keyboard("{ArrowDown}");
+    expect(floating.style.top).not.toBe(before);
+    await user.keyboard("{Escape}");
+    expect(screen.getByTestId("assist-panel")).not.toBeVisible();
+    await waitFor(() => expect(screen.getByRole("button", { name: /^AI Help · Ask for something else/ })).toHaveFocus());
+  });
+
+  it("says where an image description goes before an image is made", async () => {
+    const { api } = await setup({ assistant: true });
+    await api.assistantSettingsSet({ ...api.state.teaching.assistant.config, generateImages: true });
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await user.type(field(article, "Introduction"), "Jesus is the vine.");
+    await settle();
+    api.state.teaching.assistant.replies.push({
+      result: { type: "visuals", ideas: [{ description: "A vine", kind: "photo", searchTerms: "grapevine" }] },
+      assistant: "OpenAI · test-model",
+      remote: true,
+    });
+    const panel = await helpWith(user, article, "Introduction", "Suggest a visual");
+    await ask(user, panel);
+    expect(await within(panel).findByText("Making an image sends this idea’s description to OpenAI (ChatGPT) over the internet.")).toBeInTheDocument();
+  });
+
+  it("says when making images waits for the OpenAI key, and that images leave a local set-up", async () => {
+    const { user, api } = await renderApp(createMemoryApi());
+    const region = await openSettingsSection(user, "AI Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Service" }), "ollama");
+    await user.click(within(region).getByRole("checkbox", { name: /Allow making images/ }));
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Make images with" }), "openai");
+    expect(within(region).getByText("Runs on this computer: your text does not leave it.")).toBeInTheDocument();
+    expect(within(region).getByText(/Image descriptions are sent to OpenAI over the internet/)).toBeInTheDocument();
+    await user.click(within(region).getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(api.state.teaching.assistant.config.imageService).toBe("openai"));
+    // Without the key, images cannot be made yet, and Teaching says why.
+    const settings = await api.assistantSettingsGet();
+    expect(settings.canGenerateImages).toBe(false);
   });
 });

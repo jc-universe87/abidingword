@@ -125,12 +125,12 @@
     "bookmarkNotStudy": "A bookmark marks a place; it has nothing to add to a study."
   },
   "assistant": {
-    "off": "The assistant is turned off. You can turn it on in Settings.",
-    "notSetUp": "The assistant is not set up yet. You can set it up in Settings.",
+    "off": "The AI Assistant is turned off. You can turn it on in Settings → AI Assistant.",
+    "notSetUp": "The AI Assistant is not set up yet. You can set it up in Settings → AI Assistant.",
     "noModel": "Choose which model to use in Settings.",
-    "noKey": "The assistant needs its key. You can add it in Settings.",
+    "noKey": "The AI Assistant needs its key. You can add it in Settings → AI Assistant.",
     "keyRefused": "The assistant service did not accept the key. Check it in Settings.",
-    "modelMissing": "The assistant service does not know that model. Check the model name in Settings.",
+    "modelMissing": "The AI service does not know that model. Check the model name in Settings → AI Assistant (the ↗ beside Model shows the current models).",
     "busy": "The assistant service is busy or the account’s limit is reached. Please try again later.",
     "failed": "The assistant service could not answer this time. Please try again.",
     "badReply": "The assistant’s answer could not be used. Nothing was changed. Please try again.",
@@ -147,12 +147,13 @@
     "searchFailed": "The search service could not answer. Nothing was found or checked.",
     "imagesFailed": "No images could be found this time. Please try again.",
     "noImageSearch": "Finding images is turned off. You can turn it on in Settings.",
-    "noImageGeneration": "Making images is not set up. You can turn it on in Settings (OpenAI image models only).",
+    "noImageGeneration": "Making images is not set up, or this AI service cannot make images. You can choose a service for images in Settings → AI Assistant.",
     "imageFailed": "The image could not be made this time. Please try again.",
     "keyStore": "The key could not be kept in this computer’s credential store.",
     "badKey": "That does not look like a key. Please paste it again.",
     "badAddress": "Please enter a web address beginning with http:// or https://.",
-    "badModel": "That model name is too long."
+    "badModel": "That model name is too long.",
+    "noImageKey": "Making images needs the image service’s key. You can add it in Settings → AI Assistant."
   },
   "teaching": {
     "tooLong": "This part of the teaching is too long to save.",

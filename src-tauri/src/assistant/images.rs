@@ -198,8 +198,8 @@ pub fn generate_call(
         Some(key) => headers.push(("authorization".into(), format!("Bearer {key}"))),
         None if config.image_provider().needs_key() => {
             return Err(AppError::Assistant(UserMessage::new(
-                "assistant.noKey",
-                "The assistant needs its key. You can add it in Settings.",
+                "assistant.noImageKey",
+                "Making images needs the image service's key. You can add it in Settings → AI Assistant.",
             )))
         }
         None => {}

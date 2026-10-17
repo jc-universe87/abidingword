@@ -822,7 +822,8 @@
         "keepIdea": "Idee aufbewahren",
         "cannotMake": {
           "off": "Bilder erstellen ist ausgeschaltet (Einstellungen → KI-Assistent). Frei lizenzierte Bilder finden geht trotzdem.",
-          "unsupported": "Dieser KI-Dienst kann keine Bilder erstellen. In den Einstellungen → KI-Assistent kannst du OpenAI für Bilder wählen. Frei lizenzierte Bilder finden geht trotzdem."
+          "unsupported": "Dieser KI-Dienst kann keine Bilder erstellen. In den Einstellungen → KI-Assistent kannst du OpenAI für Bilder wählen. Frei lizenzierte Bilder finden geht trotzdem.",
+          "noKey": "Bilder erstellen braucht den OpenAI-Schlüssel für Bilder (Einstellungen → KI-Assistent). Frei lizenzierte Bilder finden geht trotzdem."
         }
       },
       "images": {
@@ -858,8 +859,10 @@
       },
       "menuTitle": "Hilfe vom KI-Assistenten",
       "minimise": "Minimieren",
-      "restore": "KI-Assistent wieder öffnen: {{label}}",
-      "panelLabel": "KI-Assistent: {{label}}"
+      "restore": "KI-Assistent wieder öffnen",
+      "panelLabel": "KI-Assistent: {{label}}",
+      "move": "Fenster verschieben (Pfeiltasten)",
+      "sendsTo": "Beim Erstellen eines Bildes wird die Beschreibung dieser Idee über das Internet an {{service}} gesendet."
     },
     "shape": {
       "points": {

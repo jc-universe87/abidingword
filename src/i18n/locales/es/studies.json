@@ -832,7 +832,8 @@
         "keepIdea": "Guardar esta idea",
         "cannotMake": {
           "off": "Crear imágenes está desactivado (Configuración → Asistente de IA). Buscar imágenes con licencia libre sigue funcionando.",
-          "unsupported": "Este servicio de IA no puede crear imágenes. Puedes elegir OpenAI para las imágenes en Configuración → Asistente de IA. Buscar imágenes con licencia libre sigue funcionando."
+          "unsupported": "Este servicio de IA no puede crear imágenes. Puedes elegir OpenAI para las imágenes en Configuración → Asistente de IA. Buscar imágenes con licencia libre sigue funcionando.",
+          "noKey": "Crear imágenes necesita la clave de OpenAI para imágenes (Configuración → Asistente de IA). Buscar imágenes con licencia libre sigue funcionando."
         }
       },
       "images": {
@@ -868,8 +869,10 @@
       },
       "menuTitle": "Ayuda del asistente de IA",
       "minimise": "Minimizar",
-      "restore": "Volver a abrir el asistente de IA: {{label}}",
-      "panelLabel": "Asistente de IA: {{label}}"
+      "restore": "Volver a abrir el asistente de IA",
+      "panelLabel": "Asistente de IA: {{label}}",
+      "move": "Mover el panel (teclas de flecha)",
+      "sendsTo": "Crear una imagen envía la descripción de esta idea a {{service}} por internet."
     },
     "shape": {
       "points": {

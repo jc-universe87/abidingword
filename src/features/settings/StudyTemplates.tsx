@@ -10,10 +10,12 @@ import { studyTypeLabel } from "@/features/studies/labels";
 import type { StudyTemplate } from "@/types/studies";
 
 /** Settings → Study Templates: built-in and user templates. */
-export function StudyTemplates({ onEdit }: { onEdit: (templateId: string | null) => void }) {
+export function StudyTemplates({ onEdit, version = 0 }: { onEdit: (templateId: string | null) => void; version?: number }) {
   const { t } = useTranslation();
   const api = useApi();
-  const templates = useLoad(useCallback(() => api.templateList(), [api]));
+  // Reloaded when the template editor (over Settings) closes: `version` changes then.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const templates = useLoad(useCallback(() => api.templateList(), [api, version]));
   const [error, setError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
 

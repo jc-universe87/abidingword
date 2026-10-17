@@ -812,7 +812,8 @@
         "keepIdea": "이 아이디어 보관",
         "cannotMake": {
           "off": "이미지 만들기가 꺼져 있습니다(설정 → AI 도우미). 자유 이용 이미지 찾기는 그대로 됩니다.",
-          "unsupported": "이 AI 서비스는 이미지를 만들 수 없습니다. 설정 → AI 도우미에서 이미지용으로 OpenAI를 고를 수 있습니다. 자유 이용 이미지 찾기는 그대로 됩니다."
+          "unsupported": "이 AI 서비스는 이미지를 만들 수 없습니다. 설정 → AI 도우미에서 이미지용으로 OpenAI를 고를 수 있습니다. 자유 이용 이미지 찾기는 그대로 됩니다.",
+          "noKey": "이미지를 만들려면 이미지용 OpenAI 키가 필요합니다(설정 → AI 도우미). 자유 이용 이미지 찾기는 그대로 됩니다."
         }
       },
       "images": {
@@ -848,8 +849,10 @@
       },
       "menuTitle": "AI 도우미의 도움",
       "minimise": "최소화",
-      "restore": "AI 도우미 다시 열기: {{label}}",
-      "panelLabel": "AI 도우미: {{label}}"
+      "restore": "AI 도우미 다시 열기",
+      "panelLabel": "AI 도우미: {{label}}",
+      "move": "창 옮기기 (화살표 키)",
+      "sendsTo": "이미지를 만들면 이 아이디어의 설명이 인터넷으로 {{service}}에 전송됩니다."
     },
     "shape": {
       "points": {

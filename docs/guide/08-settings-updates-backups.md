@@ -173,10 +173,12 @@ server, or for Ollama or LM Studio running on another computer.
   - **Allow making images** asks an AI image service to draw a picture,
     always marked as made by the assistant. Not every AI service can: the
     line below says whether yours *can*, *cannot*, or whether Abiding Word
-    *cannot tell* (Google, other compatible services: you can try). With
+    *cannot tell* (another compatible service: you can try). With
     **Make images with → OpenAI** you can keep writing with another service
     (for example Claude) and make images with OpenAI, using an OpenAI key
-    kept for images.
+    kept for images; until that key is kept, Settings says so. Image
+    descriptions then go to OpenAI over the internet, even when you write
+    with Ollama or LM Studio.
 - **How should the AI approach theological questions?** (optional). Open
   the **?** for what it is for: not your life story, only a short theological
   or church perspective if it helps (e.g. *Reformed evangelical*). The

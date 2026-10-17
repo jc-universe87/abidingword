@@ -65,9 +65,11 @@ pub fn settings(conn: &Connection, secrets: &dyn SecretStore) -> AppResult<Assis
             config.image_provider().as_str(),
         ))?
         .is_some();
+    // Images need their service's key too, when that service needs one.
+    let image_key_ok = has_image_key || !config.image_provider().needs_key();
     Ok(AssistantSettings {
         remote: config.is_remote(),
-        can_generate_images: images::can_generate(&config),
+        can_generate_images: images::can_generate(&config) && image_key_ok,
         image_capability: config.image_capability(),
         has_image_key,
         config,

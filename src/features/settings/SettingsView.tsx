@@ -57,6 +57,8 @@ interface SettingsViewProps {
   onResetLayout: () => void;
   onAddBible: () => void;
   onEditTemplate: (templateId: string | null) => void;
+  /** Changes when the template editor closes, so the list shows what was saved. */
+  templatesVersion?: number;
 }
 
 /**
@@ -64,7 +66,7 @@ interface SettingsViewProps {
  * where things stand, opened only when wanted. The header with "Back" and a
  * jump list stays at the top while the page scrolls.
  */
-export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditTemplate }: SettingsViewProps) {
+export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditTemplate, templatesVersion = 0 }: SettingsViewProps) {
   const { t, i18n } = useTranslation();
   const { theme, background } = useTheme();
   const updates = useUpdates();
@@ -141,7 +143,7 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
       case "bible-texts":
         return <BibleTexts onAddBible={onAddBible} />;
       case "study-templates":
-        return <StudyTemplates onEdit={onEditTemplate} />;
+        return <StudyTemplates onEdit={onEditTemplate} version={templatesVersion} />;
       case "language":
         return <LanguageChoice />;
       case "assistant":
@@ -392,7 +394,8 @@ function ThemeChoice() {
       setError(toApiError(e).message);
     }
   };
-  const darkOnly = theme === "dark";
+  // Dark now (chosen, or following a dark computer setting): backgrounds apply to the light theme only.
+  const darkOnly = theme === "dark" || (theme === "system" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   return (
     <div className="flex flex-col gap-4">
@@ -420,11 +423,13 @@ function ThemeChoice() {
         )}
       </fieldset>
 
-      <fieldset className="m-0 border-0 p-0">
-        <legend className="mb-2 flex items-center gap-1 font-medium text-text-strong">
-          {t("settings.background.legend")}
+      <div role="radiogroup" aria-labelledby="settings-background-label">
+        <div className="mb-2 flex items-center gap-1">
+          <span id="settings-background-label" className="font-medium text-text-strong">
+            {t("settings.background.legend")}
+          </span>
           <HelpTip name={t("settings.help.about", { topic: t("settings.background.legend") })}>{t("settings.background.help")}</HelpTip>
-        </legend>
+        </div>
         <div className="flex flex-wrap gap-3">
           {BACKGROUNDS.map((option) => (
             <label key={option} className="flex w-[4.5rem] cursor-pointer flex-col items-center gap-1 text-center text-[0.8125rem]">
@@ -446,7 +451,7 @@ function ThemeChoice() {
           ))}
         </div>
         {darkOnly && <p className="m-0 mt-2 text-[0.875rem] text-text-muted">{t("settings.background.lightOnly")}</p>}
-      </fieldset>
+      </div>
     </div>
   );
 }

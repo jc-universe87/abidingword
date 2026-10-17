@@ -90,7 +90,8 @@ describe("Appearance backgrounds", () => {
   it("offers a few calm backgrounds as swatches and remembers the choice", async () => {
     const { user } = await renderApp();
     const appearance = await openSettingsSection(user, "Appearance");
-    const group = within(appearance).getByRole("group", { name: /Background/ });
+    // The group is named by its label alone (the help button is not part of the name).
+    const group = within(appearance).getByRole("radiogroup", { name: "Background" });
     expect(within(group).getAllByRole("radio").map((r) => r.closest("label")?.textContent)).toEqual(["Parchment", "Cream", "Sage", "Stone", "Mist", "Neutral"]);
     expect(within(group).getByRole("radio", { name: "Parchment" })).toBeChecked();
     await user.click(within(group).getByRole("radio", { name: "Sage" }));
@@ -186,5 +187,41 @@ describe("the window is filled", () => {
     }
     const conf = JSON.parse(readFileSync("src-tauri/tauri.conf.json", "utf8"));
     expect(conf.app.windows[0].backgroundColor).toBe("#f6f1e6");
+  });
+});
+
+describe("review fixes (Windows pass)", () => {
+  it("shows a template saved in the sheet in the list straight away", async () => {
+    const { user } = await renderApp();
+    const templates = await openSettingsSection(user, "Templates");
+    await user.click(within(templates).getByRole("button", { name: "New template…" }));
+    const sheet = await screen.findByRole("dialog", { name: "New template" });
+    await user.type(within(sheet).getByRole("textbox", { name: "Name" }), "Youth evening");
+    await user.click(within(sheet).getByRole("button", { name: "Save template" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(await within(templates).findByText("Youth evening")).toBeInTheDocument();
+  });
+
+  it("does not close a sheet with Escape while typing in a field", async () => {
+    const { user } = await renderApp();
+    const templates = await openSettingsSection(user, "Templates");
+    await user.click(within(templates).getByRole("button", { name: "New template…" }));
+    const sheet = await screen.findByRole("dialog", { name: "New template" });
+    const name = within(sheet).getByRole("textbox", { name: "Name" });
+    await user.type(name, "Half-written");
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("dialog", { name: "New template" })).toBeInTheDocument();
+    expect(name).toHaveValue("Half-written");
+  });
+
+  it("closes an open explanation when focus moves on, so Escape belongs to the page again", async () => {
+    const { user } = await renderApp();
+    const language = await openSettingsSection(user, "Language");
+    const help = within(language).getByRole("button", { name: "More about: Interface language" });
+    await user.click(help);
+    const text = within(language).getByText(/Changes the language of menus/);
+    expect(text).toBeVisible();
+    await user.tab();
+    expect(text).not.toBeVisible();
   });
 });

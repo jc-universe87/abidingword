@@ -69,7 +69,7 @@ export function AddBibleView({ onClose }: { onClose: () => void }) {
     <div
       className="h-full overflow-y-auto bg-bg"
       onKeyDown={(e) => {
-        if (e.key === "Escape" && !e.defaultPrevented && step.kind !== "checking") {
+        if (e.key === "Escape" && !e.defaultPrevented && step.kind !== "checking" && !(e.target as HTMLElement).closest("input, textarea, select")) {
           e.preventDefault();
           cancel();
         }

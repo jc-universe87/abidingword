@@ -125,12 +125,12 @@
     "bookmarkNotStudy": "Ein Lesezeichen markiert nur eine Stelle; es enthält nichts, was sich einem Bibelstudium hinzufügen ließe."
   },
   "assistant": {
-    "off": "Der Assistent ist ausgeschaltet. Du kannst ihn in den Einstellungen einschalten.",
-    "notSetUp": "Der Assistent ist noch nicht eingerichtet. Du kannst ihn in den Einstellungen einrichten.",
+    "off": "Der KI-Assistent ist ausgeschaltet. Du kannst ihn in den Einstellungen → KI-Assistent einschalten.",
+    "notSetUp": "Der KI-Assistent ist noch nicht eingerichtet. Du kannst ihn in den Einstellungen → KI-Assistent einrichten.",
     "noModel": "Wähle in den Einstellungen ein Modell.",
-    "noKey": "Der Assistent braucht seinen Schlüssel. Du kannst ihn in den Einstellungen hinzufügen.",
+    "noKey": "Der KI-Assistent braucht seinen Schlüssel. Du kannst ihn in den Einstellungen → KI-Assistent hinzufügen.",
     "keyRefused": "Der Dienst hat den Schlüssel nicht angenommen. Prüfe ihn in den Einstellungen.",
-    "modelMissing": "Der Dienst kennt dieses Modell nicht. Prüfe den Namen in den Einstellungen.",
+    "modelMissing": "Der KI-Dienst kennt dieses Modell nicht. Prüfe den Modellnamen in den Einstellungen → KI-Assistent (↗ neben „Modell“ zeigt die aktuellen Modelle).",
     "busy": "Der Dienst ist ausgelastet oder das Kontolimit ist erreicht. Bitte später erneut versuchen.",
     "failed": "Der Dienst konnte diesmal nicht antworten. Bitte erneut versuchen.",
     "badReply": "Die Antwort des Assistenten war nicht verwendbar. Nichts wurde geändert. Bitte erneut versuchen.",
@@ -147,12 +147,13 @@
     "searchFailed": "Der Suchdienst konnte nicht antworten. Nichts wurde gefunden oder geprüft.",
     "imagesFailed": "Diesmal ließen sich keine Bilder finden. Bitte erneut versuchen.",
     "noImageSearch": "Die Bildsuche ist ausgeschaltet. Du kannst sie in den Einstellungen einschalten.",
-    "noImageGeneration": "Das Erstellen von Bildern ist nicht eingerichtet. Du kannst es in den Einstellungen einschalten (nur OpenAI-Bildmodelle).",
+    "noImageGeneration": "Bilder erstellen ist nicht eingerichtet, oder dieser KI-Dienst kann keine Bilder erstellen. In den Einstellungen → KI-Assistent kannst du einen Dienst für Bilder wählen.",
     "imageFailed": "Das Bild konnte diesmal nicht erstellt werden. Bitte erneut versuchen.",
     "keyStore": "Der Schlüssel konnte nicht im Anmeldespeicher dieses Computers gespeichert werden.",
     "badKey": "Das sieht nicht wie ein Schlüssel aus. Bitte erneut einfügen.",
     "badAddress": "Bitte eine Webadresse eingeben, die mit http:// oder https:// beginnt.",
-    "badModel": "Dieser Modellname ist zu lang."
+    "badModel": "Dieser Modellname ist zu lang.",
+    "noImageKey": "Bilder erstellen braucht den Schlüssel des Bilddienstes. Du kannst ihn in den Einstellungen → KI-Assistent hinzufügen."
   },
   "teaching": {
     "tooLong": "Dieser Teil der Vorbereitung ist zu lang zum Speichern.",

@@ -832,7 +832,8 @@
         "keepIdea": "Guardar esta ideia",
         "cannotMake": {
           "off": "Criar imagens está desligado (Configurações → Assistente de IA). Encontrar imagens de licença livre continua funcionando.",
-          "unsupported": "Este serviço de IA não pode criar imagens. Você pode escolher a OpenAI para imagens em Configurações → Assistente de IA. Encontrar imagens de licença livre continua funcionando."
+          "unsupported": "Este serviço de IA não pode criar imagens. Você pode escolher a OpenAI para imagens em Configurações → Assistente de IA. Encontrar imagens de licença livre continua funcionando.",
+          "noKey": "Criar imagens precisa da chave da OpenAI para imagens (Configurações → Assistente de IA). Encontrar imagens de licença livre continua funcionando."
         }
       },
       "images": {
@@ -868,8 +869,10 @@
       },
       "menuTitle": "Ajuda do assistente de IA",
       "minimise": "Minimizar",
-      "restore": "Abrir de novo o assistente de IA: {{label}}",
-      "panelLabel": "Assistente de IA: {{label}}"
+      "restore": "Abrir de novo o assistente de IA",
+      "panelLabel": "Assistente de IA: {{label}}",
+      "move": "Mover o painel (teclas de seta)",
+      "sendsTo": "Criar uma imagem envia a descrição desta ideia para {{service}} pela internet."
     },
     "shape": {
       "points": {

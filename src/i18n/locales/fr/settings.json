@@ -169,7 +169,9 @@
       "unsupported": "{{service}} ne peut pas créer d’images. Choisissez OpenAI pour les images, ou laissez désactivé.",
       "unknown": "Abiding Word ne peut pas savoir si {{service}} peut créer des images avec votre compte. Vous pouvez essayer ; en cas d’échec, choisissez OpenAI pour les images."
     },
-    "imageKey": "Clé OpenAI pour les images"
+    "imageKey": "Clé OpenAI pour les images",
+    "imageKeyMissing": "Aucune clé OpenAI pour les images n’est encore gardée : collez-la ci-dessous et appuyez sur « Garder la clé ».",
+    "imagesLeave": "Les descriptions d’images sont envoyées à OpenAI par Internet, même si votre service d’écriture ne l’est pas."
   },
   "jumpTo": "Aller à une section",
   "summary": {

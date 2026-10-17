@@ -106,7 +106,9 @@ interface AssistPanelProps {
   canGenerateImages: boolean;
   canFindImages: boolean;
   /** Why images cannot be made, when they cannot. */
-  imagesNote?: "off" | "unsupported" | null;
+  imagesNote?: "off" | "unsupported" | "noKey" | null;
+  /** The service images are sent to, by name (said before an image is made). */
+  imageService?: string;
 }
 
 /**
@@ -117,7 +119,7 @@ interface AssistPanelProps {
  * Escape or Dismiss leaves everything as it was.
  */
 export function AssistPanel(props: AssistPanelProps) {
-  const { preparationId, target, action, onKeep, onAddPassage, onClose, canGenerateImages, canFindImages, imagesNote = null, singleLine = false } = props;
+  const { preparationId, target, action, onKeep, onAddPassage, onClose, canGenerateImages, canFindImages, imagesNote = null, imageService = "", singleLine = false } = props;
   const { t, i18n } = useTranslation();
   const api = useApi();
   const id = useId();
@@ -386,6 +388,7 @@ export function AssistPanel(props: AssistPanelProps) {
             canFindImages={canFindImages}
             canGenerateImages={canGenerateImages}
             imagesNote={imagesNote}
+            imageService={imageService}
           />
           <p className="m-0 text-[0.8125rem] text-text-muted">{t("studies.teaching.assist.from", { assistant: reply.assistant })}</p>
           <div>
@@ -449,7 +452,8 @@ interface ResultProps {
   onAddPassage: AssistPanelProps["onAddPassage"];
   canFindImages: boolean;
   canGenerateImages: boolean;
-  imagesNote: "off" | "unsupported" | null;
+  imagesNote: "off" | "unsupported" | "noKey" | null;
+  imageService: string;
 }
 
 function Heading({ heading, children, icon }: { heading: ResultProps["heading"]; children: ReactNode; icon: ReactNode }) {
@@ -690,7 +694,7 @@ export function Sources({ sources }: { sources: { title: string; url: string; si
   );
 }
 
-function Visuals({ reply, heading, kept, onKeep, canFindImages, canGenerateImages, imagesNote, ideas }: ResultProps & { ideas: VisualIdea[] }) {
+function Visuals({ reply, heading, kept, onKeep, canFindImages, canGenerateImages, imagesNote, imageService, ideas }: ResultProps & { ideas: VisualIdea[] }) {
   const { t } = useTranslation();
   const api = useApi();
   const [found, setFound] = useState<Record<number, FoundImage[] | "loading">>({});
@@ -776,6 +780,7 @@ function Visuals({ reply, heading, kept, onKeep, canFindImages, canGenerateImage
                   </Button>
                 )}
               </div>
+              {canGenerateImages && imageService && <p className="m-0 text-[0.8125rem] text-text-muted">{t("studies.teaching.assist.sendsTo", { service: imageService })}</p>}
               {!canGenerateImages && imagesNote && (
                 <p id={`no-make-${i}`} className="m-0 text-[0.8125rem] text-text-muted">
                   {t(`studies.teaching.assist.visuals.cannotMake.${imagesNote}`)}

@@ -45,6 +45,10 @@ export function HelpTip({ name, children, align = "start" }: HelpTipProps) {
       className="relative inline-flex align-middle"
       onMouseEnter={() => setState((s) => (s === "closed" ? "peek" : s))}
       onMouseLeave={() => setState((s) => (s === "peek" ? "closed" : s))}
+      // Focus leaving it (Tab onwards) closes it, so a later Escape belongs to the page again.
+      onBlur={(e) => {
+        if (!box.current?.contains(e.relatedTarget as Node | null)) setState("closed");
+      }}
       onKeyDown={(e) => {
         if (e.key === "Escape" && open) {
           // Closes only the explanation, not the page it sits in.

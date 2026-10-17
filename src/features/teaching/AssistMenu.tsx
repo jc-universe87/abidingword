@@ -25,7 +25,7 @@ export function AssistMenu({
   partLabel: string;
   onChoose: (action: AssistAction) => void;
   /** Why images cannot be made, shown with the picture ideas. */
-  imagesNote?: "off" | "unsupported" | null;
+  imagesNote?: "off" | "unsupported" | "noKey" | null;
 }) {
   const { t } = useTranslation();
   const id = useId();
@@ -132,7 +132,7 @@ export function AssistMenu({
           role="menu"
           aria-label={menuName}
           onKeyDown={keys}
-          className="absolute right-0 top-full z-20 mt-1 flex max-h-[70vh] w-80 max-w-[calc(100vw-2rem)] flex-col overflow-y-auto rounded-aw border border-border bg-bg py-1 shadow-lg"
+          className="absolute right-0 top-full z-40 mt-1 flex max-h-[70vh] w-80 max-w-[calc(100vw-2rem)] flex-col overflow-y-auto rounded-aw border border-border bg-bg py-1 shadow-lg"
         >
           {category ? (
             <>

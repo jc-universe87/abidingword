@@ -135,7 +135,7 @@ const imageProvider = (c: AssistantConfig) => (c.imageService === "openai" ? "op
 /** As the core decides it: from the service, never from a model's name. */
 const imageCapability = (c: AssistantConfig) => {
   const p = imageProvider(c);
-  return p === "openai" ? "supported" : p === "google" || p === "openai_compatible" ? "unknown" : "unsupported";
+  return p === "openai" ? "supported" : p === "openai_compatible" ? "unknown" : "unsupported";
 };
 
 export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
@@ -175,7 +175,9 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
       hasKey: state.assistant.keys.has(c.provider),
       hasSearchKey: state.assistant.keys.has("search"),
       remote: remote(c),
-      canGenerateImages: c.enabled && c.generateImages && imageCapability(c) !== "unsupported",
+      // As the core: the image service's key is needed too, when that service needs one.
+      canGenerateImages:
+        c.enabled && c.generateImages && imageCapability(c) !== "unsupported" && (state.assistant.keys.has(imageProvider(c)) || !NEEDS_KEY.has(imageProvider(c))),
       imageCapability: imageCapability(c),
       hasImageKey: state.assistant.keys.has(imageProvider(c)),
     };
