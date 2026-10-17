@@ -13,6 +13,7 @@ pub mod fts;
 pub mod integrity;
 pub mod library;
 pub mod migrations;
+pub mod presentations;
 pub mod projects;
 pub mod relations;
 pub mod sections;

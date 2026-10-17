@@ -17,7 +17,6 @@ const EXPECTED_TABLES: &[&str] = &[
     "bible_chapters",
     "bible_superscriptions",
     "bible_translations",
-    // Full-text search table and the shadow tables SQLite keeps for it.
     "bible_verse_search",
     "bible_verse_search_config",
     "bible_verse_search_data",
@@ -28,13 +27,14 @@ const EXPECTED_TABLES: &[&str] = &[
     "finding_sources",
     "finding_tags",
     "findings",
-    // Library search table (external content) and its shadow tables.
     "library_search",
     "library_search_config",
     "library_search_data",
     "library_search_docsize",
     "library_search_idx",
     "passage_references",
+    "presentation_items",
+    "presentations",
     "projects",
     "schema_versions",
     "settings",
@@ -46,7 +46,6 @@ const EXPECTED_TABLES: &[&str] = &[
     "studies",
     "study_blocks",
     "study_relations",
-    // Study search table, its shadow tables, and the stable id map.
     "study_search",
     "study_search_config",
     "study_search_content",

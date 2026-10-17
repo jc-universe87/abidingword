@@ -40,6 +40,9 @@ pub struct AppState {
     /// Images just generated, not (yet) kept: (file name, PNG). Only the
     /// last few; nothing is written to disk unless the person keeps one.
     generated: Mutex<VecDeque<(String, Vec<u8>)>>,
+    /// What the audience screen shows now (v0.18), for a screen that opens
+    /// or reloads in the middle of a presentation.
+    audience: Mutex<Option<crate::presentation::AudienceState>>,
 }
 
 /// How many generated, not yet kept images are held in memory.
@@ -79,6 +82,7 @@ impl AppState {
             secrets: Box::new(OsStore),
             transport: OnceLock::new(),
             generated: Mutex::new(VecDeque::new()),
+            audience: Mutex::new(None),
         }
     }
 
@@ -130,6 +134,25 @@ impl AppState {
             .position(|(n, _)| n == name)
             .and_then(|i| held.remove(i))
             .map(|(_, png)| png))
+    }
+
+    pub fn set_audience(
+        &self,
+        value: Option<crate::presentation::AudienceState>,
+    ) -> Result<(), ErrorPayload> {
+        *self
+            .audience
+            .lock()
+            .map_err(|_| AppError::Unexpected("audience lock poisoned".into()))? = value;
+        Ok(())
+    }
+
+    pub fn audience(&self) -> Result<Option<crate::presentation::AudienceState>, ErrorPayload> {
+        Ok(self
+            .audience
+            .lock()
+            .map_err(|_| AppError::Unexpected("audience lock poisoned".into()))?
+            .clone())
     }
 
     pub fn core(&self) -> Result<&Core, ErrorPayload> {

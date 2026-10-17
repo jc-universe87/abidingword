@@ -3,10 +3,12 @@
 //! Everything here is serialised to the frontend with camelCase field names.
 //! The TypeScript mirror lives in `src/types/domain.ts`; keep the two in step.
 
+pub mod presentation;
 pub mod studies;
 pub mod teaching;
 pub mod validate;
 
+pub use presentation::*;
 pub use studies::*;
 pub use teaching::*;
 

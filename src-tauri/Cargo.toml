@@ -46,6 +46,11 @@ reqwest = { version = "0.13", default-features = false, features = ["json", "rus
 rustls = { version = "0.23", default-features = false, features = ["ring"] }
 # API keys live in the operating system's credential store, never in the database.
 keyring = { version = "3", features = ["windows-native", "apple-native", "linux-native"] }
+# Presentation exports (v0.18): PDF streams, PNG images in PDFs and the
+# computer's own TrueType fonts (all already used by other dependencies).
+flate2 = "1"
+png = "0.18"
+ttf-parser = "0.25"
 
 [dev-dependencies]
 tempfile = "3"

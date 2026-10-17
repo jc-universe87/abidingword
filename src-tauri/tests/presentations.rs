@@ -1,0 +1,881 @@
+//! Presentation & Delivery (v0.18): a presentation is made from a Bible
+//! Teaching by fixed rules, follows the teaching live, keeps what the
+//! audience sees apart from what only the speaker sees, and gives the same
+//! slides to the Presenter View, PowerPoint, PDF, Markdown and the delivery
+//! package. All text is invented.
+
+use std::io::Read as _;
+use std::path::{Path, PathBuf};
+
+use abiding_word_lib::commands::presentations::render;
+use abiding_word_lib::db::bibles::SourceRecord;
+use abiding_word_lib::db::{
+    bibles, presentations, projects, studies, teaching, workspaces, Database,
+};
+use abiding_word_lib::domain::{
+    AddTeachingPassage, CreatePresentation, CreatePresentationItem, CreateProject, CreateStudy,
+    CreateTeaching, ImageInfo, ItemSource, KeepTeachingMaterial, ProposalLabels, Reorder,
+    StartingPoint, UpdatePresentation, UpdatePresentationItem, UpdateTeaching, UpdateTeachingPoint,
+};
+use abiding_word_lib::error::{AppError, AppResult};
+use abiding_word_lib::presentation::fonts::FontSet;
+use abiding_word_lib::presentation::{self, document, package, ExportOptions, ImageStore};
+use abiding_word_lib::scripture::import::{self, ImportOrigin};
+use abiding_word_lib::scripture::CommitImport;
+use rusqlite::Connection;
+
+fn with_db<T>(f: impl FnOnce(&Connection) -> AppResult<T>) -> T {
+    Database::open_in_memory().unwrap().with_conn(f).unwrap()
+}
+
+fn install_bible(conn: &Connection) -> AppResult<String> {
+    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/usfm-a");
+    let mut files: Vec<PathBuf> = std::fs::read_dir(dir)
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .collect();
+    files.sort();
+    let staged = import::stage(&files, ImportOrigin::UserFiles)?;
+    let id = bibles::new_translation_id();
+    bibles::commit_import(
+        conn,
+        &id,
+        &staged.content,
+        &CommitImport {
+            preview_id: staged.id.clone(),
+            name: "Fixture Alpha".into(),
+            short_name: "FXA".into(),
+            language: "English".into(),
+            language_code: Some("en".into()),
+            publisher: None,
+            copyright_notice: Some("Fixture text, free to use.".into()),
+            license_type: None,
+        },
+        &SourceRecord {
+            origin: "managed_copy",
+            path: Some("sources/bibles/test".into()),
+            original_file_name: Some("fixture".into()),
+            format: "usfm",
+            is_builtin: false,
+        },
+    )?;
+    Ok(id)
+}
+
+fn new_study(conn: &Connection) -> AppResult<String> {
+    let workspace = workspaces::get_default(conn)?;
+    let project = projects::create(
+        conn,
+        &CreateProject {
+            workspace_id: workspace.id,
+            title: "Collection".into(),
+            description: None,
+        },
+    )?;
+    Ok(studies::create(
+        conn,
+        &CreateStudy {
+            project_id: project.id,
+            title: "John 15".into(),
+            ..Default::default()
+        },
+    )?
+    .study
+    .id)
+}
+
+const GENERATED: &str = "0a1b2c3d-4e5f.png";
+
+/// A small real PNG (with transparency).
+fn png_bytes() -> Vec<u8> {
+    let mut out = Vec::new();
+    {
+        let mut encoder = png::Encoder::new(&mut out, 4, 3);
+        encoder.set_color(png::ColorType::Rgba);
+        encoder.set_depth(png::BitDepth::Eight);
+        let mut writer = encoder.write_header().unwrap();
+        writer.write_image_data(&[200u8; 4 * 3 * 4]).unwrap();
+    }
+    out
+}
+
+struct Sermon {
+    teaching: String,
+    points: Vec<String>,
+}
+
+/// A sermon: introduction, message, John 15:1–5 for the whole, two points
+/// (the first with John 15:7 and a generated image), a conclusion, notes.
+fn sermon(conn: &Connection) -> AppResult<Sermon> {
+    let study = new_study(conn)?;
+    let prep = teaching::create(
+        conn,
+        &CreateTeaching {
+            study_id: study,
+            title: "Remain in the vine".into(),
+            kind: Some("sermon".into()),
+            points: vec![
+                StartingPoint {
+                    title: "Stay connected".into(),
+                    kind: None,
+                },
+                StartingPoint {
+                    title: "Bear fruit".into(),
+                    kind: None,
+                },
+            ],
+        },
+    )?;
+    teaching::update(
+        conn,
+        &UpdateTeaching {
+            id: prep.id.clone(),
+            introduction: Some("Have you ever pruned a rose?".into()),
+            central_message: Some("Fruit comes from abiding.".into()),
+            conclusion: Some("Stay close to him this week.".into()),
+            notes: Some("PRIVATE TEACHING NOTE".into()),
+            ..Default::default()
+        },
+    )?;
+    let points: Vec<String> = prep.points.iter().map(|p| p.id.clone()).collect();
+    teaching::update_point(
+        conn,
+        &UpdateTeachingPoint {
+            id: points[0].clone(),
+            explanation: Some("SPEAKER EXPLANATION: branches live from the vine.".into()),
+            application: Some("Pray before you plan.".into()),
+            ..Default::default()
+        },
+    )?;
+    teaching::add_passage(
+        conn,
+        &AddTeachingPassage {
+            preparation_id: prep.id.clone(),
+            point_id: None,
+            reference: "JHN.15.1-JHN.15.5".into(),
+        },
+    )?;
+    teaching::add_passage(
+        conn,
+        &AddTeachingPassage {
+            preparation_id: prep.id.clone(),
+            point_id: Some(points[0].clone()),
+            reference: "JHN.15.7".into(),
+        },
+    )?;
+    teaching::keep_material(
+        conn,
+        &KeepTeachingMaterial {
+            preparation_id: prep.id.clone(),
+            point_id: Some(points[0].clone()),
+            kind: "image".into(),
+            standing: "generated".into(),
+            title: "A vine with grapes".into(),
+            content: String::new(),
+            sources: Vec::new(),
+            image: Some(ImageInfo {
+                file: Some(GENERATED.into()),
+                ..Default::default()
+            }),
+            assistant: Some("Example · image".into()),
+        },
+    )?;
+    Ok(Sermon {
+        teaching: prep.id,
+        points,
+    })
+}
+
+fn labels() -> ProposalLabels {
+    ProposalLabels {
+        introduction: "Introduction".into(),
+        conclusion: "Conclusion".into(),
+    }
+}
+
+fn propose(conn: &Connection, teaching: &str) -> AppResult<abiding_word_lib::domain::Presentation> {
+    presentations::create(
+        conn,
+        &CreatePresentation {
+            preparation_id: teaching.into(),
+            title: None,
+            propose: true,
+            labels: labels(),
+        },
+    )
+}
+
+fn store(dir: &Path) -> ImageStore {
+    let generated = dir.join("teaching-images");
+    std::fs::create_dir_all(&generated).unwrap();
+    std::fs::write(generated.join(GENERATED), png_bytes()).unwrap();
+    ImageStore {
+        generated_dir: generated,
+        offline_dir: dir.join("presentation-images"),
+    }
+}
+
+fn code<T: std::fmt::Debug>(result: AppResult<T>) -> String {
+    match result {
+        Err(AppError::InvalidInput(m)) | Err(AppError::InvalidReference(m)) => {
+            m.code.unwrap_or_default().to_string()
+        }
+        Err(AppError::NotFound { entity, .. }) => format!("notFound:{entity}"),
+        other => panic!("expected a refusal, got {other:?}"),
+    }
+}
+
+#[test]
+fn a_proposal_follows_the_teaching_in_order_without_ai() {
+    with_db(|conn| {
+        let s = sermon(conn)?;
+        let p = propose(conn, &s.teaching)?;
+        let kinds: Vec<(&str, &str)> = p
+            .items
+            .iter()
+            .map(|i| {
+                (
+                    i.kind.as_str(),
+                    i.source.as_ref().map_or("", |s| s.kind.as_str()),
+                )
+            })
+            .collect();
+        assert_eq!(
+            kinds,
+            [
+                ("title", "preparation"),
+                ("heading", "preparation"), // introduction (spoken)
+                ("scripture", "passage"),   // John 15:1–5
+                ("text", "preparation"),    // central message
+                ("heading", "point"),
+                ("scripture", "passage"), // John 15:7
+                ("image", "material"),
+                ("heading", "point"),
+                ("heading", "preparation"), // conclusion
+            ]
+        );
+        assert_eq!(p.title, "Remain in the vine");
+        assert_eq!(p.theme, "light");
+        // The proposal's own headings are in the person's language.
+        assert_eq!(p.items[1].heading.as_deref(), Some("Introduction"));
+        assert_eq!(p.items[8].heading.as_deref(), Some("Conclusion"));
+        // The same teaching always gives the same proposal.
+        let again = propose(conn, &s.teaching)?;
+        assert_eq!(
+            again
+                .items
+                .iter()
+                .map(|i| (&i.kind, &i.source))
+                .collect::<Vec<_>>(),
+            p.items
+                .iter()
+                .map(|i| (&i.kind, &i.source))
+                .collect::<Vec<_>>()
+        );
+        assert_eq!(presentations::list(conn, &s.teaching)?.len(), 2);
+        Ok(())
+    });
+}
+
+#[test]
+fn bible_study_questions_and_lesson_steps_get_their_own_slides() {
+    with_db(|conn| {
+        let study = new_study(conn)?;
+        let group = teaching::create(
+            conn,
+            &CreateTeaching {
+                study_id: study.clone(),
+                title: "Group".into(),
+                kind: Some("bible_study".into()),
+                points: vec![StartingPoint {
+                    title: "What does the vine give the branch?".into(),
+                    kind: None,
+                }],
+            },
+        )?;
+        let p = propose(conn, &group.id)?;
+        assert_eq!(p.items[1].kind, "question");
+
+        let lesson = teaching::create(
+            conn,
+            &CreateTeaching {
+                study_id: study,
+                title: "Lesson".into(),
+                kind: Some("children".into()),
+                points: ["scripture", "activity", "question", "image"]
+                    .iter()
+                    .map(|k| StartingPoint {
+                        title: format!("A {k} step"),
+                        kind: Some((*k).into()),
+                    })
+                    .collect(),
+            },
+        )?;
+        teaching::add_passage(
+            conn,
+            &AddTeachingPassage {
+                preparation_id: lesson.id.clone(),
+                point_id: Some(lesson.points[0].id.clone()),
+                reference: "JHN.15.1".into(),
+            },
+        )?;
+        let p = propose(conn, &lesson.id)?;
+        let kinds: Vec<&str> = p.items.iter().map(|i| i.kind.as_str()).collect();
+        // The Scripture step is shown by its passage; an image step without
+        // an image keeps its heading.
+        assert_eq!(
+            kinds,
+            ["title", "scripture", "activity", "question", "heading"]
+        );
+        Ok(())
+    });
+}
+
+#[test]
+fn slides_follow_the_teaching_live_until_the_person_writes_their_own() {
+    let temp = tempfile::tempdir().unwrap();
+    let store = store(temp.path());
+    with_db(|conn| {
+        let s = sermon(conn)?;
+        let p = propose(conn, &s.teaching)?;
+        let point_item = p.items[4].clone();
+        let heading = |conn: &Connection| -> AppResult<Option<String>> {
+            let doc = document::build(conn, &p.id, &store)?;
+            Ok(doc
+                .slides
+                .iter()
+                .find(|sl| sl.item_id == point_item.id)
+                .and_then(|sl| sl.audience.heading.clone()))
+        };
+        assert_eq!(heading(conn)?.as_deref(), Some("Stay connected"));
+        // Editing the teaching shows in the presentation.
+        teaching::update_point(
+            conn,
+            &UpdateTeachingPoint {
+                id: s.points[0].clone(),
+                title: Some("Stay joined to him".into()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(heading(conn)?.as_deref(), Some("Stay joined to him"));
+        // The person's own heading wins, and the teaching is not changed.
+        let before = teaching::get(conn, &s.teaching)?;
+        presentations::update_item(
+            conn,
+            &UpdatePresentationItem {
+                id: point_item.id.clone(),
+                heading: Some("Joined".into()),
+                body: Some("Audience line".into()),
+                notes: Some("Look at the back row.".into()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(heading(conn)?.as_deref(), Some("Joined"));
+        let after = teaching::get(conn, &s.teaching)?;
+        assert_eq!(before.revision, after.revision);
+        assert_eq!(after.points[0].title, "Stay joined to him");
+        // Following the teaching again.
+        presentations::update_item(
+            conn,
+            &UpdatePresentationItem {
+                id: point_item.id.clone(),
+                follow_heading: true,
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(heading(conn)?.as_deref(), Some("Stay joined to him"));
+        Ok(())
+    });
+}
+
+#[test]
+fn items_are_added_reordered_left_out_and_checked() {
+    with_db(|conn| {
+        let s = sermon(conn)?;
+        let other = sermon(conn)?;
+        let p = propose(conn, &s.teaching)?;
+        let first = p.items[0].id.clone();
+        let p = presentations::create_item(
+            conn,
+            &CreatePresentationItem {
+                presentation_id: p.id.clone(),
+                kind: "pause".into(),
+                after_item_id: Some(first.clone()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(p.items[1].kind, "pause");
+        let p = presentations::create_item(
+            conn,
+            &CreatePresentationItem {
+                presentation_id: p.id.clone(),
+                kind: "scripture".into(),
+                reference: Some("ROM.8.1".into()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(
+            p.items.last().unwrap().reference.as_deref(),
+            Some("ROM.8.1")
+        );
+
+        // Refusals: another teaching's part, an unknown kind or theme, a bad reference.
+        assert_eq!(
+            code(presentations::create_item(
+                conn,
+                &CreatePresentationItem {
+                    presentation_id: p.id.clone(),
+                    kind: "heading".into(),
+                    source: Some(ItemSource {
+                        kind: "point".into(),
+                        id: other.points[0].clone(),
+                        field: None,
+                    }),
+                    ..Default::default()
+                },
+            )),
+            "presentation.otherTeaching"
+        );
+        assert_eq!(
+            code(presentations::create_item(
+                conn,
+                &CreatePresentationItem {
+                    presentation_id: p.id.clone(),
+                    kind: "video".into(),
+                    ..Default::default()
+                },
+            )),
+            "invalidChoice"
+        );
+        assert_eq!(
+            code(presentations::update(
+                conn,
+                &UpdatePresentation {
+                    id: p.id.clone(),
+                    theme: Some("neon".into()),
+                    ..Default::default()
+                },
+            )),
+            "invalidChoice"
+        );
+        assert_eq!(
+            code(presentations::update_item(
+                conn,
+                &UpdatePresentationItem {
+                    id: first.clone(),
+                    reference: Some("NOT.A.REF".into()),
+                    ..Default::default()
+                },
+            )),
+            "reference.invalid"
+        );
+
+        let mut ids: Vec<String> = p.items.iter().map(|i| i.id.clone()).collect();
+        ids.reverse();
+        let p = presentations::reorder_items(
+            conn,
+            &Reorder {
+                parent_id: p.id.clone(),
+                ids: ids.clone(),
+            },
+        )?;
+        assert_eq!(
+            p.items.iter().map(|i| &i.id).collect::<Vec<_>>(),
+            ids.iter().collect::<Vec<_>>()
+        );
+        assert_eq!(
+            code(presentations::reorder_items(
+                conn,
+                &Reorder {
+                    parent_id: p.id.clone(),
+                    ids: ids[1..].to_vec(),
+                },
+            )),
+            "changedMeanwhile"
+        );
+
+        let p = presentations::update(
+            conn,
+            &UpdatePresentation {
+                id: p.id.clone(),
+                theme: Some("warm".into()),
+                title: Some("Sunday".into()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!((p.theme.as_str(), p.title.as_str()), ("warm", "Sunday"));
+        let left_out = p.items[0].id.clone();
+        let p = presentations::update_item(
+            conn,
+            &UpdatePresentationItem {
+                id: left_out.clone(),
+                skipped: Some(true),
+                ..Default::default()
+            },
+        )?;
+        let temp = tempfile::tempdir().unwrap();
+        let doc = document::build(conn, &p.id, &store(temp.path()))?;
+        assert!(doc.slides.iter().all(|sl| sl.item_id != left_out));
+        let count = p.items.len();
+        let p = presentations::delete_item(conn, &left_out)?;
+        assert_eq!(p.items.len(), count - 1);
+        assert_eq!(
+            p.items.iter().map(|i| i.position).collect::<Vec<_>>(),
+            (0..count as i64 - 1).collect::<Vec<_>>()
+        );
+
+        presentations::delete(conn, &p.id)?;
+        assert_eq!(
+            code(presentations::get(conn, &p.id)),
+            "notFound:presentation"
+        );
+        // The teaching is still there.
+        teaching::get(conn, &s.teaching)?;
+        Ok(())
+    });
+}
+
+#[test]
+fn a_removed_part_of_the_teaching_is_reported_and_a_removed_teaching_takes_its_presentations() {
+    let temp = tempfile::tempdir().unwrap();
+    let store = store(temp.path());
+    with_db(|conn| {
+        let s = sermon(conn)?;
+        let p = propose(conn, &s.teaching)?;
+        teaching::delete_point(conn, &s.points[1])?;
+        let doc = document::build(conn, &p.id, &store)?;
+        let missing: Vec<_> = doc.slides.iter().filter(|sl| sl.source_missing).collect();
+        assert_eq!(missing.len(), 1);
+        assert!(doc.warnings.iter().any(|w| w.code == "sourceMissing"));
+        teaching::delete(conn, &s.teaching)?;
+        assert!(presentations::get(conn, &p.id).is_err());
+        Ok(())
+    });
+}
+
+#[test]
+fn scripture_is_quoted_from_an_installed_bible_and_missing_text_is_said() {
+    let temp = tempfile::tempdir().unwrap();
+    let store = store(temp.path());
+    with_db(|conn| {
+        let s = sermon(conn)?;
+        let p = propose(conn, &s.teaching)?;
+        let doc = document::build(conn, &p.id, &store)?;
+        assert!(doc.bible.is_none());
+        assert!(doc.warnings.iter().any(|w| w.code == "noBible"));
+        assert!(doc
+            .warnings
+            .iter()
+            .any(|w| w.code == "scriptureUnavailable"));
+
+        let bible = install_bible(conn)?;
+        let doc = document::build(conn, &p.id, &store)?;
+        assert_eq!(
+            doc.bible.as_ref().map(|b| b.id.as_str()),
+            Some(bible.as_str())
+        );
+        let scripture: Vec<_> = doc
+            .slides
+            .iter()
+            .filter(|sl| sl.kind == "scripture")
+            .collect();
+        assert_eq!(scripture.len(), 2);
+        assert_eq!(scripture[0].audience.verses.len(), 5);
+        assert!(scripture[0].audience.verses[0].text.contains("vine"));
+        assert_eq!(scripture[0].audience.bible.as_deref(), Some("FXA"));
+        assert_eq!(
+            scripture[1].audience.reference.as_ref().unwrap().canonical,
+            "JHN.15.7"
+        );
+        // The title slide names the main passage.
+        assert_eq!(
+            doc.slides[0].audience.reference.as_ref().unwrap().canonical,
+            "JHN.15.1-JHN.15.5"
+        );
+        assert_eq!(
+            doc.primary_passage.as_ref().unwrap().canonical,
+            "JHN.15.1-JHN.15.5"
+        );
+        Ok(())
+    });
+}
+
+#[test]
+fn speaker_text_never_reaches_the_audience() {
+    let temp = tempfile::tempdir().unwrap();
+    let store = store(temp.path());
+    with_db(|conn| {
+        let s = sermon(conn)?;
+        install_bible(conn)?;
+        let p = propose(conn, &s.teaching)?;
+        for item in &p.items {
+            presentations::update_item(
+                conn,
+                &UpdatePresentationItem {
+                    id: item.id.clone(),
+                    notes: Some(format!("SECRET NOTE {}", item.position)),
+                    ..Default::default()
+                },
+            )?;
+        }
+        let p = presentations::create_item(
+            conn,
+            &CreatePresentationItem {
+                presentation_id: p.id.clone(),
+                kind: "pause".into(),
+                heading: Some("SECRET PAUSE LABEL".into()),
+                ..Default::default()
+            },
+        )?;
+        let doc = document::build(conn, &p.id, &store)?;
+        // The speaker has their text…
+        let speaker = serde_json::to_string(&doc).unwrap();
+        assert!(speaker.contains("SECRET NOTE 0"));
+        assert!(speaker.contains("SPEAKER EXPLANATION"));
+        assert!(speaker.contains("Have you ever pruned a rose?"));
+        // …the audience screen is given none of it.
+        let audience = serde_json::to_string(&doc.audience()).unwrap();
+        for private in [
+            "SECRET",
+            "SPEAKER EXPLANATION",
+            "Pray before you plan",
+            "Have you ever pruned a rose?",
+            "Stay close to him this week",
+            "PRIVATE TEACHING NOTE",
+            "manuscript",
+            "notes",
+            "citations",
+            "Fixture text, free to use.",
+            "Example · image",
+        ] {
+            assert!(
+                !audience.contains(private),
+                "audience was given {private:?}"
+            );
+        }
+        // A pause is an empty screen.
+        let pause = doc.audience().slides.into_iter().last().unwrap();
+        assert!(pause.audience.blank);
+        assert!(pause.audience.heading.is_none());
+        // The generated image is marked as generated for the audience too.
+        let image = doc.slides.iter().find(|sl| sl.kind == "image").unwrap();
+        assert!(image.audience.image.as_ref().unwrap().generated);
+        Ok(())
+    });
+}
+
+#[test]
+fn the_delivery_package_is_a_deterministic_self_contained_snapshot() {
+    let temp = tempfile::tempdir().unwrap();
+    let store = store(temp.path());
+    with_db(|conn| {
+        let s = sermon(conn)?;
+        install_bible(conn)?;
+        let p = propose(conn, &s.teaching)?;
+        let first = package::to_json(&package::build(conn, &p.id, &store)?)?;
+        let second = package::to_json(&package::build(conn, &p.id, &store)?)?;
+        assert_eq!(first, second, "the same content gives the same file");
+        let read = package::from_json(&first)?;
+        assert_eq!(read.format, document::FORMAT);
+        assert_eq!(read.schema_version, document::SCHEMA_VERSION);
+        assert_eq!(
+            read.slides.len(),
+            document::build(conn, &p.id, &store)?.slides.len()
+        );
+        let image = &read.images[0];
+        assert!(image.available);
+        assert_eq!(image.media_type.as_deref(), Some("image/png"));
+        assert_eq!((image.width, image.height), (Some(4), Some(3)));
+        assert!(image.data.as_deref().is_some_and(|d| !d.is_empty()));
+        // No addresses of this computer's files are in it.
+        assert!(!first.contains(temp.path().to_str().unwrap()));
+        // The live document carries no image data.
+        assert!(document::build(conn, &p.id, &store)?.images[0]
+            .data
+            .is_none());
+        // A newer package is refused rather than misread.
+        let newer = first.replace("\"schemaVersion\": 1", "\"schemaVersion\": 99");
+        assert!(package::from_json(&newer).is_err());
+        Ok(())
+    });
+}
+
+fn options(notes: bool) -> ExportOptions {
+    ExportOptions {
+        speaker_notes: notes,
+        citations: true,
+        ..Default::default()
+    }
+}
+
+fn exported(format: &str, notes: bool) -> (Vec<u8>, presentation::PresentationDocument) {
+    let temp = tempfile::tempdir().unwrap();
+    let store = store(temp.path());
+    with_db(|conn| {
+        let s = sermon(conn)?;
+        install_bible(conn)?;
+        let p = propose(conn, &s.teaching)?;
+        presentations::update_item(
+            conn,
+            &UpdatePresentationItem {
+                id: p.items[4].id.clone(),
+                notes: Some("Look at the back row.".into()),
+                body: Some("나는 포도나무요 — Ich bin der Weinstock".into()),
+                ..Default::default()
+            },
+        )?;
+        let doc = package::build(conn, &p.id, &store)?;
+        let bytes = render(&doc, format, &options(notes), FontSet::system).unwrap();
+        Ok((bytes, doc))
+    })
+}
+
+#[test]
+fn markdown_has_the_slides_and_speaker_text_only_when_asked() {
+    let (bytes, _) = exported("markdown", false);
+    let md = String::from_utf8(bytes).unwrap();
+    assert!(md.starts_with("# Remain in the vine\n"));
+    assert!(md.contains("*John 15:1–5*"));
+    assert!(md.contains("### Stay connected"));
+    assert!(md.contains("> **John 15:1–5** (FXA)"));
+    assert!(md.contains("<sup>1</sup> Fixture alpha fifteen one"));
+    assert!(md.contains("Generated image"));
+    assert!(!md.contains("Look at the back row."));
+    assert!(!md.contains("SPEAKER EXPLANATION"));
+    let (bytes, _) = exported("markdown", true);
+    let md = String::from_utf8(bytes).unwrap();
+    assert!(md.contains("Look at the back row."));
+    assert!(md.contains("SPEAKER EXPLANATION"));
+    assert!(md.contains("## Sources"));
+}
+
+fn unzip(bytes: &[u8]) -> Vec<(String, Vec<u8>)> {
+    let mut archive = zip::ZipArchive::new(std::io::Cursor::new(bytes)).unwrap();
+    (0..archive.len())
+        .map(|i| {
+            let mut file = archive.by_index(i).unwrap();
+            let mut data = Vec::new();
+            file.read_to_end(&mut data).unwrap();
+            (file.name().to_string(), data)
+        })
+        .collect()
+}
+
+#[test]
+fn powerpoint_has_one_well_formed_slide_per_audience_slide() {
+    let (bytes, doc) = exported("pptx", false);
+    let files = unzip(&bytes);
+    let names: Vec<&str> = files.iter().map(|(n, _)| n.as_str()).collect();
+    assert_eq!(names[0], "[Content_Types].xml");
+    for part in [
+        "_rels/.rels",
+        "ppt/presentation.xml",
+        "ppt/slideMasters/slideMaster1.xml",
+        "ppt/slideLayouts/slideLayout1.xml",
+        "ppt/theme/theme1.xml",
+        "docProps/core.xml",
+    ] {
+        assert!(names.contains(&part), "missing {part}");
+    }
+    let slides = names
+        .iter()
+        .filter(|n| n.starts_with("ppt/slides/slide"))
+        .count();
+    assert_eq!(slides, doc.slides.len());
+    assert!(names.contains(&"ppt/media/image1.png"));
+    assert!(
+        !names.iter().any(|n| n.contains("notesSlide")),
+        "no notes unless asked"
+    );
+    // Every XML part is well formed.
+    for (name, data) in &files {
+        if name.ends_with(".xml") || name.ends_with(".rels") {
+            let mut reader = quick_xml::Reader::from_reader(data.as_slice());
+            let mut buf = Vec::new();
+            loop {
+                match reader.read_event_into(&mut buf) {
+                    Ok(quick_xml::events::Event::Eof) => break,
+                    Ok(_) => {}
+                    Err(e) => panic!("{name} is not well formed: {e}"),
+                }
+                buf.clear();
+            }
+        }
+    }
+    let all: String = files
+        .iter()
+        .filter(|(n, _)| n.starts_with("ppt/slides/slide"))
+        .map(|(_, d)| String::from_utf8_lossy(d).into_owned())
+        .collect();
+    assert!(all.contains("Remain in the vine"));
+    assert!(all.contains("Fixture alpha fifteen one"));
+    assert!(all.contains("나는 포도나무요"));
+    assert!(!all.contains("Look at the back row."));
+    assert!(!all.contains("SPEAKER EXPLANATION"));
+    // The same presentation gives the same file.
+    assert_eq!(bytes, exported("pptx", false).0);
+
+    let (bytes, _) = exported("pptx", true);
+    let files = unzip(&bytes);
+    let notes: String = files
+        .iter()
+        .filter(|(n, _)| n.starts_with("ppt/notesSlides/notesSlide"))
+        .map(|(_, d)| String::from_utf8_lossy(d).into_owned())
+        .collect();
+    assert!(notes.contains("Look at the back row."));
+    assert!(notes.contains("SPEAKER EXPLANATION"));
+    assert!(files
+        .iter()
+        .any(|(n, _)| n == "ppt/notesMasters/notesMaster1.xml"));
+}
+
+#[test]
+fn the_pdfs_have_a_page_per_slide_and_readable_text() {
+    let (bytes, doc) = exported("pdf", false);
+    let pdf = lopdf::Document::load_mem(&bytes).unwrap();
+    assert_eq!(pdf.get_pages().len(), doc.slides.len());
+    let text = pdf_extract::extract_text_from_mem(&bytes).unwrap_or_default();
+    assert!(text.contains("Remain"), "text: {text}");
+    assert!(!text.contains("Look at the back row."));
+    // Hangul is drawn when this computer has a font for it.
+    let fonts = FontSet::system();
+    if fonts.regular.iter().any(|f| f.glyph('나').is_some()) {
+        assert!(text.contains("포도나무"), "text: {text}");
+    }
+
+    let (bytes, doc) = exported("speaker_pdf", false);
+    let pdf = lopdf::Document::load_mem(&bytes).unwrap();
+    assert!(pdf.get_pages().len() >= doc.slides.len());
+    let text = pdf_extract::extract_text_from_mem(&bytes).unwrap_or_default();
+    // The speaker sheet has the speaker's text.
+    assert!(text.contains("Look at the back row."), "text: {text}");
+    assert!(text.contains("SPEAKER EXPLANATION"));
+}
+
+#[test]
+fn exports_work_without_any_system_font() {
+    let (_, doc) = exported("markdown", false);
+    let bytes = render(&doc, "pdf", &options(false), FontSet::empty).unwrap();
+    let pdf = lopdf::Document::load_mem(&bytes).unwrap();
+    assert_eq!(pdf.get_pages().len(), doc.slides.len());
+    let bytes = render(&doc, "pptx", &options(true), FontSet::empty).unwrap();
+    assert!(!unzip(&bytes).is_empty());
+}
+
+/// Writes example exports for looking at them (not run by default):
+/// `ABIDING_EXPORT_DIR=/some/dir cargo test --test presentations write_examples -- --ignored`
+#[test]
+#[ignore]
+fn write_examples() {
+    let dir = PathBuf::from(std::env::var("ABIDING_EXPORT_DIR").unwrap());
+    std::fs::create_dir_all(&dir).unwrap();
+    for (format, name, notes) in [
+        ("pptx", "example.pptx", true),
+        ("pdf", "example.pdf", false),
+        ("speaker_pdf", "example-speaker.pdf", true),
+        ("markdown", "example.md", true),
+        ("package", "example.json", false),
+    ] {
+        std::fs::write(dir.join(name), exported(format, notes).0).unwrap();
+    }
+}

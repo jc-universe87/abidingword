@@ -86,6 +86,12 @@ impl DataDirs {
     pub fn teaching_images(&self) -> PathBuf {
         self.root.join("sources").join("teaching-images")
     }
+
+    /// Copies of found images saved for presenting offline (v0.18), named
+    /// by their address.
+    pub fn presentation_images(&self) -> PathBuf {
+        self.root.join("sources").join("presentation-images")
+    }
 }
 
 /// Copies files into `dir` (created if needed). Names that clash get a

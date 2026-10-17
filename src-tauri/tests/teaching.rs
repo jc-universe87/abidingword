@@ -519,7 +519,7 @@ fn kept_material_carries_an_honest_standing() {
 #[test]
 fn the_schema_is_at_version_nine() {
     with_db(|conn| {
-        assert_eq!(migrations::current_version(conn)?, 9);
+        assert_eq!(migrations::current_version(conn)?, 10);
         Ok(())
     });
 }

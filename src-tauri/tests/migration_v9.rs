@@ -70,7 +70,7 @@ fn a_v8_database_is_backed_up_and_keeps_everything() {
     assert_eq!(migrations::current_version(&copy).unwrap(), 8);
 
     db.with_conn(|conn| {
-        assert_eq!(migrations::current_version(conn)?, 9);
+        assert_eq!(migrations::current_version(conn)?, 10);
         // The study keeps its old parts (even ones the new templates retire), writing and notes.
         let detail = studies::get_detail(conn, "s-1")?;
         let titles: Vec<_> = detail.sections.iter().map(|s| s.title.as_str()).collect();

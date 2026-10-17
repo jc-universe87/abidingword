@@ -15,6 +15,7 @@ pub mod bibles;
 pub mod blocks;
 pub mod findings;
 pub mod library;
+pub mod presentations;
 pub mod projects;
 pub mod relations;
 pub mod scripture;

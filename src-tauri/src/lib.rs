@@ -14,6 +14,7 @@ pub mod error;
 pub mod filesystem;
 pub mod integrations;
 pub mod library;
+pub mod presentation;
 pub mod scripture;
 pub mod state;
 
@@ -167,6 +168,25 @@ pub fn run() {
             commands::teaching::teaching_material_keep,
             commands::teaching::teaching_material_remove,
             commands::teaching::teaching_image,
+            commands::presentations::presentation_list,
+            commands::presentations::presentation_get,
+            commands::presentations::presentation_create,
+            commands::presentations::presentation_update,
+            commands::presentations::presentation_delete,
+            commands::presentations::presentation_item_create,
+            commands::presentations::presentation_item_update,
+            commands::presentations::presentation_item_delete,
+            commands::presentations::presentation_item_reorder,
+            commands::presentations::presentation_document,
+            commands::presentations::presentation_audience,
+            commands::presentations::presentation_image,
+            commands::presentations::presentation_image_save,
+            commands::presentations::presentation_export,
+            commands::presentations::presentation_screens,
+            commands::presentations::presentation_audience_open,
+            commands::presentations::presentation_audience_show,
+            commands::presentations::presentation_audience_state,
+            commands::presentations::presentation_audience_close,
             commands::assistant::assistant_settings_get,
             commands::assistant::assistant_settings_set,
             commands::assistant::assistant_key_set,
