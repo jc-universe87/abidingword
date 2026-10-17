@@ -286,19 +286,37 @@ impl Shape {
         }
     }
 
-    /// What each field of a point holds in this shape.
-    fn field(self, part: Part) -> &'static str {
-        match (self, part) {
-            (Self::Questions, Part::PointTitle) => "the question",
-            (Self::Questions, Part::PointExplanation) => {
+    /// What each field of a point holds in this shape (and, for a step of a
+    /// lesson, its kind), as the canvas labels it (`stepFieldLabel` in
+    /// `src/features/teaching/labels.ts`).
+    fn field(self, part: Part, step: Option<&str>) -> &'static str {
+        match (self, step, part) {
+            (Self::Questions, _, Part::PointTitle) => "the question",
+            (Self::Questions, _, Part::PointExplanation) => {
                 "where the discussion may lead (leader's notes)"
             }
-            (Self::Questions, Part::PointApplication) => "follow-up questions",
-            (Self::Steps, Part::PointExplanation) => "what is said or done",
-            (_, Part::PointTitle) => "title",
-            (_, Part::PointExplanation) => "explanation",
-            (_, Part::PointApplication) => "application",
-            (_, Part::PointIllustration) => "illustration",
+            (Self::Questions, _, Part::PointApplication) => "follow-up questions",
+            (Self::Questions, _, Part::PointIllustration) => "notes for leading the conversation",
+            (Self::Steps, Some("question"), Part::PointTitle) => "the question",
+            (Self::Steps, Some("text"), Part::PointExplanation) => "what is said",
+            (Self::Steps, Some("scripture"), Part::PointExplanation) => {
+                "how the Bible passage is read or told"
+            }
+            (Self::Steps, Some("question"), Part::PointExplanation) => "answers to listen for",
+            (Self::Steps, Some("activity"), Part::PointExplanation) => "how the activity works",
+            (Self::Steps, Some("activity"), Part::PointIllustration) => {
+                "what is needed (materials)"
+            }
+            (Self::Steps, Some("image"), Part::PointExplanation) => {
+                "what the picture shows, and when it is shown"
+            }
+            (Self::Steps, _, Part::PointExplanation) => "what is said or done",
+            (Self::Steps, _, Part::PointApplication) => "what they should take away",
+            (Self::Steps, _, Part::PointIllustration) => "activity, material or example",
+            (_, _, Part::PointTitle) => "title",
+            (_, _, Part::PointExplanation) => "explanation",
+            (_, _, Part::PointApplication) => "application",
+            (_, _, Part::PointIllustration) => "illustration",
             _ => part.label(),
         }
     }
@@ -414,7 +432,7 @@ pub fn assemble(conn: &Connection, input: &AssistInput) -> AppResult<Context> {
         Some(i) => format!(
             "{} — {}",
             point_label(shape, i, &prep.points[i]),
-            shape.field(part)
+            shape.field(part, prep.points[i].kind.as_deref())
         ),
         None => part.label().to_string(),
     };
@@ -490,7 +508,10 @@ fn nearby(
         let close = whole || point_index.is_some_and(|p| p.abs_diff(i) <= 1);
         if !point.title.trim().is_empty() {
             push(
-                format!("{label} — {}", shape.field(Part::PointTitle)),
+                format!(
+                    "{label} — {}",
+                    shape.field(Part::PointTitle, point.kind.as_deref())
+                ),
                 &point.title,
                 here && part == Part::PointTitle,
             );
@@ -499,17 +520,26 @@ fn nearby(
         }
         if close {
             push(
-                format!("{label} — {}", shape.field(Part::PointExplanation)),
+                format!(
+                    "{label} — {}",
+                    shape.field(Part::PointExplanation, point.kind.as_deref())
+                ),
                 &point.explanation,
                 here && part == Part::PointExplanation,
             );
             push(
-                format!("{label} — {}", shape.field(Part::PointApplication)),
+                format!(
+                    "{label} — {}",
+                    shape.field(Part::PointApplication, point.kind.as_deref())
+                ),
                 &point.application,
                 here && part == Part::PointApplication,
             );
             push(
-                format!("{label} — {}", shape.field(Part::PointIllustration)),
+                format!(
+                    "{label} — {}",
+                    shape.field(Part::PointIllustration, point.kind.as_deref())
+                ),
                 &point.illustration,
                 here && part == Part::PointIllustration,
             );
@@ -811,4 +841,56 @@ pub fn render(context: &Context) -> String {
         ));
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_assistant_is_told_what_each_field_holds_as_the_canvas_names_it() {
+        let steps = Shape::of(Some("children"));
+        assert_eq!(
+            steps.field(Part::PointIllustration, Some("activity")),
+            "what is needed (materials)"
+        );
+        assert_eq!(
+            steps.field(Part::PointExplanation, Some("question")),
+            "answers to listen for"
+        );
+        assert_eq!(
+            steps.field(Part::PointTitle, Some("question")),
+            "the question"
+        );
+        // A step without a kind, as before v0.17.
+        assert_eq!(
+            steps.field(Part::PointExplanation, None),
+            "what is said or done"
+        );
+        let questions = Shape::of(Some("bible_study"));
+        assert_eq!(
+            questions.field(Part::PointApplication, None),
+            "follow-up questions"
+        );
+        let points = Shape::of(Some("sermon"));
+        assert_eq!(
+            points.field(Part::PointIllustration, Some("activity")),
+            "illustration",
+            "kinds of step belong to lessons only"
+        );
+        let point = TeachingPoint {
+            id: "p".into(),
+            position: 2,
+            kind: Some("activity".into()),
+            title: "Draw a vine".into(),
+            explanation: String::new(),
+            application: String::new(),
+            illustration: String::new(),
+        };
+        assert_eq!(
+            point_label(steps, 2, &point),
+            "Step 3 (activity) “Draw a vine”"
+        );
+        assert_eq!(point_label(points, 2, &point), "Point 3 “Draw a vine”");
+    }
 }

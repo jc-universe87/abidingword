@@ -199,6 +199,56 @@ describe("Add, in each part of the study", () => {
   });
 });
 
+describe("review fixes: writing notes in parts", () => {
+  it("does not pull the cursor back into an open note while writing elsewhere", async () => {
+    const { api } = await emptyStudy();
+    const { user } = await renderApp(api);
+    await open(user, /The True Vine/);
+    await user.click(main().getByRole("button", { name: "Add to Context" }));
+    await user.click(main().getByRole("button", { name: "Observation" }));
+    expect(main().getByLabelText("New observation")).toHaveFocus();
+    // Typing in another part re-renders the study; the cursor stays where it is.
+    const theology = main().getByRole("textbox", { name: "Theology: paragraph" });
+    await user.click(theology);
+    await user.type(theology, "God prunes.");
+    expect(theology).toHaveFocus();
+    expect(theology).toHaveValue("God prunes.");
+  });
+
+  it("keeps a half-written note when Add is used in another part, and returns to its Add after saving", async () => {
+    const { api } = await emptyStudy();
+    const { user } = await renderApp(api);
+    await open(user, /The True Vine/);
+    await user.click(main().getByRole("button", { name: "Add to Context" }));
+    await user.click(main().getByRole("button", { name: "Observation" }));
+    await user.type(main().getByLabelText("New observation"), "Half written");
+    await user.click(main().getByRole("button", { name: "Add to Application" }));
+    await user.click(within(main().getByRole("group", { name: "Add to Application" })).getByRole("button", { name: "Question" }));
+    // Two notes being written, each in its own part; nothing lost.
+    expect(main().getByLabelText("New observation")).toHaveValue("Half written");
+    expect(main().getByLabelText("New question")).toHaveFocus();
+    // Add again where a note is open keeps the draft and goes back to it.
+    await user.click(main().getByRole("button", { name: "Add to Context" }));
+    await user.click(within(main().getByRole("group", { name: "Add to Context" })).getByRole("button", { name: "Question" }));
+    expect(main().getByLabelText("New observation")).toHaveValue("Half written");
+    expect(main().getByLabelText("New observation")).toHaveFocus();
+    await user.keyboard("{Control>}{Enter}{/Control}");
+    await waitFor(() => expect(api.state.findings).toHaveLength(1));
+    await waitFor(() => expect(main().getByRole("button", { name: "Add to Context" })).toHaveFocus());
+  });
+
+  it("moves the keyboard to the first further kind when More types is chosen", async () => {
+    const { api } = await emptyStudy();
+    const { user } = await renderApp(api);
+    await open(user, /The True Vine/);
+    await user.click(main().getByRole("button", { name: "Add to Meaning" }));
+    await user.click(main().getByRole("button", { name: "More types" }));
+    await waitFor(() => expect(main().getByRole("button", { name: "Quotation" })).toHaveFocus());
+    await user.keyboard("{Escape}");
+    expect(main().getByRole("button", { name: "Add to Meaning" })).toHaveFocus();
+  });
+});
+
 describe("folding parts away", () => {
   it("folds a part to its heading, says how many notes it holds, and remembers it for this study", async () => {
     const { api, studyId } = await emptyStudy();

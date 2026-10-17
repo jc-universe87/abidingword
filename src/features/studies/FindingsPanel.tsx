@@ -100,8 +100,8 @@ export function FindingsPanel({ studyId, findings, sections, filter, capturing, 
 
       {capturing && (
         <QuickCapture
-          key={capturing}
           ref={captureRef}
+          place=""
           studyId={studyId}
           sections={sections}
           initialType={capturing}
@@ -158,6 +158,10 @@ interface QuickCaptureProps {
   initialType?: FindingType;
   /** The part the note goes in, when it was added there (no choice of place is offered then). */
   sectionId?: string;
+  /** Where it is open (a part's id, or "" for the other notes), so the study can find it again. */
+  place?: string;
+  /** Put the cursor in it when it opens (once). */
+  autoFocus?: boolean;
   onDone: () => void;
   onCancel: () => void;
 }
@@ -181,7 +185,7 @@ function lastType(studyId: string): FindingType {
  * four common choices (the rest under "More types"), remembered per study; where
  * it belongs and linking the passage being read are under "Options".
  */
-export const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(function QuickCapture({ studyId, sections, initialType, sectionId: fixedSection, onDone, onCancel }, ref) {
+export const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(function QuickCapture({ studyId, sections, initialType, sectionId: fixedSection, place, autoFocus, onDone, onCancel }, ref) {
   const { t } = useTranslation();
   const api = useApi();
   const { currentPassage } = useScripture();
@@ -261,6 +265,8 @@ export const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(f
       <textarea
         id={`${id}-text`}
         ref={ref}
+        data-capture={place}
+        autoFocus={autoFocus}
         rows={3}
         value={text}
         onChange={(e) => setText(e.target.value)}

@@ -191,7 +191,7 @@
     "searchTestEmpty": "Le service de recherche a répondu, mais n’a rien trouvé pour une recherche d’essai.",
     "searchWhy": {
       "noKey": "Pour vérifier la recherche, collez d’abord sa clé et choisissez « Garder la clé ».",
-      "noAddress": "Pour vérifier la recherche, saisissez d’abord l’adresse SearXNG et enregistrez."
+      "noAddress": "Pour vérifier la recherche, saisissez d’abord l’adresse SearXNG."
     }
   },
   "jumpTo": "Aller à une section",

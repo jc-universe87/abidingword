@@ -154,14 +154,34 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
       return next;
     }, t("settings.assistant.keySaved"));
   };
-  const keepSearchKey = () => {
+  /**
+   * Saves only the search part of the set-up (the service and its address),
+   * so unsaved changes to the AI service stay in the form and an invalid one
+   * cannot make the search save fail.
+   */
+  const saveSearch = (search: AssistantConfig["search"], searchUrl: string) =>
+    api.assistantSettingsSet({ ...settings.config, search, searchUrl });
+  /** After a search-only save: take the saved settings, keep the rest of the form as typed. */
+  const savedSearch = (next: Settings) => {
+    setSettings(next);
+    setConfig((c) => ({ ...c, search: next.config.search, searchUrl: next.config.searchUrl }));
+    onStatus?.(next);
+  };
+  const keepSearchKey = async () => {
     if (busy || !searchKey.trim()) return;
-    void run(async () => {
-      await api.assistantSettingsSet(config);
-      const next = await api.assistantKeySet("search", searchKey);
+    setBusy("save");
+    setMessage(null);
+    try {
+      savedSearch(await saveSearch(config.search, config.searchUrl));
+      savedSearch(await api.assistantKeySet("search", searchKey));
       setSearchKey("");
-      return next;
-    }, t("settings.assistant.keySaved"));
+      setSearchCheck(null);
+      setMessage({ tone: "ok", text: t("settings.assistant.keySaved") });
+    } catch (e) {
+      setMessage({ tone: "error", text: toApiError(e).message });
+    } finally {
+      setBusy(null);
+    }
   };
   const [imageKey, setImageKey] = useState("");
   const keepImageKey = () => {
@@ -200,7 +220,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
     setMessage(null);
     setSearchCheck(null);
     try {
-      saved(await api.assistantSettingsSet(config));
+      savedSearch(await saveSearch(config.search, config.searchUrl));
       const found = await api.assistantSearchTest();
       setSearchCheck({ tone: "ok", text: found > 0 ? t("settings.assistant.searchTestOk") : t("settings.assistant.searchTestEmpty") });
     } catch (e) {
@@ -417,13 +437,22 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
               <select
                 aria-label={t("settings.assistant.search")}
                 value={search}
-                disabled={busy !== null}
                 onChange={(e) => {
-                  const changed = { ...config, search: e.target.value as SearchKind };
-                  set("search", changed.search);
+                  // Kept enabled (arrow keys change a closed select at once); a change while saving waits.
+                  if (busy) return;
+                  const next = e.target.value as SearchKind;
+                  const before = config.search;
+                  set("search", next);
                   setSearchKey("");
                   // Saved at once, as the AI service is: keys are kept per search service.
-                  void run(() => api.assistantSettingsSet(changed), "", () => setConfig(withModel(settings.config)));
+                  setBusy("save");
+                  setMessage(null);
+                  saveSearch(next, config.searchUrl)
+                    .then(savedSearch, (err: unknown) => {
+                      set("search", before);
+                      setMessage({ tone: "error", text: toApiError(err).message });
+                    })
+                    .finally(() => setBusy(null));
                 }}
                 className={field}
               >
@@ -468,15 +497,25 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                         autoComplete="off"
                         value={searchKey}
                         onChange={(e) => setSearchKey(e.target.value)}
-                        onKeyDown={onEnter(keepSearchKey)}
+                        onKeyDown={onEnter(() => void keepSearchKey())}
                         placeholder={searchKeyShown ? t("settings.assistant.keyKeptPlaceholder") : t("settings.assistant.searchKey")}
                         className={field}
                       />
-                      <Button className="min-h-11" disabled={busy !== null || !searchKey.trim()} onClick={keepSearchKey}>
+                      <Button className="min-h-11" disabled={busy !== null || !searchKey.trim()} onClick={() => void keepSearchKey()}>
                         {t("settings.assistant.keySave")}
                       </Button>
                       {searchKeyShown && (
-                        <Button className="min-h-11" disabled={busy !== null} onClick={() => void run(() => api.assistantKeySet("search", ""), t("settings.assistant.keyRemoved"))}>
+                        <Button className="min-h-11" disabled={busy !== null} onClick={() => {
+                            setBusy("save");
+                            setSearchCheck(null);
+                            api
+                              .assistantKeySet("search", "")
+                              .then((next) => {
+                                savedSearch(next);
+                                setMessage({ tone: "ok", text: t("settings.assistant.keyRemoved") });
+                              }, (err: unknown) => setMessage({ tone: "error", text: toApiError(err).message }))
+                              .finally(() => setBusy(null));
+                          }}>
                           {t("settings.assistant.keyRemove")}
                         </Button>
                       )}

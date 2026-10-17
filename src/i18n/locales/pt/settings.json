@@ -191,7 +191,7 @@
     "searchTestEmpty": "O serviço de busca respondeu, mas não encontrou nada em uma busca de teste.",
     "searchWhy": {
       "noKey": "Para verificar a busca, primeiro cole a chave dela e escolha “Guardar chave”.",
-      "noAddress": "Para verificar a busca, primeiro digite o endereço do SearXNG e salve."
+      "noAddress": "Para verificar a busca, primeiro digite o endereço do SearXNG."
     }
   },
   "jumpTo": "Ir para uma seção",

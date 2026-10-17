@@ -191,7 +191,7 @@
     "searchTestEmpty": "Der Suchdienst hat geantwortet, aber bei einer Testsuche nichts gefunden.",
     "searchWhy": {
       "noKey": "Um die Suche zu prüfen, füge zuerst ihren Schlüssel ein und wähle „Schlüssel speichern“.",
-      "noAddress": "Um die Suche zu prüfen, gib zuerst die SearXNG-Adresse ein und speichere."
+      "noAddress": "Um die Suche zu prüfen, gib zuerst die SearXNG-Adresse ein."
     }
   },
   "jumpTo": "Zu einem Bereich springen",

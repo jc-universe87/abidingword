@@ -707,12 +707,27 @@ describe("assistant settings", () => {
     await user.selectOptions(search, "searxng");
     expect(within(region).queryByLabelText("Search key")).toBeNull();
     expect(within(region).getByText(/If this means nothing to you, choose one of the recommended services/)).not.toBeVisible();
-    expect(within(region).getByText("To check the search, first enter the SearXNG address and save.")).toBeInTheDocument();
+    expect(within(region).getByText("To check the search, first enter the SearXNG address.")).toBeInTheDocument();
     await user.type(within(region).getByRole("textbox", { name: "SearXNG address" }), "https://search.example.org");
     expect(within(region).getByRole("button", { name: "Check search" })).toBeEnabled();
 
     const words = region.textContent ?? "";
     expect(words).not.toMatch(/verif|proves?|guarantee|(?<!what )is true/i);
+  });
+
+  it("saves only the search part when the search service changes, keeping unsaved AI-service changes in the form", async () => {
+    const { user, api } = await renderApp(createMemoryApi());
+    const region = await openSettingsSection(user, "AI Assistant");
+    await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
+    const model = within(region).getByRole("textbox", { name: "Model" });
+    await user.clear(model);
+    await user.type(model, "my-unsaved-model");
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Look up real stories" }), "exa");
+    await waitFor(() => expect(api.state.teaching.assistant.config.search).toBe("exa"));
+    // The model typed but not saved is neither saved nor lost.
+    expect(api.state.teaching.assistant.config.model).not.toBe("my-unsaved-model");
+    expect(model).toHaveValue("my-unsaved-model");
+    expect(within(region).getByRole("combobox", { name: "Look up real stories" })).toBeEnabled();
   });
 
   it("says plainly whether images can be made, and lets OpenAI make them while another service writes", async () => {

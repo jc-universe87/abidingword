@@ -45,8 +45,24 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
   const relations = useLoad(useCallback(() => api.studyRelationList(studyId), [api, studyId]));
   const detailsId = useId();
   const [showDetails, setShowDetails] = useState(false);
-  // A note being written: in a part (its id), or among the study's other notes (null), with its kind.
-  const [capturing, setCapturing] = useState<{ sectionId: string | null; kind: FindingType } | null>(null);
+  // Notes being written, one per place: a part's id, or "" for the study's other notes, with the kind chosen.
+  // Opening Add again where a note is already being written keeps that draft.
+  const [capturing, setCapturingState] = useState<Readonly<Record<string, FindingType>>>({});
+  const openCapture = (place: string, kind: FindingType) => {
+    if (capturing[place]) {
+      document.querySelector<HTMLTextAreaElement>(`[data-capture="${place}"]`)?.focus();
+      return;
+    }
+    setCapturingState((c) => ({ ...c, [place]: kind }));
+  };
+  const closeCapture = (place: string) => {
+    setCapturingState(({ [place]: _closed, ...rest }) => rest);
+    // Back to the Add it was opened from.
+    requestAnimationFrame(() =>
+      (place ? document.getElementById(`section-anchor-${place}`)?.querySelector<HTMLElement>("[data-part-add]") : noteButton.current)?.focus(),
+    );
+  };
+  const noteButton = useRef<HTMLButtonElement>(null);
   // Parts folded away, remembered for this study on this computer (a convenience, never study data).
   const [collapsed, setCollapsedState] = useState<ReadonlySet<string>>(() => new Set(readLocal<string[]>(collapsedKey(studyId), [])));
   const setCollapsed = useCallback(
@@ -54,6 +70,16 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
       setCollapsedState(next);
       writeLocal(collapsedKey(studyId), [...next]);
     },
+    [studyId],
+  );
+  const unfold = useCallback(
+    (sectionId: string) =>
+      setCollapsedState((current) => {
+        if (!current.has(sectionId)) return current;
+        const next = new Set([...current].filter((id) => id !== sectionId));
+        writeLocal(collapsedKey(studyId), [...next]);
+        return next;
+      }),
     [studyId],
   );
   // What the user has typed but the saved copy may not hold yet (block id -> has writing).
@@ -132,13 +158,20 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
     shareActiveSection(studyId, activeSection);
   }, [studyId, activeSection, shareActiveSection]);
   const added = focus.findingsVersion;
+  const activeRef = useRef(activeSection);
+  useEffect(() => {
+    activeRef.current = activeSection;
+  }, [activeSection]);
   const reloadFindings = findings.reload;
   const seenVersion = useRef(added.n);
   useEffect(() => {
     if (added.n === seenVersion.current) return;
     seenVersion.current = added.n;
-    if (added.studyId === studyId) reloadFindings();
-  }, [added, studyId, reloadFindings]);
+    if (added.studyId !== studyId) return;
+    reloadFindings();
+    // Added from a source to the part last worked in: never into a folded, unseen part.
+    if (activeRef.current) unfold(activeRef.current);
+  }, [added, studyId, reloadFindings, unfold]);
 
   const sections = useMemo(() => detail.data?.sections ?? [], [detail.data]);
   if (missing) return null;
@@ -150,9 +183,7 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
   // The template whose parts-for-later are offered: the one the study was made with, else the built-in for its kind.
   const template =
     (templates.data ?? []).find((tpl) => tpl.id === study.templateId) ?? (templates.data ?? []).find((tpl) => tpl.isBuiltin && tpl.studyType === study.studyType) ?? null;
-  const expand = (sectionId: string) => {
-    if (collapsed.has(sectionId)) setCollapsed(new Set([...collapsed].filter((id) => id !== sectionId)));
-  };
+  const expand = unfold;
   const allCollapsed = sections.length > 0 && sections.every((sec) => collapsed.has(sec.id));
   const updateSection = (section: StudySection) =>
     detail.setData({ ...current, sections: sections.map((s) => (s.id === section.id ? section : s)) });
@@ -210,19 +241,19 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
     }
   };
   const capture = (section: StudySection) =>
-    capturing?.sectionId === section.id ? (
+    capturing[section.id] ? (
       <QuickCapture
-        key={`${section.id}-${capturing.kind}`}
-        ref={(el) => el?.focus()}
         studyId={study.id}
         sections={sections}
-        initialType={capturing.kind}
+        initialType={capturing[section.id]}
         sectionId={section.id}
+        place={section.id}
+        autoFocus
         onDone={() => {
-          setCapturing(null);
+          closeCapture(section.id);
           findings.reload();
         }}
-        onCancel={() => setCapturing(null)}
+        onCancel={() => closeCapture(section.id)}
       />
     ) : null;
 
@@ -334,7 +365,7 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
           onAddWriting={() => void addWriting(section)}
           onAddNote={(kind) => {
             expand(section.id);
-            setCapturing({ sectionId: section.id, kind });
+            openCapture(section.id, kind);
           }}
           onChange={updateSection}
           onMove={(delta) => moveSection(section.id, delta)}
@@ -356,8 +387,8 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
         findings={findings.data ?? []}
         sections={sections}
         filter={kindFilter}
-        capturing={capturing?.sectionId === null ? capturing.kind : null}
-        onCaptureClose={() => setCapturing(null)}
+        capturing={capturing[""] ?? null}
+        onCaptureClose={() => closeCapture("")}
         onChanged={findings.reload}
         onRevealScripture={onRevealScripture}
       />
@@ -365,7 +396,7 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
       {/* The end of the study: another part, or a note that belongs to no part. */}
       <div className="flex flex-wrap items-start gap-2 border-t border-border-subtle pt-3">
         <AddPart template={template} sections={sections} onAdd={addSection} />
-        <Button variant="quiet" className="min-h-11" onClick={() => setCapturing({ sectionId: null, kind: lastNoteKind(study.id) })}>
+        <Button ref={noteButton} variant="quiet" className="min-h-11" onClick={() => openCapture("", lastNoteKind(study.id))}>
           <Plus className="size-4" aria-hidden="true" />
           {t("studies.add.note")}
         </Button>

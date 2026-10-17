@@ -320,7 +320,40 @@ writing from ≈ 490 to ≈ 350:
   teaching and its kind is one choice away); reordering notes between parts
   by drag; the assistant inside Bible Study itself; audio steps.
 
-## 14. Tests
+## 14. Independent review
+
+The whole diff since the last reviewed head was reviewed by a separate pass.
+It confirmed that search keys only travel where each service expects them,
+existing Brave keys keep their name, no built-in section key or English text
+changed under an existing key, `retired` cannot be set on a user template,
+migration 0009 is additive, and no Contents/Inhalt keys or banned Korean words
+remain. Fixed after it, each with a regression test:
+
+- **The note being written took the cursor back on every re-render** (a ref
+  callback recreated each render). It now focuses once, on opening.
+- **A half-written note was lost** when Add was used in another part: notes
+  being written are now kept one per place (each part, and Other notes);
+  Add where one is open goes back to it.
+- **Focus after actions:** *More types* moves the keyboard to the first new
+  kind; saving or cancelling a note returns to the Add it came from.
+- **The assistant's names for a step's fields** now follow the step's kind
+  ("what is needed (materials)" for an activity's second field, "answers to
+  listen for" for a question).
+- **Search settings** save only the search service and address, so unsaved
+  changes to the AI service are neither saved nor lost, and the search menu
+  stays enabled while saving.
+- A note added from a source to a folded part unfolds that part.
+- `aria-controls` is set only while the controlled menu exists.
+- Wording: the SearXNG hint no longer asks for a separate save; Portuguese
+  "no seu lugar", Spanish "cuándo la muestras", French "commencer avec elle".
+
+Left as is, deliberately: a suggested part is created by its translated title
+(the section-create command takes no template key), so after switching the
+interface language a part already added may be suggested again under its
+other-language name; and the assistant sees a part's heading as stored (the
+built-in English for an untouched part) rather than as displayed.
+
+## 15. Tests
 
 - Rust: `tests/migration_v9.rs` (upgrade from schema 8, step kinds, starting
   steps, limits); `tests/studies.rs` (`built_in_templates_start_small_…`:

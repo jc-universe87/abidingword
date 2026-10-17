@@ -191,7 +191,7 @@
     "searchTestEmpty": "The search service answered, but found nothing for a test search.",
     "searchWhy": {
       "noKey": "To check the search, first paste its key and choose Keep key.",
-      "noAddress": "To check the search, first enter the SearXNG address and save."
+      "noAddress": "To check the search, first enter the SearXNG address."
     }
   },
   "jumpTo": "Go to a section",

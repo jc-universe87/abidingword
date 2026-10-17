@@ -60,7 +60,7 @@ export function AddPart({ template, sections, onAdd }: AddPartProps) {
         }
       }}
     >
-      <Button ref={toggle} variant="quiet" className="min-h-11 self-start" aria-expanded={open} aria-controls={id} onClick={() => (open ? close() : setOpen(true))}>
+      <Button ref={toggle} variant="quiet" className="min-h-11 self-start" aria-expanded={open} aria-controls={open ? id : undefined} onClick={() => (open ? close() : setOpen(true))}>
         <Plus className="size-4" aria-hidden="true" />
         {t("studies.parts.add")}
       </Button>

@@ -623,7 +623,7 @@
     "addSection": "Ajouter une partie",
     "save": "Enregistrer le modèle",
     "later": "Ajouter plus tard",
-    "laterLabel": "Proposer la partie {{number}} plus tard au lieu de commencer avec"
+    "laterLabel": "Proposer la partie {{number}} plus tard au lieu de commencer avec elle"
   },
   "add": {
     "toggle": "Ajouter",

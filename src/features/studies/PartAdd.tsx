@@ -25,6 +25,7 @@ export function PartAdd({ part, onWriting, onNote }: PartAddProps) {
   const toggle = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const [more, setMore] = useState(false);
+  const firstMore = useRef<HTMLButtonElement>(null);
 
   const choose = (action: () => void) => {
     setOpen(false);
@@ -49,8 +50,9 @@ export function PartAdd({ part, onWriting, onNote }: PartAddProps) {
       <button
         ref={toggle}
         type="button"
+        data-part-add
         aria-expanded={open}
-        aria-controls={id}
+        aria-controls={open ? id : undefined}
         aria-label={t("studies.add.to", { part })}
         onClick={() => {
           setOpen(!open);
@@ -67,12 +69,27 @@ export function PartAdd({ part, onWriting, onNote }: PartAddProps) {
             {t("studies.add.writing")}
           </button>
           {kinds.map((kind) => (
-            <button key={kind} type="button" className={item} onClick={() => choose(() => onNote(kind))}>
+            <button
+              key={kind}
+              ref={kind === FINDING_TYPES.find((k) => !COMMON.includes(k)) ? firstMore : undefined}
+              type="button"
+              className={item}
+              onClick={() => choose(() => onNote(kind))}
+            >
               {findingLabel(t, kind)}
             </button>
           ))}
           {!more && (
-            <button type="button" aria-expanded={false} onClick={() => setMore(true)} className={`${item} text-text-muted`}>
+            <button
+              type="button"
+              aria-expanded={false}
+              onClick={() => {
+                setMore(true);
+                // The button goes away: the keyboard moves on to the first kind it showed.
+                requestAnimationFrame(() => firstMore.current?.focus());
+              }}
+              className={`${item} text-text-muted`}
+            >
               <ChevronRight className="size-4" aria-hidden="true" />
               {t("studies.findings.moreTypes")}
             </button>
