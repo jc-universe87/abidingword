@@ -87,8 +87,8 @@
     "originalUnavailable": "L’original de cette source ne peut pas être ouvert."
   },
   "templates": {
-    "noSections": "Un modèle doit comporter au moins une section.",
-    "tooManySections": "Un modèle peut comporter au plus {{max}} sections.",
+    "noSections": "Un modèle doit comporter au moins une partie de départ.",
+    "tooManySections": "Un modèle peut comporter au plus {{max}} parties.",
     "builtinReadOnly": "Les modèles intégrés ne peuvent pas être modifiés. Dupliquez-le pour créer votre propre version."
   },
   "sections": {
@@ -100,7 +100,7 @@
   },
   "findings": {
     "tooLong": "Cette note est trop longue pour être enregistrée.",
-    "otherStudySection": "Cette section appartient à une autre étude.",
+    "otherStudySection": "Cette partie appartient à une autre étude.",
     "tooManyTags": "Une note peut avoir au plus {{max}} étiquettes.",
     "tagTooLong": "L’étiquette « {{tag}} » est trop longue.",
     "writeFirst": "Écrivez d’abord quelque chose à ajouter."
@@ -162,7 +162,7 @@
   "teaching": {
     "tooLong": "Cette partie de l’enseignement est trop longue pour être enregistrée.",
     "otherPoint": "Ce point appartient à un autre enseignement.",
-    "otherStudyFinding": "Cet élément appartient à une autre étude.",
+    "otherStudyFinding": "Cette note appartient à une autre étude.",
     "badMaterial": "Cet élément ne peut pas être conservé.",
     "notVerified": "Une histoire n’est conservée comme vérifiée qu’avec deux sources indépendantes.",
     "imageGone": "Cette image n’est plus disponible. Recréez-la."

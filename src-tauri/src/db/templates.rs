@@ -173,14 +173,14 @@ fn validated(input: &TemplateInput) -> AppResult<(String, Option<String>, Vec<Te
     if !input.sections.iter().any(|s| s.starts()) {
         return Err(AppError::InvalidInput(UserMessage::new(
             "templates.noSections",
-            "A template needs at least one section.",
+            "A template needs at least one part to start with.",
         )));
     }
     if input.sections.len() > MAX_SECTIONS {
         return Err(AppError::InvalidInput(
             UserMessage::new(
                 "templates.tooManySections",
-                format!("A template can have at most {MAX_SECTIONS} sections."),
+                format!("A template can have at most {MAX_SECTIONS} parts."),
             )
             .with("max", MAX_SECTIONS),
         ));

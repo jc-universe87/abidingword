@@ -877,7 +877,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
 
     templateList: async () => [...state.templates],
     templateCreate: async (input) => {
-      if (!input.sections.some((sec) => !sec.optional)) throw new ApiError("invalidInput", "A template needs at least one section.");
+      if (!input.sections.some((sec) => !sec.optional)) throw new ApiError("invalidInput", "A template needs at least one part to start with.");
       const t = now();
       const template: StudyTemplate = {
         id: id(), key: `user-${counter}`, name: requireTitle(input.name, "template"), description: input.description ?? null,
@@ -1599,7 +1599,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       if (!content) throw new ApiError("invalidInput", "Write something to add first.");
       if (input.sectionId) {
         const section = state.sections.find((x) => x.id === input.sectionId);
-        if (!section || section.studyId !== input.studyId) throw new ApiError("invalidInput", "That section belongs to another study.");
+        if (!section || section.studyId !== input.studyId) throw new ApiError("invalidInput", "That part belongs to another study.");
       }
       const t = now();
       const finding: Finding = {

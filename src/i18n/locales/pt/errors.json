@@ -87,8 +87,8 @@
     "originalUnavailable": "Não é possível abrir o original desta fonte."
   },
   "templates": {
-    "noSections": "Um modelo precisa de pelo menos uma seção.",
-    "tooManySections": "Um modelo pode ter no máximo {{max}} seções.",
+    "noSections": "Um modelo precisa de pelo menos uma parte para começar.",
+    "tooManySections": "Um modelo pode ter no máximo {{max}} partes.",
     "builtinReadOnly": "Os modelos incluídos não podem ser alterados. Duplique-o para criar sua própria versão."
   },
   "sections": {
@@ -100,7 +100,7 @@
   },
   "findings": {
     "tooLong": "Esta anotação é longa demais para ser salva.",
-    "otherStudySection": "Essa seção pertence a outro estudo.",
+    "otherStudySection": "Essa parte pertence a outro estudo.",
     "tooManyTags": "Uma anotação pode ter no máximo {{max}} etiquetas.",
     "tagTooLong": "A etiqueta “{{tag}}” é longa demais.",
     "writeFirst": "Escreva primeiro algo para adicionar."
@@ -162,7 +162,7 @@
   "teaching": {
     "tooLong": "Esta parte do ensino é longa demais para salvar.",
     "otherPoint": "Esse ponto pertence a outro ensino.",
-    "otherStudyFinding": "Esse registro pertence a outro estudo.",
+    "otherStudyFinding": "Essa anotação pertence a outro estudo.",
     "badMaterial": "Este item não pode ser guardado.",
     "notVerified": "Uma história só é guardada como verificada com duas fontes independentes.",
     "imageGone": "Esta imagem não está mais disponível. Crie de novo."

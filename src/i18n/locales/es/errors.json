@@ -87,8 +87,8 @@
     "originalUnavailable": "No se puede abrir el original de esta fuente."
   },
   "templates": {
-    "noSections": "Una plantilla necesita al menos una sección.",
-    "tooManySections": "Una plantilla puede tener como máximo {{max}} secciones.",
+    "noSections": "Una plantilla necesita al menos una parte con la que empezar.",
+    "tooManySections": "Una plantilla puede tener como máximo {{max}} partes.",
     "builtinReadOnly": "Las plantillas integradas no se pueden modificar. Duplícala para crear tu propia versión."
   },
   "sections": {
@@ -100,7 +100,7 @@
   },
   "findings": {
     "tooLong": "Este apunte es demasiado largo para guardarlo.",
-    "otherStudySection": "Esa sección pertenece a otro estudio.",
+    "otherStudySection": "Esa parte pertenece a otro estudio.",
     "tooManyTags": "Un apunte puede tener como máximo {{max}} etiquetas.",
     "tagTooLong": "La etiqueta “{{tag}}” es demasiado larga.",
     "writeFirst": "Escribe primero algo que añadir."

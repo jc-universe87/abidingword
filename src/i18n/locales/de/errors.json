@@ -84,8 +84,8 @@
     "originalUnavailable": "Das Original dieser Quelle kann nicht geöffnet werden."
   },
   "templates": {
-    "noSections": "Eine Vorlage braucht mindestens einen Abschnitt.",
-    "tooManySections": "Eine Vorlage kann höchstens {{max}} Abschnitte haben.",
+    "noSections": "Eine Vorlage braucht mindestens einen Teil, mit dem sie beginnt.",
+    "tooManySections": "Eine Vorlage kann höchstens {{max}} Teile haben.",
     "builtinReadOnly": "Mitgelieferte Vorlagen können nicht geändert werden. Dupliziere die Vorlage, um eine eigene Fassung zu erstellen."
   },
   "sections": {
@@ -97,7 +97,7 @@
   },
   "findings": {
     "tooLong": "Diese Notiz ist zu lang zum Speichern.",
-    "otherStudySection": "Dieser Abschnitt gehört zu einem anderen Bibelstudium.",
+    "otherStudySection": "Dieser Teil gehört zu einem anderen Bibelstudium.",
     "tooManyTags": "Eine Notiz kann höchstens {{max}} Schlagwörter haben.",
     "tagTooLong": "Das Schlagwort „{{tag}}“ ist zu lang.",
     "writeFirst": "Schreib zuerst etwas, das hinzugefügt werden soll."
@@ -159,7 +159,7 @@
   "teaching": {
     "tooLong": "Dieser Teil der Vorbereitung ist zu lang zum Speichern.",
     "otherPoint": "Dieser Punkt gehört zu einer anderen Vorbereitung.",
-    "otherStudyFinding": "Dieser Eintrag gehört zu einem anderen Bibelstudium.",
+    "otherStudyFinding": "Diese Notiz gehört zu einem anderen Bibelstudium.",
     "badMaterial": "Dieses Element kann nicht aufbewahrt werden.",
     "notVerified": "Eine Begebenheit gilt nur mit zwei unabhängigen Quellen als geprüft.",
     "imageGone": "Dieses Bild ist nicht mehr verfügbar. Bitte erneut erstellen."

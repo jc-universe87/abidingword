@@ -410,7 +410,7 @@ fn check_section(conn: &Connection, study_id: &str, section_id: &str) -> AppResu
     if section.study_id != study_id {
         return Err(AppError::InvalidInput(UserMessage::new(
             "findings.otherStudySection",
-            "That section belongs to another study.",
+            "That part belongs to another study.",
         )));
     }
     Ok(())
