@@ -69,6 +69,7 @@ fn prep(conn: &Connection, study: &str, title: &str) -> AppResult<String> {
             study_id: study.into(),
             title: title.into(),
             kind: Some("sermon".into()),
+            points: Vec::new(),
         },
     )?
     .id)
@@ -95,6 +96,7 @@ fn a_study_has_several_preparations_each_saved_and_deleted_on_its_own() {
                 study_id: study.clone(),
                 title: "  Small group  ".into(),
                 kind: None,
+                points: Vec::new(),
             },
         )?;
         assert_eq!(group.title, "Small group");
@@ -157,6 +159,7 @@ fn a_study_has_several_preparations_each_saved_and_deleted_on_its_own() {
                     study_id: study.clone(),
                     title: "   ".into(),
                     kind: None,
+                    points: Vec::new(),
                 },
             )),
             "validation.titleRequired"
@@ -186,6 +189,7 @@ fn points_keep_their_order_through_inserting_moving_and_removing() {
                     preparation_id: id.clone(),
                     title: Some(title.into()),
                     after_point_id: after,
+                    kind: None,
                 },
             )
         };
@@ -269,6 +273,7 @@ fn findings_are_linked_live_never_copied_and_never_owned() {
                 preparation_id: id.clone(),
                 title: Some("Abide".into()),
                 after_point_id: None,
+                kind: None,
             },
         )?
         .points[0]
@@ -512,9 +517,9 @@ fn kept_material_carries_an_honest_standing() {
 }
 
 #[test]
-fn the_schema_is_at_version_eight() {
+fn the_schema_is_at_version_nine() {
     with_db(|conn| {
-        assert_eq!(migrations::current_version(conn)?, 8);
+        assert_eq!(migrations::current_version(conn)?, 9);
         Ok(())
     });
 }

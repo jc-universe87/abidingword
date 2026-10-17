@@ -682,10 +682,6 @@
     "audiencePlaceholder": "p. ex. toute l’Église, un groupe de jeunes",
     "purpose": "But",
     "purposePlaceholder": "Ce que vous espérez de cet enseignement",
-    "message": "Message central",
-    "messageHint": "Avec vos propres mots : la chose principale que vous voulez transmettre.",
-    "introduction": "Introduction",
-    "conclusion": "Conclusion",
     "notes": "Notes pour vous",
     "notesHint": "Des rappels pendant l’enseignement, qui ne font pas partie de ce que vous dites.",
     "points": {
@@ -906,7 +902,11 @@
         "added": "Point ajouté.",
         "removed": "Point supprimé.",
         "moved": "Point déplacé en position {{position}}.",
-        "deleteConfirm": "Supprimer ce point et ce que vous y avez écrit ? Les éléments utilisés restent dans l’étude."
+        "deleteConfirm": "Supprimer ce point et ce que vous y avez écrit ? Les éléments utilisés restent dans l’étude.",
+        "message": "Message central",
+        "messageHint": "La chose principale que vous voulez transmettre",
+        "introduction": "Introduction",
+        "conclusion": "Conclusion"
       },
       "questions": {
         "title": "Questions et réponses",
@@ -917,13 +917,17 @@
         "untitled": "Question {{number}}",
         "titleLabel": "Question {{number}}",
         "titlePlaceholder": "La question que vous poserez",
-        "explanation": "Ce que montre le passage",
-        "application": "Ce que cela signifie pour nous",
+        "explanation": "Où la discussion peut mener",
+        "application": "Questions de relance",
         "illustration": "Notes pour animer la discussion",
         "added": "Question ajoutée.",
         "removed": "Question supprimée.",
         "moved": "Question déplacée en position {{position}}.",
-        "deleteConfirm": "Supprimer cette question et ce que vous y avez écrit ? Les éléments utilisés restent dans l’étude."
+        "deleteConfirm": "Supprimer cette question et ce que vous y avez écrit ? Les éléments utilisés restent dans l’étude.",
+        "message": "Ce que le groupe devrait découvrir",
+        "messageHint": "La chose principale à laquelle la discussion devrait mener",
+        "introduction": "Ouverture",
+        "conclusion": "Clôture"
       },
       "steps": {
         "title": "Déroulement",
@@ -940,11 +944,63 @@
         "added": "Étape ajoutée.",
         "removed": "Étape supprimée.",
         "moved": "Étape déplacée en position {{position}}.",
-        "deleteConfirm": "Supprimer cette étape et ce que vous y avez écrit ? Les éléments utilisés restent dans l’étude."
+        "deleteConfirm": "Supprimer cette étape et ce que vous y avez écrit ? Les éléments utilisés restent dans l’étude.",
+        "message": "La chose à retenir",
+        "messageHint": "En quelques mots qu’ils pourraient répéter ensuite",
+        "introduction": "Ouverture",
+        "conclusion": "Fin"
       }
     },
     "aboutEmpty": "Type, pour qui, but, passages",
-    "aboutFor": "pour {{audience}}"
+    "aboutFor": "pour {{audience}}",
+    "format": {
+      "points": "Des points principaux avec explication, application et illustration, entre une introduction et une conclusion.",
+      "questions": "Des questions pour le groupe, chacune avec la direction que peut prendre la discussion et des questions de relance.",
+      "steps": "Une leçon par étapes : enseignement, lecture biblique, questions, activités et images, dans l’ordre où elles se déroulent."
+    },
+    "startsWith": "Commence par : {{steps}}.",
+    "starts": {
+      "children": {
+        "welcome": "Accueil",
+        "story": "Histoire biblique",
+        "question": "Question",
+        "activity": "Activité",
+        "prayer": "Prière"
+      },
+      "lesson": {
+        "teaching": "Enseignement",
+        "discussion": "Échange",
+        "activity": "Activité"
+      }
+    },
+    "stepKindLabel": "Type d’étape : {{step}}",
+    "stepKind": {
+      "none": "Type non précisé",
+      "text": "Enseignement",
+      "scripture": "Lecture biblique",
+      "question": "Question",
+      "activity": "Activité",
+      "image": "Image",
+      "audio": "Audio"
+    },
+    "step": {
+      "text": {
+        "explanation": "Ce que vous direz"
+      },
+      "scripture": {
+        "explanation": "Comment vous le lirez ou le raconterez"
+      },
+      "question": {
+        "explanation": "Les réponses à guetter"
+      },
+      "activity": {
+        "explanation": "Comment cela se déroule",
+        "illustration": "Ce qu’il vous faut"
+      },
+      "image": {
+        "explanation": "Ce qu’elle montre, et quand vous la montrez"
+      }
+    }
   },
   "parts": {
     "add": "Ajouter une partie",

@@ -12,7 +12,7 @@ use crate::domain::{
     AddTeachingPassage, CreateTeaching, CreateTeachingPoint, ExternalSource, ImageInfo,
     KeepTeachingMaterial, LinkTeachingFinding, Reorder, TeachingFindingLink, TeachingMaterial,
     TeachingPassage, TeachingPoint, TeachingPreparation, TeachingSummary, UpdateTeaching,
-    UpdateTeachingPoint, MATERIAL_KINDS, MATERIAL_STANDINGS, TEACHING_KINDS,
+    UpdateTeachingPoint, MATERIAL_KINDS, MATERIAL_STANDINGS, STEP_KINDS, TEACHING_KINDS,
 };
 use crate::error::{AppError, AppResult, UserMessage};
 use crate::scripture::reference::ScriptureRef;
@@ -63,6 +63,34 @@ fn check_kind(kind: Option<&str>) -> AppResult<Option<String>> {
         )),
     }
 }
+
+fn check_step_kind(kind: Option<&str>) -> AppResult<Option<String>> {
+    match kind.map(str::trim).filter(|k| !k.is_empty()) {
+        None => Ok(None),
+        Some(k) if STEP_KINDS.contains(&k) => Ok(Some(k.to_string())),
+        Some(other) => Err(AppError::InvalidInput(
+            UserMessage::new(
+                "invalidChoice",
+                format!("“{other}” is not a valid kind of step."),
+            )
+            .with("value", other),
+        )),
+    }
+}
+
+fn point_title(title: &str) -> AppResult<String> {
+    let title = title.trim();
+    if title.chars().count() > validate::TITLE_MAX_CHARS {
+        return Err(invalid(
+            "teaching.tooLong",
+            "This point's title is too long.",
+        ));
+    }
+    Ok(title.to_string())
+}
+
+/// A format starts with at most this many steps.
+const STARTING_POINTS_MAX: usize = 20;
 
 fn long_text(value: &str) -> AppResult<String> {
     if value.chars().count() > BLOCK_MAX_CHARS {
@@ -124,6 +152,14 @@ pub fn create(conn: &Connection, input: &CreateTeaching) -> AppResult<TeachingPr
     studies::get(conn, &input.study_id)?;
     let title = validate::title(&input.title, "teaching")?;
     let kind = check_kind(input.kind.as_deref())?;
+    if input.points.len() > STARTING_POINTS_MAX {
+        return Err(invalid("teaching.tooLong", "Too many starting steps."));
+    }
+    let starting = input
+        .points
+        .iter()
+        .map(|p| Ok((point_title(&p.title)?, check_step_kind(p.kind.as_deref())?)))
+        .collect::<AppResult<Vec<_>>>()?;
     let position: i64 = conn.query_row(
         "SELECT COALESCE(MAX(position), -1) + 1 FROM teaching_preparations
          WHERE study_id = ?1 AND deleted_at IS NULL",
@@ -138,6 +174,13 @@ pub fn create(conn: &Connection, input: &CreateTeaching) -> AppResult<TeachingPr
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6)",
         params![id, input.study_id, title, kind, position, now],
     )?;
+    for (index, (point, step)) in starting.iter().enumerate() {
+        tx.execute(
+            "INSERT INTO teaching_points (id, preparation_id, position, kind, title, created_at, updated_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6)",
+            params![new_id(), id, index as i64, step, point, now],
+        )?;
+    }
     studies::touch(&tx, &input.study_id, &now)?;
     tx.commit()?;
     get(conn, &id)
@@ -219,7 +262,7 @@ fn touch(conn: &Connection, prep: &TeachingPreparation, now: &str) -> AppResult<
 
 fn points_for(conn: &Connection, prep_id: &str) -> AppResult<Vec<TeachingPoint>> {
     let mut stmt = conn.prepare(
-        "SELECT id, position, title, explanation, application, illustration FROM teaching_points
+        "SELECT id, position, title, explanation, application, illustration, kind FROM teaching_points
          WHERE preparation_id = ?1 AND deleted_at IS NULL ORDER BY position, created_at, rowid",
     )?;
     let rows = stmt.query_map([prep_id], |row| {
@@ -230,6 +273,7 @@ fn points_for(conn: &Connection, prep_id: &str) -> AppResult<Vec<TeachingPoint>>
             explanation: row.get(3)?,
             application: row.get(4)?,
             illustration: row.get(5)?,
+            kind: row.get(6)?,
         })
     })?;
     Ok(rows.collect::<Result<_, _>>()?)
@@ -274,13 +318,8 @@ pub fn create_point(
     input: &CreateTeachingPoint,
 ) -> AppResult<TeachingPreparation> {
     let prep = row(conn, &input.preparation_id)?;
-    let title = input.title.as_deref().unwrap_or("").trim().to_string();
-    if title.chars().count() > validate::TITLE_MAX_CHARS {
-        return Err(invalid(
-            "teaching.tooLong",
-            "This point's title is too long.",
-        ));
-    }
+    let title = point_title(input.title.as_deref().unwrap_or(""))?;
+    let kind = check_step_kind(input.kind.as_deref())?;
     let mut order: Vec<String> = points_for(conn, &prep.id)?
         .into_iter()
         .map(|p| p.id)
@@ -299,9 +338,9 @@ pub fn create_point(
     let now = now();
     let tx = conn.unchecked_transaction()?;
     tx.execute(
-        "INSERT INTO teaching_points (id, preparation_id, position, title, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?5)",
-        params![id, prep.id, at as i64, title, now],
+        "INSERT INTO teaching_points (id, preparation_id, position, kind, title, created_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6)",
+        params![id, prep.id, at as i64, kind, title, now],
     )?;
     order.insert(at, id);
     renumber(&tx, &order, &now)?;
@@ -320,17 +359,12 @@ pub fn update_point(
         .find(|p| p.id == input.id)
         .ok_or_else(|| AppError::not_found("teaching point", &input.id))?;
     let title = match &input.title {
-        Some(t) => {
-            let t = t.trim();
-            if t.chars().count() > validate::TITLE_MAX_CHARS {
-                return Err(invalid(
-                    "teaching.tooLong",
-                    "This point's title is too long.",
-                ));
-            }
-            t.to_string()
-        }
+        Some(t) => point_title(t)?,
         None => current.title,
+    };
+    let kind = match &input.kind {
+        Some(k) => check_step_kind(Some(k))?,
+        None => current.kind,
     };
     let field = |value: &Option<String>, current: String| match value {
         Some(v) => long_text(v),
@@ -343,9 +377,17 @@ pub fn update_point(
     let tx = conn.unchecked_transaction()?;
     tx.execute(
         "UPDATE teaching_points SET title = ?2, explanation = ?3, application = ?4,
-             illustration = ?5, updated_at = ?6, revision = revision + 1
+             illustration = ?5, kind = ?6, updated_at = ?7, revision = revision + 1
          WHERE id = ?1",
-        params![input.id, title, explanation, application, illustration, now],
+        params![
+            input.id,
+            title,
+            explanation,
+            application,
+            illustration,
+            kind,
+            now
+        ],
     )?;
     touch(&tx, &prep, &now)?;
     tx.commit()?;

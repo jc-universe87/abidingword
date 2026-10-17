@@ -682,10 +682,6 @@
     "audiencePlaceholder": "ex.: toda a igreja, um grupo de jovens",
     "purpose": "Propósito",
     "purposePlaceholder": "O que você espera deste ensino",
-    "message": "Mensagem central",
-    "messageHint": "Com suas próprias palavras: o principal que você quer que as pessoas levem.",
-    "introduction": "Introdução",
-    "conclusion": "Conclusão",
     "notes": "Notas para você",
     "notesHint": "Lembretes durante o ensino; não fazem parte do que você diz.",
     "points": {
@@ -906,7 +902,11 @@
         "added": "Ponto adicionado.",
         "removed": "Ponto removido.",
         "moved": "Ponto movido para a posição {{position}}.",
-        "deleteConfirm": "Excluir este ponto e o que você escreveu nele? Os registros usados continuam no estudo."
+        "deleteConfirm": "Excluir este ponto e o que você escreveu nele? Os registros usados continuam no estudo.",
+        "message": "Mensagem central",
+        "messageHint": "O principal que você quer que as pessoas levem",
+        "introduction": "Introdução",
+        "conclusion": "Conclusão"
       },
       "questions": {
         "title": "Perguntas e respostas",
@@ -917,13 +917,17 @@
         "untitled": "Pergunta {{number}}",
         "titleLabel": "Pergunta {{number}}",
         "titlePlaceholder": "A pergunta que você vai fazer",
-        "explanation": "O que a passagem mostra",
-        "application": "O que isso significa para nós",
+        "explanation": "Aonde a conversa pode levar",
+        "application": "Perguntas de continuação",
         "illustration": "Notas para conduzir a conversa",
         "added": "Pergunta adicionada.",
         "removed": "Pergunta removida.",
         "moved": "Pergunta movida para a posição {{position}}.",
-        "deleteConfirm": "Excluir esta pergunta e o que você escreveu nela? Os registros usados continuam no estudo."
+        "deleteConfirm": "Excluir esta pergunta e o que você escreveu nela? Os registros usados continuam no estudo.",
+        "message": "O que o grupo deve descobrir",
+        "messageHint": "O principal a que a conversa deve levar",
+        "introduction": "Abertura",
+        "conclusion": "Encerramento"
       },
       "steps": {
         "title": "Roteiro da lição",
@@ -940,11 +944,63 @@
         "added": "Etapa adicionada.",
         "removed": "Etapa removida.",
         "moved": "Etapa movida para a posição {{position}}.",
-        "deleteConfirm": "Excluir esta etapa e o que você escreveu nela? Os registros usados continuam no estudo."
+        "deleteConfirm": "Excluir esta etapa e o que você escreveu nela? Os registros usados continuam no estudo.",
+        "message": "O que lembrar",
+        "messageHint": "Em poucas palavras que eles possam repetir depois",
+        "introduction": "Abertura",
+        "conclusion": "Final"
       }
     },
     "aboutEmpty": "Tipo, para quem, propósito, passagens",
-    "aboutFor": "para {{audience}}"
+    "aboutFor": "para {{audience}}",
+    "format": {
+      "points": "Pontos principais com explicação, aplicação e ilustração, entre uma introdução e uma conclusão.",
+      "questions": "Perguntas para o grupo, cada uma com aonde a conversa pode levar e perguntas de continuação.",
+      "steps": "Uma lição em etapas: ensino, leitura bíblica, perguntas, atividades e imagens, na ordem em que acontecem."
+    },
+    "startsWith": "Começa com: {{steps}}.",
+    "starts": {
+      "children": {
+        "welcome": "Boas-vindas",
+        "story": "História bíblica",
+        "question": "Pergunta",
+        "activity": "Atividade",
+        "prayer": "Oração"
+      },
+      "lesson": {
+        "teaching": "Ensino",
+        "discussion": "Conversa",
+        "activity": "Atividade"
+      }
+    },
+    "stepKindLabel": "Tipo de etapa: {{step}}",
+    "stepKind": {
+      "none": "Tipo não indicado",
+      "text": "Ensino",
+      "scripture": "Leitura bíblica",
+      "question": "Pergunta",
+      "activity": "Atividade",
+      "image": "Imagem",
+      "audio": "Áudio"
+    },
+    "step": {
+      "text": {
+        "explanation": "O que você vai dizer"
+      },
+      "scripture": {
+        "explanation": "Como você vai ler ou contar"
+      },
+      "question": {
+        "explanation": "Respostas a esperar"
+      },
+      "activity": {
+        "explanation": "Como funciona",
+        "illustration": "O que você precisa"
+      },
+      "image": {
+        "explanation": "O que ela mostra e quando você a mostra"
+      }
+    }
   },
   "parts": {
     "add": "Adicionar uma parte",

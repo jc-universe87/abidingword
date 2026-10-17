@@ -7,11 +7,11 @@ import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { referenceLabel } from "@/i18n/scripture";
 import type { Finding } from "@/types/studies";
-import { TEACHING_KINDS, type ImageCapability, type ProviderKind, type TeachingKind, type TeachingPoint, type TeachingPreparation } from "@/types/teaching";
+import { STEP_KINDS, TEACHING_KINDS, type ImageCapability, type ProviderKind, type StepKind, type TeachingKind, type TeachingPoint, type TeachingPreparation } from "@/types/teaching";
 import { AssistMenu } from "./AssistMenu";
 import { AssistPanel } from "./AssistPanel";
 import { FloatingPanel, AssistDockProvider, useAssistDock } from "./FloatingPanel";
-import { assistLabel, canvasShape, teachingKindLabel, type ShapeText } from "./labels";
+import { STARTING_STEPS, assistLabel, canvasShape, pointFields, showsFrame, startingStepTitle, stepFieldLabel, teachingKindLabel, type ShapeText } from "./labels";
 import { TeachingField, type AssistantHooks } from "./TeachingField";
 import { TeachingLinks } from "./TeachingLinks";
 
@@ -147,7 +147,9 @@ function NewTeaching({
     setBusy(true);
     setError(null);
     try {
-      onCreated(await api.teachingCreate({ studyId, title: title.trim() || suggested, kind }));
+      // A lesson starts with its steps, named in the person's language; the others start empty.
+      const points = (STARTING_STEPS[kind] ?? []).map((step) => ({ title: startingStepTitle(t, kind, step.key), kind: step.kind }));
+      onCreated(await api.teachingCreate({ studyId, title: title.trim() || suggested, kind, points }));
     } catch (err) {
       setError(toApiError(err).message);
     } finally {
@@ -176,11 +178,21 @@ function NewTeaching({
         <div className="flex flex-wrap gap-2">
           {TEACHING_KINDS.map((k) => (
             <label key={k} className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-border px-4 text-[0.9375rem] has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-on-primary">
-              <input type="radio" name={`${id}-kind`} value={k} checked={kind === k} onChange={() => setKind(k)} className="sr-only" />
+              <input type="radio" name={`${id}-kind`} value={k} checked={kind === k} onChange={() => setKind(k)} className="sr-only" aria-describedby={`${id}-format`} />
               {teachingKindLabel(t, k)}
             </label>
           ))}
         </div>
+        {/* What the chosen kind gives to work in: the shape of its main canvas. */}
+        <p id={`${id}-format`} className="m-0 text-[0.9375rem] text-text">
+          {t(`studies.teaching.format.${canvasShape(kind)}`)}
+          {STARTING_STEPS[kind] && (
+            <span className="text-text-muted">
+              {" "}
+              {t("studies.teaching.startsWith", { steps: STARTING_STEPS[kind]!.map((step) => startingStepTitle(t, kind, step.key)).join(t("common.listSeparator")) })}
+            </span>
+          )}
+        </p>
       </fieldset>
       <label className="flex flex-col gap-1">
         <span className="text-[0.9375rem] font-semibold text-text-strong">{t("studies.teaching.titleLabel")}</span>
@@ -325,7 +337,8 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         );
 
   const addPoint = async (after: string | null) => {
-    const next = await act(() => api.teachingPointCreate({ preparationId: prep.id, afterPointId: after }));
+    // A new step of a lesson starts as teaching; its kind can be changed at once.
+    const next = await act(() => api.teachingPointCreate({ preparationId: prep.id, afterPointId: after, kind: shapeName === "steps" ? "text" : null }));
     if (next) {
       const ids = new Set(prep.points.map((p) => p.id));
       const fresh = next.points.find((p) => !ids.has(p.id));
@@ -456,10 +469,11 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         </div>
       </section>
 
+      {/* What it says on a line of its own; what it is for waits in the empty field. */}
       <TeachingField
         key={`message-${prep.id}`}
-        label={t("studies.teaching.message")}
-        hint={t("studies.teaching.messageHint")}
+        label={shape("message")}
+        placeholder={shape("messageHint")}
         value={prep.centralMessage ?? ""}
         save={save("centralMessage")}
         part="centralMessage"
@@ -468,7 +482,9 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         onRevealScripture={onRevealScripture}
       />
 
-      <TeachingField key={`intro-${prep.id}`} label={t("studies.teaching.introduction")} value={prep.introduction} save={save("introduction")} part="introduction" assistant={hooks} onRevealScripture={onRevealScripture} />
+      {showsFrame(shapeName, "introduction", prep.introduction) && (
+        <TeachingField key={`intro-${prep.id}`} label={shape("introduction")} value={prep.introduction} save={save("introduction")} part="introduction" assistant={hooks} onRevealScripture={onRevealScripture} />
+      )}
 
       <section aria-labelledby={`points-${prep.id}`} className="flex flex-col gap-4">
         <div ref={wholeButton} className="flex flex-wrap items-center justify-between gap-2">
@@ -518,6 +534,22 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
               <li key={point.id} aria-label={shape("label", { number: index + 1, title: name })} className="flex flex-col gap-3 border-l-[3px] border-accent pl-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-ui text-[0.875rem] font-semibold text-text-muted">{shape("number", { number: index + 1 })}</span>
+                  {/* A step of a lesson says what kind of step it is; its fields follow. */}
+                  {shapeName === "steps" && (
+                    <select
+                      value={point.kind ?? ""}
+                      onChange={(e) => void act(() => api.teachingPointUpdate({ id: point.id, kind: e.target.value as StepKind | "" }))}
+                      aria-label={t("studies.teaching.stepKindLabel", { step: name })}
+                      className="h-11 rounded-aw border border-border-subtle bg-bg px-2 text-[0.9375rem] text-text-strong"
+                    >
+                      <option value="">{t("studies.teaching.stepKind.none")}</option>
+                      {[...STEP_KINDS, ...(point.kind === "audio" ? (["audio"] as const) : [])].map((k) => (
+                        <option key={k} value={k}>
+                          {t(`studies.teaching.stepKind.${k}`)}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                   <span className="ml-auto flex items-center">
                     <button
                       id={`point-move-${point.id}-up`}
@@ -578,9 +610,23 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
                   assistant={hooks}
                   autoFocus={point.id === newPoint}
                 />
-                <TeachingField key={`pexp-${point.id}`} label={shape("explanation")} value={point.explanation} save={savePoint(point.id, "explanation")} part="pointExplanation" pointId={point.id} assistant={hooks} onRevealScripture={onRevealScripture} />
-                <TeachingField key={`papp-${point.id}`} label={shape("application")} value={point.application} save={savePoint(point.id, "application")} part="pointApplication" pointId={point.id} rows={2} assistant={hooks} onRevealScripture={onRevealScripture} />
-                <TeachingField key={`pill-${point.id}`} label={shape("illustration")} value={point.illustration} save={savePoint(point.id, "illustration")} part="pointIllustration" pointId={point.id} rows={2} assistant={hooks} />
+                {pointFields(shapeName, point).map((field) => {
+                  const stepLabel = shapeName === "steps" ? stepFieldLabel(t, point.kind, field) : null;
+                  const part = field === "explanation" ? "pointExplanation" : field === "application" ? "pointApplication" : "pointIllustration";
+                  return (
+                    <TeachingField
+                      key={`p${field}-${point.id}`}
+                      label={stepLabel ?? shape(field)}
+                      value={point[field]}
+                      save={savePoint(point.id, field)}
+                      part={part}
+                      pointId={point.id}
+                      rows={field === "explanation" ? 3 : 2}
+                      assistant={hooks}
+                      onRevealScripture={field === "illustration" ? undefined : onRevealScripture}
+                    />
+                  );
+                })}
                 <TeachingLinks preparation={prep} pointId={point.id} scope={name} studyFindings={findings} onChanged={setPrep} onRevealScripture={onRevealScripture} />
               </li>
             );
@@ -594,8 +640,10 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         </div>
       </section>
 
-      <TeachingField key={`concl-${prep.id}`} label={t("studies.teaching.conclusion")} value={prep.conclusion} save={save("conclusion")} part="conclusion" assistant={hooks} onRevealScripture={onRevealScripture} />
-      <TeachingField key={`notes-${prep.id}`} label={t("studies.teaching.notes")} hint={t("studies.teaching.notesHint")} value={prep.notes} save={save("notes")} part="notes" rows={2} assistant={hooks} />
+      {showsFrame(shapeName, "conclusion", prep.conclusion) && (
+        <TeachingField key={`concl-${prep.id}`} label={shape("conclusion")} value={prep.conclusion} save={save("conclusion")} part="conclusion" assistant={hooks} onRevealScripture={onRevealScripture} />
+      )}
+      <TeachingField key={`notes-${prep.id}`} label={t("studies.teaching.notes")} placeholder={t("studies.teaching.notesHint")} value={prep.notes} save={save("notes")} part="notes" rows={2} assistant={hooks} />
 
       {error && (
         <p role="alert" className="m-0 text-danger">

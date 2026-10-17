@@ -19,6 +19,17 @@ pub const TEACHING_KINDS: &[&str] = &[
     "other",
 ];
 
+/// The kinds of step a lesson can be made of. Audio is accepted for the
+/// future (a step with a recording), not yet offered in the interface.
+pub const STEP_KINDS: &[&str] = &[
+    "text",
+    "scripture",
+    "question",
+    "activity",
+    "image",
+    "audio",
+];
+
 /// What the person kept from the assistant.
 pub const MATERIAL_KINDS: &[&str] = &["story", "illustration", "image", "visual"];
 
@@ -77,6 +88,8 @@ pub struct TeachingPreparation {
 pub struct TeachingPoint {
     pub id: String,
     pub position: i64,
+    /// For a step of a lesson: what kind of step it is (see [`STEP_KINDS`]).
+    pub kind: Option<String>,
     pub title: String,
     pub explanation: String,
     pub application: String,
@@ -148,6 +161,17 @@ pub struct CreateTeaching {
     pub title: String,
     #[serde(default)]
     pub kind: Option<String>,
+    /// The steps or points it starts with (a format's starting structure),
+    /// named in the person's language by the interface.
+    #[serde(default)]
+    pub points: Vec<StartingPoint>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct StartingPoint {
+    pub title: String,
+    pub kind: Option<String>,
 }
 
 /// Each field: `None` leaves it as it is; `Some("")` clears an optional one.
@@ -170,6 +194,7 @@ pub struct UpdateTeaching {
 pub struct CreateTeachingPoint {
     pub preparation_id: String,
     pub title: Option<String>,
+    pub kind: Option<String>,
     /// Put the new point straight after this one; at the end when absent.
     pub after_point_id: Option<String>,
 }
@@ -178,6 +203,8 @@ pub struct CreateTeachingPoint {
 #[serde(rename_all = "camelCase", default)]
 pub struct UpdateTeachingPoint {
     pub id: String,
+    /// `Some("")` clears it.
+    pub kind: Option<String>,
     pub title: Option<String>,
     pub explanation: Option<String>,
     pub application: Option<String>,

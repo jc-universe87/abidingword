@@ -682,10 +682,6 @@
     "audiencePlaceholder": "p. ej. toda la iglesia, un grupo de jóvenes",
     "purpose": "Propósito",
     "purposePlaceholder": "Lo que esperas de esta enseñanza",
-    "message": "Mensaje central",
-    "messageHint": "Con tus propias palabras: lo principal que quieres que la gente se lleve.",
-    "introduction": "Introducción",
-    "conclusion": "Conclusión",
     "notes": "Notas para ti",
     "notesHint": "Recordatorios mientras enseñas; no forman parte de lo que dices.",
     "points": {
@@ -906,7 +902,11 @@
         "added": "Punto añadido.",
         "removed": "Punto eliminado.",
         "moved": "Punto movido al lugar {{position}}.",
-        "deleteConfirm": "¿Eliminar este punto y lo que escribiste en él? Los apuntes usados aquí siguen en el estudio."
+        "deleteConfirm": "¿Eliminar este punto y lo que escribiste en él? Los apuntes usados aquí siguen en el estudio.",
+        "message": "Mensaje central",
+        "messageHint": "Lo principal que quieres que la gente se lleve",
+        "introduction": "Introducción",
+        "conclusion": "Conclusión"
       },
       "questions": {
         "title": "Preguntas y respuestas",
@@ -917,13 +917,17 @@
         "untitled": "Pregunta {{number}}",
         "titleLabel": "Pregunta {{number}}",
         "titlePlaceholder": "La pregunta que vas a hacer",
-        "explanation": "Lo que muestra el pasaje",
-        "application": "Lo que significa para nosotros",
+        "explanation": "Hacia dónde puede llevar",
+        "application": "Preguntas de seguimiento",
         "illustration": "Notas para guiar la conversación",
         "added": "Pregunta añadida.",
         "removed": "Pregunta eliminada.",
         "moved": "Pregunta movida al lugar {{position}}.",
-        "deleteConfirm": "¿Eliminar esta pregunta y lo que escribiste con ella? Los apuntes usados aquí siguen en el estudio."
+        "deleteConfirm": "¿Eliminar esta pregunta y lo que escribiste con ella? Los apuntes usados aquí siguen en el estudio.",
+        "message": "Lo que el grupo debería descubrir",
+        "messageHint": "Lo principal a lo que debería llevar la conversación",
+        "introduction": "Apertura",
+        "conclusion": "Cierre"
       },
       "steps": {
         "title": "Desarrollo de la lección",
@@ -940,11 +944,63 @@
         "added": "Paso añadido.",
         "removed": "Paso eliminado.",
         "moved": "Paso movido al lugar {{position}}.",
-        "deleteConfirm": "¿Eliminar este paso y lo que escribiste en él? Los apuntes usados aquí siguen en el estudio."
+        "deleteConfirm": "¿Eliminar este paso y lo que escribiste en él? Los apuntes usados aquí siguen en el estudio.",
+        "message": "Lo que hay que recordar",
+        "messageHint": "En pocas palabras que puedan repetir después",
+        "introduction": "Apertura",
+        "conclusion": "Final"
       }
     },
     "aboutEmpty": "Tipo, para quién, propósito, pasajes",
-    "aboutFor": "para {{audience}}"
+    "aboutFor": "para {{audience}}",
+    "format": {
+      "points": "Puntos principales con explicación, aplicación e ilustración, entre una introducción y una conclusión.",
+      "questions": "Preguntas para el grupo, cada una con hacia dónde puede llevar y preguntas de seguimiento.",
+      "steps": "Una lección por pasos: enseñanza, lectura bíblica, preguntas, actividades e imágenes, en el orden en que ocurren."
+    },
+    "startsWith": "Empieza con: {{steps}}.",
+    "starts": {
+      "children": {
+        "welcome": "Bienvenida",
+        "story": "Historia bíblica",
+        "question": "Pregunta",
+        "activity": "Actividad",
+        "prayer": "Oración"
+      },
+      "lesson": {
+        "teaching": "Enseñanza",
+        "discussion": "Conversación",
+        "activity": "Actividad"
+      }
+    },
+    "stepKindLabel": "Tipo de paso: {{step}}",
+    "stepKind": {
+      "none": "Tipo sin indicar",
+      "text": "Enseñanza",
+      "scripture": "Lectura bíblica",
+      "question": "Pregunta",
+      "activity": "Actividad",
+      "image": "Imagen",
+      "audio": "Audio"
+    },
+    "step": {
+      "text": {
+        "explanation": "Lo que vas a decir"
+      },
+      "scripture": {
+        "explanation": "Cómo lo vas a leer o contar"
+      },
+      "question": {
+        "explanation": "Respuestas que esperar"
+      },
+      "activity": {
+        "explanation": "Cómo se hace",
+        "illustration": "Lo que necesitas"
+      },
+      "image": {
+        "explanation": "Qué muestra y cuándo la enseñas"
+      }
+    }
   },
   "parts": {
     "add": "Añadir una parte",

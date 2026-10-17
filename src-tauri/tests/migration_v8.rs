@@ -49,7 +49,10 @@ fn a_v7_database_is_backed_up_and_gains_empty_teaching_tables() {
     assert_eq!(migrations::current_version(&copy).unwrap(), 7);
 
     db.with_conn(|conn| {
-        assert_eq!(migrations::current_version(conn)?, 8);
+        assert_eq!(
+            migrations::current_version(conn)?,
+            MIGRATIONS.last().unwrap().version
+        );
         assert_eq!(studies::get(conn, "s-1")?.title, "Abiding");
         assert_eq!(
             findings::get(conn, "f-1")?.content,
@@ -74,6 +77,7 @@ fn a_v7_database_is_backed_up_and_gains_empty_teaching_tables() {
                 study_id: "s-1".into(),
                 title: "Sunday".into(),
                 kind: None,
+                points: Vec::new(),
             },
         )?;
         let prep = teaching::link_finding(

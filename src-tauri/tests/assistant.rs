@@ -178,6 +178,7 @@ fn world() -> World {
                     study_id: s.clone(),
                     title: "Sunday sermon".into(),
                     kind: Some("sermon".into()),
+                    points: Vec::new(),
                 },
             )?;
             // Another teaching of the same study: never part of this one's context.
@@ -187,6 +188,7 @@ fn world() -> World {
                     study_id: s.clone(),
                     title: "Youth night".into(),
                     kind: None,
+                    points: Vec::new(),
                 },
             )?;
             teaching::update(
@@ -213,6 +215,7 @@ fn world() -> World {
                     preparation_id: prep.id.clone(),
                     title: Some("Stay connected".into()),
                     after_point_id: None,
+                    kind: None,
                 },
             )?;
             let point = p.points[0].id.clone();
@@ -655,6 +658,7 @@ fn a_question_needs_the_persons_own_material_not_just_a_request() {
                     study_id: s,
                     title: "Blank".into(),
                     kind: None,
+                    points: Vec::new(),
                 },
             )?;
             let p = teaching::create_point(

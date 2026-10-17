@@ -15,9 +15,15 @@ export interface TeachingSummary {
   updatedAt: string;
 }
 
+/** The kinds of step a lesson is made of (audio is kept for later: not offered yet). */
+export const STEP_KINDS = ["text", "scripture", "question", "activity", "image"] as const;
+export type StepKind = (typeof STEP_KINDS)[number] | "audio";
+
 export interface TeachingPoint {
   id: string;
   position: number;
+  /** For a step of a lesson: what kind of step it is; null when not said. */
+  kind: StepKind | null;
   title: string;
   explanation: string;
   application: string;
@@ -110,6 +116,8 @@ export interface UpdateTeaching {
 
 export interface UpdateTeachingPoint {
   id: string;
+  /** "" clears it. */
+  kind?: StepKind | "";
   title?: string;
   explanation?: string;
   application?: string;

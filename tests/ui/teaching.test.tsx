@@ -1083,12 +1083,92 @@ describe("the teaching canvas", () => {
     await user.selectOptions(within(article).getByRole("combobox", { name: "Kind of teaching" }), "bible_study");
     expect(await within(article).findByRole("heading", { name: "Questions and answers" })).toBeInTheDocument();
     await user.click(within(article).getByRole("button", { name: "Add a question" }));
-    expect(await within(article).findByRole("textbox", { name: "What the passage shows" })).toBeInTheDocument();
+    expect(await within(article).findByRole("textbox", { name: "Where it may lead" })).toBeInTheDocument();
+    expect(within(article).getByRole("textbox", { name: "Follow-up questions" })).toBeInTheDocument();
     await user.selectOptions(within(article).getByRole("combobox", { name: "Kind of teaching" }), "lesson");
     expect(await within(article).findByRole("heading", { name: "Lesson plan" })).toBeInTheDocument();
     expect(within(article).getByRole("textbox", { name: "What you will say or do" })).toBeInTheDocument();
     // The same point, only named differently: nothing was lost.
     expect(prep(api).points).toHaveLength(1);
+  });
+
+  it("starts a children's lesson with its steps, each of a kind, and shows the fields each kind needs", async () => {
+    const { api } = await setup();
+    const { user } = await renderApp(api);
+    await openTeaching(user);
+    const form = await within(studyPane()).findByRole("form", { name: "Prepare a teaching from this study" });
+    await user.click(within(form).getByRole("radio", { name: "Children" }));
+    // The kind says what it gives to work in, and what it starts with.
+    expect(within(form).getByText(/A lesson in steps: teaching, Bible reading, questions, activities and pictures/)).toBeInTheDocument();
+    expect(within(form).getByText("Starts with: Welcome · Bible story · Question · Activity · Prayer.")).toBeInTheDocument();
+    await user.click(within(form).getByRole("button", { name: "Start" }));
+    const article = await within(studyPane()).findByRole("article", { name: "Children · Abiding" });
+    expect(prep(api).points.map((p) => [p.title, p.kind])).toEqual([
+      ["Welcome", "text"],
+      ["Bible story", "scripture"],
+      ["Question", "question"],
+      ["Activity", "activity"],
+      ["Prayer", "text"],
+    ]);
+    expect(within(article).getByRole("heading", { name: "Lesson plan" })).toBeInTheDocument();
+    // The welcome and the ending are steps: no separate introduction or conclusion.
+    expect(within(article).queryByRole("textbox", { name: "Opening" })).toBeNull();
+    expect(within(article).queryByRole("textbox", { name: "Ending" })).toBeNull();
+    expect(field(article, "The one thing to remember")).toBeInTheDocument();
+    const steps = within(article).getAllByRole("listitem", { name: /^Step \d/ });
+    expect(within(steps[0]!).getByRole("textbox", { name: "What you will say" })).toBeInTheDocument();
+    expect(within(steps[1]!).getByRole("textbox", { name: "How you will read or tell it" })).toBeInTheDocument();
+    expect(within(steps[2]!).getByRole("textbox", { name: "Answers to listen for" })).toBeInTheDocument();
+    expect(within(steps[3]!).getByRole("textbox", { name: "How it works" })).toBeInTheDocument();
+    expect(within(steps[3]!).getByRole("textbox", { name: "What you need" })).toBeInTheDocument();
+    // Fields a step does not use are not shown: no application or illustration under a welcome.
+    expect(within(steps[0]!).queryByRole("textbox", { name: "What they should take away" })).toBeNull();
+
+    // A step becomes a picture; what was written stays.
+    await user.type(within(steps[0]!).getByRole("textbox", { name: "What you will say" }), "Hello everyone.");
+    await settle();
+    await user.selectOptions(within(steps[0]!).getByRole("combobox", { name: "Kind of step: Welcome" }), "image");
+    await waitFor(() => expect(prep(api).points[0]!.kind).toBe("image"));
+    const first = within(article).getAllByRole("listitem", { name: /^Step \d/ })[0]!;
+    expect(within(first).getByRole("textbox", { name: "What it shows, and when you show it" })).toHaveValue("Hello everyone.");
+    // A new step starts as teaching.
+    await user.click(within(article).getByRole("button", { name: "Add a step" }));
+    await waitFor(() => expect(prep(api).points).toHaveLength(6));
+    expect(prep(api).points[5]!.kind).toBe("text");
+  });
+
+  it("keeps writing visible in a field the kind does not use, and an introduction written before", async () => {
+    const { api } = await setup();
+    const { user } = await renderApp(api);
+    const article = await startSermon(user);
+    await user.type(field(article, "Introduction"), "Have you pruned a rose?");
+    await settle();
+    await openAbout(user, article);
+    await user.selectOptions(within(article).getByRole("combobox", { name: "Kind of teaching" }), "children");
+    // A lesson has no separate introduction, but what was written there is never hidden.
+    expect(await within(article).findByRole("textbox", { name: "Opening" })).toHaveValue("Have you pruned a rose?");
+    expect(within(article).queryByRole("textbox", { name: "Ending" })).toBeNull();
+  });
+
+  it("gives a group Bible study an opening, questions with follow-ups, and a closing", async () => {
+    const { api } = await setup();
+    const { user } = await renderApp(api);
+    await openTeaching(user);
+    const form = await within(studyPane()).findByRole("form", { name: "Prepare a teaching from this study" });
+    await user.click(within(form).getByRole("radio", { name: "Group Bible study" }));
+    expect(within(form).getByText(/Questions for the group, each with where it may lead/)).toBeInTheDocument();
+    expect(within(form).queryByText(/^Starts with/)).toBeNull();
+    await user.click(within(form).getByRole("button", { name: "Start" }));
+    const article = await within(studyPane()).findByRole("article", { name: "Group Bible study · Abiding" });
+    expect(field(article, "Opening")).toBeInTheDocument();
+    expect(field(article, "Closing")).toBeInTheDocument();
+    expect(field(article, "What the group should discover")).toHaveAttribute("placeholder", "The one thing the conversation should lead to");
+    expect(prep(api).points).toHaveLength(0);
+    // No kinds of step outside a lesson.
+    await user.click(within(article).getByRole("button", { name: "Add a question" }));
+    await waitFor(() => expect(prep(api).points).toHaveLength(1));
+    expect(prep(api).points[0]!.kind).toBeNull();
+    expect(within(article).queryByRole("combobox", { name: /^Kind of step/ })).toBeNull();
   });
 
   it("works fully without the assistant", async () => {

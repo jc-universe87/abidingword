@@ -675,10 +675,6 @@
     "audiencePlaceholder": "z. B. die ganze Gemeinde, eine Jugendgruppe",
     "purpose": "Ziel",
     "purposePlaceholder": "Was diese Predigt oder Lehre bewirken soll",
-    "message": "Kernbotschaft",
-    "messageHint": "In deinen eigenen Worten: das eine, was die Hörer vor allem mitnehmen sollen.",
-    "introduction": "Einleitung",
-    "conclusion": "Schluss",
     "notes": "Notizen für dich selbst",
     "notesHint": "Erinnerungen beim Halten; nicht Teil dessen, was du sagst.",
     "points": {
@@ -896,7 +892,11 @@
         "added": "Punkt hinzugefügt.",
         "removed": "Punkt entfernt.",
         "moved": "Punkt an Stelle {{position}} verschoben.",
-        "deleteConfirm": "Diesen Punkt mit deinem Text löschen? Verwendete Einträge bleiben im Bibelstudium."
+        "deleteConfirm": "Diesen Punkt mit deinem Text löschen? Verwendete Einträge bleiben im Bibelstudium.",
+        "message": "Kernbotschaft",
+        "messageHint": "Das eine, was die Hörer vor allem mitnehmen sollen",
+        "introduction": "Einleitung",
+        "conclusion": "Schluss"
       },
       "questions": {
         "title": "Fragen und Antworten",
@@ -907,13 +907,17 @@
         "untitled": "Frage {{number}}",
         "titleLabel": "Frage {{number}}",
         "titlePlaceholder": "Die Frage, die du stellen wirst",
-        "explanation": "Was der Bibeltext zeigt",
-        "application": "Was das für uns bedeutet",
+        "explanation": "Wohin das Gespräch führen kann",
+        "application": "Weiterführende Fragen",
         "illustration": "Hinweise für die Gesprächsleitung",
         "added": "Frage hinzugefügt.",
         "removed": "Frage entfernt.",
         "moved": "Frage an Stelle {{position}} verschoben.",
-        "deleteConfirm": "Diese Frage mit deinem Text löschen? Verwendete Einträge bleiben im Bibelstudium."
+        "deleteConfirm": "Diese Frage mit deinem Text löschen? Verwendete Einträge bleiben im Bibelstudium.",
+        "message": "Was die Gruppe entdecken soll",
+        "messageHint": "Das eine, wohin das Gespräch führen soll",
+        "introduction": "Einstieg",
+        "conclusion": "Abschluss"
       },
       "steps": {
         "title": "Ablauf",
@@ -930,11 +934,63 @@
         "added": "Schritt hinzugefügt.",
         "removed": "Schritt entfernt.",
         "moved": "Schritt an Stelle {{position}} verschoben.",
-        "deleteConfirm": "Diesen Schritt mit deinem Text löschen? Verwendete Einträge bleiben im Bibelstudium."
+        "deleteConfirm": "Diesen Schritt mit deinem Text löschen? Verwendete Einträge bleiben im Bibelstudium.",
+        "message": "Das eine, was sie behalten sollen",
+        "messageHint": "In wenigen Worten, die sie hinterher nachsagen können",
+        "introduction": "Einstieg",
+        "conclusion": "Abschluss"
       }
     },
     "aboutEmpty": "Art, für wen, Ziel, Bibelstellen",
-    "aboutFor": "für {{audience}}"
+    "aboutFor": "für {{audience}}",
+    "format": {
+      "points": "Hauptpunkte mit Erklärung, Anwendung und Beispiel, zwischen Einleitung und Schluss.",
+      "questions": "Fragen für die Gruppe, jeweils mit der Richtung, in die das Gespräch führen kann, und weiterführenden Fragen.",
+      "steps": "Eine Einheit in Schritten: Erzählen, Bibellesen, Fragen, Aktionen und Bilder, in der Reihenfolge des Ablaufs."
+    },
+    "startsWith": "Beginnt mit: {{steps}}.",
+    "starts": {
+      "children": {
+        "welcome": "Begrüßung",
+        "story": "Biblische Geschichte",
+        "question": "Frage",
+        "activity": "Aktion",
+        "prayer": "Gebet"
+      },
+      "lesson": {
+        "teaching": "Lehre",
+        "discussion": "Gespräch",
+        "activity": "Aktion"
+      }
+    },
+    "stepKindLabel": "Art des Schritts: {{step}}",
+    "stepKind": {
+      "none": "Art nicht angegeben",
+      "text": "Erzählen und Erklären",
+      "scripture": "Bibeltext",
+      "question": "Frage",
+      "activity": "Aktion",
+      "image": "Bild",
+      "audio": "Audio"
+    },
+    "step": {
+      "text": {
+        "explanation": "Was du sagst"
+      },
+      "scripture": {
+        "explanation": "Wie du ihn liest oder erzählst"
+      },
+      "question": {
+        "explanation": "Antworten, auf die du achten kannst"
+      },
+      "activity": {
+        "explanation": "Wie es geht",
+        "illustration": "Was du brauchst"
+      },
+      "image": {
+        "explanation": "Was es zeigt und wann du es zeigst"
+      }
+    }
   },
   "parts": {
     "add": "Teil hinzufügen",

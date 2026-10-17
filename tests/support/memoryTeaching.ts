@@ -218,14 +218,16 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
       return state.preparations.filter((p) => p.studyId === studyId).map((p) => ({ id: p.id, studyId, title: p.title, kind: p.kind, updatedAt: p.updatedAt }));
     },
     teachingGet: async (prepId) => view(prep(prepId)),
-    teachingCreate: async ({ studyId, title, kind }) => {
+    teachingCreate: async ({ studyId, title, kind, points = [] }) => {
       h.studyExists(studyId);
       const name = title.trim();
       if (!name) throw new ApiError("invalidInput", "Please give the teaching a title.");
       const t = h.now();
       const p: StoredPrep = {
         id: h.id(), studyId, title: name, kind: kind ?? null, audience: null, purpose: null, centralMessage: null,
-        introduction: "", conclusion: "", notes: "", points: [], links: [], passages: [], materials: [],
+        introduction: "", conclusion: "", notes: "",
+        points: points.map((x) => ({ id: h.id(), position: 0, kind: x.kind ?? null, title: x.title.trim(), explanation: "", application: "", illustration: "" })),
+        links: [], passages: [], materials: [],
         createdAt: t, updatedAt: t, revision: 1,
       };
       state.preparations.push(p);
@@ -253,10 +255,10 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
       prep(prepId);
       state.preparations = state.preparations.filter((p) => p.id !== prepId);
     },
-    teachingPointCreate: async ({ preparationId, title, afterPointId }) => {
+    teachingPointCreate: async ({ preparationId, title, kind, afterPointId }) => {
       const p = prep(preparationId);
       const at = afterPointId ? p.points.findIndex((x) => x.id === afterPointId) + 1 : p.points.length;
-      p.points.splice(at <= 0 ? p.points.length : at, 0, { id: h.id(), position: 0, title: (title ?? "").trim(), explanation: "", application: "", illustration: "" });
+      p.points.splice(at <= 0 ? p.points.length : at, 0, { id: h.id(), position: 0, kind: kind ?? null, title: (title ?? "").trim(), explanation: "", application: "", illustration: "" });
       touch(p);
       return view(p);
     },
@@ -264,6 +266,7 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
       const p = owner(input.id);
       const point = p.points.find((x) => x.id === input.id)!;
       if (input.title !== undefined) point.title = input.title.trim();
+      if (input.kind !== undefined) point.kind = input.kind || null;
       for (const key of ["explanation", "application", "illustration"] as const) {
         const value = input[key];
         if (value !== undefined) point[key] = value;

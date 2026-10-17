@@ -13,7 +13,7 @@ use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 
 use crate::db::{bibles, findings, settings as app_settings, study_passages, teaching};
-use crate::domain::{Finding, TeachingPreparation};
+use crate::domain::{Finding, TeachingPoint, TeachingPreparation};
 use crate::error::{AppError, AppResult, UserMessage};
 use crate::scripture::reference::ScriptureRef;
 
@@ -257,11 +257,70 @@ pub fn write_first() -> AppError {
     ))
 }
 
-fn point_label(index: usize, title: &str) -> String {
-    if title.trim().is_empty() {
-        format!("Point {}", index + 1)
-    } else {
-        format!("Point {} “{}”", index + 1, cut(title, 80))
+/// How the teaching's main parts are named for the assistant, after its
+/// kind (as the canvas names them): points of a sermon or talk, questions of
+/// a group Bible study, steps of a lesson (each with its kind, when said).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Shape {
+    Points,
+    Questions,
+    Steps,
+}
+
+impl Shape {
+    fn of(kind: Option<&str>) -> Self {
+        match kind {
+            Some("bible_study") => Self::Questions,
+            Some("lesson" | "children") => Self::Steps,
+            _ => Self::Points,
+        }
+    }
+
+    fn noun(self) -> &'static str {
+        match self {
+            Self::Points => "Point",
+            Self::Questions => "Question",
+            Self::Steps => "Step",
+        }
+    }
+
+    /// What each field of a point holds in this shape.
+    fn field(self, part: Part) -> &'static str {
+        match (self, part) {
+            (Self::Questions, Part::PointTitle) => "the question",
+            (Self::Questions, Part::PointExplanation) => {
+                "where the discussion may lead (leader's notes)"
+            }
+            (Self::Questions, Part::PointApplication) => "follow-up questions",
+            (Self::Steps, Part::PointExplanation) => "what is said or done",
+            (_, Part::PointTitle) => "title",
+            (_, Part::PointExplanation) => "explanation",
+            (_, Part::PointApplication) => "application",
+            (_, Part::PointIllustration) => "illustration",
+            _ => part.label(),
+        }
+    }
+}
+
+fn point_label(shape: Shape, index: usize, point: &TeachingPoint) -> String {
+    let mut label = format!("{} {}", shape.noun(), index + 1);
+    if let Some(kind) = point.kind.as_deref().filter(|_| shape == Shape::Steps) {
+        label.push_str(&format!(" ({})", step_kind_label(kind)));
+    }
+    if !point.title.trim().is_empty() {
+        label.push_str(&format!(" “{}”", cut(&point.title, 80)));
+    }
+    label
+}
+
+fn step_kind_label(kind: &str) -> &'static str {
+    match kind {
+        "scripture" => "Scripture reading",
+        "question" => "question",
+        "activity" => "activity",
+        "image" => "picture",
+        "audio" => "audio",
+        _ => "teaching",
     }
 }
 
@@ -348,11 +407,12 @@ pub fn assemble(conn: &Connection, input: &AssistInput) -> AppResult<Context> {
         return Err(write_first());
     }
 
+    let shape = Shape::of(prep.kind.as_deref());
     let focus = match point_index {
         Some(i) => format!(
             "{} — {}",
-            point_label(i, &prep.points[i].title),
-            part.label()
+            point_label(shape, i, &prep.points[i]),
+            shape.field(part)
         ),
         None => part.label().to_string(),
     };
@@ -419,15 +479,16 @@ fn nearby(
         &prep.introduction,
         point_index.is_none() && part == Part::Introduction,
     );
+    let shape = Shape::of(prep.kind.as_deref());
     for (i, point) in prep.points.iter().enumerate() {
         let here = point_index == Some(i);
-        let label = point_label(i, &point.title);
+        let label = point_label(shape, i, point);
         // Every point's title gives the shape; its text only when it is the
         // point being worked on, a neighbour, or the whole is reviewed.
         let close = whole || point_index.is_some_and(|p| p.abs_diff(i) <= 1);
         if !point.title.trim().is_empty() {
             push(
-                format!("{label} — title"),
+                format!("{label} — {}", shape.field(Part::PointTitle)),
                 &point.title,
                 here && part == Part::PointTitle,
             );
@@ -436,17 +497,17 @@ fn nearby(
         }
         if close {
             push(
-                format!("{label} — explanation"),
+                format!("{label} — {}", shape.field(Part::PointExplanation)),
                 &point.explanation,
                 here && part == Part::PointExplanation,
             );
             push(
-                format!("{label} — application"),
+                format!("{label} — {}", shape.field(Part::PointApplication)),
                 &point.application,
                 here && part == Part::PointApplication,
             );
             push(
-                format!("{label} — illustration"),
+                format!("{label} — {}", shape.field(Part::PointIllustration)),
                 &point.illustration,
                 here && part == Part::PointIllustration,
             );

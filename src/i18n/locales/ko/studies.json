@@ -668,10 +668,6 @@
     "audiencePlaceholder": "예: 온 교회, 청소년부",
     "purpose": "목적",
     "purposePlaceholder": "이 가르침이 무엇을 이루기를 바라는지",
-    "message": "핵심 메시지",
-    "messageHint": "직접 쓰세요. 듣는 이들이 꼭 붙들기를 바라는 한 가지입니다.",
-    "introduction": "서론",
-    "conclusion": "결론",
     "notes": "인도자 메모",
     "notesHint": "가르치면서 볼 메모입니다. 전하는 내용에는 들어가지 않습니다.",
     "points": {
@@ -886,7 +882,11 @@
         "added": "대지를 추가했습니다.",
         "removed": "대지를 삭제했습니다.",
         "moved": "대지를 {{position}}번째로 옮겼습니다.",
-        "deleteConfirm": "이 대지와 쓴 내용을 삭제할까요? 여기에 쓴 기록은 성경공부에 그대로 남습니다."
+        "deleteConfirm": "이 대지와 쓴 내용을 삭제할까요? 여기에 쓴 기록은 성경공부에 그대로 남습니다.",
+        "message": "핵심 메시지",
+        "messageHint": "듣는 이들이 꼭 붙들기를 바라는 한 가지",
+        "introduction": "서론",
+        "conclusion": "결론"
       },
       "questions": {
         "title": "질문과 나눔",
@@ -897,13 +897,17 @@
         "untitled": "질문 {{number}}",
         "titleLabel": "질문 {{number}}",
         "titlePlaceholder": "던질 질문",
-        "explanation": "본문이 보여 주는 것",
-        "application": "우리에게 주는 의미",
+        "explanation": "나눔이 향할 방향",
+        "application": "이어지는 질문",
         "illustration": "나눔 인도를 위한 메모",
         "added": "질문을 추가했습니다.",
         "removed": "질문을 삭제했습니다.",
         "moved": "질문을 {{position}}번째로 옮겼습니다.",
-        "deleteConfirm": "이 질문과 쓴 내용을 삭제할까요? 여기에 쓴 기록은 성경공부에 그대로 남습니다."
+        "deleteConfirm": "이 질문과 쓴 내용을 삭제할까요? 여기에 쓴 기록은 성경공부에 그대로 남습니다.",
+        "message": "모임이 깨닫기를 바라는 것",
+        "messageHint": "나눔이 이르기를 바라는 한 가지",
+        "introduction": "시작",
+        "conclusion": "마무리"
       },
       "steps": {
         "title": "진행 순서",
@@ -920,11 +924,63 @@
         "added": "순서를 추가했습니다.",
         "removed": "순서를 삭제했습니다.",
         "moved": "순서를 {{position}}번째로 옮겼습니다.",
-        "deleteConfirm": "이 순서와 쓴 내용을 삭제할까요? 여기에 쓴 기록은 성경공부에 그대로 남습니다."
+        "deleteConfirm": "이 순서와 쓴 내용을 삭제할까요? 여기에 쓴 기록은 성경공부에 그대로 남습니다.",
+        "message": "꼭 기억할 한 가지",
+        "messageHint": "나중에 따라 말할 수 있는 짧은 말로",
+        "introduction": "시작",
+        "conclusion": "마무리"
       }
     },
     "aboutEmpty": "종류, 대상, 목적, 본문",
-    "aboutFor": "대상: {{audience}}"
+    "aboutFor": "대상: {{audience}}",
+    "format": {
+      "points": "서론과 결론 사이에 설명, 적용, 예화를 담은 대지들.",
+      "questions": "모임을 위한 질문들. 질문마다 나눔이 향할 방향과 이어지는 질문을 적습니다.",
+      "steps": "단계별 공과: 가르침, 성경 읽기, 질문, 활동, 그림을 진행 순서대로."
+    },
+    "startsWith": "시작 구성: {{steps}}.",
+    "starts": {
+      "children": {
+        "welcome": "환영",
+        "story": "성경 이야기",
+        "question": "질문",
+        "activity": "활동",
+        "prayer": "기도"
+      },
+      "lesson": {
+        "teaching": "가르침",
+        "discussion": "나눔",
+        "activity": "활동"
+      }
+    },
+    "stepKindLabel": "단계 종류: {{step}}",
+    "stepKind": {
+      "none": "종류 없음",
+      "text": "가르침",
+      "scripture": "성경 읽기",
+      "question": "질문",
+      "activity": "활동",
+      "image": "그림",
+      "audio": "오디오"
+    },
+    "step": {
+      "text": {
+        "explanation": "할 말"
+      },
+      "scripture": {
+        "explanation": "어떻게 읽거나 들려줄지"
+      },
+      "question": {
+        "explanation": "기대하는 대답"
+      },
+      "activity": {
+        "explanation": "진행 방법",
+        "illustration": "준비물"
+      },
+      "image": {
+        "explanation": "무엇을 보여 주며 언제 보여 줄지"
+      }
+    }
   },
   "parts": {
     "add": "부분 추가",

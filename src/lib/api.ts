@@ -74,6 +74,7 @@ import type {
   FoundImage,
   GeneratedImage,
   KeepTeachingMaterial,
+  StepKind,
   TeachingKind,
   TeachingPreparation,
   TeachingSummary,
@@ -218,10 +219,11 @@ export interface Api {
   /** Teaching Preparation (v0.16): what a study leads to, written by the person. */
   teachingList(studyId: string): Promise<TeachingSummary[]>;
   teachingGet(id: string): Promise<TeachingPreparation>;
-  teachingCreate(input: { studyId: string; title: string; kind?: TeachingKind | null }): Promise<TeachingPreparation>;
+  /** `points`: the steps or points it starts with (a format's starting structure), in the person's language. */
+  teachingCreate(input: { studyId: string; title: string; kind?: TeachingKind | null; points?: { title: string; kind?: StepKind | null }[] }): Promise<TeachingPreparation>;
   teachingUpdate(input: UpdateTeaching): Promise<TeachingPreparation>;
   teachingDelete(id: string): Promise<void>;
-  teachingPointCreate(input: { preparationId: string; title?: string; afterPointId?: string | null }): Promise<TeachingPreparation>;
+  teachingPointCreate(input: { preparationId: string; title?: string; kind?: StepKind | null; afterPointId?: string | null }): Promise<TeachingPreparation>;
   teachingPointUpdate(input: UpdateTeachingPoint): Promise<TeachingPreparation>;
   teachingPointDelete(id: string): Promise<TeachingPreparation>;
   teachingPointReorder(input: Reorder): Promise<TeachingPreparation>;
