@@ -1138,6 +1138,17 @@ type with no speaker fields. The audience screen is a second Tauri window
 (first use of multi-window, §1 of the backlog), with a one-window path. See
 [`presentation-delivery-v0.18.md`](presentation-delivery-v0.18.md).
 
+**Church templates (v0.18.1).** A presentation may choose a church template
+(`presentation_templates`, migration 0012): a design only — page size,
+colours, fonts, pictures and a layout per kind of slide — never content.
+The audience page is laid out once in the core (`presentation/layout.rs`)
+and that page feeds PowerPoint, PDF and the interface (which asks the core
+for pages instead of laying them out itself), so all outputs share one
+geometry. Template pictures are content-addressed in the managed data
+folder. PowerPoint designs are imported by a reader that reports what it
+cannot reproduce. See
+[`presentation-templates-v0.18.1.md`](presentation-templates-v0.18.1.md).
+
 ---
 
 # 29. Publication architecture

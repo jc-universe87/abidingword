@@ -235,7 +235,14 @@ Still open:
   View from a phone;
 - importing a delivery package on another desktop;
 - PowerPoint export of WebP images; OpenType (CFF) fonts in PDFs;
-- drag-and-drop ordering of slides; presentation slides in Study search;
+- presentation slides in Study search (drag-and-drop ordering was built in
+  v0.18.1);
+- church templates (built in v0.18.1, see
+  [`presentation-templates-v0.18.1.md`](presentation-templates-v0.18.1.md)):
+  still open are reading OpenDocument (.odp) designs directly, importing
+  from Google Drive without a PowerPoint download, drawing gradients,
+  shadows and non-rectangular shapes instead of reporting them, and a
+  per-slide choice of layout;
 - the transport for a phone remote (pairing on the local network): the
   commands it will send are defined (`PresenterCommand`, see §23 of the v0.18
   record).
@@ -245,7 +252,8 @@ pass kept only Overview, a blank audience screen, pointer/highlighter, one
 target time, three layouts, Bible passage to the audience, clicker keys and
 audience-screen recovery): audience Q&A, live captions, recording and
 narration, a rehearsal AI coach, complex animations and a transition library,
-automatic kiosk mode, a free-form slide designer, slide masters,
+automatic kiosk mode, a free-form slide designer (v0.18.1's designer places
+three boxes per kind of slide, nothing more), editing slide masters,
 collaborative live editing, a custom shortcut editor, more pen colours,
 shapes and text boxes.
 

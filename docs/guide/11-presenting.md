@@ -33,14 +33,19 @@ and what only you see.
    - **Speaker notes** are for you only. They appear in the Presenter View and
      the speaker sheet, **never on the audience screen**.
    - Untick **Show this slide** to leave it out (it stays in the list).
-   - Use the arrows to move a slide, the bin to remove it.
+   - To change the order, **drag a slide by its handle** (⋮⋮ on the left) to
+     its new place — a line shows where it will land, and the list scrolls
+     when you reach its edge. **Esc** cancels a drag. Without a mouse, use
+     the **Move earlier / Move later** arrows; the bin removes a slide.
+     Moving slides changes only the presentation, never your teaching.
 4. **Add a slide**: one of the teaching's parts not shown yet, or your own:
    a heading, text, Scripture, a question, an activity, a quotation, a
    section break, a **Pause** (an empty screen for the audience) or a title.
 
-Under **Name, background, Bible and target time** you choose the background
-(*Light*, *Dark* or *Warm*), which installed Bible the Scripture slides
-quote, and — if you like — a **target time** (for example 30 min). You can
+Under **Name, design, Bible and target time** you choose the **design** —
+a built-in background (*Light*, *Dark* or *Warm*) or one of your church's
+templates (see below) — which installed Bible the Scripture slides quote,
+and — if you like — a **target time** (for example 30 min). You can
 make several presentations of one teaching, for example a short and a long
 one.
 
@@ -136,6 +141,97 @@ your slide. You never lose your place, and your presentation is not changed.
   <img src="images/presenter-scripture.png" alt="The Bible passage panel open in the Presenter View, with Psalm 80:8–16 and a button Show to audience" width="760">
 </p>
 
+## Your church's slide design (templates)
+
+Many churches have their own slide design: a background, a logo, fonts and a
+special look for Bible verses. You can use it for your presentations.
+
+Under **Name, design, Bible and target time**, click **Manage templates…**.
+There you can:
+
+- **Import from PowerPoint…** — choose a PowerPoint file (.pptx) that has
+  your church's design. Only the **design** is taken: its slide size,
+  colours, fonts, backgrounds, logo, footer and the boxes of its layouts.
+  The slides that happen to be in the file are not imported.
+- **Add a template file…** — a template saved from Abiding Word on another
+  computer (.awtemplate). It brings its pictures along; fonts are never
+  copied.
+- **New template** — make a simple one here (see below).
+
+> [!TIP]
+> **Keynote, Google Slides, LibreOffice:** save your design as PowerPoint
+> first — in Keynote *File › Export To › PowerPoint*; in Google Slides
+> *File › Download › Microsoft PowerPoint (.pptx)*; in LibreOffice Impress
+> *File › Save As* with the PowerPoint format — then import that file.
+
+### Checking an imported design
+
+Before anything is kept, Abiding Word shows you what it found:
+
+<p align="center">
+  <img src="images/template-import.png" alt="Check the imported design: what was taken over, what needs a look and what cannot be reproduced; the fonts with a choice of replacement; and for each kind of slide the layout it will use, with a small preview" width="640">
+</p>
+
+- **What was imported**, in three groups, each with a symbol and words:
+  **Taken over**, **Needs a look** (for example a shadow that is not drawn,
+  or justified text set left-aligned) and **Cannot be reproduced** (for
+  example SmartArt or a table). Nothing is left out without being listed.
+- **Fonts**: whether each font is on this computer. A missing font is
+  **never replaced by itself**. You can keep it (PowerPoint uses it where it
+  is installed) or choose one that is installed — a close match is offered
+  with **Use …**. Your choice is kept with the template.
+- **Layout for each kind of slide**: which of the file's layouts a title,
+  a Scripture slide, a quotation and so on use. Abiding Word only suggests a
+  layout where the match is clear (for example a layout called "Bible
+  Verse" for Scripture). Any kind can stay on the **Built-in arrangement**,
+  which uses the template's colours and fonts.
+
+Click **Keep this template**, or **Cancel** to keep nothing.
+
+### Using a template
+
+Choose the template under **Design**. The slide pictures in the list, the
+Presenter View, the audience screen, the PowerPoint file and the PDF all
+show the slides in the template — laid out the same way. Choosing a
+built-in background again drops the template; your slides and your
+teaching are never changed by a template. Your own Presenter View keeps its
+usual look; only the audience's slides wear the church design.
+
+If a text is **too long for a template's box**, it is not made smaller
+quietly. The slide says **Text too long for the template's box**, a note
+above the list counts such slides, and after an export you are told how
+many boxes to check. Shorten the text, or let that box shrink in the
+template.
+
+<p align="center">
+  <img src="images/presentation-template.png" alt="A presentation in the church template: the slide pictures show the template's background photo on the Scripture slides and its logo and footer on the others" width="640">
+</p>
+
+### Making a simple template
+
+**New template** (or **Edit** on one of yours) opens a small designer: a
+name, the slide size (16:9 or 4:3), four colours, the fonts for headings and
+text, a background picture, a logo and a footer text. For each kind of
+slide you can tick **Own layout for this kind** and place its boxes —
+*Heading*, *Passage or author* and *Text*:
+
+- drag a box to move it and its corner to resize it, or
+- select it and use the **arrow keys** (Shift for bigger steps), or type its
+  position and size in points;
+- choose its text size, alignment, colour, bold or italic, and whether long
+  text may **shrink to fit** (down to a readable size).
+
+<p align="center">
+  <img src="images/template-designer.png" alt="The template designer: name, slide size, colours, fonts, background picture, logo, footer, and the Scripture layout with its boxes on a preview" width="640">
+</p>
+
+It is deliberately simple: no animations, no slide masters, no drawing
+tools. For anything more, design it in PowerPoint and import it.
+
+**Save … as a file** (in Manage templates) writes a template file to take to
+another computer; **Delete** removes a template — presentations that used it
+simply show their built-in background again.
+
 ## Taking it along: export
 
 Click **Export…**, choose a format and **Choose where to save…**:
@@ -146,7 +242,7 @@ Click **Export…**, choose a format and **Choose where to save…**:
 
 | Format | What you get |
 |---|---|
-| **PowerPoint (.pptx)** | The same slides, to open in PowerPoint, Keynote, LibreOffice or Google Slides. Tick *Include my manuscript and speaker notes* to have them in the notes pages. |
+| **PowerPoint (.pptx)** | The same slides (in your church template, if one is chosen), to open in PowerPoint, Keynote, LibreOffice or Google Slides. Tick *Include my manuscript and speaker notes* to have them in the notes pages. |
 | **PDF slides** | One page per slide, as the audience sees it. |
 | **Speaker sheet (PDF for a phone)** | Each slide with your manuscript and notes in large print — easy to read on a phone. |
 | **Markdown (.md)** | Simple text with headings and the Scripture. |
