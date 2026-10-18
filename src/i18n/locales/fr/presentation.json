@@ -218,6 +218,7 @@
     "larger": "Texte plus grand",
     "percent": "{{value}} %",
     "background": "Fond",
+    "followApp": "Comme l’application",
     "showTimer": "Afficher le minuteur",
     "showClock": "Afficher l’heure",
     "keepAwake": "Garder l’écran allumé",

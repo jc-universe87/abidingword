@@ -193,7 +193,7 @@ describe("the Presenter View", () => {
     expect(within(all).getByRole("button", { name: /Bear fruit/ })).toHaveAttribute("aria-current", "step");
   });
 
-  it("makes the text larger, offers three backgrounds and says when the screen cannot be kept on", async () => {
+  it("makes the text larger, follows the app or offers three backgrounds, and says when the screen cannot be kept on", async () => {
     const { api } = await setup();
     const { user } = await renderApp(api);
     const region = await makeSlides(user);
@@ -202,7 +202,7 @@ describe("the Presenter View", () => {
     await user.click(within(view).getByRole("button", { name: "View" }));
     await user.click(within(view).getByRole("button", { name: "Larger text" }));
     expect(within(view).getByText("115 %")).toBeInTheDocument();
-    expect(within(view).getAllByRole("radio").map((r) => r.closest("label")!.textContent)).toEqual(["Slides and notes", "Larger notes", "Larger slides", "Light", "Dark", "Warm"]);
+    expect(within(view).getAllByRole("radio").map((r) => r.closest("label")!.textContent)).toEqual(["Slides and notes", "Larger notes", "Larger slides", "Follow app", "Light", "Dark", "Warm"]);
     // jsdom has no wake lock: the limitation is said, not hidden.
     expect(within(view).getByRole("checkbox", { name: "Keep the screen on" })).toBeDisabled();
     expect(within(view).getByText(/does not let the app keep the screen on/)).toBeInTheDocument();

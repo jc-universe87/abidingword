@@ -4,9 +4,10 @@ import { readLocal, writeLocal } from "@/lib/storage";
 import type { Theme } from "@/types/domain";
 
 /**
- * Calm backgrounds for the light theme, for long reading and writing. Each is
- * a set of colour tokens in tokens.css (`[data-paper]`), checked for text
- * contrast. A device preference, like the layout: it is not study data.
+ * Calm backgrounds for long reading and writing: six families, each with a
+ * light and a dark variant in tokens.css (`[data-theme][data-paper]`),
+ * checked for contrast. The variant follows the effective theme. A device
+ * preference, like the layout: it is not study data.
  */
 export const BACKGROUNDS = ["parchment", "cream", "sage", "stone", "mist", "clear"] as const;
 export type Background = (typeof BACKGROUNDS)[number];
@@ -17,8 +18,12 @@ const savedBackground = (): Background => {
   return (BACKGROUNDS as readonly string[]).includes(value) ? (value as Background) : "parchment";
 };
 
+/** The theme in effect: the chosen one, or the computer's for "system" (live). */
+export type Resolved = "light" | "dark";
+
 interface ThemeValue {
   theme: Theme;
+  resolved: Resolved;
   setTheme: (theme: Theme) => Promise<void>;
   background: Background;
   setBackground: (background: Background) => void;
@@ -34,6 +39,8 @@ export function ThemeProvider({ initial, children }: { initial: Theme; children:
   const api = useApi();
   const [theme, setThemeState] = useState<Theme>(initial);
   const [background, setBackgroundState] = useState<Background>(savedBackground);
+  const [systemDark, setSystemDark] = useState<boolean>(() => !!darkQuery()?.matches);
+  const resolved: Resolved = theme === "dark" || (theme === "system" && systemDark) ? "dark" : "light";
 
   useEffect(() => {
     document.documentElement.dataset.paper = background;
@@ -44,17 +51,19 @@ export function ThemeProvider({ initial, children }: { initial: Theme; children:
     writeLocal(BACKGROUND_KEY, next);
   }, []);
 
+  // The computer's setting, followed live (it may change at sunset).
   useEffect(() => {
     const query = darkQuery();
-    const apply = () => {
-      const dark = theme === "dark" || (theme === "system" && !!query?.matches);
-      document.documentElement.dataset.theme = dark ? "dark" : "light";
-    };
-    apply();
-    if (theme !== "system" || !query) return;
-    query.addEventListener("change", apply);
-    return () => query.removeEventListener("change", apply);
-  }, [theme]);
+    if (!query) return;
+    const follow = () => setSystemDark(query.matches);
+    follow();
+    query.addEventListener("change", follow);
+    return () => query.removeEventListener("change", follow);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = resolved;
+  }, [resolved]);
 
   const setTheme = useCallback(
     async (next: Theme) => {
@@ -64,7 +73,10 @@ export function ThemeProvider({ initial, children }: { initial: Theme; children:
     [api],
   );
 
-  const value = useMemo(() => ({ theme, setTheme, background, setBackground }), [theme, setTheme, background, setBackground]);
+  const value = useMemo(
+    () => ({ theme, resolved, setTheme, background, setBackground }),
+    [theme, resolved, setTheme, background, setBackground],
+  );
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 

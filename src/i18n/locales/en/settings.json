@@ -220,8 +220,7 @@
   },
   "background": {
     "legend": "Background",
-    "help": "Calm backgrounds with little glare, made for long reading and writing. Text keeps good contrast on each. They apply to the light theme.",
-    "lightOnly": "Backgrounds apply to the light theme.",
+    "help": "Calm backgrounds with little glare, made for long reading and writing. Text keeps good contrast on each. Each has a light and a dark version, which follows the theme.",
     "parchment": "Parchment",
     "cream": "Cream",
     "sage": "Sage",

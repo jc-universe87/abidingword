@@ -14,7 +14,8 @@ import { StudyTemplates } from "./StudyTemplates";
 import { UpdateSettings } from "@/features/updates/UpdateSettings";
 import { useUpdates, type UpdateState } from "@/features/updates/UpdatesContext";
 import { LanguageChoice } from "./LanguageChoice";
-import { BACKGROUNDS, useTheme, type Background } from "./ThemeContext";
+import { APP_PALETTES } from "@/design-system/palettes";
+import { BACKGROUNDS, useTheme } from "./ThemeContext";
 
 const THEMES = ["light", "dark", "system"] as const satisfies readonly Theme[];
 
@@ -371,19 +372,9 @@ function LayoutReset({ onReset }: { onReset: () => void }) {
   );
 }
 
-/** What each background looks like, for its swatch (the same colours as tokens.css). */
-const SWATCH: Record<Background, { bg: string; edge: string }> = {
-  parchment: { bg: "#f6f1e6", edge: "#ede6d8" },
-  cream: { bg: "#faf7ef", edge: "#f1ece0" },
-  sage: { bg: "#eef1e9", edge: "#e3e8dc" },
-  stone: { bg: "#efece7", edge: "#e5e1da" },
-  mist: { bg: "#eef1f3", edge: "#e3e7ea" },
-  clear: { bg: "#fbfbf9", edge: "#f1f1ee" },
-};
-
 function ThemeChoice() {
   const { t } = useTranslation();
-  const { theme, setTheme, background, setBackground } = useTheme();
+  const { theme, resolved, setTheme, background, setBackground } = useTheme();
   const [error, setError] = useState<string | null>(null);
 
   const choose = async (next: Theme) => {
@@ -394,8 +385,6 @@ function ThemeChoice() {
       setError(toApiError(e).message);
     }
   };
-  // Dark now (chosen, or following a dark computer setting): backgrounds apply to the light theme only.
-  const darkOnly = theme === "dark" || (theme === "system" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   return (
     <div className="flex flex-col gap-4">
@@ -443,14 +432,13 @@ function ThemeChoice() {
               />
               <span
                 aria-hidden="true"
-                style={{ background: `linear-gradient(135deg, ${SWATCH[option].bg} 55%, ${SWATCH[option].edge} 55%)` }}
+                style={{ background: `linear-gradient(135deg, ${APP_PALETTES[resolved][option].background} 55%, ${APP_PALETTES[resolved][option].secondary} 55%)` }}
                 className="block size-10 rounded-full border border-border shadow-sm peer-checked:ring-2 peer-checked:ring-[var(--aw-primary)] peer-checked:ring-offset-2 peer-checked:ring-offset-[var(--aw-bg)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[var(--aw-focus-ring)]"
               />
               <span className="text-text">{t(`settings.background.${option}`)}</span>
             </label>
           ))}
         </div>
-        {darkOnly && <p className="m-0 mt-2 text-[0.875rem] text-text-muted">{t("settings.background.lightOnly")}</p>}
       </div>
     </div>
   );

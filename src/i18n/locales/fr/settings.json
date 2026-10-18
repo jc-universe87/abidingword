@@ -220,8 +220,7 @@
   },
   "background": {
     "legend": "Fond",
-    "help": "Des fonds calmes et peu éblouissants, pensés pour lire et écrire longtemps. Le texte reste bien lisible sur chacun. Ils s’appliquent au thème clair.",
-    "lightOnly": "Les fonds s’appliquent au thème clair.",
+    "help": "Des fonds calmes et peu éblouissants, pensés pour lire et écrire longtemps. Le texte reste bien lisible sur chacun. Chacun a une version claire et une version sombre, qui suit le thème.",
     "parchment": "Parchemin",
     "cream": "Crème",
     "sage": "Sauge",

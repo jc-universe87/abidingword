@@ -122,11 +122,17 @@
 }
 
 /*
- * Backgrounds for the light theme (Settings → Appearance), for long reading
- * and writing: low glare, no saturated colour. "parchment" is the brand's
- * own ivory (the tokens above). Text stays Charcoal and Forest on all of them
- * (contrast at least 11:1 for body text and 5:1 for muted text on the
- * secondary colour; tests/ui/appearance.test.tsx checks it).
+ * Backgrounds (Settings → Appearance), for long reading and writing: low
+ * glare, no saturated colour. Six families, each with a light and a dark
+ * variant; the choice is one of six, and the variant follows the effective
+ * theme (Light, Dark, or the computer's setting as it changes). "parchment"
+ * is the brand's own ivory and, in the dark, the brand's own Forest (the
+ * tokens above). Light: text stays Charcoal and Forest (contrast at least
+ * 11:1 for body text, 5:1 for muted text on the secondary colour). Dark: text
+ * stays the brand's soft ivory on deep, calm tones — never pure black — with
+ * at least 11:1 for body text, 5:1 for muted text, 4.5:1 for links and
+ * errors, 3:1 for the focus ring, and borders visibly lighter than the
+ * surfaces they edge. tests/ui/appearance-themes.test.tsx checks all twelve.
  */
 [data-theme="light"][data-paper="cream"] {
   --aw-bg: #faf7ef;
@@ -142,6 +148,8 @@
   --aw-surface: #eef1e9;
   --aw-border: #c7cfbe;
   --aw-border-subtle: #dae0d2;
+  /* Brass, a shade deeper: 3:1 for the focus ring on this background too. */
+  --aw-focus-ring: #a3742e;
 }
 
 [data-theme="light"][data-paper="stone"] {
@@ -150,6 +158,8 @@
   --aw-surface: #efece7;
   --aw-border: #cfc8be;
   --aw-border-subtle: #e0dbd3;
+  /* Brass, a shade deeper: 3:1 for the focus ring on this background too. */
+  --aw-focus-ring: #a3742e;
 }
 
 [data-theme="light"][data-paper="mist"] {
@@ -166,4 +176,44 @@
   --aw-surface: #fbfbf9;
   --aw-border: #d5d5d0;
   --aw-border-subtle: #e7e7e3;
+}
+
+[data-theme="dark"][data-paper="cream"] {
+  --aw-bg: #1e1b16;
+  --aw-bg-secondary: #28241e;
+  --aw-surface: #28241e;
+  --aw-border: #4a4339;
+  --aw-border-subtle: #332e27;
+}
+
+[data-theme="dark"][data-paper="sage"] {
+  --aw-bg: #1a201c;
+  --aw-bg-secondary: #232a25;
+  --aw-surface: #232a25;
+  --aw-border: #414c44;
+  --aw-border-subtle: #2d352f;
+}
+
+[data-theme="dark"][data-paper="stone"] {
+  --aw-bg: #1d1c1a;
+  --aw-bg-secondary: #272523;
+  --aw-surface: #272523;
+  --aw-border: #47443f;
+  --aw-border-subtle: #32302c;
+}
+
+[data-theme="dark"][data-paper="mist"] {
+  --aw-bg: #181d22;
+  --aw-bg-secondary: #21272d;
+  --aw-surface: #21272d;
+  --aw-border: #3e4852;
+  --aw-border-subtle: #2b3239;
+}
+
+[data-theme="dark"][data-paper="clear"] {
+  --aw-bg: #1b1b1b;
+  --aw-bg-secondary: #252525;
+  --aw-surface: #252525;
+  --aw-border: #454545;
+  --aw-border-subtle: #303030;
 }

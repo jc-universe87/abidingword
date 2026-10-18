@@ -220,8 +220,7 @@
   },
   "background": {
     "legend": "Fondo",
-    "help": "Fondos tranquilos y con poco brillo, pensados para leer y escribir durante mucho tiempo. El texto se lee bien en todos. Se aplican al tema claro.",
-    "lightOnly": "Los fondos se aplican al tema claro.",
+    "help": "Fondos tranquilos y con poco brillo, pensados para leer y escribir durante mucho tiempo. El texto se lee bien en todos. Cada uno tiene una versión clara y una oscura, que sigue al tema.",
     "parchment": "Pergamino",
     "cream": "Crema",
     "sage": "Salvia",

@@ -4,10 +4,12 @@ import { BookOpen, ChevronLeft, ChevronRight, CircleHelp, EyeOff, Eraser, Highli
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { readLocal, writeLocal } from "@/lib/storage";
-import { PRESENTATION_THEMES, type AudienceState, type PresentationDocument, type PresentationTheme, type ScriptureOverlay, type Screen, type Slide, type SlidePoint } from "@/types/presentation";
+import { PRESENTATION_THEMES, type AudienceState, type PresentationDocument, type ScriptureOverlay, type Screen, type Slide, type SlidePoint } from "@/types/presentation";
 import type { Page } from "@/types/presentationTemplate";
 import { commandForKey, deliver, elapsedOf, guidance, startDelivery, type PresenterCommand, type TimeGuidance } from "./delivery";
-import { palette, refLabel, slideText, splitVerses, themeLabel } from "./labels";
+import { APP_PALETTES } from "@/design-system/palettes";
+import { useTheme } from "@/features/settings/ThemeContext";
+import { palette, refLabel, slideText, splitVerses, themeLabel, type Palette } from "./labels";
 import { SlideView } from "./SlideView";
 import { overlaySlide, useDesignPages } from "./useDesignPages";
 import { layoutFor, useSlideImages, useViewportWidth } from "./useSlideImages";
@@ -27,16 +29,41 @@ const SCALES = [0.85, 1, 1.15, 1.3, 1.5, 1.75] as const;
 export const ARRANGEMENTS = ["balanced", "notes", "slides"] as const;
 type Arrangement = (typeof ARRANGEMENTS)[number];
 
+/**
+ * The speaker's reading surface: the app's own appearance (its theme in effect
+ * and background family, followed live), or a fixed Light, Dark or Warm. A
+ * device preference that never changes the app's appearance, and never the
+ * audience's slides (they keep the presentation's design or church template).
+ */
+export const SPEAKER_APPEARANCES = ["app", ...PRESENTATION_THEMES] as const;
+type SpeakerAppearance = (typeof SPEAKER_APPEARANCES)[number];
+
 interface Prefs {
   scale: number;
-  theme: PresentationTheme;
+  appearance: SpeakerAppearance;
   timer: boolean;
   clock: boolean;
   awake: boolean;
   arrangement: Arrangement;
 }
 
-const DEFAULT_PREFS: Prefs = { scale: 1, theme: "warm", timer: true, clock: true, awake: true, arrangement: "balanced" };
+const DEFAULT_PREFS: Prefs = { scale: 1, appearance: "app", timer: true, clock: true, awake: true, arrangement: "balanced" };
+
+/**
+ * Saved preferences, from this version or before v0.18.2. Before, the surface
+ * was saved as `theme` with Warm the default, so a saved Warm cannot be told
+ * from the default and follows the app now; a saved Light or Dark was a choice
+ * and is kept.
+ */
+function savedPrefs(): Prefs {
+  const saved = readLocal<Partial<Prefs> & { theme?: string }>("presenter", {});
+  const { theme, ...rest } = saved;
+  const prefs: Prefs = { ...DEFAULT_PREFS, ...rest };
+  if (rest.appearance === undefined && (theme === "light" || theme === "dark")) prefs.appearance = theme;
+  if (!(SPEAKER_APPEARANCES as readonly string[]).includes(prefs.appearance)) prefs.appearance = "app";
+  if (!ARRANGEMENTS.includes(prefs.arrangement)) prefs.arrangement = "balanced";
+  return prefs;
+}
 
 type Panel = "none" | "overview" | "scripture" | "settings" | "audience" | "timer" | "menu";
 /** The pointer or the highlighter, while one is in the speaker's hand. */
@@ -118,10 +145,8 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   const [tool, setTool] = useState<Tool>("none");
   // The pointer and highlighter only work while the audience screen is on.
   const activeTool: Tool = audience === "window" ? tool : "none";
-  const [prefs, setPrefsState] = useState<Prefs>(() => {
-    const saved = { ...DEFAULT_PREFS, ...readLocal<Partial<Prefs>>("presenter", {}) };
-    return ARRANGEMENTS.includes(saved.arrangement) ? saved : { ...saved, arrangement: "balanced" };
-  });
+  const [prefs, setPrefsState] = useState<Prefs>(savedPrefs);
+  const app = useTheme();
   const [notice, setNotice] = useState("");
   // A slide number being typed (then Enter): "12".
   const [typed, setTyped] = useState("");
@@ -445,7 +470,8 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   const clock = new Intl.DateTimeFormat(i18n.language, { hour: "2-digit", minute: "2-digit" }).format(now);
 
   const awake = useWakeLock(prefs.awake);
-  const colours = palette(prefs.theme);
+  // Follow app: the app's background family in the theme in effect, live.
+  const colours: Palette = prefs.appearance === "app" ? APP_PALETTES[app.resolved][app.background] : palette(prefs.appearance);
   const position = t("presentation.presenter.position", { current: index + 1, total });
   const slideName = (s: Slide) => slideText(t, s.kind, s.audience.heading, s.audience.body, s.audience.reference);
 
@@ -1230,10 +1256,10 @@ function SettingsPanel({ prefs, setPrefs, awake, phone }: { prefs: Prefs; setPre
       </div>
       <fieldset className="m-0 flex flex-wrap items-center gap-3 border-0 p-0">
         <legend className="mb-1 p-0">{t("presentation.presenter.background")}</legend>
-        {PRESENTATION_THEMES.map((theme) => (
-          <label key={theme} className="inline-flex min-h-11 items-center gap-2">
-            <input type="radio" name={`${id}-theme`} checked={prefs.theme === theme} onChange={() => setPrefs({ theme })} className="size-5" />
-            {themeLabel(t, theme)}
+        {SPEAKER_APPEARANCES.map((appearance) => (
+          <label key={appearance} className="inline-flex min-h-11 items-center gap-2">
+            <input type="radio" name={`${id}-theme`} checked={prefs.appearance === appearance} onChange={() => setPrefs({ appearance })} className="size-5" />
+            {appearance === "app" ? t("presentation.presenter.followApp") : themeLabel(t, appearance)}
           </label>
         ))}
       </fieldset>

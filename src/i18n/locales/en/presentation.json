@@ -214,6 +214,7 @@
     "larger": "Larger text",
     "percent": "{{value}} %",
     "background": "Background",
+    "followApp": "Follow app",
     "showTimer": "Show the timer",
     "showClock": "Show the time of day",
     "keepAwake": "Keep the screen on",

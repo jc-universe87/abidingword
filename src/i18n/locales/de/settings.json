@@ -220,8 +220,7 @@
   },
   "background": {
     "legend": "Hintergrund",
-    "help": "Ruhige, blendarme Hintergründe für langes Lesen und Schreiben. Der Text bleibt auf jedem gut lesbar. Sie gelten für das helle Farbschema.",
-    "lightOnly": "Hintergründe gelten für das helle Farbschema.",
+    "help": "Ruhige, blendarme Hintergründe für langes Lesen und Schreiben. Der Text bleibt auf jedem gut lesbar. Jeder hat eine helle und eine dunkle Fassung, die dem Farbschema folgt.",
     "parchment": "Pergament",
     "cream": "Creme",
     "sage": "Salbei",

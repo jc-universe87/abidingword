@@ -210,6 +210,7 @@
     "larger": "글자 크게",
     "percent": "{{value}}%",
     "background": "배경",
+    "followApp": "앱 설정 따르기",
     "showTimer": "지난 시간 보이기",
     "showClock": "현재 시각 보이기",
     "keepAwake": "화면 켜 두기",
