@@ -36,6 +36,7 @@ pub fn dictionary(language: ReferenceLanguage) -> AliasDictionary {
         ReferenceLanguage::Fr => fr::dictionary(),
         ReferenceLanguage::Es => es::dictionary(),
         ReferenceLanguage::Pt => pt::dictionary(),
+        ReferenceLanguage::Data(index) => crate::scripture::data_packs::dictionary(index),
     }
 }
 
@@ -84,6 +85,7 @@ pub(super) fn latin(
         language,
         entries,
         syntax,
+        ambiguous: Vec::new(),
     }
 }
 
@@ -96,6 +98,9 @@ pub(super) fn comma_syntax(number_join: &'static str, no_fold: &'static [&'stati
         number_join: Some(number_join),
         require_capital: true,
         no_fold,
+        spaced: true,
+        chapter_units: &[],
+        verse_units: &[],
     }
 }
 
@@ -108,7 +113,7 @@ mod tests {
 
     #[test]
     fn every_language_names_all_66_books() {
-        for language in ReferenceLanguage::ALL {
+        for language in ReferenceLanguage::REVIEWED {
             let dictionary = dictionary(language);
             let named: HashSet<_> = dictionary.entries.iter().map(|e| e.book.code).collect();
             let missing: Vec<_> = BOOKS
@@ -125,7 +130,7 @@ mod tests {
 
     #[test]
     fn no_alias_points_at_two_books_within_a_language() {
-        for language in ReferenceLanguage::ALL {
+        for language in ReferenceLanguage::REVIEWED {
             let dictionary = dictionary(language);
             assert_eq!(dictionary.collisions(), vec![], "{language:?}");
         }
@@ -135,7 +140,7 @@ mod tests {
     fn no_accent_free_spelling_points_at_two_books_unless_the_exact_spelling_decides() {
         // "Jo" (João) and "Jó" (Jó) differ only by an accent: the parser keeps both
         // exact and drops the accent-free reading of the one that would collide.
-        for language in ReferenceLanguage::ALL {
+        for language in ReferenceLanguage::REVIEWED {
             let dictionary = dictionary(language);
             let clashes = accent_collisions(&dictionary);
             let parser = ReferenceParser::for_language(language);
@@ -157,7 +162,7 @@ mod tests {
 
     #[test]
     fn every_book_is_reachable_by_its_own_first_alias_in_every_language() {
-        for language in ReferenceLanguage::ALL {
+        for language in ReferenceLanguage::REVIEWED {
             let dictionary = dictionary(language);
             let parser = ReferenceParser::for_language(language);
             for book in &BOOKS {

@@ -26,7 +26,6 @@ use serde::Serialize;
 use serde_json::Value;
 
 use crate::error::{AppError, AppResult, UserMessage};
-use crate::scripture::parser::ReferenceParser;
 use crate::scripture::reference::ScriptureRefDto;
 use config::{AssistantConfig, SearchKind};
 use context::{AssistAction, AssistInput, Context, SharedItem};
@@ -276,7 +275,6 @@ pub fn interpret(context: &Context, answer: &Value) -> AppResult<AssistResult> {
         | AssistAction::Theology
         | AssistAction::Passages
         | AssistAction::Free => {
-            let parser = ReferenceParser::english();
             // A free request gets shorter answers: comments and questions, not
             // passages long enough to stand in for the person's own writing.
             let (most, longest) = if action == AssistAction::Free {
@@ -314,7 +312,7 @@ pub fn interpret(context: &Context, answer: &Value) -> AppResult<AssistResult> {
                                 .flatten()
                                 .filter_map(|r| r.as_str())
                                 .take(5)
-                                .filter_map(|r| parser.parse(r).ok())
+                                .filter_map(|r| crate::scripture::resolve::resolve(r, None).ok())
                                 .map(|r| r.to_dto())
                                 .collect();
                             Some(Comment {

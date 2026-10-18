@@ -35,7 +35,8 @@
     "badVerse": "{{verse}} ist keine gültige Versnummer.",
     "endBeforeStart": "Das Ende der Bibelstelle liegt vor ihrem Anfang.",
     "invalid": "„{{text}}“ ist keine gültige Bibelstellenangabe.",
-    "oneBook": "Eine Bibelstelle muss innerhalb eines Buches bleiben."
+    "oneBook": "Eine Bibelstelle muss innerhalb eines Buches bleiben.",
+    "ambiguous": "„{{text}}“ kann {{options}} bedeuten. Tippe mehr vom Buchnamen, um zu wählen."
   },
   "bibles": {
     "hasProblems": "Diese Bibel hat Probleme, die behoben werden müssen, bevor sie hinzugefügt werden kann.",

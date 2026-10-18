@@ -3,8 +3,11 @@ use tauri::State;
 use super::CommandResult;
 use crate::db::bibles;
 use crate::scripture::concordance::{self, ConcordanceQuery, ConcordanceResult};
-use crate::scripture::parser::{DetectedReference, ReferenceParser};
+use crate::scripture::language::ReferenceLanguage;
+use crate::scripture::parser::DetectedReference;
+use crate::scripture::recognise::Recogniser;
 use crate::scripture::reference::{ScriptureRef, ScriptureRefDto};
+use crate::scripture::resolve;
 use crate::scripture::{
     self, BookInfo, ChapterText, GetChapter, GetPassage, PassageText, SearchResults,
     SearchScripture,
@@ -53,13 +56,26 @@ pub fn scripture_concordance(
     state.db(|conn| concordance::search(conn, &input))
 }
 
+/// A typed reference in any of the 100 reference languages
+/// (`scripture::resolve`). `language` is the interface language: it settles a
+/// genuine tie between languages, nothing else.
 #[tauri::command(async)]
-pub fn scripture_reference_parse(text: String) -> CommandResult<ScriptureRefDto> {
-    Ok(ReferenceParser::english().parse(&text)?.to_dto())
+pub fn scripture_reference_parse(
+    text: String,
+    language: Option<String>,
+) -> CommandResult<ScriptureRefDto> {
+    let preferred = resolve::preferred(language.as_deref());
+    Ok(resolve::resolve(&text, preferred)?.to_dto())
 }
 
+/// The explicit references in a text, read as a source in `language` (the
+/// interface language when the text has none of its own; English without one).
 #[tauri::command(async)]
-pub fn scripture_reference_detect(text: String) -> Vec<DetectedReference> {
+pub fn scripture_reference_detect(
+    text: String,
+    language: Option<String>,
+) -> Vec<DetectedReference> {
     let text: String = text.chars().take(MAX_DETECT_CHARS).collect();
-    ReferenceParser::english().detect(&text)
+    let source = resolve::preferred(language.as_deref()).unwrap_or(ReferenceLanguage::En);
+    Recogniser::for_source(source).detect(&text)
 }

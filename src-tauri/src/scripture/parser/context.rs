@@ -155,6 +155,10 @@ fn korean_bookless() -> String {
 /// `verse_words`), or the Korean verse unit after the number.
 fn verse_only(language: ReferenceLanguage) -> String {
     let range = format!(r"(?P<vv1>\d{{1,3}})(?:\s*{DASH}\s*(?P<vv2>\d{{1,3}}))?");
+    if matches!(language, ReferenceLanguage::Data(_)) {
+        // Generated packs read no verse-only shorthand: a pattern that never matches.
+        return r"[^\s\S](?P<vv1>\d)(?P<vv2>\d)?".to_string();
+    }
     match packs::pack(language).shorthand.verse_words {
         Some(words) => format!(r"(?i)(?-u:\b)(?:{words})\s*{range}"),
         None => r"(?P<vv1>\d{1,3})(?:\s*[-~‐‑‒–—]\s*(?P<vv2>\d{1,3}))?\s*절".to_string(),
@@ -208,13 +212,13 @@ fn is_latin_letter(c: char) -> bool {
 impl ReferenceParser {
     fn bookless_patterns(&self) -> &'static (Regex, Regex) {
         static PATTERNS: OnceLock<Vec<OnceLock<(Regex, Regex)>>> = OnceLock::new();
-        let all = PATTERNS.get_or_init(|| packs::PACKS.iter().map(|_| OnceLock::new()).collect());
+        let all = PATTERNS.get_or_init(|| packs::all().iter().map(|_| OnceLock::new()).collect());
         let language = self.language;
         let grammar = self.syntax.grammar;
         all[packs::index_of(language)].get_or_init(|| {
             let chapter_verse = match grammar {
                 Grammar::Korean => korean_bookless(),
-                Grammar::Latin => {
+                Grammar::Latin | Grammar::Data => {
                     latin_bookless(packs::pack(language).shorthand.bookless_separator)
                 }
             };
@@ -422,6 +426,13 @@ impl ReferenceParser {
             }
             Grammar::Korean => {
                 if bare.chars().next().is_some_and(|c| c.is_ascii_uppercase()) {
+                    return false;
+                }
+            }
+            // A generated pack is not reviewed for the words of its prose: any
+            // word right before the number leaves it alone.
+            Grammar::Data => {
+                if !bare.is_empty() {
                     return false;
                 }
             }

@@ -68,6 +68,9 @@ pub enum Grammar {
     Latin,
     /// `요한복음 3:16`, `요한복음 3장 16-18절`, `롬 8장`: Hangul, units 장/편/절.
     Korean,
+    /// A generated pack (`scripture::data_packs`): `Book 3:16`, `Book 3,16`,
+    /// `Book 3.16`, and where the language counts with units, `书 3章16节`.
+    Data,
 }
 
 /// The notation of a language.
@@ -86,6 +89,12 @@ pub struct Syntax {
     /// ordinary word, so only the accented spelling counts: German "Röm" must not
     /// make "Rom" (the city) a reference.
     pub no_fold: &'static [&'static str],
+    /// Words are separated by spaces, so a book name must not touch a letter
+    /// before it (not so in Chinese, Japanese, Thai, Khmer, Burmese).
+    pub spaced: bool,
+    /// Data grammar: words that may follow a chapter (章, บทที่) or a verse (節).
+    pub chapter_units: &'static [&'static str],
+    pub verse_units: &'static [&'static str],
 }
 
 /// The aliases and notation of one language.
@@ -94,6 +103,102 @@ pub struct AliasDictionary {
     pub language: ReferenceLanguage,
     pub entries: Vec<AliasEntry>,
     pub syntax: Syntax,
+    /// Spellings that name two books in this language (generated packs): never
+    /// read as either; typed alone, they ask which book is meant.
+    pub ambiguous: Vec<(String, Vec<&'static Book>)>,
+}
+
+/// Characters a reference is read without: zero-width marks, Arabic short
+/// vowels and tatweel, Hebrew points. Removed from typed input, from running
+/// text before matching, and from every alias, so a vocalised and a plain
+/// spelling are one.
+fn is_ignorable(c: char) -> bool {
+    matches!(c,
+        '\u{200B}'..='\u{200F}' | '\u{2060}' | '\u{FEFF}' | '\u{00AD}'
+        | '\u{064B}'..='\u{065F}' | '\u{0670}' | '\u{0640}'
+        | '\u{0591}'..='\u{05BD}' | '\u{05BF}' | '\u{05C1}'..='\u{05C2}' | '\u{05C4}'..='\u{05C7}')
+}
+
+/// The zero of each run of decimal digits that Bible references are written
+/// with: Arabic-Indic, Extended Arabic-Indic (Persian, Urdu), Devanagari,
+/// Bengali, Gurmukhi, Gujarati, Oriya, Tamil, Telugu, Kannada, Malayalam,
+/// Sinhala, Thai, Lao, Tibetan, Myanmar, Khmer, Ol Chiki, full-width.
+const DIGIT_ZEROS: &[u32] = &[
+    0x0660, 0x06F0, 0x0966, 0x09E6, 0x0A66, 0x0AE6, 0x0B66, 0x0BE6, 0x0C66, 0x0CE6, 0x0D66, 0x0DE6,
+    0x0E50, 0x0ED0, 0x0F20, 0x1040, 0x17E0, 0x1C50, 0xFF10,
+];
+
+/// A Unicode decimal digit of an accepted script as its ASCII digit.
+pub fn ascii_digit(c: char) -> Option<char> {
+    if c.is_ascii_digit() {
+        return Some(c);
+    }
+    let code = c as u32;
+    DIGIT_ZEROS
+        .iter()
+        .find(|zero| (**zero..**zero + 10).contains(&code))
+        .and_then(|zero| char::from_digit(code - zero, 10))
+}
+
+/// One character as references are read: an accepted digit as ASCII, the
+/// full-width and Arabic forms of `:`, `,`, `.`, `-` as ASCII, an ignorable
+/// mark as nothing.
+fn prepared_char(c: char) -> Option<char> {
+    if is_ignorable(c) {
+        return None;
+    }
+    if let Some(d) = ascii_digit(c) {
+        return Some(d);
+    }
+    Some(match c {
+        '：' | '﹕' => ':',
+        '，' | '،' => ',',
+        '．' => '.',
+        '－' => '-',
+        other => other,
+    })
+}
+
+/// Text as references are read ([`prepared_char`]), with, for each byte of the
+/// result, the byte of the original it came from (one past the end included).
+pub struct Prepared {
+    pub text: String,
+    map: Option<Vec<usize>>,
+}
+
+impl Prepared {
+    pub fn new(original: &str) -> Prepared {
+        // The common case (ASCII digits, no marks) needs no copy of the offsets.
+        if original.chars().all(|c| prepared_char(c) == Some(c)) {
+            return Prepared {
+                text: original.to_string(),
+                map: None,
+            };
+        }
+        let mut text = String::with_capacity(original.len());
+        let mut map = Vec::with_capacity(original.len() + 1);
+        for (at, c) in original.char_indices() {
+            if let Some(p) = prepared_char(c) {
+                for _ in 0..p.len_utf8() {
+                    map.push(at);
+                }
+                text.push(p);
+            }
+        }
+        map.push(original.len());
+        Prepared {
+            text,
+            map: Some(map),
+        }
+    }
+
+    /// The byte of the original text for a byte of the prepared one.
+    pub fn original(&self, at: usize) -> usize {
+        match &self.map {
+            None => at,
+            Some(map) => map[at.min(map.len() - 1)],
+        }
+    }
 }
 
 impl AliasDictionary {
@@ -145,7 +250,11 @@ impl AliasDictionary {
                 number_join: None,
                 require_capital: true,
                 no_fold: &[],
+                spaced: true,
+                chapter_units: &[],
+                verse_units: &[],
             },
+            ambiguous: Vec::new(),
         }
     }
 
@@ -166,14 +275,30 @@ impl AliasDictionary {
     }
 }
 
-/// Lower case, no full stops, single spaces.
+/// Lower case, no full stops, single spaces; composed (NFC), without the
+/// ignorable marks ([`is_ignorable`]), with accepted digits as ASCII, Greek
+/// final sigma as σ, and the danda and Ethiopic full stop read as full stops.
 pub fn normalise(alias: &str) -> String {
-    alias
+    use unicode_normalization::UnicodeNormalization;
+    let composed: String = alias.nfc().filter_map(prepared_char).collect();
+    composed
         .to_lowercase()
-        .replace('.', " ")
+        .replace('ς', "σ")
+        .replace(['.', '।', '॥', '።', '፡', '־', '·'], " ")
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ")
+}
+
+/// Without the accents of Latin, Greek and Cyrillic letters (combining marks
+/// U+0300–U+036F after decomposition). Other scripts' marks (Indic vowel
+/// signs) are part of the letter and kept.
+pub fn fold_marks(text: &str) -> String {
+    use unicode_normalization::UnicodeNormalization;
+    text.nfd()
+        .filter(|c| !('\u{0300}'..='\u{036F}').contains(c))
+        .nfc()
+        .collect()
 }
 
 /// The dictionary key of an alias or of a matched book name: [`normalise`],
@@ -252,8 +377,14 @@ struct Target {
 pub struct ReferenceParser {
     language: ReferenceLanguage,
     syntax: Syntax,
-    pattern: Regex,
+    /// The running-text pattern, compiled on first use: a generated pack's is
+    /// only needed for a source written in its language.
+    pattern: OnceLock<Regex>,
+    /// Typed input of a generated pack: any book text, then this pack's notation.
+    tail: OnceLock<Regex>,
     lookup: HashMap<String, Target>,
+    /// Spellings that name more than one book in this language.
+    ambiguous: HashMap<String, Vec<&'static Book>>,
 }
 
 /// What was written after the book name.
@@ -268,6 +399,20 @@ struct Parts {
     verse_unit: bool,
 }
 
+/// How one language reads a whole typed input (see [`ReferenceParser::read`]).
+#[derive(Debug)]
+pub enum Reading {
+    /// A passage of the canon.
+    Found(ScriptureRef),
+    /// The book is known here, but the passage is not in it (chapter 51 of
+    /// John) or the notation does not hold: the error says which.
+    Invalid(AppError),
+    /// The book name means several books in this language.
+    Ambiguous(Vec<&'static Book>),
+    /// Not a reference in this language.
+    Unknown,
+}
+
 impl ReferenceParser {
     /// Builds the parser of one dictionary.
     pub fn new(dictionary: AliasDictionary) -> Self {
@@ -275,27 +420,53 @@ impl ReferenceParser {
             language,
             entries,
             syntax,
+            ambiguous: listed,
         } = dictionary;
 
-        let mut lookup: HashMap<String, Target> = HashMap::new();
+        // A spelling that names two books is never read as either.
+        let mut by_key: HashMap<String, Vec<Target>> = HashMap::new();
         for entry in &entries {
-            lookup
+            by_key
                 .entry(key_of(&syntax, &entry.alias))
-                .or_insert(Target {
+                .or_default()
+                .push(Target {
                     book: entry.book,
                     strictness: entry.strictness,
                 });
         }
-        // Accent-free spellings ("Roemer"-style transliterations aside, "Coríntios"
-        // → "Corintios") are accepted only where they cannot be another book's
-        // own spelling and do not point at two books themselves.
-        if syntax.grammar == Grammar::Latin {
+        let mut lookup: HashMap<String, Target> = HashMap::new();
+        let mut ambiguous: HashMap<String, Vec<&'static Book>> = HashMap::new();
+        for (key, targets) in by_key {
+            let mut books: Vec<&'static Book> = Vec::new();
+            for t in &targets {
+                if !books.iter().any(|b| b.code == t.book.code) {
+                    books.push(t.book);
+                }
+            }
+            if books.len() == 1 {
+                lookup.insert(key, targets[0]);
+            } else {
+                ambiguous.insert(key, books);
+            }
+        }
+        for (alias, books) in listed {
+            let key = key_of(&syntax, &alias);
+            if !lookup.contains_key(&key) {
+                ambiguous.insert(key, books);
+            }
+        }
+        // Accent-free spellings ("Coríntios" → "Corintios", "Ё" → "Е") are
+        // accepted only where they cannot be another book's own spelling and do
+        // not point at two books themselves.
+        let cased_data = syntax.grammar == Grammar::Data && syntax.require_capital;
+        if syntax.grammar == Grammar::Latin || cased_data {
             let mut folded: HashMap<String, Vec<Target>> = HashMap::new();
             for entry in entries
                 .iter()
                 .filter(|e| !syntax.no_fold.contains(&e.alias.as_str()))
             {
                 let key = fold(&key_of(&syntax, &entry.alias));
+                let key = if cased_data { fold_marks(&key) } else { key };
                 folded.entry(key).or_default().push(Target {
                     book: entry.book,
                     strictness: entry.strictness,
@@ -305,44 +476,63 @@ impl ReferenceParser {
                 let first = targets[0];
                 if targets.iter().all(|t| t.book.code == first.book.code)
                     && !lookup.contains_key(&key)
+                    && !ambiguous.contains_key(&key)
                 {
                     lookup.insert(key, first);
                 }
             }
         }
 
-        // Longest aliases first, so "1 john" wins over "john".
-        let mut keys: Vec<&String> = lookup.keys().collect();
-        keys.sort_by(|a, b| b.len().cmp(&a.len()).then(a.cmp(b)));
-        let alternatives = keys
-            .iter()
-            .map(|key| alias_pattern(&syntax, key))
-            .collect::<Vec<_>>()
-            .join("|");
-
-        let pattern = match syntax.grammar {
-            Grammar::Latin => latin_pattern(&alternatives, syntax.verse_separator),
-            Grammar::Korean => korean_pattern(&alternatives),
-        };
         Self {
             language,
             syntax,
-            pattern: Regex::new(&pattern).expect("reference pattern is valid"),
+            pattern: OnceLock::new(),
+            tail: OnceLock::new(),
             lookup,
+            ambiguous,
         }
+    }
+
+    fn pattern(&self) -> &Regex {
+        self.pattern.get_or_init(|| {
+            // Longest aliases first, so "1 john" wins over "john".
+            let mut keys: Vec<&String> = self.lookup.keys().collect();
+            keys.sort_by(|a, b| b.len().cmp(&a.len()).then(a.cmp(b)));
+            let alternatives = keys
+                .iter()
+                .map(|key| alias_pattern(&self.syntax, key))
+                .collect::<Vec<_>>()
+                .join("|");
+            let pattern = match self.syntax.grammar {
+                Grammar::Latin => latin_pattern(&alternatives, self.syntax.verse_separator),
+                Grammar::Korean => korean_pattern(&alternatives),
+                Grammar::Data => data_pattern(&self.syntax, &alternatives),
+            };
+            regex::RegexBuilder::new(&pattern)
+                .size_limit(64 << 20)
+                .build()
+                .expect("reference pattern is valid")
+        })
+    }
+
+    fn tail(&self) -> &Regex {
+        self.tail.get_or_init(|| {
+            let pattern = format!("^{}$", data_pattern(&self.syntax, ".+?"));
+            Regex::new(&pattern).expect("reference tail pattern is valid")
+        })
     }
 
     /// The parser of one language, built once from its pack and shared.
     pub fn for_language(language: ReferenceLanguage) -> &'static ReferenceParser {
         static PARSERS: OnceLock<Vec<OnceLock<ReferenceParser>>> = OnceLock::new();
         let parsers = PARSERS.get_or_init(|| {
-            (0..crate::scripture::packs::PACKS.len())
+            (0..crate::scripture::packs::all().len())
                 .map(|_| OnceLock::new())
                 .collect()
         });
         let index = crate::scripture::packs::index_of(language);
         parsers[index].get_or_init(|| {
-            ReferenceParser::new((crate::scripture::packs::PACKS[index].dictionary)())
+            ReferenceParser::new(crate::scripture::packs::pack(language).dictionary())
         })
     }
 
@@ -354,36 +544,38 @@ impl ReferenceParser {
 
     /// The references this parser finds in `text`, with byte ranges and the book
     /// name as written (see [`RawMatch`]). The same candidates as [`Self::detect`].
+    /// Native digits (`٣:١٦`, `३:१६`) and full-width punctuation are read as
+    /// ASCII; the ranges are those of `text` itself.
     pub fn matches(&self, text: &str) -> Vec<RawMatch> {
-        self.pattern
-            .captures_iter(text)
-            .filter(|caps| self.accepts(text, caps))
+        let prepared = Prepared::new(text);
+        let read = prepared.text.as_str();
+        self.pattern()
+            .captures_iter(read)
+            .filter(|caps| self.accepts(read, caps))
             .filter_map(|caps| {
                 let whole = caps.get(0)?;
                 let reference = self.interpret(&caps).ok()?;
                 let book = caps.name("book")?.as_str().to_string();
                 // A match never ends in white space (the Korean pattern may take a trailing space).
                 let end = whole.start() + whole.as_str().trim_end().len();
-                let chapter_unit =
-                    self.syntax.grammar == Grammar::Korean && korean_parts(&caps).chapter_unit;
+                let parts = self.parts(&caps);
                 Some(RawMatch {
-                    start: whole.start(),
-                    end,
+                    start: prepared.original(whole.start()),
+                    end: prepared.original(end),
                     reference,
                     book,
-                    written_verse: caps.name("v1").is_some()
-                        || caps.name("v1k").is_some()
-                        || caps.name("v1c").is_some()
+                    written_verse: parts.v1.is_some()
                         || caps.name("unit").is_some_and(|m| m.as_str() == "절"),
-                    chapter_unit,
+                    chapter_unit: self.syntax.grammar != Grammar::Latin && parts.chapter_unit,
                     language: self.language,
                 })
             })
             .collect()
     }
 
-    /// The shared English parser (typed navigation, studies and the default
-    /// for a source with no recognised language).
+    /// The shared English parser (the default for a source with no recognised
+    /// language). Typed input in any language goes through
+    /// `scripture::resolve` instead.
     pub fn english() -> &'static ReferenceParser {
         Self::for_language(ReferenceLanguage::En)
     }
@@ -392,37 +584,65 @@ impl ReferenceParser {
         self.language
     }
 
-    /// Parses input that is exactly one reference, e.g. typed navigation.
-    /// A bare book name opens its first chapter.
+    /// Parses input that is exactly one reference in this language. A bare
+    /// book name opens its first chapter. Typed input of unknown language is
+    /// read by `scripture::resolve`, with every pack.
     pub fn parse(&self, input: &str) -> AppResult<ScriptureRef> {
-        let text = input.trim().trim_end_matches(['.', ',', ';']);
+        match self.read(input) {
+            Reading::Found(reference) => Ok(reference),
+            Reading::Invalid(error) => Err(error),
+            Reading::Ambiguous(books) => Err(ambiguous_error(input.trim(), &books, None)),
+            Reading::Unknown if typed_text(input).is_empty() => Err(empty_error()),
+            Reading::Unknown => Err(not_recognised_error(input.trim())),
+        }
+    }
+
+    /// How this language reads a whole typed input.
+    pub fn read(&self, input: &str) -> Reading {
+        let typed = typed_text(input);
+        let text = typed.as_str();
         if text.is_empty() {
-            return Err(AppError::InvalidReference(UserMessage::new(
-                "reference.empty",
-                "Type a passage, for example “John 15” or “Rom 8:1-17”.",
-            )));
+            return Reading::Unknown;
         }
-        if let Some(target) = self.lookup.get(&key_of(&self.syntax, text)) {
-            return ScriptureRef::chapter(target.book, 1);
+        let whole_key = key_of(&self.syntax, text);
+        if let Some(target) = self.lookup_key(&whole_key) {
+            return match ScriptureRef::chapter(target.book, 1) {
+                Ok(reference) => Reading::Found(reference),
+                Err(error) => Reading::Invalid(error),
+            };
         }
-        match self.pattern.captures(text) {
-            Some(caps)
-                if caps
-                    .get(0)
-                    .is_some_and(|m| m.start() == 0 && m.end() == text.len()) =>
-            {
-                self.interpret(&caps)
-            }
-            _ => Err(AppError::InvalidReference(
-                UserMessage::new(
-                    "reference.notRecognised",
-                    format!(
-                        "“{}” is not a passage I recognise. Try a form like “John 15” or “Rom 8:1-17”.",
-                        input.trim()
-                    ),
-                )
-                .with("text", input.trim()),
-            )),
+        if let Some(books) = self.ambiguous.get(&whole_key) {
+            return Reading::Ambiguous(books.clone());
+        }
+        let caps = match self.syntax.grammar {
+            // A generated pack reads the book by lookup: one small pattern for
+            // the notation, never the pack's whole alias list.
+            Grammar::Data => match self.tail().captures(text) {
+                Some(caps) => caps,
+                None => return Reading::Unknown,
+            },
+            Grammar::Latin | Grammar::Korean => match self.pattern().captures(text) {
+                Some(caps)
+                    if caps
+                        .get(0)
+                        .is_some_and(|m| m.start() == 0 && m.end() == text.len()) =>
+                {
+                    caps
+                }
+                _ => return Reading::Unknown,
+            },
+        };
+        let book_text = caps.name("book").map_or("", |m| m.as_str());
+        let key = key_of(&self.syntax, book_text);
+        if self.lookup_key(&key).is_none() {
+            return match self.ambiguous.get(&key) {
+                Some(books) => Reading::Ambiguous(books.clone()),
+                None => Reading::Unknown,
+            };
+        }
+        match self.interpret(&caps) {
+            Ok(reference) => Reading::Found(reference),
+            Err(error) => Reading::Invalid(error),
         }
     }
 
@@ -436,9 +656,20 @@ impl ReferenceParser {
             .collect()
     }
 
+    /// A key, or its accent-free form where this language accepts one.
+    fn lookup_key(&self, key: &str) -> Option<Target> {
+        if let Some(target) = self.lookup.get(key) {
+            return Some(*target);
+        }
+        if self.syntax.grammar == Grammar::Data && self.syntax.require_capital {
+            return self.lookup.get(&fold_marks(&fold(key))).copied();
+        }
+        None
+    }
+
     fn target(&self, caps: &Captures) -> Option<Target> {
         let book = caps.name("book")?.as_str();
-        self.lookup.get(&key_of(&self.syntax, book)).copied()
+        self.lookup_key(&key_of(&self.syntax, book))
     }
 
     /// The language's false-positive policy for one candidate.
@@ -504,6 +735,54 @@ impl ReferenceParser {
                 }
                 true
             }
+            Grammar::Data => {
+                let before = text[..whole.start()].chars().next_back();
+                let after = text[whole.end()..].chars().next();
+                // Never inside a number; where words are spaced, never inside a word.
+                if after.is_some_and(|c| c.is_ascii_digit() || c == '_')
+                    || before.is_some_and(|c| c.is_ascii_digit())
+                {
+                    return false;
+                }
+                if self.syntax.spaced
+                    && (before.is_some_and(|c| c.is_alphanumeric() || c == '_')
+                        || after.is_some_and(char::is_alphanumeric))
+                {
+                    return false;
+                }
+                let capital = !self.syntax.require_capital
+                    || book
+                        .as_str()
+                        .chars()
+                        .next()
+                        .is_some_and(|c| c.is_uppercase() || c.is_ascii_digit());
+                let parts = data_parts(caps);
+                capital
+                    && match target.strictness {
+                        Strictness::Full => true,
+                        Strictness::Unit => parts.v1.is_some() || parts.chapter_unit,
+                        Strictness::Verse => parts.v1.is_some(),
+                    }
+            }
+        }
+    }
+
+    fn parts(&self, caps: &Captures) -> Parts {
+        match self.syntax.grammar {
+            Grammar::Latin => {
+                let number =
+                    |name: &str| caps.name(name).and_then(|m| m.as_str().parse::<u16>().ok());
+                Parts {
+                    c1: number("c1").unwrap_or(0),
+                    v1: number("v1"),
+                    n2: number("n2"),
+                    v2: number("v2"),
+                    chapter_unit: false,
+                    verse_unit: false,
+                }
+            }
+            Grammar::Korean => korean_parts(caps),
+            Grammar::Data => data_parts(caps),
         }
     }
 
@@ -518,21 +797,6 @@ impl ReferenceParser {
                 .with("text", book_text),
             )
         })?;
-        let parts = match self.syntax.grammar {
-            Grammar::Latin => {
-                let number =
-                    |name: &str| caps.name(name).and_then(|m| m.as_str().parse::<u16>().ok());
-                Parts {
-                    c1: number("c1").unwrap_or(0),
-                    v1: number("v1"),
-                    n2: number("n2"),
-                    v2: number("v2"),
-                    chapter_unit: false,
-                    verse_unit: false,
-                }
-            }
-            Grammar::Korean => korean_parts(caps),
-        };
         let Parts {
             c1,
             v1,
@@ -540,7 +804,7 @@ impl ReferenceParser {
             v2,
             chapter_unit,
             ..
-        } = parts;
+        } = self.parts(caps);
         let one_chapter = book.chapter_count == 1;
         let at = |chapter, verse| Point { chapter, verse };
 
@@ -560,6 +824,71 @@ impl ReferenceParser {
         };
         ScriptureRef::new(book, start, end)
     }
+}
+
+/// Typed input as references are read: composed, native digits and
+/// full-width punctuation as ASCII, without the brackets a title may be
+/// quoted in (《约翰福音》3:16) and without a trailing full stop or comma.
+fn typed_text(input: &str) -> String {
+    use unicode_normalization::UnicodeNormalization;
+    let composed: String = input.nfc().collect();
+    let prepared = Prepared::new(&composed).text;
+    prepared
+        .replace(['《', '》', '〈', '〉', '「', '」', '『', '』'], " ")
+        .trim()
+        .trim_end_matches(['.', ',', ';', '。', '،', '؛'])
+        .trim()
+        .to_string()
+}
+
+pub(crate) fn empty_error() -> AppError {
+    AppError::InvalidReference(UserMessage::new(
+        "reference.empty",
+        "Type a passage, for example “John 15” or “Rom 8:1-17”.",
+    ))
+}
+
+pub(crate) fn not_recognised_error(text: &str) -> AppError {
+    AppError::InvalidReference(
+        UserMessage::new(
+            "reference.notRecognised",
+            format!(
+                "“{text}” is not a passage I recognise. Try a form like “John 15” or “Rom 8:1-17”."
+            ),
+        )
+        .with("text", text),
+    )
+}
+
+/// The input names several books (or passages): the options, never a guess.
+/// `passages` are the passages when they are known, otherwise the books are
+/// the options. The interface shows them in its own language (`books`,
+/// `canonicals`); `options` is the English wording.
+pub(crate) fn ambiguous_error(
+    text: &str,
+    books: &[&'static Book],
+    passages: Option<&[ScriptureRef]>,
+) -> AppError {
+    let options: Vec<String> = match passages {
+        Some(list) => list.iter().map(ScriptureRef::display).collect(),
+        None => books.iter().map(|b| b.name.to_string()).collect(),
+    };
+    let codes: Vec<&str> = books.iter().map(|b| b.code).collect();
+    let mut message = UserMessage::new(
+        "reference.ambiguous",
+        format!(
+            "“{text}” could mean {}. Type more of the book’s name to choose.",
+            options.join(" or ")
+        ),
+    )
+    .with("text", text)
+    .with("options", options.join(" / "))
+    .with("books", codes.join(","));
+    if let Some(list) = passages {
+        let canonicals: Vec<String> = list.iter().map(ScriptureRef::canonical).collect();
+        message = message.with("canonicals", canonicals.join(";"));
+    }
+    AppError::InvalidReference(message)
 }
 
 /// The regex fragment for one dictionary key. A Latin-script alias that starts
@@ -644,6 +973,71 @@ fn korean_parts(caps: &Captures) -> Parts {
         v2: number(&["v2", "v2k"]),
         chapter_unit,
         verse_unit,
+    }
+}
+
+/// A generated pack's notation: `3:16`, `3,16`, `3.16` (`,` and `.` only
+/// between digits), ranges `3:16-18`, `3:16-4:2`, `3-4`, and where the
+/// language counts with units, `3章16节`, `3章16-18节`, `第3章`, `บทที่ 3`.
+fn data_pattern(syntax: &Syntax, alternatives: &str) -> String {
+    const DASH: &str = r"[-~‐‑‒–—]";
+    const N: &str = r"\d{1,3}";
+    let alt = |units: &[&str]| {
+        units
+            .iter()
+            .map(|u| regex::escape(u))
+            .collect::<Vec<_>>()
+            .join("|")
+    };
+    let cu = alt(syntax.chapter_units);
+    let vu = alt(syntax.verse_units);
+    let sep = syntax.verse_separator;
+    let case = if syntax.require_capital { "(?i)" } else { "" };
+    let verse_unit = if vu.is_empty() {
+        String::new()
+    } else {
+        format!(r"(?:\s*(?:{vu}))?")
+    };
+    // A chapter unit may also stand before the number (Thai บทที่ 3, Chinese 第3章).
+    let before = if cu.is_empty() {
+        String::new()
+    } else {
+        format!(r"(?:(?P<cup>{cu}|第)\s*)?")
+    };
+    let mut branches = vec![format!(
+        r"(?:{sep})(?P<v1>{N})(?:\s*{DASH}\s*(?P<n2>{N})(?:(?:{sep})(?P<v2>{N}))?)?{verse_unit}"
+    )];
+    if !cu.is_empty() {
+        branches.push(format!(
+            r"\s*(?P<cu>{cu})\s*(?P<v1u>{N}){verse_unit}(?:\s*{DASH}\s*(?P<n2u>{N})(?:\s*(?:{cu})\s*(?P<v2u>{N}))?{verse_unit})?"
+        ));
+        branches.push(format!(
+            r"\s*(?P<cu2>{cu})(?:\s*{DASH}\s*(?P<n2c>{N})(?:\s*(?:{cu}))?)?"
+        ));
+    }
+    branches.push(format!(
+        r"\s*{DASH}\s*(?P<n2d>{N})(?:(?:{sep})(?P<v2d>{N}))?"
+    ));
+    format!(
+        r"{case}(?P<book>{alternatives})\.?\s*{before}(?P<c1>{N})(?:{})?",
+        branches.join("|")
+    )
+}
+
+fn data_parts(caps: &Captures) -> Parts {
+    let number = |names: &[&str]| {
+        names
+            .iter()
+            .find_map(|n| caps.name(n))
+            .and_then(|m| m.as_str().parse::<u16>().ok())
+    };
+    Parts {
+        c1: number(&["c1"]).unwrap_or(0),
+        v1: number(&["v1", "v1u"]),
+        n2: number(&["n2", "n2u", "n2c", "n2d"]),
+        v2: number(&["v2", "v2u", "v2d"]),
+        chapter_unit: ["cu", "cu2", "cup"].iter().any(|n| caps.name(n).is_some()),
+        verse_unit: false,
     }
 }
 

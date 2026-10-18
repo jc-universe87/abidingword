@@ -1,6 +1,7 @@
 // The frontend's only door to the native core. Components use the `Api`
 // interface through `useApi()`, never `invoke` directly, so tests can supply
 // an in-memory implementation.
+import i18n from "i18next";
 import { localizeError } from "@/i18n/messages";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -360,6 +361,7 @@ export interface Api {
   scriptureSearch(input: SearchScripture): Promise<SearchResults>;
   /** Where a word or phrase occurs in one translation (v0.12). */
   scriptureConcordance(input: ConcordanceQuery): Promise<ConcordanceResult>;
+  /** A typed passage in any of the 100 reference languages ("Johannes 15,5", "요한복음 15장 5절"). */
   referenceParse(text: string): Promise<ScriptureRef>;
   referenceDetect(text: string): Promise<DetectedReference[]>;
 
@@ -604,8 +606,10 @@ export const tauriApi: Api = {
   scriptureGetPassage: (input) => call("scripture_get_passage", { input }),
   scriptureSearch: (input) => call("scripture_search", { input }),
   scriptureConcordance: (input) => call("scripture_concordance", { input }),
-  referenceParse: (text) => call("scripture_reference_parse", { text }),
-  referenceDetect: (text) => call("scripture_reference_detect", { text }),
+  // One reader for typed passages in any of the 100 reference languages; the
+  // interface language only settles a genuine tie (scripture::resolve).
+  referenceParse: (text) => call("scripture_reference_parse", { text, language: i18n.language }),
+  referenceDetect: (text) => call("scripture_reference_detect", { text, language: i18n.language }),
 
   bibleList: () => call("bible_list"),
   bibleBundledList: () => call("bible_bundled_list"),

@@ -80,7 +80,7 @@ impl Recogniser {
     pub fn for_source(primary: ReferenceLanguage) -> &'static Recogniser {
         static ALL: OnceLock<Vec<Recogniser>> = OnceLock::new();
         let all = ALL.get_or_init(|| {
-            PACKS
+            packs::all()
                 .iter()
                 .map(|p| Recogniser {
                     primary: p.language,
@@ -102,8 +102,15 @@ impl Recogniser {
     /// The explicit references in `text`, in order, as byte ranges.
     pub fn matches(&self, text: &str) -> Vec<RawMatch> {
         let mut candidates: Vec<RawMatch> = Vec::new();
-        for pack in &PACKS {
-            if !pack.script.occurs_in(text) {
+        // The reviewed packs read every source; a generated pack reads only a
+        // source written in its own language (its short abbreviations are not
+        // reviewed against the prose of other languages).
+        let own_generated = packs::pack(self.primary);
+        let readers = PACKS
+            .iter()
+            .chain((!own_generated.is_reviewed()).then_some(own_generated));
+        for pack in readers {
+            if !pack.reads(text) {
                 continue;
             }
             let own = pack.language == self.primary;

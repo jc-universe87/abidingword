@@ -191,6 +191,10 @@ pub fn dictionary() -> AliasDictionary {
             number_join: None,
             require_capital: false,
             no_fold: &[],
+            spaced: true,
+            chapter_units: &[],
+            verse_units: &[],
         },
+        ambiguous: Vec::new(),
     }
 }

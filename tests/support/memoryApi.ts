@@ -185,11 +185,13 @@ const ALIASES: Record<string, string> = {
   john: "JHN", jn: "JHN", romans: "ROM", rom: "ROM", psalm: "PSA", psalms: "PSA", ps: "PSA",
   genesis: "GEN", "1 cor": "1CO", "1 corinthians": "1CO",
   galatians: "GAL", gal: "GAL", ephesians: "EPH", eph: "EPH",
+  // A few other-language names, as the shared resolver reads them in any interface language.
+  johannes: "JHN", joh: "JHN", jean: "JHN", juan: "JHN", "joão": "JHN", "요한복음": "JHN",
 };
 
 /** A deliberately small stand-in for the native English parser. */
 function parseForTests(text: string): ScriptureRef {
-  const match = /^\s*([1-3]?\s?[a-z]+)\s+(\d+)(?::(\d+)(?:-(\d+))?)?\s*$/i.exec(text);
+  const match = /^\s*([1-3]?\s?[\p{L}]+)\s*(\d+)(?:[:,](\d+)(?:-(\d+))?)?\s*$/iu.exec(text.replace(/(\d+)장\s*(\d+)절/, "$1:$2"));
   const book = match ? ALIASES[(match[1] ?? "").toLowerCase()] : undefined;
   const info = book ? bookByCode.get(book) : undefined;
   const chapter = Number(match?.[2]);

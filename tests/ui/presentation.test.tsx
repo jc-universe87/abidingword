@@ -715,6 +715,18 @@ describe("presenting: the useful few things, simply", () => {
     expect(api.state.presentation.presentations[0]).toEqual(before);
   });
 
+  it("Bible passage reads a passage typed in another language through the shared Scripture reader", async () => {
+    const { api, user, view } = await presenting();
+    const parse = vi.spyOn(api, "referenceParse");
+    await user.click(within(view).getByRole("button", { name: "Bible passage" }));
+    const scripture = await within(view).findByRole("dialog", { name: "Bible passage" });
+    await user.type(within(scripture).getByRole("textbox", { name: "Passage" }), "Johannes 15,5{Enter}");
+    // The same reader as Scripture navigation, Bible Study and Teaching — no
+    // parser of the Presenter View's own, and the English interface no gate.
+    expect(parse).toHaveBeenCalledWith("Johannes 15,5");
+    await within(view).findByRole("region", { name: "John 15:5" });
+  });
+
   it("a clicker's Page Down / Page Up, the arrows and Space move; a number and Enter go to that slide", async () => {
     const { view } = await presenting();
     for (const [key, at] of [

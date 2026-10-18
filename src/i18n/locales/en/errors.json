@@ -35,7 +35,8 @@
     "badVerse": "Verse {{verse}} is not a valid verse number.",
     "endBeforeStart": "The end of the passage comes before its start.",
     "invalid": "“{{text}}” is not a valid passage reference.",
-    "oneBook": "A passage must stay within one book."
+    "oneBook": "A passage must stay within one book.",
+    "ambiguous": "“{{text}}” could mean {{options}}. Type more of the book’s name to choose."
   },
   "bibles": {
     "hasProblems": "This Bible has problems that must be resolved before it can be added.",

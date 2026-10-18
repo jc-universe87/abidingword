@@ -9,6 +9,7 @@ pub mod annotation_data;
 pub mod bundled;
 pub mod canon;
 pub mod concordance;
+pub mod data_packs;
 pub mod import;
 pub mod language;
 pub mod packs;
@@ -16,6 +17,7 @@ pub mod parser;
 pub mod phrase_ranges;
 pub mod recognise;
 pub mod reference;
+pub mod resolve;
 pub mod usfm;
 
 use serde::{Deserialize, Serialize};

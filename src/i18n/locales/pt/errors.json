@@ -35,7 +35,8 @@
     "badVerse": "{{verse}} não é um número de versículo válido.",
     "endBeforeStart": "O fim da passagem vem antes do início.",
     "invalid": "“{{text}}” não é uma referência de passagem válida.",
-    "oneBook": "Uma passagem deve ficar dentro de um único livro."
+    "oneBook": "Uma passagem deve ficar dentro de um único livro.",
+    "ambiguous": "“{{text}}” pode significar {{options}}. Digite mais do nome do livro para escolher."
   },
   "bibles": {
     "hasProblems": "Esta Bíblia tem problemas que precisam ser resolvidos antes que possa ser adicionada.",

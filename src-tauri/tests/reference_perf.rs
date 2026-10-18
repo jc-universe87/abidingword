@@ -16,13 +16,14 @@ fn sample(language: ReferenceLanguage) -> &'static str {
         Fr => "Comme Jn 3,16 et Rm 8,28 le disent, Dieu a tant aimé le monde, et 1 Co 13,4-7 décrit l’amour.",
         Es => "Como dicen Jn 3:16 y Ro 8:28, Dios amó tanto al mundo, y 1 Co 13:4-7 describe el amor.",
         Pt => "Como dizem Jo 3:16 e Rm 8:28, Deus amou tanto o mundo, e 1 Co 13:4-7 descreve o amor.",
+        ReferenceLanguage::Data(_) => "",
     }
 }
 
 #[test]
 fn building_and_using_each_parser() {
     let mut worst_build = Duration::ZERO;
-    for language in ReferenceLanguage::ALL {
+    for language in ReferenceLanguage::REVIEWED {
         let started = Instant::now();
         let parser = ReferenceParser::for_language(language);
         let build = started.elapsed();
@@ -51,4 +52,29 @@ fn building_and_using_each_parser() {
         );
     }
     assert!(worst_build < Duration::from_secs(30), "{worst_build:?}");
+}
+
+#[test]
+fn a_generated_pack_reads_a_source_in_its_own_language() {
+    // A generated pack's running-text pattern is compiled only when a source in
+    // its language is read; the slowest of the 94 must still be quick.
+    let mut worst = (Duration::ZERO, "");
+    let text = "Lorem ipsum 3:16 dolor sit amet, 1 2 3. ".repeat(20);
+    for language in ReferenceLanguage::all() {
+        if !matches!(language, ReferenceLanguage::Data(_)) {
+            continue;
+        }
+        let started = Instant::now();
+        let parser = ReferenceParser::for_language(language);
+        let _ = parser.detect(&text);
+        let elapsed = started.elapsed();
+        if elapsed > worst.0 {
+            worst = (elapsed, language.code());
+        }
+    }
+    eprintln!(
+        "slowest generated pack built and read in {:?} ({})",
+        worst.0, worst.1
+    );
+    assert!(worst.0 < Duration::from_secs(10), "{worst:?}");
 }

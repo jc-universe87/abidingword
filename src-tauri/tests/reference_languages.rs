@@ -593,7 +593,7 @@ fn the_same_text_means_different_things_in_different_languages() {
 
 #[test]
 fn an_unknown_or_missing_language_is_read_as_english_and_never_merged() {
-    for label in [None, Some(""), Some("Italiano"), Some("xx")] {
+    for label in [None, Some(""), Some("Latina"), Some("xx")] {
         let resolved = ReferenceLanguage::resolve(label);
         assert!(resolved.fallback, "{label:?}");
         let parser = ReferenceParser::for_language(resolved.language);
@@ -608,7 +608,7 @@ fn an_unknown_or_missing_language_is_read_as_english_and_never_merged() {
 
 #[test]
 fn parsers_are_built_once_and_shared() {
-    for language in ReferenceLanguage::ALL {
+    for language in ReferenceLanguage::REVIEWED {
         let a = ReferenceParser::for_language(language) as *const ReferenceParser;
         let b = ReferenceParser::for_language(language) as *const ReferenceParser;
         assert_eq!(a, b, "{language:?}");

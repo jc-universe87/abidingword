@@ -2,6 +2,8 @@
 // carry a stable code and values; they are shown in the interface language
 // here. The core's English text is the fallback (docs/i18n.md).
 import i18n from "i18next";
+import { parseCanonical } from "@/lib/scripture";
+import { bookName, referenceLabel } from "./scripture";
 
 export type MessageParams = Record<string, string>;
 
@@ -23,6 +25,21 @@ function values(params: MessageParams): Record<string, unknown> {
   if (params.bookCode) result.book = translate(`books.name.${params.bookCode}`, { defaultValue: params.bookCode });
   for (const name of ["count", "max", "found", "listed", "more", "chapter", "verse", "first", "last"]) {
     if (params[name] !== undefined && /^\d+$/.test(params[name])) result[name] = Number(params[name]);
+  }
+  // An ambiguous typed passage: its options in the interface language.
+  if (params.canonicals) {
+    result.options = params.canonicals
+      .split(";")
+      .map((canonical) => {
+        const parsed = parseCanonical(canonical);
+        return parsed ? referenceLabel({ ...parsed, canonical, display: canonical }) : canonical;
+      })
+      .join(" / ");
+  } else if (params.books && params.options !== undefined) {
+    result.options = params.books
+      .split(",")
+      .map((code) => bookName(code))
+      .join(" / ");
   }
   if (params.numbers !== undefined) {
     const more = Number(params.more ?? 0);

@@ -22,26 +22,145 @@
 //! entry in [`PACKS`], and its tests (every book named, no alias pointing at
 //! two books, notation, shorthand, collisions with the other packs).
 
+use std::sync::OnceLock;
+
 use crate::scripture::language::ReferenceLanguage;
 use crate::scripture::parser::AliasDictionary;
 
 /// The writing system a pack's book names use. A pack is only run over text
-/// that contains its script, which keeps reading a page cheap as packs grow.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// that contains one of its scripts, which keeps reading a page cheap as packs
+/// grow (100 languages).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Script {
     Latin,
+    Cyrillic,
+    Greek,
     Hangul,
+    Han,
+    Hiragana,
+    Katakana,
+    Arabic,
+    Hebrew,
+    Devanagari,
+    Bengali,
+    Gurmukhi,
+    Gujarati,
+    Oriya,
+    Tamil,
+    Telugu,
+    Kannada,
+    Malayalam,
+    Sinhala,
+    Thai,
+    Lao,
+    Khmer,
+    Myanmar,
+    Ethiopic,
+    Yi,
+    OlChiki,
+    SylotiNagri,
+    Tibetan,
+    Georgian,
+    Armenian,
 }
 
 impl Script {
+    /// The name used in `reference-packs.json` ("Latin", "Han", "OlChiki").
+    pub fn from_name(name: &str) -> Option<Script> {
+        Some(match name {
+            "Latin" => Script::Latin,
+            "Cyrillic" => Script::Cyrillic,
+            "Greek" => Script::Greek,
+            "Hangul" => Script::Hangul,
+            "Han" => Script::Han,
+            "Hiragana" => Script::Hiragana,
+            "Katakana" => Script::Katakana,
+            "Arabic" => Script::Arabic,
+            "Hebrew" => Script::Hebrew,
+            "Devanagari" => Script::Devanagari,
+            "Bengali" => Script::Bengali,
+            "Gurmukhi" => Script::Gurmukhi,
+            "Gujarati" => Script::Gujarati,
+            "Oriya" => Script::Oriya,
+            "Tamil" => Script::Tamil,
+            "Telugu" => Script::Telugu,
+            "Kannada" => Script::Kannada,
+            "Malayalam" => Script::Malayalam,
+            "Sinhala" => Script::Sinhala,
+            "Thai" => Script::Thai,
+            "Lao" => Script::Lao,
+            "Khmer" => Script::Khmer,
+            "Myanmar" => Script::Myanmar,
+            "Ethiopic" => Script::Ethiopic,
+            "Yi" => Script::Yi,
+            "OlChiki" => Script::OlChiki,
+            "SylotiNagri" => Script::SylotiNagri,
+            "Tibetan" => Script::Tibetan,
+            "Georgian" => Script::Georgian,
+            "Armenian" => Script::Armenian,
+            _ => return None,
+        })
+    }
+
+    /// The script of one character, when it is a letter of a script a pack uses.
+    pub fn of(c: char) -> Option<Script> {
+        Some(match c {
+            'A'..='Z' | 'a'..='z' | '\u{00C0}'..='\u{024F}' | '\u{1E00}'..='\u{1EFF}' => {
+                Script::Latin
+            }
+            '\u{0370}'..='\u{03FF}' | '\u{1F00}'..='\u{1FFF}' => Script::Greek,
+            '\u{0400}'..='\u{052F}' => Script::Cyrillic,
+            '\u{0530}'..='\u{058F}' => Script::Armenian,
+            '\u{0590}'..='\u{05FF}' => Script::Hebrew,
+            '\u{0600}'..='\u{06FF}'
+            | '\u{0750}'..='\u{077F}'
+            | '\u{08A0}'..='\u{08FF}'
+            | '\u{FB50}'..='\u{FDFF}'
+            | '\u{FE70}'..='\u{FEFF}' => Script::Arabic,
+            '\u{0900}'..='\u{097F}' => Script::Devanagari,
+            '\u{0980}'..='\u{09FF}' => Script::Bengali,
+            '\u{0A00}'..='\u{0A7F}' => Script::Gurmukhi,
+            '\u{0A80}'..='\u{0AFF}' => Script::Gujarati,
+            '\u{0B00}'..='\u{0B7F}' => Script::Oriya,
+            '\u{0B80}'..='\u{0BFF}' => Script::Tamil,
+            '\u{0C00}'..='\u{0C7F}' => Script::Telugu,
+            '\u{0C80}'..='\u{0CFF}' => Script::Kannada,
+            '\u{0D00}'..='\u{0D7F}' => Script::Malayalam,
+            '\u{0D80}'..='\u{0DFF}' => Script::Sinhala,
+            '\u{0E00}'..='\u{0E7F}' => Script::Thai,
+            '\u{0E80}'..='\u{0EFF}' => Script::Lao,
+            '\u{0F00}'..='\u{0FFF}' => Script::Tibetan,
+            '\u{1000}'..='\u{109F}' => Script::Myanmar,
+            '\u{10A0}'..='\u{10FF}' => Script::Georgian,
+            '\u{1100}'..='\u{11FF}' | '\u{3130}'..='\u{318F}' | '\u{AC00}'..='\u{D7AF}' => {
+                Script::Hangul
+            }
+            '\u{1200}'..='\u{139F}' | '\u{2D80}'..='\u{2DDF}' => Script::Ethiopic,
+            '\u{1780}'..='\u{17FF}' => Script::Khmer,
+            '\u{1C50}'..='\u{1C7F}' => Script::OlChiki,
+            '\u{A800}'..='\u{A82F}' => Script::SylotiNagri,
+            '\u{3040}'..='\u{309F}' => Script::Hiragana,
+            '\u{30A0}'..='\u{30FF}' | '\u{31F0}'..='\u{31FF}' => Script::Katakana,
+            '\u{3400}'..='\u{4DBF}' | '\u{4E00}'..='\u{9FFF}' | '\u{F900}'..='\u{FAFF}' => {
+                Script::Han
+            }
+            '\u{A000}'..='\u{A4CF}' => Script::Yi,
+            _ => return None,
+        })
+    }
+
     /// Whether `text` contains a letter of this script.
     pub fn occurs_in(self, text: &str) -> bool {
-        match self {
-            Script::Latin => text.chars().any(|c| c.is_ascii_alphabetic() || ('\u{00C0}'..='\u{024F}').contains(&c)),
-            Script::Hangul => text
-                .chars()
-                .any(|c| matches!(c, '\u{1100}'..='\u{11FF}' | '\u{3130}'..='\u{318F}' | '\u{AC00}'..='\u{D7AF}')),
-        }
+        text.chars().any(|c| Script::of(c) == Some(self))
+    }
+
+    /// Scripts with capital letters (where a reference in running text must
+    /// start with a capital, as the Latin packs ask).
+    pub fn is_cased(self) -> bool {
+        matches!(
+            self,
+            Script::Latin | Script::Cyrillic | Script::Greek | Script::Armenian
+        )
     }
 }
 
@@ -63,9 +182,8 @@ pub struct Shorthand {
 /// Everything one language contributes to reading references.
 pub struct LanguagePack {
     pub language: ReferenceLanguage,
-    pub script: Script,
-    /// Book names and abbreviations, and the explicit notation.
-    pub dictionary: fn() -> AliasDictionary,
+    /// The scripts its book names are written in.
+    pub scripts: &'static [Script],
     pub shorthand: Shorthand,
     /// Ordinary words of this language (lower case) that, in a source of this
     /// language, are never read as another language's book abbreviation:
@@ -92,13 +210,15 @@ pub struct LanguagePack {
     pub reference_tails: &'static [&'static str],
 }
 
-/// The packs, one per language with a reviewed dictionary. Order carries no
-/// meaning: no result depends on it.
+/// The reviewed packs: one per language with a hand-reviewed dictionary
+/// (`scripture::aliases`). They read running text across languages; the
+/// generated packs ([`all`]) read typed references in any language and a
+/// source written in their own language. Order carries no meaning: no result
+/// depends on it.
 pub static PACKS: [LanguagePack; 6] = [
     LanguagePack {
         language: ReferenceLanguage::En,
-        script: Script::Latin,
-        dictionary: AliasDictionary::english,
+        scripts: &[Script::Latin],
         shorthand: Shorthand {
             bookless_separator: ":",
             verse_words: Some(r"vv?\.|verses?"),
@@ -110,8 +230,7 @@ pub static PACKS: [LanguagePack; 6] = [
     },
     LanguagePack {
         language: ReferenceLanguage::De,
-        script: Script::Latin,
-        dictionary: || crate::scripture::aliases::dictionary(ReferenceLanguage::De),
+        scripts: &[Script::Latin],
         shorthand: Shorthand {
             bookless_separator: ":|,",
             verse_words: Some(r"vv?\.|verse?"),
@@ -123,8 +242,7 @@ pub static PACKS: [LanguagePack; 6] = [
     },
     LanguagePack {
         language: ReferenceLanguage::Ko,
-        script: Script::Hangul,
-        dictionary: || crate::scripture::aliases::dictionary(ReferenceLanguage::Ko),
+        scripts: &[Script::Hangul],
         shorthand: Shorthand {
             bookless_separator: ":",
             verse_words: None,
@@ -136,8 +254,7 @@ pub static PACKS: [LanguagePack; 6] = [
     },
     LanguagePack {
         language: ReferenceLanguage::Fr,
-        script: Script::Latin,
-        dictionary: || crate::scripture::aliases::dictionary(ReferenceLanguage::Fr),
+        scripts: &[Script::Latin],
         shorthand: Shorthand {
             bookless_separator: ":|,",
             verse_words: Some(r"vv?\.|versets?"),
@@ -149,8 +266,7 @@ pub static PACKS: [LanguagePack; 6] = [
     },
     LanguagePack {
         language: ReferenceLanguage::Es,
-        script: Script::Latin,
-        dictionary: || crate::scripture::aliases::dictionary(ReferenceLanguage::Es),
+        scripts: &[Script::Latin],
         shorthand: Shorthand {
             bookless_separator: ":|,",
             verse_words: Some(r"vv?\.|vers(?:í|i)culos?"),
@@ -162,8 +278,7 @@ pub static PACKS: [LanguagePack; 6] = [
     },
     LanguagePack {
         language: ReferenceLanguage::Pt,
-        script: Script::Latin,
-        dictionary: || crate::scripture::aliases::dictionary(ReferenceLanguage::Pt),
+        scripts: &[Script::Latin],
         shorthand: Shorthand {
             bookless_separator: ":|,",
             verse_words: Some(r"vv?\.|vers(?:í|i)culos?"),
@@ -175,18 +290,75 @@ pub static PACKS: [LanguagePack; 6] = [
     },
 ];
 
-/// The pack of a language.
-pub fn pack(language: ReferenceLanguage) -> &'static LanguagePack {
-    PACKS
-        .iter()
-        .find(|p| p.language == language)
-        .expect("every reference language has a pack")
+impl LanguagePack {
+    /// Book names and abbreviations, and the explicit notation.
+    pub fn dictionary(&self) -> AliasDictionary {
+        match self.language {
+            ReferenceLanguage::Data(index) => crate::scripture::data_packs::dictionary(index),
+            language => crate::scripture::aliases::dictionary(language),
+        }
+    }
+
+    /// Whether `text` has a letter of one of its scripts.
+    pub fn reads(&self, text: &str) -> bool {
+        self.scripts.iter().any(|s| s.occurs_in(text))
+    }
+
+    pub fn is_reviewed(&self) -> bool {
+        !matches!(self.language, ReferenceLanguage::Data(_))
+    }
 }
 
-/// The index of a language's pack in [`PACKS`] (for per-pack caches).
+/// How a generated pack reads references without a book: `15:4` only, and
+/// "," never joins a list (it may be a chapter/verse separator).
+const DATA_SHORTHAND: Shorthand = Shorthand {
+    bookless_separator: ":",
+    verse_words: None,
+    comma_joins_list: false,
+};
+
+/// Every pack: the six reviewed ones, then the generated ones
+/// (`scripture::data_packs`) — 100 languages.
+pub fn all() -> &'static [LanguagePack] {
+    static ALL: OnceLock<Vec<LanguagePack>> = OnceLock::new();
+    ALL.get_or_init(|| {
+        let mut all: Vec<LanguagePack> = PACKS
+            .iter()
+            .map(|p| LanguagePack {
+                language: p.language,
+                scripts: p.scripts,
+                shorthand: p.shorthand,
+                ordinary_words: p.ordinary_words,
+                reference_lead_ins: p.reference_lead_ins,
+                reference_tails: p.reference_tails,
+            })
+            .collect();
+        for (index, pack) in crate::scripture::data_packs::packs().iter().enumerate() {
+            all.push(LanguagePack {
+                language: ReferenceLanguage::Data(index as u8),
+                scripts: pack.scripts,
+                shorthand: DATA_SHORTHAND,
+                ordinary_words: &[],
+                reference_lead_ins: &[],
+                reference_tails: &[],
+            });
+        }
+        all
+    })
+}
+
+/// The pack of a language.
+pub fn pack(language: ReferenceLanguage) -> &'static LanguagePack {
+    &all()[index_of(language)]
+}
+
+/// The index of a language's pack in [`all`] (for per-pack caches).
 pub fn index_of(language: ReferenceLanguage) -> usize {
-    PACKS
-        .iter()
-        .position(|p| p.language == language)
-        .expect("every reference language has a pack")
+    match language {
+        ReferenceLanguage::Data(index) => PACKS.len() + usize::from(index),
+        reviewed => PACKS
+            .iter()
+            .position(|p| p.language == reviewed)
+            .expect("every reviewed language has a pack"),
+    }
 }

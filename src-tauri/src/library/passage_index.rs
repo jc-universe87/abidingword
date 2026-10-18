@@ -170,7 +170,12 @@ mod tests {
     fn language_labels_resolve_with_an_english_fallback() {
         assert_eq!(language_of(Some("한국어"), "test"), Ko);
         assert_eq!(language_of(Some("de-AT"), "test"), De);
-        assert_eq!(language_of(Some("Italiano"), "test"), En);
+        // Italian is one of the 100 reference languages (v0.18.2); Latin is not.
+        assert!(matches!(
+            language_of(Some("Italiano"), "test"),
+            crate::scripture::language::ReferenceLanguage::Data(_)
+        ));
+        assert_eq!(language_of(Some("Latina"), "test"), En);
         assert_eq!(language_of(None, "test"), En);
         assert_eq!(language_of(Some("  "), "test"), En);
     }

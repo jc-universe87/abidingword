@@ -2,17 +2,20 @@
 //!
 //! A source's `language` is whatever the person (or the file's metadata, via
 //! `library::adapters::language_name`) said: "de", "de-DE", "deu", "Deutsch",
-//! "German". [`ReferenceLanguage::from_label`] turns that into one of the six
-//! languages that have a reviewed alias dictionary and notation, and nothing
-//! else: it never guesses from the text, and it never looks at the interface
-//! language. A source in an unrecognised language, or with none, is read with
-//! the English dictionary ([`ReferenceLanguage::resolve`] says when that
-//! happened); dictionaries are never merged.
+//! "German", "pl", "Polish". [`ReferenceLanguage::from_label`] turns that into
+//! one of the 100 reference languages (`scripture::data_packs`): the six with a
+//! hand-reviewed dictionary by name in several languages, the others by their
+//! codes and English name. It never guesses from the text, and it never looks
+//! at the interface language. A source in an unrecognised language, or with
+//! none, is read with the English dictionary ([`ReferenceLanguage::resolve`]
+//! says when that happened); dictionaries are never merged.
 
-use serde::Serialize;
+use serde::{Serialize, Serializer};
 
-/// A language with its own reference dictionary and notation.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+/// A language with its own reference dictionary and notation: one of the six
+/// reviewed ones, or a generated pack (`Data`, an index into
+/// `scripture::data_packs::packs`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ReferenceLanguage {
     En,
     De,
@@ -20,6 +23,13 @@ pub enum ReferenceLanguage {
     Fr,
     Es,
     Pt,
+    Data(u8),
+}
+
+impl Serialize for ReferenceLanguage {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(self.code())
+    }
 }
 
 /// The outcome of choosing a language for a source.
@@ -31,9 +41,18 @@ pub struct Resolved {
 }
 
 impl ReferenceLanguage {
-    pub const ALL: [Self; 6] = [Self::En, Self::De, Self::Ko, Self::Fr, Self::Es, Self::Pt];
+    /// The six languages with a hand-reviewed dictionary.
+    pub const REVIEWED: [Self; 6] = [Self::En, Self::De, Self::Ko, Self::Fr, Self::Es, Self::Pt];
 
-    /// The ISO 639-1 code, e.g. `de`.
+    /// All 100 reference languages, by rank (speakers).
+    pub fn all() -> impl Iterator<Item = Self> {
+        crate::scripture::data_packs::listed()
+            .iter()
+            .map(|l| l.language)
+    }
+
+    /// The language code: ISO 639-1 where there is one (`de`, `pl`), else the
+    /// CLDR code (`fil`, `yue`).
     pub fn code(self) -> &'static str {
         match self {
             Self::En => "en",
@@ -42,7 +61,21 @@ impl ReferenceLanguage {
             Self::Fr => "fr",
             Self::Es => "es",
             Self::Pt => "pt",
+            Self::Data(index) => crate::scripture::data_packs::get(index).code,
         }
+    }
+
+    /// A reviewed language by its two-letter code.
+    pub fn reviewed_from_code(code: &str) -> Option<Self> {
+        Self::REVIEWED.into_iter().find(|l| l.code() == code)
+    }
+
+    /// The English name ("German", "Polish").
+    pub fn name(self) -> &'static str {
+        crate::scripture::data_packs::listed()
+            .iter()
+            .find(|l| l.language == self)
+            .map_or("English", |l| l.name)
     }
 
     /// The language a metadata label names, or `None` when it names none of
@@ -69,6 +102,22 @@ impl ReferenceLanguage {
     }
 
     fn lookup(name: &str) -> Option<Self> {
+        Self::lookup_reviewed(name).or_else(|| {
+            // The generated languages: their codes and English name ("pl", "pol", "polish").
+            crate::scripture::data_packs::listed()
+                .iter()
+                .find(|l| {
+                    matches!(l.language, Self::Data(_))
+                        && (l.code == name
+                            || l.iso3 == name
+                            || fold(l.name) == name
+                            || l.native.is_some_and(|n| fold(n) == name))
+                })
+                .map(|l| l.language)
+        })
+    }
+
+    fn lookup_reviewed(name: &str) -> Option<Self> {
         Some(match name {
             "en" | "eng" | "english" | "englisch" | "anglais" | "ingles" | "영어" => Self::En,
             "de" | "deu" | "ger" | "deutsch" | "german" | "allemand" | "aleman" | "alemao"
@@ -211,23 +260,33 @@ mod tests {
 
     #[test]
     fn anything_else_is_not_a_supported_language() {
-        for label in [
-            "",
-            "   ",
-            "Italiano",
-            "it",
-            "Nederlands",
-            "Latina",
-            "Ελληνικά",
-            "עברית",
-            "中文",
-            "xx",
-            "deutschland",
-            "enough",
-            "Italiano English",
-        ] {
+        for label in ["", "   ", "Latina", "xx", "deutschland", "enough"] {
             assert_eq!(ReferenceLanguage::from_label(label), None, "{label:?}");
         }
+    }
+
+    #[test]
+    fn the_other_reference_languages_are_found_by_code_and_name() {
+        for (label, code) in [
+            ("it", "it"),
+            ("Italiano", "it"),
+            ("Italian", "it"),
+            ("nl", "nl"),
+            ("Nederlands", "nl"),
+            ("pol", "pl"),
+            ("Polish", "pl"),
+            ("Ελληνικά", "el"),
+            ("עברית", "he"),
+            ("中文", "zh"),
+            ("ar-EG", "ar"),
+            ("日本語", "ja"),
+        ] {
+            let language =
+                ReferenceLanguage::from_label(label).unwrap_or_else(|| panic!("{label}"));
+            assert!(matches!(language, ReferenceLanguage::Data(_)), "{label}");
+            assert_eq!(language.code(), code, "{label}");
+        }
+        assert_eq!(ReferenceLanguage::all().count(), 100);
     }
 
     #[test]
@@ -262,7 +321,7 @@ mod tests {
             }
         );
         assert_eq!(
-            ReferenceLanguage::resolve(Some("Italiano")),
+            ReferenceLanguage::resolve(Some("Latina")),
             Resolved {
                 language: En,
                 fallback: true
@@ -286,9 +345,12 @@ mod tests {
 
     #[test]
     fn codes_are_the_two_letter_identities() {
-        let codes: Vec<_> = ReferenceLanguage::ALL.iter().map(|l| l.code()).collect();
+        let codes: Vec<_> = ReferenceLanguage::REVIEWED
+            .iter()
+            .map(|l| l.code())
+            .collect();
         assert_eq!(codes, ["en", "de", "ko", "fr", "es", "pt"]);
-        for language in ReferenceLanguage::ALL {
+        for language in ReferenceLanguage::REVIEWED {
             assert_eq!(
                 ReferenceLanguage::from_label(language.code()),
                 Some(language)
