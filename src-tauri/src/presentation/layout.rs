@@ -7,7 +7,7 @@
 //! colours and fonts. Text shrinks to fit only where the design says so; a
 //! long passage has already been split over several slides.
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use super::document::{PresentationDocument, Slide};
 use super::template::{self, Crop, RoleLayout, TemplateDefinition, TextFrame};
@@ -61,7 +61,8 @@ pub enum Role {
     Accent,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub enum Align {
     Left,
     Center,
@@ -80,7 +81,8 @@ impl Align {
 
 /// A template's text box, as PowerPoint should hold it (it places the text
 /// in it itself; the PDF uses the lines worked out here).
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct FrameBox {
     pub x: f32,
     pub y: f32,
@@ -92,7 +94,8 @@ pub struct FrameBox {
     pub shrink: bool,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TextBox {
     pub x: f32,
     pub y: f32,
@@ -118,7 +121,8 @@ pub struct TextBox {
     pub overflow: bool,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ImageBox {
     pub asset_id: String,
     pub x: f32,
@@ -128,7 +132,8 @@ pub struct ImageBox {
 }
 
 /// A template's picture: cropped as in the source, stretched to its box.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Picture {
     pub asset_id: String,
     pub x: f32,
@@ -139,7 +144,8 @@ pub struct Picture {
     pub opacity: f32,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RectBox {
     pub x: f32,
     pub y: f32,
@@ -151,7 +157,8 @@ pub struct RectBox {
     pub line_width: f32,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(tag = "type", rename_all = "camelCase")]
 pub enum Block {
     Text(TextBox),
     Image(ImageBox),
@@ -167,7 +174,8 @@ pub enum Block {
 }
 
 /// One laid-out audience page.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Page {
     pub width: f32,
     pub height: f32,
@@ -335,6 +343,12 @@ pub fn verses_text(slide: &Slide) -> String {
 
 /// The line naming a passage on a slide: "John 15:1–8 (BSB)".
 pub fn reference_line(slide: &Slide, locale: &ExportLocale) -> Option<String> {
+    if let Some(label) = slide.audience.reference_label.as_ref() {
+        return Some(match &slide.audience.bible {
+            Some(bible) if slide.kind == "scripture" => format!("{label} ({bible})"),
+            _ => label.clone(),
+        });
+    }
     let r = slide.audience.reference.as_ref()?;
     let mut line = locale.reference(r);
     if slide.kind == "scripture" {
@@ -345,8 +359,8 @@ pub fn reference_line(slide: &Slide, locale: &ExportLocale) -> Option<String> {
     Some(line)
 }
 
-/// What a slide puts in a template's parts. The interface fills the same
-/// parts the same way (`templateSlots` in `TemplateSlide.tsx`).
+/// What a slide puts in a template's parts. The interface draws the pages
+/// worked out here (`presentation_layout`), so it cannot differ.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Slots {
     pub title: Option<String>,

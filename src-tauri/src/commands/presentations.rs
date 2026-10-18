@@ -124,6 +124,80 @@ pub fn presentation_audience(
     state.db(|conn| Ok(document::build(conn, &id, &store)?.audience()))
 }
 
+/// A slide to lay out for the interface: what the audience sees, of a kind.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LayoutSlide {
+    pub kind: String,
+    pub audience: document::AudienceSlide,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LayoutRequest {
+    pub id: String,
+    pub slides: Vec<LayoutSlide>,
+    #[serde(default)]
+    pub locale: crate::presentation::ExportLocale,
+}
+
+/// At most this many slides are laid out in one call.
+const LAYOUT_MAX: usize = 500;
+
+/// The fonts for laying out pages in a design, kept while the design's
+/// families stay the same (reading font files on each change would be slow).
+pub(crate) fn layout_fonts(families: &[&str]) -> std::sync::Arc<FontSet> {
+    use std::sync::{Arc, Mutex};
+    type Kept = Option<(Vec<String>, Arc<FontSet>)>;
+    static KEPT: Mutex<Kept> = Mutex::new(None);
+    let key: Vec<String> = families.iter().map(|f| f.to_lowercase()).collect();
+    let mut kept = KEPT.lock().unwrap_or_else(|e| e.into_inner());
+    if let Some((k, fonts)) = kept.as_ref() {
+        if *k == key {
+            return fonts.clone();
+        }
+    }
+    let fonts = Arc::new(
+        FontSet::system().with_families(families, crate::presentation::font_catalog::system()),
+    );
+    *kept = Some((key, fonts.clone()));
+    fonts
+}
+
+/// The audience pages of slides in the presentation's design, worked out as
+/// the PowerPoint and PDF exports work them out, for the editor, the
+/// Presenter View and the audience screen to draw. Audience content only.
+#[tauri::command(async)]
+pub fn presentation_layout(
+    state: State<'_, AppState>,
+    input: LayoutRequest,
+) -> CommandResult<Vec<crate::presentation::layout::Page>> {
+    if input.slides.len() > LAYOUT_MAX {
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "presentation.tooManySlides",
+            "Too many slides to show at once.",
+        ))
+        .into());
+    }
+    let store = store(&state)?;
+    let doc = state.db(|conn| document::build(conn, &input.id, &store))?;
+    let design = doc.design();
+    let fonts = layout_fonts(&design.families());
+    let shaper = crate::presentation::text::Shaper { fonts: &fonts };
+    Ok(input
+        .slides
+        .into_iter()
+        .map(|s| {
+            let slide = document::Slide {
+                kind: s.kind,
+                audience: s.audience,
+                ..Default::default()
+            };
+            crate::presentation::layout::page(&slide, &doc, &design, &shaper, &input.locale)
+        })
+        .collect())
+}
+
 fn image_gone() -> AppError {
     AppError::InvalidInput(UserMessage::new(
         "presentation.imageGone",

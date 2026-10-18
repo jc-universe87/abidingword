@@ -113,11 +113,14 @@ import type {
 } from "@/types/library";
 import type {
   AudienceDocument,
+  AudienceSlide,
   AudienceState,
   CreatePresentationItem,
   ExportFormat,
+  ExportLocale,
   ExportOptions,
   ExportResult,
+  ItemKind,
   Presentation,
   PresentationDocument,
   PresentationSummary,
@@ -125,6 +128,17 @@ import type {
   Screen,
   UpdatePresentationItem,
 } from "@/types/presentation";
+import type {
+  ImportedTemplate,
+  ImportProgress,
+  InstalledFont,
+  Page,
+  PresentationTemplate,
+  PresentationTemplateSummary,
+  TemplateAsset,
+  TemplateDefinition,
+  TemplateSource,
+} from "@/types/presentationTemplate";
 
 export interface Api {
   appInfo(): Promise<AppInfo>;
@@ -258,7 +272,8 @@ export interface Api {
   presentationGet(id: string): Promise<Presentation>;
   /** A first presentation proposed from the teaching by fixed rules (no AI). */
   presentationCreate(input: { preparationId: string; title?: string | null; propose: boolean; labels: { introduction: string; conclusion: string } }): Promise<Presentation>;
-  presentationUpdate(input: { id: string; title?: string; theme?: PresentationTheme; translationId?: string; targetMinutes?: number }): Promise<Presentation>;
+  /** `templateId: ""` goes back to the built-in background. */
+  presentationUpdate(input: { id: string; title?: string; theme?: PresentationTheme; translationId?: string; targetMinutes?: number; templateId?: string }): Promise<Presentation>;
   presentationDelete(id: string): Promise<void>;
   presentationItemCreate(input: CreatePresentationItem): Promise<Presentation>;
   presentationItemUpdate(input: UpdatePresentationItem): Promise<Presentation>;
@@ -288,6 +303,33 @@ export interface Api {
   presentationAudienceKey(key: string): Promise<void>;
   /** On the main window: a key pressed on the audience screen. */
   onAudienceKey(handler: (key: string) => void): Promise<() => void>;
+  /** Audience pages in the presentation's template, worked out as PowerPoint and PDF work them out. */
+  presentationLayout(input: { id: string; slides: { kind: ItemKind; audience: AudienceSlide }[]; locale: ExportLocale }): Promise<Page[]>;
+
+  // Church presentation templates (v0.18.1)
+  presentationTemplateList(): Promise<PresentationTemplateSummary[]>;
+  presentationTemplateGet(id: string): Promise<PresentationTemplate>;
+  presentationTemplateCreate(input: { name: string; description: string; definition: TemplateDefinition; sourceFormat: TemplateSource; sourceName?: string | null; report?: unknown }): Promise<PresentationTemplate>;
+  presentationTemplateUpdate(input: { id: string; name?: string; description?: string; definition?: TemplateDefinition }): Promise<PresentationTemplate>;
+  /** Removes a template; presentations using it go back to their built-in background. */
+  presentationTemplateDelete(id: string): Promise<void>;
+  /** Keeps an image (logo, background) the person chose. */
+  presentationTemplateAssetAdd(path: string): Promise<TemplateAsset>;
+  /** A kept template image as a data: address. */
+  presentationTemplateAsset(asset: TemplateAsset): Promise<string>;
+  presentationTemplateExport(input: { id: string; path: string }): Promise<void>;
+  presentationTemplateImportPackage(path: string): Promise<PresentationTemplate>;
+  /** Reads a PowerPoint file's design for review; nothing is saved yet. */
+  presentationTemplateImportPptx(path: string): Promise<ImportedTemplate>;
+  onTemplateImportProgress(handler: (progress: ImportProgress) => void): Promise<() => void>;
+  /** Sample slides laid out in a design not saved yet (import review, designer). */
+  presentationTemplatePreview(input: { definition: TemplateDefinition; slides: { kind: ItemKind; audience: AudienceSlide }[]; locale: ExportLocale }): Promise<Page[]>;
+  /** The fonts installed on this computer. */
+  presentationFonts(): Promise<InstalledFont[]>;
+  /** The system's open dialog for a template file; null when cancelled. */
+  chooseTemplateFile(input: { kind: "pptx" | "package" | "image"; title: string; filterName: string }): Promise<string | null>;
+  /** The system's save dialog for a template package; null when cancelled. */
+  chooseTemplateSaveFile(input: { defaultName: string; filterName: string }): Promise<string | null>;
 
   /** The assistant's set-up (never a key, only whether one is kept). */
   assistantSettingsGet(): Promise<AssistantSettings>;
@@ -520,6 +562,26 @@ export const tauriApi: Api = {
   onAudienceClosed: (handler) => listen("presentation-audience-closed", () => handler()),
   presentationAudienceKey: (key) => call("presentation_audience_key", { key }),
   onAudienceKey: (handler) => listen<string>("presentation-audience-key", (event) => handler(event.payload)),
+  presentationLayout: (input) => call("presentation_layout", { input }),
+  presentationTemplateList: () => call("presentation_template_list"),
+  presentationTemplateGet: (id) => call("presentation_template_get", { id }),
+  presentationTemplateCreate: (input) => call("presentation_template_create", { input }),
+  presentationTemplateUpdate: (input) => call("presentation_template_update", { input }),
+  presentationTemplateDelete: (id) => call("presentation_template_delete", { id }),
+  presentationTemplateAssetAdd: (path) => call("presentation_template_asset_add", { path }),
+  presentationTemplateAsset: (asset) => call("presentation_template_asset", { asset }),
+  presentationTemplateExport: (input) => call("presentation_template_export", { input }),
+  presentationTemplateImportPackage: (path) => call("presentation_template_import_package", { path }),
+  presentationTemplateImportPptx: (path) => call("presentation_template_import_pptx", { path }),
+  onTemplateImportProgress: (handler) => listen<ImportProgress>("presentation-template-import-progress", (event) => handler(event.payload)),
+  presentationTemplatePreview: (input) => call("presentation_template_preview", { input }),
+  presentationFonts: () => call("presentation_fonts"),
+  chooseTemplateFile: async ({ kind, title, filterName }) => {
+    const extensions = { pptx: ["pptx"], package: ["awtemplate"], image: ["png", "jpg", "jpeg", "gif", "webp"] }[kind];
+    const chosen = await open({ multiple: false, directory: false, title, filters: [{ name: filterName, extensions }] });
+    return typeof chosen === "string" ? chosen : null;
+  },
+  chooseTemplateSaveFile: async ({ defaultName, filterName }) => save({ defaultPath: defaultName, filters: [{ name: filterName, extensions: ["awtemplate"] }] }),
   assistantSettingsGet: () => call("assistant_settings_get"),
   assistantSettingsSet: (config) => call("assistant_settings_set", { config }),
   assistantKeySet: (which, key) => call("assistant_key_set", { which, key }),

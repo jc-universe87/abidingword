@@ -61,7 +61,7 @@ const openPresentation = async (page) => {
 const startPresenting = async (page, { target } = {}) => {
   const main = await openPresentation(page);
   if (target) {
-    await main.getByText("Name, background, Bible and target time").click();
+    await main.getByText("Name, design, Bible and target time").click();
     await main.getByRole("combobox", { name: /Target time/ }).selectOption(String(target));
     await page.waitForTimeout(500);
   }
@@ -72,7 +72,60 @@ const startPresenting = async (page, { target } = {}) => {
   await page.waitForTimeout(600);
 };
 
+/** The presentation in the sample church template (v0.18.1). */
+const withTemplate = async (page) => {
+  const main = await openPresentation(page);
+  await main.getByText("Name, design, Bible and target time").click();
+  await main.getByRole("combobox", { name: "Design" }).selectOption({ label: "Grace Church Sunday" });
+  await page.waitForTimeout(900);
+  return main;
+};
+
 const scenes = {
+  async "presentation-template"() {
+    const page = await open("template=1", { width: 1440, height: 1100 });
+    const main = await withTemplate(page);
+    await main.getByRole("listitem", { name: /^Slide 5:/ }).scrollIntoViewIfNeeded();
+    await shot(page, "presentation-template", main);
+    await page.close();
+  },
+  async "presenter-template"() {
+    const page = await open("template=1", { width: 1440, height: 900 });
+    const main = await withTemplate(page);
+    await main.getByRole("button", { name: "Start Presenter View" }).click();
+    await page.waitForTimeout(600);
+    for (let i = 0; i < 4; i++) await page.keyboard.press("ArrowRight");
+    await page.waitForTimeout(900);
+    await shot(page, "presenter-template");
+    await page.close();
+  },
+  async "template-import"() {
+    const page = await open("", { width: 1440, height: 2400 });
+    const main = await openPresentation(page);
+    await main.getByText("Name, design, Bible and target time").click();
+    await main.getByRole("button", { name: "Manage templates…" }).click();
+    await page.getByRole("dialog", { name: "Church templates" }).getByRole("button", { name: "Import from PowerPoint…" }).click();
+    const review = page.getByRole("dialog", { name: "Check the imported design" });
+    await review.waitFor();
+    await page.waitForTimeout(1200);
+    await shot(page, "template-import", review);
+    await page.close();
+  },
+  async "template-designer"() {
+    const page = await open("", { width: 1440, height: 1600 });
+    const main = await openPresentation(page);
+    await main.getByText("Name, design, Bible and target time").click();
+    await main.getByRole("button", { name: "Manage templates…" }).click();
+    await page.getByRole("dialog", { name: "Church templates" }).getByRole("button", { name: "New template" }).click();
+    const designer = page.getByRole("dialog", { name: "New church template" });
+    await designer.getByRole("textbox", { name: "Name of the template" }).fill("Youth night");
+    await designer.getByRole("combobox", { name: "Kind of slide" }).selectOption("scripture");
+    await designer.getByRole("checkbox", { name: "Own layout for this kind" }).check();
+    await designer.getByRole("textbox", { name: "Footer text (optional)" }).fill("Grace Church · Youth night");
+    await page.waitForTimeout(900);
+    await shot(page, "template-designer", designer);
+    await page.close();
+  },
   async presentation() {
     const page = await open("", { width: 1440, height: 1400 });
     const main = await openPresentation(page);

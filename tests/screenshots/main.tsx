@@ -16,6 +16,8 @@ import type { VerseText } from "@/types/scripture";
 import { createMemoryApi, type MemoryApi } from "../support/memoryApi";
 import { createMemoryUpdater } from "../support/memoryUpdater";
 import { minimalPdf } from "../support/minimalPdf";
+import { IMPORTED } from "../support/memoryTemplates";
+import { acceptImport } from "@/types/presentationTemplate";
 
 const params = new URLSearchParams(location.search);
 
@@ -42,6 +44,16 @@ async function seed(api: MemoryApi) {
       { index: 0, name: "Built-in", width: 1440, height: 900, primary: true },
       { index: 1, name: "Projector", width: 1920, height: 1080, primary: false },
     ];
+
+  // A church template imported from the PowerPoint corpus file, for the template scenes.
+  if (params.get("template") === "1")
+    await api.presentationTemplateCreate({
+      name: "Grace Church Sunday",
+      description: "",
+      definition: acceptImport(IMPORTED, IMPORTED.suggestions, IMPORTED.definition.fonts),
+      sourceFormat: "pptx",
+      sourceName: "Grace Church.pptx",
+    });
 
   // Collections and studies (sample content written for this guide).
   const workspaceId = api.state.workspace.id;

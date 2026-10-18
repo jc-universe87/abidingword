@@ -5,9 +5,11 @@ import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { readLocal, writeLocal } from "@/lib/storage";
 import { PRESENTATION_THEMES, type AudienceState, type PresentationDocument, type PresentationTheme, type ScriptureOverlay, type Screen, type Slide, type SlidePoint } from "@/types/presentation";
+import type { Page } from "@/types/presentationTemplate";
 import { commandForKey, deliver, elapsedOf, guidance, startDelivery, type PresenterCommand, type TimeGuidance } from "./delivery";
 import { palette, refLabel, slideText, splitVerses, themeLabel } from "./labels";
 import { SlideView } from "./SlideView";
+import { overlaySlide, useDesignPages } from "./useDesignPages";
 import { layoutFor, useSlideImages, useViewportWidth } from "./useSlideImages";
 
 interface PresenterViewProps {
@@ -103,6 +105,11 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   // The timer waits for the talk to begin (the first move, or the audience screen shown), not for the view to open.
   const [live, dispatch] = useReducer(deliver, doc.slides.length, (total) => startDelivery(total, null));
   const { index, blank, scripture: overlay, marks } = live;
+  // In a church template the slides (and a passage shown over them) are the pages PowerPoint and PDF have.
+  const overlayRequest = overlay ? overlaySlide(overlay) : null;
+  const pageFor = useDesignPages(doc.presentationId, doc.template, overlayRequest ? [...doc.slides, overlayRequest] : doc.slides);
+  const pageOf = (s: Slide) => pageFor(s.kind, s.audience);
+  const currentPage = (s: Slide) => (overlayRequest ? pageFor(overlayRequest.kind, overlayRequest.audience) : pageOf(s));
   const [audience, setAudience] = useState<AudienceMode>("none");
   // The audience window closed or lost its screen without the speaker asking.
   const [disconnected, setDisconnected] = useState(false);
@@ -460,6 +467,8 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
         doc={doc}
         slide={slide}
         image={slide.audience.image ? (images.get(slide.audience.image.assetId) ?? null) : null}
+        page={currentPage(slide)}
+        images={images}
         blank={blank}
         overlay={overlay}
         label={position}
@@ -478,13 +487,13 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   const textSize = (rem: number) => ({ fontSize: `${rem * prefs.scale}rem` });
   const imageFor = (s: Slide) => (s.audience.image ? (images.get(s.audience.image.assetId) ?? null) : null);
   const preview = (s: Slide, label: string) => (
-    <SlideView slide={s.audience} kind={s.kind} theme={doc.theme} image={imageFor(s)} label={label} className="rounded-aw border border-black/20" />
+    <SlideView slide={s.audience} kind={s.kind} theme={doc.theme} image={imageFor(s)} page={pageOf(s)} images={images} label={label} className="rounded-aw border border-black/20" />
   );
   const currentLabel = t("presentation.presenter.current", { position });
   // The current slide as the audience sees it (a passage shown over it, the marks), with the pointer and highlighter.
   const current = (
     <div className="relative">
-      <SlideView slide={slide.audience} kind={slide.kind} theme={doc.theme} image={imageFor(slide)} overlay={overlay} marks={marks} label={currentLabel} className="rounded-aw border border-black/20" />
+      <SlideView slide={slide.audience} kind={slide.kind} theme={doc.theme} image={imageFor(slide)} page={currentPage(slide)} images={images} overlay={overlay} marks={marks} label={currentLabel} className="rounded-aw border border-black/20" />
       {activeTool !== "none" && <DrawLayer tool={activeTool} run={run} label={activeTool === "pen" ? t("presentation.presenter.highlighter") : t("presentation.presenter.pointer")} />}
       {showing && <MarkTools tool={activeTool} setTool={setTool} hasMarks={marks.strokes.length > 0} onClear={() => run({ type: "clearMarks" })} />}
     </div>
@@ -720,6 +729,8 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
               index={index}
               compact={layout === "phone"}
               imageFor={imageFor}
+              pageOf={pageOf}
+              images={images}
               name={slideName}
               colours={colours}
               onChoose={(i) => {
@@ -984,6 +995,8 @@ function Overview({
   index,
   compact,
   imageFor,
+  pageOf,
+  images,
   name,
   colours,
   onChoose,
@@ -992,6 +1005,8 @@ function Overview({
   index: number;
   compact: boolean;
   imageFor: (s: Slide) => string | null;
+  pageOf: (s: Slide) => Page | null;
+  images: Map<string, string>;
   name: (s: Slide) => string;
   colours: { accent: string; muted: string };
   onChoose: (index: number) => void;
@@ -1012,7 +1027,7 @@ function Overview({
             >
               {!compact && (
                 <span aria-hidden="true" className="block">
-                  <SlideView slide={s.audience} kind={s.kind} theme={doc.theme} image={imageFor(s)} label="" className="rounded" />
+                  <SlideView slide={s.audience} kind={s.kind} theme={doc.theme} image={imageFor(s)} page={pageOf(s)} images={images} label="" className="rounded" />
                 </span>
               )}
               <span className="flex items-start gap-2 px-1">
@@ -1539,6 +1554,8 @@ function HereAudience({
   doc,
   slide,
   image,
+  page,
+  images,
   blank,
   overlay,
   label,
@@ -1549,6 +1566,8 @@ function HereAudience({
   doc: PresentationDocument;
   slide: Slide;
   image: string | null;
+  page: Page | null;
+  images: Map<string, string>;
   blank: boolean;
   overlay: ScriptureOverlay | null;
   label: string;
@@ -1571,13 +1590,13 @@ function HereAudience({
       aria-modal="true"
       aria-label={t("presentation.audience.title")}
       className="group fixed inset-0 z-50 flex items-center justify-center outline-none"
-      style={{ backgroundColor: palette(doc.theme).background }}
+      style={{ backgroundColor: page?.background ?? palette(doc.theme).background }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onNext();
       }}
     >
-      <div className="w-full max-w-[177.78vh]">
-        <SlideView slide={slide.audience} kind={slide.kind} theme={doc.theme} image={image} overlay={overlay} blank={blank} label={label} />
+      <div className="w-full" style={{ maxWidth: page ? `${(page.width / page.height) * 100}vh` : "177.78vh" }}>
+        <SlideView slide={slide.audience} kind={slide.kind} theme={doc.theme} image={image} page={page} images={images} overlay={overlay} blank={blank} label={label} />
       </div>
       {/* Hardly visible until the pointer or keyboard is on it, so the audience is not distracted. */}
       <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 transition-opacity focus-within:opacity-100 hover:opacity-90">

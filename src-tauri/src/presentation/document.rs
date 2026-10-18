@@ -34,7 +34,7 @@ pub const SCRIPTURE_SLIDE_CHARS: usize = 600;
 /// Above this the audience text of one slide is too long to read.
 pub const LONG_TEXT_CHARS: usize = 500;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct PresentationDocument {
     pub format: String,
@@ -106,7 +106,7 @@ pub struct BibleInfo {
     pub copyright: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Slide {
     /// The item's id, with `#2`, `#3`… for the further slides of a long passage.
@@ -137,6 +137,10 @@ pub struct AudienceSlide {
     /// On a title slide, the main passage; on a Scripture slide, the passage
     /// (or the part of it) shown.
     pub reference: Option<RefInfo>,
+    /// A passage named as the reader sees it, instead of `reference` (a
+    /// passage the speaker shows for a moment).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reference_label: Option<String>,
     pub verses: Vec<SlideVerse>,
     /// The Bible quoted (short name), on a Scripture slide.
     pub bible: Option<String>,

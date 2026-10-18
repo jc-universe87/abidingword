@@ -52,9 +52,13 @@ export function ExportDialog({ doc, onClose }: { doc: PresentationDocument; onCl
         },
       });
       setResult(
-        done.missingImages > 0
-          ? t("presentation.export.savedMissing", { path: done.path, count: done.missingImages })
-          : t("presentation.export.saved", { path: done.path }),
+        [
+          done.missingImages > 0 ? t("presentation.export.savedMissing", { path: done.path, count: done.missingImages }) : t("presentation.export.saved", { path: done.path }),
+          // Reported, never shrunk quietly: the boxes keep the template's size.
+          done.overflowing ? t("presentation.templates.overflowExport", { count: done.overflowing }) : "",
+        ]
+          .filter(Boolean)
+          .join(" "),
       );
     } catch (e) {
       setError(toApiError(e).message);

@@ -1647,3 +1647,67 @@ fn an_imported_design_in_the_pdf_has_its_page_size_and_footer() {
         .unwrap_or_default();
     assert!(text.contains("Grace Church"), "{text}");
 }
+
+#[test]
+fn a_passage_shown_for_a_moment_uses_the_scripture_layout_and_the_pages_reach_the_interface_as_json(
+) {
+    let temp = tempfile::tempdir().unwrap();
+    let store = store(temp.path());
+    with_db(|conn| {
+        let p = with_imported(conn, &store)?;
+        let doc = document::build(conn, &p.id, &store)?;
+        let design = doc.design();
+        let fonts = FontSet::empty();
+        let shaper = abiding_word_lib::presentation::text::Shaper { fonts: &fonts };
+        let locale = ExportOptions::default().locale;
+        let overlay = document::Slide {
+            kind: "scripture".into(),
+            audience: document::AudienceSlide {
+                reference_label: Some("John 15:5".into()),
+                bible: Some("BSB".into()),
+                verses: vec![document::SlideVerse {
+                    chapter: 15,
+                    verse: 5,
+                    text: "I am the vine; you are the branches.".into(),
+                }],
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+        let page = slide_layout::page(&overlay, &doc, &design, &shaper, &locale);
+        let passage = framed_texts(&page)
+            .into_iter()
+            .find(|t| t.frame.as_ref().unwrap().y == 450.0)
+            .expect("the passage box of the Bible Verse layout");
+        assert_eq!(passage.paragraphs, vec!["John 15:5 (BSB)".to_string()]);
+
+        let json = serde_json::to_value(&page).unwrap();
+        assert_eq!(json["width"], 960.0);
+        let kinds: Vec<&str> = json["blocks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|b| b["type"].as_str().unwrap())
+            .collect();
+        assert_eq!(kinds[0], "picture");
+        assert!(kinds.contains(&"rect") && kinds.contains(&"text"));
+        let text = json["blocks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|b| b["type"] == "text")
+            .unwrap();
+        for key in [
+            "lines",
+            "paragraphs",
+            "frame",
+            "overflow",
+            "family",
+            "align",
+            "line",
+        ] {
+            assert!(text.get(key).is_some(), "{key}");
+        }
+        Ok(())
+    });
+}

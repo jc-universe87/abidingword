@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLoad } from "@/hooks/useLoad";
 import { useApi } from "@/lib/ApiContext";
-import type { AudienceState } from "@/types/presentation";
+import type { AudienceDocument, AudienceState } from "@/types/presentation";
 import { palette } from "./labels";
 import { SlideView } from "./SlideView";
+import { overlaySlide, useDesignPages } from "./useDesignPages";
 import { useSlideImages } from "./useSlideImages";
 
 /**
@@ -13,12 +14,17 @@ import { useSlideImages } from "./useSlideImages";
  * speaker text, notes or sources) and shows what the Presenter View says.
  * Nothing here can be edited or clicked.
  */
+const NO_SLIDES: { kind: AudienceDocument["slides"][number]["kind"]; audience: AudienceDocument["slides"][number]["audience"] }[] = [];
+
 export function AudienceWindow({ presentationId }: { presentationId: string }) {
   const { t } = useTranslation();
   const api = useApi();
   const doc = useLoad(useCallback(() => api.presentationAudience(presentationId), [api, presentationId]));
   const [state, setState] = useState<AudienceState | null>(null);
   const images = useSlideImages(presentationId, doc.data?.images ?? []);
+  const overlayRequest = state?.scripture ? overlaySlide(state.scripture) : null;
+  const slides = doc.data?.slides ?? NO_SLIDES;
+  const pageFor = useDesignPages(presentationId, doc.data?.template, overlayRequest ? [...slides, overlayRequest] : slides);
 
   useEffect(() => {
     let active = true;
@@ -63,20 +69,23 @@ export function AudienceWindow({ presentationId }: { presentationId: string }) {
   const theme = doc.data?.theme ?? "dark";
   // Nothing but the background until the presenter says what to show (it may be a blank screen).
   const slide = state ? doc.data?.slides[state.index] : undefined;
+  const page = slide ? (overlayRequest ? pageFor(overlayRequest.kind, overlayRequest.audience) : pageFor(slide.kind, slide.audience)) : null;
   return (
     <main
       aria-label={t("presentation.audience.title")}
       className="flex h-screen w-screen cursor-none items-center justify-center overflow-hidden"
-      style={{ backgroundColor: palette(theme).background }}
+      style={{ backgroundColor: page?.background ?? palette(theme).background }}
     >
       {doc.error && <p className="m-0 text-white">{doc.error.message}</p>}
       {slide && (
-        <div className="w-full max-w-[177.78vh]">
+        <div className="w-full" style={{ maxWidth: page ? `${(page.width / page.height) * 100}vh` : "177.78vh" }}>
           <SlideView
             slide={slide.audience}
             kind={slide.kind}
             theme={theme}
             image={slide.audience.image ? (images.get(slide.audience.image.assetId) ?? null) : null}
+            page={page}
+            images={images}
             overlay={state?.scripture ?? null}
             blank={state?.blank ?? false}
             marks={state?.marks ?? null}

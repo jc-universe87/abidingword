@@ -555,7 +555,7 @@ describe("presenting: the useful few things, simply", () => {
     const { user } = await renderApp(api, { width });
     const region = await makeSlides(user);
     if (target !== undefined) {
-      await user.click(within(region).getByText("Name, background, Bible and target time"));
+      await user.click(within(region).getByText("Name, design, Bible and target time"));
       await user.selectOptions(within(region).getByRole("combobox", { name: /Target time/ }), String(target));
       await waitFor(() => expect(api.state.presentation.presentations[0]!.targetMinutes).toBe(target));
     }
@@ -658,11 +658,11 @@ describe("presenting: the useful few things, simply", () => {
     expect(popover.textContent).toMatch(/Target: 30 min · 30 min left/);
   });
 
-  it("the target time is chosen with the presentation's name and background, and saved with it", async () => {
+  it("the target time is chosen with the presentation's name and design, and saved with it", async () => {
     const { api } = await setup();
     const { user } = await renderApp(api);
     const region = await makeSlides(user);
-    await user.click(within(region).getByText("Name, background, Bible and target time"));
+    await user.click(within(region).getByText("Name, design, Bible and target time"));
     await user.selectOptions(within(region).getByRole("combobox", { name: /Target time/ }), "30");
     await waitFor(() => expect(api.state.presentation.presentations[0]!.targetMinutes).toBe(30));
     await user.selectOptions(within(region).getByRole("combobox", { name: /Target time/ }), "0");

@@ -1,6 +1,8 @@
 import { useTranslation } from "react-i18next";
 import type { AudienceSlide, ItemKind, LiveMarks, PresentationTheme, ScriptureOverlay } from "@/types/presentation";
+import type { Page } from "@/types/presentationTemplate";
 import { palette, refLabel, textWeight } from "./labels";
+import { TemplateSlide } from "./TemplateSlide";
 
 interface SlideViewProps {
   slide: AudienceSlide;
@@ -17,7 +19,19 @@ interface SlideViewProps {
   /** Its accessible name, e.g. "Slide 3 of 9". */
   label: string;
   className?: string;
+  /**
+   * The page in the church template, laid out by the core (with the
+   * passage already on it when one is shown); drawn instead of the
+   * built-in arrangement.
+   */
+  page?: Page | null;
+  /** The template's pictures and the slide's image, by asset id. */
+  images?: Map<string, string>;
+  /** Mark text boxes too small for their text (the editor only, never the audience). */
+  showOverflow?: boolean;
 }
+
+const NO_IMAGES = new Map<string, string>();
 
 /**
  * One audience slide, drawn as the exports draw it: a 16:9 page whose text
@@ -25,7 +39,15 @@ interface SlideViewProps {
  * PDF layout, which works in points on a 960-point-wide page). Only
  * audience content can be given to it.
  */
-export function SlideView({ slide, kind, theme, image = null, overlay = null, blank = false, marks = null, label, className = "" }: SlideViewProps) {
+export function SlideView({ slide, kind, theme, image = null, overlay = null, blank = false, marks = null, label, className = "", page = null, images = NO_IMAGES, showOverflow = false }: SlideViewProps) {
+  if (page) {
+    return (
+      <div role="group" aria-label={label} className={`relative w-full overflow-hidden ${className}`} style={{ aspectRatio: `${page.width} / ${page.height}`, backgroundColor: page.background }}>
+        {blank || slide.blank ? null : <TemplateSlide page={page} images={images} showOverflow={showOverflow} />}
+        {!blank && marks && <MarksLayer marks={marks} />}
+      </div>
+    );
+  }
   const colours = palette(theme);
   // Points on a 960-point page, as a share of the slide's width.
   const pt = (points: number) => `${(points / 9.6).toFixed(3)}cqw`;

@@ -401,3 +401,20 @@ fn a_file_that_is_not_a_presentation_is_refused() {
     assert!(pptx_import::import(buf.get_ref(), "x.docx", &store, &[], &none).is_err());
     assert!(!dir.path().join("t").exists(), "nothing kept");
 }
+
+/// Writes the PowerPoint corpus import (with Calibri and Montserrat "installed")
+/// for the interface tests and screenshots: `tests/support/importedTemplate.json`.
+#[test]
+#[ignore]
+fn write_interface_fixture() {
+    let faces = vec![
+        face(&["Calibri"], false, false, 400),
+        face(&["Calibri"], false, true, 400),
+        face(&["Calibri Light"], false, false, 300),
+        face(&["Calibri Light"], true, false, 700),
+        face(&["Montserrat"], false, false, 400),
+    ];
+    let (t, _) = import_with("powerpoint-16x9.pptx", &faces);
+    let out = Path::new(env!("CARGO_MANIFEST_DIR")).join("../tests/support/importedTemplate.json");
+    std::fs::write(out, serde_json::to_string_pretty(&t).unwrap() + "\n").unwrap();
+}

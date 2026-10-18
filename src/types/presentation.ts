@@ -1,5 +1,6 @@
 // Presentation & Delivery (v0.18). Mirrors src-tauri/src/domain/presentation.rs
 // and src-tauri/src/presentation/document.rs; keep the two in step.
+import type { DocTemplate } from "./presentationTemplate";
 
 export const PRESENTATION_THEMES = ["light", "dark", "warm"] as const;
 export type PresentationTheme = (typeof PRESENTATION_THEMES)[number];
@@ -52,6 +53,8 @@ export interface Presentation {
   translationId: string | null;
   /** An optional target time in minutes, for quiet guidance while presenting. */
   targetMinutes: number | null;
+  /** The church template it uses; null: the built-in background (`theme`). */
+  templateId?: string | null;
   items: PresentationItem[];
   createdAt: string;
   updatedAt: string;
@@ -110,6 +113,8 @@ export interface AudienceSlide {
   heading: string | null;
   body: string | null;
   reference: RefInfo | null;
+  /** A passage named as the reader sees it (a passage shown for a moment). */
+  referenceLabel?: string | null;
   verses: SlideVerse[];
   bible: string | null;
   image: SlideImage | null;
@@ -168,6 +173,8 @@ export interface PresentationDocument {
   bible: { id: string; name: string; shortName: string; copyright: string | null } | null;
   presentationUpdatedAt: string;
   teachingUpdatedAt: string;
+  /** The church template, when the presentation uses one (design only). */
+  template?: DocTemplate | null;
   slides: Slide[];
   images: ImageAsset[];
   warnings: { slideId: string | null; code: WarningCode }[];
@@ -180,6 +187,7 @@ export interface AudienceDocument {
   presentationId: string;
   title: string;
   theme: PresentationTheme;
+  template?: DocTemplate | null;
   slides: { id: string; index: number; kind: ItemKind; audience: AudienceSlide }[];
   images: ImageAsset[];
 }
@@ -260,4 +268,6 @@ export interface ExportResult {
   path: string;
   slides: number;
   missingImages: number;
+  /** Template text boxes too small for their text (PowerPoint and PDF). */
+  overflowing?: number;
 }

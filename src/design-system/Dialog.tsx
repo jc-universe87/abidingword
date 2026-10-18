@@ -9,6 +9,8 @@ interface DialogProps {
   actions: ReactNode;
   /** Escape, the backdrop and Cancel all call this. */
   onClose: () => void;
+  /** A larger dialog that scrolls (a review or an editor), not a confirmation. */
+  wide?: boolean;
 }
 
 /**
@@ -17,7 +19,7 @@ interface DialogProps {
  * `autoFocus`), keeps Tab inside, closes on Escape, and gives focus back to
  * whatever had it before. The page behind is dimmed and cannot be used.
  */
-export function Dialog({ title, children, actions, onClose }: DialogProps) {
+export function Dialog({ title, children, actions, onClose, wide = false }: DialogProps) {
   const titleId = useId();
   const panel = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
@@ -68,7 +70,7 @@ export function Dialog({ title, children, actions, onClose }: DialogProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="flex w-full max-w-md flex-col gap-4 rounded-aw border border-border bg-bg p-6 text-text shadow-xl"
+        className={`flex w-full flex-col gap-4 rounded-aw border border-border bg-bg p-6 text-text shadow-xl ${wide ? "max-h-[calc(100vh-2rem)] max-w-5xl overflow-y-auto" : "max-w-md"}`}
       >
         <h2 id={titleId} className="m-0 font-display text-[1.25rem] font-heading text-text-strong">
           {title}

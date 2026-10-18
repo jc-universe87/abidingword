@@ -1,0 +1,977 @@
+{
+  "name": "Grace Church Sunday",
+  "definition": {
+    "format": "abiding-word/presentation-template",
+    "version": 1,
+    "width": 960.0,
+    "height": 540.0,
+    "colors": {
+      "background": "#FFFFFF",
+      "text": "#000000",
+      "muted": "#44546A",
+      "accent": "#4472C4"
+    },
+    "fonts": {
+      "heading": {
+        "family": "Calibri Light",
+        "replacement": null
+      },
+      "body": {
+        "family": "Calibri",
+        "replacement": null
+      },
+      "others": [
+        {
+          "family": "Montserrat SemiBold",
+          "replacement": null
+        }
+      ]
+    },
+    "background": {
+      "color": "#FFFFFF",
+      "image": null
+    },
+    "logo": null,
+    "footer": null,
+    "roles": {},
+    "assets": [
+      {
+        "id": "aa72cc31f46c2282eaaf66e648b692a90979d6ba67e101ed97b37c4e46f1ffe4",
+        "mediaType": "image/png",
+        "width": 32,
+        "height": 16,
+        "name": "image1.png"
+      },
+      {
+        "id": "fab4e2aef61a7fbedc88cbb7dcb76c6cc77f5f5cbe82959d17fc3a4573c9f085",
+        "mediaType": "image/png",
+        "width": 64,
+        "height": 36,
+        "name": "image2.png"
+      }
+    ]
+  },
+  "layouts": [
+    {
+      "id": "slideLayout1",
+      "name": "Title Slide",
+      "kind": "title",
+      "layout": {
+        "source": "Title Slide",
+        "background": {
+          "color": "#FFFFFF",
+          "image": null
+        },
+        "decorations": [
+          {
+            "assetId": "aa72cc31f46c2282eaaf66e648b692a90979d6ba67e101ed97b37c4e46f1ffe4",
+            "x": 880.0,
+            "y": 20.0,
+            "w": 64.0,
+            "h": 32.0,
+            "crop": {
+              "left": 0.0,
+              "top": 0.0,
+              "right": 0.0,
+              "bottom": 0.0
+            },
+            "opacity": null
+          }
+        ],
+        "rects": [],
+        "labels": [],
+        "title": {
+          "x": 120.0,
+          "y": 88.4,
+          "w": 720.0,
+          "h": 188.0,
+          "font": "heading",
+          "size": 60.0,
+          "minSize": 24.0,
+          "bold": false,
+          "italic": false,
+          "color": "#000000",
+          "align": "center",
+          "valign": "bottom",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "shrink"
+        },
+        "reference": null,
+        "body": {
+          "x": 120.0,
+          "y": 283.6,
+          "w": 720.0,
+          "h": 130.4,
+          "font": "body",
+          "size": 24.0,
+          "minSize": 12.0,
+          "bold": false,
+          "italic": false,
+          "color": "#000000",
+          "align": "center",
+          "valign": "top",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "shrink"
+        },
+        "image": null,
+        "hideLogo": false,
+        "hideFooter": false
+      }
+    },
+    {
+      "id": "slideLayout2",
+      "name": "Title and Content",
+      "kind": "obj",
+      "layout": {
+        "source": "Title and Content",
+        "background": {
+          "color": "#FFFFFF",
+          "image": null
+        },
+        "decorations": [
+          {
+            "assetId": "aa72cc31f46c2282eaaf66e648b692a90979d6ba67e101ed97b37c4e46f1ffe4",
+            "x": 880.0,
+            "y": 20.0,
+            "w": 64.0,
+            "h": 32.0,
+            "crop": {
+              "left": 0.0,
+              "top": 0.0,
+              "right": 0.0,
+              "bottom": 0.0
+            },
+            "opacity": null
+          }
+        ],
+        "rects": [],
+        "labels": [
+          {
+            "text": "Grace Church · Sunday",
+            "frame": {
+              "x": 318.0,
+              "y": 500.5,
+              "w": 324.0,
+              "h": 28.75,
+              "font": "body",
+              "size": 12.0,
+              "minSize": 12.0,
+              "bold": false,
+              "italic": false,
+              "color": "#44546A",
+              "align": "center",
+              "valign": "top",
+              "inset": [
+                7.2,
+                3.6,
+                7.2,
+                3.6
+              ],
+              "lineSpacing": 1.2,
+              "fit": "none"
+            }
+          }
+        ],
+        "title": {
+          "x": 66.0,
+          "y": 28.75,
+          "w": 828.0,
+          "h": 104.4,
+          "font": "heading",
+          "size": 44.0,
+          "minSize": 17.6,
+          "bold": false,
+          "italic": false,
+          "color": "#000000",
+          "align": "left",
+          "valign": "middle",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "shrink"
+        },
+        "reference": null,
+        "body": {
+          "x": 66.0,
+          "y": 143.75,
+          "w": 828.0,
+          "h": 342.6,
+          "font": "body",
+          "size": 28.0,
+          "minSize": 12.0,
+          "bold": false,
+          "italic": false,
+          "color": "#000000",
+          "align": "left",
+          "valign": "top",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "shrink"
+        },
+        "image": null,
+        "hideLogo": false,
+        "hideFooter": false
+      }
+    },
+    {
+      "id": "slideLayout3",
+      "name": "Section Header",
+      "kind": "secHead",
+      "layout": {
+        "source": "Section Header",
+        "background": {
+          "color": "#FFFFFF",
+          "image": null
+        },
+        "decorations": [
+          {
+            "assetId": "aa72cc31f46c2282eaaf66e648b692a90979d6ba67e101ed97b37c4e46f1ffe4",
+            "x": 880.0,
+            "y": 20.0,
+            "w": 64.0,
+            "h": 32.0,
+            "crop": {
+              "left": 0.0,
+              "top": 0.0,
+              "right": 0.0,
+              "bottom": 0.0
+            },
+            "opacity": null
+          }
+        ],
+        "rects": [],
+        "labels": [
+          {
+            "text": "Grace Church · Sunday",
+            "frame": {
+              "x": 318.0,
+              "y": 500.5,
+              "w": 324.0,
+              "h": 28.75,
+              "font": "body",
+              "size": 12.0,
+              "minSize": 12.0,
+              "bold": false,
+              "italic": false,
+              "color": "#44546A",
+              "align": "center",
+              "valign": "top",
+              "inset": [
+                7.2,
+                3.6,
+                7.2,
+                3.6
+              ],
+              "lineSpacing": 1.2,
+              "fit": "none"
+            }
+          }
+        ],
+        "title": {
+          "x": 65.5,
+          "y": 134.6,
+          "w": 828.0,
+          "h": 224.6,
+          "font": "heading",
+          "size": 60.0,
+          "minSize": 24.0,
+          "bold": false,
+          "italic": false,
+          "color": "#000000",
+          "align": "left",
+          "valign": "bottom",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "shrink"
+        },
+        "reference": null,
+        "body": {
+          "x": 65.5,
+          "y": 361.4,
+          "w": 828.0,
+          "h": 118.1,
+          "font": "body",
+          "size": 24.0,
+          "minSize": 12.0,
+          "bold": false,
+          "italic": false,
+          "color": "#44546A",
+          "align": "left",
+          "valign": "top",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "shrink"
+        },
+        "image": null,
+        "hideLogo": false,
+        "hideFooter": false
+      }
+    },
+    {
+      "id": "slideLayout4",
+      "name": "Bible Verse",
+      "kind": "cust",
+      "layout": {
+        "source": "Bible Verse",
+        "background": {
+          "color": null,
+          "image": {
+            "assetId": "fab4e2aef61a7fbedc88cbb7dcb76c6cc77f5f5cbe82959d17fc3a4573c9f085",
+            "crop": {
+              "left": 0.05,
+              "top": 0.1,
+              "right": 0.05,
+              "bottom": 0.1
+            }
+          }
+        },
+        "decorations": [
+          {
+            "assetId": "aa72cc31f46c2282eaaf66e648b692a90979d6ba67e101ed97b37c4e46f1ffe4",
+            "x": 880.0,
+            "y": 20.0,
+            "w": 64.0,
+            "h": 32.0,
+            "crop": {
+              "left": 0.0,
+              "top": 0.0,
+              "right": 0.0,
+              "bottom": 0.0
+            },
+            "opacity": null
+          }
+        ],
+        "rects": [
+          {
+            "x": 40.0,
+            "y": 110.0,
+            "w": 880.0,
+            "h": 380.0,
+            "fill": "#000000",
+            "fillOpacity": 0.45,
+            "line": null,
+            "lineWidth": 1.0
+          }
+        ],
+        "labels": [],
+        "title": {
+          "x": 60.0,
+          "y": 30.0,
+          "w": 840.0,
+          "h": 70.0,
+          "font": "heading",
+          "size": 32.0,
+          "minSize": 12.8,
+          "bold": false,
+          "italic": false,
+          "color": "#FFFFFF",
+          "align": "left",
+          "valign": "middle",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "shrink"
+        },
+        "reference": {
+          "x": 60.0,
+          "y": 450.0,
+          "w": 840.0,
+          "h": 34.0,
+          "font": "body",
+          "size": 20.0,
+          "minSize": 20.0,
+          "bold": false,
+          "italic": true,
+          "color": "#B4C7E7",
+          "align": "right",
+          "valign": "top",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "none"
+        },
+        "body": {
+          "x": 60.0,
+          "y": 120.0,
+          "w": 840.0,
+          "h": 330.0,
+          "font": "Montserrat SemiBold",
+          "size": 36.0,
+          "minSize": 14.400001,
+          "bold": true,
+          "italic": false,
+          "color": "#FFFFFF",
+          "align": "center",
+          "valign": "middle",
+          "inset": [
+            18.0,
+            9.0,
+            18.0,
+            9.0
+          ],
+          "lineSpacing": 1.32,
+          "fit": "shrink"
+        },
+        "image": null,
+        "hideLogo": false,
+        "hideFooter": false
+      }
+    },
+    {
+      "id": "slideLayout5",
+      "name": "Quote",
+      "kind": "cust",
+      "layout": {
+        "source": "Quote",
+        "background": {
+          "color": "#FFFFFF",
+          "image": null
+        },
+        "decorations": [
+          {
+            "assetId": "aa72cc31f46c2282eaaf66e648b692a90979d6ba67e101ed97b37c4e46f1ffe4",
+            "x": 880.0,
+            "y": 20.0,
+            "w": 64.0,
+            "h": 32.0,
+            "crop": {
+              "left": 0.0,
+              "top": 0.0,
+              "right": 0.0,
+              "bottom": 0.0
+            },
+            "opacity": null
+          }
+        ],
+        "rects": [],
+        "labels": [],
+        "title": null,
+        "reference": {
+          "x": 120.0,
+          "y": 380.0,
+          "w": 720.0,
+          "h": 40.0,
+          "font": "body",
+          "size": 20.0,
+          "minSize": 20.0,
+          "bold": false,
+          "italic": false,
+          "color": "#44546A",
+          "align": "right",
+          "valign": "top",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "none"
+        },
+        "body": {
+          "x": 120.0,
+          "y": 100.0,
+          "w": 720.0,
+          "h": 260.0,
+          "font": "body",
+          "size": 36.0,
+          "minSize": 36.0,
+          "bold": false,
+          "italic": true,
+          "color": "#000000",
+          "align": "center",
+          "valign": "middle",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "none"
+        },
+        "image": null,
+        "hideLogo": false,
+        "hideFooter": false
+      }
+    },
+    {
+      "id": "slideLayout6",
+      "name": "Question",
+      "kind": "cust",
+      "layout": {
+        "source": "Question",
+        "background": {
+          "color": "#FFFFFF",
+          "image": null
+        },
+        "decorations": [
+          {
+            "assetId": "aa72cc31f46c2282eaaf66e648b692a90979d6ba67e101ed97b37c4e46f1ffe4",
+            "x": 880.0,
+            "y": 20.0,
+            "w": 64.0,
+            "h": 32.0,
+            "crop": {
+              "left": 0.0,
+              "top": 0.0,
+              "right": 0.0,
+              "bottom": 0.0
+            },
+            "opacity": null
+          }
+        ],
+        "rects": [
+          {
+            "x": 66.0,
+            "y": 120.0,
+            "w": 828.0,
+            "h": 6.0,
+            "fill": "#ED7D31",
+            "fillOpacity": null,
+            "line": null,
+            "lineWidth": 1.0
+          }
+        ],
+        "labels": [],
+        "title": {
+          "x": 66.0,
+          "y": 28.75,
+          "w": 828.0,
+          "h": 80.0,
+          "font": "heading",
+          "size": 44.0,
+          "minSize": 17.6,
+          "bold": false,
+          "italic": false,
+          "color": "#000000",
+          "align": "left",
+          "valign": "middle",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "shrink"
+        },
+        "reference": null,
+        "body": {
+          "x": 66.0,
+          "y": 140.0,
+          "w": 828.0,
+          "h": 150.0,
+          "font": "body",
+          "size": 32.0,
+          "minSize": 32.0,
+          "bold": false,
+          "italic": false,
+          "color": "#000000",
+          "align": "left",
+          "valign": "top",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "none"
+        },
+        "image": null,
+        "hideLogo": false,
+        "hideFooter": false
+      }
+    },
+    {
+      "id": "slideLayout7",
+      "name": "Picture with Caption",
+      "kind": "picTx",
+      "layout": {
+        "source": "Picture with Caption",
+        "background": {
+          "color": "#FFFFFF",
+          "image": null
+        },
+        "decorations": [
+          {
+            "assetId": "aa72cc31f46c2282eaaf66e648b692a90979d6ba67e101ed97b37c4e46f1ffe4",
+            "x": 880.0,
+            "y": 20.0,
+            "w": 64.0,
+            "h": 32.0,
+            "crop": {
+              "left": 0.0,
+              "top": 0.0,
+              "right": 0.0,
+              "bottom": 0.0
+            },
+            "opacity": null
+          }
+        ],
+        "rects": [],
+        "labels": [],
+        "title": {
+          "x": 66.0,
+          "y": 36.0,
+          "w": 310.0,
+          "h": 126.0,
+          "font": "heading",
+          "size": 32.0,
+          "minSize": 12.8,
+          "bold": false,
+          "italic": false,
+          "color": "#000000",
+          "align": "left",
+          "valign": "middle",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "shrink"
+        },
+        "reference": null,
+        "body": {
+          "x": 66.0,
+          "y": 162.0,
+          "w": 310.0,
+          "h": 300.0,
+          "font": "body",
+          "size": 16.0,
+          "minSize": 16.0,
+          "bold": false,
+          "italic": false,
+          "color": "#000000",
+          "align": "left",
+          "valign": "top",
+          "inset": [
+            7.2,
+            3.6,
+            7.2,
+            3.6
+          ],
+          "lineSpacing": 1.08,
+          "fit": "none"
+        },
+        "image": {
+          "x": 408.0,
+          "y": 78.0,
+          "w": 486.0,
+          "h": 384.0
+        },
+        "hideLogo": false,
+        "hideFooter": false
+      }
+    },
+    {
+      "id": "slideLayout8",
+      "name": "Blank",
+      "kind": "blank",
+      "layout": {
+        "source": "Blank",
+        "background": {
+          "color": "#FFFFFF",
+          "image": null
+        },
+        "decorations": [],
+        "rects": [],
+        "labels": [],
+        "title": null,
+        "reference": null,
+        "body": null,
+        "image": null,
+        "hideLogo": false,
+        "hideFooter": false
+      }
+    }
+  ],
+  "suggestions": {
+    "custom": "slideLayout2",
+    "heading": "slideLayout2",
+    "image": "slideLayout7",
+    "pause": "slideLayout8",
+    "question": "slideLayout6",
+    "quote": "slideLayout5",
+    "scripture": "slideLayout4",
+    "section": "slideLayout3",
+    "text": "slideLayout2",
+    "title": "slideLayout1"
+  },
+  "report": {
+    "fileName": "powerpoint-16x9.pptx",
+    "width": 960.0,
+    "height": 540.0,
+    "ratio": "16:9",
+    "masters": 1,
+    "layouts": 8,
+    "slides": 3,
+    "fonts": [
+      {
+        "family": "Calibri Light",
+        "bold": false,
+        "italic": false,
+        "status": "installed",
+        "embeddable": true,
+        "suggestion": null,
+        "usedIn": [
+          "Title Slide",
+          "Title and Content",
+          "Section Header",
+          "Bible Verse",
+          "Question",
+          "Picture with Caption"
+        ]
+      },
+      {
+        "family": "Calibri",
+        "bold": false,
+        "italic": false,
+        "status": "installed",
+        "embeddable": true,
+        "suggestion": null,
+        "usedIn": [
+          "Title Slide",
+          "Title and Content",
+          "Section Header",
+          "Quote",
+          "Question",
+          "Picture with Caption",
+          "body"
+        ]
+      },
+      {
+        "family": "Montserrat SemiBold",
+        "bold": true,
+        "italic": false,
+        "status": "missing",
+        "embeddable": false,
+        "suggestion": "Montserrat",
+        "usedIn": [
+          "Bible Verse"
+        ]
+      },
+      {
+        "family": "Calibri",
+        "bold": false,
+        "italic": true,
+        "status": "installed",
+        "embeddable": true,
+        "suggestion": null,
+        "usedIn": [
+          "Bible Verse",
+          "Quote"
+        ]
+      },
+      {
+        "family": "Calibri Light",
+        "bold": true,
+        "italic": false,
+        "status": "installed",
+        "embeddable": true,
+        "suggestion": null,
+        "usedIn": [
+          "heading"
+        ]
+      }
+    ],
+    "items": [
+      {
+        "level": "attention",
+        "code": "effects",
+        "layout": "Bible Verse",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "attention",
+        "code": "effects",
+        "layout": "Question",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "attention",
+        "code": "fontMissing",
+        "layout": null,
+        "detail": "Montserrat SemiBold",
+        "count": 1
+      },
+      {
+        "level": "attention",
+        "code": "growsWithText",
+        "layout": "Question",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "attention",
+        "code": "justified",
+        "layout": "Question",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "attention",
+        "code": "wrapRisk",
+        "layout": "Bible Verse",
+        "detail": "Montserrat SemiBold",
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "backgroundImage",
+        "layout": "Bible Verse",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "band",
+        "layout": "Bible Verse",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "band",
+        "layout": "Question",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "footer",
+        "layout": "Section Header",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "footer",
+        "layout": "Title and Content",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "imageArea",
+        "layout": "Picture with Caption",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "picture",
+        "layout": "Master",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "slidesIgnored",
+        "layout": null,
+        "detail": "3",
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "textBoxes",
+        "layout": "Bible Verse",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "textBoxes",
+        "layout": "Picture with Caption",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "textBoxes",
+        "layout": "Question",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "textBoxes",
+        "layout": "Quote",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "textBoxes",
+        "layout": "Section Header",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "textBoxes",
+        "layout": "Title Slide",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "supported",
+        "code": "textBoxes",
+        "layout": "Title and Content",
+        "detail": null,
+        "count": 1
+      },
+      {
+        "level": "unsupported",
+        "code": "smartArt",
+        "layout": "Question",
+        "detail": null,
+        "count": 1
+      }
+    ]
+  }
+}

@@ -1,17 +1,20 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowLeft, ArrowUp, ChevronRight, Download, GripVertical, Play, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowUp, ChevronRight, Download, GripVertical, Play, Plus, Trash2, TriangleAlert } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { referenceLabel } from "@/i18n/scripture";
 import { ITEM_KINDS, PRESENTATION_THEMES, type ItemKind, type ItemSource, type Presentation, type PresentationDocument, type PresentationItem, type UpdatePresentationItem } from "@/types/presentation";
+import type { Page } from "@/types/presentationTemplate";
 import type { TeachingPreparation } from "@/types/teaching";
 import { ExportDialog } from "./ExportDialog";
 import { itemKindLabel, slideText, sourceLabel, teachingGives, teachingText, themeLabel } from "./labels";
 import { PresenterView } from "./PresenterView";
 import { SlideView } from "./SlideView";
+import { TemplateManager } from "./TemplateManager";
+import { useDesignPages } from "./useDesignPages";
 import { useListDrag } from "./useListDrag";
 import { useSlideImages } from "./useSlideImages";
 
@@ -149,6 +152,9 @@ function PresentationEditor({
   const startButton = useRef<HTMLButtonElement>(null);
   const docRequest = useRef(0);
   const images = useSlideImages(presentationId, doc?.images ?? []);
+  const pageFor = useDesignPages(presentationId, doc?.template, doc?.slides ?? []);
+  const templates = useLoad(useCallback(() => api.presentationTemplateList(), [api]));
+  const [managing, setManaging] = useState(false);
 
   const refresh = useCallback(() => {
     const request = ++docRequest.current;
@@ -232,6 +238,8 @@ function PresentationEditor({
   };
 
   const shown = presentation.items.filter((i) => !i.skipped).length;
+  // Slides whose text does not fit a template box (reported, never shrunk quietly).
+  const overflowing = doc?.template ? doc.slides.filter((s) => pageFor(s.kind, s.audience)?.blocks.some((b) => b.type === "text" && b.overflow)).length : 0;
   const noBible = doc?.warnings.some((w) => w.code === "noBible");
 
   return (
@@ -269,14 +277,38 @@ function PresentationEditor({
                 : Promise.resolve(null)
             }
           />
-          <label className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
-            <span className="text-text-muted">{t("presentation.editor.background")}</span>
-            <select value={presentation.theme} onChange={(e) => void act(() => api.presentationUpdate({ id: presentation.id, theme: e.target.value as Presentation["theme"] }))} className="h-11 rounded-aw border border-border bg-bg px-2">
-              {PRESENTATION_THEMES.map((theme) => (
-                <option key={theme} value={theme}>{themeLabel(t, theme)}</option>
-              ))}
+          <div className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
+            <label htmlFor={`${presentation.id}-design`} className="text-text-muted">{t("presentation.editor.design")}</label>
+            <select
+              id={`${presentation.id}-design`}
+              value={presentation.templateId ? `template:${presentation.templateId}` : `theme:${presentation.theme}`}
+              onChange={(e) => {
+                const [what, value] = e.target.value.split(":") as [string, string];
+                // A template is laid over the same slides; choosing a built-in background drops it again.
+                void act(() =>
+                  api.presentationUpdate(what === "template" ? { id: presentation.id, templateId: value } : { id: presentation.id, theme: value as Presentation["theme"], templateId: "" }),
+                );
+              }}
+              className="h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2"
+            >
+              <optgroup label={t("presentation.editor.builtIn")}>
+                {PRESENTATION_THEMES.map((theme) => (
+                  <option key={theme} value={`theme:${theme}`}>{themeLabel(t, theme)}</option>
+                ))}
+              </optgroup>
+              {(templates.data ?? []).length > 0 && (
+                <optgroup label={t("presentation.editor.churchTemplates")}>
+                  {(templates.data ?? []).map((tpl) => (
+                    <option key={tpl.id} value={`template:${tpl.id}`}>{tpl.name}</option>
+                  ))}
+                </optgroup>
+              )}
             </select>
-          </label>
+            <button type="button" onClick={() => setManaging(true)} className="inline-flex min-h-11 items-center rounded-aw px-2 font-medium text-link hover:bg-bg-secondary">
+              {t("presentation.templates.manage")}
+            </button>
+          </div>
+          <p className="-mt-2 mb-0 text-[0.875rem] text-text-muted">{t("presentation.editor.designHint")}</p>
           <label className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
             <span className="text-text-muted">{t("presentation.editor.bible")}</span>
             <select value={presentation.translationId ?? ""} onChange={(e) => void act(() => api.presentationUpdate({ id: presentation.id, translationId: e.target.value }))} className="h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2">
@@ -318,6 +350,21 @@ function PresentationEditor({
       </details>
 
       {noBible && <p className="m-0 rounded-aw bg-note px-3 py-2 text-[0.9375rem]">{t("presentation.warnings.noBible")}</p>}
+      {overflowing > 0 && (
+        <p className="m-0 flex items-start gap-2 rounded-aw bg-note px-3 py-2 text-[0.9375rem]">
+          <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          {t("presentation.templates.overflowSummary", { count: overflowing })}
+        </p>
+      )}
+      {managing && (
+        <TemplateManager
+          onClose={() => {
+            setManaging(false);
+            templates.reload();
+            refresh();
+          }}
+        />
+      )}
       {error && <p role="alert" className="m-0 text-danger">{error}</p>}
       <p role="status" className="sr-only">{notice}</p>
 
@@ -339,6 +386,11 @@ function PresentationEditor({
               const s = doc?.slides.find((x) => x.itemId === item.id);
               return s?.audience.image ? (images.get(s.audience.image.assetId) ?? null) : null;
             })()}
+            page={(() => {
+              const s = doc?.slides.find((x) => x.itemId === item.id);
+              return s ? pageFor(s.kind, s.audience) : null;
+            })()}
+            images={images}
             preparation={preparation}
             presentationId={presentation.id}
             theme={presentation.theme}
@@ -532,6 +584,8 @@ function SlideRow({
   last,
   doc,
   image,
+  page,
+  images,
   preparation,
   presentationId,
   theme,
@@ -548,6 +602,8 @@ function SlideRow({
   last: boolean;
   doc: PresentationDocument | null;
   image: string | null;
+  page: Page | null;
+  images: Map<string, string>;
   preparation: TeachingPreparation;
   presentationId: string;
   theme: Presentation["theme"];
@@ -614,7 +670,7 @@ function SlideRow({
           <span className="w-6 shrink-0 text-right font-ui text-[0.875rem] font-semibold text-text-muted">{number}</span>
           <span className="hidden w-32 shrink-0 sm:block" aria-hidden="true">
             {slide ? (
-              <SlideView slide={slide.audience} kind={item.kind} theme={theme} image={image} label="" className="rounded border border-border" />
+              <SlideView slide={slide.audience} kind={item.kind} theme={theme} image={image} page={page} images={images} showOverflow label="" className="rounded border border-border" />
             ) : (
               <span className="block aspect-video w-full rounded border border-dashed border-border" />
             )}
@@ -635,6 +691,9 @@ function SlideRow({
             {warnings.map((w) => (
               <span key={w.code} className="text-[0.9375rem] font-medium text-danger">{t(`presentation.warnings.${w.code}`)}</span>
             ))}
+            {page?.blocks.some((b) => b.type === "text" && b.overflow) && (
+              <span className="text-[0.9375rem] font-medium text-danger">{t("presentation.templates.overflowSlide")}</span>
+            )}
           </span>
         </button>
         <div className="flex items-center">

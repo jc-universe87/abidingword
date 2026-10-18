@@ -178,6 +178,59 @@ pub fn presentation_template_import_package(
     })
 }
 
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PreviewTemplate {
+    pub definition: TemplateDefinition,
+    pub slides: Vec<super::presentations::LayoutSlide>,
+    #[serde(default)]
+    pub locale: crate::presentation::ExportLocale,
+}
+
+/// Sample slides laid out in a design that is not saved yet (an import
+/// being reviewed, the designer), exactly as a presentation would be.
+#[tauri::command(async)]
+pub fn presentation_template_preview(
+    input: PreviewTemplate,
+) -> CommandResult<Vec<crate::presentation::layout::Page>> {
+    crate::presentation::template::validate(&input.definition)?;
+    if input.slides.len() > 40 {
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "presentation.tooManySlides",
+            "Too many slides to show at once.",
+        ))
+        .into());
+    }
+    let doc = crate::presentation::PresentationDocument {
+        template: Some(crate::presentation::document::DocTemplate {
+            id: String::new(),
+            name: String::new(),
+            definition: input.definition.clone(),
+        }),
+        ..Default::default()
+    };
+    let fonts = super::presentations::layout_fonts(&input.definition.families());
+    let shaper = crate::presentation::text::Shaper { fonts: &fonts };
+    Ok(input
+        .slides
+        .into_iter()
+        .map(|s| {
+            let slide = crate::presentation::document::Slide {
+                kind: s.kind,
+                audience: s.audience,
+                ..Default::default()
+            };
+            crate::presentation::layout::page(
+                &slide,
+                &doc,
+                &input.definition,
+                &shaper,
+                &input.locale,
+            )
+        })
+        .collect())
+}
+
 /// A PowerPoint file larger than this is not read (bytes).
 const PPTX_MAX: u64 = 400 * 1024 * 1024;
 

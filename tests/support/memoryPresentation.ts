@@ -20,6 +20,7 @@ import type {
 } from "@/types/presentation";
 import { ITEM_KINDS, PRESENTATION_THEMES } from "@/types/presentation";
 import type { TeachingPreparation } from "@/types/teaching";
+import { memoryPage, newTemplateState, TEMPLATE_PICTURE, templateApi, type TemplateState } from "./memoryTemplates";
 
 export interface PresentationState {
   presentations: (Omit<Presentation, "items"> & { items: PresentationItem[]; deleted: boolean })[];
@@ -37,6 +38,8 @@ export interface PresentationState {
   savedImages: string[];
   /** Data addresses of images available on "this computer", by asset id. */
   imageData: Map<string, string>;
+  /** Church templates (v0.18.1). */
+  templates: TemplateState;
 }
 
 export function newPresentationState(): PresentationState {
@@ -53,6 +56,7 @@ export function newPresentationState(): PresentationState {
     keyHandlers: [],
     savedImages: [],
     imageData: new Map(),
+    templates: newTemplateState(),
   };
 }
 
@@ -82,6 +86,22 @@ type PresentationApi = Pick<
   | "onAudienceClosed"
   | "presentationAudienceKey"
   | "onAudienceKey"
+  | "presentationLayout"
+  | "presentationTemplateList"
+  | "presentationTemplateGet"
+  | "presentationTemplateCreate"
+  | "presentationTemplateUpdate"
+  | "presentationTemplateDelete"
+  | "presentationTemplateAssetAdd"
+  | "presentationTemplateAsset"
+  | "presentationTemplateExport"
+  | "presentationTemplateImportPackage"
+  | "presentationTemplateImportPptx"
+  | "onTemplateImportProgress"
+  | "presentationFonts"
+  | "presentationTemplatePreview"
+  | "chooseTemplateFile"
+  | "chooseTemplateSaveFile"
 >;
 
 interface Helpers {
@@ -123,6 +143,12 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
     void _deleted;
     return { ...rest, items: p.items.map((i, position) => ({ ...i, position })) };
   };
+  const docTemplate = (p: PresentationState["presentations"][number]) => {
+    const t = p.templateId ? state.templates.templates.find((x) => x.id === p.templateId && !x.deleted) : undefined;
+    return t ? { id: t.id, name: t.name, definition: structuredClone(t.definition) } : null;
+  };
+  const templateImages = (p: PresentationState["presentations"][number]) =>
+    (docTemplate(p)?.definition.assets ?? []).map((a) => ({ id: a.id, mediaType: a.mediaType, width: a.width, height: a.height, available: true, sha256: a.id }));
   const touch = (p: PresentationState["presentations"][number]) => {
     p.updatedAt = h.now();
     p.revision += 1;
@@ -255,8 +281,9 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
       bible: bible ? { id: bible.id, name: bible.name, shortName: bible.shortName, copyright: bible.copyrightNotice } : null,
       presentationUpdatedAt: p.updatedAt,
       teachingUpdatedAt: prep.updatedAt,
+      template: docTemplate(p),
       slides,
-      images: [...images.values()],
+      images: [...images.values(), ...templateImages(p)],
       warnings,
     };
   };
@@ -279,6 +306,7 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
         theme: "light" as const,
         translationId: null,
         targetMinutes: null as number | null,
+        templateId: null as string | null,
         items: wanted ? propose(prep, labels) : [item("title", { kind: "preparation", id: prep.id, field: "title" })],
         createdAt: t,
         updatedAt: t,
@@ -288,8 +316,12 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
       state.presentations.push(p);
       return view(p);
     },
-    presentationUpdate: async ({ id, title, theme, translationId, targetMinutes }) => {
+    presentationUpdate: async ({ id, title, theme, translationId, targetMinutes, templateId }) => {
       const p = find(id);
+      if (templateId !== undefined) {
+        if (templateId && !state.templates.templates.some((t) => t.id === templateId && !t.deleted)) throw new ApiError("notFound", "This template could not be found.");
+        p.templateId = templateId || null;
+      }
       if (title !== undefined) {
         if (!title.trim()) throw new ApiError("invalidInput", "Please give the presentation a title.");
         p.title = title.trim();
@@ -356,12 +388,13 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
         presentationId: doc.presentationId,
         title: doc.title,
         theme: doc.theme,
+        template: doc.template ?? null,
         slides: doc.slides.map((s) => ({ id: s.id, index: s.index, kind: s.kind, audience: s.audience })),
         images: doc.images,
       };
     },
     presentationImage: async (_id, assetId) => {
-      const data = state.imageData.get(assetId);
+      const data = state.imageData.get(assetId) ?? (/^[0-9a-f]{64}$/.test(assetId) ? TEMPLATE_PICTURE : undefined);
       if (!data) throw new ApiError("invalidInput", "This image is not available on this computer.");
       return data;
     },
@@ -376,8 +409,23 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
     presentationExport: async (input) => {
       const doc = await build(input.id);
       state.exports.push(input);
-      return { path: input.path, slides: doc.slides.length, missingImages: doc.images.filter((i) => !i.available).length };
+      const def = doc.template?.definition;
+      const overflowing = def ? doc.slides.reduce((n, s) => n + memoryPage(def, s.kind, s.audience).blocks.filter((b) => b.type === "text" && b.overflow).length, 0) : 0;
+      return { path: input.path, slides: doc.slides.length, missingImages: doc.images.filter((i) => !i.available).length, overflowing };
     },
+    presentationLayout: async ({ id, slides }) => {
+      state.templates.layoutCalls += 1;
+      const def = docTemplate(find(id))?.definition;
+      if (!def) throw new ApiError("invalidInput", "This presentation uses no template.");
+      return slides.map((s) => memoryPage(def, s.kind, s.audience));
+    },
+    ...templateApi(state.templates, {
+      id: h.id,
+      now: h.now,
+      onDelete: (templateId) => {
+        for (const p of state.presentations) if (p.templateId === templateId) p.templateId = null;
+      },
+    }),
     presentationScreens: async () => state.screens,
     presentationAudienceOpen: async ({ presentationId, screen, state: shown }) => {
       state.audienceOpen = { presentationId, screen };
