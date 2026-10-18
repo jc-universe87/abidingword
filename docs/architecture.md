@@ -945,6 +945,10 @@ Abiding Word should use a provider abstraction.
 > Embedding, transcription and OCR providers are not built. Presets after the
 > v0.16 refinement: OpenAI, Anthropic, Google, xAI, Perplexity, DeepSeek,
 > Qwen, Ollama, LM Studio and any other compatible service; none is preferred.
+> Added later (all chat completions, international endpoints): Mistral,
+> Cohere (compatibility endpoint), Moonshot AI (Kimi), Z.ai (GLM) and
+> MiniMax. Settings link each service's official models list and price list
+> (`SERVICES` in `AssistantSettings.tsx`).
 > Presentation is a future output of a teaching (export, or audience and
 > presenter screens), not a third workspace view. Image creation has its own
 > service and capability (§18.4): writing and images can use different

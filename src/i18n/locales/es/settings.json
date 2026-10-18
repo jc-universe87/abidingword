@@ -57,7 +57,12 @@
       "xai": "xAI (Grok)",
       "perplexity": "Perplexity",
       "deepseek": "DeepSeek",
-      "qwen": "Qwen (Alibaba Cloud)"
+      "qwen": "Qwen (Alibaba Cloud)",
+      "mistral": "Mistral (Mistral, Codestral)",
+      "cohere": "Cohere (Command)",
+      "moonshot": "Moonshot AI (Kimi)",
+      "zai": "Z.ai (GLM)",
+      "minimax": "MiniMax"
     },
     "remote": "Cuando pides ayuda, el texto elegido se envía por internet a este servicio.",
     "local": "Funciona en este ordenador: tu texto no sale de él.",
@@ -122,7 +127,8 @@
       "step5": "Vuelve a Abiding Word.",
       "step6": "Pégala en el campo «Clave» de arriba.",
       "step7": "Pulsa «Guardar clave».",
-      "step8": "Pulsa «Comprobar la conexión»."
+      "step8": "Pulsa «Comprobar la conexión».",
+      "prices": "Abrir la lista de precios de {{service}}"
     },
     "modelHintEmpty": "Escribe el nombre del modelo tal como lo muestra {{service}}.",
     "advanced": "Avanzado",
@@ -192,7 +198,8 @@
     "searchWhy": {
       "noKey": "Para comprobar la búsqueda, pega primero su clave y elige «Guardar clave».",
       "noAddress": "Para comprobar la búsqueda, escribe primero la dirección de SearXNG."
-    }
+    },
+    "pricesLink": "Ver los precios de {{service}}"
   },
   "jumpTo": "Ir a una sección",
   "summary": {

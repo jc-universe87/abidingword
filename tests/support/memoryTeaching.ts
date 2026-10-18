@@ -121,7 +121,7 @@ type TeachingApi = Pick<
 >;
 
 const SEARCH_NEEDS_KEY = new Set(["brave", "tavily", "exa", "serpapi"]);
-const NEEDS_KEY = new Set(["openai", "anthropic", "google", "xai", "perplexity", "deepseek", "qwen"]);
+const NEEDS_KEY = new Set(["openai", "anthropic", "google", "xai", "perplexity", "deepseek", "qwen", "mistral", "cohere", "moonshot", "zai", "minimax"]);
 const LABELS: Record<string, string> = {
   openai: "OpenAI",
   anthropic: "Anthropic",
@@ -130,6 +130,11 @@ const LABELS: Record<string, string> = {
   perplexity: "Perplexity",
   deepseek: "DeepSeek",
   qwen: "Qwen",
+  mistral: "Mistral",
+  cohere: "Cohere",
+  moonshot: "Moonshot AI (Kimi)",
+  zai: "Z.ai (GLM)",
+  minimax: "MiniMax",
   ollama: "Ollama",
   lmstudio: "LM Studio",
   openai_compatible: "Other compatible service",
@@ -169,7 +174,7 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
     };
   };
   const remote = (c: AssistantConfig) => {
-    const base = c.baseUrl || { openai: "https://api.openai.com/v1", anthropic: "https://api.anthropic.com/v1", google: "https://g", xai: "https://api.x.ai/v1", perplexity: "https://api.perplexity.ai", deepseek: "https://api.deepseek.com/v1", qwen: "https://q", ollama: "http://localhost:11434/v1", lmstudio: "http://localhost:1234/v1", openai_compatible: "" }[c.provider];
+    const base = c.baseUrl || { openai: "https://api.openai.com/v1", anthropic: "https://api.anthropic.com/v1", google: "https://g", xai: "https://api.x.ai/v1", perplexity: "https://api.perplexity.ai", deepseek: "https://api.deepseek.com/v1", qwen: "https://q", mistral: "https://api.mistral.ai/v1", cohere: "https://api.cohere.ai/compatibility/v1", moonshot: "https://api.moonshot.ai/v1", zai: "https://api.z.ai/api/paas/v4", minimax: "https://api.minimax.io/v1", ollama: "http://localhost:11434/v1", lmstudio: "http://localhost:1234/v1", openai_compatible: "" }[c.provider];
     return !base || !isLocalAddress(base);
   };
   const settings = (): AssistantSettings => {

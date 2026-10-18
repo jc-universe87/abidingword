@@ -141,7 +141,7 @@ export interface KeepTeachingMaterial {
 // ---------------------------------------------------------------------------
 
 /** Services on the internet, then on this computer, then any other compatible one (as the core lists them). */
-export const PROVIDER_KINDS = ["openai", "anthropic", "google", "xai", "perplexity", "deepseek", "qwen", "ollama", "lmstudio", "openai_compatible"] as const;
+export const PROVIDER_KINDS = ["openai", "anthropic", "google", "xai", "perplexity", "deepseek", "qwen", "mistral", "cohere", "moonshot", "zai", "minimax", "ollama", "lmstudio", "openai_compatible"] as const;
 export type ProviderKind = (typeof PROVIDER_KINDS)[number];
 export const IMAGE_SERVICES = ["same", "openai"] as const;
 export type ImageService = (typeof IMAGE_SERVICES)[number];

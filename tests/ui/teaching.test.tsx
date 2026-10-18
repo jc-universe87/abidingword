@@ -678,25 +678,40 @@ describe("assistant settings", () => {
     await waitFor(() => expect(api.state.teaching.assistant.config.perspective).toBe("Lutheran"));
   });
 
-  it("links each cloud service's own current model list, and invents none for another service", async () => {
+  it("links each cloud service's own current model list and price list, and invents none for another service", async () => {
     const { user, api } = await renderApp(createMemoryApi());
     const region = await openSettingsSection(user, "AI Assistant");
     await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
     const service = within(region).getByRole("combobox", { name: "Service" });
-    const expected: [string, string, string][] = [
-      ["openai", "OpenAI", "https://platform.openai.com/docs/models"],
-      ["anthropic", "Anthropic", "https://docs.anthropic.com/en/docs/about-claude/models"],
-      ["google", "Google", "https://ai.google.dev/gemini-api/docs/models"],
-      ["xai", "xAI", "https://docs.x.ai/docs/models"],
-      ["perplexity", "Perplexity", "https://docs.perplexity.ai/getting-started/models"],
-      ["deepseek", "DeepSeek", "https://api-docs.deepseek.com/quick_start/pricing"],
-      ["qwen", "Alibaba Cloud", "https://www.alibabacloud.com/help/en/model-studio/models"],
+    // Every service on the internet, alphabetically, with its official models and prices pages.
+    const internet = within(service).getByRole("group", { name: "On the internet" });
+    expect(within(internet).getAllByRole("option").map((o) => o.getAttribute("value"))).toEqual(["anthropic", "cohere", "deepseek", "google", "minimax", "mistral", "moonshot", "openai", "perplexity", "qwen", "xai", "zai"]);
+    const expected: [string, string, string, string | null][] = [
+      ["openai", "OpenAI", "https://developers.openai.com/api/docs/models", "https://developers.openai.com/api/docs/pricing"],
+      ["anthropic", "Anthropic", "https://platform.claude.com/docs/en/models/overview", "https://platform.claude.com/docs/en/about-claude/pricing"],
+      ["google", "Google", "https://ai.google.dev/gemini-api/docs/models", "https://ai.google.dev/gemini-api/docs/pricing"],
+      ["xai", "xAI", "https://docs.x.ai/developers/models", "https://docs.x.ai/developers/pricing"],
+      ["perplexity", "Perplexity", "https://docs.perplexity.ai", "https://docs.perplexity.ai/docs/getting-started/pricing"],
+      ["mistral", "Mistral AI", "https://docs.mistral.ai/models/model-selection-guide", "https://docs.mistral.ai/inference/pricing"],
+      ["cohere", "Cohere", "https://docs.cohere.com/docs/models", "https://cohere.com/pricing"],
+      // One page with both models and prices: one link.
+      ["deepseek", "DeepSeek", "https://api-docs.deepseek.com/quick_start/pricing", null],
+      ["qwen", "Alibaba Cloud", "https://www.alibabacloud.com/help/en/model-studio/models", "https://www.alibabacloud.com/help/en/model-studio/model-pricing"],
+      ["moonshot", "Moonshot AI", "https://platform.moonshot.ai", null],
+      ["zai", "Z.ai", "https://z.ai/model-api", "https://docs.z.ai/guides/overview/pricing"],
+      ["minimax", "MiniMax", "https://platform.minimax.io/docs/guides/models-intro", "https://platform.minimax.io/docs/guides/pricing-paygo"],
     ];
-    for (const [kind, name, url] of expected) {
+    for (const [kind, name, models, prices] of expected) {
       await user.selectOptions(service, kind);
       expect(within(region).getByRole("textbox", { name: "Model" })).not.toHaveValue("");
       await user.click(within(region).getByRole("button", { name: `See ${name}’s current models` }));
-      expect(api.state.library.openedLinks.at(-1)).toBe(url);
+      expect(api.state.library.openedLinks.at(-1)).toBe(models);
+      if (prices) {
+        await user.click(within(region).getByRole("button", { name: `See ${name}’s prices` }));
+        expect(api.state.library.openedLinks.at(-1)).toBe(prices);
+      } else {
+        expect(within(region).queryByRole("button", { name: `See ${name}’s prices` })).toBeNull();
+      }
     }
     // Programs on this computer: their own lists of models to download.
     await user.selectOptions(service, "ollama");
@@ -704,7 +719,7 @@ describe("assistant settings", () => {
     expect(api.state.library.openedLinks.at(-1)).toBe("https://ollama.com/library");
     // Another compatible service: no list is made up.
     await user.selectOptions(service, "openai_compatible");
-    expect(within(region).queryByRole("button", { name: /current models|models you can download/ })).toBeNull();
+    expect(within(region).queryByRole("button", { name: /current models|models you can download|prices/ })).toBeNull();
     // The model stays editable.
     const model = within(region).getByRole("textbox", { name: "Model" });
     await user.type(model, "my-own-model");

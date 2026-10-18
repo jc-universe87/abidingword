@@ -57,7 +57,12 @@
       "xai": "xAI (Grok)",
       "perplexity": "Perplexity",
       "deepseek": "DeepSeek",
-      "qwen": "Qwen (Alibaba Cloud)"
+      "qwen": "Qwen (Alibaba Cloud)",
+      "mistral": "Mistral (Mistral, Codestral)",
+      "cohere": "Cohere (Command)",
+      "moonshot": "Moonshot AI (Kimi)",
+      "zai": "Z.ai (GLM)",
+      "minimax": "MiniMax"
     },
     "remote": "When you ask for help, the text you chose is sent over the internet to this service.",
     "local": "Runs on this computer: your text does not leave it.",
@@ -122,7 +127,8 @@
       "step5": "Come back to Abiding Word.",
       "step6": "Paste it into the Key field above.",
       "step7": "Press Keep key.",
-      "step8": "Press Check the connection."
+      "step8": "Press Check the connection.",
+      "prices": "Open {{service}}’s price list"
     },
     "modelHintEmpty": "Type the model’s name as {{service}} shows it.",
     "advanced": "Advanced",
@@ -192,7 +198,8 @@
     "searchWhy": {
       "noKey": "To check the search, first paste its key and choose Keep key.",
       "noAddress": "To check the search, first enter the SearXNG address."
-    }
+    },
+    "pricesLink": "See {{service}}’s prices"
   },
   "jumpTo": "Go to a section",
   "summary": {

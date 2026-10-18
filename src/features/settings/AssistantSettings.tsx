@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Tag } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { HelpTip } from "@/design-system/HelpTip";
 import { useLoad } from "@/hooks/useLoad";
@@ -19,19 +19,27 @@ interface Service {
   /** The service's own, current list of its models. Model names change often, so
    * Abiding Word links to the official list rather than keeping one itself. */
   modelsPage?: string;
+  /** The service's own price list (when it is another page than the models list). */
+  pricesPage?: string;
   /** The official download page (programs on this computer). */
   download?: string;
 }
 
 /** What the setup needs to know about each service. No service is preferred. Official pages only. */
 const SERVICES: Record<ProviderKind, Service> = {
-  openai: { name: "OpenAI", model: "gpt-4.1", keyPage: "https://platform.openai.com/api-keys", modelsPage: "https://platform.openai.com/docs/models" },
-  anthropic: { name: "Anthropic", model: "claude-sonnet-5-5", keyPage: "https://console.anthropic.com/settings/keys", modelsPage: "https://docs.anthropic.com/en/docs/about-claude/models" },
-  google: { name: "Google", model: "gemini-2.5-flash", keyPage: "https://aistudio.google.com/apikey", modelsPage: "https://ai.google.dev/gemini-api/docs/models" },
-  xai: { name: "xAI", model: "grok-4", keyPage: "https://console.x.ai", modelsPage: "https://docs.x.ai/docs/models" },
-  perplexity: { name: "Perplexity", model: "sonar-pro", keyPage: "https://www.perplexity.ai/settings/api", modelsPage: "https://docs.perplexity.ai/getting-started/models" },
+  openai: { name: "OpenAI", model: "gpt-4.1", keyPage: "https://platform.openai.com/api-keys", modelsPage: "https://developers.openai.com/api/docs/models", pricesPage: "https://developers.openai.com/api/docs/pricing" },
+  anthropic: { name: "Anthropic", model: "claude-sonnet-5-5", keyPage: "https://console.anthropic.com/settings/keys", modelsPage: "https://platform.claude.com/docs/en/models/overview", pricesPage: "https://platform.claude.com/docs/en/about-claude/pricing" },
+  google: { name: "Google", model: "gemini-2.5-flash", keyPage: "https://aistudio.google.com/apikey", modelsPage: "https://ai.google.dev/gemini-api/docs/models", pricesPage: "https://ai.google.dev/gemini-api/docs/pricing" },
+  xai: { name: "xAI", model: "grok-4", keyPage: "https://console.x.ai", modelsPage: "https://docs.x.ai/developers/models", pricesPage: "https://docs.x.ai/developers/pricing" },
+  perplexity: { name: "Perplexity", model: "sonar-pro", keyPage: "https://www.perplexity.ai/settings/api", modelsPage: "https://docs.perplexity.ai", pricesPage: "https://docs.perplexity.ai/docs/getting-started/pricing" },
+  mistral: { name: "Mistral AI", model: "mistral-large-latest", keyPage: "https://console.mistral.ai/api-keys", modelsPage: "https://docs.mistral.ai/models/model-selection-guide", pricesPage: "https://docs.mistral.ai/inference/pricing" },
+  cohere: { name: "Cohere", model: "command-a-plus-05-2026", keyPage: "https://dashboard.cohere.com/api-keys", modelsPage: "https://docs.cohere.com/docs/models", pricesPage: "https://cohere.com/pricing" },
+  // One official page holds both the models and their prices.
   deepseek: { name: "DeepSeek", model: "deepseek-chat", keyPage: "https://platform.deepseek.com/api_keys", modelsPage: "https://api-docs.deepseek.com/quick_start/pricing" },
-  qwen: { name: "Alibaba Cloud", model: "qwen-plus", keyPage: "https://www.alibabacloud.com/help/en/model-studio/get-api-key", modelsPage: "https://www.alibabacloud.com/help/en/model-studio/models" },
+  qwen: { name: "Alibaba Cloud", model: "qwen-plus", keyPage: "https://www.alibabacloud.com/help/en/model-studio/get-api-key", modelsPage: "https://www.alibabacloud.com/help/en/model-studio/models", pricesPage: "https://www.alibabacloud.com/help/en/model-studio/model-pricing" },
+  moonshot: { name: "Moonshot AI", model: "kimi-k3", keyPage: "https://platform.moonshot.ai/console/api-keys", modelsPage: "https://platform.moonshot.ai" },
+  zai: { name: "Z.ai", model: "glm-5.3", keyPage: "https://z.ai/manage-apikey/apikey-list", modelsPage: "https://z.ai/model-api", pricesPage: "https://docs.z.ai/guides/overview/pricing" },
+  minimax: { name: "MiniMax", model: "MiniMax-M2.7", keyPage: "https://platform.minimax.io/user-center/basic-information/interface-key", modelsPage: "https://platform.minimax.io/docs/guides/models-intro", pricesPage: "https://platform.minimax.io/docs/guides/pricing-paygo" },
   // Programs on this computer: their own lists of models to download, not a cloud catalogue.
   ollama: { name: "Ollama", model: "llama3.1", download: "https://ollama.com/download", modelsPage: "https://ollama.com/library" },
   lmstudio: { name: "LM Studio", model: "", download: "https://lmstudio.ai", modelsPage: "https://lmstudio.ai/models" },
@@ -60,7 +68,7 @@ const KEY_STEPS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
 
 /** The choices, grouped as a person thinks of them: on the internet, on this computer, anything else. */
 const GROUPS = [
-  { name: "internet", kinds: ["anthropic", "deepseek", "google", "openai", "perplexity", "qwen", "xai"] },
+  { name: "internet", kinds: ["anthropic", "cohere", "deepseek", "google", "minimax", "mistral", "moonshot", "openai", "perplexity", "qwen", "xai", "zai"] },
   { name: "local", kinds: ["ollama", "lmstudio"] },
   { name: "other", kinds: ["openai_compatible"] },
 ] as const satisfies readonly { name: string; kinds: readonly ProviderKind[] }[];
@@ -371,6 +379,9 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                     ))}
                   </ol>
                   <p className="m-0 text-text-muted">{t("settings.assistant.keyHelp.costA", { service: label })}</p>
+                  {(service.pricesPage ?? service.modelsPage) && (
+                    <OfficialLink url={(service.pricesPage ?? service.modelsPage)!} text={t("settings.assistant.keyHelp.prices", { service: label })} />
+                  )}
                 </Help>
               )}
             </Step>
@@ -392,6 +403,17 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                   className="inline-flex size-11 shrink-0 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
                 >
                   <ExternalLink className="size-4" aria-hidden="true" />
+                </button>
+              )}
+              {service.pricesPage && (
+                <button
+                  type="button"
+                  aria-label={t("settings.assistant.pricesLink", { service: label })}
+                  title={t("settings.assistant.pricesLink", { service: label })}
+                  onClick={() => void api.openExternalLink(service.pricesPage!).catch(() => undefined)}
+                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+                >
+                  <Tag className="size-4" aria-hidden="true" />
                 </button>
               )}
             </div>

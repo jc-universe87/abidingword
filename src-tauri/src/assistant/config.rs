@@ -29,6 +29,16 @@ pub enum ProviderKind {
     Deepseek,
     /// Alibaba Cloud Model Studio (Qwen), international endpoint.
     Qwen,
+    /// Mistral AI (Mistral, Codestral).
+    Mistral,
+    /// Cohere (Command) through its OpenAI-compatible endpoint.
+    Cohere,
+    /// Moonshot AI (Kimi), international endpoint.
+    Moonshot,
+    /// Z.ai (GLM), international endpoint.
+    Zai,
+    /// MiniMax, international endpoint.
+    Minimax,
     /// Runs on this computer (or one the person chooses).
     Ollama,
     /// Runs on this computer (or one the person chooses).
@@ -47,6 +57,11 @@ impl ProviderKind {
             Self::Perplexity => "perplexity",
             Self::Deepseek => "deepseek",
             Self::Qwen => "qwen",
+            Self::Mistral => "mistral",
+            Self::Cohere => "cohere",
+            Self::Moonshot => "moonshot",
+            Self::Zai => "zai",
+            Self::Minimax => "minimax",
             Self::Ollama => "ollama",
             Self::Lmstudio => "lmstudio",
             Self::OpenaiCompatible => "openai_compatible",
@@ -62,6 +77,11 @@ impl ProviderKind {
             Self::Perplexity => "Perplexity",
             Self::Deepseek => "DeepSeek",
             Self::Qwen => "Qwen",
+            Self::Mistral => "Mistral",
+            Self::Cohere => "Cohere",
+            Self::Moonshot => "Moonshot AI (Kimi)",
+            Self::Zai => "Z.ai (GLM)",
+            Self::Minimax => "MiniMax",
             Self::Ollama => "Ollama",
             Self::Lmstudio => "LM Studio",
             Self::OpenaiCompatible => "Other compatible service",
@@ -77,6 +97,11 @@ impl ProviderKind {
             Self::Perplexity => Some("https://api.perplexity.ai"),
             Self::Deepseek => Some("https://api.deepseek.com/v1"),
             Self::Qwen => Some("https://dashscope-intl.aliyuncs.com/compatible-mode/v1"),
+            Self::Mistral => Some("https://api.mistral.ai/v1"),
+            Self::Cohere => Some("https://api.cohere.ai/compatibility/v1"),
+            Self::Moonshot => Some("https://api.moonshot.ai/v1"),
+            Self::Zai => Some("https://api.z.ai/api/paas/v4"),
+            Self::Minimax => Some("https://api.minimax.io/v1"),
             Self::Ollama => Some("http://localhost:11434/v1"),
             Self::Lmstudio => Some("http://localhost:1234/v1"),
             Self::OpenaiCompatible => None,
@@ -280,6 +305,11 @@ impl AssistantConfig {
             | ProviderKind::Perplexity
             | ProviderKind::Deepseek
             | ProviderKind::Qwen
+            | ProviderKind::Mistral
+            | ProviderKind::Cohere
+            | ProviderKind::Moonshot
+            | ProviderKind::Zai
+            | ProviderKind::Minimax
             | ProviderKind::Ollama
             | ProviderKind::Lmstudio => ImageCapability::Unsupported,
         }
@@ -380,7 +410,10 @@ mod tests {
     #[test]
     fn every_cloud_service_has_an_address_and_needs_a_key() {
         use ProviderKind::*;
-        for kind in [Openai, Anthropic, Google, Xai, Perplexity, Deepseek, Qwen] {
+        for kind in [
+            Openai, Anthropic, Google, Xai, Perplexity, Deepseek, Qwen, Mistral, Cohere, Moonshot,
+            Zai, Minimax,
+        ] {
             let url = kind.default_base_url().unwrap();
             assert!(url.starts_with("https://"), "{url}");
             assert!(!is_local_address(url));
@@ -395,6 +428,17 @@ mod tests {
         assert!(!OpenaiCompatible.needs_key());
         let parsed: ProviderKind = serde_json::from_str("\"xai\"").unwrap();
         assert_eq!(parsed, Xai);
+        // Stored names stay as they are written (settings keep them).
+        for (kind, name) in [
+            (Mistral, "mistral"),
+            (Cohere, "cohere"),
+            (Moonshot, "moonshot"),
+            (Zai, "zai"),
+            (Minimax, "minimax"),
+        ] {
+            assert_eq!(serde_json::to_string(&kind).unwrap(), format!("\"{name}\""));
+            assert_eq!(kind.as_str(), name);
+        }
     }
 
     #[test]
@@ -414,6 +458,11 @@ mod tests {
             ProviderKind::Xai,
             ProviderKind::Perplexity,
             ProviderKind::Qwen,
+            ProviderKind::Mistral,
+            ProviderKind::Cohere,
+            ProviderKind::Moonshot,
+            ProviderKind::Zai,
+            ProviderKind::Minimax,
             ProviderKind::Ollama,
             ProviderKind::Lmstudio,
         ] {

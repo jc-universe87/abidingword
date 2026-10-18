@@ -133,10 +133,11 @@ choose a service and check the connection.*
 Once it is on, set it up from top to bottom:
 
 1. **Service.** Choose one.
-   - *On the internet:* Anthropic (Claude), DeepSeek, Google Gemini,
-     OpenAI (ChatGPT), Perplexity, Qwen (Alibaba Cloud) or xAI (Grok). Your
-     text is sent to that company when you ask, and you need a **key** from
-     it.
+   - *On the internet:* Anthropic (Claude), Cohere (Command), DeepSeek,
+     Google Gemini, MiniMax, Mistral (Mistral, Codestral), Moonshot AI
+     (Kimi), OpenAI (ChatGPT), Perplexity, Qwen (Alibaba Cloud), xAI (Grok)
+     or Z.ai (GLM). Your text is sent to that company when you ask, and you
+     need a **key** from it.
    - *On this computer:* **Ollama** or **LM Studio**. Free programs that run
      an AI model on your own computer: no key, no account, and your text never
      leaves the computer. **How do I set up …?** explains it and opens the
@@ -149,12 +150,15 @@ Once it is on, set it up from top to bottom:
    (it may be called an *API key*), copy it, come back, paste it into **Key**,
    press **Keep key**, then **Check the connection**. Most services charge a
    little for what you use and may ask for payment details or prepaid credit
-   first; that is arranged on their website. The key is kept in your
+   first; that is arranged on their website. **Open … price list** (in the
+   same help) shows what the company charges. The key is kept in your
    computer's own password store (on Windows: the *Credential Manager*), never
    in your studies, and is not shown again.
 3. **Model.** A suggested model is filled in (*Suggested model. You can
    change it.*). Model names change often: the **↗** button beside the field
-   opens the company's own, current list of models. For Ollama and LM Studio
+   opens the company's own, current list of models, and the **price tag**
+   button its current prices (DeepSeek and Moonshot AI show both on one page,
+   so they have only the **↗** button). For Ollama and LM Studio
    it opens their list of models to download. For another compatible service
    there is no such list.
 4. **Check the connection.** If it cannot be used yet, the reason is written

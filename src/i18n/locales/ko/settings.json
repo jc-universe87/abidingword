@@ -57,7 +57,12 @@
       "xai": "xAI (Grok)",
       "perplexity": "Perplexity",
       "deepseek": "DeepSeek",
-      "qwen": "Qwen (Alibaba Cloud)"
+      "qwen": "Qwen (Alibaba Cloud)",
+      "mistral": "Mistral (Mistral, Codestral)",
+      "cohere": "Cohere (Command)",
+      "moonshot": "Moonshot AI (Kimi)",
+      "zai": "Z.ai (GLM)",
+      "minimax": "MiniMax"
     },
     "remote": "도움을 요청하면 고르신 글이 인터넷으로 이 서비스에 전송됩니다.",
     "local": "이 컴퓨터에서 실행되므로 글이 밖으로 나가지 않습니다.",
@@ -122,7 +127,8 @@
       "step5": "Abiding Word로 돌아오세요.",
       "step6": "위의 ‘키’ 칸에 붙여 넣으세요.",
       "step7": "‘키 저장’을 누르세요.",
-      "step8": "‘연결 확인’을 누르세요."
+      "step8": "‘연결 확인’을 누르세요.",
+      "prices": "{{service}} 가격표 열기"
     },
     "modelHintEmpty": "{{service}}에 표시된 그대로 모델 이름을 적으세요.",
     "advanced": "고급",
@@ -192,7 +198,8 @@
     "searchWhy": {
       "noKey": "검색을 확인하려면 먼저 키를 붙여 넣고 ‘키 저장’을 누르세요.",
       "noAddress": "검색을 확인하려면 먼저 SearXNG 주소를 입력하세요."
-    }
+    },
+    "pricesLink": "{{service}} 가격 보기"
   },
   "jumpTo": "항목으로 이동",
   "summary": {
