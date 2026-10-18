@@ -34,6 +34,7 @@ const EXPECTED_TABLES: &[&str] = &[
     "library_search_idx",
     "passage_references",
     "presentation_items",
+    "presentation_templates",
     "presentations",
     "projects",
     "schema_versions",

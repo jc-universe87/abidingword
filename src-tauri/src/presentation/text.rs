@@ -69,26 +69,21 @@ pub fn breaks_anywhere(c: char) -> bool {
 impl Shaper<'_> {
     /// Splits text into runs, each drawn with one font.
     pub fn runs(&self, text: &str, bold: bool) -> Vec<Run> {
-        let regular = self.fonts.regular.len();
+        self.runs_in(text, bold, None)
+    }
+
+    /// The same, trying a template's family first.
+    pub fn runs_in(&self, text: &str, bold: bool, family: Option<&str>) -> Vec<Run> {
         let mut runs: Vec<Run> = Vec::new();
+        let lists = self.fonts.chain(family, bold);
         for c in text.chars() {
             let c = if c == '\t' { ' ' } else { c };
             if c.is_control() {
                 continue;
             }
-            let lists: Vec<(usize, &crate::presentation::fonts::Font)> = if bold {
-                self.fonts
-                    .bold
-                    .iter()
-                    .enumerate()
-                    .map(|(i, f)| (regular + i, f))
-                    .chain(self.fonts.regular.iter().enumerate())
-                    .collect()
-            } else {
-                self.fonts.regular.iter().enumerate().collect()
-            };
             let found = lists
-                .into_iter()
+                .iter()
+                .copied()
                 .find_map(|(i, f)| f.glyph(c).filter(|(g, _)| *g != 0).map(|g| (i, f, g)));
             let (font, code, width) = match found {
                 Some((i, f, (gid, advance))) => (
@@ -128,28 +123,49 @@ impl Shaper<'_> {
     }
 
     pub fn width(&self, text: &str, bold: bool, size: f32) -> f32 {
-        self.runs(text, bold).iter().map(|r| r.width).sum::<f32>() * size
+        self.width_in(text, bold, size, None)
+    }
+
+    pub fn width_in(&self, text: &str, bold: bool, size: f32, family: Option<&str>) -> f32 {
+        self.runs_in(text, bold, family)
+            .iter()
+            .map(|r| r.width)
+            .sum::<f32>()
+            * size
     }
 
     /// Wraps one paragraph to lines no wider than `max` points.
     pub fn wrap(&self, text: &str, bold: bool, size: f32, max: f32) -> Vec<String> {
+        self.wrap_in(text, bold, size, max, None)
+    }
+
+    /// The same, measured in a template's family.
+    pub fn wrap_in(
+        &self,
+        text: &str,
+        bold: bool,
+        size: f32,
+        max: f32,
+        family: Option<&str>,
+    ) -> Vec<String> {
+        let width = |t: &str, b: bool, s: f32| self.width_in(t, b, s, family);
         let mut lines = Vec::new();
         for paragraph in text.split('\n') {
             let mut line = String::new();
             for word in tokens(paragraph) {
                 let candidate = format!("{line}{word}");
-                if line.is_empty() || self.width(candidate.trim_end(), bold, size) <= max {
+                if line.is_empty() || width(candidate.trim_end(), bold, size) <= max {
                     line = candidate;
                 } else {
                     lines.push(line.trim_end().to_string());
                     line = word.trim_start().to_string();
                 }
                 // A word wider than the line is broken between characters.
-                if self.width(line.trim_end(), bold, size) > max {
+                if width(line.trim_end(), bold, size) > max {
                     let mut part = String::new();
                     for c in line.chars() {
                         let next = format!("{part}{c}");
-                        if !part.is_empty() && self.width(&next, bold, size) > max {
+                        if !part.is_empty() && width(&next, bold, size) > max {
                             lines.push(part.trim_end().to_string());
                             part = c.to_string();
                         } else {

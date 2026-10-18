@@ -17,7 +17,23 @@ pub fn build(conn: &Connection, id: &str, store: &ImageStore) -> AppResult<Prese
     let mut doc = document::build(conn, id, store)?;
     let presentation = presentations::get(conn, id)?;
     let prep = teaching::get(conn, &presentation.preparation_id)?;
+    let kept = store.templates();
+    let template_assets = doc
+        .template
+        .as_ref()
+        .map(|t| t.definition.assets.clone())
+        .unwrap_or_default();
     for asset in doc.images.iter_mut().filter(|a| a.available) {
+        // A template's image, kept by its SHA-256.
+        if let Some(t) = template_assets.iter().find(|t| t.id == asset.id) {
+            match kept.read(t) {
+                Some(bytes) => {
+                    asset.data = Some(base64::engine::general_purpose::STANDARD.encode(bytes));
+                }
+                None => asset.available = false,
+            }
+            continue;
+        }
         let file = prep
             .materials
             .iter()

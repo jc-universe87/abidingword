@@ -212,6 +212,7 @@ fn store(dir: &Path) -> ImageStore {
     ImageStore {
         generated_dir: generated,
         offline_dir: dir.join("presentation-images"),
+        template_dir: dir.join("presentation-templates"),
     }
 }
 
@@ -951,4 +952,470 @@ fn a_late_audience_change_never_replaces_a_newer_one() {
     // Another presentation, or nothing shown yet: always.
     assert!(at("p-2", 1, 0).replaces(Some(&kept)));
     assert!(at("p-1", 0, 0).replaces(None));
+}
+
+// ---------------------------------------------------------------------------
+// Church templates (v0.18.1)
+// ---------------------------------------------------------------------------
+
+use abiding_word_lib::db::presentation_templates;
+use abiding_word_lib::domain::{CreatePresentationTemplate, UpdatePresentationTemplate};
+use abiding_word_lib::presentation::layout::{self as slide_layout, Block};
+use abiding_word_lib::presentation::template::{
+    self, Crop, FilledRect, Footer, ImageFill, Placed, RoleLayout, TemplateDefinition, TextFrame,
+};
+
+fn frame(x: f32, y: f32, w: f32, h: f32, size: f32) -> TextFrame {
+    TextFrame {
+        x,
+        y,
+        w,
+        h,
+        size,
+        min_size: 18.0,
+        ..Default::default()
+    }
+}
+
+/// A 4:3 church design: a cropped background, a logo, a band, a footer, its
+/// own heading and Scripture layouts (bottom-aligned heading, no shrinking).
+fn church_design(store: &ImageStore) -> TemplateDefinition {
+    let asset = store
+        .templates()
+        .add(&png_bytes(), "background.png")
+        .unwrap();
+    let mut def = template::builtin("light");
+    def.width = template::STANDARD.0;
+    def.height = template::STANDARD.1;
+    def.colors.background = "#102030".into();
+    def.colors.text = "#FAFAFA".into();
+    def.background.image = Some(ImageFill {
+        asset_id: asset.id.clone(),
+        crop: Crop {
+            left: 0.1,
+            top: 0.0,
+            right: 0.1,
+            bottom: 0.05,
+        },
+    });
+    def.logo = Some(Placed {
+        asset_id: asset.id.clone(),
+        x: 620.0,
+        y: 20.0,
+        w: 80.0,
+        h: 40.0,
+        opacity: Some(0.5),
+        ..Default::default()
+    });
+    def.footer = Some(Footer {
+        text: "Grace Church · Sunday".into(),
+        frame: TextFrame {
+            fit: "none".into(),
+            ..frame(40.0, 500.0, 640.0, 30.0, 14.0)
+        },
+    });
+    let heading = RoleLayout {
+        source: Some("Main Content".into()),
+        rects: vec![FilledRect {
+            x: 0.0,
+            y: 0.0,
+            w: 720.0,
+            h: 12.0,
+            fill: Some("#C8A040".into()),
+            fill_opacity: Some(0.8),
+            ..Default::default()
+        }],
+        title: Some(TextFrame {
+            valign: "bottom".into(),
+            fit: "none".into(),
+            bold: true,
+            font: "heading".into(),
+            align: "center".into(),
+            ..frame(60.0, 40.0, 600.0, 140.0, 40.0)
+        }),
+        body: Some(TextFrame {
+            fit: "none".into(),
+            ..frame(60.0, 200.0, 600.0, 120.0, 28.0)
+        }),
+        ..Default::default()
+    };
+    def.roles.insert("heading".into(), heading);
+    def.roles.insert(
+        "scripture".into(),
+        RoleLayout {
+            title: Some(frame(60.0, 40.0, 600.0, 60.0, 30.0)),
+            reference: Some(frame(60.0, 100.0, 600.0, 40.0, 24.0)),
+            body: Some(TextFrame {
+                fit: "shrink".into(),
+                ..frame(60.0, 150.0, 600.0, 330.0, 36.0)
+            }),
+            hide_logo: true,
+            ..Default::default()
+        },
+    );
+    def.assets.push(asset);
+    def
+}
+
+fn with_template(
+    conn: &Connection,
+    store: &ImageStore,
+) -> AppResult<(Sermon, abiding_word_lib::domain::Presentation, String)> {
+    let s = sermon(conn)?;
+    install_bible(conn)?;
+    let p = propose(conn, &s.teaching)?;
+    let t = presentation_templates::create(
+        conn,
+        &CreatePresentationTemplate {
+            name: "Grace Church".into(),
+            description: "Our Sunday design".into(),
+            definition: church_design(store),
+            source_format: "designer".into(),
+            ..Default::default()
+        },
+    )?;
+    let p = presentations::update(
+        conn,
+        &UpdatePresentation {
+            id: p.id.clone(),
+            template_id: Some(t.id.clone()),
+            ..Default::default()
+        },
+    )?;
+    Ok((s, p, t.id))
+}
+
+#[test]
+fn a_template_is_chosen_changed_and_dropped_without_touching_slides_or_teaching() {
+    let temp = tempfile::tempdir().unwrap();
+    let store = store(temp.path());
+    with_db(|conn| {
+        let s = sermon(conn)?;
+        let p = propose(conn, &s.teaching)?;
+        let teaching_before = teaching::get(conn, &s.teaching)?;
+        let t = presentation_templates::create(
+            conn,
+            &CreatePresentationTemplate {
+                name: "  Grace Church  ".into(),
+                definition: church_design(&store),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(t.name, "Grace Church");
+        assert_eq!(t.source_format, "designer");
+        assert_eq!(presentation_templates::list(conn)?.len(), 1);
+        assert_eq!(presentation_templates::list(conn)?[0].width, 720.0);
+
+        let chosen = presentations::update(
+            conn,
+            &UpdatePresentation {
+                id: p.id.clone(),
+                template_id: Some(t.id.clone()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(chosen.template_id.as_deref(), Some(t.id.as_str()));
+        assert_eq!(
+            chosen.items, p.items,
+            "the slides stay exactly as they were"
+        );
+        let doc = document::build(conn, &p.id, &store)?;
+        let used = doc.template.as_ref().unwrap();
+        assert_eq!(used.name, "Grace Church");
+        assert!(doc
+            .images
+            .iter()
+            .any(|i| i.id == used.definition.assets[0].id && i.available));
+        assert_eq!(doc.audience().template.as_ref().unwrap().id, t.id);
+
+        // Back to the built-in background, and to the template again.
+        let back = presentations::update(
+            conn,
+            &UpdatePresentation {
+                id: p.id.clone(),
+                template_id: Some(String::new()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(back.template_id, None);
+        assert_eq!(back.theme, p.theme);
+        assert!(document::build(conn, &p.id, &store)?.template.is_none());
+
+        presentations::update(
+            conn,
+            &UpdatePresentation {
+                id: p.id.clone(),
+                template_id: Some(t.id.clone()),
+                ..Default::default()
+            },
+        )?;
+        let renamed = presentation_templates::update(
+            conn,
+            &UpdatePresentationTemplate {
+                id: t.id.clone(),
+                name: Some("Grace Church 2".into()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(renamed.revision, 2);
+        // Deleting the template returns the presentation to its background.
+        presentation_templates::delete(conn, &t.id)?;
+        assert_eq!(presentations::get(conn, &p.id)?.template_id, None);
+        assert!(presentation_templates::list(conn)?.is_empty());
+        assert_eq!(
+            code(presentations::update(
+                conn,
+                &UpdatePresentation {
+                    id: p.id.clone(),
+                    template_id: Some(t.id.clone()),
+                    ..Default::default()
+                },
+            )),
+            "notFound:presentation template"
+        );
+        let teaching_after = teaching::get(conn, &s.teaching)?;
+        assert_eq!(teaching_after.revision, teaching_before.revision);
+        assert_eq!(presentations::get(conn, &p.id)?.items, p.items);
+        Ok(())
+    });
+}
+
+#[test]
+fn a_broken_template_is_refused() {
+    with_db(|conn| {
+        let mut def = template::builtin("light");
+        def.roles.insert("banner".into(), RoleLayout::default());
+        assert_eq!(
+            code(presentation_templates::create(
+                conn,
+                &CreatePresentationTemplate {
+                    name: "X".into(),
+                    definition: def,
+                    ..Default::default()
+                },
+            )),
+            "presentation.templateInvalid"
+        );
+        assert_eq!(
+            code(presentation_templates::create(
+                conn,
+                &CreatePresentationTemplate {
+                    name: " ".into(),
+                    definition: template::builtin("dark"),
+                    ..Default::default()
+                },
+            )),
+            "validation.titleRequired"
+        );
+        Ok(())
+    });
+}
+
+#[test]
+fn a_template_places_text_in_its_boxes_and_says_what_does_not_fit() {
+    let temp = tempfile::tempdir().unwrap();
+    let store = store(temp.path());
+    with_db(|conn| {
+        let (_, p, _) = with_template(conn, &store)?;
+        let doc = document::build(conn, &p.id, &store)?;
+        let design = doc.design();
+        let fonts = FontSet::empty();
+        let shaper = abiding_word_lib::presentation::text::Shaper { fonts: &fonts };
+        let locale = ExportOptions::default().locale;
+
+        let heading = doc.slides.iter().find(|s| s.kind == "heading").unwrap();
+        let page = slide_layout::page(heading, &doc, &design, &shaper, &locale);
+        assert_eq!((page.width, page.height), (720.0, 540.0));
+        assert_eq!(page.background, "#102030");
+        // Background first (cropped), then the band, the texts, the logo and the footer.
+        match &page.blocks[0] {
+            Block::Picture(b) => {
+                assert_eq!((b.x, b.y, b.w, b.h), (0.0, 0.0, 720.0, 540.0));
+                assert_eq!(b.crop.left, 0.1);
+                assert_eq!(b.crop.bottom, 0.05);
+            }
+            other => panic!("background first, got {other:?}"),
+        }
+        assert!(matches!(&page.blocks[1], Block::Rect(r) if r.fill_opacity == 0.8));
+        let texts: Vec<&slide_layout::TextBox> = page
+            .blocks
+            .iter()
+            .filter_map(|b| match b {
+                Block::Text(t) => Some(t),
+                _ => None,
+            })
+            .collect();
+        let title = texts[0];
+        assert_eq!(title.lines, vec![heading.audience.heading.clone().unwrap()]);
+        let f = title.frame.as_ref().unwrap();
+        assert_eq!((f.x, f.y, f.w, f.h), (60.0, 40.0, 600.0, 140.0));
+        assert_eq!(title.size, 40.0);
+        // Bottom-aligned: the line sits at the bottom of the box (inside its margins).
+        let bottom = 40.0 + 140.0 - 3.6;
+        assert!(
+            (title.y + title.size * title.line - bottom).abs() < 0.01,
+            "{}",
+            title.y
+        );
+        assert_eq!(title.align, slide_layout::Align::Center);
+        assert_eq!(title.color, "#FAFAFA");
+        assert!(page
+            .blocks
+            .iter()
+            .any(|b| matches!(b, Block::Picture(p) if p.opacity == 0.5)));
+        assert_eq!(
+            texts.last().unwrap().lines,
+            vec!["Grace Church · Sunday".to_string()]
+        );
+
+        // Scripture: its own layout, text shrinks only because the template says so; no logo there.
+        let scripture = doc.slides.iter().find(|s| s.kind == "scripture").unwrap();
+        let page = slide_layout::page(scripture, &doc, &design, &shaper, &locale);
+        assert_eq!(
+            page.blocks
+                .iter()
+                .filter(|b| matches!(b, Block::Picture(_)))
+                .count(),
+            1,
+            "only the background, the logo is hidden here"
+        );
+        assert_eq!(page.overflowing(), 0);
+
+        // A long text in a box that may not shrink is reported, never shrunk quietly.
+        let mut long = heading.clone();
+        long.audience.body = Some("Ich bin der Weinstock, ihr seid die Reben. ".repeat(30));
+        let page = slide_layout::page(&long, &doc, &design, &shaper, &locale);
+        let body = page
+            .blocks
+            .iter()
+            .filter_map(|b| match b {
+                Block::Text(t) if t.frame.as_ref().is_some_and(|f| f.y == 200.0) => Some(t),
+                _ => None,
+            })
+            .next()
+            .unwrap();
+        assert_eq!(body.size, 28.0);
+        assert!(body.overflow);
+        assert_eq!(page.overflowing(), 1);
+
+        // A kind of slide the template does not lay out uses the built-in arrangement in its colours.
+        let title_slide = doc.slides.iter().find(|s| s.kind == "title").unwrap();
+        let page = slide_layout::page(title_slide, &doc, &design, &shaper, &locale);
+        let first_text = page.blocks.iter().find_map(|b| match b {
+            Block::Text(t) => Some(t),
+            _ => None,
+        });
+        assert!(first_text.unwrap().frame.is_none());
+        assert_eq!(first_text.unwrap().color, "#FAFAFA");
+        // On the 4:3 page the built-in arrangement is centred on 720 points.
+        let t = first_text.unwrap();
+        assert!((t.x + t.w / 2.0 - 360.0).abs() < 0.01);
+
+        // A heading slide with nothing for its body box still uses the layout; one whose
+        // content has no place (a passage line, no box for it) uses the built-in arrangement.
+        let mut lonely = design.clone();
+        lonely.roles.get_mut("scripture").unwrap().reference = None;
+        let page = slide_layout::page(scripture, &doc, &lonely, &shaper, &locale);
+        assert!(page.blocks.iter().all(
+            |b| !matches!(b, Block::Text(t) if t.frame.as_ref().is_some_and(|f| f.y == 150.0))
+        ));
+        Ok(())
+    });
+}
+
+fn template_export(format: &str) -> (Vec<u8>, presentation::PresentationDocument, usize) {
+    let temp = tempfile::tempdir().unwrap();
+    let store = store(temp.path());
+    with_db(|conn| {
+        let (_, p, _) = with_template(conn, &store)?;
+        let doc = package::build(conn, &p.id, &store)?;
+        let (bytes, overflow) = abiding_word_lib::commands::presentations::render_counted(
+            &doc,
+            format,
+            &options(false),
+            FontSet::empty,
+        )
+        .unwrap();
+        Ok((bytes, doc, overflow))
+    })
+}
+
+#[test]
+fn powerpoint_with_a_template_keeps_its_size_crop_transparency_fonts_and_boxes() {
+    let (bytes, doc, overflow) = template_export("pptx");
+    assert_eq!(overflow, 0);
+    let files = unzip(&bytes);
+    let text = |name: &str| -> String {
+        String::from_utf8(files.iter().find(|(n, _)| n == name).unwrap().1.clone()).unwrap()
+    };
+    assert!(text("ppt/presentation.xml").contains(r#"<p:sldSz cx="9144000" cy="6858000"/>"#));
+    let heading_index = doc.slides.iter().position(|s| s.kind == "heading").unwrap() + 1;
+    let slide = text(&format!("ppt/slides/slide{heading_index}.xml"));
+    assert!(
+        slide.contains(r#"<a:srgbClr val="102030"/>"#),
+        "background colour"
+    );
+    assert!(
+        slide.contains(r#"<a:srcRect l="10000" t="0" r="10000" b="5000"/>"#),
+        "crop as in the source"
+    );
+    assert!(
+        slide.contains(r#"<a:alphaModFix amt="50000"/>"#),
+        "the logo's transparency"
+    );
+    assert!(
+        slide.contains(r#"<a:alpha val="80000"/>"#),
+        "the band's transparency"
+    );
+    assert!(
+        slide.contains(r#"anchor="b""#),
+        "bottom-aligned heading box"
+    );
+    assert!(slide.contains(r#"lIns="91440""#), "the box's inner margin");
+    assert!(slide.contains(r#"<a:noAutofit/>"#));
+    assert!(slide.contains("Grace Church · Sunday"));
+    // The picture file is packed once although background and logo use it.
+    assert_eq!(
+        files
+            .iter()
+            .filter(|(n, _)| n.starts_with("ppt/media/"))
+            .count(),
+        2
+    );
+    for (name, data) in &files {
+        if name.ends_with(".xml") || name.ends_with(".rels") {
+            let mut reader = quick_xml::Reader::from_reader(data.as_slice());
+            let mut buf = Vec::new();
+            loop {
+                match reader.read_event_into(&mut buf) {
+                    Ok(quick_xml::events::Event::Eof) => break,
+                    Ok(_) => {}
+                    Err(e) => panic!("{name} is not well formed: {e}"),
+                }
+                buf.clear();
+            }
+        }
+    }
+}
+
+#[test]
+fn the_pdf_with_a_template_has_its_page_size_pictures_and_transparency() {
+    let (bytes, doc, _) = template_export("pdf");
+    let pdf = lopdf::Document::load_mem(&bytes).unwrap();
+    let pages = pdf.get_pages();
+    assert_eq!(pages.len(), doc.slides.len());
+    let first = pdf
+        .get_object(*pages.values().next().unwrap())
+        .unwrap()
+        .as_dict()
+        .unwrap();
+    let media = first.get(b"MediaBox").unwrap().as_array().unwrap();
+    assert_eq!(media[2].as_float().unwrap(), 720.0);
+    assert_eq!(media[3].as_float().unwrap(), 540.0);
+    let raw = String::from_utf8_lossy(&bytes);
+    assert!(raw.contains("/ExtGState"));
+    let text = pdf
+        .extract_text(&pages.keys().copied().collect::<Vec<_>>())
+        .unwrap_or_default();
+    assert!(text.contains("Grace Church"), "{text}");
 }

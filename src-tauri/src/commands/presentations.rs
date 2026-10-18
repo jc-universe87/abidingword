@@ -29,11 +29,12 @@ pub const AUDIENCE_WINDOW: &str = "audience";
 pub const AUDIENCE_EVENT: &str = "presentation-audience";
 pub const AUDIENCE_CLOSED_EVENT: &str = "presentation-audience-closed";
 
-fn store(state: &AppState) -> Result<ImageStore, crate::error::ErrorPayload> {
+pub(crate) fn store(state: &AppState) -> Result<ImageStore, crate::error::ErrorPayload> {
     let dirs = &state.core()?.dirs;
     Ok(ImageStore {
         generated_dir: dirs.teaching_images(),
         offline_dir: dirs.presentation_images(),
+        template_dir: dirs.presentation_templates(),
     })
 }
 
@@ -138,6 +139,22 @@ pub fn presentation_image(
     asset_id: String,
 ) -> CommandResult<String> {
     let store = store(&state)?;
+    // A church template's image (by its SHA-256), when the presentation uses that template.
+    if crate::presentation::template_store::is_asset_id(&asset_id) {
+        let asset = state.db(|conn| {
+            let p = presentations::get(conn, &id)?;
+            crate::db::presentation_templates::for_presentation(conn, p.template_id.as_deref())?
+                .and_then(|t| t.definition.assets.into_iter().find(|a| a.id == asset_id))
+                .ok_or_else(image_gone)
+        })?;
+        let bytes = store.templates().read(&asset).ok_or_else(image_gone)?;
+        use base64::Engine as _;
+        return Ok(format!(
+            "data:{};base64,{}",
+            asset.media_type,
+            base64::engine::general_purpose::STANDARD.encode(bytes)
+        ));
+    }
     let path = state.db(|conn| {
         let p = presentations::get(conn, &id)?;
         let prep = teaching::get(conn, &p.preparation_id)?;
@@ -226,7 +243,7 @@ fn offline_candidates(info: &crate::domain::ImageInfo) -> Vec<String> {
     out
 }
 
-fn write_atomically(target: &Path, bytes: &[u8]) -> Result<(), AppError> {
+pub(crate) fn write_atomically(target: &Path, bytes: &[u8]) -> Result<(), AppError> {
     if let Some(dir) = target.parent() {
         std::fs::create_dir_all(dir).map_err(|e| AppError::filesystem(dir, e))?;
     }
@@ -271,6 +288,8 @@ pub struct ExportResult {
     pub slides: usize,
     /// Images that could not be included (no copy on this computer).
     pub missing_images: usize,
+    /// Text boxes of the template whose text does not fit at its size (PDF, PowerPoint).
+    pub overflowing: usize,
 }
 
 /// The extension a format's file has.
@@ -284,6 +303,33 @@ pub fn extension(format: &str) -> Option<&'static str> {
     })
 }
 
+/// The fonts an export uses: the usual ones, and the template's two
+/// families where they are installed (and may be embedded).
+fn with_design_fonts(doc: &PresentationDocument, fonts: FontSet) -> FontSet {
+    let design = doc.design();
+    let names = [
+        design.fonts.heading.resolved(),
+        design.fonts.body.resolved(),
+    ];
+    if names.iter().all(|n| n.trim().is_empty()) {
+        return fonts;
+    }
+    fonts.with_families(&names, crate::presentation::font_catalog::system())
+}
+
+/// How many template text boxes are too small for their text, slide by slide.
+pub fn overflowing(doc: &PresentationDocument, fonts: &FontSet, options: &ExportOptions) -> usize {
+    let design = doc.design();
+    let shaper = crate::presentation::text::Shaper { fonts };
+    doc.slides
+        .iter()
+        .map(|s| {
+            crate::presentation::layout::page(s, doc, &design, &shaper, &options.locale)
+                .overflowing()
+        })
+        .sum()
+}
+
 /// The file's content for an export, from the one document.
 pub fn render(
     doc: &PresentationDocument,
@@ -291,10 +337,27 @@ pub fn render(
     options: &ExportOptions,
     fonts: impl FnOnce() -> FontSet,
 ) -> Result<Vec<u8>, AppError> {
+    render_counted(doc, format, options, fonts).map(|(bytes, _)| bytes)
+}
+
+/// The same, with the number of overflowing template text boxes.
+pub fn render_counted(
+    doc: &PresentationDocument,
+    format: &str,
+    options: &ExportOptions,
+    fonts: impl FnOnce() -> FontSet,
+) -> Result<(Vec<u8>, usize), AppError> {
     let images = pdf::image_data(doc);
-    Ok(match format {
-        "pptx" => pptx::render(doc, &images, &fonts(), options)?,
-        "pdf" => pdf::slides(doc, &images, &fonts(), options)?,
+    let bytes = match format {
+        "pptx" | "pdf" => {
+            let fonts = with_design_fonts(doc, fonts());
+            let bytes = if format == "pptx" {
+                pptx::render(doc, &images, &fonts, options)?
+            } else {
+                pdf::slides(doc, &images, &fonts, options)?
+            };
+            return Ok((bytes, overflowing(doc, &fonts, options)));
+        }
         "speaker_pdf" => pdf::speaker(doc, &images, &fonts(), options)?,
         "markdown" => markdown::render(doc, options).into_bytes(),
         "package" => package::to_json(doc)?.into_bytes(),
@@ -307,7 +370,8 @@ pub fn render(
                 .with("value", other),
             ))
         }
-    })
+    };
+    Ok((bytes, 0))
 }
 
 /// Writes an export to the chosen file (replacing it only after the save
@@ -341,7 +405,8 @@ pub fn presentation_export(
     }
     let store = store(&state)?;
     let doc = state.db(|conn| package::build(conn, &input.id, &store))?;
-    let bytes = render(&doc, &input.format, &input.options, FontSet::system)?;
+    let (bytes, overflowing) =
+        render_counted(&doc, &input.format, &input.options, FontSet::system)?;
     write_atomically(&path, &bytes)?;
     // Images shown as a placeholder: not on this computer, or of a kind this format cannot hold.
     let missing_images = doc
@@ -359,6 +424,7 @@ pub fn presentation_export(
         path: path.to_string_lossy().into_owned(),
         slides: doc.slides.len(),
         missing_images,
+        overflowing,
     })
 }
 

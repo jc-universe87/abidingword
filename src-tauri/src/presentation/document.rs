@@ -48,6 +48,10 @@ pub struct PresentationDocument {
     /// An optional target time in minutes (absent in older packages).
     #[serde(default)]
     pub target_minutes: Option<u32>,
+    /// The church template the slides are drawn with; none: the built-in
+    /// background `theme` (absent in older packages).
+    #[serde(default)]
+    pub template: Option<DocTemplate>,
     pub primary_passage: Option<RefInfo>,
     /// The Bible the Scripture slides quote.
     pub bible: Option<BibleInfo>,
@@ -188,6 +192,25 @@ pub struct Citation {
     pub detail: Option<String>,
 }
 
+/// The template a document is drawn with.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct DocTemplate {
+    pub id: String,
+    pub name: String,
+    pub definition: super::template::TemplateDefinition,
+}
+
+impl PresentationDocument {
+    /// The design the slides use: the church template, or the built-in background.
+    pub fn design(&self) -> super::template::TemplateDefinition {
+        self.template
+            .as_ref()
+            .map(|t| t.definition.clone())
+            .unwrap_or_else(|| super::template::builtin(&self.theme))
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct ImageAsset {
@@ -217,6 +240,15 @@ pub fn build(conn: &Connection, id: &str, store: &ImageStore) -> AppResult<Prese
     let presentation = presentations::get(conn, id)?;
     let prep = teaching::get(conn, &presentation.preparation_id)?;
     let bible = choose_bible(conn, &presentation)?;
+    let template = crate::db::presentation_templates::for_presentation(
+        conn,
+        presentation.template_id.as_deref(),
+    )?
+    .map(|t| DocTemplate {
+        id: t.id,
+        name: t.name,
+        definition: t.definition,
+    });
     let mut builder = Builder {
         conn,
         prep: &prep,
@@ -234,10 +266,28 @@ pub fn build(conn: &Connection, id: &str, store: &ImageStore) -> AppResult<Prese
     }
     let Builder {
         slides,
-        images,
+        mut images,
         warnings,
         ..
     } = builder;
+    // The template's images travel with the slides' images (by their SHA-256).
+    if let Some(t) = &template {
+        let kept = store.templates();
+        for a in &t.definition.assets {
+            images.insert(
+                a.id.clone(),
+                ImageAsset {
+                    id: a.id.clone(),
+                    media_type: Some(a.media_type.clone()),
+                    width: Some(a.width),
+                    height: Some(a.height),
+                    available: kept.has(a),
+                    sha256: Some(a.id.clone()),
+                    data: None,
+                },
+            );
+        }
+    }
     let primary_passage = prep
         .passages
         .iter()
@@ -252,6 +302,7 @@ pub fn build(conn: &Connection, id: &str, store: &ImageStore) -> AppResult<Prese
         teaching_kind: prep.kind.clone(),
         theme: presentation.theme,
         target_minutes: presentation.target_minutes,
+        template,
         primary_passage,
         bible: bible.map(|b| BibleInfo {
             id: b.id,
@@ -735,6 +786,8 @@ pub struct AudienceDocument {
     pub presentation_id: String,
     pub title: String,
     pub theme: String,
+    /// The church template, when the presentation uses one (design only).
+    pub template: Option<DocTemplate>,
     pub slides: Vec<AudienceOnlySlide>,
     pub images: Vec<ImageAsset>,
 }
@@ -750,17 +803,21 @@ pub struct AudienceOnlySlide {
 
 impl PresentationDocument {
     pub fn audience(&self) -> AudienceDocument {
-        let used: std::collections::BTreeSet<&str> = self
+        let mut used: std::collections::BTreeSet<&str> = self
             .slides
             .iter()
             .filter_map(|s| s.audience.image.as_ref().map(|i| i.asset_id.as_str()))
             .collect();
+        if let Some(t) = &self.template {
+            used.extend(t.definition.assets.iter().map(|a| a.id.as_str()));
+        }
         AudienceDocument {
             format: FORMAT.to_string(),
             schema_version: SCHEMA_VERSION,
             presentation_id: self.presentation_id.clone(),
             title: self.title.clone(),
             theme: self.theme.clone(),
+            template: self.template.clone(),
             slides: self
                 .slides
                 .iter()

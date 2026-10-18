@@ -13,8 +13,9 @@ use zip::{CompressionMethod, ZipWriter};
 
 use super::document::{PresentationDocument, Slide};
 use super::fonts::FontSet;
-use super::layout::{self, Align, Block, Palette, Role};
+use super::layout::{self, Align, Block, Palette};
 use super::pdf::ImageData;
+use super::template::TemplateDefinition;
 use super::text::Shaper;
 use super::ExportOptions;
 use crate::error::{AppError, AppResult};
@@ -60,7 +61,13 @@ pub fn render(
     fonts: &FontSet,
     options: &ExportOptions,
 ) -> AppResult<Vec<u8>> {
-    let palette = layout::palette(&doc.theme);
+    let design = doc.design();
+    let palette = Palette {
+        background: design.colors.background.clone(),
+        text: design.colors.text.clone(),
+        muted: design.colors.muted.clone(),
+        accent: design.colors.accent.clone(),
+    };
     let shaper = Shaper { fonts };
     let lang = esc(&options.locale.language);
     let notes = options.speaker_notes;
@@ -70,36 +77,63 @@ pub fn render(
 
     for (i, slide) in doc.slides.iter().enumerate() {
         let number = i + 1;
-        let blocks = layout::slide(slide, doc, &shaper, &options.locale);
+        let laid = layout::page(slide, doc, &design, &shaper, &options.locale);
+        let blocks = &laid.blocks;
         let mut rels = vec![format!(
             r#"<Relationship Id="rId1" Type="{REL}/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>"#
         )];
         let mut shapes = String::new();
+        // A picture's file, added once to the package and related to this slide.
+        let mut related = |asset_id: &str,
+                           files: &mut Vec<(String, Vec<u8>)>,
+                           rels: &mut Vec<String>|
+         -> Option<String> {
+            let (bytes, header) = image_data
+                .get(asset_id)
+                .filter(|(_, h)| h.media_type != "image/webp")?;
+            let existing = media.iter().position(|(id, _)| id == asset_id);
+            let name = match existing {
+                Some(k) => media[k].1.name.clone(),
+                None => {
+                    let name = format!("image{}.{}", media.len() + 1, header.extension());
+                    files.push((format!("ppt/media/{name}"), bytes.clone()));
+                    media.push((asset_id.to_string(), Media { name: name.clone() }));
+                    name
+                }
+            };
+            let target = format!("../media/{name}");
+            let rid = match rels
+                .iter()
+                .position(|r| r.contains(&format!("Target=\"{target}\"")))
+            {
+                Some(k) => format!("rId{}", k + 1),
+                None => {
+                    let rid = format!("rId{}", rels.len() + 1);
+                    rels.push(format!(
+                        r#"<Relationship Id="{rid}" Type="{REL}/image" Target="{target}"/>"#
+                    ));
+                    rid
+                }
+            };
+            Some(rid)
+        };
         for (shape_id, block) in (2..).zip(blocks.iter()) {
             match block {
                 Block::Text(b) => {
-                    shapes.push_str(&text_shape(shape_id, b, &palette, &lang));
+                    shapes.push_str(&text_shape(shape_id, b, &lang));
                 }
+                Block::Picture(p) => {
+                    if let Some(rid) = related(&p.asset_id, &mut files, &mut rels) {
+                        shapes.push_str(&picture_shape(shape_id, p, &rid));
+                    }
+                }
+                Block::Rect(r) => shapes.push_str(&rect_shape(shape_id, r)),
                 Block::Image(i)
                     if image_data
                         .get(&i.asset_id)
                         .is_some_and(|(_, h)| h.media_type != "image/webp") =>
                 {
-                    let (bytes, header) = &image_data[&i.asset_id];
-                    let existing = media.iter().position(|(id, _)| id == &i.asset_id);
-                    let name = match existing {
-                        Some(k) => media[k].1.name.clone(),
-                        None => {
-                            let name = format!("image{}.{}", media.len() + 1, header.extension());
-                            files.push((format!("ppt/media/{name}"), bytes.clone()));
-                            media.push((i.asset_id.clone(), Media { name: name.clone() }));
-                            name
-                        }
-                    };
-                    let rid = format!("rId{}", rels.len() + 1);
-                    rels.push(format!(
-                        r#"<Relationship Id="{rid}" Type="{REL}/image" Target="../media/{name}"/>"#
-                    ));
+                    let rid = related(&i.asset_id, &mut files, &mut rels).unwrap_or_default();
                     let alt = slide
                         .audience
                         .image
@@ -152,7 +186,7 @@ pub fn render(
             format!("ppt/slides/slide{number}.xml"),
             format!(
                 r#"{DECL}<p:sld {NS}><p:cSld><p:bg><p:bgPr><a:solidFill><a:srgbClr val="{bg}"/></a:solidFill><a:effectLst/></p:bgPr></p:bg><p:spTree>{group}{shapes}</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>"#,
-                bg = hex(&palette.background),
+                bg = hex(&laid.background),
                 group = GROUP,
             )
             .into_bytes(),
@@ -191,7 +225,10 @@ pub fn render(
             )
             .into_bytes(),
         ),
-        ("ppt/presentation.xml".into(), presentation(n, with_notes).into_bytes()),
+        (
+            "ppt/presentation.xml".into(),
+            presentation(n, with_notes, (design.width, design.height)).into_bytes(),
+        ),
         ("ppt/_rels/presentation.xml.rels".into(), presentation_rels(n, with_notes).into_bytes()),
         ("ppt/presProps.xml".into(), format!(r#"{DECL}<p:presentationPr {NS}/>"#).into_bytes()),
         (
@@ -219,7 +256,10 @@ pub fn render(
             "ppt/slideLayouts/_rels/slideLayout1.xml.rels".into(),
             rels_xml(&[format!(r#"<Relationship Id="rId1" Type="{REL}/slideMaster" Target="../slideMasters/slideMaster1.xml"/>"#)]).into_bytes(),
         ),
-        ("ppt/theme/theme1.xml".into(), theme("Abiding Word", &palette).into_bytes()),
+        (
+            "ppt/theme/theme1.xml".into(),
+            theme("Abiding Word", &palette, Some(&design)).into_bytes(),
+        ),
     ];
     if with_notes {
         package.push((
@@ -235,7 +275,7 @@ pub fn render(
         ));
         package.push((
             "ppt/theme/theme2.xml".into(),
-            theme("Notes", &layout::palette("light")).into_bytes(),
+            theme("Notes", &layout::palette("light"), None).into_bytes(),
         ));
     }
     package.extend(files);
@@ -248,45 +288,153 @@ fn has_speaker_text(slide: &Slide) -> bool {
 
 const GROUP: &str = r#"<p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr>"#;
 
-fn run(text: &str, size: f32, bold: bool, color: &str, lang: &str) -> String {
+/// A run of text; `family` names the font for Latin, East Asian and other scripts alike.
+fn run(text: &str, b: &layout::TextBox, color: &str, lang: &str) -> String {
+    let font = b
+        .family
+        .as_deref()
+        .map(|f| {
+            let f = esc(f);
+            format!(r#"<a:latin typeface="{f}"/><a:ea typeface="{f}"/><a:cs typeface="{f}"/>"#)
+        })
+        .unwrap_or_default();
     format!(
-        r#"<a:r><a:rPr lang="{lang}" sz="{}"{} dirty="0"><a:solidFill><a:srgbClr val="{color}"/></a:solidFill></a:rPr><a:t>{}</a:t></a:r>"#,
-        (size * 100.0).round() as i64,
-        if bold { r#" b="1""# } else { "" },
+        r#"<a:r><a:rPr lang="{lang}" sz="{}"{}{} dirty="0"><a:solidFill><a:srgbClr val="{color}"/></a:solidFill>{font}</a:rPr><a:t>{}</a:t></a:r>"#,
+        (b.size * 100.0).round() as i64,
+        if b.bold { r#" b="1""# } else { "" },
+        if b.italic { r#" i="1""# } else { "" },
         esc(text)
     )
 }
 
-fn text_shape(id: usize, b: &layout::TextBox, palette: &Palette, lang: &str) -> String {
-    let color = hex(match b.role {
-        Role::Text => &palette.text,
-        Role::Muted => &palette.muted,
-        Role::Accent => &palette.accent,
-    });
+fn text_shape(id: usize, b: &layout::TextBox, lang: &str) -> String {
+    let color = hex(&b.color);
     let algn = match b.align {
         Align::Left => "l",
         Align::Center => "ctr",
+        Align::Right => "r",
     };
+    // Line height as PowerPoint holds it: a share of single spacing (PowerPoint's
+    // single spacing is about 1.2 × the size, the layout's line is a multiple of the size).
+    let spacing = ((b.line / 1.2) * 100_000.0)
+        .round()
+        .clamp(50_000.0, 300_000.0) as i64;
     let paragraphs: String = b
         .paragraphs
         .iter()
         .map(|p| {
             if p.trim().is_empty() {
-                format!(r#"<a:p><a:pPr algn="{algn}"/><a:endParaRPr lang="{lang}" sz="{}"/></a:p>"#, (b.size * 100.0) as i64)
-            } else {
                 format!(
-                    r#"<a:p><a:pPr algn="{algn}"><a:lnSpc><a:spcPct val="100000"/></a:lnSpc></a:pPr>{}</a:p>"#,
-                    run(p, b.size, b.bold, &color, lang)
+                    r#"<a:p><a:pPr algn="{algn}"/><a:endParaRPr lang="{lang}" sz="{}"/></a:p>"#,
+                    (b.size * 100.0) as i64
+                )
+            } else {
+                let line = if b.frame.is_some() {
+                    format!(r#"<a:lnSpc><a:spcPct val="{spacing}"/></a:lnSpc>"#)
+                } else {
+                    r#"<a:lnSpc><a:spcPct val="100000"/></a:lnSpc>"#.to_string()
+                };
+                format!(
+                    r#"<a:p><a:pPr algn="{algn}">{line}</a:pPr>{}</a:p>"#,
+                    run(p, b, &color, lang)
                 )
             }
         })
         .collect();
+    match &b.frame {
+        // A template's box: PowerPoint places the text in it as the template says.
+        Some(f) => {
+            let anchor = match f.valign.as_str() {
+                "middle" => "ctr",
+                "bottom" => "b",
+                _ => "t",
+            };
+            let autofit = if f.shrink {
+                "<a:normAutofit/>"
+            } else {
+                "<a:noAutofit/>"
+            };
+            let [l, t, r, bo] = f.inset;
+            format!(
+                r#"<p:sp><p:nvSpPr><p:cNvPr id="{id}" name="Text {id}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="{}" y="{}"/><a:ext cx="{}" cy="{}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr><p:txBody><a:bodyPr wrap="square" lIns="{}" tIns="{}" rIns="{}" bIns="{}" rtlCol="0" anchor="{anchor}">{autofit}</a:bodyPr><a:lstStyle/>{paragraphs}</p:txBody></p:sp>"#,
+                emu(f.x),
+                emu(f.y),
+                emu(f.w),
+                emu(f.h),
+                emu(l),
+                emu(t),
+                emu(r),
+                emu(bo),
+            )
+        }
+        None => format!(
+            r#"<p:sp><p:nvSpPr><p:cNvPr id="{id}" name="Text {id}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="{}" y="{}"/><a:ext cx="{}" cy="{}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr><p:txBody><a:bodyPr wrap="square" lIns="0" tIns="0" rIns="0" bIns="0" rtlCol="0" anchor="t"><a:noAutofit/></a:bodyPr><a:lstStyle/>{paragraphs}</p:txBody></p:sp>"#,
+            emu(b.x),
+            emu(b.y),
+            emu(b.w),
+            emu(b.h)
+        ),
+    }
+}
+
+/// A template picture, cropped as in the source (PowerPoint's own crop) and
+/// as transparent as there.
+fn picture_shape(id: usize, p: &layout::Picture, rid: &str) -> String {
+    let c = p.crop;
+    let pct = |v: f32| (v * 100_000.0).round() as i64;
+    let crop = if c.is_none() {
+        String::new()
+    } else {
+        format!(
+            r#"<a:srcRect l="{}" t="{}" r="{}" b="{}"/>"#,
+            pct(c.left),
+            pct(c.top),
+            pct(c.right),
+            pct(c.bottom)
+        )
+    };
+    let alpha = if p.opacity < 1.0 {
+        format!(r#"<a:alphaModFix amt="{}"/>"#, pct(p.opacity))
+    } else {
+        String::new()
+    };
     format!(
-        r#"<p:sp><p:nvSpPr><p:cNvPr id="{id}" name="Text {id}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="{}" y="{}"/><a:ext cx="{}" cy="{}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr><p:txBody><a:bodyPr wrap="square" lIns="0" tIns="0" rIns="0" bIns="0" rtlCol="0" anchor="t"><a:noAutofit/></a:bodyPr><a:lstStyle/>{paragraphs}</p:txBody></p:sp>"#,
-        emu(b.x),
-        emu(b.y),
-        emu(b.w),
-        emu(b.h)
+        r#"<p:pic><p:nvPicPr><p:cNvPr id="{id}" name="Design {id}"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="{rid}">{alpha}</a:blip>{crop}<a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr><a:xfrm><a:off x="{}" y="{}"/><a:ext cx="{}" cy="{}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>"#,
+        emu(p.x),
+        emu(p.y),
+        emu(p.w),
+        emu(p.h)
+    )
+}
+
+/// A plain band of colour from the template.
+fn rect_shape(id: usize, r: &layout::RectBox) -> String {
+    let fill = match &r.fill {
+        Some(f) if r.fill_opacity < 1.0 => format!(
+            r#"<a:solidFill><a:srgbClr val="{}"><a:alpha val="{}"/></a:srgbClr></a:solidFill>"#,
+            hex(f),
+            (r.fill_opacity * 100_000.0).round() as i64
+        ),
+        Some(f) => format!(
+            r#"<a:solidFill><a:srgbClr val="{}"/></a:solidFill>"#,
+            hex(f)
+        ),
+        None => "<a:noFill/>".to_string(),
+    };
+    let line = match (&r.line, r.line_width > 0.0) {
+        (Some(l), true) => format!(
+            r#"<a:ln w="{}"><a:solidFill><a:srgbClr val="{}"/></a:solidFill></a:ln>"#,
+            emu(r.line_width),
+            hex(l)
+        ),
+        _ => "<a:ln><a:noFill/></a:ln>".to_string(),
+    };
+    format!(
+        r#"<p:sp><p:nvSpPr><p:cNvPr id="{id}" name="Band {id}"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="{}" y="{}"/><a:ext cx="{}" cy="{}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom>{fill}{line}</p:spPr></p:sp>"#,
+        emu(r.x),
+        emu(r.y),
+        emu(r.w),
+        emu(r.h)
     )
 }
 
@@ -384,7 +532,7 @@ fn presentation_rels(n: usize, notes: bool) -> String {
     rels_xml(&rels)
 }
 
-fn presentation(n: usize, notes: bool) -> String {
+fn presentation(n: usize, notes: bool, (width, height): (f32, f32)) -> String {
     let slides: String = (1..=n)
         .map(|i| format!(r#"<p:sldId id="{}" r:id="rId{}"/>"#, 255 + i, i + 9))
         .collect();
@@ -393,8 +541,9 @@ fn presentation(n: usize, notes: bool) -> String {
     } else {
         ""
     };
+    let (cx, cy) = (emu(width), emu(height));
     format!(
-        r#"{DECL}<p:presentation {NS} saveSubsetFonts="1"><p:sldMasterIdLst><p:sldMasterId id="2147483648" r:id="rId1"/></p:sldMasterIdLst>{notes_master}<p:sldIdLst>{slides}</p:sldIdLst><p:sldSz cx="12192000" cy="6858000"/><p:notesSz cx="6858000" cy="9144000"/></p:presentation>"#
+        r#"{DECL}<p:presentation {NS} saveSubsetFonts="1"><p:sldMasterIdLst><p:sldMasterId id="2147483648" r:id="rId1"/></p:sldMasterIdLst>{notes_master}<p:sldIdLst>{slides}</p:sldIdLst><p:sldSz cx="{cx}" cy="{cy}"/><p:notesSz cx="6858000" cy="9144000"/></p:presentation>"#
     )
 }
 
@@ -405,12 +554,24 @@ fn master(palette: &Palette) -> String {
     )
 }
 
-fn theme(name: &str, palette: &Palette) -> String {
-    let fonts = r#"<a:latin typeface="Arial"/><a:ea typeface=""/><a:cs typeface=""/><a:font script="Hang" typeface="Malgun Gothic"/><a:font script="Jpan" typeface="Yu Gothic"/><a:font script="Hans" typeface="Microsoft YaHei"/>"#;
+fn theme(name: &str, palette: &Palette, design: Option<&TemplateDefinition>) -> String {
+    // The template's two fonts become the theme's heading and body fonts.
+    let scheme = |family: &str| {
+        let latin = if family.trim().is_empty() {
+            "Arial".to_string()
+        } else {
+            esc(family)
+        };
+        format!(
+            r#"<a:latin typeface="{latin}"/><a:ea typeface=""/><a:cs typeface=""/><a:font script="Hang" typeface="Malgun Gothic"/><a:font script="Jpan" typeface="Yu Gothic"/><a:font script="Hans" typeface="Microsoft YaHei"/>"#
+        )
+    };
+    let major = scheme(design.map_or("", |d| d.fonts.heading.resolved()));
+    let minor = scheme(design.map_or("", |d| d.fonts.body.resolved()));
     let fill = r#"<a:solidFill><a:schemeClr val="phClr"/></a:solidFill>"#;
     let line = r#"<a:ln w="9525"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln>"#;
     format!(
-        r#"{DECL}<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="{name}"><a:themeElements><a:clrScheme name="{name}"><a:dk1><a:srgbClr val="{text}"/></a:dk1><a:lt1><a:srgbClr val="{bg}"/></a:lt1><a:dk2><a:srgbClr val="{muted}"/></a:dk2><a:lt2><a:srgbClr val="EEECE1"/></a:lt2><a:accent1><a:srgbClr val="{accent}"/></a:accent1><a:accent2><a:srgbClr val="7A4A24"/></a:accent2><a:accent3><a:srgbClr val="5F7A8C"/></a:accent3><a:accent4><a:srgbClr val="8C6A5F"/></a:accent4><a:accent5><a:srgbClr val="4F6F52"/></a:accent5><a:accent6><a:srgbClr val="A67C52"/></a:accent6><a:hlink><a:srgbClr val="0563C1"/></a:hlink><a:folHlink><a:srgbClr val="954F72"/></a:folHlink></a:clrScheme><a:fontScheme name="{name}"><a:majorFont>{fonts}</a:majorFont><a:minorFont>{fonts}</a:minorFont></a:fontScheme><a:fmtScheme name="{name}"><a:fillStyleLst>{fill}{fill}{fill}</a:fillStyleLst><a:lnStyleLst>{line}{line}{line}</a:lnStyleLst><a:effectStyleLst><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle></a:effectStyleLst><a:bgFillStyleLst>{fill}{fill}{fill}</a:bgFillStyleLst></a:fmtScheme></a:themeElements><a:objectDefaults/><a:extraClrSchemeLst/></a:theme>"#,
+        r#"{DECL}<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="{name}"><a:themeElements><a:clrScheme name="{name}"><a:dk1><a:srgbClr val="{text}"/></a:dk1><a:lt1><a:srgbClr val="{bg}"/></a:lt1><a:dk2><a:srgbClr val="{muted}"/></a:dk2><a:lt2><a:srgbClr val="EEECE1"/></a:lt2><a:accent1><a:srgbClr val="{accent}"/></a:accent1><a:accent2><a:srgbClr val="7A4A24"/></a:accent2><a:accent3><a:srgbClr val="5F7A8C"/></a:accent3><a:accent4><a:srgbClr val="8C6A5F"/></a:accent4><a:accent5><a:srgbClr val="4F6F52"/></a:accent5><a:accent6><a:srgbClr val="A67C52"/></a:accent6><a:hlink><a:srgbClr val="0563C1"/></a:hlink><a:folHlink><a:srgbClr val="954F72"/></a:folHlink></a:clrScheme><a:fontScheme name="{name}"><a:majorFont>{major}</a:majorFont><a:minorFont>{minor}</a:minorFont></a:fontScheme><a:fmtScheme name="{name}"><a:fillStyleLst>{fill}{fill}{fill}</a:fillStyleLst><a:lnStyleLst>{line}{line}{line}</a:lnStyleLst><a:effectStyleLst><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle></a:effectStyleLst><a:bgFillStyleLst>{fill}{fill}{fill}</a:bgFillStyleLst></a:fmtScheme></a:themeElements><a:objectDefaults/><a:extraClrSchemeLst/></a:theme>"#,
         text = hex(&palette.text),
         bg = hex(&palette.background),
         muted = hex(&palette.muted),

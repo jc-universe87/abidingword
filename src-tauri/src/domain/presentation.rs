@@ -59,6 +59,8 @@ pub struct Presentation {
     pub translation_id: Option<String>,
     /// An optional target time in minutes, for quiet guidance while presenting.
     pub target_minutes: Option<u32>,
+    /// The church template it uses; none: the built-in background (`theme`).
+    pub template_id: Option<String>,
     pub items: Vec<PresentationItem>,
     pub created_at: String,
     pub updated_at: String,
@@ -127,6 +129,60 @@ pub struct UpdatePresentation {
     pub translation_id: Option<String>,
     /// `Some(0)` removes the target time.
     pub target_minutes: Option<u32>,
+    /// A template's id; `Some("")` goes back to the built-in background.
+    pub template_id: Option<String>,
+}
+
+/// A church template as listed for choosing.
+#[derive(Debug, Clone, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct PresentationTemplateSummary {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub width: f32,
+    pub height: f32,
+    pub source_format: String,
+    pub updated_at: String,
+}
+
+/// A church template with its whole design.
+#[derive(Debug, Clone, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct PresentationTemplate {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub definition: crate::presentation::template::TemplateDefinition,
+    pub source_format: String,
+    pub source_name: Option<String>,
+    /// The compatibility report shown when it was imported.
+    pub report: Option<serde_json::Value>,
+    pub created_at: String,
+    pub updated_at: String,
+    pub revision: i64,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct CreatePresentationTemplate {
+    pub name: String,
+    pub description: String,
+    pub definition: crate::presentation::template::TemplateDefinition,
+    /// pptx, package or designer.
+    pub source_format: String,
+    pub source_name: Option<String>,
+    pub report: Option<serde_json::Value>,
+}
+
+/// Each field: `None` leaves it as it is.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct UpdatePresentationTemplate {
+    pub id: String,
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub definition: Option<crate::presentation::template::TemplateDefinition>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]

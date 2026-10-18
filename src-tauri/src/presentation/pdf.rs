@@ -18,7 +18,7 @@ use lopdf::{dictionary, Dictionary, Document, Object, ObjectId, Stream, StringFo
 use super::document::{PresentationDocument, Slide};
 use super::fonts::FontSet;
 use super::images::{self, ImageHeader};
-use super::layout::{self, rgb, Align, Block, Palette, Role, LINE};
+use super::layout::{self, rgb, Align, Block, Palette, LINE};
 use super::text::{FontRef, Shaper};
 use super::ExportOptions;
 use crate::error::{AppError, AppResult};
@@ -53,6 +53,8 @@ struct Pdf<'a> {
     to_unicode: BTreeMap<(usize, u16), char>,
     builtin: [bool; 2],
     pages: Vec<Page>,
+    /// Transparency levels used (in thousandths), each a graphics state.
+    alphas: BTreeSet<u32>,
 }
 
 fn color(hex: &str, stroke: bool) -> String {
@@ -71,7 +73,18 @@ impl<'a> Pdf<'a> {
             to_unicode: BTreeMap::new(),
             builtin: [false; 2],
             pages: Vec::new(),
+            alphas: BTreeSet::new(),
         }
+    }
+
+    /// The graphics state for a transparency level (`None` when opaque).
+    fn alpha(&mut self, opacity: f32) -> Option<String> {
+        let a = (opacity.clamp(0.0, 1.0) * 1000.0).round() as u32;
+        if a >= 1000 {
+            return None;
+        }
+        self.alphas.insert(a);
+        Some(format!("/GS{a} gs "))
     }
 
     fn page(&mut self, width: f32, height: f32, background: &str) -> usize {
@@ -97,12 +110,29 @@ impl<'a> Pdf<'a> {
         bold: bool,
         hex: &str,
     ) {
+        self.styled_line(page, text, (x, top), size, (bold, false), hex, None);
+    }
+
+    /// One line in a family (and slanted for italic).
+    #[allow(clippy::too_many_arguments)]
+    fn styled_line(
+        &mut self,
+        page: usize,
+        text: &str,
+        (x, top): (f32, f32),
+        size: f32,
+        (bold, italic): (bool, bool),
+        hex: &str,
+        family: Option<&str>,
+    ) {
         let height = self.pages[page].height;
         let baseline = height - top - size * 0.95;
+        // Italic is drawn slanted (as PowerPoint and browsers do for a font without its own italic).
+        let skew = if italic { 0.2 } else { 0.0 };
         let mut out = String::new();
         out.push_str(&color(hex, false));
         let mut cursor = x;
-        for run in self.shaper.runs(text, bold) {
+        for run in self.shaper.runs_in(text, bold, family) {
             let (name, hexcodes) = match run.font {
                 FontRef::Embedded(i) => {
                     let set = self.used.entry(i).or_default();
@@ -134,29 +164,79 @@ impl<'a> Pdf<'a> {
                 }
             };
             out.push_str(&format!(
-                "BT /{name} {size:.2} Tf 1 0 0 1 {cursor:.2} {baseline:.2} Tm <{hexcodes}> Tj ET\n"
+                "BT /{name} {size:.2} Tf 1 0 {skew:.2} 1 {cursor:.2} {baseline:.2} Tm <{hexcodes}> Tj ET\n"
             ));
             cursor += run.width * size;
         }
         self.pages[page].content.push_str(&out);
     }
 
-    fn text_box(&mut self, page: usize, b: &layout::TextBox, palette: &Palette) {
-        let hex = match b.role {
-            Role::Text => &palette.text,
-            Role::Muted => &palette.muted,
-            Role::Accent => &palette.accent,
-        }
-        .clone();
+    fn text_box(&mut self, page: usize, b: &layout::TextBox) {
+        let family = b.family.as_deref();
         let mut y = b.y;
         for line in &b.lines {
+            let width = || self.shaper.width_in(line, b.bold, b.size, family);
             let x = match b.align {
                 Align::Left => b.x,
-                Align::Center => b.x + (b.w - self.shaper.width(line, b.bold, b.size)) / 2.0,
+                Align::Center => b.x + (b.w - width()) / 2.0,
+                Align::Right => b.x + b.w - width(),
             };
-            self.line(page, line, x, y, b.size, b.bold, &hex);
-            y += b.size * LINE;
+            self.styled_line(
+                page,
+                line,
+                (x, y),
+                b.size,
+                (b.bold, b.italic),
+                &b.color,
+                family,
+            );
+            y += b.size * if b.line > 0.0 { b.line } else { LINE };
         }
+    }
+
+    /// A template picture: the visible part of the image (after the crop)
+    /// fills the box, clipped to it.
+    fn picture(&mut self, page: usize, p: &layout::Picture) {
+        let height = self.pages[page].height;
+        let c = p.crop;
+        let vw = (1.0 - c.left - c.right).max(0.01);
+        let vh = (1.0 - c.top - c.bottom).max(0.01);
+        let (fw, fh) = (p.w / vw, p.h / vh);
+        let fx = p.x - c.left * fw;
+        let ftop = p.y - c.top * fh;
+        let gs = self.alpha(p.opacity).unwrap_or_default();
+        let name = format!("Im{}", image_name(&p.asset_id));
+        self.pages[page].images.insert(p.asset_id.clone());
+        self.pages[page].content.push_str(&format!(
+            "q {gs}{:.2} {:.2} {:.2} {:.2} re W n {fw:.2} 0 0 {fh:.2} {fx:.2} {:.2} cm /{name} Do Q\n",
+            p.x,
+            height - p.y - p.h,
+            p.w,
+            p.h,
+            height - ftop - fh
+        ));
+    }
+
+    fn rect(&mut self, page: usize, r: &layout::RectBox) {
+        let height = self.pages[page].height;
+        let (x, y, w, h) = (r.x, height - r.y - r.h, r.w, r.h);
+        let mut out = String::from("q ");
+        if let Some(fill) = &r.fill {
+            if let Some(gs) = self.alpha(r.fill_opacity) {
+                out.push_str(&gs);
+            }
+            out.push_str(&color(fill, false));
+            out.push_str(&format!("{x:.2} {y:.2} {w:.2} {h:.2} re f\n"));
+        }
+        if let (Some(line), true) = (&r.line, r.line_width > 0.0) {
+            out.push_str(&color(line, true));
+            out.push_str(&format!(
+                "{:.2} w {x:.2} {y:.2} {w:.2} {h:.2} re S\n",
+                r.line_width
+            ));
+        }
+        out.push_str("Q\n");
+        self.pages[page].content.push_str(&out);
     }
 
     fn image(&mut self, page: usize, id: &str, x: f32, top: f32, w: f32, h: f32) {
@@ -236,9 +316,20 @@ impl<'a> Pdf<'a> {
             });
             xobjects.set(format!("Im{}", image_name(id)), object);
         }
+        let mut states = Dictionary::new();
+        for a in &self.alphas {
+            let v = *a as f32 / 1000.0;
+            let id = doc.add_object(dictionary! {
+                "Type" => "ExtGState",
+                "ca" => v,
+                "CA" => v,
+            });
+            states.set(format!("GS{a}"), id);
+        }
         let resources = doc.add_object(dictionary! {
             "Font" => fonts,
             "XObject" => xobjects,
+            "ExtGState" => states,
         });
 
         let mut kids = Vec::new();
@@ -284,12 +375,7 @@ fn image_name(id: &str) -> String {
 }
 
 fn font_at(fonts: &FontSet, index: usize) -> &super::fonts::Font {
-    let regular = fonts.regular.len();
-    if index < regular {
-        &fonts.regular[index]
-    } else {
-        &fonts.bold[index - regular]
-    }
+    fonts.at(index)
 }
 
 fn utf16(text: &str) -> Vec<u8> {
@@ -504,12 +590,19 @@ pub fn slides(
     fonts: &FontSet,
     options: &ExportOptions,
 ) -> AppResult<Vec<u8>> {
-    let palette = layout::palette(&doc.theme);
+    let design = doc.design();
     let mut pdf = Pdf::new(fonts);
     for slide in &doc.slides {
-        let page = pdf.page(layout::WIDTH, layout::HEIGHT, &palette.background);
-        let blocks = layout::slide(slide, doc, &pdf.shaper, &options.locale);
-        draw(&mut pdf, page, &blocks, &palette, image_data, options);
+        let laid = layout::page(slide, doc, &design, &pdf.shaper, &options.locale);
+        let page = pdf.page(laid.width, laid.height, &laid.background);
+        draw(
+            &mut pdf,
+            page,
+            &laid.blocks,
+            &design.colors.muted,
+            image_data,
+            options,
+        );
     }
     pdf.finish(&doc.title, image_data)
 }
@@ -518,13 +611,23 @@ fn draw(
     pdf: &mut Pdf,
     page: usize,
     blocks: &[Block],
-    palette: &Palette,
+    muted: &str,
     image_data: &ImageData,
     options: &ExportOptions,
 ) {
     for block in blocks {
         match block {
-            Block::Text(b) => pdf.text_box(page, b, palette),
+            Block::Text(b) => pdf.text_box(page, b),
+            Block::Picture(p) => {
+                // A template image the PDF cannot hold (GIF, WebP) is left out, as the export says.
+                if image_data
+                    .get(&p.asset_id)
+                    .is_some_and(|(_, h)| pdf_can_show(h))
+                {
+                    pdf.picture(page, p);
+                }
+            }
+            Block::Rect(r) => pdf.rect(page, r),
             Block::Image(i)
                 if image_data
                     .get(&i.asset_id)
@@ -533,7 +636,7 @@ fn draw(
                 pdf.image(page, &i.asset_id, i.x, i.y, i.w, i.h);
             }
             Block::Image(layout::ImageBox { x, y, w, h, .. }) | Block::Missing { x, y, w, h } => {
-                pdf.frame(page, *x, *y, *w, *h, &palette.muted);
+                pdf.frame(page, *x, *y, *w, *h, muted);
                 let label = &options.locale.labels.image_unavailable;
                 let size = 22.0;
                 let tw = pdf.shaper.width(label, false, size);
@@ -544,7 +647,7 @@ fn draw(
                     y + h / 2.0 - size / 2.0,
                     size,
                     false,
-                    &palette.muted,
+                    muted,
                 );
             }
         }

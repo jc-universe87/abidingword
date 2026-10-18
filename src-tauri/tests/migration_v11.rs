@@ -41,7 +41,7 @@ fn a_v10_database_is_backed_up_and_its_presentations_gain_an_empty_target_time()
     let files: Vec<_> = fs::read_dir(&backups).unwrap().collect();
     assert_eq!(files.len(), 1);
     db.with_conn(|conn| {
-        assert_eq!(migrations::current_version(conn)?, 11);
+        assert_eq!(migrations::current_version(conn)?, MIGRATIONS.len() as i64);
         let p = presentations::get(conn, "pr-1")?;
         assert_eq!(p.title, "Sunday slides");
         assert_eq!(p.theme, "warm");

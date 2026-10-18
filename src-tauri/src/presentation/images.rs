@@ -15,9 +15,17 @@ pub struct ImageStore {
     pub generated_dir: PathBuf,
     /// Copies of found images saved for offline use (v0.18).
     pub offline_dir: PathBuf,
+    /// Church templates' images (v0.18.1).
+    pub template_dir: PathBuf,
 }
 
 impl ImageStore {
+    pub fn templates(&self) -> super::template_store::TemplateStore {
+        super::template_store::TemplateStore {
+            dir: self.template_dir.clone(),
+        }
+    }
+
     /// The local copy of a kept image, when there is one.
     pub fn path_for(&self, material: &TeachingMaterial) -> Option<PathBuf> {
         let image = material.image.as_ref()?;

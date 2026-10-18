@@ -12,6 +12,7 @@
 //! no renderer reads the teaching or the database itself.
 
 pub mod document;
+pub mod font_catalog;
 pub mod fonts;
 pub mod images;
 pub mod layout;
@@ -20,6 +21,8 @@ pub mod markdown;
 pub mod package;
 pub mod pdf;
 pub mod pptx;
+pub mod template;
+pub mod template_store;
 pub mod text;
 
 use serde::{Deserialize, Serialize};

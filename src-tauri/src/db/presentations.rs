@@ -21,7 +21,7 @@ pub const ITEMS_MAX: usize = 500;
 pub const TARGET_MINUTES_MAX: u32 = 600;
 
 const COLUMNS: &str = "id, preparation_id, title, theme, translation_id, created_at, updated_at, \
-                       revision, target_minutes";
+                       revision, target_minutes, template_id";
 const ITEM_COLUMNS: &str = "id, position, kind, source_kind, source_id, source_field, heading, \
                             body, reference, notes, skipped";
 
@@ -33,6 +33,7 @@ fn from_row(row: &Row) -> rusqlite::Result<Presentation> {
         theme: row.get(3)?,
         translation_id: row.get(4)?,
         target_minutes: row.get(8)?,
+        template_id: row.get(9)?,
         items: Vec::new(),
         created_at: row.get(5)?,
         updated_at: row.get(6)?,
@@ -357,9 +358,15 @@ pub fn update(conn: &Connection, input: &UpdatePresentation) -> AppResult<Presen
         }
         None => current.target_minutes,
     };
+    // A template still there; "" goes back to the built-in background.
+    let template_id = match input.template_id.as_deref().map(str::trim) {
+        Some("") => None,
+        Some(t) => Some(crate::db::presentation_templates::get(conn, t)?.id),
+        None => current.template_id,
+    };
     conn.execute(
         "UPDATE presentations SET title = ?2, theme = ?3, translation_id = ?4, updated_at = ?5,
-             target_minutes = ?6, revision = revision + 1
+             target_minutes = ?6, template_id = ?7, revision = revision + 1
          WHERE id = ?1",
         params![
             input.id,
@@ -367,7 +374,8 @@ pub fn update(conn: &Connection, input: &UpdatePresentation) -> AppResult<Presen
             theme,
             translation_id,
             now(),
-            target_minutes
+            target_minutes,
+            template_id
         ],
     )?;
     get(conn, &input.id)

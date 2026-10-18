@@ -109,6 +109,16 @@ impl Font {
 pub struct FontSet {
     pub regular: Vec<Font>,
     pub bold: Vec<Font>,
+    /// A template's own fonts (v0.18.1), tried first for its text boxes.
+    pub families: Vec<FamilyFaces>,
+}
+
+/// The faces of one installed family a template uses.
+pub struct FamilyFaces {
+    /// The family name, as the template resolves it.
+    pub name: String,
+    pub regular: Vec<Font>,
+    pub bold: Vec<Font>,
 }
 
 /// Where each system keeps the fonts tried, regular and bold, in order.
@@ -173,6 +183,7 @@ impl FontSet {
         FontSet {
             regular: load(regular),
             bold: load(bold),
+            families: Vec::new(),
         }
     }
 
@@ -180,7 +191,103 @@ impl FontSet {
         FontSet {
             regular: Vec::new(),
             bold: Vec::new(),
+            families: Vec::new(),
         }
+    }
+
+    /// Adds installed families (by name) a template uses, from `catalog`.
+    /// A family whose fonts a PDF may not carry is left out here: the PDF
+    /// then uses the usual fonts, which the template's report says.
+    pub fn with_families(
+        mut self,
+        names: &[&str],
+        catalog: &[super::font_catalog::CatalogFace],
+    ) -> FontSet {
+        for name in names {
+            let name = name.trim();
+            if name.is_empty()
+                || self
+                    .families
+                    .iter()
+                    .any(|f| f.name.eq_ignore_ascii_case(name))
+            {
+                continue;
+            }
+            let load = |bold: bool| -> Vec<Font> {
+                super::font_catalog::find(catalog, name, bold, false)
+                    .filter(|f| f.embeddable && f.bold == bold)
+                    .and_then(|f| {
+                        let data = std::fs::read(&f.path).ok()?;
+                        Font::from_data(Arc::new(data), f.index)
+                    })
+                    .into_iter()
+                    .collect()
+            };
+            let regular = load(false);
+            let bold = load(true);
+            if !regular.is_empty() || !bold.is_empty() {
+                self.families.push(FamilyFaces {
+                    name: name.to_string(),
+                    regular,
+                    bold,
+                });
+            }
+        }
+        self
+    }
+
+    /// Every face, numbered in one order: the usual regular, the usual bold,
+    /// then each family's regular and bold.
+    pub fn at(&self, index: usize) -> &Font {
+        let mut i = index;
+        for list in self.lists() {
+            if i < list.len() {
+                return &list[i];
+            }
+            i -= list.len();
+        }
+        &self.regular[0]
+    }
+
+    fn lists(&self) -> Vec<&Vec<Font>> {
+        let mut out = vec![&self.regular, &self.bold];
+        for f in &self.families {
+            out.push(&f.regular);
+            out.push(&f.bold);
+        }
+        out
+    }
+
+    /// The faces tried for a character, in order, with their numbers: the
+    /// family's (bold first for bold text), then the usual ones.
+    pub fn chain(&self, family: Option<&str>, bold: bool) -> Vec<(usize, &Font)> {
+        let mut offset = self.regular.len() + self.bold.len();
+        let mut out: Vec<(usize, &Font)> = Vec::new();
+        for f in &self.families {
+            let here = family.is_some_and(|name| f.name.eq_ignore_ascii_case(name.trim()));
+            if here {
+                let regular_at = offset;
+                let bold_at = offset + f.regular.len();
+                let regular = f
+                    .regular
+                    .iter()
+                    .enumerate()
+                    .map(|(i, x)| (regular_at + i, x));
+                let bolds = f.bold.iter().enumerate().map(|(i, x)| (bold_at + i, x));
+                if bold {
+                    out.extend(bolds.chain(regular));
+                } else {
+                    out.extend(regular);
+                }
+            }
+            offset += f.regular.len() + f.bold.len();
+        }
+        let regular = self.regular.len();
+        if bold {
+            out.extend(self.bold.iter().enumerate().map(|(i, f)| (regular + i, f)));
+        }
+        out.extend(self.regular.iter().enumerate());
+        out
     }
 }
 

@@ -92,6 +92,11 @@ impl DataDirs {
     pub fn presentation_images(&self) -> PathBuf {
         self.root.join("sources").join("presentation-images")
     }
+
+    /// Church presentation templates' images (v0.18.1), named by their SHA-256.
+    pub fn presentation_templates(&self) -> PathBuf {
+        self.root.join("sources").join("presentation-templates")
+    }
 }
 
 /// Copies files into `dir` (created if needed). Names that clash get a
