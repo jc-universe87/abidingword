@@ -36,6 +36,12 @@ async function seed(api: MemoryApi) {
   api.state.settings.scriptureTranslationId = web.id;
   api.state.settings.scripturePassage = params.get("passage") ?? "JHN.15";
   api.state.settings.theme = params.get("theme") === "dark" ? "dark" : "light";
+  // A projector beside the computer, for the audience-screen scenes.
+  if (params.get("screens") === "2")
+    api.state.presentation.screens = [
+      { index: 0, name: "Built-in", width: 1440, height: 900, primary: true },
+      { index: 1, name: "Projector", width: 1920, height: 1080, primary: false },
+    ];
 
   // Collections and studies (sample content written for this guide).
   const workspaceId = api.state.workspace.id;

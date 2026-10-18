@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import i18n from "@/i18n";
 import { ApiProvider } from "@/lib/ApiContext";
 import { AudienceWindow } from "@/features/presentation/AudienceWindow";
@@ -202,7 +202,7 @@ describe("the Presenter View", () => {
     await user.click(within(view).getByRole("button", { name: "View" }));
     await user.click(within(view).getByRole("button", { name: "Larger text" }));
     expect(within(view).getByText("115 %")).toBeInTheDocument();
-    expect(within(view).getAllByRole("radio").map((r) => r.closest("label")!.textContent)).toEqual(["Light", "Dark", "Warm"]);
+    expect(within(view).getAllByRole("radio").map((r) => r.closest("label")!.textContent)).toEqual(["Slides and notes", "Larger notes", "Larger slides", "Light", "Dark", "Warm"]);
     // jsdom has no wake lock: the limitation is said, not hidden.
     expect(within(view).getByRole("checkbox", { name: "Keep the screen on" })).toBeDisabled();
     expect(within(view).getByText(/does not let the app keep the screen on/)).toBeInTheDocument();
@@ -256,12 +256,12 @@ describe("what the audience sees", () => {
     fireEvent.keyDown(window, { key: "b" });
 
     // A passage is looked up privately, then shown, without losing the place.
-    await user.click(within(view).getByRole("button", { name: "Scripture" }));
+    await user.click(within(view).getByRole("button", { name: "Bible passage" }));
     await user.click(within(view).getByRole("button", { name: "John 15:1–5" }));
     const found = await within(view).findByRole("region", { name: "John 15:1–5" });
     expect(found.textContent).toMatch(/alpha/);
     expect(api.state.presentation.audienceShown.at(-1)!.scripture).toBeNull();
-    await user.click(within(view).getByRole("button", { name: "Show to the audience" }));
+    await user.click(within(view).getByRole("button", { name: "Show to audience" }));
     await waitFor(() => expect(api.state.presentation.audienceShown.at(-1)!.scripture?.label).toBe("John 15:1–5"));
     expect(api.state.presentation.audienceShown.at(-1)!.index).toBe(1);
     expect(within(view).getByText("Slide 2 of 6")).toBeInTheDocument();
@@ -372,7 +372,7 @@ describe("presenter layout: controls float, the speaker's material never moves",
     const { user, view } = await presenting(width);
     const before = flow(view);
     const main = within(view).getByRole("main");
-    for (const name of ["View", "Audience screen", "Scripture", /Time so far/]) {
+    for (const name of ["Overview", "View", "Audience screen", "Bible passage", /Time so far/]) {
       await user.click(within(view).getByRole("button", { name }));
       const panel = await within(view).findByRole("dialog");
       expect(panel).toHaveAttribute("data-presenter-panel");
@@ -393,7 +393,8 @@ describe("presenter layout: controls float, the speaker's material never moves",
     const header = view.querySelector("header")!;
     expect(within(header).getAllByRole("button").map((b) => b.getAttribute("aria-label") ?? b.textContent)).toEqual([
       "Time so far: 0:00",
-      "Scripture",
+      "Overview",
+      "Bible passage",
       "Audience screen",
       "View",
       "Exit",
@@ -406,12 +407,12 @@ describe("presenter layout: controls float, the speaker's material never moves",
     await user.click(within(timer).getByRole("button", { name: "Close" }));
     await waitFor(() => expect(within(view).getByRole("button", { name: /Time so far/ })).toHaveFocus());
 
-    expect(view.textContent).not.toMatch(/Page Down for the next slide/);
+    expect(view.textContent).not.toMatch(/Page Down or Space for the next slide/);
     await user.click(within(view).getByRole("button", { name: "View" }));
     const settings = await within(view).findByRole("dialog", { name: "View" });
-    expect(settings.textContent).not.toMatch(/Page Down for the next slide/);
+    expect(settings.textContent).not.toMatch(/Page Down or Space for the next slide/);
     await user.click(within(settings).getByRole("button", { name: "Keyboard shortcuts" }));
-    expect(settings.textContent).toMatch(/Page Down for the next slide/);
+    expect(settings.textContent).toMatch(/Page Down or Space for the next slide/);
     // Tab stays inside the open panel.
     for (let i = 0; i < 12; i++) {
       await user.tab();
@@ -438,7 +439,7 @@ describe("presenter layout: controls float, the speaker's material never moves",
   it("on a phone: a choice in the menu puts the keyboard inside the new sheet", async () => {
     const { user, view } = await presenting(390);
     await user.click(within(view).getByRole("button", { name: "Presenter options" }));
-    for (const name of ["View", "Audience screen", "Scripture"]) {
+    for (const name of ["Overview", "View", "Audience screen", "Bible passage"]) {
       const menu = await within(view).findByRole("dialog", { name: "Presenter options" });
       await user.click(within(menu).getByRole("button", { name }));
       const panel = await within(view).findByRole("dialog", { name });
@@ -461,13 +462,13 @@ describe("presenter layout: controls float, the speaker's material never moves",
     // With a panel open, another door in the bar still works and takes the keyboard into its panel.
     await user.click(within(view).getByRole("button", { name: "View" }));
     await within(view).findByRole("dialog", { name: "View" });
-    await user.click(within(view).getByRole("button", { name: "Scripture" }));
-    const scripture = await within(view).findByRole("dialog", { name: "Scripture" });
+    await user.click(within(view).getByRole("button", { name: "Bible passage" }));
+    const scripture = await within(view).findByRole("dialog", { name: "Bible passage" });
     expect(within(view).queryByRole("dialog", { name: "View" })).toBeNull();
     await waitFor(() => expect(scripture.contains(document.activeElement)).toBe(true));
     // Escape while an input method is composing belongs to the input method.
     fireEvent.keyDown(document.activeElement!, { key: "Escape", isComposing: true });
-    expect(within(view).getByRole("dialog", { name: "Scripture" })).toBeInTheDocument();
+    expect(within(view).getByRole("dialog", { name: "Bible passage" })).toBeInTheDocument();
   });
 
   it("on a phone the timer opens as a full-width bottom sheet, not a popover placed under the button", async () => {
@@ -508,16 +509,268 @@ describe("presenter layout: controls float, the speaker's material never moves",
     const { user, view } = await presenting(1366);
     const before = flow(view);
     fireEvent.keyDown(window, { key: "b" });
-    const note = await within(view).findByText("The audience screen is empty.");
+    const note = await within(view).findByText("The audience screen is blank.");
     expect(note.closest("[data-presenter-status]")).not.toBeNull();
     // Beside the title, so the slide position and timer stay centred and the doors stay put.
     const [left, centre, right] = Array.from(view.querySelector("header")!.children);
     expect(left!.contains(note)).toBe(true);
     expect(centre!.textContent).toMatch(/^Slide 1 of 6/);
-    expect(within(right as HTMLElement).getAllByRole("button").map((b) => b.textContent)).toEqual(["Scripture", "Audience screen", "View", "Exit"]);
+    expect(within(right as HTMLElement).getAllByRole("button").map((b) => b.textContent)).toEqual(["Overview", "Bible passage", "Audience screen", "View", "Exit"]);
     expect(flow(view)).toEqual(before);
-    await user.click(within(view).getByRole("button", { name: "Back to the slide" }));
-    expect(within(view).queryByText("The audience screen is empty.")).toBeNull();
+    await user.click(within(view).getByRole("button", { name: "Return to slide" }));
+    expect(within(view).queryByText("The audience screen is blank.")).toBeNull();
+  });
+});
+
+describe("presenting: the useful few things, simply", () => {
+  async function presenting(width = 1366, target?: number) {
+    const { api } = await setup();
+    api.state.presentation.screens = [
+      { index: 0, name: "Built-in", width: 1440, height: 900, primary: true },
+      { index: 1, name: "Projector", width: 1920, height: 1080, primary: false },
+    ];
+    const { user } = await renderApp(api, { width });
+    const region = await makeSlides(user);
+    if (target !== undefined) {
+      await user.click(within(region).getByText("Name, background, Bible and target time"));
+      await user.selectOptions(within(region).getByRole("combobox", { name: /Target time/ }), String(target));
+      await waitFor(() => expect(api.state.presentation.presentations[0]!.targetMinutes).toBe(target));
+    }
+    await user.click(within(region).getByRole("button", { name: "Start Presenter View" }));
+    const view = await screen.findByRole("dialog", { name: /Remain in the vine/ });
+    return { api, user, view, region };
+  }
+  async function onScreenTwo(user: User, view: HTMLElement) {
+    await user.click(within(view).getByRole("button", { name: "Audience screen" }));
+    await user.click(await within(view).findByRole("button", { name: "Show on screen 2 (1920 × 1080)" }));
+    await within(view.querySelector("header")!).findByText("The audience screen is on.");
+  }
+  const last = (api: Awaited<ReturnType<typeof setup>>["api"]) => api.state.presentation.audienceShown.at(-1)!;
+
+  it("Overview shows every slide over the view and goes straight to the one chosen", async () => {
+    const { api, user, view } = await presenting();
+    await onScreenTwo(user, view);
+    const main = within(view).getByRole("main");
+    const saved = structuredClone(api.state.presentation.presentations[0]!);
+    await user.click(within(view).getByRole("button", { name: "Overview" }));
+    const overview = await within(view).findByRole("dialog", { name: "Overview" });
+    expect(overview.className).toMatch(/\babsolute\b/);
+    expect(within(view).getByRole("main")).toBe(main);
+    const items = within(overview).getAllByRole("button").filter((b) => b.closest("ol"));
+    expect(items).toHaveLength(6);
+    // The keyboard starts on the current slide.
+    expect(items[0]).toHaveAttribute("aria-current", "step");
+    expect(items[0]).toHaveFocus();
+    await user.click(items[3]!);
+    await waitFor(() => expect(within(view).queryByRole("dialog")).toBeNull());
+    expect(within(view).getByText("Slide 4 of 6")).toBeInTheDocument();
+    await waitFor(() => expect(within(view).getByRole("button", { name: "Overview" })).toHaveFocus());
+    // The audience follows; the order of the presentation is unchanged; the audience screen stays on.
+    await waitFor(() => expect(last(api).index).toBe(3));
+    expect(api.state.presentation.audienceOpen).not.toBeNull();
+    expect(api.state.presentation.presentations[0]).toEqual(saved);
+    // O opens it from the keyboard too.
+    fireEvent.keyDown(window, { key: "o" });
+    expect(await within(view).findByRole("dialog", { name: "Overview" })).toBeInTheDocument();
+  });
+
+  it("Blank audience screen empties only the audience screen; B brings back exactly the same slide", async () => {
+    const { api, user, view } = await presenting();
+    await onScreenTwo(user, view);
+    fireEvent.keyDown(window, { key: "PageDown" });
+    fireEvent.keyDown(window, { key: "PageDown" });
+    await waitFor(() => expect(last(api).index).toBe(2));
+    const blankButton = within(view).getByRole("button", { name: "Blank audience screen" });
+    await user.click(blankButton);
+    await waitFor(() => expect(last(api)).toMatchObject({ index: 2, blank: true }));
+    expect(blankButton).toHaveAttribute("aria-pressed", "true");
+    // The speaker keeps their own material and place.
+    expect(within(view).getByText("Slide 3 of 6")).toBeInTheDocument();
+    expect(within(view).getByRole("main").textContent).not.toBe("");
+    fireEvent.keyDown(window, { key: "b" });
+    await waitFor(() => expect(last(api)).toMatchObject({ index: 2, blank: false }));
+    expect(blankButton).toHaveAttribute("aria-pressed", "false");
+    // What reaches the audience screen is only the place, the blank, a passage and the marks.
+    for (const shown of api.state.presentation.audienceShown) {
+      expect(Object.keys(shown).sort()).toEqual(expect.arrayContaining(["blank", "index", "presentationId", "scripture"]));
+      expect(JSON.stringify(shown)).not.toMatch(/SPEAKER EXPLANATION|notes|manuscript/);
+    }
+  });
+
+  it("the pointer and highlighter show on the audience screen for this moment only", async () => {
+    const { api, user, view } = await presenting();
+    await onScreenTwo(user, view);
+    const tools = within(view).getByRole("group", { name: "Pointer and highlighter" });
+    await user.click(within(tools).getByRole("button", { name: "Highlighter" }));
+    const layer = view.querySelector<HTMLElement>("[data-draw-layer='pen']")!;
+    fireEvent.pointerDown(layer, { clientX: 10, clientY: 10, pointerId: 1 });
+    await waitFor(() => expect(last(api).marks?.strokes).toHaveLength(1));
+    expect(view.querySelector("[data-live-marks]")).not.toBeNull();
+    await user.click(within(tools).getByRole("button", { name: "Clear marks" }));
+    await waitFor(() => expect(last(api).marks?.strokes).toEqual([]));
+    fireEvent.pointerDown(layer, { clientX: 20, clientY: 20, pointerId: 1 });
+    await waitFor(() => expect(last(api).marks?.strokes).toHaveLength(1));
+    // A new slide starts clean.
+    fireEvent.keyDown(window, { key: "ArrowRight" });
+    await waitFor(() => expect(last(api)).toMatchObject({ index: 1, marks: { strokes: [] } }));
+    // The pointer: shown while used, gone when it is put away (Esc), and Esc does not leave the Presenter View.
+    await user.click(within(tools).getByRole("button", { name: "Pointer" }));
+    fireEvent.pointerDown(view.querySelector<HTMLElement>("[data-draw-layer='pointer']")!, { clientX: 5, clientY: 5, pointerId: 1 });
+    await waitFor(() => expect(last(api).marks?.pointer).not.toBeNull());
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => expect(last(api).marks?.pointer).toBeNull());
+    expect(within(tools).getByRole("button", { name: "Pointer" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("dialog", { name: /Remain in the vine/ })).toBeInTheDocument();
+    // Nothing of it is saved with the presentation.
+    expect(JSON.stringify(api.state.presentation.presentations)).not.toMatch(/strokes|pointer/);
+  });
+
+  it("with a target time, the timer quietly says how much is left; without one it only counts", async () => {
+    const { view } = await presenting(1366, 30);
+    const timer = within(view).getByRole("button", { name: /Time so far/ });
+    expect(timer).toHaveAccessibleName("Time so far: 0:00 · 30 min left");
+    expect(timer.querySelector("[data-time-guidance='normal']")!.textContent).toBe("· 30 min left");
+    fireEvent.click(timer);
+    const popover = await within(view).findByRole("dialog", { name: "Timer" });
+    expect(popover.textContent).toMatch(/Target: 30 min · 30 min left/);
+  });
+
+  it("the target time is chosen with the presentation's name and background, and saved with it", async () => {
+    const { api } = await setup();
+    const { user } = await renderApp(api);
+    const region = await makeSlides(user);
+    await user.click(within(region).getByText("Name, background, Bible and target time"));
+    await user.selectOptions(within(region).getByRole("combobox", { name: /Target time/ }), "30");
+    await waitFor(() => expect(api.state.presentation.presentations[0]!.targetMinutes).toBe(30));
+    await user.selectOptions(within(region).getByRole("combobox", { name: /Target time/ }), "0");
+    await waitFor(() => expect(api.state.presentation.presentations[0]!.targetMinutes).toBeNull());
+  });
+
+  it("a layout is remembered on this computer; a phone always shows the speaker sheet", async () => {
+    const { user, view, region } = await presenting(1366);
+    expect(view).toHaveAttribute("data-arrangement", "balanced");
+    await user.click(within(view).getByRole("button", { name: "View" }));
+    await user.click(within(view).getByRole("radio", { name: "Larger notes" }));
+    expect(view).toHaveAttribute("data-arrangement", "notes");
+    // The order of slides and the notes stay in the layout: only their sizes change.
+    expect(within(view).queryByRole("list", { name: "All slides" })).toBeNull();
+    await user.click(within(view).getByRole("radio", { name: "Larger slides" }));
+    expect(view).toHaveAttribute("data-arrangement", "slides");
+    fireEvent.keyDown(window, { key: "Escape" });
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: /Remain in the vine/ })).toBeNull());
+    await user.click(within(region).getByRole("button", { name: "Start Presenter View" }));
+    expect(await screen.findByRole("dialog", { name: /Remain in the vine/ })).toHaveAttribute("data-arrangement", "slides");
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: /Remain in the vine/ })).toBeNull());
+    setWindowWidth(390);
+    await user.click(within(region).getByRole("button", { name: "Start Presenter View" }));
+    const phone = await screen.findByRole("dialog", { name: /Remain in the vine/ });
+    expect(phone).toHaveAttribute("data-arrangement", "sheet");
+    await user.click(within(phone).getByRole("button", { name: "Presenter options" }));
+    await user.click(within(phone).getByRole("button", { name: "View" }));
+    const settings = await within(phone).findByRole("dialog", { name: "View" });
+    expect(within(settings).queryByRole("radio", { name: "Larger slides" })).toBeNull();
+  });
+
+  it("a Bible passage is shown to the audience for a moment and Return to slide brings back the same slide", async () => {
+    const { api, user, view } = await presenting();
+    await onScreenTwo(user, view);
+    fireEvent.keyDown(window, { key: "ArrowRight" });
+    const before = structuredClone(api.state.presentation.presentations[0]!);
+    await user.click(within(view).getByRole("button", { name: "Bible passage" }));
+    await user.click(within(view).getByRole("button", { name: "John 15:1–5" }));
+    // Read privately first.
+    await within(view).findByRole("region", { name: "John 15:1–5" });
+    expect(last(api).scripture).toBeNull();
+    await user.click(within(view).getByRole("button", { name: "Show to audience" }));
+    await waitFor(() => expect(last(api)).toMatchObject({ index: 1, scripture: { label: "John 15:1–5" } }));
+    fireEvent.keyDown(document.activeElement ?? window, { key: "Escape" });
+    await user.click(within(view).getByRole("button", { name: "Return to slide" }));
+    await waitFor(() => expect(last(api)).toMatchObject({ index: 1, scripture: null }));
+    // The presentation itself is unchanged.
+    expect(api.state.presentation.presentations[0]).toEqual(before);
+  });
+
+  it("a clicker's Page Down / Page Up, the arrows and Space move; a number and Enter go to that slide", async () => {
+    const { view } = await presenting();
+    for (const [key, at] of [
+      ["PageDown", 2],
+      ["ArrowRight", 3],
+      [" ", 4],
+      ["PageUp", 3],
+      ["ArrowLeft", 2],
+      ["End", 6],
+      ["Home", 1],
+    ] as const) {
+      fireEvent.keyDown(window, { key });
+      expect(within(view).getByText(`Slide ${at} of 6`)).toBeInTheDocument();
+    }
+    fireEvent.keyDown(window, { key: "5" });
+    expect(within(view).getByText("Go to slide 5…")).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: "Enter" });
+    expect(within(view).getByText("Slide 5 of 6")).toBeInTheDocument();
+    // A number that is not a slide changes nothing; Esc forgets a typed number before anything else.
+    fireEvent.keyDown(window, { key: "9" });
+    fireEvent.keyDown(window, { key: "9" });
+    fireEvent.keyDown(window, { key: "Enter" });
+    expect(within(view).getByText("Slide 5 of 6")).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: "3" });
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(within(view).getByText("Slide 5 of 6")).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: /Remain in the vine/ })).toBeInTheDocument();
+  });
+
+  it("an audience window closed by accident or a lost projector never ends the presentation; Show again brings it back", async () => {
+    const { api, user, view } = await presenting();
+    await onScreenTwo(user, view);
+    fireEvent.keyDown(window, { key: "ArrowRight" });
+    fireEvent.keyDown(window, { key: "ArrowRight" });
+    // The window closes without the speaker asking.
+    act(() => {
+      api.state.presentation.audienceOpen = null;
+      for (const handler of api.state.presentation.closedHandlers) handler();
+    });
+    expect(await within(view.querySelector("header")!).findByText("Audience screen disconnected")).toBeInTheDocument();
+    expect(within(view).getByText("Slide 3 of 6")).toBeInTheDocument();
+    await user.click(within(view).getByRole("button", { name: "Show again" }));
+    await waitFor(() => expect(api.state.presentation.audienceOpen).toMatchObject({ screen: 1 }));
+    expect(last(api).index).toBe(2);
+    expect(within(view.querySelector("header")!).queryByText("Audience screen disconnected")).toBeNull();
+
+    // The projector is unplugged: the window is closed (it would cover the speaker's screen) and the speaker is told.
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
+    try {
+      // The check starts again with the new interval timers.
+      await user.click(within(view).getByRole("button", { name: "Audience screen" }));
+      await user.click(within(view).getByRole("button", { name: "Close the audience screen" }));
+      fireEvent.keyDown(document.activeElement ?? window, { key: "Escape" });
+      await onScreenTwo(user, view);
+      api.state.presentation.screens = [{ index: 0, name: "Built-in", width: 1440, height: 900, primary: true }];
+      await act(async () => {
+        vi.advanceTimersByTime(3100);
+        await Promise.resolve();
+      });
+      expect(await within(view.querySelector("header")!).findByText("Audience screen disconnected")).toBeInTheDocument();
+      expect(api.state.presentation.audienceOpen).toBeNull();
+      expect(within(view).getByText("Slide 3 of 6")).toBeInTheDocument();
+      // Its screen is gone: Show again lets the speaker choose where.
+      await user.click(within(view).getByRole("button", { name: "Show again" }));
+      expect(await within(view).findByRole("dialog", { name: "Audience screen" })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("closing the audience screen on purpose is not reported as a problem", async () => {
+    const { api, user, view } = await presenting();
+    await onScreenTwo(user, view);
+    await user.click(within(view).getByRole("button", { name: "Audience screen" }));
+    await user.click(within(view).getByRole("button", { name: "Close the audience screen" }));
+    act(() => {
+      for (const handler of api.state.presentation.closedHandlers) handler();
+    });
+    expect(within(view.querySelector("header")!).queryByText("Audience screen disconnected")).toBeNull();
   });
 });
 

@@ -176,6 +176,7 @@
     "audienceFailed": "No se pudo abrir la pantalla de la audiencia.",
     "otherTeaching": "Esa parte pertenece a otra enseñanza.",
     "tooLong": "Este texto es demasiado largo para la diapositiva.",
-    "tooMany": "Esta presentación ya tiene todas las diapositivas que puede contener."
+    "tooMany": "Esta presentación ya tiene todas las diapositivas que puede contener.",
+    "targetTooLong": "La duración prevista puede ser de diez horas como máximo."
   }
 }

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import type { AudienceSlide, ItemKind, PresentationTheme, ScriptureOverlay } from "@/types/presentation";
+import type { AudienceSlide, ItemKind, LiveMarks, PresentationTheme, ScriptureOverlay } from "@/types/presentation";
 import { palette, refLabel, textWeight } from "./labels";
 
 interface SlideViewProps {
@@ -12,6 +12,8 @@ interface SlideViewProps {
   overlay?: ScriptureOverlay | null;
   /** Blank the screen (a pause the speaker chose). */
   blank?: boolean;
+  /** The speaker's pointer and pen, for this moment only. */
+  marks?: LiveMarks | null;
   /** Its accessible name, e.g. "Slide 3 of 9". */
   label: string;
   className?: string;
@@ -23,7 +25,7 @@ interface SlideViewProps {
  * PDF layout, which works in points on a 960-point-wide page). Only
  * audience content can be given to it.
  */
-export function SlideView({ slide, kind, theme, image = null, overlay = null, blank = false, label, className = "" }: SlideViewProps) {
+export function SlideView({ slide, kind, theme, image = null, overlay = null, blank = false, marks = null, label, className = "" }: SlideViewProps) {
   const colours = palette(theme);
   // Points on a 960-point page, as a share of the slide's width.
   const pt = (points: number) => `${(points / 9.6).toFixed(3)}cqw`;
@@ -36,7 +38,43 @@ export function SlideView({ slide, kind, theme, image = null, overlay = null, bl
       ) : (
         <Content slide={slide} kind={kind} image={image} colours={colours} pt={pt} pad={pad} />
       )}
+      {!blank && marks && <MarksLayer marks={marks} />}
     </div>
+  );
+}
+
+/** The slide in these units: 160 across, 90 down, so marks keep their size on any screen. */
+const W = 160;
+const H = 90;
+
+/** The pointer (a soft red spot) and the highlighter strokes, drawn over the slide. */
+export function MarksLayer({ marks }: { marks: LiveMarks }) {
+  if (!marks.pointer && marks.strokes.length === 0) return null;
+  return (
+    <svg aria-hidden="true" data-live-marks="" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="pointer-events-none absolute inset-0 size-full">
+      {marks.strokes.map((stroke, i) =>
+        stroke.length === 1 ? (
+          <circle key={i} cx={stroke[0]![0] * W} cy={stroke[0]![1] * H} r={1.6} fill="#facc15" fillOpacity={0.55} />
+        ) : (
+          <polyline
+            key={i}
+            points={stroke.map(([x, y]) => `${(x * W).toFixed(2)},${(y * H).toFixed(2)}`).join(" ")}
+            fill="none"
+            stroke="#facc15"
+            strokeOpacity={0.55}
+            strokeWidth={3.2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        ),
+      )}
+      {marks.pointer && (
+        <g>
+          <circle cx={marks.pointer[0] * W} cy={marks.pointer[1] * H} r={6} fill="#ef4444" fillOpacity={0.18} />
+          <circle cx={marks.pointer[0] * W} cy={marks.pointer[1] * H} r={1.6} fill="#ef4444" stroke="#ffffff" strokeWidth={0.4} />
+        </g>
+      )}
+    </svg>
   );
 }
 

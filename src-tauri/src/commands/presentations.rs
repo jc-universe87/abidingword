@@ -426,6 +426,7 @@ pub async fn presentation_audience_open(
     state.db(|conn| document::build(conn, &input.presentation_id, &store).map(|_| ()))?;
     let mut shown = input.state.clone();
     shown.presentation_id = input.presentation_id.clone();
+    shown.marks = shown.marks.bounded();
     state.set_audience(Some(shown.clone()))?;
 
     let id: String = input
@@ -506,9 +507,12 @@ pub async fn presentation_audience_key(app: AppHandle, key: String) -> CommandRe
         "b",
         "B",
         ".",
+        "o",
+        "O",
         "Escape",
     ];
-    if KEYS.contains(&key.as_str()) {
+    // Digits too: a number and Enter go to that slide.
+    if KEYS.contains(&key.as_str()) || (key.len() == 1 && key.as_bytes()[0].is_ascii_digit()) {
         let _ = app.emit_to("main", AUDIENCE_KEY_EVENT, key);
         if let Some(main) = app.get_webview_window("main") {
             let _ = main.set_focus();
@@ -524,6 +528,10 @@ pub async fn presentation_audience_show(
     state: State<'_, AppState>,
     input: AudienceState,
 ) -> CommandResult<()> {
+    let input = AudienceState {
+        marks: input.marks.bounded(),
+        ..input
+    };
     state.set_audience(Some(input.clone()))?;
     if app.get_webview_window(AUDIENCE_WINDOW).is_some() {
         let _ = app.emit_to(AUDIENCE_WINDOW, AUDIENCE_EVENT, &input);

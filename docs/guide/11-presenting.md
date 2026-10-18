@@ -38,10 +38,11 @@ and what only you see.
    a heading, text, Scripture, a question, an activity, a quotation, a
    section break, a **Pause** (an empty screen for the audience) or a title.
 
-Under **Name, background and Bible** you choose the background (*Light*,
-*Dark* or *Warm*) and which installed Bible the Scripture slides quote. You
-can make several presentations of one teaching, for example a short and a
-long one.
+Under **Name, background, Bible and target time** you choose the background
+(*Light*, *Dark* or *Warm*), which installed Bible the Scripture slides
+quote, and — if you like — a **target time** (for example 30 min). You can
+make several presentations of one teaching, for example a short and a long
+one.
 
 > [!NOTE]
 > Your introduction and conclusion are things you *say*. Their slides show a
@@ -55,23 +56,33 @@ Click **Start Presenter View**. It adapts to your screen:
 |---|---|---|
 | <img src="images/presenter-desktop.png" alt="Presenter View on a computer: all slides on the left, the current and next slide in the middle, the speaker's text on the right" width="300"> | <img src="images/presenter-tablet.png" alt="Presenter View on a tablet: the current and next slide beside the speaker's text, Back and Next below" width="200"> | <img src="images/presenter-phone.png" alt="Presenter View on a phone: the slide's heading, the speaker's text in large letters and big Back and Next buttons" width="140"> |
 
-- **Next** and **Back**, or the keys **→ / Page Down** and **← / Page Up**
-  (a presentation clicker works too). **B** empties the audience screen for a
-  moment; press it again to come back. **Esc** leaves.
+- **Next** and **Back**, or the keys **→ / Page Down / Space** and **← /
+  Page Up**. A presentation clicker works without any setup.
+- **Overview** (or the key **O**) shows all slides at once: click one to go
+  straight to it. You can also type a slide's number and press **Enter**.
 - The **timer** starts with the Presenter View; click it to pause or reset
-  it. The **clock** shows the time of day.
-- **View**: larger or smaller text, a Light, Dark or Warm background for
-  you, timer and clock on or off, **Keep the screen on** (where your computer
+  it. With a target time it quietly adds how much is left ("· 18 min left"),
+  and only near the end or after it does it change colour. The **clock**
+  shows the time of day.
+- **View**: the **Layout** (*Slides and notes*, *Larger notes* or *Larger
+  slides* — remembered on this computer; a phone always shows the large-print
+  sheet), larger or smaller text, a Light, Dark or Warm background for you,
+  timer and clock on or off, **Keep the screen on** (where your computer
   allows it; otherwise it says so) and the keyboard shortcuts.
-- Scripture, Audience screen and View open as a panel **over** the view (on
-  a phone, from the ☰ menu): your notes never move. Esc or ✕ closes it.
-- When the audience sees something other than the slide (an empty screen or
-  a passage), a small note beside the title says so, with **Back to the
+- Overview, Bible passage, Audience screen and View open **over** the view
+  (on a phone, from the ☰ menu): your notes never move. **Esc** closes what is
+  open, one thing at a time; with nothing open it leaves the Presenter View.
+- When the audience sees something other than the slide (a blank screen or
+  a passage), a small note beside the title says so, with **Return to
   slide**.
 - Nothing can be edited here, so nothing changes by accident.
 
 <p align="center">
-  <img src="images/presenter-view-panel.png" alt="The View panel open on the right of the Presenter View, over the speaker's notes; the slides stay where they are" width="760">
+  <img src="images/presenter-overview.png" alt="Overview: all nine slides as small pictures over the Presenter View, the current slide outlined" width="760">
+</p>
+
+<p align="center">
+  <img src="images/presenter-view-panel.png" alt="The View panel open on the right of the Presenter View: Layout with three small pictures, text size, background and the other options" width="760">
 </p>
 
 ### The audience screen
@@ -86,6 +97,23 @@ Click **Audience screen** (on a phone: ☰ → **Audience screen**):
 The audience sees **only the slides**: never your notes, your manuscript or
 where your stories came from.
 
+While the audience screen is on:
+
+- **Blank audience screen** (beside Back and Next, or the key **B**) makes
+  their screen blank for a moment — you keep your notes and your place.
+  Press it again to bring back the same slide.
+- Over your current slide are the **Pointer** (a soft red spot the audience
+  sees), the **Highlighter** (to mark a word in a verse) and **Clear marks**.
+  Marks are only for the moment: they disappear with the next slide and are
+  never saved. **Esc** puts the pointer or highlighter away.
+- If the audience screen is closed by accident or the projector is unplugged,
+  your Presenter View simply stays where you are and says **Audience screen
+  disconnected**. Click **Show again**.
+
+<p align="center">
+  <img src="images/presenter-pointer.png" alt="The Presenter View with the audience screen on: a yellow highlight under the heading and the red pointer on the current slide, the pointer, highlighter and clear buttons in its corner, and Blank audience screen between Back and Next" width="760">
+</p>
+
 <p align="center">
   <img src="images/presenter-audience-panel.png" alt="The Audience screen panel open over the Presenter View, offering Show in this window, with a quiet note that the audience sees only the slides" width="760">
 </p>
@@ -94,15 +122,15 @@ where your stories came from.
   <img src="images/presentation-audience.png" alt="The audience screen showing Psalm 80:8–16 in large type" width="640">
 </p>
 
-### Scripture without losing your place
+### A Bible passage without losing your place
 
-Click **Scripture** to look up any passage (or one of the presentation's
-passages). You read it privately; click **Show to the audience** to put it
-on their screen for a moment, and **Stop showing it** (or move on) to return
-to your slide. You never lose your place.
+Click **Bible passage** to look up any passage (or one of the presentation's
+passages). You read it privately; click **Show to audience** to put it on
+their screen for a moment, and **Return to slide** (or move on) to go back to
+your slide. You never lose your place, and your presentation is not changed.
 
 <p align="center">
-  <img src="images/presenter-scripture.png" alt="The Scripture panel open in the Presenter View, with Psalm 80:8–16 and a button Show to the audience" width="760">
+  <img src="images/presenter-scripture.png" alt="The Bible passage panel open in the Presenter View, with Psalm 80:8–16 and a button Show to audience" width="760">
 </p>
 
 ## Taking it along: export

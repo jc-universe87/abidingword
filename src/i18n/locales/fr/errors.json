@@ -176,6 +176,7 @@
     "audienceFailed": "L’écran de l’auditoire n’a pas pu être ouvert.",
     "otherTeaching": "Cette partie appartient à un autre enseignement.",
     "tooLong": "Ce texte est trop long pour la diapositive.",
-    "tooMany": "Cette présentation contient déjà le nombre maximal de diapositives."
+    "tooMany": "Cette présentation contient déjà le nombre maximal de diapositives.",
+    "targetTooLong": "La durée visée est de dix heures au plus."
   }
 }

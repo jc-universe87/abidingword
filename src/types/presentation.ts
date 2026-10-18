@@ -50,6 +50,8 @@ export interface Presentation {
   title: string;
   theme: PresentationTheme;
   translationId: string | null;
+  /** An optional target time in minutes, for quiet guidance while presenting. */
+  targetMinutes: number | null;
   items: PresentationItem[];
   createdAt: string;
   updatedAt: string;
@@ -161,6 +163,7 @@ export interface PresentationDocument {
   title: string;
   teachingKind: string | null;
   theme: PresentationTheme;
+  targetMinutes?: number | null;
   primaryPassage: RefInfo | null;
   bible: { id: string; name: string; shortName: string; copyright: string | null } | null;
   presentationUpdatedAt: string;
@@ -188,12 +191,24 @@ export interface ScriptureOverlay {
   verses: SlideVerse[];
 }
 
+/** A point on a slide, from 0 to 1 across and down. */
+export type SlidePoint = [number, number];
+
+/** The speaker's pointer and pen on the slide: for this moment only, never stored. */
+export interface LiveMarks {
+  pointer: SlidePoint | null;
+  strokes: SlidePoint[][];
+}
+
+export const NO_MARKS: LiveMarks = { pointer: null, strokes: [] };
+
 /** What the audience screen shows now. */
 export interface AudienceState {
   presentationId: string;
   index: number;
   blank: boolean;
   scripture: ScriptureOverlay | null;
+  marks?: LiveMarks;
 }
 
 export interface Screen {

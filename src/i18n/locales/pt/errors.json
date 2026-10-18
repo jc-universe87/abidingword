@@ -176,6 +176,7 @@
     "audienceFailed": "Não foi possível abrir a tela do público.",
     "otherTeaching": "Essa parte pertence a outro ensino.",
     "tooLong": "Este texto é longo demais para o slide.",
-    "tooMany": "Esta apresentação já tem todos os slides que pode ter."
+    "tooMany": "Esta apresentação já tem todos os slides que pode ter.",
+    "targetTooLong": "O tempo previsto pode ser de no máximo dez horas."
   }
 }

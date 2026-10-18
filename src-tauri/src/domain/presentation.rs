@@ -57,6 +57,8 @@ pub struct Presentation {
     pub title: String,
     pub theme: String,
     pub translation_id: Option<String>,
+    /// An optional target time in minutes, for quiet guidance while presenting.
+    pub target_minutes: Option<u32>,
     pub items: Vec<PresentationItem>,
     pub created_at: String,
     pub updated_at: String,
@@ -123,6 +125,8 @@ pub struct UpdatePresentation {
     pub theme: Option<String>,
     /// `Some("")` goes back to the Scripture pane's Bible.
     pub translation_id: Option<String>,
+    /// `Some(0)` removes the target time.
+    pub target_minutes: Option<u32>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]

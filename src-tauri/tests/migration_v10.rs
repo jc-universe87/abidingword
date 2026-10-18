@@ -53,7 +53,7 @@ fn a_v9_database_is_backed_up_keeps_its_teachings_and_gains_presentations() {
     assert_eq!(migrations::current_version(&copy).unwrap(), 9);
 
     db.with_conn(|conn| {
-        assert_eq!(migrations::current_version(conn)?, 10);
+        assert_eq!(migrations::current_version(conn)?, MIGRATIONS.len() as i64);
         studies::get_detail(conn, "s-1")?;
         let prep = teaching::get(conn, "tp-1")?;
         assert_eq!(prep.introduction, "Hello!");

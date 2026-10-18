@@ -58,8 +58,13 @@ const openPresentation = async (page) => {
   await page.waitForTimeout(900);
   return main;
 };
-const startPresenting = async (page) => {
+const startPresenting = async (page, { target } = {}) => {
   const main = await openPresentation(page);
+  if (target) {
+    await main.getByText("Name, background, Bible and target time").click();
+    await main.getByRole("combobox", { name: /Target time/ }).selectOption(String(target));
+    await page.waitForTimeout(500);
+  }
   await main.getByRole("button", { name: "Start Presenter View" }).click();
   await page.waitForTimeout(600);
   // On to the first point, where the speaker has a manuscript.
@@ -77,7 +82,7 @@ const scenes = {
   },
   async "presenter-desktop"() {
     const page = await open("", { width: 1366, height: 768 });
-    await startPresenting(page);
+    await startPresenting(page, { target: 30 });
     await shot(page, "presenter-desktop");
     await page.close();
   },
@@ -100,6 +105,44 @@ const scenes = {
     await shot(page, "presenter-view-panel");
     await page.close();
   },
+  async "presenter-overview"() {
+    const page = await open("", { width: 1366, height: 768 });
+    await startPresenting(page);
+    await page.getByRole("dialog", { name: /Presenter View/ }).getByRole("button", { name: "Overview", exact: true }).click();
+    await page.waitForTimeout(500);
+    await shot(page, "presenter-overview");
+    await page.close();
+  },
+  async "presenter-layout-notes"() {
+    const page = await open("", { width: 1366, height: 768 });
+    await startPresenting(page);
+    const view = page.getByRole("dialog", { name: /Presenter View/ });
+    await view.getByRole("button", { name: "View", exact: true }).click();
+    await view.getByText("Larger notes", { exact: true }).click();
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(400);
+    await shot(page, "presenter-layout-notes");
+    await page.close();
+  },
+  async "presenter-pointer"() {
+    const page = await open("screens=2", { width: 1366, height: 768 });
+    await startPresenting(page);
+    const view = page.getByRole("dialog", { name: /Presenter View/ });
+    await view.getByRole("button", { name: "Audience screen", exact: true }).click();
+    await view.getByRole("button", { name: /Show on screen 2/ }).click();
+    await page.waitForTimeout(400);
+    await view.getByRole("button", { name: "Highlighter" }).click();
+    const box = await page.locator("[data-draw-layer]").boundingBox();
+    await page.mouse.move(box.x + box.width * 0.1, box.y + box.height * 0.3);
+    await page.mouse.down();
+    for (let i = 1; i <= 20; i++) await page.mouse.move(box.x + box.width * (0.1 + i * 0.03), box.y + box.height * 0.3, { steps: 2 });
+    await page.mouse.up();
+    await view.getByRole("button", { name: "Pointer" }).click();
+    await page.mouse.move(box.x + box.width * 0.55, box.y + box.height * 0.55, { steps: 4 });
+    await page.waitForTimeout(400);
+    await shot(page, "presenter-pointer");
+    await page.close();
+  },
   async "presenter-audience-panel"() {
     const page = await open("", { width: 1366, height: 768 });
     await startPresenting(page);
@@ -112,7 +155,7 @@ const scenes = {
     const page = await open("", { width: 1440, height: 900 });
     await startPresenting(page);
     const view = page.getByRole("dialog", { name: /Presenter View/ });
-    await view.getByRole("button", { name: "Scripture", exact: true }).click();
+    await view.getByRole("button", { name: "Bible passage", exact: true }).click();
     await view.getByRole("group", { name: "Passages in this presentation" }).getByRole("button", { name: "Psalm 80:8–16" }).click();
     await page.waitForTimeout(500);
     await shot(page, "presenter-scripture");

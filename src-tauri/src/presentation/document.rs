@@ -45,6 +45,9 @@ pub struct PresentationDocument {
     pub teaching_kind: Option<String>,
     /// light, dark or warm.
     pub theme: String,
+    /// An optional target time in minutes (absent in older packages).
+    #[serde(default)]
+    pub target_minutes: Option<u32>,
     pub primary_passage: Option<RefInfo>,
     /// The Bible the Scripture slides quote.
     pub bible: Option<BibleInfo>,
@@ -248,6 +251,7 @@ pub fn build(conn: &Connection, id: &str, store: &ImageStore) -> AppResult<Prese
         title: presentation.title,
         teaching_kind: prep.kind.clone(),
         theme: presentation.theme,
+        target_minutes: presentation.target_minutes,
         primary_passage,
         bible: bible.map(|b| BibleInfo {
             id: b.id,

@@ -879,3 +879,58 @@ fn write_examples() {
         std::fs::write(dir.join(name), exported(format, notes).0).unwrap();
     }
 }
+
+#[test]
+fn a_target_time_is_kept_with_the_presentation_and_can_be_removed() {
+    let temp = tempfile::tempdir().unwrap();
+    with_db(|conn| {
+        let s = sermon(conn)?;
+        let p = propose(conn, &s.teaching)?;
+        assert_eq!(p.target_minutes, None);
+        let set = |minutes| UpdatePresentation {
+            id: p.id.clone(),
+            target_minutes: Some(minutes),
+            ..Default::default()
+        };
+        let p2 = presentations::update(conn, &set(30))?;
+        assert_eq!(p2.target_minutes, Some(30));
+        // Another change leaves it as it was.
+        let renamed = presentations::update(
+            conn,
+            &UpdatePresentation {
+                id: p.id.clone(),
+                title: Some("Sunday".into()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(renamed.target_minutes, Some(30));
+        let doc = document::build(conn, &p.id, &store(temp.path()))?;
+        assert_eq!(doc.target_minutes, Some(30));
+        assert_eq!(
+            code(presentations::update(conn, &set(601))),
+            "presentation.targetTooLong"
+        );
+        assert_eq!(presentations::update(conn, &set(0))?.target_minutes, None);
+        Ok(())
+    });
+}
+
+#[test]
+fn live_marks_on_the_audience_screen_stay_small_and_on_the_slide() {
+    use abiding_word_lib::presentation::LiveMarks;
+    let marks = LiveMarks {
+        pointer: Some([1.5, -0.2]),
+        strokes: vec![vec![[0.5, 0.5], [f32::NAN, 0.1], [2.0, 0.3]]; LiveMarks::STROKES_MAX + 5],
+    }
+    .bounded();
+    assert_eq!(marks.pointer, Some([1.0, 0.0]));
+    assert_eq!(marks.strokes.len(), LiveMarks::STROKES_MAX);
+    assert_eq!(marks.strokes[0], vec![[0.5, 0.5], [1.0, 0.3]]);
+    let long = LiveMarks {
+        pointer: Some([f32::INFINITY, 0.5]),
+        strokes: vec![vec![[0.1, 0.1]; LiveMarks::POINTS_MAX + 1]],
+    }
+    .bounded();
+    assert_eq!(long.pointer, None);
+    assert_eq!(long.strokes[0].len(), LiveMarks::POINTS_MAX);
+}

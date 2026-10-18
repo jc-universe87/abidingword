@@ -49,6 +49,41 @@ pub struct AudienceState {
     pub index: usize,
     pub blank: bool,
     pub scripture: Option<ScriptureOverlay>,
+    /// The speaker's pointer and pen on the slide, for this moment only.
+    pub marks: LiveMarks,
+}
+
+/// Temporary marks on the audience slide: where the pointer is and the pen
+/// strokes, in slide coordinates from 0 to 1. Never stored, never exported.
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase", default)]
+pub struct LiveMarks {
+    pub pointer: Option<[f32; 2]>,
+    pub strokes: Vec<Vec<[f32; 2]>>,
+}
+
+impl LiveMarks {
+    /// At most this many strokes of this many points reach the audience screen.
+    pub const STROKES_MAX: usize = 100;
+    pub const POINTS_MAX: usize = 2000;
+
+    /// Keeps the marks small and on the slide.
+    pub fn bounded(mut self) -> Self {
+        let clamp = |[x, y]: [f32; 2]| [x.clamp(0.0, 1.0), y.clamp(0.0, 1.0)];
+        self.pointer = self
+            .pointer
+            .filter(|p| p.iter().all(|v| v.is_finite()))
+            .map(clamp);
+        self.strokes.truncate(Self::STROKES_MAX);
+        for stroke in &mut self.strokes {
+            stroke.retain(|p| p.iter().all(|v| v.is_finite()));
+            stroke.truncate(Self::POINTS_MAX);
+            for p in stroke.iter_mut() {
+                *p = clamp(*p);
+            }
+        }
+        self
+    }
 }
 
 /// A passage shown on the audience screen over the slide, without losing

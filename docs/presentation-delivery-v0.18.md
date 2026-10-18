@@ -36,12 +36,14 @@ What v0.16/v0.17 already give, and how v0.18 uses it:
 The model is ordered and id-stable, so presentations can point at its parts
 without changing it. **Nothing in the teaching tables is changed by v0.18.**
 
-## 3. Data model — migration 0010 (additive)
+## 3. Data model — migration 0010 (additive), 0011 (target time)
 
 `src-tauri/migrations/0010_presentations.sql` adds two tables; no existing
 table or row is touched. It runs like every migration: a verified backup
 first (`pre-migration/abiding-word-v9-….db`), its own transaction, and a
-repeatable start (a second start makes no second backup).
+repeatable start (a second start makes no second backup). Migration 0011
+(`0011_presentation_target.sql`) adds one nullable column,
+`presentations.target_minutes`, for the optional target time (§23).
 
 ```
 presentations        id, preparation_id → teaching_preparations (cascade),
@@ -446,7 +448,12 @@ German uses *du* throughout and *Bibellehre* for the teaching.
 ## 20. Deferred, on purpose
 
 - A mobile app reading delivery packages (the package and phone layout are
-  ready for it); remote control of the desktop Presenter View from a phone.
+  ready for it); remote control of the desktop Presenter View from a phone
+  (its command boundary is defined, §23).
+- Not copied from other presentation software, on purpose (§23): audience
+  Q&A, live captions, recording/narration, a rehearsal coach, animations and
+  transitions, kiosk mode, a free-form designer, slide masters, collaborative
+  live editing, a shortcut editor.
 - Importing a delivery package back into the desktop app.
 - PowerPoint export of WebP images and PDF export of GIF/WebP images (they
   are framed placeholders, counted in the export's notice); CFF/OpenType fonts
@@ -525,3 +532,114 @@ hashing each image on refresh (small, local files; kept simple).
     export offline (Wi-Fi off).
 11. Upgrade from v0.17 data: a `pre-migration/abiding-word-v9-…` backup is
     made, everything is there.
+12. *Overview* (or **O**) → choose a slide: the Presenter View goes there and
+    the audience follows. Type **3**, **Enter**: slide 3.
+13. With the audience screen on: *Blank audience screen* (or **B**) → the
+    projector goes blank, you keep your notes and place; again → the same
+    slide. The *Pointer* and *Highlighter* over the current slide show on the
+    projector; *Clear marks*; a new slide starts clean; Esc puts the tool away.
+14. Settings → *Target time* 30 min → the timer says "· 30 min left" quietly;
+    let it run past (or set 5 min) to see *nearly there* and *over*.
+15. View → *Layout*: *Larger notes*, *Larger slides*; exit and present again:
+    the layout is remembered. A phone-sized window always shows the speaker
+    sheet.
+16. With the audience screen on a projector: close its window by hand, then
+    unplug the projector: the Presenter View stays, says *Audience screen
+    disconnected*, and *Show again* brings it back (or lets you choose where).
+
+## 23. Presentation Pareto polish
+
+A focused pass that takes the few presenter features that matter most in
+real talks (from PowerPoint's Presenter View, Keynote's Presenter Display,
+Google Slides, Pitch, Gamma and ProPresenter-style stage workflows) and
+leaves the rest. The test for each: *would a pastor teaching from the Bible
+use it in a real talk, without explanation?*
+
+### What was added
+
+| Feature | How it works | Why |
+|---|---|---|
+| **Overview** | A door in the top bar (☰ on a phone) and **O**: every slide as a small picture with its number and name, in a large floating sheet (a list on a phone). The current slide is marked and focused; choosing one goes there and closes the sheet. | Finding your place during a real talk, especially on a tablet or phone where the slide list does not fit. |
+| **Blank audience screen** | A button beside Back/Next while the audience screen is on, and **B** (or **.**). The audience screen goes blank; the speaker keeps their material and place; the same action brings back exactly the same slide. Moving on ends it. | The most used "live" control in every presenter tool: draw attention to the speaker or a story. |
+| **Pointer and highlighter** | Three small buttons over the current slide while the audience screen is on: *Pointer* (a soft red spot), *Highlighter* (one yellow, translucent pen), *Clear marks*. Positions travel as a share of the slide (0–1), at most once a frame. Marks clear with the next slide or a passage; **Esc** puts the tool away. | Pointing at a word in a verse is the one annotation teachers use; shapes, text boxes and colours are not. |
+| **Target time** | *Target time* in the presentation's settings (none, 5–120 min); saved with the presentation (migration 0011, `presentations.target_minutes`). The timer adds "· 18 min left" in muted text; the last tenth (at least two minutes) and time over use the accent colour ("3 min over"). On a phone, a small dot only near the end or after it. | One quiet number instead of pacing analytics; nothing blinks or warns. |
+| **Layouts** | View → *Layout*: *Slides and notes* (default: all slides, current, next, notes), *Larger notes*, *Larger slides*, with a small picture of each. Remembered on this computer. A phone always shows the speaker sheet and offers no choice. | Three presets instead of dragging panels. |
+| **Bible passage → audience** | The *Scripture* door is now *Bible passage*. Looked up privately, *Show to audience*, then *Return to slide* (in the panel and in the bar) brings back the same slide. The current slide preview shows what the audience sees (the passage, the marks). Nothing in the presentation changes. | Abiding Word's own strength, made plainer. |
+| **Keys and clickers** | → ↓ Page Down Space: next; ← ↑ Page Up: back; Home/End; **B** / **.** blank; **O** Overview; a number then **Enter** goes to that slide ("Go to slide 12…" shows while typing; forgotten after four seconds); **Esc** steps back one thing at a time: a typed number, the pointer or highlighter, a panel, the one-window view, then leaving. A clicker on the audience screen sends the same keys (digits and O included). | Clickers send Page Up/Down or arrows: they work without setup. No shortcut editor. |
+| **Audience screen recovery** | If the audience window closes without the speaker asking, or its screen disappears (checked every three seconds while it is on; the window is closed so it cannot cover the speaker's screen), the Presenter View stays where it is and the bar says *Audience screen disconnected* with *Show again* — on the same screen when it is back, otherwise the *Audience screen* panel to choose. Closing it on purpose is not reported. | A projector cable is pulled more often than any feature is needed. |
+| **Door labels that fit** | The top bar measures itself: the doors carry their names when they fit beside the slide number and timer (the centre may give way by up to 80 px for them), otherwise they are icons (named on hover and for screen readers). Measured in Chromium: names from 1280 px in English and Korean, 1366 px in Portuguese, 1440 px in German and Spanish, 1920 px in French; the centre at most 68 px off when names are shown and exact otherwise; no horizontal overflow from 360 px up. | Five doors with long French or German names do not fit a 1366-px laptop. |
+
+### Live state versus saved presentation
+
+Everything that happens while presenting lives in one plain object,
+`DeliveryState` (`src/features/presentation/delivery.ts`): the current
+slide, a blank audience screen, a passage shown, the pointer and highlighter
+marks, the timer. It is never written to the database, the package or an
+export. Saved with the presentation: order, included slides, wording,
+speaker notes, background, Bible and the **target time**. The layout, text
+size, background of the Presenter View, timer/clock visibility and keep-awake
+are this computer's preferences (local storage), not presentation data.
+
+The audience screen receives `AudienceState` — place, blank, passage and
+`marks` (`LiveMarks`: an optional pointer and at most 100 strokes of at most
+2000 points, clamped to 0–1 by the core, `LiveMarks::bounded`). It still has
+no field for speaker text.
+
+### The remote-control boundary
+
+`PresenterCommand` is the boundary a future phone remote will use:
+
+```text
+next · previous · first · last · goTo(index) · toggleBlank ·
+showScripture(passage) · returnToSlide · timerStart/timerPause/timerReset(at) ·
+pointer(at | null) · penDown(at) · penMove(at) · clearMarks
+```
+
+`deliver(state, command)` applies one command and returns a new state; it
+knows nothing of React or the screen. The Presenter View's buttons, its keys
+(`commandForKey`), a clicker on the audience screen and the tests all send
+these commands. A remote will send the same commands as plain JSON (a test
+replays such a sequence); the transport (local network pairing) is not built.
+
+### Deliberately not copied
+
+Audience Q&A, live captions, recording and narration, a rehearsal coach,
+animations and transitions, a kiosk mode, a free-form slide designer, slide
+masters, collaborative live editing, a shortcut editor, laser-pointer colours,
+shapes and text boxes, a "confidence monitor" configuration, presenter-view
+panel dragging, pacing analytics. They are recorded in
+[`product-backlog.md`](product-backlog.md), not in the interface.
+
+### Wording
+
+Labels were read as a pastor who mainly uses Word and a browser would read
+them: *Bible passage* (was *Scripture*), *Show to audience*, *Return to slide*
+(was *Back to the slide* / *Stop showing it*), *Blank audience screen* (was
+*Empty the audience screen*, which also lived in the Audience panel; now one
+place), *Overview*, *Layout*, *Target time*, *Audience screen disconnected*,
+*Show again*. German keeps *du* and its single term *Referentenansicht*
+(*Bild für Zuhörer ausblenden*, *Übersicht*, *Zielzeit*); every language keeps
+its one presenter term.
+
+### Tests
+
+- `tests/unit/presentation-delivery.test.ts` (9): commands move within the
+  ends; blank keeps and restores the exact slide; a passage and *Return to
+  slide*; marks clamp, clear and end with the slide; the timer; the state is
+  never changed in place; keys and clickers; a remote's JSON command sequence;
+  time guidance (none, on time, nearly there, over).
+- `tests/ui/presentation.test.tsx` (+10, 37 in the file): Overview over the
+  view, focus on the current slide, jumping with the audience following and
+  the presentation unchanged, **O**; blank only on the audience screen and the
+  same slide back, nothing private in what reaches it; pointer and
+  highlighter reach the audience, clear, end with the slide, Esc puts them
+  away without leaving, nothing saved; target time in the timer and its
+  popover; choosing and saving the target time; layouts remembered, a phone
+  always the speaker sheet; Bible passage shown and *Return to slide*, the
+  presentation unchanged; Page Down/Up, arrows, Space, Home/End, a number and
+  Enter, Esc forgetting a number; an audience window closed by accident and a
+  lost projector with *Show again*; a deliberate close not reported. The
+  layout test now opens Overview too, at four widths.
+- Rust: `tests/migration_v11.rs` (1, v10 → v11 with backup), in
+  `tests/presentations.rs` a target time kept, refused above ten hours and
+  removed, and live marks kept small and on the slide.

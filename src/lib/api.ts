@@ -258,7 +258,7 @@ export interface Api {
   presentationGet(id: string): Promise<Presentation>;
   /** A first presentation proposed from the teaching by fixed rules (no AI). */
   presentationCreate(input: { preparationId: string; title?: string | null; propose: boolean; labels: { introduction: string; conclusion: string } }): Promise<Presentation>;
-  presentationUpdate(input: { id: string; title?: string; theme?: PresentationTheme; translationId?: string }): Promise<Presentation>;
+  presentationUpdate(input: { id: string; title?: string; theme?: PresentationTheme; translationId?: string; targetMinutes?: number }): Promise<Presentation>;
   presentationDelete(id: string): Promise<void>;
   presentationItemCreate(input: CreatePresentationItem): Promise<Presentation>;
   presentationItemUpdate(input: UpdatePresentationItem): Promise<Presentation>;

@@ -173,6 +173,7 @@
     "audienceFailed": "The audience screen could not be opened.",
     "otherTeaching": "That part belongs to another teaching.",
     "tooLong": "This text is too long for the slide.",
-    "tooMany": "This presentation has as many slides as it can hold."
+    "tooMany": "This presentation has as many slides as it can hold.",
+    "targetTooLong": "The target time can be at most ten hours."
   }
 }

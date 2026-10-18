@@ -235,7 +235,19 @@ Still open:
   View from a phone;
 - importing a delivery package on another desktop;
 - PowerPoint export of WebP images; OpenType (CFF) fonts in PDFs;
-- drag-and-drop ordering of slides; presentation slides in Study search.
+- drag-and-drop ordering of slides; presentation slides in Study search;
+- the transport for a phone remote (pairing on the local network): the
+  commands it will send are defined (`PresenterCommand`, see §23 of the v0.18
+  record).
+
+Deliberately **not** planned unless real use asks for them (the v0.18 Pareto
+pass kept only Overview, a blank audience screen, pointer/highlighter, one
+target time, three layouts, Bible passage to the audience, clicker keys and
+audience-screen recovery): audience Q&A, live captions, recording and
+narration, a rehearsal AI coach, complex animations and a transition library,
+automatic kiosk mode, a free-form slide designer, slide masters,
+collaborative live editing, a custom shortcut editor, more pen colours,
+shapes and text boxes.
 
 ### Image providers (next step after v0.16)
 

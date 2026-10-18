@@ -250,6 +250,7 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
       title: p.title,
       teachingKind: prep.kind,
       theme: p.theme,
+      targetMinutes: p.targetMinutes,
       primaryPassage: primary ? refInfo(primary) : null,
       bible: bible ? { id: bible.id, name: bible.name, shortName: bible.shortName, copyright: bible.copyrightNotice } : null,
       presentationUpdatedAt: p.updatedAt,
@@ -277,6 +278,7 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
         title: text(title) ?? prep.title,
         theme: "light" as const,
         translationId: null,
+        targetMinutes: null as number | null,
         items: wanted ? propose(prep, labels) : [item("title", { kind: "preparation", id: prep.id, field: "title" })],
         createdAt: t,
         updatedAt: t,
@@ -286,7 +288,7 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
       state.presentations.push(p);
       return view(p);
     },
-    presentationUpdate: async ({ id, title, theme, translationId }) => {
+    presentationUpdate: async ({ id, title, theme, translationId, targetMinutes }) => {
       const p = find(id);
       if (title !== undefined) {
         if (!title.trim()) throw new ApiError("invalidInput", "Please give the presentation a title.");
@@ -297,6 +299,10 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
         p.theme = theme;
       }
       if (translationId !== undefined) p.translationId = translationId || null;
+      if (targetMinutes !== undefined) {
+        if (targetMinutes > 600) throw new ApiError("invalidInput", "The target time can be at most ten hours.");
+        p.targetMinutes = targetMinutes || null;
+      }
       touch(p);
       return view(p);
     },

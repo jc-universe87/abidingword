@@ -17,9 +17,11 @@ use crate::scripture::reference::ScriptureRef;
 
 /// A presentation holds at most this many items.
 pub const ITEMS_MAX: usize = 500;
+/// A target time is at most ten hours.
+pub const TARGET_MINUTES_MAX: u32 = 600;
 
-const COLUMNS: &str =
-    "id, preparation_id, title, theme, translation_id, created_at, updated_at, revision";
+const COLUMNS: &str = "id, preparation_id, title, theme, translation_id, created_at, updated_at, \
+                       revision, target_minutes";
 const ITEM_COLUMNS: &str = "id, position, kind, source_kind, source_id, source_field, heading, \
                             body, reference, notes, skipped";
 
@@ -30,6 +32,7 @@ fn from_row(row: &Row) -> rusqlite::Result<Presentation> {
         title: row.get(2)?,
         theme: row.get(3)?,
         translation_id: row.get(4)?,
+        target_minutes: row.get(8)?,
         items: Vec::new(),
         created_at: row.get(5)?,
         updated_at: row.get(6)?,
@@ -343,11 +346,29 @@ pub fn update(conn: &Connection, input: &UpdatePresentation) -> AppResult<Presen
         }
         None => current.translation_id,
     };
+    let target_minutes = match input.target_minutes {
+        Some(0) => None,
+        Some(m) if m <= TARGET_MINUTES_MAX => Some(m),
+        Some(_) => {
+            return Err(invalid(
+                "presentation.targetTooLong",
+                "The target time can be at most ten hours.",
+            ))
+        }
+        None => current.target_minutes,
+    };
     conn.execute(
         "UPDATE presentations SET title = ?2, theme = ?3, translation_id = ?4, updated_at = ?5,
-             revision = revision + 1
+             target_minutes = ?6, revision = revision + 1
          WHERE id = ?1",
-        params![input.id, title, theme, translation_id, now()],
+        params![
+            input.id,
+            title,
+            theme,
+            translation_id,
+            now(),
+            target_minutes
+        ],
     )?;
     get(conn, &input.id)
 }

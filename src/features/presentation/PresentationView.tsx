@@ -275,6 +275,16 @@ function PresentationEditor({
               ))}
             </select>
           </label>
+          <label className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
+            <span className="text-text-muted">{t("presentation.editor.target")}</span>
+            <select value={presentation.targetMinutes ?? 0} onChange={(e) => void act(() => api.presentationUpdate({ id: presentation.id, targetMinutes: Number(e.target.value) }))} className="h-11 rounded-aw border border-border bg-bg px-2">
+              <option value={0}>{t("presentation.editor.targetNone")}</option>
+              {targetChoices(presentation.targetMinutes).map((m) => (
+                <option key={m} value={m}>{t("presentation.editor.minutes", { count: m })}</option>
+              ))}
+            </select>
+            <span className="text-[0.875rem] text-text-muted">{t("presentation.editor.targetHint")}</span>
+          </label>
           <div className="flex flex-wrap items-center gap-2">
             {confirmDelete ? (
               <span className="flex flex-wrap items-center gap-2 rounded-aw border border-border px-2 py-1 text-[0.9375rem]">
@@ -760,4 +770,10 @@ function AddSlide({
       )}
     </div>
   );
+}
+
+/** Target times to choose from (and the saved one, if it is another). */
+const TARGET_MINUTES = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 75, 90, 120];
+function targetChoices(saved: number | null): number[] {
+  return saved && !TARGET_MINUTES.includes(saved) ? [...TARGET_MINUTES, saved].sort((a, b) => a - b) : TARGET_MINUTES;
 }

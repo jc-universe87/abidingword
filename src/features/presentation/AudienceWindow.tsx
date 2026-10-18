@@ -76,6 +76,7 @@ export function AudienceWindow({ presentationId }: { presentationId: string }) {
             image={slide.audience.image ? (images.get(slide.audience.image.assetId) ?? null) : null}
             overlay={state?.scripture ?? null}
             blank={state?.blank ?? false}
+            marks={state?.marks ?? null}
             label={t("presentation.presenter.position", { current: slide.index + 1, total: doc.data?.slides.length ?? 0 })}
           />
         </div>

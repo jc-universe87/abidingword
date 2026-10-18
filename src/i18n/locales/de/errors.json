@@ -173,6 +173,7 @@
     "audienceFailed": "Der Bildschirm für die Zuhörer konnte nicht geöffnet werden.",
     "otherTeaching": "Dieser Teil gehört zu einer anderen Bibellehre.",
     "tooLong": "Dieser Text ist zu lang für die Folie.",
-    "tooMany": "Diese Präsentation hat schon so viele Folien, wie sie fassen kann."
+    "tooMany": "Diese Präsentation hat schon so viele Folien, wie sie fassen kann.",
+    "targetTooLong": "Die Zielzeit darf höchstens zehn Stunden lang sein."
   }
 }
