@@ -71,8 +71,8 @@
     "parts_other": "{{count}} diapositives",
     "parts_many": "{{count}} diapositives",
     "hasNotes": "Avec notes",
-    "moveUp": "Monter la diapositive {{number}}",
-    "moveDown": "Descendre la diapositive {{number}}",
+    "moveUp": "Avancer la diapositive {{number}}",
+    "moveDown": "Reculer la diapositive {{number}}",
     "remove": "Retirer la diapositive {{number}} de la présentation",
     "kind": "Type de diapositive",
     "show": "Afficher cette diapositive",
@@ -108,7 +108,8 @@
     "targetHint": "Le mode présentateur indique discrètement le temps restant.",
     "minutes_one": "{{count}} min",
     "minutes_other": "{{count}} min",
-    "minutes_many": "{{count}} min"
+    "minutes_many": "{{count}} min",
+    "dragHint": "Fais glisser pour déplacer la diapositive (ou utilise les flèches)"
   },
   "warnings": {
     "noBible": "Aucune Bible n’est encore installée : les diapositives de passages n’affichent que la référence. Ajoutez une Bible dans les Paramètres.",

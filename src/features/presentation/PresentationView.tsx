@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowLeft, ArrowUp, ChevronRight, Download, Play, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowUp, ChevronRight, Download, GripVertical, Play, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
@@ -12,6 +12,7 @@ import { ExportDialog } from "./ExportDialog";
 import { itemKindLabel, slideText, sourceLabel, teachingGives, teachingText, themeLabel } from "./labels";
 import { PresenterView } from "./PresenterView";
 import { SlideView } from "./SlideView";
+import { useListDrag } from "./useListDrag";
 import { useSlideImages } from "./useSlideImages";
 
 interface PresentationViewProps {
@@ -182,22 +183,32 @@ function PresentationEditor({
   if (!presentation) return <p className="m-0 text-text-muted">{t("presentation.loading")}</p>;
 
   const update = (patch: UpdatePresentationItem) => act(() => api.presentationItemUpdate(patch));
-  const move = async (index: number, delta: -1 | 1) => {
+  /** Moves one slide to another place; only the presentation's order changes. */
+  const moveTo = async (from: number, target: number) => {
     const ids = presentation.items.map((i) => i.id);
-    const target = index + delta;
-    if (target < 0 || target >= ids.length) return;
-    [ids[index], ids[target]] = [ids[target]!, ids[index]!];
+    if (target < 0 || target >= ids.length || target === from) return null;
+    const [moved] = ids.splice(from, 1);
+    ids.splice(target, 0, moved!);
     const next = await act(() => api.presentationItemReorder({ parentId: presentation.id, ids }));
-    if (next) {
-      setNotice(t("presentation.editor.moved", { position: target + 1 }));
-      // At the first or last place that button is disabled: the other one (or the slide) takes the keyboard.
-      const atEnd = (delta < 0 && target === 0) || (delta > 0 && target === ids.length - 1);
-      const focusId = atEnd ? `slide-move-${ids[target]}-${delta < 0 ? "down" : "up"}` : `slide-move-${ids[target]}-${delta < 0 ? "up" : "down"}`;
-      requestAnimationFrame(() => {
-        const button = document.getElementById(focusId) as HTMLButtonElement | null;
-        (button && !button.disabled ? button : document.getElementById(`slide-${ids[target]}`))?.focus();
-      });
-    }
+    if (next) setNotice(t("presentation.editor.moved", { position: target + 1 }));
+    return next ? ids : null;
+  };
+  const move = async (index: number, delta: -1 | 1) => {
+    const target = index + delta;
+    const ids = await moveTo(index, target);
+    if (!ids) return;
+    // At the first or last place that button is disabled: the other one (or the slide) takes the keyboard.
+    const atEnd = (delta < 0 && target === 0) || (delta > 0 && target === ids.length - 1);
+    const focusId = atEnd ? `slide-move-${ids[target]}-${delta < 0 ? "down" : "up"}` : `slide-move-${ids[target]}-${delta < 0 ? "up" : "down"}`;
+    requestAnimationFrame(() => {
+      const button = document.getElementById(focusId) as HTMLButtonElement | null;
+      (button && !button.disabled ? button : document.getElementById(`slide-${ids[target]}`))?.focus();
+    });
+  };
+  // Dragged by its handle: the moved slide keeps the keyboard.
+  const dropped = async (from: number, target: number) => {
+    const ids = await moveTo(from, target);
+    if (ids) requestAnimationFrame(() => document.getElementById(`slide-${ids[target]}`)?.focus());
   };
   const add = async (kind: ItemKind, source: ItemSource | null) => {
     const next = await act(() => api.presentationItemCreate({ presentationId: presentation.id, kind, source }));
@@ -310,12 +321,18 @@ function PresentationEditor({
       {error && <p role="alert" className="m-0 text-danger">{error}</p>}
       <p role="status" className="sr-only">{notice}</p>
 
-      <ol aria-label={t("presentation.editor.slides")} className="m-0 flex list-none flex-col gap-2 p-0">
-        {presentation.items.map((item, index) => (
+      <SlideList
+        count={presentation.items.length}
+        label={t("presentation.editor.slides")}
+        onDrop={(from, to) => void dropped(from, to)}
+        render={(index, drag) => {
+          const item = presentation.items[index]!;
+          return (
           <SlideRow
             key={item.id}
             item={item}
             index={index}
+            drag={drag}
             last={index === presentation.items.length - 1}
             doc={doc}
             image={(() => {
@@ -339,8 +356,9 @@ function PresentationEditor({
             onRemove={() => void removeItem(item, index)}
             onImageSaved={refresh}
           />
-        ))}
-      </ol>
+          );
+        }}
+      />
 
       <AddSlide presentation={presentation} preparation={preparation} onAdd={(kind, source) => void add(kind, source)} />
 
@@ -481,9 +499,36 @@ function Wording({
   );
 }
 
+/** What a row needs to take part in dragging: its handle, and where a dragged slide would land. */
+interface RowDrag {
+  handle: ReturnType<ReturnType<typeof useListDrag>["handle"]>;
+  dragging: boolean;
+  dropBefore: boolean;
+  dropAfter: boolean;
+}
+
+/** The slides in order, reordered by dragging a slide's handle (the arrows do the same by keyboard). */
+function SlideList({ count, label, onDrop, render }: { count: number; label: string; onDrop: (from: number, to: number) => void; render: (index: number, drag: RowDrag) => ReactNode }) {
+  const { drag, listRef, handle } = useListDrag(onDrop);
+  return (
+    <ol ref={listRef} aria-label={label} data-dragging={drag ? "" : undefined} className={`m-0 flex list-none flex-col gap-2 p-0 ${drag ? "select-none" : ""}`}>
+      {Array.from({ length: count }, (_, index) =>
+        render(index, {
+          handle: handle(index),
+          dragging: drag?.from === index,
+          // The line shows where it would land, not where it already is.
+          dropBefore: !!drag && drag.to === index && drag.to !== drag.from && drag.to !== drag.from + 1,
+          dropAfter: !!drag && index === count - 1 && drag.to === count && drag.from !== count - 1,
+        }),
+      )}
+    </ol>
+  );
+}
+
 function SlideRow({
   item,
   index,
+  drag,
   last,
   doc,
   image,
@@ -499,6 +544,7 @@ function SlideRow({
 }: {
   item: PresentationItem;
   index: number;
+  drag: RowDrag;
   last: boolean;
   doc: PresentationDocument | null;
   image: string | null;
@@ -536,8 +582,26 @@ function SlideRow({
   };
 
   return (
-    <li aria-label={t("presentation.editor.slideLabel", { number, title: name })} className={`flex flex-col gap-3 rounded-aw border border-border-subtle p-2 ${item.skipped ? "opacity-70" : ""}`}>
+    <li
+      aria-label={t("presentation.editor.slideLabel", { number, title: name })}
+      data-drag-item=""
+      data-drop={drag.dropBefore ? "before" : drag.dropAfter ? "after" : undefined}
+      className={`relative flex flex-col gap-3 rounded-aw border border-border-subtle p-2 ${item.skipped ? "opacity-70" : ""} ${drag.dragging ? "opacity-50" : ""}`}
+    >
+      {/* Where the dragged slide would land. */}
+      {(drag.dropBefore || drag.dropAfter) && (
+        <span aria-hidden="true" data-drop-line="" className={`pointer-events-none absolute inset-x-0 h-1 rounded-full bg-accent ${drag.dropBefore ? "-top-1.5" : "-bottom-1.5"}`} />
+      )}
       <div className="flex flex-wrap items-center gap-2">
+        {/* Drag by this handle only, so text fields in the slide never start a drag. */}
+        <span
+          {...drag.handle}
+          aria-hidden="true"
+          title={t("presentation.editor.dragHint")}
+          className="inline-flex min-h-11 w-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary active:cursor-grabbing"
+        >
+          <GripVertical className="size-5" />
+        </span>
         <button
           id={`slide-${item.id}`}
           type="button"

@@ -69,8 +69,8 @@
     "parts_one": "{{count}} Folie",
     "parts_other": "{{count}} Folien",
     "hasNotes": "Mit Notizen",
-    "moveUp": "Folie {{number}} nach oben",
-    "moveDown": "Folie {{number}} nach unten",
+    "moveUp": "Folie {{number}} nach vorn verschieben",
+    "moveDown": "Folie {{number}} nach hinten verschieben",
     "remove": "Folie {{number}} aus der Präsentation entfernen",
     "kind": "Art der Folie",
     "show": "Diese Folie zeigen",
@@ -105,7 +105,8 @@
     "targetNone": "Keine",
     "targetHint": "Die Referentenansicht zeigt dir dezent, wie viel Zeit noch bleibt.",
     "minutes_one": "{{count}} Min.",
-    "minutes_other": "{{count}} Min."
+    "minutes_other": "{{count}} Min.",
+    "dragHint": "Ziehen, um die Folie zu verschieben (oder die Pfeile nutzen)"
   },
   "warnings": {
     "noBible": "Noch keine Bibel installiert: Bibelstellen-Folien zeigen nur die Stellenangabe. Füge in den Einstellungen eine Bibel hinzu.",

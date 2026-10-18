@@ -71,8 +71,8 @@
     "parts_other": "{{count}} slides",
     "parts_many": "{{count}} slides",
     "hasNotes": "Com notas",
-    "moveUp": "Subir o slide {{number}}",
-    "moveDown": "Descer o slide {{number}}",
+    "moveUp": "Adiantar o slide {{number}}",
+    "moveDown": "Atrasar o slide {{number}}",
     "remove": "Retirar o slide {{number}} da apresentação",
     "kind": "Tipo de slide",
     "show": "Mostrar este slide",
@@ -108,7 +108,8 @@
     "targetHint": "O modo apresentador mostra discretamente o tempo que resta.",
     "minutes_one": "{{count}} min",
     "minutes_other": "{{count}} min",
-    "minutes_many": "{{count}} min"
+    "minutes_many": "{{count}} min",
+    "dragHint": "Arraste para mover o slide (ou use as setas)"
   },
   "warnings": {
     "noBible": "Ainda não há nenhuma Bíblia instalada: os slides de passagens mostram só a referência. Acrescente uma Bíblia nas Configurações.",

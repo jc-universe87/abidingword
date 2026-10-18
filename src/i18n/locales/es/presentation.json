@@ -71,8 +71,8 @@
     "parts_other": "{{count}} diapositivas",
     "parts_many": "{{count}} diapositivas",
     "hasNotes": "Con notas",
-    "moveUp": "Subir la diapositiva {{number}}",
-    "moveDown": "Bajar la diapositiva {{number}}",
+    "moveUp": "Adelantar la diapositiva {{number}}",
+    "moveDown": "Atrasar la diapositiva {{number}}",
     "remove": "Quitar la diapositiva {{number}} de la presentación",
     "kind": "Tipo de diapositiva",
     "show": "Mostrar esta diapositiva",
@@ -108,7 +108,8 @@
     "targetHint": "La vista del presentador muestra discretamente el tiempo que queda.",
     "minutes_one": "{{count}} min",
     "minutes_other": "{{count}} min",
-    "minutes_many": "{{count}} min"
+    "minutes_many": "{{count}} min",
+    "dragHint": "Arrastra para mover la diapositiva (o usa las flechas)"
   },
   "warnings": {
     "noBible": "Todavía no hay ninguna Biblia instalada: las diapositivas de pasajes solo muestran la referencia. Añade una Biblia en Ajustes.",

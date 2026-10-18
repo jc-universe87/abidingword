@@ -129,9 +129,9 @@ describe("making a presentation from a Bible Teaching", () => {
     const { user } = await renderApp(api);
     const region = await makeSlides(user);
     const revision = api.state.teaching.preparations[0]!.revision;
-    await user.click(within(region).getByRole("button", { name: "Move slide 6 up" }));
+    await user.click(within(region).getByRole("button", { name: "Move slide 6 earlier" }));
     await waitFor(() => expect(within(region).getByRole("listitem", { name: "Slide 5: Bear fruit" })).toBeInTheDocument());
-    await waitFor(() => expect(within(region).getByRole("button", { name: "Move slide 5 up" })).toHaveFocus());
+    await waitFor(() => expect(within(region).getByRole("button", { name: "Move slide 5 earlier" })).toHaveFocus());
     const slide = within(region).getByRole("listitem", { name: "Slide 2: Introduction" });
     await user.click(within(slide).getByRole("button", { name: /Introduction/ }));
     await user.click(within(slide).getByRole("checkbox", { name: "Show this slide" }));
@@ -361,9 +361,9 @@ describe("review fixes", () => {
     const { api } = await setup();
     const { user } = await renderApp(api);
     const region = await makeSlides(user);
-    await user.click(within(region).getByRole("button", { name: "Move slide 2 up" }));
+    await user.click(within(region).getByRole("button", { name: "Move slide 2 earlier" }));
     await waitFor(() => expect(within(region).getByRole("listitem", { name: "Slide 1: Introduction" })).toBeInTheDocument());
-    await waitFor(() => expect(within(region).getByRole("button", { name: "Move slide 1 down" })).toHaveFocus());
+    await waitFor(() => expect(within(region).getByRole("button", { name: "Move slide 1 later" })).toHaveFocus());
   });
 });
 

@@ -67,8 +67,8 @@
     "leftOut": "빠짐",
     "parts_other": "슬라이드 {{count}}개",
     "hasNotes": "메모 있음",
-    "moveUp": "슬라이드 {{number}} 위로",
-    "moveDown": "슬라이드 {{number}} 아래로",
+    "moveUp": "슬라이드 {{number}} 앞으로 옮기기",
+    "moveDown": "슬라이드 {{number}} 뒤로 옮기기",
     "remove": "프레젠테이션에서 슬라이드 {{number}} 빼기",
     "kind": "슬라이드 종류",
     "show": "이 슬라이드 보이기",
@@ -102,7 +102,8 @@
     "target": "목표 시간",
     "targetNone": "없음",
     "targetHint": "발표자 보기에 남은 시간이 조용히 표시됩니다.",
-    "minutes_other": "{{count}}분"
+    "minutes_other": "{{count}}분",
+    "dragHint": "끌어서 슬라이드를 옮기세요 (또는 화살표 사용)"
   },
   "warnings": {
     "noBible": "아직 설치된 성경이 없습니다. 성경 본문 슬라이드에는 장절만 나옵니다. 설정에서 성경을 추가하세요.",

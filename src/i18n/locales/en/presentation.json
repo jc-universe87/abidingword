@@ -69,8 +69,8 @@
     "parts_one": "{{count}} slide",
     "parts_other": "{{count}} slides",
     "hasNotes": "Has notes",
-    "moveUp": "Move slide {{number}} up",
-    "moveDown": "Move slide {{number}} down",
+    "moveUp": "Move slide {{number}} earlier",
+    "moveDown": "Move slide {{number}} later",
     "remove": "Remove slide {{number}} from the presentation",
     "kind": "Kind of slide",
     "show": "Show this slide",
@@ -105,7 +105,8 @@
     "targetNone": "No target",
     "targetHint": "The Presenter View shows quietly how much time is left.",
     "minutes_one": "{{count}} min",
-    "minutes_other": "{{count}} min"
+    "minutes_other": "{{count}} min",
+    "dragHint": "Drag to move this slide (or use the arrows)"
   },
   "warnings": {
     "noBible": "No Bible is installed yet: Scripture slides show only the reference. Add a Bible in Settings.",
