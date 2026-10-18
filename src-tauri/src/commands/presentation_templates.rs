@@ -6,8 +6,8 @@
 use std::path::PathBuf;
 
 use base64::Engine as _;
-use serde::Deserialize;
-use tauri::State;
+use serde::{Deserialize, Serialize};
+use tauri::{AppHandle, Emitter, State};
 
 use super::presentations::{store, write_atomically};
 use super::CommandResult;
@@ -18,6 +18,7 @@ use crate::domain::{
 };
 use crate::error::{AppError, UserMessage};
 use crate::presentation::font_catalog::{self, InstalledFont};
+use crate::presentation::pptx_import::{self, ImportedTemplate};
 use crate::presentation::template::{TemplateAsset, TemplateDefinition};
 use crate::presentation::template_store::{self, TemplateStore};
 use crate::state::AppState;
@@ -175,6 +176,59 @@ pub fn presentation_template_import_package(
             },
         )
     })
+}
+
+/// A PowerPoint file larger than this is not read (bytes).
+const PPTX_MAX: u64 = 400 * 1024 * 1024;
+
+/// How far a PowerPoint import is: real counts of layouts read, never an estimate.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ImportProgress {
+    done: usize,
+    total: usize,
+}
+
+/// Reads the design of a PowerPoint file (also one saved from Keynote,
+/// Google Slides or LibreOffice) for the person to review. Its images are
+/// kept; nothing is saved as a template until the person accepts it.
+#[tauri::command(async)]
+pub fn presentation_template_import_pptx(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    path: String,
+) -> CommandResult<ImportedTemplate> {
+    let path = PathBuf::from(path.trim());
+    let size = std::fs::metadata(&path)
+        .map_err(|e| AppError::filesystem(&path, e))?
+        .len();
+    if size > PPTX_MAX {
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "presentation.templateFileLarge",
+            "This file is too large to read as a template.",
+        ))
+        .into());
+    }
+    let bytes = std::fs::read(&path).map_err(|e| AppError::filesystem(&path, e))?;
+    let file_name = path
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or_default()
+        .to_string();
+    let store = kept(&state)?;
+    let progress = |done: usize, total: usize| {
+        let _ = app.emit(
+            "presentation-template-import-progress",
+            ImportProgress { done, total },
+        );
+    };
+    Ok(pptx_import::import(
+        &bytes,
+        &file_name,
+        &store,
+        font_catalog::system(),
+        &progress,
+    )?)
 }
 
 /// The fonts installed on this computer, to choose a replacement from.

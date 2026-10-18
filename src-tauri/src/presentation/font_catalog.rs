@@ -8,7 +8,7 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use ttf_parser::{Face, Permissions, Tag};
 
 /// One face of an installed font.
@@ -40,7 +40,7 @@ pub struct InstalledFont {
 }
 
 /// How a font a template names is found here.
-#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub enum FontStatus {
     /// The family with the wanted weight and slant.

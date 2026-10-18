@@ -307,11 +307,8 @@ pub fn extension(format: &str) -> Option<&'static str> {
 /// families where they are installed (and may be embedded).
 fn with_design_fonts(doc: &PresentationDocument, fonts: FontSet) -> FontSet {
     let design = doc.design();
-    let names = [
-        design.fonts.heading.resolved(),
-        design.fonts.body.resolved(),
-    ];
-    if names.iter().all(|n| n.trim().is_empty()) {
+    let names = design.families();
+    if names.is_empty() {
         return fonts;
     }
     fonts.with_families(&names, crate::presentation::font_catalog::system())

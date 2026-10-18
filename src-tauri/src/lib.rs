@@ -193,6 +193,7 @@ pub fn run() {
             commands::presentation_templates::presentation_template_asset,
             commands::presentation_templates::presentation_template_export,
             commands::presentation_templates::presentation_template_import_package,
+            commands::presentation_templates::presentation_template_import_pptx,
             commands::presentation_templates::presentation_fonts,
             commands::presentations::presentation_list,
             commands::presentations::presentation_get,

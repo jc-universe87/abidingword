@@ -428,12 +428,40 @@ pub fn slots(slide: &Slide, locale: &ExportLocale) -> Slots {
     }
 }
 
+/// Which box each part of a slide goes in. The passage line (or a
+/// quotation's author) uses its own box, else the title box when the slide
+/// has no heading, else the text box when it has no text: a church's
+/// "Bible verse" layout often has just a title and a text box.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct Placement<'a> {
+    pub title: Option<&'a TextFrame>,
+    pub reference: Option<&'a TextFrame>,
+    pub body: Option<&'a TextFrame>,
+}
+
+pub fn place<'a>(layout: &'a RoleLayout, s: &Slots) -> Placement<'a> {
+    let reference = layout
+        .reference
+        .as_ref()
+        .or_else(|| s.title.is_none().then_some(layout.title.as_ref()).flatten())
+        .or_else(|| s.body.is_none().then_some(layout.body.as_ref()).flatten());
+    let same = |a: Option<&TextFrame>, b: Option<&TextFrame>| {
+        a.is_some() && a.map(|x| x as *const _) == b.map(|x| x as *const _)
+    };
+    Placement {
+        title: layout.title.as_ref().filter(|t| !same(Some(t), reference)),
+        reference,
+        body: layout.body.as_ref().filter(|b| !same(Some(b), reference)),
+    }
+}
+
 /// Whether a template layout has a place for everything a slide shows; if
 /// not, the slide uses the built-in arrangement so nothing is left out.
 pub fn fits(layout: &RoleLayout, s: &Slots) -> bool {
-    (s.title.is_none() || layout.title.is_some())
-        && (s.reference.is_none() || layout.reference.is_some())
-        && (s.body.is_none() || layout.body.is_some())
+    let p = place(layout, s);
+    (s.title.is_none() || p.title.is_some())
+        && (s.reference.is_none() || p.reference.is_some())
+        && (s.body.is_none() || p.body.is_some())
         && (!s.image || layout.image.is_some())
 }
 
@@ -518,19 +546,23 @@ pub fn page(
             }));
         }
         blocks.extend(l.decorations.iter().map(picture));
+        for label in l.labels.iter().filter(|t| !t.text.trim().is_empty()) {
+            blocks.push(Block::Text(fit.framed(label.text.trim(), &label.frame)));
+        }
     }
     let blank = slide.audience.blank || slide.kind == "pause";
     if !blank {
         let s = slots(slide, locale);
         match layout.filter(|l| fits(l, &s)) {
             Some(l) => {
-                if let (Some(t), Some(f)) = (&s.title, &l.title) {
+                let p = place(l, &s);
+                if let (Some(t), Some(f)) = (&s.title, p.title) {
                     blocks.push(Block::Text(fit.framed(t, f)));
                 }
-                if let (Some(t), Some(f)) = (&s.reference, &l.reference) {
+                if let (Some(t), Some(f)) = (&s.reference, p.reference) {
                     blocks.push(Block::Text(fit.framed(t, f)));
                 }
-                if let (Some(t), Some(f)) = (&s.body, &l.body) {
+                if let (Some(t), Some(f)) = (&s.body, p.body) {
                     blocks.push(Block::Text(fit.framed(t, f)));
                 }
                 if let (true, Some(f)) = (s.image, &l.image) {

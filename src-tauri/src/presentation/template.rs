@@ -118,6 +118,9 @@ impl Default for TemplateColors {
 pub struct TemplateFonts {
     pub heading: FontChoice,
     pub body: FontChoice,
+    /// Other fonts a layout names for one of its boxes, each with its own
+    /// replacement when it is not installed.
+    pub others: Vec<FontChoice>,
 }
 
 /// A font as the template names it, and the installed font the person chose
@@ -205,6 +208,8 @@ pub struct RoleLayout {
     /// Pictures that belong to the design (shapes kept as images, logos).
     pub decorations: Vec<Placed>,
     pub rects: Vec<FilledRect>,
+    /// Text that belongs to the design (a church name in a band).
+    pub labels: Vec<Footer>,
     /// The heading, the passage line (or a quotation's author), the text.
     pub title: Option<TextFrame>,
     pub reference: Option<TextFrame>,
@@ -247,7 +252,8 @@ pub struct TextFrame {
     pub y: f32,
     pub w: f32,
     pub h: f32,
-    /// "heading" or "body": one of the template's two fonts.
+    /// "heading" or "body" (the template's two fonts), or another family
+    /// listed in `fonts.others`.
     pub font: String,
     /// The size text is set in (points).
     pub size: f32,
@@ -355,12 +361,32 @@ impl TemplateDefinition {
     }
 
     /// The installed family a frame's text is set in ("" for the app's usual font).
-    pub fn family(&self, font: &str) -> &str {
-        if font == "heading" {
-            self.fonts.heading.resolved()
-        } else {
-            self.fonts.body.resolved()
+    pub fn family<'a>(&'a self, font: &'a str) -> &'a str {
+        match font {
+            "heading" => self.fonts.heading.resolved(),
+            "body" | "" => self.fonts.body.resolved(),
+            other => self
+                .fonts
+                .others
+                .iter()
+                .find(|f| f.family.eq_ignore_ascii_case(other))
+                .map_or(other, FontChoice::resolved),
         }
+    }
+
+    /// Every family the design uses (resolved), without repeats.
+    pub fn families(&self) -> Vec<&str> {
+        let mut out: Vec<&str> = Vec::new();
+        for f in [&self.fonts.heading, &self.fonts.body]
+            .into_iter()
+            .chain(self.fonts.others.iter())
+        {
+            let name = f.resolved();
+            if !name.trim().is_empty() && !out.iter().any(|o| o.eq_ignore_ascii_case(name)) {
+                out.push(name);
+            }
+        }
+        out
     }
 
     /// Every image the template refers to.
@@ -432,6 +458,7 @@ pub fn validate(def: &TemplateDefinition) -> AppResult<()> {
         for frame in [&layout.title, &layout.reference, &layout.body]
             .into_iter()
             .flatten()
+            .chain(layout.labels.iter().map(|l| &l.frame))
         {
             check_frame(def, frame)?;
         }

@@ -1311,10 +1311,17 @@ fn a_template_places_text_in_its_boxes_and_says_what_does_not_fit() {
         let t = first_text.unwrap();
         assert!((t.x + t.w / 2.0 - 360.0).abs() < 0.01);
 
-        // A heading slide with nothing for its body box still uses the layout; one whose
-        // content has no place (a passage line, no box for it) uses the built-in arrangement.
+        // Without a passage box, the passage line takes the free title box (this slide has
+        // no heading of its own); with no box free for it, the built-in arrangement is used.
         let mut lonely = design.clone();
         lonely.roles.get_mut("scripture").unwrap().reference = None;
+        assert!(scripture.audience.heading.is_none());
+        let page = slide_layout::page(scripture, &doc, &lonely, &shaper, &locale);
+        assert!(page
+            .blocks
+            .iter()
+            .any(|b| matches!(b, Block::Text(t) if t.frame.as_ref().is_some_and(|f| f.y == 40.0))));
+        lonely.roles.get_mut("scripture").unwrap().title = None;
         let page = slide_layout::page(scripture, &doc, &lonely, &shaper, &locale);
         assert!(page.blocks.iter().all(
             |b| !matches!(b, Block::Text(t) if t.frame.as_ref().is_some_and(|f| f.y == 150.0))
@@ -1414,6 +1421,227 @@ fn the_pdf_with_a_template_has_its_page_size_pictures_and_transparency() {
     assert_eq!(media[3].as_float().unwrap(), 540.0);
     let raw = String::from_utf8_lossy(&bytes);
     assert!(raw.contains("/ExtGState"));
+    let text = pdf
+        .extract_text(&pages.keys().copied().collect::<Vec<_>>())
+        .unwrap_or_default();
+    assert!(text.contains("Grace Church"), "{text}");
+}
+
+// ---------------------------------------------------------------------------
+// A design imported from PowerPoint, applied (v0.18.1)
+// ---------------------------------------------------------------------------
+
+/// The PowerPoint corpus design with every suggested role, as kept after review.
+fn imported_design(store: &ImageStore) -> TemplateDefinition {
+    let bytes = std::fs::read(
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/templates/powerpoint-16x9.pptx"),
+    )
+    .unwrap();
+    let imported = abiding_word_lib::presentation::pptx_import::import(
+        &bytes,
+        "powerpoint-16x9.pptx",
+        &store.templates(),
+        &[],
+        &|_, _| {},
+    )
+    .unwrap();
+    imported.accept(&imported.suggestions)
+}
+
+fn with_imported(
+    conn: &Connection,
+    store: &ImageStore,
+) -> AppResult<abiding_word_lib::domain::Presentation> {
+    let s = sermon(conn)?;
+    install_bible(conn)?;
+    let p = propose(conn, &s.teaching)?;
+    let t = presentation_templates::create(
+        conn,
+        &CreatePresentationTemplate {
+            name: "Grace Church Sunday".into(),
+            definition: imported_design(store),
+            source_format: "pptx".into(),
+            source_name: Some("powerpoint-16x9.pptx".into()),
+            ..Default::default()
+        },
+    )?;
+    presentations::update(
+        conn,
+        &UpdatePresentation {
+            id: p.id.clone(),
+            template_id: Some(t.id.clone()),
+            ..Default::default()
+        },
+    )
+}
+
+fn framed_texts(page: &slide_layout::Page) -> Vec<&slide_layout::TextBox> {
+    page.blocks
+        .iter()
+        .filter_map(|b| match b {
+            Block::Text(t) if t.frame.is_some() => Some(t),
+            _ => None,
+        })
+        .collect()
+}
+
+#[test]
+fn an_imported_design_lays_out_long_german_and_korean_scripture_the_same_way_every_time() {
+    let temp = tempfile::tempdir().unwrap();
+    let store = store(temp.path());
+    with_db(|conn| {
+        let p = with_imported(conn, &store)?;
+        let doc = document::build(conn, &p.id, &store)?;
+        let design = doc.design();
+        let fonts = FontSet::empty();
+        let shaper = abiding_word_lib::presentation::text::Shaper { fonts: &fonts };
+        let locale = ExportOptions::default().locale;
+        let scripture = doc.slides.iter().find(|s| s.kind == "scripture").unwrap();
+
+        let page = slide_layout::page(scripture, &doc, &design, &shaper, &locale);
+        assert_eq!((page.width, page.height), (960.0, 540.0));
+        // The cropped photo, the band, the boxes of the "Bible Verse" layout; the logo
+        // and the footer come from the master.
+        match &page.blocks[0] {
+            Block::Picture(b) => {
+                assert_eq!((b.w, b.h), (960.0, 540.0));
+                assert_eq!(b.crop.left, 0.05);
+            }
+            other => panic!("background first, got {other:?}"),
+        }
+        assert!(page
+            .blocks
+            .iter()
+            .any(|b| matches!(b, Block::Rect(r) if (r.fill_opacity - 0.45).abs() < 0.001)));
+        let texts = framed_texts(&page);
+        let verse = texts
+            .iter()
+            .find(|t| t.frame.as_ref().unwrap().y == 120.0)
+            .expect("the verse box");
+        assert_eq!(verse.color, "#FFFFFF");
+        assert!(verse.bold);
+        assert_eq!(verse.align, slide_layout::Align::Center);
+        let reference = texts
+            .iter()
+            .find(|t| t.frame.as_ref().unwrap().y == 450.0)
+            .expect("the passage box");
+        assert_eq!(reference.align, slide_layout::Align::Right);
+        assert!(reference.italic);
+
+        // Long German: the verse box may shrink (PowerPoint's setting), so it fits smaller.
+        let mut german = scripture.clone();
+        german.audience.verses = vec![document::SlideVerse {
+            chapter: 15,
+            verse: 5,
+            text: "Ich bin der Weinstock, ihr seid die Reben. Wer in mir bleibt und ich in ihm, \
+                   der bringt viel Frucht; denn ohne mich könnt ihr nichts tun. "
+                .repeat(4),
+        }];
+        let page = slide_layout::page(&german, &doc, &design, &shaper, &locale);
+        let verse = framed_texts(&page)
+            .into_iter()
+            .find(|t| t.frame.as_ref().unwrap().y == 120.0)
+            .unwrap()
+            .clone();
+        assert!(verse.size < 36.0 && verse.size >= 14.4, "{}", verse.size);
+        assert!(!verse.overflow);
+        let again = slide_layout::page(&german, &doc, &design, &shaper, &locale);
+        assert_eq!(
+            format!("{page:?}"),
+            format!("{again:?}"),
+            "the same every time"
+        );
+
+        // Korean in a box that may not shrink (the quote layout): reported, never shrunk.
+        let quote = doc.slides.iter().find(|s| s.kind == "quote");
+        let mut korean = quote.cloned().unwrap_or_else(|| {
+            let mut s = scripture.clone();
+            s.kind = "quote".into();
+            s
+        });
+        korean.audience.verses.clear();
+        korean.audience.body = Some(
+            "포도나무는 나요 너희는 가지라 저가 내 안에, 내가 저 안에 있으면 이 사람은 과실을 많이 맺나니 "
+                .repeat(8),
+        );
+        let page = slide_layout::page(&korean, &doc, &design, &shaper, &locale);
+        let body = framed_texts(&page)
+            .into_iter()
+            .find(|t| t.frame.as_ref().unwrap().y == 100.0)
+            .expect("the quote box");
+        assert_eq!(body.size, 36.0);
+        assert!(body.italic);
+        assert!(body.overflow);
+        assert!(body.lines.len() > 5);
+        assert_eq!(page.overflowing(), 1);
+        Ok(())
+    });
+}
+
+fn imported_export(format: &str) -> (Vec<u8>, presentation::PresentationDocument) {
+    let temp = tempfile::tempdir().unwrap();
+    let store = store(temp.path());
+    with_db(|conn| {
+        let p = with_imported(conn, &store)?;
+        let doc = package::build(conn, &p.id, &store)?;
+        let (bytes, _) = abiding_word_lib::commands::presentations::render_counted(
+            &doc,
+            format,
+            &options(false),
+            FontSet::empty,
+        )
+        .unwrap();
+        Ok((bytes, doc))
+    })
+}
+
+#[test]
+fn an_imported_design_goes_back_to_powerpoint_with_its_size_fonts_and_spacing() {
+    let (bytes, doc) = imported_export("pptx");
+    let (again, _) = imported_export("pptx");
+    assert_eq!(bytes, again, "the same file every time");
+    let files = unzip(&bytes);
+    let text = |name: &str| -> String {
+        String::from_utf8(files.iter().find(|(n, _)| n == name).unwrap().1.clone()).unwrap()
+    };
+    assert!(text("ppt/presentation.xml").contains(r#"<p:sldSz cx="12192000" cy="6858000"/>"#));
+    let theme = text("ppt/theme/theme1.xml");
+    assert!(theme.contains(r#"<a:latin typeface="Calibri Light"/>"#));
+    assert!(theme.contains(r#"<a:latin typeface="Calibri"/>"#));
+    let n = doc
+        .slides
+        .iter()
+        .position(|s| s.kind == "scripture")
+        .unwrap()
+        + 1;
+    let slide = text(&format!("ppt/slides/slide{n}.xml"));
+    assert!(slide.contains(r#"typeface="Montserrat SemiBold""#));
+    assert!(slide.contains(r#"<a:srcRect l="5000" t="10000" r="5000" b="10000"/>"#));
+    assert!(slide.contains(r#"<a:normAutofit/>"#));
+    // 110 % spacing goes back as 110 %.
+    assert!(slide.contains(r#"<a:spcPct val="110000"/>"#), "{slide}");
+    assert!(slide.contains(r#"algn="r""#));
+    // The footer is on the layouts that carry it in the source ("Title and Content"),
+    // not on the Scripture layout, which has none.
+    assert!(!slide.contains("Grace Church · Sunday"));
+    let n = doc.slides.iter().position(|s| s.kind == "heading").unwrap() + 1;
+    assert!(text(&format!("ppt/slides/slide{n}.xml")).contains("Grace Church · Sunday"));
+}
+
+#[test]
+fn an_imported_design_in_the_pdf_has_its_page_size_and_footer() {
+    let (bytes, doc) = imported_export("pdf");
+    let pdf = lopdf::Document::load_mem(&bytes).unwrap();
+    let pages = pdf.get_pages();
+    assert_eq!(pages.len(), doc.slides.len());
+    let first = pdf
+        .get_object(*pages.values().next().unwrap())
+        .unwrap()
+        .as_dict()
+        .unwrap();
+    let media = first.get(b"MediaBox").unwrap().as_array().unwrap();
+    assert_eq!(media[2].as_float().unwrap(), 960.0);
+    assert_eq!(media[3].as_float().unwrap(), 540.0);
     let text = pdf
         .extract_text(&pages.keys().copied().collect::<Vec<_>>())
         .unwrap_or_default();

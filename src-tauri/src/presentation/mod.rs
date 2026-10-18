@@ -21,6 +21,7 @@ pub mod markdown;
 pub mod package;
 pub mod pdf;
 pub mod pptx;
+pub mod pptx_import;
 pub mod template;
 pub mod template_store;
 pub mod text;
