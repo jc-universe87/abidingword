@@ -45,7 +45,7 @@ They are kept as written at the time.
 | [scripture-links-v0.11.md](scripture-links-v0.11.md) | v0.11: click a Bible reference in a book to open it, and find your way back. |
 | [concordance-v0.12.md](concordance-v0.12.md) | v0.12: every place a word appears in a Bible, by book. |
 | [multilingual-references-v0.13.2.md](multilingual-references-v0.13.2.md) | v0.13.2: references in any supported language in one source; heading lines as context. |
-| [reference-language-packs.md](reference-language-packs.md) | How reference languages are built, and how to add one. |
+| [reference-language-packs.md](reference-language-packs.md) | The shared reference engine: 100 language packs, typed-input policy, provenance, and how to add the 101st. |
 | [reference-context-v0.13.1.md](reference-context-v0.13.1.md) | v0.13.1: references without a book name, folding contents, EPUB text repair. |
 | [library-reading-v0.13.md](library-reading-v0.13.md) | v0.13: find in a book, generated contents, and clickable Bible references on PDF pages. |
 | [source-annotations-v0.14.md](source-annotations-v0.14.md) | v0.14: highlights, notes and bookmarks in your own books, on their pages too, and Marks for the Bible and your books together. |
@@ -53,4 +53,5 @@ They are kept as written at the time.
 | [teaching-preparation-v0.16.md](teaching-preparation-v0.16.md) | v0.16: teaching preparations written from a study; the optional assistant ("AI assists; the human authors"): providers, keys, bounded context, provenance, real stories, images. |
 | [study-teaching-simplification-v0.17.md](study-teaching-simplification-v0.17.md) | v0.17: Bible Study as parts with their own Add and notes (no more "findings"), small templates, a canvas for each kind of teaching, lesson steps with kinds; more search services for real stories. |
 | [presentation-templates-v0.18.1.md](presentation-templates-v0.18.1.md) | v0.18.1: drag-and-drop slide ordering; church templates imported from PowerPoint (Keynote and Google Slides via PowerPoint) with a compatibility report, reused as template files or made in a small designer; one layout for the live view, PowerPoint and PDF; Windows/Office acceptance checklist. |
+| [references-appearance-v0.18.2.md](references-appearance-v0.18.2.md) | v0.18.2: one shared resolver for typed passages in 100 languages (root cause, call sites, policy); a dark variant for each background family; Presenter View follows the app; Windows acceptance checklist. |
 | [presentation-delivery-v0.18.md](presentation-delivery-v0.18.md) | v0.18 (in progress): presentations made from a Bible Teaching and following it live; one Presenter View for phone, tablet and computer; an audience screen on a second display; PowerPoint, PDF, phone speaker sheet, Markdown and a self-contained delivery package from the same slides. |

@@ -57,6 +57,36 @@ languages disagree, and how numbers without a book name (*15,4* or *15:4*,
 > a verse, like *Mal 4,3*. That is why, in the picture above, *"mal sehen"* is
 > not underlined.
 
+## Typing a passage in any language
+
+Wherever you type a passage — the Bible's **Go to passage**, a study's
+passages, a teaching's passages, a presentation and the Presenter View's
+**Bible passage** — you can write it in any of **100 languages**, in the
+alphabet of that language, whatever language Abiding Word itself is in:
+
+| You type | Opens |
+|---|---|
+| John 15:5 · Joh 15,5 · Johannes 15,5 | John 15:5 |
+| Jean 15,5 · Juan 15:5 · João 15:5 · Giovanni 15,5 | John 15:5 |
+| 요한복음 15장 5절 · 约翰福音 15:5 · 約翰福音15章5節 · ヨハネによる福音書 15:5 | John 15:5 |
+| Иоанна 15:5 · Κατά Ιωάννην 15,5 · يوحنا ١٥:٥ · יוחנן 15:5 · यूहन्ना १५:५ | John 15:5 |
+| 1 Kor 13,4-7 · 1 Corinthians 13:4-7 · 哥林多前书 13:4-7 | 1 Corinthians 13:4–7 |
+
+Numbers may be written with the digits of the language (١٥, १५, ১৫, ๑๕ …),
+chapter and verse with `:`, `,` or `.`, and a book name alone opens its first
+chapter.
+
+**When it could mean two passages**, Abiding Word does not guess. *Jn 3:5*
+is John in English, French and Spanish but Jonah in Portuguese: with
+Abiding Word in English it opens John 3:5, in Portuguese Jonah 3:5, and in
+another language it asks *“Jn 3:5” could mean Jonah 3:5 / John 3:5* — type a
+little more of the name. (*Jn 15:5* is always John: Jonah has four chapters.)
+
+The 100 languages are listed in the technical notes
+([reference language packs](../reference-language-packs.md)). Underlined
+references inside your books are read more carefully than what you type: a
+book is read in the six languages below plus its own language.
+
 ## References without a book name
 
 Sermons and commentaries often name the book once and then write only the

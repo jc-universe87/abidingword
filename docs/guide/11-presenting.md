@@ -72,7 +72,8 @@ Click **Start Presenter View**. It adapts to your screen:
   shows the time of day.
 - **View**: the **Layout** (*Slides and notes*, *Larger notes* or *Larger
   slides* — remembered on this computer; a phone always shows the large-print
-  sheet), larger or smaller text, a Light, Dark or Warm background for you,
+  sheet), larger or smaller text, your background (*Follow app*, *Light*,
+  *Dark* or *Warm* — see below),
   timer and clock on or off, **Keep the screen on** (where your computer
   allows it; otherwise it says so) and the keyboard shortcuts.
 - Overview, Bible passage, Audience screen and View open **over** the view
@@ -92,6 +93,20 @@ Click **Start Presenter View**. It adapts to your screen:
 <p align="center">
   <img src="images/presenter-view-panel.png" alt="The View panel open on the right of the Presenter View: Layout with three small pictures, text size, background and the other options" width="760">
 </p>
+
+### Your background in the Presenter View
+
+The Presenter View starts with **Follow app**: it looks like the rest of
+Abiding Word — light or dark as your theme is (or as Windows is, with *Match
+my computer*), in your chosen background. Dark theme with *Sage* gives a dark
+sage reading surface. If Windows switches to dark while you speak, the
+Presenter View follows at once.
+
+Choose *Light*, *Dark* or *Warm* under **View** to keep the Presenter View
+that way whatever the app does. That choice is remembered on this computer
+and changes only the Presenter View — never the rest of the app, and never
+what the audience sees: their slides keep the presentation's own design or
+your church's template.
 
 ### The audience screen
 
@@ -133,7 +148,10 @@ While the audience screen is on:
 ### A Bible passage without losing your place
 
 Click **Bible passage** to look up any passage (or one of the presentation's
-passages). You read it privately; click **Show to audience** to put it on
+passages). Type it the way you would write it, in any language — *John 15:5*,
+*Joh 15,5*, *Johannes 15,5*, *Jean 15,5*, *요한복음 15장 5절*, *Иоанна 15:5* or
+*约翰福音 15:5* all find the same passage, whatever language Abiding Word is
+in (see [Bible references](06-bible-references.md#typing-a-passage-in-any-language)). You read it privately; click **Show to audience** to put it on
 their screen for a moment, and **Return to slide** (or move on) to go back to
 your slide. You never lose your place, and your presentation is not changed.
 
@@ -159,10 +177,14 @@ There you can:
 - **New template** — make a simple one here (see below).
 
 > [!TIP]
-> **Keynote, Google Slides, LibreOffice:** save your design as PowerPoint
-> first — in Keynote *File › Export To › PowerPoint*; in Google Slides
-> *File › Download › Microsoft PowerPoint (.pptx)*; in LibreOffice Impress
-> *File › Save As* with the PowerPoint format — then import that file.
+> **Which files work:**
+>
+> | Made in | How to bring it in |
+> |---|---|
+> | **PowerPoint** | Import the .pptx directly. |
+> | **LibreOffice Impress** | *File › Save As* → PowerPoint (.pptx), then import that. OpenDocument files (.odp) cannot be imported. |
+> | **Keynote** | *File › Export To › PowerPoint*, then import the .pptx. |
+> | **Google Slides** | *File › Download › Microsoft PowerPoint (.pptx)*, then import that. |
 
 ### Checking an imported design
 

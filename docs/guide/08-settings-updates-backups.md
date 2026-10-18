@@ -67,11 +67,15 @@ exists. If there is one, a slim notice appears under the app bar:
 </p>
 
 - **Theme:** *Light*, *Dark*, or *Match my computer* (follows your Windows
-  setting).
+  setting, and changes with it while Abiding Word is open — for example when
+  Windows switches to dark in the evening).
 - **Background:** six calm, low-glare backgrounds for long reading and
-  writing (*Parchment*, *Cream*, *Sage*, *Stone*, *Mist*, *Neutral*). Text
-  stays easy to read on each. They apply to the light theme, and the choice
-  is remembered on this computer.
+  writing (*Parchment*, *Cream*, *Sage*, *Stone*, *Mist*, *Neutral*). Each
+  has a light and a dark version: you choose one of the six, and it follows
+  the theme. *Sage* in the dark theme is a dark, quiet sage; *Parchment* in
+  the dark is Abiding Word's own deep green. Text stays easy to read on all
+  twelve, and nothing is pure black. The choice is remembered on this
+  computer.
 
 <p align="center">
   <img src="images/workspace-dark.png" alt="The workspace in the dark theme" width="900">
