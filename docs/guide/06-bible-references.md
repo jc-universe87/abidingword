@@ -77,10 +77,14 @@ chapter and verse with `:`, `,` or `.`, and a book name alone opens its first
 chapter.
 
 **When it could mean two passages**, Abiding Word does not guess. *Jn 3:5*
-is John in English, French and Spanish but Jonah in Portuguese: with
-Abiding Word in English it opens John 3:5, in Portuguese Jonah 3:5, and in
-another language it asks *“Jn 3:5” could mean Jonah 3:5 / John 3:5* — type a
-little more of the name. (*Jn 15:5* is always John: Jonah has four chapters.)
+is John in English, French and Spanish but Jonah in Portuguese: Abiding Word
+in Portuguese opens Jonah 3:5, in any other language John 3:5 (the English
+reading decides when your own language does not). When no language decides —
+*фил 1:1* is Philippians in one language and Philemon in another — it asks:
+*“фил 1:1” could mean Philippians 1:1 / Philemon 1* — type a little more of
+the name. (*Jn 15:5* is always John: Jonah has four chapters.) Names you
+would mean otherwise are never taken from another language: *Sam 3:5* is not
+read as some language's Psalms, and *Jud 3:5* says Jude has one chapter.
 
 The 100 languages are listed in the technical notes
 ([reference language packs](../reference-language-packs.md)). Underlined

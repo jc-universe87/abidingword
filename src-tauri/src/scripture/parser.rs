@@ -199,6 +199,20 @@ impl Prepared {
             Some(map) => map[at.min(map.len() - 1)],
         }
     }
+
+    /// The end (exclusive) in the original of a range ending at `end` in the
+    /// prepared text: just after the original character of the range's last
+    /// byte, so ignorable marks after a match are not taken into it.
+    pub fn original_end(&self, original: &str, end: usize) -> usize {
+        match &self.map {
+            None => end,
+            Some(_) if end == 0 => self.original(0),
+            Some(map) => {
+                let at = map[(end - 1).min(map.len() - 1)];
+                at + original[at..].chars().next().map_or(0, char::len_utf8)
+            }
+        }
+    }
 }
 
 impl AliasDictionary {
@@ -506,7 +520,7 @@ impl ReferenceParser {
             let pattern = match self.syntax.grammar {
                 Grammar::Latin => latin_pattern(&alternatives, self.syntax.verse_separator),
                 Grammar::Korean => korean_pattern(&alternatives),
-                Grammar::Data => data_pattern(&self.syntax, &alternatives),
+                Grammar::Data => data_pattern(&self.syntax, &alternatives, true),
             };
             regex::RegexBuilder::new(&pattern)
                 .size_limit(64 << 20)
@@ -517,7 +531,7 @@ impl ReferenceParser {
 
     fn tail(&self) -> &Regex {
         self.tail.get_or_init(|| {
-            let pattern = format!("^{}$", data_pattern(&self.syntax, ".+?"));
+            let pattern = format!("^{}$", data_pattern(&self.syntax, ".+?", false));
             Regex::new(&pattern).expect("reference tail pattern is valid")
         })
     }
@@ -561,7 +575,7 @@ impl ReferenceParser {
                 let parts = self.parts(&caps);
                 Some(RawMatch {
                     start: prepared.original(whole.start()),
-                    end: prepared.original(end),
+                    end: prepared.original_end(text, end),
                     reference,
                     book,
                     written_verse: parts.v1.is_some()
@@ -747,6 +761,14 @@ impl ReferenceParser {
                 if self.syntax.spaced
                     && (before.is_some_and(|c| c.is_alphanumeric() || c == '_')
                         || after.is_some_and(char::is_alphanumeric))
+                {
+                    return false;
+                }
+                // "3,16" or "3.5" goes on: a decimal or a notation not read in
+                // running text — never a shorter reference cut out of it.
+                let mut rest = text[whole.end()..].chars();
+                if matches!(rest.next(), Some('.' | ','))
+                    && rest.next().is_some_and(|c| c.is_ascii_digit())
                 {
                     return false;
                 }
@@ -938,7 +960,7 @@ fn alias_body(syntax: &Syntax, key: &str) -> String {
 /// "John 3. 16 people" or "Joh 3, 16 Personen" is not read as a verse).
 fn latin_pattern(alternatives: &str, separator: &str) -> String {
     format!(
-        r"(?i)(?P<book>{alternatives})\.?\s*(?P<c1>\d{{1,3}})(?:(?:{separator})(?P<v1>\d{{1,3}}))?(?:\s*[-‐‑‒–—]\s*(?P<n2>\d{{1,3}})(?:(?:{separator})(?P<v2>\d{{1,3}}))?)?(?-u:\b)"
+        r"(?i)(?P<book>{alternatives})\.?\s*(?P<c1>[0-9]{{1,3}})(?:(?:{separator})(?P<v1>[0-9]{{1,3}}))?(?:\s*[-‐‑‒–—]\s*(?P<n2>[0-9]{{1,3}})(?:(?:{separator})(?P<v2>[0-9]{{1,3}}))?)?(?-u:\b)"
     )
 }
 
@@ -947,7 +969,7 @@ fn latin_pattern(alternatives: &str, separator: &str) -> String {
 fn korean_pattern(alternatives: &str) -> String {
     const DASH: &str = r"[-~‐‑‒–—]";
     format!(
-        r"(?P<book>{alternatives})\s*(?P<c1>\d{{1,3}})(?:\s*:\s*(?P<v1>\d{{1,3}})(?:\s*{DASH}\s*(?P<n2>\d{{1,3}})(?:\s*:\s*(?P<v2>\d{{1,3}}))?)?\s*(?:절)?|\s*장\s*(?P<v1k>\d{{1,3}})\s*절(?:\s*{DASH}\s*(?P<n2k>\d{{1,3}})(?:\s*(?:장\s*(?P<v2k>\d{{1,3}}))?\s*절))?|\s*장\s*(?P<v1c>\d{{1,3}})\s*{DASH}\s*(?P<n2c>\d{{1,3}})\s*절|\s*{DASH}\s*(?P<n2d>\d{{1,3}})\s*(?P<unitd>[장편절])?|\s*(?P<unit>[장편절]))?"
+        r"(?P<book>{alternatives})\s*(?P<c1>[0-9]{{1,3}})(?:\s*:\s*(?P<v1>[0-9]{{1,3}})(?:\s*{DASH}\s*(?P<n2>[0-9]{{1,3}})(?:\s*:\s*(?P<v2>[0-9]{{1,3}}))?)?\s*(?:절)?|\s*장\s*(?P<v1k>[0-9]{{1,3}})\s*절(?:\s*{DASH}\s*(?P<n2k>[0-9]{{1,3}})(?:\s*(?:장\s*(?P<v2k>[0-9]{{1,3}}))?\s*절))?|\s*장\s*(?P<v1c>[0-9]{{1,3}})\s*{DASH}\s*(?P<n2c>[0-9]{{1,3}})\s*절|\s*{DASH}\s*(?P<n2d>[0-9]{{1,3}})\s*(?P<unitd>[장편절])?|\s*(?P<unit>[장편절]))?"
     )
 }
 
@@ -979,9 +1001,14 @@ fn korean_parts(caps: &Captures) -> Parts {
 /// A generated pack's notation: `3:16`, `3,16`, `3.16` (`,` and `.` only
 /// between digits), ranges `3:16-18`, `3:16-4:2`, `3-4`, and where the
 /// language counts with units, `3章16节`, `3章16-18节`, `第3章`, `บทที่ 3`.
-fn data_pattern(syntax: &Syntax, alternatives: &str) -> String {
+///
+/// In running text (`running`) only `:` and the units separate chapter and
+/// verse: `,` and `.` between digits are decimals and thousands in the prose
+/// of most of these languages (`3.5万人`, `Op 12.30 uur`, `2,5 km`), and the
+/// generated packs are not reviewed against that prose.
+fn data_pattern(syntax: &Syntax, alternatives: &str, running: bool) -> String {
     const DASH: &str = r"[-~‐‑‒–—]";
-    const N: &str = r"\d{1,3}";
+    const N: &str = r"[0-9]{1,3}";
     let alt = |units: &[&str]| {
         units
             .iter()
@@ -991,7 +1018,11 @@ fn data_pattern(syntax: &Syntax, alternatives: &str) -> String {
     };
     let cu = alt(syntax.chapter_units);
     let vu = alt(syntax.verse_units);
-    let sep = syntax.verse_separator;
+    let sep = if running {
+        r"\s*:\s*"
+    } else {
+        syntax.verse_separator
+    };
     let case = if syntax.require_capital { "(?i)" } else { "" };
     let verse_unit = if vu.is_empty() {
         String::new()

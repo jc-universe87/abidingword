@@ -88,6 +88,7 @@ describe("twelve calm palettes", () => {
     expect(contrast(t["--aw-danger"]!, surface)).toBeGreaterThanOrEqual(4.5);
     // The focus ring stands out from what it surrounds (WCAG 1.4.11).
     expect(contrast(t["--aw-focus-ring"]!, bg)).toBeGreaterThanOrEqual(3);
+    expect(contrast(t["--aw-focus-ring"]!, secondary)).toBeGreaterThanOrEqual(3);
     // Selection, notes and the primary button keep their text readable.
     expect(contrast(t["--aw-text"]!, t["--aw-selection"]!)).toBeGreaterThan(7);
     expect(contrast(t["--aw-text"]!, t["--aw-note"]!)).toBeGreaterThan(7);

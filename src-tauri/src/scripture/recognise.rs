@@ -21,6 +21,8 @@
 //!      "Jn" is John in English, French and Spanish but Jonah in Portuguese:
 //!      `Jn 15:5` can only be John (Jonah has four chapters), `Jn 3:5` could be
 //!      either, so it is left alone unless the source language decides it.
+//!    * in a source in a generated language (not reviewed against its prose),
+//!      it is written with `:` or a Korean unit, never `,` or `.`.
 //! 3. **Overlaps:** the longest match wins (`Joh 15,4` over the English
 //!    reading `Joh 15`). Matches of the same text that name different passages
 //!    are settled by the source language if it is among them, and otherwise
@@ -115,7 +117,11 @@ impl Recogniser {
             }
             let own = pack.language == self.primary;
             let found = ReferenceParser::for_language(pack.language).matches(text);
-            candidates.extend(found.into_iter().filter(|m| own || self.strong_enough(m)));
+            candidates.extend(
+                found
+                    .into_iter()
+                    .filter(|m| own || self.strong_enough(m, text)),
+            );
         }
         resolve(candidates, self.primary)
     }
@@ -137,10 +143,19 @@ impl Recogniser {
     }
 
     /// Rule 2: whether another language's match is strong enough to count here.
-    fn strong_enough(&self, m: &RawMatch) -> bool {
+    fn strong_enough(&self, m: &RawMatch, text: &str) -> bool {
         let korean_chapter = m.language == ReferenceLanguage::Ko && m.chapter_unit;
         if !m.written_verse && !korean_chapter {
             return false;
+        }
+        // In a source in a generated language, whose prose is not reviewed, a
+        // decimal or an amount ("Es 3.5 per cento", "Mt 1,5 km") is not
+        // another language's reference: only ":" or a unit (장, 절) counts.
+        if !packs::pack(self.primary).is_reviewed() {
+            let written = &text[m.start..m.end];
+            if !written.contains([':', '：']) && !written.contains(['장', '절']) {
+                return false;
+            }
         }
         let name = name_key(&m.book);
         if packs::pack(self.primary)

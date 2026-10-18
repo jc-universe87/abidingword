@@ -68,8 +68,9 @@ pub fn scripture_reference_parse(
     Ok(resolve::resolve(&text, preferred)?.to_dto())
 }
 
-/// The explicit references in a text, read as a source in `language` (the
-/// interface language when the text has none of its own; English without one).
+/// The explicit references in a text, read as a source in `language` — the
+/// language of the text when the caller knows it (never the interface
+/// language); English without one, as before.
 #[tauri::command(async)]
 pub fn scripture_reference_detect(
     text: String,

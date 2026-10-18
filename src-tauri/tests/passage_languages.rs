@@ -279,7 +279,7 @@ fn the_interface_language_plays_no_part() {
 fn an_unknown_or_missing_language_is_indexed_as_english() {
     let temp = tempfile::tempdir().unwrap();
     with_db(|conn| {
-        for (n, language) in [None, Some(""), Some("Italiano")].into_iter().enumerate() {
+        for (n, language) in [None, Some(""), Some("Latina")].into_iter().enumerate() {
             // a different file each time: the library refuses an identical one
             let text = format!("Siehe John 3:16 und Joh 3,16 und 요한복음 3:16. ({n})");
             let id = add(

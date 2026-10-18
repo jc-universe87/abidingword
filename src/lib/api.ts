@@ -609,7 +609,9 @@ export const tauriApi: Api = {
   // One reader for typed passages in any of the 100 reference languages; the
   // interface language only settles a genuine tie (scripture::resolve).
   referenceParse: (text) => call("scripture_reference_parse", { text, language: i18n.language }),
-  referenceDetect: (text) => call("scripture_reference_detect", { text, language: i18n.language }),
+  // Detection reads text whose language is unknown: the interface language is
+  // not the language of a study note, so it is read as before (English first).
+  referenceDetect: (text) => call("scripture_reference_detect", { text }),
 
   bibleList: () => call("bible_list"),
   bibleBundledList: () => call("bible_bundled_list"),

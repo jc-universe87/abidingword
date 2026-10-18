@@ -192,23 +192,40 @@ fn chapter_only_and_book_only_input() {
 
 #[test]
 fn a_genuinely_ambiguous_input_is_never_guessed() {
-    // "Jn" is John in English, French and Spanish and Jonah in Portuguese; Jonah
-    // has a chapter 3 with a verse 5, so "Jn 3:5" could be either.
-    let (code, params) = refusal("Jn 3:5", Some(Ko));
-    assert_eq!(code, "reference.ambiguous");
-    let options = &params.iter().find(|(k, _)| k == "options").unwrap().1;
-    assert!(
-        options.contains("John 3:5") && options.contains("Jonah 3:5"),
-        "{options}"
-    );
-    let books = &params.iter().find(|(k, _)| k == "books").unwrap().1;
-    assert!(books.contains("JHN") && books.contains("JON"), "{books}");
-    let (code, _) = refusal("Jn 3:5", None);
-    assert_eq!(code, "reference.ambiguous");
-    // The person's language settles a genuine tie, in either direction.
-    assert_eq!(canonical("Jn 3:5", Some(En)), "JHN.3.5");
-    assert_eq!(canonical("Jn 3:5", Some(Fr)), "JHN.3.5");
+    // "фил" is Philippians in one Cyrillic pack and Philemon in another; no
+    // interface language and no reviewed pack reads it.
+    for preference in EVERY_PREFERENCE {
+        let (code, params) = refusal("фил 1:1", preference);
+        assert_eq!(code, "reference.ambiguous", "{preference:?}");
+        let books = &params.iter().find(|(k, _)| k == "books").unwrap().1;
+        assert!(books.contains("PHP") && books.contains("PHM"), "{books}");
+        let canonicals = &params.iter().find(|(k, _)| k == "canonicals").unwrap().1;
+        assert!(canonicals.contains("PHP.1.1"), "{canonicals}");
+    }
+    // 雅 is James and the Song of Songs in Chinese and Japanese.
+    assert_eq!(refusal("雅 1:1", None).0, "reference.ambiguous");
+}
+
+#[test]
+fn a_tie_between_reviewed_packs_is_settled_by_the_person_then_by_english() {
+    // "Jn" is John in English, French and Spanish and Jonah in Portuguese.
+    // The interface language decides; otherwise English, as typed passages
+    // always were read before v0.18.2 (review finding: German and Korean
+    // interfaces must not lose "Jn 3:16").
+    for preference in [None, Some(En), Some(De), Some(Ko), Some(Fr), Some(Es)] {
+        assert_eq!(
+            canonical("Jn 3:16", preference),
+            "JHN.3.16",
+            "{preference:?}"
+        );
+        assert_eq!(canonical("Jn 3:5", preference), "JHN.3.5", "{preference:?}");
+    }
     assert_eq!(canonical("Jn 3:5", Some(Pt)), "JON.3.5");
+    // "Mc": Micah in English, Mark in French; "Hb": Habakkuk in English, Hebrews in Portuguese.
+    assert_eq!(canonical("Mc 3:5", Some(De)), "MIC.3.5");
+    assert_eq!(canonical("Mc 3:5", Some(Fr)), "MRK.3.5");
+    assert_eq!(canonical("Hb 3:5", Some(Ko)), "HAB.3.5");
+    assert_eq!(canonical("Hb 3:5", Some(Pt)), "HEB.3.5");
     // Jonah has four chapters: "Jn 15:5" can only be John.
     for preference in EVERY_PREFERENCE {
         assert_eq!(
@@ -217,6 +234,44 @@ fn a_genuinely_ambiguous_input_is_never_guessed() {
             "{preference:?}"
         );
     }
+}
+
+#[test]
+fn a_generated_pack_never_answers_what_a_reviewed_language_means_otherwise() {
+    // Review findings: these resolved silently to the wrong book.
+    for preference in EVERY_PREFERENCE {
+        // Samuel, Sirach, Maccabees — not Psalms (Malayalam/Krio "Sam"),
+        // Proverbs (Kurdish "Şîr", folded) or Chronicles (Shona "Mak").
+        for input in ["Sam 3:5", "Sir 3:5", "1 Mak 3:5", "2 Mak 3:5", "So 3:5"] {
+            assert_eq!(
+                refusal(input, preference).0,
+                "reference.notRecognised",
+                "{input:?} {preference:?}"
+            );
+        }
+        // Jude has one chapter: that is the answer, not Romanian Judges 3:5.
+        assert_eq!(
+            refusal("Jud 3:5", preference).0,
+            "reference.oneChapter",
+            "{preference:?}"
+        );
+    }
+    // The languages themselves still read their own names.
+    assert_eq!(canonical("1 Sam 3:5", None), "1SA.3.5");
+    assert_eq!(canonical("Şîr 3:5", None), "PRO.3.5");
+    assert_eq!(canonical("Jud 5", None), "JUD.1.5");
+}
+
+#[test]
+fn hostile_or_very_long_input_is_refused_quickly() {
+    let long = "John ".repeat(2_000) + "3:16";
+    let started = Instant::now();
+    assert_eq!(refusal(&long, None).0, "reference.notRecognised");
+    assert!(
+        started.elapsed() < Duration::from_millis(200),
+        "{:?}",
+        started.elapsed()
+    );
 }
 
 #[test]
@@ -379,6 +434,14 @@ fn script_detection_and_native_digits() {
         assert_eq!(ascii_digit(other), None, "{other}");
     }
     assert_eq!(refusal("John ³:¹⁶", None).0, "reference.notRecognised");
+    // Decimal digits of scripts without a pack (Mathematical, Mongolian, NKo,
+    // Vai) are not read as numbers — never as chapter 0 (review finding).
+    for input in ["John 𝟑:𝟏𝟔", "John ᠓:᠑᠖", "John ߃:߁߆", "John ꘣:꘡꘦"] {
+        assert_eq!(refusal(input, None).0, "reference.notRecognised", "{input}");
+    }
+    assert_eq!(Script::of('ｱ'), Some(Script::Katakana));
+    assert_eq!(Script::of('々'), Some(Script::Han));
+    assert_eq!(Script::of('𠀀'), Some(Script::Han));
 }
 
 #[test]
@@ -397,11 +460,38 @@ fn running_text_is_not_widened_by_the_generated_packs() {
     // A source in a generated language reads its own pack, under its rules.
     let italian = Recogniser::for_source(language("it"));
     let found: Vec<String> = italian
-        .detect("Come dice Giovanni 3,16, e anche giovanni 3,16 in minuscolo.")
+        .detect("Come dice Giovanni 3:16, e anche giovanni 3:16 in minuscolo; Giovanni 3,16 non è letto.")
         .into_iter()
         .map(|d| d.reference.canonical)
         .collect();
     assert_eq!(found, ["JHN.3.16"], "capital required in running text");
+    // Decimals, times and amounts in the prose of generated-pack languages
+    // are not references: only ":" (or a unit) separates chapter and verse in
+    // their running text (review findings).
+    for (code, text) in [
+        ("zh", "该镇居民3.5万人，的士3.5公里，歌3.5 路3.5 太3,5"),
+        ("ja", "住民3.5万人。出3.2億円"),
+        (
+            "nl",
+            "Op 12.30 uur eten we. Op 3.16 uur. Op 9.15 vertrekt de trein. Wij zijn Op 3,5 km",
+        ),
+        ("it", "Es 3.5 per cento, Is 2.5 km, Mt 1,5 km"),
+        ("pl", "Rz 2,5 tys."),
+        ("ru", "Ам 2,5 км"),
+    ] {
+        let found = Recogniser::for_source(language(code)).detect(text);
+        assert!(found.is_empty(), "{code}: {found:?}");
+    }
+    // …while a real reference in those sources is found.
+    let found =
+        Recogniser::for_source(language("zh")).detect("请读约翰福音3:16和约翰福音15章5节。");
+    let canon: Vec<String> = found.into_iter().map(|d| d.reference.canonical).collect();
+    assert_eq!(canon, ["JHN.3.16", "JHN.15.5"]);
+    let found = Recogniser::for_source(language("nl")).detect("Lees Johannes 3:16 vandaag.");
+    assert_eq!(found.len(), 1);
+    // Ignorable marks after a reference are not taken into it.
+    let found = Recogniser::for_source(En).detect("See John 3:16\u{200B}\u{200B} now");
+    assert_eq!(found[0].text, "John 3:16");
     // Native digits in running text; offsets are those of the original (UTF-16).
     let arabic = Recogniser::for_source(language("ar"));
     let text = "كما قال يوحنا ١٥:٥ اليوم";

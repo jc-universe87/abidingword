@@ -89,6 +89,9 @@
   --aw-mark-page: var(--aw-forest);
   --aw-mark-colon: var(--aw-burgundy);
   --aw-mark-chevron: var(--aw-brass);
+  /* Brass, a shade deeper: at least 3:1 for the focus ring on every light
+     background and side pane (the brand brass falls just short on some). */
+  --aw-focus-ring: #9a6b27;
   color-scheme: light;
 }
 
@@ -97,6 +100,7 @@
   --aw-mark-page: var(--aw-ivory);
   --aw-mark-colon: var(--aw-ivory);
   --aw-mark-chevron: var(--aw-brass);
+  --aw-focus-ring: var(--aw-brass);
   color-scheme: dark;
 }
 
@@ -127,12 +131,12 @@
  * variant; the choice is one of six, and the variant follows the effective
  * theme (Light, Dark, or the computer's setting as it changes). "parchment"
  * is the brand's own ivory and, in the dark, the brand's own Forest (the
- * tokens above). Light: text stays Charcoal and Forest (contrast at least
- * 11:1 for body text, 5:1 for muted text on the secondary colour). Dark: text
- * stays the brand's soft ivory on deep, calm tones — never pure black — with
- * at least 11:1 for body text, 5:1 for muted text, 4.5:1 for links and
- * errors, 3:1 for the focus ring, and borders visibly lighter than the
- * surfaces they edge. tests/ui/appearance-themes.test.tsx checks all twelve.
+ * tokens above). Light: text stays Charcoal and Forest. Dark: text stays
+ * the brand's soft ivory on deep, calm tones — never pure black. Both: at
+ * least 11:1 for body text on the page (9:1 on cards and panes), 5:1 for
+ * muted text on the panes, 4.5:1 for links and errors, 3:1 for the focus
+ * ring on page and panes; borders are decorative (lighter or darker than
+ * the surfaces they edge, not 3:1), as before. tests/ui/appearance-themes.test.tsx checks all twelve.
  */
 [data-theme="light"][data-paper="cream"] {
   --aw-bg: #faf7ef;
@@ -148,8 +152,6 @@
   --aw-surface: #eef1e9;
   --aw-border: #c7cfbe;
   --aw-border-subtle: #dae0d2;
-  /* Brass, a shade deeper: 3:1 for the focus ring on this background too. */
-  --aw-focus-ring: #a3742e;
 }
 
 [data-theme="light"][data-paper="stone"] {
@@ -158,8 +160,6 @@
   --aw-surface: #efece7;
   --aw-border: #cfc8be;
   --aw-border-subtle: #e0dbd3;
-  /* Brass, a shade deeper: 3:1 for the focus ring on this background too. */
-  --aw-focus-ring: #a3742e;
 }
 
 [data-theme="light"][data-paper="mist"] {

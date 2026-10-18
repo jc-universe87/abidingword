@@ -39,19 +39,37 @@ not routed through it.
    Korean interface reads `Johannes 15,5`.
 2. The passages found are grouped by canonical reference. **One passage**
    (however many languages agree) → that passage.
-3. **Several passages** — `Jn 3:5` is John in English, French and Spanish
+3. **Only generated packs found it** — refused where it would surprise:
+   - when the preferred language or a reviewed pack knows the book and says
+     the passage is not in it (`Jud 3:5`: Jude has one chapter — not
+     Romanian Judges 3:5), that error is the answer;
+   - when the book is a **reserved stem** — the bare name of a numbered book
+     in a reviewed language that is not a book name itself (`Sam`, `Kön`),
+     or a deuterocanonical abbreviation (`Sir`, `Tob`, `Mak`, `Bar`, `Weish`,
+     …) — it is `reference.notRecognised` (Malayalam "Sam" is Psalms; Kurdish
+     "Şîr", folded, is Proverbs; the person means Samuel or Sirach).
+4. **Several passages** — `Jn 3:5` is John in English, French and Spanish
    and Jonah in Portuguese, and Jonah 3:5 exists:
    - the **preferred** (interface) language decides, if it read the input;
+   - otherwise **English**, if it read the input — typed passages were read
+     in English before v0.18.2, and a German or Korean interface must not
+     lose `Jn 3:16`;
    - otherwise, if exactly one of the passages was read by a **reviewed**
      pack, that one;
    - otherwise nothing is guessed: `reference.ambiguous` lists the passages
      (`canonicals`, shown in the interface language) and asks for more of the
-     book's name.
-4. **Nothing found:** a spelling that names two books in its own language
+     book's name (`фил 1:1`: Philippians or Philemon; `雅 1:1`: James or the
+     Song of Songs).
+5. **Nothing found:** a spelling that names two books in its own language
    (listed per pack as `ambiguous`) gives `reference.ambiguous` with the
    books; a known book with a passage it does not have gives that error
    (`reference.chapterCount` …), the preferred language's first, then a
    reviewed pack's; anything else is `reference.notRecognised`.
+
+Input longer than 200 characters is not a reference. Only verses' chapters
+are checked (`canon` has chapter counts, not verse counts): `Jn 3:16` with a
+Portuguese interface opens Jonah 3, whose verse 16 the Bible text does not
+have.
 
 A bare book name opens chapter 1. A chapter alone is a chapter. Titles in
 《》 or 「」 are read without the brackets; a trailing full stop is ignored.
@@ -68,11 +86,21 @@ languages, so:
 
 - in a cased script (Latin, Cyrillic, Greek, Armenian) a book name must start
   with a capital or digit;
-- an abbreviation of one or two letters needs a verse (`Strictness::Verse`);
+- **only `:` or a chapter/verse unit** separates chapter and verse: `,` and
+  `.` between digits are decimals, times and thousands in these languages'
+  prose (`3.5万人`, `Op 12.30 uur`, `Rz 2,5 tys.`), and a reference followed
+  by `,`/`.` and a digit is dropped whole, never cut short;
+- an abbreviation of one or two letters needs a verse; one of three or four
+  a verse or a chapter unit; longer names stand alone;
 - in a spaced script the match must stand on word boundaries; in an
   unspaced one (Han, Japanese, Thai, Lao, Khmer, Myanmar, Yi) it must not
   touch other digits;
+- the reviewed packs' cross-language readings in such a source must also be
+  written with `:` or a Korean unit (`Es 3.5 per cento` is not Esther);
 - bookless shorthand reads `15:4` only, and never right after a word.
+
+Detection (`scripture_reference_detect`) is not told the interface language:
+a study note's language is unknown, so it is read as before (English first).
 
 ## Normalising
 
@@ -270,7 +298,7 @@ JSON is then marked `curated`.
 
 Typed input: a generated pack reads by **lookup** — one small notation
 pattern splits book and numbers, then the book is looked up — so resolving
-against all 100 packs costs about 1.5 ms in a debug build
+against all 100 packs costs about 1.5–2.5 ms in a debug build
 (`reading_typed_input_in_every_language_is_fast`). A generated pack's full
 running-text pattern is compiled only when a source in its language is read
 (slowest: about 0.6 s once, in a debug build;

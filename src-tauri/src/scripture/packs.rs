@@ -140,10 +140,16 @@ impl Script {
             '\u{1C50}'..='\u{1C7F}' => Script::OlChiki,
             '\u{A800}'..='\u{A82F}' => Script::SylotiNagri,
             '\u{3040}'..='\u{309F}' => Script::Hiragana,
-            '\u{30A0}'..='\u{30FF}' | '\u{31F0}'..='\u{31FF}' => Script::Katakana,
-            '\u{3400}'..='\u{4DBF}' | '\u{4E00}'..='\u{9FFF}' | '\u{F900}'..='\u{FAFF}' => {
-                Script::Han
+            '\u{30A0}'..='\u{30FF}' | '\u{31F0}'..='\u{31FF}' | '\u{FF65}'..='\u{FF9F}' => {
+                Script::Katakana
             }
+            // Ideographs (with the iteration mark 々 and 〇), Extension B and later.
+            '\u{3005}'
+            | '\u{3007}'
+            | '\u{3400}'..='\u{4DBF}'
+            | '\u{4E00}'..='\u{9FFF}'
+            | '\u{F900}'..='\u{FAFF}'
+            | '\u{20000}'..='\u{3134F}' => Script::Han,
             '\u{A000}'..='\u{A4CF}' => Script::Yi,
             _ => return None,
         })

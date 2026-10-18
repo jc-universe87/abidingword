@@ -236,8 +236,8 @@ fn units(
     }
 }
 
-/// The dictionary of a generated pack. A short abbreviation (one or two
-/// letters) needs a verse in running text, as the reviewed packs ask of
+/// The dictionary of a generated pack. Short abbreviations need more in
+/// running text (see the strictness below), as the reviewed packs ask of
 /// their short ordinary-word abbreviations.
 pub fn dictionary(index: u8) -> AliasDictionary {
     let pack = get(index);
@@ -249,10 +249,12 @@ pub fn dictionary(index: u8) -> AliasDictionary {
             AliasEntry {
                 alias: (*alias).to_string(),
                 book,
-                strictness: if letters <= 2 {
-                    Strictness::Verse
-                } else {
-                    Strictness::Full
+                // In running text: one or two letters need a verse, three or
+                // four a verse or a chapter unit; longer names stand alone.
+                strictness: match letters {
+                    0..=2 => Strictness::Verse,
+                    3..=4 => Strictness::Unit,
+                    _ => Strictness::Full,
                 },
             }
         })
