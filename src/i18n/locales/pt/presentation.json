@@ -219,7 +219,7 @@
     "keepAwake": "Manter a tela ligada",
     "keepAwakeOn": "A tela fica ligada enquanto você apresenta.",
     "keepAwakeUnavailable": "Este sistema não permite que o aplicativo mantenha a tela ligada. Se ela desligar durante a apresentação, mude as configurações de energia.",
-    "keys": "Teclas: →, Page Down ou Espaço para o próximo slide; ← ou Page Up para voltar; um número e Enter para ir a esse slide; O para a visão geral; B para ocultar a tela do público; Esc para fechar um painel ou sair.",
+    "keys": "Teclas: →, Page Down ou Espaço para o próximo slide; ← ou Page Up para voltar; um número e Enter para ir a esse slide; O para a visão geral; B para ocultar a tela do público; Esc para fechar um painel, duas vezes para encerrar a apresentação.",
     "audienceHelp": "O público vê só os slides: nunca suas notas, seu manuscrito ou suas fontes.",
     "closeAudience": "Fechar a tela do público",
     "lookingForScreens": "Procurando telas…",
@@ -265,7 +265,11 @@
       "balanced": "Slides e notas",
       "notes": "Notas maiores",
       "slides": "Slides maiores"
-    }
+    },
+    "escAgain": "Pressione Esc de novo para encerrar a apresentação",
+    "escAgainAudience": "Pressione Esc de novo para fechar a tela do público",
+    "elapsedWaiting": "Tempo decorrido: {{time}} (começa quando você avançar)",
+    "timerStart": "Iniciar o cronômetro"
   },
   "audience": {
     "title": "Tela do público",

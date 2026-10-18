@@ -389,7 +389,10 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
     },
     presentationAudienceState: async () => state.audienceShown.at(-1) ?? null,
     presentationAudienceClose: async () => {
+      const wasOpen = state.audienceOpen !== null;
       state.audienceOpen = null;
+      // As in the app: the window's closing is reported to the main window.
+      if (wasOpen) for (const handler of [...state.closedHandlers]) handler();
     },
     onAudienceState: async (handler) => {
       state.audienceHandlers.push(handler);

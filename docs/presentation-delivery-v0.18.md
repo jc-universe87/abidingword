@@ -560,12 +560,12 @@ use it in a real talk, without explanation?*
 | Feature | How it works | Why |
 |---|---|---|
 | **Overview** | A door in the top bar (☰ on a phone) and **O**: every slide as a small picture with its number and name, in a large floating sheet (a list on a phone). The current slide is marked and focused; choosing one goes there and closes the sheet. | Finding your place during a real talk, especially on a tablet or phone where the slide list does not fit. |
-| **Blank audience screen** | A button beside Back/Next while the audience screen is on, and **B** (or **.**). The audience screen goes blank; the speaker keeps their material and place; the same action brings back exactly the same slide. Moving on ends it. | The most used "live" control in every presenter tool: draw attention to the speaker or a story. |
+| **Blank audience screen** | A button beside Back/Next while the audience screen is on (named on computer and tablet, an icon on a phone), and **B** (or **.**). The audience screen goes blank; the speaker keeps their material and place; the same action brings back exactly the same slide. Moving on ends it. | The most used "live" control in every presenter tool: draw attention to the speaker or a story. |
 | **Pointer and highlighter** | Three small buttons over the current slide while the audience screen is on: *Pointer* (a soft red spot), *Highlighter* (one yellow, translucent pen), *Clear marks*. Positions travel as a share of the slide (0–1), at most once a frame. Marks clear with the next slide or a passage; **Esc** puts the tool away. | Pointing at a word in a verse is the one annotation teachers use; shapes, text boxes and colours are not. |
-| **Target time** | *Target time* in the presentation's settings (none, 5–120 min); saved with the presentation (migration 0011, `presentations.target_minutes`). The timer adds "· 18 min left" in muted text; the last tenth (at least two minutes) and time over use the accent colour ("3 min over"). On a phone, a small dot only near the end or after it. | One quiet number instead of pacing analytics; nothing blinks or warns. |
+| **Target time** | The timer waits until the talk begins (the first move or the audience screen shown). *Target time* in the presentation's settings (none, 5–120 min); saved with the presentation (migration 0011, `presentations.target_minutes`). The timer adds "· 18 min left" in muted text; the last tenth (at least two minutes) and time over use the accent colour ("3 min over"). On a phone, a small dot only near the end or after it. | One quiet number instead of pacing analytics; nothing blinks or warns. |
 | **Layouts** | View → *Layout*: *Slides and notes* (default: all slides, current, next, notes), *Larger notes*, *Larger slides*, with a small picture of each. Remembered on this computer. A phone always shows the speaker sheet and offers no choice. | Three presets instead of dragging panels. |
 | **Bible passage → audience** | The *Scripture* door is now *Bible passage*. Looked up privately, *Show to audience*, then *Return to slide* (in the panel and in the bar) brings back the same slide. The current slide preview shows what the audience sees (the passage, the marks). Nothing in the presentation changes. | Abiding Word's own strength, made plainer. |
-| **Keys and clickers** | → ↓ Page Down Space: next; ← ↑ Page Up: back; Home/End; **B** / **.** blank; **O** Overview; a number then **Enter** goes to that slide ("Go to slide 12…" shows while typing; forgotten after four seconds); **Esc** steps back one thing at a time: a typed number, the pointer or highlighter, a panel, the one-window view, then leaving. A clicker on the audience screen sends the same keys (digits and O included). | Clickers send Page Up/Down or arrows: they work without setup. No shortcut editor. |
+| **Keys and clickers** | → ↓ Page Down Space: next; ← ↑ Page Up: back; Home/End; **B** / **.** blank; **O** Overview; a number then **Enter** goes to that slide ("Go to slide 12…" shows while typing; forgotten after four seconds); **Esc** steps back one thing at a time: a typed number, a panel, the pointer or highlighter, the one-window view, then leaving — with the audience screen on, leaving takes a second Esc. A clicker on the audience screen sends the same keys (digits and O included). | Clickers send Page Up/Down or arrows: they work without setup. No shortcut editor. |
 | **Audience screen recovery** | If the audience window closes without the speaker asking, or its screen disappears (checked every three seconds while it is on; the window is closed so it cannot cover the speaker's screen), the Presenter View stays where it is and the bar says *Audience screen disconnected* with *Show again* — on the same screen when it is back, otherwise the *Audience screen* panel to choose. Closing it on purpose is not reported. | A projector cable is pulled more often than any feature is needed. |
 | **Door labels that fit** | The top bar measures itself: the doors carry their names when they fit beside the slide number and timer (the centre may give way by up to 80 px for them), otherwise they are icons (named on hover and for screen readers). Measured in Chromium: names from 1280 px in English and Korean, 1366 px in Portuguese, 1440 px in German and Spanish, 1920 px in French; the centre at most 68 px off when names are shown and exact otherwise; no horizontal overflow from 360 px up. | Five doors with long French or German names do not fit a 1366-px laptop. |
 
@@ -581,8 +581,8 @@ size, background of the Presenter View, timer/clock visibility and keep-awake
 are this computer's preferences (local storage), not presentation data.
 
 The audience screen receives `AudienceState` — place, blank, passage and
-`marks` (`LiveMarks`: an optional pointer and at most 100 strokes of at most
-2000 points, clamped to 0–1 by the core, `LiveMarks::bounded`). It still has
+`marks` (`LiveMarks`: an optional pointer and at most 50 strokes of at most
+500 points, clamped to 0–1 by the core, `LiveMarks::bounded`). It still has
 no field for speaker text.
 
 ### The remote-control boundary
@@ -623,12 +623,12 @@ its one presenter term.
 
 ### Tests
 
-- `tests/unit/presentation-delivery.test.ts` (9): commands move within the
+- `tests/unit/presentation-delivery.test.ts` (10): commands move within the
   ends; blank keeps and restores the exact slide; a passage and *Return to
   slide*; marks clamp, clear and end with the slide; the timer; the state is
   never changed in place; keys and clickers; a remote's JSON command sequence;
   time guidance (none, on time, nearly there, over).
-- `tests/ui/presentation.test.tsx` (+10, 37 in the file): Overview over the
+- `tests/ui/presentation.test.tsx` (+14, 41 in the file, including the review fixes below): Overview over the
   view, focus on the current slide, jumping with the audience following and
   the presentation unchanged, **O**; blank only on the audience screen and the
   same slide back, nothing private in what reaches it; pointer and
@@ -643,3 +643,23 @@ its one presenter term.
 - Rust: `tests/migration_v11.rs` (1, v10 → v11 with backup), in
   `tests/presentations.rs` a target time kept, refused above ten hours and
   removed, and live marks kept small and on the slide.
+
+### Independent review of the whole experience, and fixes
+
+A review of the complete Presenter View (compared, as the brief asked, with
+PowerPoint, Keynote, Google Slides, Pitch, Gamma and ProPresenter, without
+adding anything for its own sake) found no blockers and these real problems,
+all fixed with regression tests:
+
+| Finding | Fix |
+|---|---|
+| A number and **Enter** pressed *Next* (which has the keyboard when the view opens) instead of going to the slide | Enter after a number is handled first, whatever has the keyboard |
+| After clicking *Blank* or a slide, **Space** pressed that button again instead of moving on | Space/Enter on a button that was *clicked* turn the page and release the button; on a button reached with Tab they still press it (checked in Chromium too) |
+| A clicker's Page Down did nothing while a panel was open (e.g. right after *Show to audience*) | Page Down/Up, ←/→, B and . work over panels (not while typing) |
+| After a lost projector the spoken status said "closed"; a missed closing event could silence the next accidental close | the screen check no longer marks the close as wanted; *Show again* resets it; the test API now reports closes as the app does |
+| Fast changes (pen, a double click) could reach the audience screen out of order | every change carries a sequence number; the core keeps only newer ones (`AudienceState::replaces`, one lock) and the audience window drops late ones |
+| The pointer could stay on the audience screen after leaving the slide; a cancelled touch kept drawing | leaving cancels the waiting frame; cancel and lost capture end a stroke |
+| The highlighter stayed active without its buttons after a disconnect | pointer and highlighter work only while the audience screen is on |
+| The timer started when the view opened (during the songs), so "min over" misled | it waits ("starts when you move on") and starts with the first move or when the audience screen is first shown, or by *Start timer* |
+| One **Esc** (also a clicker's) ended the presentation and the projector mid-sermon | with the audience screen on, the first Esc asks ("Press Esc again to stop presenting"), the second leaves |
+| Nits: the audience window flashed slide 1 before knowing what to show; modifier keys were forwarded; pen data was large; the doors could change during a typed number; Esc put the pen away before closing a panel over it; O opened an invisible Overview in the one-window view; the tablet Blank button had no visible name; "window" in the German and Korean keys help; the target-time hint inside its label; a loose privacy assertion | background only until the first state; Ctrl/Meta keys ignored; at most 50 strokes of 500 points, points closer than 0.4 % dropped; hints do not re-measure the bar; panels close first; O ignored there; the name is shown; "Bereich"/"패널"; hint below; the exact list of fields reaching the audience is asserted |

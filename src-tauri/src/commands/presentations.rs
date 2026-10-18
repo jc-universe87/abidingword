@@ -532,7 +532,10 @@ pub async fn presentation_audience_show(
         marks: input.marks.bounded(),
         ..input
     };
-    state.set_audience(Some(input.clone()))?;
+    // Changes may be handled out of order: an older one never replaces a newer one.
+    if !state.set_audience_if_newer(input.clone())? {
+        return Ok(());
+    }
     if app.get_webview_window(AUDIENCE_WINDOW).is_some() {
         let _ = app.emit_to(AUDIENCE_WINDOW, AUDIENCE_EVENT, &input);
     }

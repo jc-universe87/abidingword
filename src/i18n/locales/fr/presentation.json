@@ -219,7 +219,7 @@
     "keepAwake": "Garder l’écran allumé",
     "keepAwakeOn": "L’écran reste allumé pendant la présentation.",
     "keepAwakeUnavailable": "Ce système ne permet pas à l’application de garder l’écran allumé. S’il s’éteint pendant la présentation, modifiez les réglages d’alimentation.",
-    "keys": "Touches : →, Page suivante ou Espace pour la diapositive suivante ; ← ou Page précédente pour revenir ; un numéro puis Entrée pour aller à cette diapositive ; O pour la vue d’ensemble ; B pour masquer l’écran de l’auditoire ; Échap pour fermer un panneau ou quitter.",
+    "keys": "Touches : →, Page suivante ou Espace pour la diapositive suivante ; ← ou Page précédente pour revenir ; un numéro puis Entrée pour aller à cette diapositive ; O pour la vue d’ensemble ; B pour masquer l’écran de l’auditoire ; Échap pour fermer un panneau, deux fois pour arrêter la présentation.",
     "audienceHelp": "L’auditoire ne voit que les diapositives : jamais vos notes, votre manuscrit ou vos sources.",
     "closeAudience": "Fermer l’écran de l’auditoire",
     "lookingForScreens": "Recherche des écrans…",
@@ -265,7 +265,11 @@
       "balanced": "Diapositives et notes",
       "notes": "Notes en grand",
       "slides": "Diapositives en grand"
-    }
+    },
+    "escAgain": "Appuie encore sur Échap pour arrêter la présentation",
+    "escAgainAudience": "Appuie encore sur Échap pour fermer l’écran de l’auditoire",
+    "elapsedWaiting": "Temps écoulé : {{time}} (démarre quand tu avances)",
+    "timerStart": "Démarrer le minuteur"
   },
   "audience": {
     "title": "Écran de l’auditoire",

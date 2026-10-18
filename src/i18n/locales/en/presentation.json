@@ -215,7 +215,7 @@
     "keepAwake": "Keep the screen on",
     "keepAwakeOn": "The screen stays on while you present.",
     "keepAwakeUnavailable": "This system does not let the app keep the screen on. If it turns off while you present, change the power settings.",
-    "keys": "Keys: →, Page Down or Space for the next slide; ← or Page Up to go back; a number and Enter to go to that slide; O for the overview; B to blank the audience screen; Esc to close a panel or leave.",
+    "keys": "Keys: →, Page Down or Space for the next slide; ← or Page Up to go back; a number and Enter to go to that slide; O for the overview; B to blank the audience screen; Esc to close a panel, or twice to stop presenting.",
     "audienceHelp": "The audience sees only the slides: never your notes, manuscript or sources.",
     "closeAudience": "Close the audience screen",
     "lookingForScreens": "Looking for screens…",
@@ -258,7 +258,11 @@
       "balanced": "Slides and notes",
       "notes": "Larger notes",
       "slides": "Larger slides"
-    }
+    },
+    "escAgain": "Press Esc again to stop presenting",
+    "escAgainAudience": "Press Esc again to close the audience screen",
+    "elapsedWaiting": "Time so far: {{time}} (starts when you move on)",
+    "timerStart": "Start timer"
   },
   "audience": {
     "title": "Audience screen",

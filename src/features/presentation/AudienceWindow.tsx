@@ -26,7 +26,8 @@ export function AudienceWindow({ presentationId }: { presentationId: string }) {
     // Listen first, then ask where the presentation is: no move is missed in between.
     void api
       .onAudienceState((s) => {
-        if (s.presentationId === presentationId) setState(s);
+        // Changes can arrive out of order: an older one never replaces a newer one.
+        if (s.presentationId === presentationId) setState((current) => (current && (s.seq ?? 0) < (current.seq ?? 0) ? current : s));
       })
       .then(
         (unlisten) => {
@@ -51,6 +52,7 @@ export function AudienceWindow({ presentationId }: { presentationId: string }) {
   // A clicker or keyboard used on this screen moves the slides in the Presenter View.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) return;
       e.preventDefault();
       void api.presentationAudienceKey(e.key).catch(() => undefined);
     };
@@ -59,7 +61,8 @@ export function AudienceWindow({ presentationId }: { presentationId: string }) {
   }, [api]);
 
   const theme = doc.data?.theme ?? "dark";
-  const slide = doc.data?.slides[state?.index ?? 0];
+  // Nothing but the background until the presenter says what to show (it may be a blank screen).
+  const slide = state ? doc.data?.slides[state.index] : undefined;
   return (
     <main
       aria-label={t("presentation.audience.title")}

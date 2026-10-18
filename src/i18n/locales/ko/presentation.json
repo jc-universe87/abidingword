@@ -211,7 +211,7 @@
     "keepAwake": "화면 켜 두기",
     "keepAwakeOn": "발표하는 동안 화면이 켜져 있습니다.",
     "keepAwakeUnavailable": "이 시스템에서는 앱이 화면을 켜 둘 수 없습니다. 발표 중에 화면이 꺼지면 전원 설정을 바꾸세요.",
-    "keys": "키: →, Page Down 또는 스페이스는 다음 슬라이드, ← 또는 Page Up은 이전, 숫자와 Enter는 그 슬라이드로 이동, O는 전체 보기, B는 청중 화면 가리기, Esc는 창을 닫거나 끝내기.",
+    "keys": "키: →, Page Down 또는 스페이스는 다음 슬라이드, ← 또는 Page Up은 이전, 숫자와 Enter는 그 슬라이드로 이동, O는 전체 보기, B는 청중 화면 가리기, Esc는 패널 닫기, 두 번 누르면 발표 끝내기.",
     "audienceHelp": "청중은 슬라이드만 봅니다. 메모, 원고, 출처는 절대 보이지 않습니다.",
     "closeAudience": "청중 화면 닫기",
     "lookingForScreens": "화면을 찾는 중…",
@@ -251,7 +251,11 @@
       "balanced": "슬라이드와 메모",
       "notes": "메모 크게",
       "slides": "슬라이드 크게"
-    }
+    },
+    "escAgain": "발표를 끝내려면 Esc를 한 번 더 누르세요",
+    "escAgainAudience": "청중 화면을 닫으려면 Esc를 한 번 더 누르세요",
+    "elapsedWaiting": "지난 시간: {{time}} (다음으로 넘어가면 시작)",
+    "timerStart": "타이머 시작"
   },
   "audience": {
     "title": "청중 화면",

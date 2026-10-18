@@ -51,6 +51,17 @@ pub struct AudienceState {
     pub scripture: Option<ScriptureOverlay>,
     /// The speaker's pointer and pen on the slide, for this moment only.
     pub marks: LiveMarks,
+    /// Counts up with each change from the Presenter View, so a change that
+    /// arrives late never replaces a newer one.
+    pub seq: u64,
+}
+
+impl AudienceState {
+    /// Whether this change may replace what is kept: not when it is an older
+    /// change of the same presentation that arrived late.
+    pub fn replaces(&self, kept: Option<&AudienceState>) -> bool {
+        kept.is_none_or(|k| k.presentation_id != self.presentation_id || self.seq >= k.seq)
+    }
 }
 
 /// Temporary marks on the audience slide: where the pointer is and the pen
@@ -64,8 +75,8 @@ pub struct LiveMarks {
 
 impl LiveMarks {
     /// At most this many strokes of this many points reach the audience screen.
-    pub const STROKES_MAX: usize = 100;
-    pub const POINTS_MAX: usize = 2000;
+    pub const STROKES_MAX: usize = 50;
+    pub const POINTS_MAX: usize = 500;
 
     /// Keeps the marks small and on the slide.
     pub fn bounded(mut self) -> Self {

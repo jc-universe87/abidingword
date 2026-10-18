@@ -66,6 +66,17 @@ describe("delivery commands", () => {
     expect(run(again, { type: "next" }, { type: "toggleBlank" }).timer).toEqual(again.timer);
   });
 
+  it("let the timer wait until the talk begins, and drop pen points too close to show", () => {
+    const waiting = startDelivery(3, null);
+    expect(elapsedOf(waiting.timer, 999_000)).toBe(0);
+    expect(elapsedOf(run(waiting, { type: "timerStart", at: 1000 }).timer, 4000)).toBe(3000);
+    const pen = run(waiting, { type: "penDown", at: [0.5, 0.5] }, { type: "penMove", at: [0.501, 0.501] }, { type: "penMove", at: [0.52, 0.5] });
+    expect(pen.marks.strokes[0]).toEqual([
+      [0.5, 0.5],
+      [0.52, 0.5],
+    ]);
+  });
+
   it("leave the state passed in untouched", () => {
     const s = startDelivery(3, 0);
     const copy = structuredClone(s);

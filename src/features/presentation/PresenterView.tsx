@@ -44,10 +44,13 @@ function isTyping(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
 }
 
-/** Space and Enter on a button or link press it; they do not turn the page. */
-function pressesControl(target: EventTarget | null, key: string): boolean {
+/** Space or Enter on a button, link or summary. */
+function onControl(target: EventTarget | null, key: string): target is HTMLElement {
   return (key === " " || key === "Enter") && target instanceof HTMLElement && target.closest("button, a, [role='button'], summary") !== null;
 }
+
+/** Keys a clicker sends that still move the slides while a panel is open (panels have no use for them). */
+const PANEL_KEYS = ["PageDown", "PageUp", "ArrowLeft", "ArrowRight", "b", "B", "."];
 
 /** Tab stays inside the open panel, else inside the Presenter View (it covers the whole window). */
 function keepTabInside(e: KeyboardEvent) {
@@ -97,7 +100,8 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   const layout = layoutFor(width);
   const images = useSlideImages(doc.presentationId, doc.images);
   // Where the speaker is, a blank screen, a passage shown, the marks and the timer: never saved.
-  const [live, dispatch] = useReducer(deliver, doc.slides.length, (total) => startDelivery(total, Date.now()));
+  // The timer waits for the talk to begin (the first move, or the audience screen shown), not for the view to open.
+  const [live, dispatch] = useReducer(deliver, doc.slides.length, (total) => startDelivery(total, null));
   const { index, blank, scripture: overlay, marks } = live;
   const [audience, setAudience] = useState<AudienceMode>("none");
   // The audience window closed or lost its screen without the speaker asking.
@@ -105,6 +109,8 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   // One floating panel at a time; none of them moves the speaker's material.
   const [panel, setPanel] = useState<Panel>("none");
   const [tool, setTool] = useState<Tool>("none");
+  // The pointer and highlighter only work while the audience screen is on.
+  const activeTool: Tool = audience === "window" ? tool : "none";
   const [prefs, setPrefsState] = useState<Prefs>(() => {
     const saved = { ...DEFAULT_PREFS, ...readLocal<Partial<Prefs>>("presenter", {}) };
     return ARRANGEMENTS.includes(saved.arrangement) ? saved : { ...saved, arrangement: "balanced" };
@@ -120,12 +126,15 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   const [roomy, setRoomy] = useState(true);
   const mirrored = audience === "here";
   const labelledWidth = useRef(0);
+  const hinting = useRef(false);
   useLayoutEffect(() => {
     const header = headerRef.current;
     if (layout !== "desktop" || !header || typeof ResizeObserver === "undefined") return;
     let labelled = true;
     setRoomy(true);
     const check = () => {
+      // A passing hint in the centre ("Go to slide 12…") does not change the doors.
+      if (hinting.current) return;
       const doorsEl = doorsRef.current;
       const centre = centreRef.current;
       if (!doorsEl || !centre) return;
@@ -177,14 +186,32 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
       target?.focus();
     });
 
-  const go = useCallback((to: number) => dispatch({ type: "goTo", index: to }), []);
-  const run = useCallback((command: PresenterCommand) => dispatch(command), []);
+  // The talk begins with the first move or when the audience screen is first shown: the timer starts then (once).
+  const begun = useRef(false);
+  const [timerTouched, setTimerTouched] = useState(false);
+  const begin = useCallback(() => {
+    if (begun.current) return;
+    begun.current = true;
+    setTimerTouched(true);
+    dispatch({ type: "timerStart", at: Date.now() });
+  }, []);
+  const run = useCallback(
+    (command: PresenterCommand) => {
+      if (["next", "previous", "first", "last", "goTo"].includes(command.type)) begin();
+      dispatch(command);
+    },
+    [begin],
+  );
+  const go = useCallback((to: number) => run({ type: "goTo", index: to }), [run]);
 
   // What the audience screen shows follows the presenter.
   const shown: AudienceState = useMemo(() => ({ presentationId: doc.presentationId, index, blank, scripture: overlay, marks }), [doc.presentationId, index, blank, overlay, marks]);
+  // Each change sent gets the next number, so the audience screen can drop one that arrives late.
+  const sequence = useRef(0);
+  const stamped = useCallback((state: AudienceState): AudienceState => ({ ...state, seq: ++sequence.current }), []);
   useEffect(() => {
-    if (audience === "window") void api.presentationAudienceShow(shown).catch(() => undefined);
-  }, [api, audience, shown]);
+    if (audience === "window") void api.presentationAudienceShow(stamped(shown)).catch(() => undefined);
+  }, [api, audience, shown, stamped]);
 
   // The audience window: which screen it fills, and whether the speaker closed it on purpose.
   const audienceScreen = useRef<Screen | null>(null);
@@ -230,7 +257,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
       void api.presentationScreens().then(
         (list) => {
           if (!list.some((s) => s.name === wanted.name && s.width === wanted.width && s.height === wanted.height)) {
-            closingOnPurpose.current = true;
+            // Not on purpose: when the window's closing is reported, it says the same.
             void api.presentationAudienceClose().catch(() => undefined);
             lost();
           }
@@ -242,6 +269,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   }, [api, audience, lost]);
   const showAgain = async () => {
     const wanted = audienceScreen.current;
+    closingOnPurpose.current = false;
     try {
       const list = wanted ? await api.presentationScreens() : [];
       const back = wanted ? list.find((s) => s.name === wanted.name && s.width === wanted.width && s.height === wanted.height) : undefined;
@@ -250,8 +278,9 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
         setPanel("audience");
         return;
       }
-      await api.presentationAudienceOpen({ presentationId: doc.presentationId, screen: back ? back.index : null, title: t("presentation.audience.windowTitle", { title: doc.title }), state: shown });
+      await api.presentationAudienceOpen({ presentationId: doc.presentationId, screen: back ? back.index : null, title: t("presentation.audience.windowTitle", { title: doc.title }), state: stamped(shown) });
       if (back) audienceScreen.current = back;
+      begin();
       setDisconnected(false);
       setAudience("window");
       setNotice(t("presentation.presenter.audienceOn"));
@@ -268,6 +297,20 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
     onClose();
   }, [api, audience, onClose]);
 
+  // The button last clicked with the pointer (Space and Enter on it turn the page).
+  const clicked = useRef<Element | null>(null);
+  // With the audience screen on, leaving takes a second Esc (a clicker's Esc must not end the talk).
+  const [leaving, setLeaving] = useState(false);
+  useEffect(() => {
+    if (!leaving) return;
+    const forget = window.setTimeout(() => setLeaving(false), 3000);
+    return () => window.clearTimeout(forget);
+  }, [leaving]);
+
+  useEffect(() => {
+    hinting.current = leaving || typed !== "";
+  }, [leaving, typed]);
+
   // A typed slide number is forgotten after a few seconds.
   useEffect(() => {
     if (!typed) return;
@@ -279,21 +322,26 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   const handleKey = useCallback(
     (key: string, fromAudience: boolean): boolean => {
       if (key === "Escape") {
-        // One step back at a time: a typed number, the pen, a panel, the one-window view, then leaving.
+        // One step back at a time: a typed number, a panel, the pointer or highlighter, the one-window view, then leaving.
         if (typed) setTyped("");
-        else if (fromAudience) closeAudience();
-        else if (tool !== "none") setTool("none");
-        else if (audience === "here") {
-          setAudience("none");
-          returnTo("audience");
-        } else if (panel !== "none") {
+        else if (panel !== "none" && audience !== "here" && !fromAudience) {
           const open = panel;
           setPanel("none");
           returnTo(open);
+        } else if (activeTool !== "none" && !fromAudience) setTool("none");
+        else if (audience === "here") {
+          setAudience("none");
+          returnTo("audience");
+        } else if (audience === "window" && !leaving) {
+          setLeaving(true);
+          setNotice(t(fromAudience ? "presentation.presenter.escAgainAudience" : "presentation.presenter.escAgain"));
+        } else if (fromAudience) {
+          setLeaving(false);
+          closeAudience();
         } else close();
         return true;
       }
-      if (panel !== "none" && panel !== "timer" && audience !== "here" && !fromAudience) return false;
+      if (panel !== "none" && panel !== "timer" && audience !== "here" && !fromAudience && !PANEL_KEYS.includes(key)) return false;
       if (/^[0-9]$/.test(key)) {
         setTyped((current) => (current + key).slice(-4));
         return true;
@@ -304,7 +352,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
         if (number >= 1 && number <= total) go(number - 1);
         return true;
       }
-      if (key === "o" || key === "O") {
+      if ((key === "o" || key === "O") && audience !== "here") {
         setPanel("overview");
         return true;
       }
@@ -313,7 +361,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
       run(command);
       return true;
     },
-    [audience, close, closeAudience, go, panel, run, tool, total, typed],
+    [activeTool, audience, close, closeAudience, go, leaving, panel, run, t, total, typed],
   );
 
   useEffect(() => {
@@ -327,12 +375,35 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
         if (handleKey(e.key, false)) e.preventDefault();
         return;
       }
-      if (isTyping(e.target) || e.ctrlKey || e.metaKey || pressesControl(e.target, e.key)) return;
-      if (handleKey(e.key, false)) e.preventDefault();
+      if (isTyping(e.target) || e.ctrlKey || e.metaKey) return;
+      // Space and Enter press a button reached with the keyboard. On a button that was clicked,
+      // they turn the page (a speaker who clicked Blank or a slide goes on with Space); a number
+      // then Enter goes to that slide whatever has the keyboard.
+      const control = onControl(e.target, e.key);
+      const wasClicked = control && clicked.current !== null && clicked.current === e.target.closest("button, a, [role='button'], summary");
+      if (control && !(e.key === "Enter" && typed) && !(wasClicked && panel === "none")) return;
+      if (handleKey(e.key, false)) {
+        e.preventDefault();
+        // Let go of the clicked button so the key's release does not press it as well.
+        if (control) (e.target as HTMLElement).blur();
+      }
+    };
+    // Whether the button with the keyboard was clicked (pointer) or reached with Tab.
+    const onPointer = (e: PointerEvent) => {
+      clicked.current = e.target instanceof Element ? e.target.closest("button, a, [role='button'], summary") : null;
+    };
+    const onTab = (e: KeyboardEvent) => {
+      if (e.key === "Tab") clicked.current = null;
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [handleKey]);
+    window.addEventListener("pointerdown", onPointer, true);
+    window.addEventListener("keydown", onTab, true);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onPointer, true);
+      window.removeEventListener("keydown", onTab, true);
+    };
+  }, [handleKey, panel, typed]);
 
   // Keys pressed while the audience window has focus come back here.
   const keyHandler = useRef(handleKey);
@@ -414,8 +485,8 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   const current = (
     <div className="relative">
       <SlideView slide={slide.audience} kind={slide.kind} theme={doc.theme} image={imageFor(slide)} overlay={overlay} marks={marks} label={currentLabel} className="rounded-aw border border-black/20" />
-      {tool !== "none" && <DrawLayer tool={tool} run={run} label={tool === "pen" ? t("presentation.presenter.highlighter") : t("presentation.presenter.pointer")} />}
-      {showing && <MarkTools tool={tool} setTool={setTool} hasMarks={marks.strokes.length > 0} onClear={() => run({ type: "clearMarks" })} />}
+      {activeTool !== "none" && <DrawLayer tool={activeTool} run={run} label={activeTool === "pen" ? t("presentation.presenter.highlighter") : t("presentation.presenter.pointer")} />}
+      {showing && <MarkTools tool={activeTool} setTool={setTool} hasMarks={marks.strokes.length > 0} onClear={() => run({ type: "clearMarks" })} />}
     </div>
   );
   const nextBlock = (wide: boolean) =>
@@ -445,13 +516,13 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
           type="button"
           onClick={() => run({ type: "toggleBlank" })}
           aria-pressed={blank}
-          aria-label={layout === "desktop" ? undefined : t("presentation.presenter.blankAudience")}
+          aria-label={layout === "phone" ? t("presentation.presenter.blankAudience") : undefined}
           title={t("presentation.presenter.blankAudience")}
           className="inline-flex min-h-14 min-w-14 items-center justify-center gap-1 rounded-aw border px-3 text-[0.9375rem]"
           style={blank ? { backgroundColor: colours.text, color: colours.background, borderColor: colours.text } : { borderColor: colours.muted }}
         >
           <EyeOff className="size-5" aria-hidden="true" />
-          {layout === "desktop" && <span>{t("presentation.presenter.blankAudience")}</span>}
+          {layout !== "phone" && <span>{t("presentation.presenter.blankAudience")}</span>}
         </button>
       )}
       <button
@@ -495,7 +566,13 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
 
   const timeText = (g: TimeGuidance) =>
     g === null ? "" : g.state === "over" ? t("presentation.presenter.timeOver", { count: g.minutes }) : t("presentation.presenter.timeLeft", { count: g.minutes });
-  const timerName = [t(startedAt === null ? "presentation.presenter.elapsedPaused" : "presentation.presenter.elapsed", { time: elapsedLabel(elapsed) }), timeText(time)].filter(Boolean).join(" · ");
+  const waiting = startedAt === null && elapsed === 0 && !timerTouched;
+  const timerName = [
+    t(waiting ? "presentation.presenter.elapsedWaiting" : startedAt === null ? "presentation.presenter.elapsedPaused" : "presentation.presenter.elapsed", { time: elapsedLabel(elapsed) }),
+    timeText(time),
+  ]
+    .filter(Boolean)
+    .join(" · ");
   // Quiet: muted while on time, the accent colour only near the end and after it.
   const timeColour = time && time.state !== "normal" ? colours.accent : colours.muted;
 
@@ -574,7 +651,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
         </div>
         <div ref={centreRef} className={`flex min-w-0 items-center gap-2 tabular-nums ${layout === "phone" ? "flex-1" : "justify-center"}`}>
           <p aria-live="polite" className="m-0 min-w-0 truncate whitespace-nowrap text-[1rem] font-medium">
-            {typed ? t("presentation.presenter.goingTo", { number: typed }) : position}
+            {leaving ? t("presentation.presenter.escAgain") : typed ? t("presentation.presenter.goingTo", { number: typed }) : position}
           </p>
           {prefs.timer && (
             <button
@@ -588,7 +665,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
               style={{ color: startedAt === null ? colours.muted : undefined }}
             >
               <span aria-hidden="true">{elapsedLabel(elapsed)}</span>
-              {startedAt === null && <Pause className="size-3.5" aria-hidden="true" />}
+              {startedAt === null && !waiting && <Pause className="size-3.5" aria-hidden="true" />}
               {time &&
                 (layout === "phone" ? (
                   time.state !== "normal" && <span aria-hidden="true" data-time-guidance={time.state} className="size-2 rounded-full" style={{ backgroundColor: timeColour }} />
@@ -665,13 +742,24 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => run(startedAt === null ? { type: "timerStart", at: Date.now() } : { type: "timerPause", at: Date.now() })}
+                  onClick={() => {
+                    begun.current = true;
+                    setTimerTouched(true);
+                    run(startedAt === null ? { type: "timerStart", at: Date.now() } : { type: "timerPause", at: Date.now() });
+                  }}
                   className="inline-flex min-h-11 items-center gap-2 rounded-aw border px-3"
                 >
                   {startedAt === null ? <Play className="size-4" aria-hidden="true" /> : <Pause className="size-4" aria-hidden="true" />}
-                  {startedAt === null ? t("presentation.presenter.timerResume") : t("presentation.presenter.timerPause")}
+                  {waiting ? t("presentation.presenter.timerStart") : startedAt === null ? t("presentation.presenter.timerResume") : t("presentation.presenter.timerPause")}
                 </button>
-                <button type="button" onClick={() => run({ type: "timerReset", at: Date.now() })} className="inline-flex min-h-11 items-center gap-2 rounded-aw border px-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    begun.current = true;
+                    setTimerTouched(true);
+                    run({ type: "timerReset", at: Date.now() });
+                  }}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-aw border px-3">
                   <RotateCcw className="size-4" aria-hidden="true" />
                   {t("presentation.presenter.timerReset")}
                 </button>
@@ -693,7 +781,9 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
               doc={doc}
               mode={audience}
               state={shown}
+              stamp={stamped}
               onWindow={(screen) => {
+                begin();
                 audienceScreen.current = screen;
                 closingOnPurpose.current = false;
                 setDisconnected(false);
@@ -702,6 +792,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
                 returnTo("audience");
               }}
               onHere={() => {
+                begin();
                 setAudience("here");
                 setPanel("none");
               }}
@@ -869,8 +960,19 @@ function DrawLayer({ tool, run, label }: { tool: Exclude<Tool, "none">; run: (co
       onPointerUp={() => {
         drawing.current = false;
       }}
+      onPointerCancel={() => {
+        drawing.current = false;
+      }}
+      onLostPointerCapture={() => {
+        drawing.current = false;
+      }}
       onPointerLeave={() => {
-        if (tool === "pointer") run({ type: "pointer", at: null });
+        if (tool !== "pointer") return;
+        // A move still waiting for its frame must not bring the pointer back.
+        if (frame.current !== null) cancelAnimationFrame(frame.current);
+        frame.current = null;
+        pending.current = null;
+        run({ type: "pointer", at: null });
       }}
     />
   );
@@ -1249,6 +1351,7 @@ function AudiencePanel({
   doc,
   mode,
   state,
+  stamp,
   onWindow,
   onHere,
   onCloseWindow,
@@ -1256,6 +1359,8 @@ function AudiencePanel({
   doc: PresentationDocument;
   mode: AudienceMode;
   state: AudienceState;
+  /** Numbers the state sent to the audience screen. */
+  stamp: (state: AudienceState) => AudienceState;
   /** The audience window is open, filling this screen (or a window of its own). */
   onWindow: (screen: Screen | null) => void;
   onHere: () => void;
@@ -1278,7 +1383,7 @@ function AudiencePanel({
   const open = async (screen: number | null) => {
     setError(null);
     try {
-      await api.presentationAudienceOpen({ presentationId: doc.presentationId, screen, title: t("presentation.audience.windowTitle", { title: doc.title }), state });
+      await api.presentationAudienceOpen({ presentationId: doc.presentationId, screen, title: t("presentation.audience.windowTitle", { title: doc.title }), state: stamp(state) });
       onWindow((screens ?? []).find((s) => s.index === screen) ?? null);
     } catch (e) {
       setError(toApiError(e).message);

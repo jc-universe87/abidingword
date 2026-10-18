@@ -147,6 +147,23 @@ impl AppState {
         Ok(())
     }
 
+    /// Keeps `value` unless a newer change of the same presentation is kept
+    /// already (changes can be handled out of order). Says whether it was kept.
+    pub fn set_audience_if_newer(
+        &self,
+        value: crate::presentation::AudienceState,
+    ) -> Result<bool, ErrorPayload> {
+        let mut current = self
+            .audience
+            .lock()
+            .map_err(|_| AppError::Unexpected("audience lock poisoned".into()))?;
+        if !value.replaces(current.as_ref()) {
+            return Ok(false);
+        }
+        *current = Some(value);
+        Ok(true)
+    }
+
     pub fn audience(&self) -> Result<Option<crate::presentation::AudienceState>, ErrorPayload> {
         Ok(self
             .audience

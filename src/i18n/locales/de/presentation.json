@@ -215,7 +215,7 @@
     "keepAwake": "Bildschirm anlassen",
     "keepAwakeOn": "Der Bildschirm bleibt an, solange du präsentierst.",
     "keepAwakeUnavailable": "Dieses System lässt die App den Bildschirm nicht anlassen. Wenn er sich beim Präsentieren abschaltet, ändere die Energieeinstellungen.",
-    "keys": "Tasten: →, Bild ab oder Leertaste für die nächste Folie; ← oder Bild auf für zurück; eine Zahl und Enter, um zu dieser Folie zu springen; O für die Übersicht; B, um das Bild für die Zuhörer auszublenden; Esc schließt ein Fenster oder beendet.",
+    "keys": "Tasten: →, Bild ab oder Leertaste für die nächste Folie; ← oder Bild auf für zurück; eine Zahl und Enter, um zu dieser Folie zu springen; O für die Übersicht; B, um das Bild für die Zuhörer auszublenden; Esc schließt einen Bereich, zweimal Esc beendet die Präsentation.",
     "audienceHelp": "Die Zuhörer sehen nur die Folien – nie deine Notizen, dein Manuskript oder deine Quellen.",
     "closeAudience": "Bildschirm der Zuhörer schließen",
     "lookingForScreens": "Bildschirme werden gesucht …",
@@ -258,7 +258,11 @@
       "balanced": "Folien und Notizen",
       "notes": "Größere Notizen",
       "slides": "Größere Folien"
-    }
+    },
+    "escAgain": "Drück noch einmal Esc, um die Präsentation zu beenden",
+    "escAgainAudience": "Drück noch einmal Esc, um den Bildschirm für Zuhörer zu schließen",
+    "elapsedWaiting": "Bisherige Zeit: {{time}} (startet, sobald du weitergehst)",
+    "timerStart": "Zeit starten"
   },
   "audience": {
     "title": "Bildschirm für Zuhörer",

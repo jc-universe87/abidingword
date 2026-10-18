@@ -60,8 +60,9 @@ Click **Start Presenter View**. It adapts to your screen:
   Page Up**. A presentation clicker works without any setup.
 - **Overview** (or the key **O**) shows all slides at once: click one to go
   straight to it. You can also type a slide's number and press **Enter**.
-- The **timer** starts with the Presenter View; click it to pause or reset
-  it. With a target time it quietly adds how much is left ("· 18 min left"),
+- The **timer** starts when you begin — with your first move to another
+  slide, or when you show the audience screen — so it does not count the
+  songs before you speak. Click it to pause, reset or start it by hand. With a target time it quietly adds how much is left ("· 18 min left"),
   and only near the end or after it does it change colour. The **clock**
   shows the time of day.
 - **View**: the **Layout** (*Slides and notes*, *Larger notes* or *Larger
@@ -71,7 +72,9 @@ Click **Start Presenter View**. It adapts to your screen:
   allows it; otherwise it says so) and the keyboard shortcuts.
 - Overview, Bible passage, Audience screen and View open **over** the view
   (on a phone, from the ☰ menu): your notes never move. **Esc** closes what is
-  open, one thing at a time; with nothing open it leaves the Presenter View.
+  open, one thing at a time; with nothing open it leaves the Presenter View
+  (while the audience screen is on, press it twice, so a stray key on a
+  clicker cannot end your talk).
 - When the audience sees something other than the slide (a blank screen or
   a passage), a small note beside the title says so, with **Return to
   slide**.

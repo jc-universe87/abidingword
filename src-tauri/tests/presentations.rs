@@ -934,3 +934,21 @@ fn live_marks_on_the_audience_screen_stay_small_and_on_the_slide() {
     assert_eq!(long.pointer, None);
     assert_eq!(long.strokes[0].len(), LiveMarks::POINTS_MAX);
 }
+
+#[test]
+fn a_late_audience_change_never_replaces_a_newer_one() {
+    use abiding_word_lib::presentation::AudienceState;
+    let at = |id: &str, seq: u64, index: usize| AudienceState {
+        presentation_id: id.into(),
+        index,
+        seq,
+        ..Default::default()
+    };
+    let kept = at("p-1", 7, 4);
+    assert!(!at("p-1", 6, 3).replaces(Some(&kept)));
+    assert!(at("p-1", 7, 4).replaces(Some(&kept)));
+    assert!(at("p-1", 8, 5).replaces(Some(&kept)));
+    // Another presentation, or nothing shown yet: always.
+    assert!(at("p-2", 1, 0).replaces(Some(&kept)));
+    assert!(at("p-1", 0, 0).replaces(None));
+}

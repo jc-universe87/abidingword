@@ -283,8 +283,8 @@ function PresentationEditor({
                 <option key={m} value={m}>{t("presentation.editor.minutes", { count: m })}</option>
               ))}
             </select>
-            <span className="text-[0.875rem] text-text-muted">{t("presentation.editor.targetHint")}</span>
           </label>
+          <p className="-mt-2 mb-0 text-[0.875rem] text-text-muted">{t("presentation.editor.targetHint")}</p>
           <div className="flex flex-wrap items-center gap-2">
             {confirmDelete ? (
               <span className="flex flex-wrap items-center gap-2 rounded-aw border border-border px-2 py-1 text-[0.9375rem]">

@@ -209,6 +209,8 @@ export interface AudienceState {
   blank: boolean;
   scripture: ScriptureOverlay | null;
   marks?: LiveMarks;
+  /** Counts up with each change, so an older state arriving late is dropped. */
+  seq?: number;
 }
 
 export interface Screen {

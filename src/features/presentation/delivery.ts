@@ -37,13 +37,16 @@ export type PresenterCommand =
   | { type: "penMove"; at: SlidePoint }
   | { type: "clearMarks" };
 
-export function startDelivery(total: number, now: number): DeliveryState {
+/** A new presentation; the timer runs from `now`, or waits (null) until it is started. */
+export function startDelivery(total: number, now: number | null): DeliveryState {
   return { index: 0, total, blank: false, scripture: null, marks: NO_MARKS, timer: { startedAt: now, before: 0 } };
 }
 
-/** At most this many pen strokes, as on the audience screen. */
-const STROKES_MAX = 100;
-const POINTS_MAX = 2000;
+/** At most this many pen strokes of this many points, as on the audience screen. */
+const STROKES_MAX = 50;
+const POINTS_MAX = 500;
+/** A pen point closer than this to the last one (a share of the slide) adds nothing visible. */
+const POINT_STEP = 0.004;
 
 const share = (v: number) => (Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0);
 const onSlide = ([x, y]: SlidePoint): SlidePoint => [share(x), share(y)];
@@ -92,7 +95,10 @@ export function deliver(state: DeliveryState, command: PresenterCommand): Delive
       const strokes = state.marks.strokes;
       const last = strokes[strokes.length - 1];
       if (!last || last.length >= POINTS_MAX) return state;
-      return { ...state, marks: { ...state.marks, strokes: [...strokes.slice(0, -1), [...last, onSlide(command.at)]] } };
+      const point = onSlide(command.at);
+      const end = last[last.length - 1]!;
+      if (Math.hypot(point[0] - end[0], point[1] - end[1]) < POINT_STEP) return state;
+      return { ...state, marks: { ...state.marks, strokes: [...strokes.slice(0, -1), [...last, point]] } };
     }
     case "clearMarks":
       return { ...state, marks: NO_MARKS };

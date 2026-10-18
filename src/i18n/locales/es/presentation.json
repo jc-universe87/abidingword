@@ -219,7 +219,7 @@
     "keepAwake": "Mantener la pantalla encendida",
     "keepAwakeOn": "La pantalla se mantiene encendida mientras presentas.",
     "keepAwakeUnavailable": "Este sistema no permite que la aplicación mantenga la pantalla encendida. Si se apaga mientras presentas, cambia los ajustes de energía.",
-    "keys": "Teclas: →, Av Pág o Espacio para la siguiente diapositiva; ← o Re Pág para volver; un número e Intro para ir a esa diapositiva; O para la vista general; B para ocultar la pantalla de la audiencia; Esc para cerrar un panel o salir.",
+    "keys": "Teclas: →, Av Pág o Espacio para la siguiente diapositiva; ← o Re Pág para volver; un número e Intro para ir a esa diapositiva; O para la vista general; B para ocultar la pantalla de la audiencia; Esc para cerrar un panel, dos veces para terminar la presentación.",
     "audienceHelp": "La audiencia solo ve las diapositivas: nunca tus notas, tu manuscrito ni tus fuentes.",
     "closeAudience": "Cerrar la pantalla de la audiencia",
     "lookingForScreens": "Buscando pantallas…",
@@ -265,7 +265,11 @@
       "balanced": "Diapositivas y notas",
       "notes": "Notas grandes",
       "slides": "Diapositivas grandes"
-    }
+    },
+    "escAgain": "Pulsa Esc otra vez para terminar la presentación",
+    "escAgainAudience": "Pulsa Esc otra vez para cerrar la pantalla de la audiencia",
+    "elapsedWaiting": "Tiempo transcurrido: {{time}} (empieza cuando avances)",
+    "timerStart": "Iniciar el cronómetro"
   },
   "audience": {
     "title": "Pantalla de la audiencia",
