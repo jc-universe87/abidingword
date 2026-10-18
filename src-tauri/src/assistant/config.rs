@@ -318,7 +318,7 @@ impl AssistantConfig {
     /// The image model: the person's own choice, else OpenAI's usual one.
     pub fn image_model_name(&self) -> &str {
         if self.image_model.is_empty() {
-            "gpt-image-1"
+            "gpt-image-2.5-flare"
         } else {
             &self.image_model
         }
@@ -337,7 +337,7 @@ impl AssistantConfig {
         self.base_url().is_none_or(|url| !is_local_address(&url))
     }
 
-    /// e.g. "OpenAI · gpt-4.1": recorded with what the person keeps.
+    /// e.g. "OpenAI · gpt-6.1-sol": recorded with what the person keeps.
     pub fn assistant_label(&self) -> String {
         if self.model.is_empty() {
             self.provider.label().to_string()
@@ -492,7 +492,7 @@ mod tests {
             config.image_base_url().as_deref(),
             Some("https://api.openai.com/v1")
         );
-        assert_eq!(config.image_model_name(), "gpt-image-1");
+        assert_eq!(config.image_model_name(), "gpt-image-2.5-flare");
     }
 
     #[test]

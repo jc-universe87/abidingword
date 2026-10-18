@@ -196,7 +196,7 @@ async function seed(api: MemoryApi) {
   await api.teachingPassageAdd({ preparationId: sermon.id, reference: "JHN.15.1-JHN.15.8" });
   await api.teachingUpdate({ id: sermon.id, conclusion: "Stay close to him this week: begin each day with his words." });
   // The assistant, turned on for the guide's pictures, with one prepared answer (no network in the harness).
-  api.state.teaching.assistant.config = { ...api.state.teaching.assistant.config, enabled: true, provider: "openai", model: "gpt-4.1" };
+  api.state.teaching.assistant.config = { ...api.state.teaching.assistant.config, enabled: true, provider: "openai", model: "gpt-6.1-sol" };
   api.state.teaching.assistant.keys.set("openai", "sample");
   api.state.teaching.assistant.replies.push({
     result: {
@@ -206,7 +206,7 @@ async function seed(api: MemoryApi) {
       changes: "Two small changes for flow: “as if” and “Yet” at the start of the third sentence. Your words and tone are kept.",
       placement: "replace",
     },
-    assistant: "OpenAI · gpt-4.1",
+    assistant: "OpenAI · gpt-6.1-sol",
     remote: true,
   });
   api.installFixtureSource({

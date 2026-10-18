@@ -415,7 +415,7 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
       state.assistant.generated.push(description);
       if (state.assistant.hold) await state.assistant.hold;
       const file = `${h.id().replace(/[^0-9a-f-]/g, "")}.png`;
-      return { file, dataUrl: "data:image/png;base64,iVBORw0KGgo=", assistant: `${LABELS[state.assistant.config.provider]} · gpt-image-1` };
+      return { file, dataUrl: "data:image/png;base64,iVBORw0KGgo=", assistant: `${LABELS[state.assistant.config.provider]} · gpt-image-2.5-flare` };
     },
   };
 }

@@ -136,7 +136,7 @@ pub fn unlock(mut prepared: Prepared, secrets: &dyn SecretStore) -> AppResult<Pr
 #[serde(rename_all = "camelCase")]
 pub struct AssistPreview {
     pub remote: bool,
-    /// e.g. "OpenAI · gpt-4.1"
+    /// e.g. "OpenAI · gpt-6.1-sol"
     pub assistant: String,
     pub shared: Vec<SharedItem>,
     /// The story search also sends search words to the search service.

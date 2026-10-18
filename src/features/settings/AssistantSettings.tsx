@@ -27,21 +27,21 @@ interface Service {
 
 /** What the setup needs to know about each service. No service is preferred. Official pages only. */
 const SERVICES: Record<ProviderKind, Service> = {
-  openai: { name: "OpenAI", model: "gpt-4.1", keyPage: "https://platform.openai.com/api-keys", modelsPage: "https://developers.openai.com/api/docs/models", pricesPage: "https://developers.openai.com/api/docs/pricing" },
+  openai: { name: "OpenAI", model: "gpt-6.1-sol", keyPage: "https://platform.openai.com/api-keys", modelsPage: "https://developers.openai.com/api/docs/models", pricesPage: "https://developers.openai.com/api/docs/pricing" },
   anthropic: { name: "Anthropic", model: "claude-sonnet-5-5", keyPage: "https://console.anthropic.com/settings/keys", modelsPage: "https://platform.claude.com/docs/en/models/overview", pricesPage: "https://platform.claude.com/docs/en/about-claude/pricing" },
-  google: { name: "Google", model: "gemini-2.5-flash", keyPage: "https://aistudio.google.com/apikey", modelsPage: "https://ai.google.dev/gemini-api/docs/models", pricesPage: "https://ai.google.dev/gemini-api/docs/pricing" },
-  xai: { name: "xAI", model: "grok-4", keyPage: "https://console.x.ai", modelsPage: "https://docs.x.ai/developers/models", pricesPage: "https://docs.x.ai/developers/pricing" },
+  google: { name: "Google", model: "gemini-3.8-flash", keyPage: "https://aistudio.google.com/apikey", modelsPage: "https://ai.google.dev/gemini-api/docs/models", pricesPage: "https://ai.google.dev/gemini-api/docs/pricing" },
+  xai: { name: "xAI", model: "grok-4.7", keyPage: "https://console.x.ai", modelsPage: "https://docs.x.ai/developers/models", pricesPage: "https://docs.x.ai/developers/pricing" },
   perplexity: { name: "Perplexity", model: "sonar-pro", keyPage: "https://www.perplexity.ai/settings/api", modelsPage: "https://docs.perplexity.ai", pricesPage: "https://docs.perplexity.ai/docs/getting-started/pricing" },
   mistral: { name: "Mistral AI", model: "mistral-large-latest", keyPage: "https://console.mistral.ai/api-keys", modelsPage: "https://docs.mistral.ai/models/model-selection-guide", pricesPage: "https://docs.mistral.ai/inference/pricing" },
   cohere: { name: "Cohere", model: "command-a-plus-05-2026", keyPage: "https://dashboard.cohere.com/api-keys", modelsPage: "https://docs.cohere.com/docs/models", pricesPage: "https://cohere.com/pricing" },
   // One official page holds both the models and their prices.
-  deepseek: { name: "DeepSeek", model: "deepseek-chat", keyPage: "https://platform.deepseek.com/api_keys", modelsPage: "https://api-docs.deepseek.com/quick_start/pricing" },
+  deepseek: { name: "DeepSeek", model: "deepseek-flash", keyPage: "https://platform.deepseek.com/api_keys", modelsPage: "https://api-docs.deepseek.com/quick_start/pricing" },
   qwen: { name: "Alibaba Cloud", model: "qwen-plus", keyPage: "https://www.alibabacloud.com/help/en/model-studio/get-api-key", modelsPage: "https://www.alibabacloud.com/help/en/model-studio/models", pricesPage: "https://www.alibabacloud.com/help/en/model-studio/model-pricing" },
   moonshot: { name: "Moonshot AI", model: "kimi-k3", keyPage: "https://platform.moonshot.ai/console/api-keys", modelsPage: "https://platform.moonshot.ai" },
   zai: { name: "Z.ai", model: "glm-5.3", keyPage: "https://z.ai/manage-apikey/apikey-list", modelsPage: "https://z.ai/model-api", pricesPage: "https://docs.z.ai/guides/overview/pricing" },
   minimax: { name: "MiniMax", model: "MiniMax-M2.7", keyPage: "https://platform.minimax.io/user-center/basic-information/interface-key", modelsPage: "https://platform.minimax.io/docs/guides/models-intro", pricesPage: "https://platform.minimax.io/docs/guides/pricing-paygo" },
   // Programs on this computer: their own lists of models to download, not a cloud catalogue.
-  ollama: { name: "Ollama", model: "llama3.1", download: "https://ollama.com/download", modelsPage: "https://ollama.com/library" },
+  ollama: { name: "Ollama", model: "gemma4", download: "https://ollama.com/download", modelsPage: "https://ollama.com/library" },
   lmstudio: { name: "LM Studio", model: "", download: "https://lmstudio.ai", modelsPage: "https://lmstudio.ai/models" },
   // Another compatible service: Abiding Word cannot know its models, so no link is invented.
   openai_compatible: { name: "", model: "" },

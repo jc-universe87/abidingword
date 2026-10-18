@@ -149,7 +149,7 @@ pub struct TeachingMaterial {
     pub content: String,
     pub sources: Vec<ExternalSource>,
     pub image: Option<ImageInfo>,
-    /// Which assistant produced it, e.g. "OpenAI · gpt-4.1".
+    /// Which assistant produced it, e.g. "OpenAI · gpt-6.1-sol".
     pub assistant: Option<String>,
     pub created_at: String,
 }

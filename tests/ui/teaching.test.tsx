@@ -554,7 +554,7 @@ describe("assistant settings", () => {
     const region = await openSettingsSection(user, "AI Assistant");
     await user.click(await within(region).findByRole("checkbox", { name: "Use the AI Assistant" }));
     // The default service gets its suggested model without choosing it again.
-    expect(within(region).getByRole("textbox", { name: "Model" })).toHaveValue("gpt-4.1");
+    expect(within(region).getByRole("textbox", { name: "Model" })).toHaveValue("gpt-6.1-sol");
 
     // Enter in the key field keeps the key (it does not just save the form).
     await user.type(within(region).getByLabelText("Key"), "sk-openai{Enter}");
@@ -587,11 +587,15 @@ describe("assistant settings", () => {
     // Grouped by where it runs, not ranked by vendor.
     expect(within(service).getAllByRole("group").map((g) => g.getAttribute("label"))).toEqual(["On the internet", "On this computer", "Other"]);
 
-    for (const [kind, model] of [["xai", "grok-4"], ["perplexity", "sonar-pro"], ["deepseek", "deepseek-chat"], ["qwen", "qwen-plus"]] as const) {
+    for (const [kind, model] of [["xai", "grok-4.7"], ["perplexity", "sonar-pro"], ["deepseek", "deepseek-flash"], ["qwen", "qwen-plus"], ["google", "gemini-3.8-flash"], ["mistral", "mistral-large-latest"], ["cohere", "command-a-plus-05-2026"], ["moonshot", "kimi-k3"], ["zai", "glm-5.3"], ["minimax", "MiniMax-M2.7"]] as const) {
       await user.selectOptions(service, kind);
       expect(within(region).getByRole("textbox", { name: "Model" })).toHaveValue(model);
       expect(within(region).getByLabelText("Key")).toBeInTheDocument();
     }
+    // On this computer: a suggested model to download, and no key.
+    await user.selectOptions(service, "ollama");
+    expect(within(region).getByRole("textbox", { name: "Model" })).toHaveValue("gemma4");
+    expect(within(region).queryByLabelText("Key")).toBeNull();
 
     // "How do I get a key?": short answers and the service's own page.
     await user.selectOptions(service, "deepseek");
