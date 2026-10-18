@@ -357,7 +357,8 @@
       "verticalText": "Senkrechter Text",
       "media": "Video und Ton",
       "imageFormat": "Bildformate, die nicht gezeigt werden können (EMF, WMF, TIFF …)",
-      "contentPlaceholder": "Platzhalter für Tabellen, Diagramme oder Medien"
+      "contentPlaceholder": "Platzhalter für Tabellen, Diagramme oder Medien",
+      "offPage": "Elemente ohne Größe oder weit außerhalb der Folie werden weggelassen"
     },
     "fonts": "Schriften",
     "fontsHint": "Eine Schrift wird nur ersetzt, wenn du eine wählst. Deine Wahl wird mit der Vorlage gespeichert.",
@@ -479,6 +480,7 @@
       "bottom": "Unten"
     },
     "textColor": "Farbe",
-    "shrink": "Langen Text verkleinern, damit er passt (bis zu einer lesbaren Größe)"
+    "shrink": "Langen Text verkleinern, damit er passt (bis zu einer lesbaren Größe)",
+    "layoutFailed": "Die Folien konnten nicht in der Vorlage gezeigt werden ({{message}}). Hier erscheint stattdessen die eingebaute Anordnung; Exporte nutzen weiter die Vorlage."
   }
 }

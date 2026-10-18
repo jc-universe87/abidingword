@@ -175,6 +175,8 @@ pub fn unpack(text: &str, store: &TemplateStore) -> AppResult<TemplatePackage> {
         )));
     }
     template::validate(&package.definition)?;
+    let mut package = package;
+    let mut kept_assets = Vec::new();
     for asset in &package.definition.assets {
         let image = package
             .images
@@ -188,7 +190,10 @@ pub fn unpack(text: &str, store: &TemplateStore) -> AppResult<TemplatePackage> {
         if kept.id != asset.id {
             return Err(not_a_package());
         }
+        // What the image really is, not what the package says it is.
+        kept_assets.push(kept);
     }
+    package.definition.assets = kept_assets;
     Ok(package)
 }
 
@@ -256,6 +261,17 @@ mod tests {
         let back = unpack(&text, &other).unwrap();
         assert_eq!(back.definition, def);
         assert_eq!(other.read(&a).unwrap(), png());
+        // What the image really is counts, not what the package says.
+        let lying = text.replace(
+            "\"mediaType\": \"image/png\"",
+            "\"mediaType\": \"image/jpeg\"",
+        );
+        let third = TemplateStore {
+            dir: dir.path().join("third"),
+        };
+        let back = unpack(&lying, &third).unwrap();
+        assert_eq!(back.definition.assets[0].media_type, "image/png");
+        assert!(third.read(&back.definition.assets[0]).is_some());
         // A changed image is refused.
         let broken = text.replacen(&a.id, &"0".repeat(64), 1);
         assert!(unpack(&broken, &dir.path().join("x").into()).is_err());

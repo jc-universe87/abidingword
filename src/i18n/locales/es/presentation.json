@@ -366,7 +366,8 @@
       "verticalText": "Texto vertical",
       "media": "Vídeo y sonido",
       "imageFormat": "Formatos de imagen que no se pueden mostrar (EMF, WMF, TIFF…)",
-      "contentPlaceholder": "Marcadores para tablas, gráficos o multimedia"
+      "contentPlaceholder": "Marcadores para tablas, gráficos o multimedia",
+      "offPage": "Se omiten los elementos sin tamaño o muy fuera de la diapositiva"
     },
     "fonts": "Fuentes",
     "fontsHint": "Una fuente solo se sustituye si eliges una. Tu elección se guarda con la plantilla.",
@@ -490,6 +491,7 @@
       "bottom": "Abajo"
     },
     "textColor": "Color",
-    "shrink": "Reducir el texto largo para que quepa (hasta un tamaño legible)"
+    "shrink": "Reducir el texto largo para que quepa (hasta un tamaño legible)",
+    "layoutFailed": "No se pudieron mostrar las diapositivas en la plantilla ({{message}}). Se muestran con la disposición incluida; las exportaciones siguen usando la plantilla."
   }
 }

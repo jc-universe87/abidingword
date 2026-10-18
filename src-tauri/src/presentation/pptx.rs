@@ -47,8 +47,15 @@ pub fn esc(text: &str) -> String {
     out
 }
 
+/// A colour as PowerPoint writes it; anything that is not one becomes black
+/// (a template is validated before use, so this only guards the file).
 fn hex(color: &str) -> String {
-    color.trim_start_matches('#').to_ascii_uppercase()
+    let h = color.trim_start_matches('#');
+    if h.len() == 6 && h.chars().all(|c| c.is_ascii_hexdigit()) {
+        h.to_ascii_uppercase()
+    } else {
+        "000000".into()
+    }
 }
 
 struct Media {

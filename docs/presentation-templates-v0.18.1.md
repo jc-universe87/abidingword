@@ -159,10 +159,17 @@ reported ("the design only"), never imported.
 
 Safety: only the parts a design needs are unpacked (`[Content_Types]`,
 relationships, presentation, masters, layouts, themes, media, core
-properties); each part at most `PART_MAX`, all together at most
-`UNPACKED_MAX`; the file itself at most 400 MB; relationship targets are
-resolved inside the package; external targets are ignored; entities are
-decoded once.
+properties); each part at most 60 MB and all together at most 600 MB,
+counted from the bytes **really** unpacked (an entry's claimed size is not
+trusted); at most 20 000 entries; XML nested deeper than 256 levels is
+refused (no stack overflow); numbers must be finite; the file itself at
+most 400 MB; relationship targets are resolved inside the package;
+external targets are ignored; entities are decoded once. Negative crops
+(padding) are shown uncropped; boxes without size or far off the page are
+left out and reported (*offPage*). Every definition — imported, from a
+template file or from the designer — passes `validate()` (colours, finite
+positive boxes, crops, transparency, insets, spacing, the smallest shrink
+size), and the PowerPoint writer only ever writes hexadecimal colours.
 
 What is read, master by master, layout by layout (master shapes are
 inherited unless the layout hides background graphics):
@@ -294,6 +301,16 @@ size and footer, a passage shown as a Scripture slide, page JSON);
   the font is not the same file.
 - PowerPoint's own `normAutofit` decides its shrink; it may differ slightly
   from the core's step-down.
+- An installed font whose licence forbids embedding is used by PowerPoint,
+  but the live view and PDF draw that text in the usual fonts it was
+  measured with (so lines always fit); the import report says so.
+- Italic text is measured with the upright face.
+- The list of installed fonts is read once per run: a font installed after
+  a "missing" report is found after restarting the app.
+- Importing a PowerPoint file keeps its pictures (content-addressed, once)
+  before the design is accepted; cancelling leaves those files unused in
+  the data folder. They are small and never shown; a later clean-up may
+  remove unused template pictures.
 
 ## 14. Windows / Office acceptance checklist
 

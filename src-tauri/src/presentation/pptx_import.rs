@@ -29,6 +29,17 @@ const EMU_PER_POINT: f32 = 12_700.0;
 /// The whole file may unpack to at most this much (a guard against broken files).
 const UNPACKED_MAX: u64 = 600 * 1024 * 1024;
 const PART_MAX: u64 = 60 * 1024 * 1024;
+/// At most this many entries in the file.
+const ENTRIES_MAX: usize = 20_000;
+/// XML nested deeper than this is refused (real files stay far below it).
+const DEPTH_MAX: usize = 256;
+
+fn too_large() -> AppError {
+    AppError::InvalidInput(UserMessage::new(
+        "presentation.templateTooLarge",
+        "This presentation is too large to read as a template.",
+    ))
+}
 
 // ---------------------------------------------------------------------------
 // What the importer gives back
@@ -134,7 +145,9 @@ impl Node {
             .map(|(_, v)| v.as_str())
     }
     fn num(&self, name: &str) -> Option<f32> {
-        self.attr(name).and_then(|v| v.parse::<f32>().ok())
+        self.attr(name)
+            .and_then(|v| v.parse::<f32>().ok())
+            .filter(|v| v.is_finite() && v.abs() < 1.0e12)
     }
     fn child(&self, name: &str) -> Option<&Node> {
         self.children.iter().find(|c| c.is(name))
@@ -190,7 +203,12 @@ fn parse(xml: &[u8]) -> AppResult<Node> {
     };
     loop {
         match reader.read_event_into(&mut buf) {
-            Ok(Event::Start(e)) => stack.push(node_of(&e)),
+            Ok(Event::Start(e)) => {
+                if stack.len() > DEPTH_MAX {
+                    return Err(not_a_presentation());
+                }
+                stack.push(node_of(&e));
+            }
             Ok(Event::Empty(e)) => {
                 let n = node_of(&e);
                 if let Some(top) = stack.last_mut() {
@@ -252,6 +270,9 @@ impl Package {
             zip::ZipArchive::new(std::io::Cursor::new(bytes)).map_err(|_| not_a_presentation())?;
         let mut files = HashMap::new();
         let mut total = 0u64;
+        if archive.len() > ENTRIES_MAX {
+            return Err(too_large());
+        }
         for i in 0..archive.len() {
             let mut f = archive.by_index(i).map_err(|_| not_a_presentation())?;
             if f.is_dir() {
@@ -273,18 +294,21 @@ impl Package {
             if f.size() > PART_MAX {
                 continue;
             }
-            total += f.size();
-            if total > UNPACKED_MAX {
-                return Err(AppError::InvalidInput(UserMessage::new(
-                    "presentation.templateTooLarge",
-                    "This presentation is too large to read as a template.",
-                )));
-            }
-            let mut data = Vec::with_capacity(f.size() as usize);
+            // What is really unpacked counts (an entry may claim a smaller size than it has).
+            let room = PART_MAX.min(UNPACKED_MAX.saturating_sub(total));
+            let mut data = Vec::with_capacity(f.size().min(room) as usize);
             f.by_ref()
-                .take(PART_MAX)
+                .take(room + 1)
                 .read_to_end(&mut data)
                 .map_err(|_| not_a_presentation())?;
+            let read = data.len() as u64;
+            total += read;
+            if total > UNPACKED_MAX {
+                return Err(too_large());
+            }
+            if read > PART_MAX {
+                continue;
+            }
             files.insert(name, data);
         }
         if !files.contains_key("ppt/presentation.xml") {
@@ -795,7 +819,8 @@ impl Reader<'_> {
         let Some(r) = blip_fill.child("a:srcRect") else {
             return Crop::default();
         };
-        let v = |k: &str| r.num(k).unwrap_or(0.0) / 100_000.0;
+        // A negative crop (padding around the picture) is not reproduced: shown uncropped.
+        let v = |k: &str| (r.num(k).unwrap_or(0.0) / 100_000.0).clamp(0.0, 0.45);
         Crop {
             left: v("l"),
             top: v("t"),
@@ -1244,12 +1269,13 @@ impl Reader<'_> {
             // Exact spacing in points becomes a multiple of the size.
             Some(v) => (-v / size).max(0.5),
             None => 1.2,
-        };
+        }
+        .clamp(0.5, 4.0);
         let inset = [
-            b.insets[0].unwrap_or(7.2),
-            b.insets[1].unwrap_or(3.6),
-            b.insets[2].unwrap_or(7.2),
-            b.insets[3].unwrap_or(3.6),
+            b.insets[0].unwrap_or(7.2).clamp(0.0, 200.0),
+            b.insets[1].unwrap_or(3.6).clamp(0.0, 200.0),
+            b.insets[2].unwrap_or(7.2).clamp(0.0, 200.0),
+            b.insets[3].unwrap_or(3.6).clamp(0.0, 200.0),
         ];
         TextFrame {
             x,
@@ -1752,6 +1778,45 @@ pub fn import(
                 kind,
                 layout: out,
             });
+        }
+    }
+    // Boxes with no size or far off the page (hidden helpers, broken files) are left out and counted.
+    let usable = |x: f32, y: f32, w: f32, h: f32| {
+        w > 0.0
+            && h > 0.0
+            && w <= width * 4.0
+            && h <= height * 4.0
+            && x > -width
+            && y > -height
+            && x < width * 2.0
+            && y < height * 2.0
+    };
+    for l in &mut layouts {
+        let before = l.layout.decorations.len() + l.layout.rects.len() + l.layout.labels.len();
+        let lay = &mut l.layout;
+        lay.decorations.retain(|d| usable(d.x, d.y, d.w, d.h));
+        lay.rects.retain(|r| usable(r.x, r.y, r.w, r.h));
+        lay.labels
+            .retain(|t| usable(t.frame.x, t.frame.y, t.frame.w, t.frame.h));
+        for f in [&mut lay.title, &mut lay.reference, &mut lay.body] {
+            if f.as_ref().is_some_and(|f| !usable(f.x, f.y, f.w, f.h)) {
+                *f = None;
+            }
+        }
+        if lay.image.is_some_and(|f| !usable(f.x, f.y, f.w, f.h)) {
+            lay.image = None;
+        }
+        let after = lay.decorations.len() + lay.rects.len() + lay.labels.len();
+        if after < before {
+            *reader
+                .items
+                .entry((
+                    "attention".into(),
+                    "offPage".into(),
+                    Some(l.name.clone()),
+                    None,
+                ))
+                .or_insert(0) += before - after;
         }
     }
     // Layouts with the same name in several masters are told apart.

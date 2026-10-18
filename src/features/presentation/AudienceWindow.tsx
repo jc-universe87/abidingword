@@ -24,7 +24,7 @@ export function AudienceWindow({ presentationId }: { presentationId: string }) {
   const images = useSlideImages(presentationId, doc.data?.images ?? []);
   const overlayRequest = state?.scripture ? overlaySlide(state.scripture) : null;
   const slides = doc.data?.slides ?? NO_SLIDES;
-  const pageFor = useDesignPages(presentationId, doc.data?.template, overlayRequest ? [...slides, overlayRequest] : slides);
+  const { pageFor } = useDesignPages(presentationId, doc.data?.template, overlayRequest ? [...slides, overlayRequest] : slides);
 
   useEffect(() => {
     let active = true;

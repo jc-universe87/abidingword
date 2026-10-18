@@ -107,7 +107,7 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   const { index, blank, scripture: overlay, marks } = live;
   // In a church template the slides (and a passage shown over them) are the pages PowerPoint and PDF have.
   const overlayRequest = overlay ? overlaySlide(overlay) : null;
-  const pageFor = useDesignPages(doc.presentationId, doc.template, overlayRequest ? [...doc.slides, overlayRequest] : doc.slides);
+  const { pageFor } = useDesignPages(doc.presentationId, doc.template, overlayRequest ? [...doc.slides, overlayRequest] : doc.slides);
   const pageOf = (s: Slide) => pageFor(s.kind, s.audience);
   const currentPage = (s: Slide) => (overlayRequest ? pageFor(overlayRequest.kind, overlayRequest.audience) : pageOf(s));
   const [audience, setAudience] = useState<AudienceMode>("none");

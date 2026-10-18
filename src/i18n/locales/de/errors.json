@@ -174,6 +174,17 @@
     "otherTeaching": "Dieser Teil gehört zu einer anderen Bibellehre.",
     "tooLong": "Dieser Text ist zu lang für die Folie.",
     "tooMany": "Diese Präsentation hat schon so viele Folien, wie sie fassen kann.",
-    "targetTooLong": "Die Zielzeit darf höchstens zehn Stunden lang sein."
+    "targetTooLong": "Die Zielzeit darf höchstens zehn Stunden lang sein.",
+    "templateNotPptx": "Diese Datei ist keine lesbare PowerPoint-Präsentation (.pptx).",
+    "templateTooLarge": "Diese Präsentation ist zu groß, um als Vorlage gelesen zu werden.",
+    "templateFileLarge": "Diese Datei ist zu groß, um als Vorlage gelesen zu werden.",
+    "templateInvalid": "Diese Vorlage kann nicht verwendet werden: Etwas darin ist ungültig.",
+    "templateImage": "Diese Datei ist kein PNG-, JPEG-, GIF- oder WebP-Bild.",
+    "templateImageLarge": "Dieses Bild ist zu groß für eine Vorlage.",
+    "templateImageGone": "Ein Bild dieser Vorlage fehlt auf diesem Computer.",
+    "templatePackage": "Diese Datei ist keine Abiding-Word-Vorlage.",
+    "templateNewer": "Diese Vorlage wurde mit einer neueren Version von Abiding Word erstellt.",
+    "templateDescriptionLong": "Diese Beschreibung ist zu lang zum Speichern.",
+    "tooManySlides": "Zu viele Folien, um sie auf einmal zu zeigen."
   }
 }

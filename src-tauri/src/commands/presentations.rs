@@ -142,7 +142,7 @@ pub struct LayoutRequest {
 }
 
 /// At most this many slides are laid out in one call.
-const LAYOUT_MAX: usize = 500;
+const LAYOUT_MAX: usize = 2000;
 
 /// The fonts for laying out pages in a design, kept while the design's
 /// families stay the same (reading font files on each change would be slow).
@@ -162,6 +162,25 @@ pub(crate) fn layout_fonts(families: &[&str]) -> std::sync::Arc<FontSet> {
     );
     *kept = Some((key, fonts.clone()));
     fonts
+}
+
+/// Pages for the screen: a text whose family could not be loaded for
+/// measuring (not installed, or its licence forbids embedding) is drawn in
+/// the usual fonts it was measured with, as in the PDF, so the lines fit.
+pub(crate) fn for_screen(
+    mut pages: Vec<crate::presentation::layout::Page>,
+    fonts: &FontSet,
+) -> Vec<crate::presentation::layout::Page> {
+    for page in &mut pages {
+        for block in &mut page.blocks {
+            if let crate::presentation::layout::Block::Text(t) = block {
+                if t.family.as_deref().is_some_and(|f| !fonts.has_family(f)) {
+                    t.family = None;
+                }
+            }
+        }
+    }
+    pages
 }
 
 /// The audience pages of slides in the presentation's design, worked out as
@@ -184,7 +203,7 @@ pub fn presentation_layout(
     let design = doc.design();
     let fonts = layout_fonts(&design.families());
     let shaper = crate::presentation::text::Shaper { fonts: &fonts };
-    Ok(input
+    let pages = input
         .slides
         .into_iter()
         .map(|s| {
@@ -195,7 +214,8 @@ pub fn presentation_layout(
             };
             crate::presentation::layout::page(&slide, &doc, &design, &shaper, &input.locale)
         })
-        .collect())
+        .collect();
+    Ok(for_screen(pages, &fonts))
 }
 
 fn image_gone() -> AppError {

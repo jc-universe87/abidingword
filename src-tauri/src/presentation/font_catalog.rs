@@ -215,7 +215,7 @@ pub fn find<'a>(
             u8::from(f.italic != italic),
             // Among equals, a regular weight for regular text and a heavier one for bold.
             if bold {
-                1000 - f.weight
+                1000u16.saturating_sub(f.weight)
             } else {
                 f.weight.abs_diff(400)
             },

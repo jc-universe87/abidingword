@@ -177,6 +177,17 @@
     "otherTeaching": "Esa parte pertenece a otra enseñanza.",
     "tooLong": "Este texto es demasiado largo para la diapositiva.",
     "tooMany": "Esta presentación ya tiene todas las diapositivas que puede contener.",
-    "targetTooLong": "La duración prevista puede ser de diez horas como máximo."
+    "targetTooLong": "La duración prevista puede ser de diez horas como máximo.",
+    "templateNotPptx": "Este archivo no es una presentación de PowerPoint (.pptx) que se pueda leer.",
+    "templateTooLarge": "Esta presentación es demasiado grande para leerla como plantilla.",
+    "templateFileLarge": "Este archivo es demasiado grande para leerlo como plantilla.",
+    "templateInvalid": "No se puede usar esta plantilla: algo en ella no es válido.",
+    "templateImage": "Este archivo no es una imagen PNG, JPEG, GIF o WebP.",
+    "templateImageLarge": "Esta imagen es demasiado grande para una plantilla.",
+    "templateImageGone": "Falta una imagen de esta plantilla en este ordenador.",
+    "templatePackage": "Este archivo no es una plantilla de Abiding Word.",
+    "templateNewer": "Esta plantilla se creó con una versión más reciente de Abiding Word.",
+    "templateDescriptionLong": "Esta descripción es demasiado larga para guardarla.",
+    "tooManySlides": "Demasiadas diapositivas para mostrarlas a la vez."
   }
 }

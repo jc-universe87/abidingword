@@ -171,6 +171,17 @@
     "otherTeaching": "그 부분은 다른 성경 가르침에 속합니다.",
     "tooLong": "이 글은 슬라이드에 너무 깁니다.",
     "tooMany": "이 프레젠테이션에는 더 이상 슬라이드를 넣을 수 없습니다.",
-    "targetTooLong": "목표 시간은 최대 10시간입니다."
+    "targetTooLong": "목표 시간은 최대 10시간입니다.",
+    "templateNotPptx": "읽을 수 있는 PowerPoint 프레젠테이션(.pptx) 파일이 아닙니다.",
+    "templateTooLarge": "이 프레젠테이션은 너무 커서 서식으로 읽을 수 없습니다.",
+    "templateFileLarge": "이 파일은 너무 커서 서식으로 읽을 수 없습니다.",
+    "templateInvalid": "이 서식에 올바르지 않은 부분이 있어 사용할 수 없습니다.",
+    "templateImage": "PNG, JPEG, GIF, WebP 그림 파일이 아닙니다.",
+    "templateImageLarge": "이 그림은 서식에 쓰기에는 너무 큽니다.",
+    "templateImageGone": "이 서식의 그림이 이 컴퓨터에 없습니다.",
+    "templatePackage": "Abiding Word 서식 파일이 아닙니다.",
+    "templateNewer": "이 서식은 더 새로운 버전의 Abiding Word로 만들어졌습니다.",
+    "templateDescriptionLong": "설명이 너무 길어 저장할 수 없습니다.",
+    "tooManySlides": "한 번에 보여 주기에는 슬라이드가 너무 많습니다."
   }
 }

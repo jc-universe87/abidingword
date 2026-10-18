@@ -54,8 +54,8 @@ fn not_found(id: &str) -> AppError {
 fn description(text: &str) -> AppResult<String> {
     if text.chars().count() > DESCRIPTION_MAX {
         return Err(AppError::InvalidInput(UserMessage::new(
-            "presentation.tooLong",
-            "This text is too long to save.",
+            "presentation.templateDescriptionLong",
+            "This description is too long to save.",
         )));
     }
     Ok(text.trim().to_string())

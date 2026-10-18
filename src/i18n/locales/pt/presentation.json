@@ -366,7 +366,8 @@
       "verticalText": "Texto vertical",
       "media": "Vídeo e som",
       "imageFormat": "Formatos de imagem que não podem ser mostrados (EMF, WMF, TIFF…)",
-      "contentPlaceholder": "Espaços reservados para tabelas, gráficos ou mídia"
+      "contentPlaceholder": "Espaços reservados para tabelas, gráficos ou mídia",
+      "offPage": "Itens sem tamanho ou muito fora do slide são deixados de fora"
     },
     "fonts": "Fontes",
     "fontsHint": "Uma fonte só é substituída se você escolher uma. Sua escolha fica salva com o modelo.",
@@ -490,6 +491,7 @@
       "bottom": "Embaixo"
     },
     "textColor": "Cor",
-    "shrink": "Diminuir o texto longo para caber (até um tamanho legível)"
+    "shrink": "Diminuir o texto longo para caber (até um tamanho legível)",
+    "layoutFailed": "Não foi possível mostrar os slides no modelo ({{message}}). Eles aparecem na disposição incluída; as exportações continuam usando o modelo."
   }
 }

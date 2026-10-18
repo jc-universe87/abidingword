@@ -51,28 +51,33 @@ function startingLayout(role: TemplateRole): RoleLayout {
   }
 }
 
-/** Scales a layout's horizontal positions to another page width. */
-function scaleX<T extends { x: number; w: number }>(f: T, k: number): T {
-  return { ...f, x: Math.round(f.x * k * 10) / 10, w: Math.round(f.w * k * 10) / 10 };
+/** Scales positions to another page size (both directions). */
+function scaleBox<T extends { x: number; y: number; w: number; h: number }>(f: T, kx: number, ky: number): T {
+  const r = (v: number) => Math.round(v * 10) / 10;
+  return { ...f, x: r(f.x * kx), w: r(f.w * kx), y: r(f.y * ky), h: r(f.h * ky) };
 }
-function rescale(def: TemplateDefinition, width: number): TemplateDefinition {
-  const k = width / def.width;
-  const layout = (l: RoleLayout): RoleLayout => ({
+function scaleLayout(l: RoleLayout, kx: number, ky: number): RoleLayout {
+  return {
     ...l,
-    title: l.title && scaleX(l.title, k),
-    reference: l.reference && scaleX(l.reference, k),
-    body: l.body && scaleX(l.body, k),
-    image: l.image && scaleX(l.image, k),
-    decorations: l.decorations.map((d) => scaleX(d, k)),
-    rects: l.rects.map((r) => scaleX(r, k)),
-    labels: l.labels.map((x) => ({ ...x, frame: scaleX(x.frame, k) })),
-  });
+    title: l.title && scaleBox(l.title, kx, ky),
+    reference: l.reference && scaleBox(l.reference, kx, ky),
+    body: l.body && scaleBox(l.body, kx, ky),
+    image: l.image && scaleBox(l.image, kx, ky),
+    decorations: l.decorations.map((d) => scaleBox(d, kx, ky)),
+    rects: l.rects.map((x) => scaleBox(x, kx, ky)),
+    labels: l.labels.map((x) => ({ ...x, frame: scaleBox(x.frame, kx, ky) })),
+  };
+}
+function rescale(def: TemplateDefinition, width: number, height: number): TemplateDefinition {
+  const kx = width / def.width;
+  const ky = height / def.height;
   return {
     ...def,
     width,
-    logo: def.logo && scaleX(def.logo, k),
-    footer: def.footer && { ...def.footer, frame: scaleX(def.footer.frame, k) },
-    roles: Object.fromEntries(Object.entries(def.roles).map(([r, l]) => [r, l && layout(l)])),
+    height,
+    logo: def.logo && scaleBox(def.logo, kx, ky),
+    footer: def.footer && { ...def.footer, frame: scaleBox(def.footer.frame, kx, ky) },
+    roles: Object.fromEntries(Object.entries(def.roles).map(([r, l]) => [r, l && scaleLayout(l, kx, ky)])),
   };
 }
 
@@ -186,7 +191,7 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
         <legend className="mb-1 p-0 text-[0.9375rem] font-medium text-text-strong">{t("presentation.templates.size")}</legend>
         {[WIDE, STANDARD].map(([w, h]) => (
           <label key={w} className="flex min-h-11 items-center gap-2 text-[0.9375rem]">
-            <input type="radio" name={`${id}-size`} checked={def.width === w && def.height === h} onChange={() => setDef((d) => ({ ...rescale(d, w), height: h }))} className="size-5" />
+            <input type="radio" name={`${id}-size`} checked={def.width === w && def.height === h} onChange={() => setDef((d) => rescale(d, w, h))} className="size-5" />
             {w === WIDE[0] ? t("presentation.templates.wide") : t("presentation.templates.standard")}
           </label>
         ))}
@@ -285,8 +290,10 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
               checked={layout !== null}
               onChange={(e) => {
                 if (!e.target.checked) return setLayout(null);
-                const start = startingLayout(role);
-                setLayout(def.width === WIDE[0] ? start : { ...start, ...rescale({ ...def, width: WIDE[0], roles: { [role]: start } }, def.width).roles[role]! });
+                // The starting boxes are drawn for 960 × 540: fitted to this page.
+                const start = scaleLayout(startingLayout(role), def.width / WIDE[0], def.height / WIDE[1]);
+                setLayout(start);
+                if (!start[box]) setBox(BOXES.find((b) => start[b]) ?? "title");
               }}
               className="size-5"
             />
@@ -322,7 +329,12 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
               {frame ? (
                 <FrameFields frame={frame} onChange={(f) => setFrame(box, f)} onRemove={() => setFrame(box, null)} />
               ) : (
-                <Button onClick={() => setFrame(box, (startingLayout(role === "pause" ? "heading" : role)[box] ?? textFrame({ y: box === "title" ? 48 : box === "reference" ? 150 : 220, h: 80 })))}>
+                <Button
+                  onClick={() => {
+                    const start = startingLayout(role === "pause" ? "heading" : role)[box] ?? textFrame({ y: box === "title" ? 48 : box === "reference" ? 150 : 220, h: 80 });
+                    setFrame(box, scaleBox(start, def.width / WIDE[0], def.height / WIDE[1]));
+                  }}
+                >
                   {t("presentation.templates.addBox", { box: t(`presentation.templates.boxes.${box}`) })}
                 </Button>
               )}

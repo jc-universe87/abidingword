@@ -236,6 +236,13 @@ impl FontSet {
         self
     }
 
+    /// Whether an installed family was loaded (and so measures its own text).
+    pub fn has_family(&self, name: &str) -> bool {
+        self.families
+            .iter()
+            .any(|f| f.name.eq_ignore_ascii_case(name.trim()))
+    }
+
     /// Every face, numbered in one order: the usual regular, the usual bold,
     /// then each family's regular and bold.
     pub fn at(&self, index: usize) -> &Font {

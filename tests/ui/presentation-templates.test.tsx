@@ -185,5 +185,24 @@ describe("church templates", () => {
     await user.click(within(manager).getByRole("button", { name: "Delete" }));
     expect(await within(manager).findByText(/Presentations that used it show their built-in background again/)).toBeInTheDocument();
     expect(api.state.presentation.presentations[0]!.templateId).toBeNull();
+    // Back in the editor the chooser shows the background the presentation really has.
+    await user.click(within(manager).getByRole("button", { name: "Close" }));
+    await waitFor(() => expect(within(region).getByRole("combobox", { name: "Design" })).toHaveValue("theme:light"));
+  });
+
+  it("a pause keeps the template's background picture on screen, as in PowerPoint and PDF", async () => {
+    const api = await setup();
+    const def = acceptImport(IMPORTED, IMPORTED.suggestions, IMPORTED.definition.fonts);
+    def.background = { color: null, image: { assetId: def.assets[0]!.id, crop: { left: 0, top: 0, right: 0, bottom: 0 } } };
+    // No layout of its own for a pause: the template's background.
+    delete def.roles.pause;
+    const tpl = await addTemplate(api, def);
+    const { user } = await renderApp(api);
+    const region = await makeSlides(user);
+    await user.selectOptions(within(region).getByRole("combobox", { name: "Design" }), `template:${tpl.id}`);
+    await user.click(within(region).getByRole("button", { name: "Add a slide" }));
+    await user.click(await within(region).findByRole("button", { name: /Pause/ }));
+    const pause = await within(region).findByRole("listitem", { name: /Pause/ });
+    await waitFor(() => expect(pause.querySelector("[data-template-page] img")).not.toBeNull());
   });
 });

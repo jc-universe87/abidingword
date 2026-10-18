@@ -418,3 +418,58 @@ fn write_interface_fixture() {
     let out = Path::new(env!("CARGO_MANIFEST_DIR")).join("../tests/support/importedTemplate.json");
     std::fs::write(out, serde_json::to_string_pretty(&t).unwrap() + "\n").unwrap();
 }
+
+/// A file whose parts nest XML extremely deeply (or claim small sizes) is
+/// refused with an error, never a crash.
+#[test]
+fn a_hostile_file_is_refused_not_a_crash() {
+    let dir = tempfile::tempdir().unwrap();
+    let store = TemplateStore::from(dir.path().join("t"));
+    let none = |_: usize, _: usize| {};
+    let mut buf = std::io::Cursor::new(Vec::new());
+    {
+        let mut z = zip::ZipWriter::new(&mut buf);
+        let o = zip::write::SimpleFileOptions::default();
+        z.start_file("ppt/presentation.xml", o).unwrap();
+        let deep = "<p:grpSp>".repeat(100_000);
+        std::io::Write::write_all(&mut z, format!("<p:presentation>{deep}").as_bytes()).unwrap();
+        z.finish().unwrap();
+    }
+    assert!(pptx_import::import(buf.get_ref(), "deep.pptx", &store, &[], &none).is_err());
+}
+
+#[test]
+fn a_broken_design_never_reaches_powerpoint() {
+    let (t, _) = import_with("powerpoint-16x9.pptx", &[]);
+    let mut def = t.accept(&t.suggestions);
+    def.roles.get_mut("scripture").unwrap().rects[0].fill = Some("\"/><x".into());
+    assert!(
+        template::validate(&def).is_err(),
+        "a colour that is not one"
+    );
+    let mut def = t.accept(&t.suggestions);
+    def.roles.get_mut("scripture").unwrap().rects[0].w = -10.0;
+    assert!(template::validate(&def).is_err(), "a negative width");
+    let mut def = t.accept(&t.suggestions);
+    def.logo = Some(template::Placed {
+        asset_id: def.assets[0].id.clone(),
+        x: f32::NAN,
+        w: 10.0,
+        h: 10.0,
+        ..Default::default()
+    });
+    assert!(template::validate(&def).is_err(), "not a number");
+    let mut def = t.accept(&t.suggestions);
+    let body = def
+        .roles
+        .get_mut("scripture")
+        .unwrap()
+        .body
+        .as_mut()
+        .unwrap();
+    body.min_size = 0.0;
+    assert!(
+        template::validate(&def).is_err(),
+        "text shrinking to nothing"
+    );
+}

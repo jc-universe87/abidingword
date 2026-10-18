@@ -152,7 +152,7 @@ function PresentationEditor({
   const startButton = useRef<HTMLButtonElement>(null);
   const docRequest = useRef(0);
   const images = useSlideImages(presentationId, doc?.images ?? []);
-  const pageFor = useDesignPages(presentationId, doc?.template, doc?.slides ?? []);
+  const { pageFor, error: designError } = useDesignPages(presentationId, doc?.template, doc?.slides ?? []);
   const templates = useLoad(useCallback(() => api.presentationTemplateList(), [api]));
   const [managing, setManaging] = useState(false);
 
@@ -350,6 +350,7 @@ function PresentationEditor({
       </details>
 
       {noBible && <p className="m-0 rounded-aw bg-note px-3 py-2 text-[0.9375rem]">{t("presentation.warnings.noBible")}</p>}
+      {designError && <p role="alert" className="m-0 text-danger">{t("presentation.templates.layoutFailed", { message: designError })}</p>}
       {overflowing > 0 && (
         <p className="m-0 flex items-start gap-2 rounded-aw bg-note px-3 py-2 text-[0.9375rem]">
           <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
@@ -361,6 +362,8 @@ function PresentationEditor({
           onClose={() => {
             setManaging(false);
             templates.reload();
+            // A deleted template may have been this presentation's.
+            loaded.reload();
             refresh();
           }}
         />

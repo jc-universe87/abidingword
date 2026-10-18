@@ -174,6 +174,17 @@
     "otherTeaching": "That part belongs to another teaching.",
     "tooLong": "This text is too long for the slide.",
     "tooMany": "This presentation has as many slides as it can hold.",
-    "targetTooLong": "The target time can be at most ten hours."
+    "targetTooLong": "The target time can be at most ten hours.",
+    "templateNotPptx": "This file is not a PowerPoint presentation (.pptx) that can be read.",
+    "templateTooLarge": "This presentation is too large to read as a template.",
+    "templateFileLarge": "This file is too large to read as a template.",
+    "templateInvalid": "This template cannot be used: something in it is not valid.",
+    "templateImage": "This file is not a PNG, JPEG, GIF or WebP image.",
+    "templateImageLarge": "This image is too large for a template.",
+    "templateImageGone": "An image of this template is missing on this computer.",
+    "templatePackage": "This file is not an Abiding Word template.",
+    "templateNewer": "This template was made by a newer version of Abiding Word.",
+    "templateDescriptionLong": "This description is too long to save.",
+    "tooManySlides": "Too many slides to show at once."
   }
 }

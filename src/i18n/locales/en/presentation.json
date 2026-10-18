@@ -357,7 +357,8 @@
       "verticalText": "Vertical text",
       "media": "Video and sound",
       "imageFormat": "Picture formats that cannot be shown (EMF, WMF, TIFF…)",
-      "contentPlaceholder": "Placeholders for tables, charts or media"
+      "contentPlaceholder": "Placeholders for tables, charts or media",
+      "offPage": "Items with no size or far off the slide are left out"
     },
     "fonts": "Fonts",
     "fontsHint": "A font is only replaced if you choose one. Your choice is kept with the template.",
@@ -479,6 +480,7 @@
       "bottom": "Bottom"
     },
     "textColor": "Colour",
-    "shrink": "Make long text smaller to fit (down to a readable size)"
+    "shrink": "Make long text smaller to fit (down to a readable size)",
+    "layoutFailed": "The slides could not be shown in the template ({{message}}). They are shown in the built-in arrangement; exports still use the template."
   }
 }

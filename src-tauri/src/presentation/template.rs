@@ -451,9 +451,35 @@ pub fn validate(def: &TemplateDefinition) -> AppResult<()> {
             return Err(invalid("The template refers to an image it does not have."));
         }
     }
+    check_background(def, &def.background)?;
+    if let Some(logo) = &def.logo {
+        check_placed(def, logo)?;
+    }
     for (role, layout) in &def.roles {
         if !ROLES.contains(&role.as_str()) {
             return Err(invalid(format!("“{role}” is not a kind of slide.")));
+        }
+        if let Some(bg) = &layout.background {
+            check_background(def, bg)?;
+        }
+        for d in &layout.decorations {
+            check_placed(def, d)?;
+        }
+        for r in &layout.rects {
+            check_box(def, r.x, r.y, r.w, r.h)?;
+            for c in [&r.fill, &r.line].into_iter().flatten() {
+                if !is_hex(c) {
+                    return Err(invalid(format!("“{c}” is not a colour.")));
+                }
+            }
+            if !r.fill_opacity.is_none_or(|o| (0.0..=1.0).contains(&o))
+                || !(0.0..=100.0).contains(&r.line_width)
+            {
+                return Err(invalid("A band of the template is not usable."));
+            }
+        }
+        if let Some(i) = &layout.image {
+            check_box(def, i.x, i.y, i.w, i.h)?;
         }
         for frame in [&layout.title, &layout.reference, &layout.body]
             .into_iter()
@@ -469,7 +495,75 @@ pub fn validate(def: &TemplateDefinition) -> AppResult<()> {
     Ok(())
 }
 
+/// A box with real, positive sizes near the page (numbers that PowerPoint accepts).
+fn check_box(def: &TemplateDefinition, x: f32, y: f32, w: f32, h: f32) -> AppResult<()> {
+    let ok = [x, y, w, h].iter().all(|v| v.is_finite())
+        && w > 0.0
+        && h > 0.0
+        && w <= def.width * 4.0
+        && h <= def.height * 4.0
+        && x > -def.width
+        && y > -def.height
+        && x < def.width * 2.0
+        && y < def.height * 2.0;
+    if ok {
+        Ok(())
+    } else {
+        Err(invalid("A box of the template is not usable."))
+    }
+}
+
+fn check_crop(c: &Crop) -> AppResult<()> {
+    let ok = [c.left, c.top, c.right, c.bottom]
+        .iter()
+        .all(|v| v.is_finite() && (0.0..1.0).contains(v))
+        && c.left + c.right < 1.0
+        && c.top + c.bottom < 1.0;
+    if ok {
+        Ok(())
+    } else {
+        Err(invalid("A picture's crop is not usable."))
+    }
+}
+
+fn check_placed(def: &TemplateDefinition, p: &Placed) -> AppResult<()> {
+    check_box(def, p.x, p.y, p.w, p.h)?;
+    check_crop(&p.crop)?;
+    if !p.opacity.is_none_or(|o| (0.0..=1.0).contains(&o)) {
+        return Err(invalid("A picture's transparency is not usable."));
+    }
+    Ok(())
+}
+
+fn check_background(_def: &TemplateDefinition, b: &Background) -> AppResult<()> {
+    if let Some(c) = &b.color {
+        if !is_hex(c) {
+            return Err(invalid(format!("“{c}” is not a colour.")));
+        }
+    }
+    if let Some(i) = &b.image {
+        check_crop(&i.crop)?;
+    }
+    Ok(())
+}
+
 fn check_frame(def: &TemplateDefinition, f: &TextFrame) -> AppResult<()> {
+    check_box(def, f.x, f.y, f.w, f.h)?;
+    let numbers_ok = f
+        .inset
+        .iter()
+        .all(|v| v.is_finite() && (0.0..=200.0).contains(v))
+        && f.line_spacing.is_finite()
+        && (0.5..=4.0).contains(&f.line_spacing)
+        && f.min_size.is_finite()
+        && (f.fit != "shrink" || (4.0..=400.0).contains(&f.min_size));
+    if !numbers_ok
+        || !matches!(f.fit.as_str(), "shrink" | "none")
+        || !matches!(f.align.as_str(), "left" | "center" | "right")
+        || !matches!(f.valign.as_str(), "top" | "middle" | "bottom")
+    {
+        return Err(invalid("A text box of the template is not usable."));
+    }
     let on_page = f.w > 0.0
         && f.h > 0.0
         && f.x > -def.width

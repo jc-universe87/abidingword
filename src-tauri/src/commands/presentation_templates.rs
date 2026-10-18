@@ -157,6 +157,16 @@ pub fn presentation_template_import_package(
     path: String,
 ) -> CommandResult<PresentationTemplate> {
     let path = PathBuf::from(path.trim());
+    let size = std::fs::metadata(&path)
+        .map_err(|e| AppError::filesystem(&path, e))?
+        .len();
+    if size > PPTX_MAX {
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "presentation.templateFileLarge",
+            "This file is too large to read as a template.",
+        ))
+        .into());
+    }
     let text = std::fs::read_to_string(&path).map_err(|e| AppError::filesystem(&path, e))?;
     let package = template_store::unpack(&text, &kept(&state)?)?;
     let name = path
@@ -211,7 +221,7 @@ pub fn presentation_template_preview(
     };
     let fonts = super::presentations::layout_fonts(&input.definition.families());
     let shaper = crate::presentation::text::Shaper { fonts: &fonts };
-    Ok(input
+    let pages = input
         .slides
         .into_iter()
         .map(|s| {
@@ -228,7 +238,8 @@ pub fn presentation_template_preview(
                 &input.locale,
             )
         })
-        .collect())
+        .collect();
+    Ok(super::presentations::for_screen(pages, &fonts))
 }
 
 /// A PowerPoint file larger than this is not read (bytes).

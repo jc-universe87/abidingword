@@ -366,7 +366,8 @@
       "verticalText": "Texte vertical",
       "media": "Vidéo et son",
       "imageFormat": "Formats d'image impossibles à afficher (EMF, WMF, TIFF…)",
-      "contentPlaceholder": "Espaces réservés pour tableaux, graphiques ou médias"
+      "contentPlaceholder": "Espaces réservés pour tableaux, graphiques ou médias",
+      "offPage": "Les éléments sans taille ou loin hors de la diapositive sont laissés de côté"
     },
     "fonts": "Polices",
     "fontsHint": "Une police n'est remplacée que si vous en choisissez une. Votre choix est gardé avec le modèle.",
@@ -490,6 +491,7 @@
       "bottom": "En bas"
     },
     "textColor": "Couleur",
-    "shrink": "Réduire un texte long pour qu'il tienne (jusqu'à une taille lisible)"
+    "shrink": "Réduire un texte long pour qu'il tienne (jusqu'à une taille lisible)",
+    "layoutFailed": "Les diapositives n'ont pas pu être affichées dans le modèle ({{message}}). Elles sont affichées avec la disposition intégrée ; les exports utilisent toujours le modèle."
   }
 }

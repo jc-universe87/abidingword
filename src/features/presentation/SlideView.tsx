@@ -43,7 +43,8 @@ export function SlideView({ slide, kind, theme, image = null, overlay = null, bl
   if (page) {
     return (
       <div role="group" aria-label={label} className={`relative w-full overflow-hidden ${className}`} style={{ aspectRatio: `${page.width} / ${page.height}`, backgroundColor: page.background }}>
-        {blank || slide.blank ? null : <TemplateSlide page={page} images={images} showOverflow={showOverflow} />}
+        {/* A pause slide keeps the template's background (the core left out its content); only the speaker's blank screen is plain. */}
+        {blank ? null : <TemplateSlide page={page} images={images} showOverflow={showOverflow} />}
         {!blank && marks && <MarksLayer marks={marks} />}
       </div>
     );

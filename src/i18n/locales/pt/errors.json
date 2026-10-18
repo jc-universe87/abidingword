@@ -177,6 +177,17 @@
     "otherTeaching": "Essa parte pertence a outro ensino.",
     "tooLong": "Este texto é longo demais para o slide.",
     "tooMany": "Esta apresentação já tem todos os slides que pode ter.",
-    "targetTooLong": "O tempo previsto pode ser de no máximo dez horas."
+    "targetTooLong": "O tempo previsto pode ser de no máximo dez horas.",
+    "templateNotPptx": "Este arquivo não é uma apresentação do PowerPoint (.pptx) que possa ser lida.",
+    "templateTooLarge": "Esta apresentação é grande demais para ser lida como modelo.",
+    "templateFileLarge": "Este arquivo é grande demais para ser lido como modelo.",
+    "templateInvalid": "Este modelo não pode ser usado: algo nele não é válido.",
+    "templateImage": "Este arquivo não é uma imagem PNG, JPEG, GIF ou WebP.",
+    "templateImageLarge": "Esta imagem é grande demais para um modelo.",
+    "templateImageGone": "Falta uma imagem deste modelo neste computador.",
+    "templatePackage": "Este arquivo não é um modelo do Abiding Word.",
+    "templateNewer": "Este modelo foi criado com uma versão mais nova do Abiding Word.",
+    "templateDescriptionLong": "Esta descrição é longa demais para ser salva.",
+    "tooManySlides": "Slides demais para mostrar de uma vez."
   }
 }
