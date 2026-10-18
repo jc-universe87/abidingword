@@ -55,25 +55,28 @@ export function useListDrag(onMove: (from: number, to: number) => void) {
   }, []);
 
   // Near the top or bottom edge of the scrolling area, keep scrolling while the pointer stays there.
-  const autoScroll = useCallback(() => {
-    const s = state.current;
-    if (!s) return;
-    const box = scroller(listRef.current);
-    const top = box ? box.getBoundingClientRect().top : 0;
-    const bottom = box ? box.getBoundingClientRect().bottom : window.innerHeight;
-    let delta = 0;
-    if (s.y < top + EDGE) delta = -Math.ceil(((top + EDGE - s.y) / EDGE) * SPEED);
-    else if (s.y > bottom - EDGE) delta = Math.ceil(((s.y - (bottom - EDGE)) / EDGE) * SPEED);
-    if (delta !== 0) {
-      if (box) box.scrollTop += delta;
-      else window.scrollBy(0, delta);
-      const to = placeAt(s.y);
-      if (to !== s.to) {
-        s.to = to;
-        setDrag({ from: s.from, to });
+  const scrollStep = useRef<() => void>(() => undefined);
+  useEffect(() => {
+    scrollStep.current = () => {
+      const s = state.current;
+      if (!s) return;
+      const box = scroller(listRef.current);
+      const top = box ? box.getBoundingClientRect().top : 0;
+      const bottom = box ? box.getBoundingClientRect().bottom : window.innerHeight;
+      let delta = 0;
+      if (s.y < top + EDGE) delta = -Math.ceil(((top + EDGE - s.y) / EDGE) * SPEED);
+      else if (s.y > bottom - EDGE) delta = Math.ceil(((s.y - (bottom - EDGE)) / EDGE) * SPEED);
+      if (delta !== 0) {
+        if (box) box.scrollTop += delta;
+        else window.scrollBy(0, delta);
+        const to = placeAt(s.y);
+        if (to !== s.to) {
+          s.to = to;
+          setDrag({ from: s.from, to });
+        }
       }
-    }
-    s.frame = requestAnimationFrame(autoScroll);
+      s.frame = requestAnimationFrame(() => scrollStep.current());
+    };
   }, [placeAt]);
 
   useEffect(() => {
@@ -99,7 +102,7 @@ export function useListDrag(onMove: (from: number, to: number) => void) {
       e.currentTarget.setPointerCapture?.(e.pointerId);
       state.current = { from: index, to: index, pointerId: e.pointerId, y: e.clientY, frame: null };
       setDrag({ from: index, to: index });
-      state.current.frame = requestAnimationFrame(autoScroll);
+      state.current.frame = requestAnimationFrame(() => scrollStep.current());
     },
     onPointerMove: (e: ReactPointerEvent<HTMLElement>) => {
       const s = state.current;
