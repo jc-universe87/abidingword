@@ -90,7 +90,8 @@ export function WorkspaceLayout({ layout, scripture, study, sources }: Workspace
           id="pane-study"
           aria-labelledby="pane-study-title"
           style={{ minWidth: Math.min(STUDY_MIN, room) }}
-          className="flex min-w-0 flex-1 flex-col bg-bg"
+          // The current work: the most contrast with its text (tokens.css, "Workspace panes").
+          className="flex min-w-0 flex-1 flex-col bg-pane-work"
         >
           {body}
         </main>
@@ -103,7 +104,8 @@ export function WorkspaceLayout({ layout, scripture, study, sources }: Workspace
         // Flex may shrink a side pane below its saved width when the window
         // is small; the saved width is kept for when there is room again.
         style={{ width: widths[pane] }}
-        className="flex min-w-0 shrink flex-col bg-bg-secondary"
+        // Supporting panes sit back from the work: Scripture one step, Sources two.
+        className={`flex min-w-0 shrink flex-col ${pane === "scripture" ? "bg-pane-scripture" : "bg-pane-sources"}`}
       >
         {body}
       </aside>

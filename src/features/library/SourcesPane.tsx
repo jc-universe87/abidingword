@@ -111,14 +111,14 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
         {recent.error && <p className="m-0 text-[0.9375rem] text-danger">{recent.error.message}</p>}
         {recent.data === undefined ? null : empty ? (
           <section aria-labelledby="library-heading" className="flex flex-col items-start gap-3">
-            <h3 id="library-heading" tabIndex={-1} className="m-0 text-[1.0625rem] font-semibold text-text-strong">{t("library.pane.libraryHeading")}</h3>
+            <h3 id="library-heading" tabIndex={-1} className="type-subhead m-0 font-semibold">{t("library.pane.libraryHeading")}</h3>
             <p className="m-0 text-[0.9375rem] text-text-muted">{t("library.pane.empty")}</p>
             <Button onClick={addSource}>{t("library.addToLibraryEllipsis")}</Button>
           </section>
         ) : (
           <>
             <section aria-labelledby="mentions-heading" className="flex flex-col gap-2">
-              <h3 id="mentions-heading" tabIndex={-1} className="m-0 text-[1.0625rem] font-semibold text-text-strong">
+              <h3 id="mentions-heading" tabIndex={-1} className="type-subhead m-0 font-semibold">
                 {t("library.pane.sourcesFor", { passage: label })}
               </h3>
               {sources.error && <p className="m-0 text-[0.9375rem] text-danger">{sources.error.message}</p>}
@@ -137,11 +137,11 @@ export function SourcesPane({ reading, onCloseReader, onExpandReader }: SourcesP
               )}
             </section>
             <section aria-labelledby="recent-heading" className="flex flex-col gap-2">
-              <h3 id="recent-heading" className="m-0 text-[1.0625rem] font-semibold text-text-strong">{t("library.pane.recent")}</h3>
+              <h3 id="recent-heading" className="type-subhead m-0 font-semibold">{t("library.pane.recent")}</h3>
               <ul className="m-0 flex list-none flex-col p-0">
                 {(recent.data ?? []).slice(0, 5).map((s) => (
                   <li key={s.id}>
-                    <button type="button" onClick={() => openSource(s.id)} className="w-full py-1 text-left text-[0.9375rem] text-text-strong hover:underline">
+                    <button type="button" onClick={() => openSource(s.id)} className="w-full py-1 text-left text-[0.9375rem] text-text hover:underline">
                       {s.title}{s.author ? <span className="text-text-muted">{t("common.listSeparator")}{s.author}</span> : null}
                     </button>
                   </li>

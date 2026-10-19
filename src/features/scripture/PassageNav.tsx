@@ -7,9 +7,10 @@ import { useScripture } from "./ScriptureContext";
 
 const field =
   "h-10 min-w-0 rounded-aw border border-border bg-bg px-2 text-[0.9375rem] text-text";
+// Quiet around the text: the arrows need no box of their own.
 const iconButton =
-  "inline-flex size-10 shrink-0 items-center justify-center rounded-aw border border-border text-text-strong " +
-  "hover:bg-bg disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex size-10 shrink-0 items-center justify-center rounded-aw text-text-strong " +
+  "hover:bg-bg-secondary disabled:cursor-not-allowed disabled:opacity-40";
 
 /** Book and chapter pickers, previous/next, and a typed-reference box. */
 export function PassageNav() {
@@ -45,7 +46,7 @@ export function PassageNav() {
   return (
     <div className="flex flex-col gap-3">
       <form onSubmit={submit} className="flex flex-col gap-1" noValidate>
-        <label htmlFor="scripture-go-to" className="text-[0.9375rem] font-medium text-text-strong">
+        <label htmlFor="scripture-go-to" className="type-meta font-medium">
           {t("scripture.nav.goToLabel")}
         </label>
         <div className="flex gap-2">
@@ -58,7 +59,7 @@ export function PassageNav() {
             aria-describedby={error ? `${id}-error` : undefined}
             className={`${field} flex-1 px-3 placeholder:text-text-muted`}
           />
-          <button type="submit" className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-bg">
+          <button type="submit" className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-bg-secondary">
             {t("scripture.nav.go")}
           </button>
         </div>
@@ -89,7 +90,7 @@ export function PassageNav() {
           <ChevronLeft className="size-5" aria-hidden="true" />
         </button>
         <label className="flex min-w-0 flex-1 items-center gap-2">
-          <span className="text-[0.9375rem] text-text-muted">{t("scripture.nav.chapter")}</span>
+          <span className="type-meta">{t("scripture.nav.chapter")}</span>
           <select
             value={location.chapter}
             onChange={(e) => goToChapter(location.book, Number(e.target.value))}

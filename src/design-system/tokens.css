@@ -217,3 +217,68 @@
   --aw-border: #454545;
   --aw-border-subtle: #303030;
 }
+
+/*
+ * Workspace panes (v0.18.4): the Study or Teaching being worked on is the
+ * person's current work and has the most contrast with its text; Scripture
+ * sits one step closer to the middle, Sources two. In Light the work pane is
+ * the brightest surface; in Dark it is the deepest (the page), each supporting
+ * pane a step lighter. `field` is the soft fill of text fields in the work pane:
+ * the Scripture step, one back from the work in either theme, so a field reads
+ * as a place to write without an outline. tests/ui/appearance-themes.test.tsx
+ * checks the order, the size of each step and the contrast of all twelve.
+ */
+:root {
+  --aw-pane-work: #fcfbf8;
+  --aw-pane-scripture: var(--aw-bg);
+  --aw-pane-sources: var(--aw-bg-secondary);
+  --aw-field: var(--aw-pane-scripture);
+}
+
+[data-theme="dark"] {
+  --aw-pane-work: var(--aw-bg);
+  --aw-pane-scripture: #1a2e24;
+  --aw-pane-sources: var(--aw-bg-secondary);
+}
+
+[data-theme="light"][data-paper="cream"] {
+  --aw-pane-work: #fefdfa;
+}
+
+[data-theme="light"][data-paper="sage"] {
+  --aw-pane-work: #fafbf8;
+}
+
+[data-theme="light"][data-paper="stone"] {
+  --aw-pane-work: #faf9f8;
+}
+
+[data-theme="light"][data-paper="mist"] {
+  --aw-pane-work: #fafbfb;
+}
+
+/* Clear is already near white: its work pane is white and Scripture steps back instead. */
+[data-theme="light"][data-paper="clear"] {
+  --aw-pane-work: #ffffff;
+  --aw-pane-scripture: #f6f6f4;
+}
+
+[data-theme="dark"][data-paper="cream"] {
+  --aw-pane-scripture: #23201a;
+}
+
+[data-theme="dark"][data-paper="sage"] {
+  --aw-pane-scripture: #1e2520;
+}
+
+[data-theme="dark"][data-paper="stone"] {
+  --aw-pane-scripture: #22201e;
+}
+
+[data-theme="dark"][data-paper="mist"] {
+  --aw-pane-scripture: #1c2228;
+}
+
+[data-theme="dark"][data-paper="clear"] {
+  --aw-pane-scripture: #202020;
+}

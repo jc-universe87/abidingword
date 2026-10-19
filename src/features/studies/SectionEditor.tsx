@@ -136,7 +136,7 @@ export function SectionEditor(props: SectionEditorProps) {
       ) : (
         <div className="flex items-center gap-2">
           {/* The heading folds the part away and opens it again. */}
-          <h2 id={headingId} tabIndex={-1} className="m-0 min-w-0 font-display text-[1.375rem] font-heading text-text-strong">
+          <h2 id={headingId} tabIndex={-1} className="type-section m-0 min-w-0">
             <button
               type="button"
               aria-expanded={!collapsed}
@@ -148,7 +148,7 @@ export function SectionEditor(props: SectionEditorProps) {
               <span className="min-w-0 break-words">{title}</span>
             </button>
           </h2>
-          {collapsed && noteCount > 0 && <span className="shrink-0 text-[0.875rem] text-text-muted">{t("studies.findingCount", { count: noteCount })}</span>}
+          {collapsed && noteCount > 0 && <span className="type-meta shrink-0">{t("studies.findingCount", { count: noteCount })}</span>}
           <button
             ref={manageToggle}
             type="button"
@@ -206,7 +206,7 @@ export function SectionEditor(props: SectionEditorProps) {
         </div>
       )}
       <div id={bodyId} hidden={collapsed}>
-      {guidance && <p className="mb-2 mt-0 text-[0.9375rem] text-text-muted">{guidance}</p>}
+      {guidance && <p className="type-meta mb-2 mt-0">{guidance}</p>}
 
       <div className="flex flex-col gap-1">
         {section.blocks.map((block, index) => (
@@ -264,7 +264,7 @@ function RenameForm({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={(e) => e.key === "Escape" && onCancel()}
-        className="h-11 min-w-0 flex-1 rounded-aw border border-border bg-bg px-3 font-display text-[1.375rem] font-heading text-text-strong"
+        className="type-section h-11 min-w-0 flex-1 rounded-aw border border-border bg-field px-3"
       />
       <Button type="submit" variant="primary">
         {t("common.save")}

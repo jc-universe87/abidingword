@@ -50,7 +50,9 @@ async function present(api: ReturnType<typeof createMemoryApi>) {
   const study = screen.getByRole("main", { name: "Study" });
   await within(study).findByRole("textbox", { name: "Study title" });
   await user.click(within(study).getByRole("button", { name: "Bible Teaching" }));
-  await user.click(await within(study).findByRole("button", { name: "Presentation" }));
+  await user.click(await within(study).findByRole("button", { name: "Materials" }));
+  // Materials (v0.18.4): the teaching's outputs; the presentation is one of them.
+  await user.click(await screen.findByRole("menuitem", { name: /^Presentation/ }));
   const region = await within(study).findByRole("region", { name: "Presentation of “Remain in the vine”" });
   await user.click(within(region).getByRole("button", { name: "Make slides from the teaching" }));
   await waitFor(() => expect(within(region).getByRole("button", { name: "Start Presenter View" })).toBeEnabled());

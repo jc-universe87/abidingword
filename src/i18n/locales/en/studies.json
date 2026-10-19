@@ -990,6 +990,11 @@
       "image": {
         "explanation": "What it shows, and when you show it"
       }
+    },
+    "materials": {
+      "open": "Materials",
+      "presentation": "Presentation",
+      "presentationHint": "Slides for the screen, made from this teaching"
     }
   },
   "parts": {

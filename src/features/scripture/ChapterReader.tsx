@@ -110,10 +110,10 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
   return (
     <div ref={container} className="flex flex-col gap-4">
       <header>
-        <h2 className="m-0 font-display text-[1.5rem] font-heading text-text-strong">
+        <h2 className="type-title m-0">
           {passage}
         </h2>
-        <p className="m-0 text-[0.9375rem] text-text-muted">
+        <p className="type-meta m-0 mt-0.5">
           {translation.name}
           {selection && selection.book === book ? (
             <>

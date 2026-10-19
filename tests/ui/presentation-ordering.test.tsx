@@ -26,7 +26,9 @@ async function slides(user: User) {
   await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /Abiding/ }));
   await within(pane()).findByRole("textbox", { name: "Study title" });
   await user.click(within(pane()).getByRole("button", { name: "Bible Teaching" }));
-  await user.click(await within(pane()).findByRole("button", { name: "Presentation" }));
+  await user.click(await within(pane()).findByRole("button", { name: "Materials" }));
+  // Materials (v0.18.4): the teaching's outputs; the presentation is one of them.
+  await user.click(await screen.findByRole("menuitem", { name: /^Presentation/ }));
   const region = await within(pane()).findByRole("region", { name: "Presentation of “Remain in the vine”" });
   await user.click(within(region).getByRole("button", { name: "Make slides from the teaching" }));
   const list = await within(region).findByRole("list", { name: "Slides" });

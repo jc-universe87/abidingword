@@ -78,14 +78,14 @@ export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
             <SearchResultsView />
           ) : (
             <>
-              <div role="group" aria-label={t("scripture.marks.viewLabel")} className="flex self-start rounded-aw border border-border p-0.5">
+              <div role="group" aria-label={t("scripture.marks.viewLabel")} className="-ml-2 flex flex-wrap self-start">
                 {(["bible", "marks", "concordance"] as const).map((v) => (
                   <button
                     key={v}
                     type="button"
                     aria-pressed={view === v}
                     onClick={() => choose(v)}
-                    className="min-h-9 rounded-[4px] px-3 font-ui text-[0.9375rem] text-text-strong hover:bg-bg-secondary aria-pressed:bg-primary aria-pressed:text-on-primary"
+                    className="aw-tab"
                   >
                     {t(`scripture.marks.${v}`)}
                   </button>

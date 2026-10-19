@@ -122,6 +122,36 @@ describe("twelve calm palettes", () => {
     }
   });
 
+  it.each(FAMILIES.flatMap((f) => [[f, "light"] as const, [f, "dark"] as const]))(
+    "%s (%s): the work pane leads, Scripture one step back, Sources two, all readable (v0.18.4)",
+    (family, mode) => {
+      const t = tokens(family, mode);
+      const [work, scripture, sources, field] = ["--aw-pane-work", "--aw-pane-scripture", "--aw-pane-sources", "--aw-field"].map((n) => {
+        expect(t[n], `${family} ${mode} ${n}`).toMatch(/^#[0-9a-f]{6}$/);
+        return t[n]!;
+      }) as [string, string, string, string];
+      // The work has the most contrast with the text: brightest in Light, deepest in Dark.
+      const order = [work, scripture, sources].map(luminance);
+      if (mode === "light") expect(order[0]! > order[1]! && order[1]! > order[2]!).toBe(true);
+      else expect(order[0]! < order[1]! && order[1]! < order[2]!).toBe(true);
+      // Each step is visible but calm (no strong panels).
+      for (const [a, b] of [[work, scripture], [scripture, sources]] as const) {
+        expect(contrast(a, b), `${family} ${mode} step`).toBeGreaterThan(1.04);
+        expect(contrast(a, b), `${family} ${mode} step`).toBeLessThan(1.25);
+      }
+      // Text, muted text, links and the focus ring keep their contrast on every pane.
+      for (const pane of [work, scripture, sources]) {
+        expect(contrast(t["--aw-text"]!, pane)).toBeGreaterThan(9);
+        expect(contrast(t["--aw-text-muted"]!, pane)).toBeGreaterThan(5);
+        expect(contrast(t["--aw-link"]!, pane)).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(t["--aw-focus-ring"]!, pane)).toBeGreaterThanOrEqual(3);
+      }
+      // A field is one step back from the work it sits in, and its text reads as well as body text.
+      expect(field).toBe(scripture);
+      expect(contrast(t["--aw-text"]!, field)).toBeGreaterThan(9);
+    },
+  );
+
   it("each family's dark variant is its own (not one shared dark)", () => {
     const darks = FAMILIES.map((f) => tokens(f, "dark")["--aw-bg"]);
     expect(new Set(darks).size).toBe(FAMILIES.length);

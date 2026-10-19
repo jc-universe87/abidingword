@@ -290,14 +290,14 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
         </div>
         {/* One quiet line under the title: the two ways of working, the passages, the details. */}
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.9375rem] text-text-muted">
-          <div role="group" aria-label={t("studies.view.label")} className="flex gap-0.5 rounded-aw border border-border-subtle p-0.5">
+          <div role="group" aria-label={t("studies.view.label")} className="-ml-2 flex">
             {(["study", "teaching"] as const).map((v) => (
               <button
                 key={v}
                 type="button"
                 aria-pressed={view === v}
                 onClick={() => setView(v)}
-                className="min-h-11 rounded-aw px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-bg-secondary aria-pressed:bg-primary aria-pressed:text-on-primary"
+                className="aw-tab"
               >
                 {t(`studies.view.${v}`)}
               </button>

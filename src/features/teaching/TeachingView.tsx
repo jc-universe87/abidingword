@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowUp, ChevronRight, Plus, Presentation, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, FolderOpen, Plus, Presentation, Trash2 } from "lucide-react";
+import { ActionMenu } from "@/design-system/ActionMenu";
 import { Button } from "@/design-system/Button";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
@@ -79,40 +80,54 @@ export function TeachingView({ studyId, studyTitle, findings, onRevealScripture 
     );
   }
 
+  // One study can lead to several teachings: the way to another is always at hand, with the
+  // choice between them once there is more than one. Quiet, in the open teaching's details line.
+  const switcher = (
+    <span className="flex flex-wrap items-center gap-x-2">
+      {preparations.length > 1 && (
+        <>
+          <label htmlFor={`${id}-which`} className="type-meta">
+            {t("studies.teaching.which")}
+          </label>
+          <select
+            id={`${id}-which`}
+            value={currentId ?? ""}
+            onChange={(e) => {
+              setChosen(e.target.value);
+              // The picker is part of the teaching shown, so it is drawn anew: the keyboard stays on it.
+              requestAnimationFrame(() => document.getElementById(`${id}-which`)?.focus());
+            }}
+            className="h-11 min-w-0 max-w-full rounded-aw border border-border-subtle bg-field px-2 text-[0.9375rem]"
+          >
+            {preparations.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.kind ? `${p.title} · ${teachingKindLabel(t, p.kind)}` : p.title}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
+      <button
+        // Drawn with the open teaching (once it has loaded): focus that was waiting for it lands here.
+        ref={(el) => {
+          anotherButton.current = el;
+          if (el && focusAnother.current) {
+            focusAnother.current = false;
+            el.focus();
+          }
+        }}
+        type="button"
+        onClick={() => setCreating(true)}
+        className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.875rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+      >
+        <Plus className="size-4" aria-hidden="true" />
+        {t("studies.teaching.another")}
+      </button>
+    </span>
+  );
+
   return (
     <div className="flex flex-col gap-3">
-      {/* One study can lead to several teachings: the way to another is always in sight, with the
-          choice between them once there is more than one. */}
-      <div className="flex flex-wrap items-center gap-2">
-        {preparations.length > 1 && (
-          <>
-            <label htmlFor={`${id}-which`} className="text-[0.9375rem] text-text-muted">
-              {t("studies.teaching.which")}
-            </label>
-            <select
-              id={`${id}-which`}
-              value={currentId ?? ""}
-              onChange={(e) => setChosen(e.target.value)}
-              className="h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2 text-[0.9375rem]"
-            >
-              {preparations.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.kind ? `${p.title} · ${teachingKindLabel(t, p.kind)}` : p.title}
-                </option>
-              ))}
-            </select>
-          </>
-        )}
-        <button
-          ref={anotherButton}
-          type="button"
-          onClick={() => setCreating(true)}
-          className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] font-medium text-link hover:bg-bg-secondary"
-        >
-          <Plus className="size-4" aria-hidden="true" />
-          {t("studies.teaching.another")}
-        </button>
-      </div>
       {currentId && (
         <AssistDockProvider key={currentId}>
         <TeachingEditor
@@ -129,6 +144,7 @@ export function TeachingView({ studyId, studyTitle, findings, onRevealScripture 
           }}
           onRevealScripture={onRevealScripture}
           startOpen={fresh === currentId}
+          switcher={switcher}
         />
         </AssistDockProvider>
       )}
@@ -191,7 +207,7 @@ function NewTeaching({
       aria-labelledby={`${id}-title`}
       className="flex flex-col gap-4 rounded-aw border border-border-subtle bg-bg-secondary px-5 py-4"
     >
-      <h3 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.375rem] font-heading text-text-strong">
+      <h3 id={`${id}-title`} ref={heading} tabIndex={-1} className="type-worktitle m-0">
         {first ? t("studies.teaching.empty.title") : t("studies.teaching.another")}
       </h3>
       {first && <p className="m-0 max-w-prose text-text">{t("studies.teaching.empty.text")}</p>}
@@ -222,7 +238,7 @@ function NewTeaching({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder={suggested}
-          className="h-11 rounded-aw border border-border bg-bg px-3 text-[1rem] placeholder:text-text-muted"
+          className="h-11 rounded-aw border border-border bg-field px-3 text-[1rem] placeholder:text-text-muted"
         />
       </label>
       {error && (
@@ -257,9 +273,11 @@ interface EditorProps {
   onRevealScripture: () => void;
   /** Just created: "About this teaching" starts open. */
   startOpen: boolean;
+  /** The way to another teaching of this study (and the choice between them). */
+  switcher: ReactNode;
 }
 
-function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDeleted, onRevealScripture, startOpen }: EditorProps) {
+function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDeleted, onRevealScripture, startOpen, switcher }: EditorProps) {
   const { t } = useTranslation();
   const api = useApi();
   const loaded = useLoad(useCallback(() => api.teachingGet(preparationId), [api, preparationId]));
@@ -272,7 +290,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
   // "About this teaching" (kind, audience, purpose, what it uses) stays folded away unless wanted:
   // open only right after the teaching was created, so its details can be filled in.
   const [aboutOpen, setAboutOpen] = useState(startOpen);
-  // How the teaching is delivered (v0.18): its presentation, made from it, shown in its place.
+  // What the teaching becomes (Materials, v0.18.4): today its presentation, made from it, shown in its place.
   const [delivering, setDelivering] = useState(false);
   const dock = useAssistDock();
   const [wholeRequest, setWholeRequest] = useState(0);
@@ -427,7 +445,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         labels={{ introduction: shape("introduction"), conclusion: shape("conclusion") }}
         onBack={() => {
           setDelivering(false);
-          requestAnimationFrame(() => document.getElementById(`present-${prep.id}`)?.focus());
+          requestAnimationFrame(() => document.getElementById(`materials-${prep.id}`)?.focus());
         }}
       />
     );
@@ -435,45 +453,68 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
 
   return (
     <article aria-label={prep.title} className="flex flex-col gap-5">
-      <header className="flex flex-col gap-1">
-        <TeachingField
-          key={`title-${prep.id}`}
-          label={t("studies.teaching.titleLabel")}
-          value={prep.title}
-          save={(value) =>
-            value.trim()
-              ? save("title")(value).then((next) => {
-                  onRenamed();
-                  return next;
-                })
-              : Promise.resolve()
-          }
-          part="pointTitle"
-          multiline={false}
-          emphasis
-          assistant={null}
-        />
-        <div className="flex flex-wrap items-center gap-1">
+      {/* The open teaching in two lines: its title with what it becomes (Materials), then its
+          details folded into one quiet line, with the way to another teaching. */}
+      <header className="flex flex-col gap-0.5">
+        {/* In a narrow pane Materials moves under the title rather than squeezing it. */}
+        <div className="flex flex-wrap items-start gap-x-2">
+          <div className="min-w-0 flex-1 basis-64 pt-1">
+            <TeachingField
+              key={`title-${prep.id}`}
+              label={t("studies.teaching.titleLabel")}
+              value={prep.title}
+              save={(value) =>
+                value.trim()
+                  ? save("title")(value).then((next) => {
+                      onRenamed();
+                      return next;
+                    })
+                  : Promise.resolve()
+              }
+              part="pointTitle"
+              multiline={false}
+              emphasis="title"
+              assistant={null}
+            />
+          </div>
+          <ActionMenu
+            label={t("studies.teaching.materials.open")}
+            buttonId={`materials-${prep.id}`}
+            className="ml-auto shrink-0"
+            trigger={
+              <>
+                <FolderOpen className="size-4" aria-hidden="true" />
+                {t("studies.teaching.materials.open")}
+                <ChevronDown className="size-4 text-text-muted" aria-hidden="true" />
+              </>
+            }
+            actions={[
+              {
+                label: t("studies.teaching.materials.presentation"),
+                description: t("studies.teaching.materials.presentationHint"),
+                icon: <Presentation className="size-4 shrink-0 self-start mt-1" aria-hidden="true" />,
+                onSelect: () => setDelivering(true),
+              },
+            ]}
+          />
+        </div>
+        {/* One line: the summary gives way (shortened) to the way to another teaching; the
+            details themselves are one click away. */}
+        <div className="flex flex-wrap items-center gap-x-1">
           <button
             type="button"
             aria-expanded={aboutOpen}
             aria-controls={`about-${prep.id}`}
             onClick={toggleAbout}
-            className="inline-flex min-h-11 min-w-0 flex-wrap items-center gap-x-2 rounded-aw px-2 text-left text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+            className="-ml-2 inline-flex min-h-11 min-w-0 max-w-full flex-1 basis-64 items-center gap-x-2 rounded-aw px-2 text-left hover:bg-bg-secondary"
           >
-            <ChevronRight className={`size-4 shrink-0 transition-transform ${aboutOpen ? "rotate-90" : ""}`} aria-hidden="true" />
-            <span className="font-medium text-text-strong">{t("studies.teaching.about")}</span>
-            <span>{aboutSummary || t("studies.teaching.aboutEmpty")}</span>
+            <ChevronRight className={`size-4 shrink-0 text-text-muted transition-transform ${aboutOpen ? "rotate-90" : ""}`} aria-hidden="true" />
+            <span className="type-subhead shrink-0">{t("studies.teaching.about")}</span>
+            <span className="type-meta min-w-0 truncate" title={aboutSummary || undefined}>
+              {aboutSummary || t("studies.teaching.aboutEmpty")}
+            </span>
           </button>
-          <button
-            id={`present-${prep.id}`}
-            type="button"
-            onClick={() => setDelivering(true)}
-            className="ml-auto inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] font-medium text-link hover:bg-bg-secondary"
-          >
-            <Presentation className="size-4" aria-hidden="true" />
-            {t("presentation.open")}
-          </button>
+          {switcher}
         </div>
       </header>
 
@@ -481,14 +522,14 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         id={`about-${prep.id}`}
         aria-labelledby={`about-title-${prep.id}`}
         hidden={!aboutOpen}
-        className="flex flex-col gap-4 rounded-aw border border-border-subtle px-4 py-3"
+        className="flex flex-col gap-4 rounded-aw bg-bg-secondary/60 px-4 py-3"
       >
         <h3 id={`about-title-${prep.id}`} className="sr-only">
           {t("studies.teaching.about")}
         </h3>
         {kindField}
-        <TeachingField key={`audience-${prep.id}`} label={t("studies.teaching.audience")} value={prep.audience ?? ""} save={save("audience")} part="audience" multiline={false} placeholder={t("studies.teaching.audiencePlaceholder")} assistant={hooks} />
-        <TeachingField key={`purpose-${prep.id}`} label={t("studies.teaching.purpose")} value={prep.purpose ?? ""} save={save("purpose")} part="purpose" multiline={false} placeholder={t("studies.teaching.purposePlaceholder")} assistant={hooks} />
+        <TeachingField key={`audience-${prep.id}`} level="field" label={t("studies.teaching.audience")} value={prep.audience ?? ""} save={save("audience")} part="audience" multiline={false} placeholder={t("studies.teaching.audiencePlaceholder")} assistant={hooks} />
+        <TeachingField key={`purpose-${prep.id}`} level="field" label={t("studies.teaching.purpose")} value={prep.purpose ?? ""} save={save("purpose")} part="purpose" multiline={false} placeholder={t("studies.teaching.purposePlaceholder")} assistant={hooks} />
         <TeachingLinks preparation={prep} pointId={null} scope={t("studies.teaching.links.wholeScope")} studyFindings={findings} onChanged={setPrep} onRevealScripture={onRevealScripture} />
         <div className="flex flex-wrap items-center gap-2">
           {confirmDelete ? (
@@ -533,7 +574,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
 
       <section aria-labelledby={`points-${prep.id}`} className="flex flex-col gap-4">
         <div ref={wholeButton} className="flex flex-wrap items-center justify-between gap-2">
-          <h3 id={`points-${prep.id}`} className="m-0 font-display text-[1.25rem] font-heading text-text-strong">
+          <h3 id={`points-${prep.id}`} className="type-section m-0">
             {shape("title")}
           </h3>
           {hooks && (
@@ -576,9 +617,9 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
           {prep.points.map((point, index) => {
             const name = point.title.trim() || shape("untitled", { number: index + 1 });
             return (
-              <li key={point.id} aria-label={shape("label", { number: index + 1, title: name })} className="flex flex-col gap-3 border-l-[3px] border-accent pl-4">
+              <li key={point.id} aria-label={shape("label", { number: index + 1, title: name })} className="flex flex-col gap-3 border-l-2 border-border pl-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-ui text-[0.875rem] font-semibold text-text-muted">{shape("number", { number: index + 1 })}</span>
+                  <span className="type-meta font-medium">{shape("number", { number: index + 1 })}</span>
                   {/* A step of a lesson says what kind of step it is; its fields follow. */}
                   {shapeName === "steps" && (
                     <select
@@ -661,6 +702,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
                   return (
                     <TeachingField
                       key={`p${field}-${point.id}`}
+                      level="field"
                       label={stepLabel ?? shape(field)}
                       value={point[field]}
                       save={savePoint(point.id, field)}

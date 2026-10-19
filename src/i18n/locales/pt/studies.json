@@ -1000,6 +1000,11 @@
       "image": {
         "explanation": "O que ela mostra e quando você a mostra"
       }
+    },
+    "materials": {
+      "open": "Materiais",
+      "presentation": "Apresentação",
+      "presentationHint": "Slides para a tela, feitos a partir deste ensino"
     }
   },
   "parts": {

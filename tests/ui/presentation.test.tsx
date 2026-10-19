@@ -36,7 +36,9 @@ async function openPresentation(user: User) {
   await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /Abiding/ }));
   await within(studyPane()).findByRole("textbox", { name: "Study title" });
   await user.click(within(studyPane()).getByRole("button", { name: "Bible Teaching" }));
-  await user.click(await within(studyPane()).findByRole("button", { name: "Presentation" }));
+  await user.click(await within(studyPane()).findByRole("button", { name: "Materials" }));
+  // Materials (v0.18.4): the teaching's outputs; the presentation is one of them.
+  await user.click(await screen.findByRole("menuitem", { name: /^Presentation/ }));
   return within(studyPane()).findByRole("region", { name: "Presentation of “Remain in the vine”" });
 }
 
@@ -85,7 +87,7 @@ describe("making a presentation from a Bible Teaching", () => {
     ]);
     // Leaving the presentation goes back to the teaching, focus on its button.
     await user.click(within(region).getByRole("button", { name: "Back to the teaching" }));
-    await waitFor(() => expect(within(studyPane()).getByRole("button", { name: "Presentation" })).toHaveFocus());
+    await waitFor(() => expect(within(studyPane()).getByRole("button", { name: "Materials" })).toHaveFocus());
   });
 
   it("follows the teaching live until the person writes their own wording, and never changes the teaching", async () => {
@@ -955,7 +957,8 @@ describe("in other languages", () => {
     const { user } = await renderApp(api);
     await user.click(within(await screen.findByRole("list", { name: "Bibelstudien" })).getByRole("button", { name: /Abiding/ }));
     await user.click(await within(screen.getByRole("main", { name: /Bibelstudium/ })).findByRole("button", { name: "Bibellehre" }));
-    await user.click(await screen.findByRole("button", { name: "Präsentation" }));
+    await user.click(await screen.findByRole("button", { name: "Unterlagen" }));
+    await user.click(await screen.findByRole("menuitem", { name: /^Präsentation/ }));
     expect(await screen.findByText(/Wähle, was deine Zuhörer sehen/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Folien aus der Bibellehre machen" }));
     expect(await screen.findByRole("button", { name: "Referentenansicht starten" })).toBeInTheDocument();

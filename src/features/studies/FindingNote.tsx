@@ -74,7 +74,7 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
     <li>
       <article
         aria-label={t("studies.findings.itemLabel", { type: label, excerpt })}
-        className="flex flex-col gap-1 border-l-[3px] border-border py-1 pl-4"
+        className="flex flex-col gap-1 border-l-2 border-border py-1 pl-4"
         onKeyDown={(e) => {
           if (e.key === "Escape" && open) {
             e.stopPropagation();
@@ -84,7 +84,7 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
         }}
       >
         {/* Its kind, as a quiet label: the part it is in is the heading it sits under. */}
-        <p className="m-0 text-[0.9375rem] font-medium text-text-muted">{label}</p>
+        <p className="type-meta m-0 font-medium">{label}</p>
 
         <textarea
           aria-label={t("studies.findings.text", { type: label })}
@@ -108,7 +108,7 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
                   goTo(p.reference);
                   onRevealScripture();
                 }}
-                className="min-h-11 rounded-aw border border-border px-2 font-medium text-link hover:bg-bg-secondary"
+                className="-ml-2 min-h-11 rounded-aw px-2 font-medium text-link hover:bg-bg-secondary"
               >
                 {referenceLabel(p.reference)}
               </button>

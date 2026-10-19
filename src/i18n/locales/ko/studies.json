@@ -980,6 +980,11 @@
       "image": {
         "explanation": "무엇을 보여 주며 언제 보여 줄지"
       }
+    },
+    "materials": {
+      "open": "가르침 자료",
+      "presentation": "프레젠테이션",
+      "presentationHint": "이 가르침으로 만드는 화면용 슬라이드"
     }
   },
   "parts": {

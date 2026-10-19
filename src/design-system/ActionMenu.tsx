@@ -6,6 +6,8 @@ export interface MenuAction {
   /** Told the menu's button, where focus can go back to afterwards. */
   onSelect: (opener: HTMLButtonElement | null) => void;
   icon?: ReactNode;
+  /** A line under the label saying what the action makes or does. */
+  description?: string;
 }
 
 /**
@@ -14,7 +16,20 @@ export interface MenuAction {
  * first item, arrow keys move, Escape closes it and gives focus back to the
  * button, Tab leaves it. The menu is part of the page flow, never a modal.
  */
-export function ActionMenu({ label, actions, className = "" }: { label: string; actions: MenuAction[]; className?: string }) {
+export function ActionMenu({
+  label,
+  actions,
+  className = "",
+  trigger,
+  buttonId,
+}: {
+  label: string;
+  actions: MenuAction[];
+  className?: string;
+  /** Visible content of the button (a word and an icon); without it the button is a quiet "⋯". */
+  trigger?: ReactNode;
+  buttonId?: string;
+}) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
@@ -46,16 +61,22 @@ export function ActionMenu({ label, actions, className = "" }: { label: string; 
     <span data-aw-skip="" className={`relative inline-flex select-none ${className}`}>
       <button
         ref={button}
+        id={buttonId}
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? id : undefined}
-        aria-label={label}
-        title={label}
+        // A visible word names the button itself; the "⋯" needs a name.
+        aria-label={trigger ? undefined : label}
+        title={trigger ? undefined : label}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+        className={
+          trigger
+            ? "inline-flex min-h-11 items-center gap-1.5 rounded-aw px-2 text-[0.9375rem] font-medium text-text-strong hover:bg-bg-secondary"
+            : "inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+        }
       >
-        <MoreHorizontal className="size-4" aria-hidden="true" />
+        {trigger ?? <MoreHorizontal className="size-4" aria-hidden="true" />}
       </button>
       {open && (
         <div
@@ -89,10 +110,19 @@ export function ActionMenu({ label, actions, className = "" }: { label: string; 
                 setOpen(false);
                 action.onSelect(button.current);
               }}
-              className="flex min-h-11 items-center gap-2 whitespace-nowrap rounded-[4px] px-3 text-left text-[0.9375rem] text-text-strong hover:bg-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
+              className={`flex min-h-11 items-center gap-2 rounded-[4px] px-3 text-left text-[0.9375rem] text-text-strong hover:bg-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary ${
+                action.description ? "max-w-80 py-1.5" : "whitespace-nowrap"
+              }`}
             >
               {action.icon}
-              {action.label}
+              {action.description ? (
+                <span className="flex flex-col">
+                  <span>{action.label}</span>
+                  <span className="type-meta">{action.description}</span>
+                </span>
+              ) : (
+                action.label
+              )}
             </button>
           ))}
         </div>

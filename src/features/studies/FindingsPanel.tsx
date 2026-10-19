@@ -94,7 +94,7 @@ export function FindingsPanel({ studyId, findings, sections, filter, capturing, 
 
   return (
     <section id="study-findings" aria-labelledby={`${id}-title`} className="scroll-mt-4 flex flex-col gap-3 border-t border-border-subtle pt-4">
-      <h2 id={`${id}-title`} className="m-0 font-display text-[1.25rem] font-heading text-text-strong">
+      <h2 id={`${id}-title`} className="type-section m-0">
         {t("studies.findings.heading")}
       </h2>
 

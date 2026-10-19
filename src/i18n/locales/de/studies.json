@@ -990,6 +990,11 @@
       "image": {
         "explanation": "Was es zeigt und wann du es zeigst"
       }
+    },
+    "materials": {
+      "open": "Unterlagen",
+      "presentation": "Präsentation",
+      "presentationHint": "Folien für die Leinwand, aus dieser Bibellehre gemacht"
     }
   },
   "parts": {

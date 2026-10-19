@@ -215,10 +215,13 @@ describe("teaching preparation", () => {
     expect(within(which).getAllByRole("option").map((o) => o.textContent)).toEqual(["Sermon · Abiding · Sermon", "Group Bible study · Abiding · Group Bible study"]);
     expect(within(studyPane()).getByRole("button", { name: "Prepare another Bible Teaching" })).toBeVisible();
 
-    // Switch both ways.
+    // Switch both ways. The picker sits in the open teaching's details line (v0.18.4), so it is drawn
+    // anew with each teaching; the keyboard stays on it.
+    const picker = () => within(studyPane()).getByRole("combobox", { name: "Teaching:" });
     await user.selectOptions(which, preps[0]!.id);
     expect(field(await within(studyPane()).findByRole("article", { name: "Sermon · Abiding" }), "Introduction")).toHaveValue("Have you pruned a rose?");
-    await user.selectOptions(which, preps[1]!.id);
+    await waitFor(() => expect(picker()).toHaveFocus());
+    await user.selectOptions(picker(), preps[1]!.id);
     await within(studyPane()).findByRole("article", { name: "Group Bible study · Abiding" });
 
     // Cancelling another new teaching changes nothing and returns to the button.

@@ -52,7 +52,8 @@ const openTeaching = async (page) => {
 const openPresentation = async (page) => {
   await openTeaching(page);
   const main = page.getByRole("main");
-  await main.getByRole("button", { name: "Presentation", exact: true }).click();
+  await main.getByRole("button", { name: "Materials", exact: true }).click();
+  await page.getByRole("menuitem", { name: /^Presentation/ }).click();
   await main.getByRole("button", { name: "Make slides from the teaching" }).click();
   await main.getByRole("list", { name: "Slides" }).waitFor();
   await page.waitForTimeout(900);

@@ -37,8 +37,18 @@ interface TeachingFieldProps {
   assistant: AssistantHooks | null;
   onRevealScripture?: () => void;
   autoFocus?: boolean;
-  /** For headings of points: a larger, plainer field. */
-  emphasis?: boolean;
+  /**
+   * A title written by the person, on one line under its own label (shown to
+   * assistive technology only): "title" for the open teaching's name, true
+   * for the title of a point or question.
+   */
+  emphasis?: boolean | "title";
+  /**
+   * How the label reads (v0.18.4): "section" for a part of the whole teaching
+   * (Central message, Introduction), "field" for a field inside a point or the
+   * teaching's details.
+   */
+  level?: "section" | "field";
   /** A stable id for the field, so focus can be moved to it. */
   fieldId?: string;
 }
@@ -50,7 +60,7 @@ interface TeachingFieldProps {
  * person chooses "Use this", and they can undo that straight away.
  */
 export function TeachingField(props: TeachingFieldProps) {
-  const { label, value, save, part, pointId = null, multiline = true, rows = 3, placeholder, hint, assistant, onRevealScripture, autoFocus, emphasis, fieldId } = props;
+  const { label, value, save, part, pointId = null, multiline = true, rows = 3, placeholder, hint, assistant, onRevealScripture, autoFocus, emphasis, level = "section", fieldId } = props;
   const { t } = useTranslation();
   const generated = useId();
   const id = generated;
@@ -161,9 +171,12 @@ export function TeachingField(props: TeachingFieldProps) {
     close(true);
   };
 
+  // Titles are a line to write on; other fields a soft fill (no outline until hovered or in use).
   const field = emphasis
-    ? "block w-full rounded-aw border border-border-subtle bg-transparent px-3 py-2 font-display text-[1.25rem] font-heading text-text-strong placeholder:text-text-muted placeholder:font-ui placeholder:text-[1rem] hover:border-border focus:border-border"
-    : "reading block w-full resize-none overflow-hidden rounded-aw border border-border-subtle bg-bg px-3 py-2 text-text placeholder:text-text-muted hover:border-border focus:border-border";
+    ? `block w-full rounded-aw border border-transparent border-b-border-subtle bg-transparent px-2 -mx-2 text-text-strong placeholder:text-text-muted placeholder:font-ui placeholder:text-[1rem] placeholder:font-normal hover:border-border-subtle focus:border-border ${
+        emphasis === "title" ? "type-worktitle" : "reading font-semibold"
+      }`
+    : "reading block w-full resize-none overflow-hidden rounded-aw border border-transparent bg-field px-3 py-2 text-text placeholder:text-text-muted hover:border-border-subtle focus:border-border";
 
   return (
     <div ref={root} className="flex flex-col gap-1">
@@ -173,7 +186,7 @@ export function TeachingField(props: TeachingFieldProps) {
         </label>
       ) : (
         <div className="flex flex-wrap items-end justify-between gap-x-2">
-          <label htmlFor={fid} className="text-[0.9375rem] font-semibold text-text-strong">
+          <label htmlFor={fid} className={level === "section" ? "type-section" : "type-subhead"}>
             {label}
           </label>
           {assistant && <AssistMenu part={part} partLabel={label} onChoose={choose} imagesNote={assistant.imagesNote} />}
@@ -184,22 +197,33 @@ export function TeachingField(props: TeachingFieldProps) {
           {hint}
         </p>
       )}
-      {multiline ? (
+      {multiline || emphasis === "title" ? (
         <textarea
           id={fid}
           ref={(el) => {
             area.current = el;
           }}
-          rows={rows}
+          rows={emphasis === "title" ? 1 : rows}
           value={text}
           placeholder={placeholder}
           aria-describedby={hint ? `${id}-hint` : undefined}
+          // The teaching's title wraps in a narrow pane instead of being cut off, but stays one line of text.
+          onKeyDown={
+            emphasis === "title"
+              ? (e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    flush();
+                  }
+                }
+              : undefined
+          }
           onChange={(e) => {
             setUndo(null);
-            change(e.target.value);
+            change(emphasis === "title" ? e.target.value.replace(/[\r\n]+/g, " ") : e.target.value);
           }}
           onBlur={flush}
-          className={field}
+          className={emphasis === "title" ? `${field} resize-none overflow-hidden py-0.5` : field}
         />
       ) : (
         <div className="flex items-center gap-1">

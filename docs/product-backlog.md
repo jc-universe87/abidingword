@@ -287,3 +287,15 @@ Teaching, and "finding" dropped as a user-facing word.
 starting steps); audio steps and a step-level media attachment; an
 "Add a step ▸ kind" menu; moving notes between parts by dragging; the
 assistant inside Bible Study.
+### More Materials for a Bible Teaching
+
+**Since v0.18.4** (see [`workspace-hierarchy-v0.18.4.md`](workspace-hierarchy-v0.18.4.md)):
+a teaching's outputs are gathered under one quiet **Materials** menu
+(*Unterlagen*, *가르침 자료*, *Supports*, *Materiales*, *Materiais*); the
+presentation is its only item so far.
+
+**Still open:** a manuscript (the teaching as a readable text to preach or
+teach from), a worksheet and a question sheet for a group, each made from the
+teaching as the presentation is, and offered in the same menu only once it
+exists. Also: the Source reader, Library, Settings and presentation editor
+under the v0.18.4 type levels; regenerating the guide's screenshots.

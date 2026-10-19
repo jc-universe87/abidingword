@@ -78,8 +78,9 @@ export function StudyPassages({ studyId, title = "", passages, reload, onReveal 
               onReveal();
             }}
             title={t("studies.passages.open")}
-            className={`inline-flex min-h-11 items-center rounded-aw border px-2.5 text-[0.9375rem] text-link hover:bg-bg-secondary ${
-              passage.id === primary?.id && passages.length > 1 ? "border-border bg-bg-secondary font-semibold" : "border-border-subtle font-medium"
+            // Passages are links, not boxes; the primary one (of several) sits on a soft fill.
+            className={`inline-flex min-h-11 items-center rounded-aw px-2 text-[0.9375rem] font-medium text-link hover:bg-bg-secondary ${
+              passage.id === primary?.id && passages.length > 1 ? "bg-bg-secondary" : ""
             }`}
           >
             {passage.id === primary?.id && passages.length > 1 && <span className="sr-only">{t("studies.passages.primary")}: </span>}

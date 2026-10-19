@@ -19,8 +19,9 @@ and what only you see.
 
 ## Making the slides
 
-1. Open your Bible Teaching and click **Presentation** (on the right, next to
-   *About this teaching*).
+1. Open your Bible Teaching, click **Materials** (on the right, next to the
+   teaching's title) and choose **Presentation**. *Materials* gathers what a
+   teaching becomes; today that is its presentation.
 2. Click **Make slides from the teaching**. Abiding Word puts the teaching's
    title, its passages, the central message, each point or step, its questions
    and the images you kept into slides, in the teaching's order. This is done

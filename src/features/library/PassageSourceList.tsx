@@ -35,7 +35,7 @@ export function PassageSourceList({
   const controls = useRef<Record<string, HTMLButtonElement | null>>({});
   const reason = (place: PassageLocation) => passageReason(t, place.origin, passageLabel(place.reference));
   return (
-    <ul aria-label={label} className="m-0 flex list-none flex-col p-0">
+    <ul aria-label={label} className="m-0 -mx-2 flex list-none flex-col gap-1 p-0">
       {groups.map((group, index) => {
         const [best, ...others] = group.locations;
         if (!best) return null;
@@ -44,20 +44,21 @@ export function PassageSourceList({
         const more = expansion[group.sourceId];
         const extra = more?.open ? (more.places ?? []).slice(group.locations.length) : [];
         return (
-          <li key={group.sourceId} className="border-t border-border-subtle">
+          <li key={group.sourceId}>
             <div role="group" aria-labelledby={titleId}>
               <button
                 type="button"
                 onClick={() => onOpen(group.sourceId, best.segmentId)}
-                className="flex w-full flex-col items-start gap-0.5 rounded-sm px-1 py-2 text-left hover:bg-bg-secondary"
+                className="flex w-full flex-col items-start gap-0.5 rounded-aw px-2 py-2 text-left hover:bg-text-strong/[0.06]"
               >
-                <span id={titleId} className="font-semibold text-text-strong">
+                {/* A source's name is readable, not loud: many of them stand one under another. */}
+                <span id={titleId} className="font-medium text-text">
                   <cite className="not-italic">{group.sourceTitle}</cite>
                 </span>
-                <span className="text-[0.875rem] text-text-muted">
+                <span className="type-meta">
                   {[group.author, locatorLabel(t, best.locator)].filter(Boolean).join(t("common.listSeparator"))}
                 </span>
-                <span className="text-[0.875rem] text-text-muted">{reason(best)}</span>
+                <span className="type-meta">{reason(best)}</span>
               </button>
               {others.length > 0 && (
                 <ul className="m-0 mb-1 ml-3 flex list-none flex-col border-l border-border-subtle p-0">
@@ -66,9 +67,9 @@ export function PassageSourceList({
                       <button
                         type="button"
                         onClick={() => onOpen(group.sourceId, place.segmentId)}
-                        className="flex w-full flex-col items-start gap-0 rounded-sm py-1 pl-3 text-left text-[0.875rem] hover:bg-bg-secondary"
+                        className="flex w-full flex-col items-start gap-0 rounded-aw py-1 pl-3 text-left text-[0.875rem] hover:bg-text-strong/[0.06]"
                       >
-                        <span className="text-text-strong">{locatorLabel(t, place.locator)}</span>
+                        <span className="text-text">{locatorLabel(t, place.locator)}</span>
                         <span className="text-text-muted">{reason(place)}</span>
                       </button>
                     </li>
@@ -93,9 +94,9 @@ export function PassageSourceList({
                           <button
                             type="button"
                             onClick={() => onOpen(group.sourceId, place.segmentId)}
-                            className="flex w-full flex-col items-start gap-0 rounded-sm py-1 pl-3 text-left text-[0.875rem] hover:bg-bg-secondary"
+                            className="flex w-full flex-col items-start gap-0 rounded-aw py-1 pl-3 text-left text-[0.875rem] hover:bg-text-strong/[0.06]"
                           >
-                            <span className="text-text-strong">{locatorLabel(t, place.locator)}</span>
+                            <span className="text-text">{locatorLabel(t, place.locator)}</span>
                             <span className="text-text-muted">{reason(place)}</span>
                           </button>
                         </li>
