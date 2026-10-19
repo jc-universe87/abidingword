@@ -117,6 +117,7 @@ pub fn commit_import(
         ));
     }
     let language = validate::title(&meta.language, "language")?;
+    let language_code = language_tag(meta.language_code.as_deref())?;
     let taken: bool = conn.query_row(
         "SELECT EXISTS (SELECT 1 FROM bible_translations WHERE short_name = ?1 COLLATE NOCASE)",
         [&short_name],
@@ -146,7 +147,7 @@ pub fn commit_import(
             name,
             short_name,
             language,
-            optional(&meta.language_code),
+            language_code,
             optional(&meta.publisher),
             optional(&meta.copyright_notice),
             optional(&meta.license_type),
@@ -241,6 +242,44 @@ fn verses_between(
         });
     }
     Ok(verses)
+}
+
+/// A language tag as stored: well formed and normalised, or none. A value that
+/// is not a tag (a name, a typo) is refused rather than stored.
+fn language_tag(value: Option<&str>) -> AppResult<Option<String>> {
+    match value.map(str::trim).filter(|v| !v.is_empty()) {
+        None => Ok(None),
+        Some(v) => crate::scripture::language::normalise_tag(v)
+            .map(Some)
+            .ok_or_else(|| {
+                AppError::InvalidInput(
+                    UserMessage::new(
+                        "bibles.badLanguage",
+                        format!("“{v}” is not a language this app knows."),
+                    )
+                    .with("text", v),
+                )
+            }),
+    }
+}
+
+/// Changes the language of an installed Bible: its name as shown and its
+/// tag (which typed references use first). Text, verses and references are
+/// untouched.
+pub fn set_language(
+    conn: &Connection,
+    id: &str,
+    language: &str,
+    language_code: Option<&str>,
+) -> AppResult<BibleTranslation> {
+    get(conn, id)?;
+    let language = validate::title(language, "language")?;
+    let language_code = language_tag(language_code)?;
+    conn.execute(
+        "UPDATE bible_translations SET language = ?2, language_code = ?3, updated_at = ?4 WHERE id = ?1",
+        params![id, language, language_code, now()],
+    )?;
+    get(conn, id)
 }
 
 /// Whether a translation has this verse (by its own numbering).

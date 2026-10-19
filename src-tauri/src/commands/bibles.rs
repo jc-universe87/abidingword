@@ -198,3 +198,42 @@ pub fn bible_remove(state: State<'_, AppState>, id: String) -> CommandResult<()>
     }
     Ok(())
 }
+
+/// Corrects the language of an installed Bible (v0.18.3): the name shown and
+/// the tag typed references use first. Nothing else changes.
+#[tauri::command(async)]
+pub fn bible_set_language(
+    state: State<'_, AppState>,
+    id: String,
+    language: String,
+    language_code: Option<String>,
+) -> CommandResult<BibleTranslation> {
+    let core = state.core()?;
+    Ok(core
+        .db
+        .with_conn(|conn| bibles::set_language(conn, &id, &language, language_code.as_deref()))?)
+}
+
+/// One language a Bible can be marked as: the 100 reference languages.
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BibleLanguageOption {
+    pub code: &'static str,
+    /// English name ("Polish").
+    pub name: &'static str,
+    /// The name in the language itself, when known ("polski").
+    pub native: Option<&'static str>,
+}
+
+/// The languages offered when a Bible's language is chosen, by speakers.
+#[tauri::command]
+pub fn bible_language_options() -> Vec<BibleLanguageOption> {
+    crate::scripture::data_packs::listed()
+        .iter()
+        .map(|l| BibleLanguageOption {
+            code: l.code,
+            name: l.name,
+            native: l.native,
+        })
+        .collect()
+}

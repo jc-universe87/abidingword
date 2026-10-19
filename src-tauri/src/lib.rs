@@ -152,6 +152,8 @@ pub fn run() {
             commands::bibles::bible_import_commit,
             commands::bibles::bible_import_cancel,
             commands::bibles::bible_remove,
+            commands::bibles::bible_set_language,
+            commands::bibles::bible_language_options,
             commands::annotations::annotation_list,
             commands::annotations::annotation_marks_list,
             commands::annotations::annotation_create,

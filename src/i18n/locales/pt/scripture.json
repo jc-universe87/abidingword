@@ -154,14 +154,18 @@
       "licence": "Licença",
       "notice": "Aviso",
       "from": "Origem",
-      "added": "Adicionada em"
+      "added": "Adicionada em",
+      "language": "Idioma"
     },
     "contents_one": "{{count}} livro, {{verses}} versículos",
     "contents_many": "{{count}} livros, {{verses}} versículos",
     "contents_other": "{{count}} livros, {{verses}} versículos",
     "confirmRemove": "Remover <strong>{{name}}</strong>? O texto dela será excluído do Abiding Word. Seus estudos, vínculos com passagens e notas são mantidos.",
     "confirmRemoveManaged": "Remover <strong>{{name}}</strong>? O texto dela será excluído do Abiding Word, junto com a cópia do arquivo feita pelo Abiding Word (seu arquivo original não é alterado). Seus estudos, vínculos com passagens e notas são mantidos.",
-    "keep": "Manter"
+    "keep": "Manter",
+    "changeLanguage": "Mudar o idioma",
+    "saveLanguage": "Guardar o idioma",
+    "languageNotSet": "não indicado"
   },
   "colors": {
     "label": "Cor do destaque",
@@ -255,5 +259,11 @@
     "books": "Livros",
     "bookCount": "{{book}} ({{formatted}})",
     "open": "Abrir {{passage}} na Bíblia"
+  },
+  "language": {
+    "choose": "Escolha um idioma",
+    "other": "Outro idioma…",
+    "otherName": "Nome do idioma",
+    "hint": "O Abiding Word usa-o para ler as abreviaturas que você digita (por exemplo “Jn 3:5”) como esta Bíblia as entende."
   }
 }

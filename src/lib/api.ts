@@ -29,6 +29,7 @@ import type {
   Workspace,
 } from "@/types/domain";
 import type {
+  BibleLanguageOption,
   AnchorInput,
   Annotation,
   AnnotationAnchor,
@@ -378,6 +379,10 @@ export interface Api {
   bibleImportCommit(input: CommitImport): Promise<BibleTranslation>;
   bibleImportCancel(previewId: string): Promise<void>;
   bibleRemove(id: string): Promise<void>;
+  /** The languages a Bible can be marked as. */
+  bibleLanguageOptions(): Promise<BibleLanguageOption[]>;
+  /** Corrects a Bible's language: its name as shown, and its tag (null: none). */
+  bibleSetLanguage(input: { id: string; language: string; languageCode: string | null }): Promise<BibleTranslation>;
 
   /** With a translation, phrase anchors report whether its wording matches. */
   annotationList(reference: string, translationId?: string): Promise<Annotation[]>;
@@ -637,6 +642,8 @@ export const tauriApi: Api = {
   bibleImportCommit: (input) => call("bible_import_commit", { input }),
   bibleImportCancel: (previewId) => call("bible_import_cancel", { previewId }),
   bibleRemove: (id) => call("bible_remove", { id }),
+  bibleLanguageOptions: () => call("bible_language_options"),
+  bibleSetLanguage: ({ id, language, languageCode }) => call("bible_set_language", { id, language, languageCode }),
 
   annotationList: (reference, translationId) => call("annotation_list", { reference, translationId }),
   annotationMarksList: (query) => call("annotation_marks_list", { query }),

@@ -132,12 +132,16 @@
       "licence": "라이선스",
       "notice": "고지 사항",
       "from": "출처",
-      "added": "추가한 날짜"
+      "added": "추가한 날짜",
+      "language": "언어"
     },
     "contents_other": "책 {{count}}권, {{verses}}절",
     "confirmRemove": "<strong>{{name}}</strong>을(를) 제거할까요? 이 성경의 본문이 Abiding Word에서 삭제됩니다. 성경공부, 본문 연결, 메모는 그대로 유지됩니다.",
     "confirmRemoveManaged": "<strong>{{name}}</strong>을(를) 제거할까요? 이 성경의 본문과 Abiding Word가 보관하던 파일 사본이 함께 삭제됩니다(원본 파일은 그대로 남습니다). 성경공부, 본문 연결, 메모는 그대로 유지됩니다.",
-    "keep": "유지"
+    "keep": "유지",
+    "changeLanguage": "언어 바꾸기",
+    "saveLanguage": "언어 저장",
+    "languageNotSet": "지정되지 않음"
   },
   "colors": {
     "label": "강조 색",
@@ -225,5 +229,11 @@
     "books": "성경책",
     "bookCount": "{{book}} ({{formatted}})",
     "open": "성경에서 {{passage}} 열기"
+  },
+  "language": {
+    "choose": "언어 선택",
+    "other": "다른 언어…",
+    "otherName": "언어 이름",
+    "hint": "입력한 약어(예: “Jn 3:5”)를 이 성경에서 쓰는 뜻대로 읽는 데 사용됩니다."
   }
 }

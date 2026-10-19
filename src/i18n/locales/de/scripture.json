@@ -143,13 +143,17 @@
       "licence": "Lizenz",
       "notice": "Hinweis",
       "from": "Herkunft",
-      "added": "Hinzugefügt"
+      "added": "Hinzugefügt",
+      "language": "Sprache"
     },
     "contents_one": "{{count}} Buch, {{verses}} Verse",
     "contents_other": "{{count}} Bücher, {{verses}} Verse",
     "confirmRemove": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht. Deine Studien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
     "confirmRemoveManaged": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht, zusammen mit der Kopie der Datei, die Abiding Word angelegt hat (deine Originaldatei bleibt unberührt). Deine Studien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
-    "keep": "Behalten"
+    "keep": "Behalten",
+    "changeLanguage": "Sprache ändern",
+    "saveLanguage": "Sprache speichern",
+    "languageNotSet": "nicht angegeben"
   },
   "colors": {
     "label": "Farbe der Markierung",
@@ -240,5 +244,11 @@
     "books": "Bücher",
     "bookCount": "{{book}} ({{formatted}})",
     "open": "{{passage}} in der Bibel öffnen"
+  },
+  "language": {
+    "choose": "Sprache wählen",
+    "other": "Eine andere Sprache …",
+    "otherName": "Name der Sprache",
+    "hint": "Abiding Word liest damit Abkürzungen, die du tippst (etwa „Jn 3:5“), so wie diese Bibel sie meint."
   }
 }

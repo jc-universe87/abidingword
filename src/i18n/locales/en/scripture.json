@@ -143,13 +143,17 @@
       "licence": "Licence",
       "notice": "Notice",
       "from": "From",
-      "added": "Added"
+      "added": "Added",
+      "language": "Language"
     },
     "contents_one": "{{count}} book, {{verses}} verses",
     "contents_other": "{{count}} books, {{verses}} verses",
     "confirmRemove": "Remove <strong>{{name}}</strong>? Its text will be deleted from Abiding Word. Your studies, passage links and notes are kept.",
     "confirmRemoveManaged": "Remove <strong>{{name}}</strong>? Its text will be deleted from Abiding Word, together with Abiding Word's copy of the file (your original file is not touched). Your studies, passage links and notes are kept.",
-    "keep": "Keep it"
+    "keep": "Keep it",
+    "changeLanguage": "Change language",
+    "saveLanguage": "Save language",
+    "languageNotSet": "not set"
   },
   "colors": {
     "label": "Highlight colour",
@@ -240,5 +244,11 @@
     "books": "Books",
     "bookCount": "{{book}} ({{formatted}})",
     "open": "Open {{passage}} in the Bible"
+  },
+  "language": {
+    "choose": "Choose a language",
+    "other": "Another language…",
+    "otherName": "Name of the language",
+    "hint": "Abiding Word uses it to read abbreviations you type (such as “Jn 3:5”) the way this Bible does."
   }
 }

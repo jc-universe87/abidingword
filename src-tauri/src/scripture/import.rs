@@ -497,6 +497,56 @@ pub struct StagedImport {
     pub format: &'static str,
     pub content: StagedContent,
     pub suggested_name: String,
+    /// The language the files' own metadata states (Digital Bible Library
+    /// `metadata.xml`, Paratext `Settings.xml`), as a well-formed tag; never
+    /// guessed from names or text.
+    pub language_tag: Option<String>,
+}
+
+/// Metadata files read beside the USFM for the language they state.
+fn is_metadata_file(name: &str) -> bool {
+    let base = name
+        .rsplit(['/', '\\'])
+        .next()
+        .unwrap_or(name)
+        .to_ascii_lowercase();
+    base == "metadata.xml" || base == "settings.xml"
+}
+
+/// The language a Bible's own metadata states, when it is a well-formed tag
+/// and all such files agree: DBL `metadata.xml` (`<language>` → `<bcp47>`,
+/// `<ldml>` or `<iso>`) or Paratext `Settings.xml` (`<LanguageIsoCode>`). Only
+/// these structured fields count; names, titles and text never do.
+pub fn metadata_language(files: &[SourceText]) -> Option<String> {
+    fn field<'a>(text: &'a str, tag: &str) -> Option<&'a str> {
+        let open = format!("<{tag}>");
+        let start = text.find(&open)? + open.len();
+        let end = start + text[start..].find('<')?;
+        Some(text[start..end].trim())
+    }
+    let mut found: Vec<String> = Vec::new();
+    for file in files.iter().filter(|f| is_metadata_file(&f.name)) {
+        let tag = if let Some(at) = file.text.find("<language>") {
+            let block = &file.text[at..];
+            let block = &block[..block.find("</language>").unwrap_or(block.len())];
+            ["bcp47", "ldml", "iso"]
+                .iter()
+                .find_map(|t| field(block, t).and_then(crate::scripture::language::normalise_tag))
+        } else {
+            field(&file.text, "LanguageIsoCode")
+                .and_then(|code| code.split(':').next())
+                .and_then(crate::scripture::language::normalise_tag)
+        };
+        if let Some(tag) = tag {
+            found.push(tag);
+        }
+    }
+    found.dedup();
+    match found.as_slice() {
+        [one] => Some(one.clone()),
+        // None, or files that disagree: no guess.
+        _ => None,
+    }
 }
 
 /// Reads the given files, detects the format and stages the content.
@@ -508,6 +558,11 @@ pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport>
         )));
     }
     let texts = read_sources(paths)?;
+    let language_tag = metadata_language(&texts);
+    let texts: Vec<SourceText> = texts
+        .into_iter()
+        .filter(|t| !is_metadata_file(&t.name))
+        .collect();
     let adapters: [&dyn BibleImportAdapter; 1] = [&UsfmAdapter];
     let adapter = adapters
         .into_iter()
@@ -545,6 +600,7 @@ pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport>
         format: adapter.format(),
         content,
         suggested_name: suggested_name(paths),
+        language_tag,
     })
 }
 
@@ -584,6 +640,7 @@ fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
             "epub" => return Err(unsupported("EPUB")),
             "doc" | "docx" | "odt" | "rtf" => return Err(unsupported("Word")),
             "html" | "htm" | "xhtml" => return Err(unsupported("Web page")),
+            "xml" if is_metadata_file(&file_name(path)) => {}
             "xml" | "osis" | "usx" => return Err(unsupported("OSIS and USX")),
             _ => {}
         }
@@ -601,6 +658,15 @@ fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
             texts.extend(read_zip(path, &mut total)?);
         } else {
             let bytes = fs::read(path).map_err(|e| AppError::filesystem(path, e))?;
+            if is_metadata_file(&file_name(path)) {
+                if let Ok(text) = String::from_utf8(bytes) {
+                    texts.push(SourceText {
+                        name: file_name(path),
+                        text,
+                    });
+                }
+                continue;
+            }
             texts.push(SourceText {
                 name: file_name(path),
                 text: decode(&bytes, &file_name(path))?,
@@ -637,8 +703,13 @@ fn read_zip(path: &Path, total: &mut u64) -> AppResult<Vec<SourceText>> {
         })?;
         let name = entry.name().to_string();
         let lower = name.to_ascii_lowercase();
+        let metadata = is_metadata_file(&lower);
         if entry.is_dir()
-            || !(lower.ends_with(".usfm") || lower.ends_with(".sfm") || lower.ends_with(".ptx"))
+            || !(lower.ends_with(".usfm")
+                || lower.ends_with(".sfm")
+                || lower.ends_with(".ptx")
+                || metadata)
+            || (metadata && entry.size() > 1024 * 1024)
         {
             continue;
         }
@@ -659,6 +730,13 @@ fn read_zip(path: &Path, total: &mut u64) -> AppResult<Vec<SourceText>> {
                 .with("fileName", &name),
             )
         })?;
+        if metadata {
+            // Optional: unreadable metadata is no language, never a failed import.
+            if let Ok(text) = String::from_utf8(bytes) {
+                texts.push(SourceText { text, name });
+            }
+            continue;
+        }
         texts.push(SourceText {
             text: decode(&bytes, &name)?,
             name,
@@ -728,7 +806,12 @@ pub struct PreviewBook {
 }
 
 impl StagedImport {
-    pub fn preview(&self, suggested: SuggestedMetadata) -> ImportPreview {
+    pub fn preview(&self, mut suggested: SuggestedMetadata) -> ImportPreview {
+        if suggested.language_code.is_empty() {
+            if let Some(tag) = &self.language_tag {
+                suggested.language_code = tag.clone();
+            }
+        }
         let books = self
             .content
             .books

@@ -42,7 +42,8 @@
   },
   "bibles": {
     "hasProblems": "이 성경에는 추가하기 전에 해결해야 할 문제가 있습니다.",
-    "shortNameTooLong": "약칭은 {{max}}자 이내로 입력해 주세요."
+    "shortNameTooLong": "약칭은 {{max}}자 이내로 입력해 주세요.",
+    "badLanguage": "“{{text}}”은(는) Abiding Word가 아는 언어가 아닙니다."
   },
   "bibleImport": {
     "noBookId": "“{{fileName}}” 파일에 어떤 책이 들어 있는지 표시되어 있지 않습니다.",

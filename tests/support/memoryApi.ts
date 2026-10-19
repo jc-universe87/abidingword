@@ -1066,6 +1066,9 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         throw new ApiError("unsupportedFormat", "PDF files can’t be imported as a structured Bible yet.");
       }
       const result = preview(!!bundled, !!paths?.some((p) => p.includes("broken")));
+      // As the core reads a DBL metadata.xml or Paratext Settings.xml beside the USFM.
+      const tagged = paths?.map((p) => /with-metadata-([a-z-]+)\./i.exec(p)?.[1]).find(Boolean);
+      if (tagged) result.suggested = { ...result.suggested, languageCode: tagged };
       state.pendingPreview = { id: result.previewId, bundled: !!bundled };
       return result;
     },
@@ -1077,6 +1080,8 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
           name: input.name,
           shortName: input.shortName,
           language: input.language,
+          // As the core: only a tag the person (or the files' metadata) gave.
+          languageCode: input.languageCode ?? null,
           isBuiltin: bundled,
           sourceOrigin: bundled ? "bundled" : "managed_copy",
           licenseType: input.licenseType ?? null,
@@ -1088,6 +1093,25 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     },
     bibleImportCancel: async () => {
       state.pendingPreview = null;
+    },
+    // As the core (scripture::data_packs): a few of the 100, enough for tests.
+    bibleLanguageOptions: async () => [
+      { code: "en", name: "English", native: "English" },
+      { code: "de", name: "German", native: "Deutsch" },
+      { code: "ko", name: "Korean", native: "한국어" },
+      { code: "pt", name: "Portuguese", native: "português" },
+      { code: "it", name: "Italian", native: "italiano" },
+    ],
+    bibleSetLanguage: async ({ id: bibleId, language, languageCode }) => {
+      const bible = state.bibles.find((b) => b.id === bibleId);
+      if (!bible) throw new ApiError("notFound", "Bible not found");
+      if (!language.trim()) throw new ApiError("invalidInput", "A language is needed.");
+      if (languageCode !== null && !/^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/i.test(languageCode.trim())) {
+        throw new ApiError("invalidInput", `“${languageCode}” is not a language this app knows.`);
+      }
+      bible.language = language.trim();
+      bible.languageCode = languageCode?.trim() || null;
+      return { ...bible };
     },
     bibleRemove: async (bibleId) => {
       state.bibles = state.bibles.filter((b) => b.id !== bibleId);

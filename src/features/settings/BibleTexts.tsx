@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
@@ -6,6 +6,7 @@ import { useApi } from "@/lib/ApiContext";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 import type { BibleTranslation } from "@/types/scripture";
 import { formatDate, formatNumber } from "@/i18n/format";
+import { LanguageChoice, type LanguageValue } from "@/features/scripture/LanguageChoice";
 
 /** Settings → Bible Texts: what is installed, details, add, remove. */
 export function BibleTexts({ onAddBible }: { onAddBible: () => void }) {
@@ -73,6 +74,10 @@ function BibleRow({ bible }: { bible: BibleTranslation }) {
 
       {open && (
         <dl className="m-0 grid grid-cols-1 gap-x-6 gap-y-1 text-[0.9375rem] sm:grid-cols-[10rem_1fr]">
+          <dt className="font-medium text-text-strong">{t("scripture.bibles.field.language")}</dt>
+          <dd className="m-0">
+            <BibleLanguage bible={bible} />
+          </dd>
           <dt className="font-medium text-text-strong">{t("scripture.bibles.field.contents")}</dt>
           <dd className="m-0">{t("scripture.bibles.contents", { count: bible.bookCount, verses: formatNumber(bible.verseCount) })}</dd>
           {bible.publisher && (<><dt className="font-medium text-text-strong">{t("scripture.bibles.field.publisher")}</dt><dd className="m-0">{bible.publisher}</dd></>)}
@@ -101,5 +106,61 @@ function BibleRow({ bible }: { bible: BibleTranslation }) {
       )}
       {error && <p role="alert" className="m-0 text-danger">{error}</p>}
     </li>
+  );
+}
+
+/**
+ * A Bible's language, correctable here (v0.18.3): the name shown and the tag
+ * typed references use first. Saving changes nothing else about the Bible.
+ */
+function BibleLanguage({ bible }: { bible: BibleTranslation }) {
+  const { t } = useTranslation();
+  const api = useApi();
+  const id = useId();
+  const { reloadTranslations } = useScripture();
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState<LanguageValue | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const start = () => {
+    setValue(bible.languageCode ? { code: bible.languageCode, name: bible.language } : bible.language ? { code: null, name: bible.language } : null);
+    setError(null);
+    setEditing(true);
+  };
+  const save = async () => {
+    if (!value || !value.name.trim()) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await api.bibleSetLanguage({ id: bible.id, language: value.name.trim(), languageCode: value.code });
+      await reloadTranslations();
+      setEditing(false);
+    } catch (e) {
+      setError(toApiError(e).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (!editing) {
+    return (
+      <span className="inline-flex flex-wrap items-baseline gap-x-3">
+        <span>{bible.language || t("scripture.bibles.languageNotSet")}</span>
+        <Button variant="quiet" onClick={start}>{t("scripture.bibles.changeLanguage")}</Button>
+      </span>
+    );
+  }
+  return (
+    <div className="flex max-w-md flex-col gap-2">
+      <LanguageChoice id={`${id}-language`} label={t("scripture.bibles.field.language")} value={value} onChange={setValue} />
+      <div className="flex gap-2">
+        <Button variant="primary" onClick={save} disabled={busy || !value || !value.name.trim()}>
+          {t("scripture.bibles.saveLanguage")}
+        </Button>
+        <Button onClick={() => setEditing(false)}>{t("common.cancel")}</Button>
+      </div>
+      {error && <p role="alert" className="m-0 text-danger">{error}</p>}
+    </div>
   );
 }

@@ -12,6 +12,7 @@ import { localizeMessage } from "@/i18n/messages";
 import { bookName } from "@/i18n/scripture";
 import type { BibleTranslation, BundledBibleInfo, ImportIssue, ImportPreview } from "@/types/scripture";
 import { useScripture } from "./ScriptureContext";
+import { LanguageChoice, storedName, type LanguageValue } from "./LanguageChoice";
 
 type Step =
   | { kind: "choose" }
@@ -243,20 +244,26 @@ function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCa
   const s = preview.suggested;
   const [name, setName] = useState(s.name);
   const [shortName, setShortName] = useState(s.shortName);
-  const [language, setLanguage] = useState(s.language);
+  const { i18n } = useTranslation();
+  // Chosen only from the files' own metadata (or the bundled list); otherwise left for the person.
+  const [language, setLanguage] = useState<LanguageValue | null>(() =>
+    s.languageCode
+      ? { code: s.languageCode, name: s.language || storedName(undefined, s.languageCode, i18n.resolvedLanguage ?? "en") }
+      : null,
+  );
   const [busy, setBusy] = useState(false);
   const errors = preview.issues.filter((i) => i.severity === "error");
   const warnings = preview.issues.filter((i) => i.severity === "warning");
   const notes = preview.issues.filter((i) => i.severity === "note");
-  const complete = name.trim() && shortName.trim() && language.trim();
+  const complete = name.trim() && shortName.trim() && language !== null && language.name.trim();
 
   const add = async () => {
     setBusy(true);
     await onAdd({
       name,
       shortName,
-      language,
-      languageCode: s.languageCode || undefined,
+      language: language?.name.trim() ?? "",
+      languageCode: language?.code ?? undefined,
       publisher: s.publisher ?? undefined,
       copyrightNotice: s.copyrightNotice ?? undefined,
       licenseType: s.licenseType ?? undefined,
@@ -269,7 +276,9 @@ function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCa
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_10rem]">
         <Field id={`${id}-name`} label={t("scripture.addBible.field.name")} value={name} onChange={setName} />
         <Field id={`${id}-short`} label={t("scripture.addBible.field.shortName")} value={shortName} onChange={setShortName} hint={t("scripture.addBible.field.shortNameHint")} />
-        <Field id={`${id}-lang`} label={t("scripture.addBible.field.language")} value={language} onChange={setLanguage} />
+        <div className="sm:col-span-2">
+          <LanguageChoice id={`${id}-lang`} label={t("scripture.addBible.field.language")} value={language} onChange={setLanguage} />
+        </div>
       </div>
 
       <section aria-label={t("scripture.addBible.found")} className="flex flex-col gap-1">

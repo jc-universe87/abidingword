@@ -175,9 +175,83 @@ pub fn fold_char(c: char) -> char {
     }
 }
 
+/// A stored language tag, well formed (BCP 47 in its common shapes): a
+/// primary language of two or three letters, then optionally a script
+/// (`Hant`), a region (`BR`, `419`) and variants. Case is normalised
+/// (`PT_br` → `pt-BR`). Anything else — a name such as "Português", an empty
+/// value, "und"/"mul"/"zxx"/"mis", private use — is no tag at all. A tag
+/// says what a Bible *is*; nothing here guesses it.
+pub fn normalise_tag(input: &str) -> Option<String> {
+    let input = input.trim();
+    if input.is_empty() || input.len() > 35 {
+        return None;
+    }
+    let mut parts = input.split(['-', '_']);
+    let primary = parts.next()?.to_ascii_lowercase();
+    if !(2..=3).contains(&primary.len())
+        || !primary.chars().all(|c| c.is_ascii_alphabetic())
+        || matches!(primary.as_str(), "und" | "mul" | "zxx" | "mis")
+    {
+        return None;
+    }
+    let mut out = vec![primary];
+    let mut stage = 0; // 0: script next, 1: region next, 2: variants
+    for part in parts {
+        let alnum = part.chars().all(|c| c.is_ascii_alphanumeric());
+        let alpha = part.chars().all(|c| c.is_ascii_alphabetic());
+        let digits = part.chars().all(|c| c.is_ascii_digit());
+        if stage == 0 && part.len() == 4 && alpha {
+            out.push(format!(
+                "{}{}",
+                part[..1].to_ascii_uppercase(),
+                part[1..].to_ascii_lowercase()
+            ));
+            stage = 1;
+        } else if stage <= 1 && ((part.len() == 2 && alpha) || (part.len() == 3 && digits)) {
+            out.push(part.to_ascii_uppercase());
+            stage = 2;
+        } else if alnum
+            && ((5..=8).contains(&part.len())
+                || (part.len() == 4 && part.starts_with(|c: char| c.is_ascii_digit())))
+        {
+            out.push(part.to_ascii_lowercase());
+            stage = 2;
+        } else {
+            // Extensions and private use ("x-…") are not kept; malformed parts end the tag.
+            return None;
+        }
+    }
+    Some(out.join("-"))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn language_tags_are_normalised_and_names_are_not_tags() {
+        for (input, expected) in [
+            ("pt", Some("pt")),
+            ("PT_br", Some("pt-BR")),
+            ("zh-hant-tw", Some("zh-Hant-TW")),
+            ("es-419", Some("es-419")),
+            ("deu", Some("deu")),
+            (" ko ", Some("ko")),
+            ("de-1996", Some("de-1996")),
+            ("Português", None),
+            ("Deutsch", None),
+            ("", None),
+            ("und", None),
+            ("mul", None),
+            ("x-foo", None),
+            ("en-x-private", None),
+            ("e", None),
+            ("12", None),
+            ("en--US", None),
+        ] {
+            assert_eq!(normalise_tag(input).as_deref(), expected, "{input:?}");
+        }
+    }
     use ReferenceLanguage::{De, En, Es, Fr, Ko, Pt};
 
     #[test]

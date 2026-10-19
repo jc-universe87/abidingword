@@ -42,7 +42,8 @@
   },
   "bibles": {
     "hasProblems": "Esta Bíblia tem problemas que precisam ser resolvidos antes que possa ser adicionada.",
-    "shortNameTooLong": "Use menos de {{max}} caracteres no nome abreviado."
+    "shortNameTooLong": "Use menos de {{max}} caracteres no nome abreviado.",
+    "badLanguage": "“{{text}}” não é um idioma que o Abiding Word conheça."
   },
   "bibleImport": {
     "noBookId": "O arquivo “{{fileName}}” não indica qual livro contém.",
