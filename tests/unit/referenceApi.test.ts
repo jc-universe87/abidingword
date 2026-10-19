@@ -42,3 +42,19 @@ describe("an ambiguous typed passage", () => {
     expect(localizeMessage("reference.ambiguous", params, "")).toContain("요나");
   });
 });
+
+describe("a verse the canon does not have", () => {
+  it("says how many verses the chapter has, in the interface language", async () => {
+    const { default: i18n } = await import("@/i18n");
+    const { localizeMessage } = await import("@/i18n/messages");
+    const params = { bookCode: "JON", chapter: "3", count: "10" };
+    await i18n.changeLanguage("en");
+    expect(localizeMessage("reference.verseCount", params, "")).toBe("Jonah 3 has 10 verses.");
+    await i18n.changeLanguage("de");
+    expect(localizeMessage("reference.verseCount", params, "")).toBe("Jona 3 hat 10 Verse.");
+    await i18n.changeLanguage("ko");
+    expect(localizeMessage("reference.verseCount", params, "")).toBe("요나 3장은 10절까지 있습니다.");
+    await i18n.changeLanguage("en");
+    expect(localizeMessage("reference.verseCountBook", { bookCode: "JUD", count: "25" }, "")).toBe("Jude has 25 verses.");
+  });
+});

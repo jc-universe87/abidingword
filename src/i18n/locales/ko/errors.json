@@ -32,6 +32,8 @@
     "notABook": "“{{text}}”은(는) 성경의 책이 아닙니다.",
     "oneChapter": "{{book}}은(는) 1장만 있습니다.",
     "chapterCount": "{{book}}은(는) {{count}}장까지 있습니다.",
+    "verseCount": "{{book}} {{chapter}}장은 {{count}}절까지 있습니다.",
+    "verseCountBook": "{{book}}은(는) {{count}}절까지 있습니다.",
     "badVerse": "{{verse}}은(는) 올바른 절 번호가 아닙니다.",
     "endBeforeStart": "본문의 끝이 시작보다 앞에 있습니다.",
     "invalid": "“{{text}}”은(는) 올바른 본문 참조가 아닙니다.",

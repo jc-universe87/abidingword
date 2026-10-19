@@ -32,6 +32,8 @@
     "notABook": "„{{text}}“ ist kein Buch der Bibel.",
     "oneChapter": "{{book}} hat nur ein Kapitel.",
     "chapterCount": "{{book}} hat {{count}} Kapitel.",
+    "verseCount": "{{book}} {{chapter}} hat {{count}} Verse.",
+    "verseCountBook": "{{book}} hat {{count}} Verse.",
     "badVerse": "{{verse}} ist keine gültige Versnummer.",
     "endBeforeStart": "Das Ende der Bibelstelle liegt vor ihrem Anfang.",
     "invalid": "„{{text}}“ ist keine gültige Bibelstellenangabe.",

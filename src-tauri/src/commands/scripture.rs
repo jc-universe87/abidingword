@@ -68,13 +68,24 @@ pub fn scripture_reference_parse(
     language: Option<String>,
     translation_id: Option<String>,
 ) -> CommandResult<ScriptureRefDto> {
-    let bible = match translation_id.as_deref().filter(|id| !id.is_empty()) {
+    let interface = resolve::preferred(language.as_deref());
+    let id = translation_id.filter(|id| !id.is_empty());
+    if let Some(id) = id.as_deref() {
+        // With the Bible being read: its language, and its own verses beyond the canon.
+        let read = state.db(|conn| {
+            let context = resolve::Context::new(bible_language(conn, id), interface);
+            Ok(resolve::resolve_with(
+                &text,
+                context,
+                &|book, chapter, verse| bibles::has_verse(conn, id, book, chapter, verse),
+            ))
+        });
         // A Bible that cannot be read now is no signal, never a failed parse.
-        Some(id) => state.db(|conn| Ok(bible_language(conn, id))).ok().flatten(),
-        None => None,
-    };
-    let context = resolve::Context::new(bible, resolve::preferred(language.as_deref()));
-    Ok(resolve::resolve(&text, context)?.to_dto())
+        if let Ok(result) = read {
+            return Ok(result?.to_dto());
+        }
+    }
+    Ok(resolve::resolve(&text, resolve::Context::new(None, interface))?.to_dto())
 }
 
 /// The reference language of a Bible from its stored language tag only.

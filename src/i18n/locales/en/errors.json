@@ -32,6 +32,8 @@
     "notABook": "“{{text}}” is not a book of the Bible.",
     "oneChapter": "{{book}} has only one chapter.",
     "chapterCount": "{{book}} has {{count}} chapters.",
+    "verseCount": "{{book}} {{chapter}} has {{count}} verses.",
+    "verseCountBook": "{{book}} has {{count}} verses.",
     "badVerse": "Verse {{verse}} is not a valid verse number.",
     "endBeforeStart": "The end of the passage comes before its start.",
     "invalid": "“{{text}}” is not a valid passage reference.",

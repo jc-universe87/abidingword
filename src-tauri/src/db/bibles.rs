@@ -243,6 +243,23 @@ fn verses_between(
     Ok(verses)
 }
 
+/// Whether a translation has this verse (by its own numbering).
+pub fn has_verse(
+    conn: &Connection,
+    translation_id: &str,
+    book: &canon::Book,
+    chapter: u16,
+    verse: u16,
+) -> bool {
+    let verse_id = verse_key(book.ordinal, chapter, verse);
+    conn.query_row(
+        "SELECT 1 FROM bible_verse_texts WHERE translation_id = ?1 AND verse_id = ?2",
+        rusqlite::params![translation_id, verse_id],
+        |_| Ok(()),
+    )
+    .is_ok()
+}
+
 pub fn chapter(
     conn: &Connection,
     translation_id: &str,

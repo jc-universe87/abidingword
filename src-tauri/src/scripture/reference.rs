@@ -106,6 +106,47 @@ impl ScriptureRef {
         Ok(())
     }
 
+    /// Whether the verses this reference names exist in the canon
+    /// (`canon::verse_count`). Not part of [`Self::new`]: a Bible may number
+    /// verses beyond the canon (Louis Segond's Exodus 7:29), and stored
+    /// references to them stay valid. Typed input is checked with it
+    /// (`scripture::resolve`). `extra` says whether a verse beyond the canon
+    /// exists anyway in the Bible being read.
+    pub fn canon_verse_error(
+        &self,
+        extra: &dyn Fn(&'static Book, u16, u16) -> bool,
+    ) -> Option<AppError> {
+        for point in [self.start, self.end] {
+            let (Some(verse), Some(count)) = (
+                point.verse,
+                crate::scripture::canon::verse_count(self.book, point.chapter),
+            ) else {
+                continue;
+            };
+            if verse > count && !extra(self.book, point.chapter, verse) {
+                let one_chapter = self.book.chapter_count == 1;
+                return Some(AppError::InvalidReference(
+                    UserMessage::new(
+                        if one_chapter {
+                            "reference.verseCountBook"
+                        } else {
+                            "reference.verseCount"
+                        },
+                        if one_chapter {
+                            format!("{} has {count} verses.", self.book.name)
+                        } else {
+                            format!("{} {} has {count} verses.", self.book.name, point.chapter)
+                        },
+                    )
+                    .with("bookCode", self.book.code)
+                    .with("chapter", point.chapter)
+                    .with("count", count),
+                ));
+            }
+        }
+        None
+    }
+
     /// First verse key covered (verse 0 stands for "from the chapter start").
     pub fn start_key(&self) -> i64 {
         verse_key(

@@ -645,3 +645,76 @@ fn reading_typed_input_in_every_language_is_fast() {
     assert!(build < Duration::from_secs(20), "{build:?}");
     assert!(each < Duration::from_millis(20), "{each:?}");
 }
+
+/// v0.18.3: verses are checked against the canon, and a reading that names a
+/// verse the canon does not have never competes with a real passage.
+#[test]
+fn verses_are_validated_and_impossible_readings_do_not_compete() {
+    use abiding_word_lib::scripture::resolve::resolve_with;
+    // Jn 3:5: both readings exist, so the context decides as before.
+    assert_eq!(read_in("Jn 3:5", Some(Pt), Some(En)), "JON.3.5");
+    assert_eq!(read_in("Jn 3:5", Some(En), Some(Pt)), "JHN.3.5");
+    // Jn 3:16: Jonah 3 has 10 verses, so only John remains — even with a
+    // Portuguese Bible or interface.
+    assert_eq!(read_in("Jn 3:16", Some(Pt), Some(Pt)), "JHN.3.16");
+    assert_eq!(read_in("Jn 3:16", None, Some(Pt)), "JHN.3.16");
+    assert_eq!(read_in("Jn 3:11", Some(Pt), None), "JHN.3.11");
+    assert_eq!(read_in("Jn 3:10", Some(Pt), None), "JON.3.10");
+    // Named outright, an impossible verse says how many there are.
+    let (code, params) = refusal("Jonah 3:16", None);
+    assert_eq!(code, "reference.verseCount");
+    let get = |k: &str| params.iter().find(|(n, _)| n == k).map(|(_, v)| v.clone());
+    assert_eq!(get("bookCode").as_deref(), Some("JON"));
+    assert_eq!(get("chapter").as_deref(), Some("3"));
+    assert_eq!(get("count").as_deref(), Some("10"));
+    assert_eq!(refusal("Jonas 3:16", Some(Pt)).0, "reference.verseCount");
+    // Psalm 119 boundary.
+    assert_eq!(canonical("Psalm 119:176", None), "PSA.119.176");
+    assert_eq!(refusal("Psalm 119:177", None).0, "reference.verseCount");
+    assert_eq!(canonical("Ps 117:2", None), "PSA.117.2");
+    assert_eq!(refusal("Ps 117:3", None).0, "reference.verseCount");
+    // One-chapter books: verse forms and the chapter error.
+    assert_eq!(canonical("Jude 25", None), "JUD.1.25");
+    assert_eq!(canonical("Jude 1:25", None), "JUD.1.25");
+    assert_eq!(refusal("Jude 26", None).0, "reference.verseCountBook");
+    assert_eq!(refusal("Jud 3:5", None).0, "reference.oneChapter");
+    assert_eq!(canonical("3 John 15", None), "3JN.1.15"); // 14 in the KJV, 15 in modern English Bibles
+    assert_eq!(refusal("3 John 16", None).0, "reference.verseCountBook");
+    // Ranges: the end is checked too, across chapters as well.
+    assert_eq!(canonical("John 3:16-36", None), "JHN.3.16-JHN.3.36");
+    assert_eq!(refusal("John 3:16-37", None).0, "reference.verseCount");
+    assert_eq!(canonical("John 3:36-4:54", None), "JHN.3.36-JHN.4.54");
+    assert_eq!(refusal("John 3:36-4:55", None).0, "reference.verseCount");
+    assert_eq!(refusal("John 3:37-4:2", None).0, "reference.verseCount");
+    assert_eq!(refusal("John 3:16-3:2", None).0, "reference.endBeforeStart");
+    // Whole chapters and chapter ranges are untouched.
+    assert_eq!(canonical("John 3", None), "JHN.3");
+    assert_eq!(canonical("John 3-4", None), "JHN.3-JHN.4");
+    // Native digits and other languages go through the same check.
+    assert_eq!(refusal("يوحنا ٣:٣٧", None).0, "reference.verseCount");
+    assert_eq!(canonical("يوحنا ٣:٣٦", None), "JHN.3.36");
+    assert_eq!(refusal("요한복음 3장 37절", None).0, "reference.verseCount");
+    assert_eq!(refusal("Johannes 3,37", Some(De)).0, "reference.verseCount");
+    // Canon validation, not translation content: a verse beyond the canon
+    // that the Bible being read has (Louis Segond's Exodus 7:29) is accepted;
+    // one it lacks is never refused because of that.
+    let segond_has =
+        |book: &'static abiding_word_lib::scripture::canon::Book, chapter: u16, verse: u16| {
+            book.code == "EXO" && chapter == 7 && verse <= 29
+        };
+    let french = Context::new(Some(Fr), Some(Fr));
+    assert_eq!(
+        resolve_with("Ex 7:29", french, &segond_has)
+            .unwrap()
+            .canonical(),
+        "EXO.7.29"
+    );
+    assert_eq!(refusal_in("Ex 7:29", french).0, "reference.verseCount");
+    assert!(resolve_with("Ex 7:30", french, &segond_has).is_err());
+    assert_eq!(
+        resolve_with("Jn 3:16", french, &|_, _, _| false)
+            .unwrap()
+            .canonical(),
+        "JHN.3.16"
+    );
+}

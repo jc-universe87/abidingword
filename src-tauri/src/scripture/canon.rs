@@ -140,6 +140,15 @@ pub fn by_code(code: &str) -> Option<&'static Book> {
     BOOKS.iter().find(|b| b.code.eq_ignore_ascii_case(code))
 }
 
+/// The verses of a chapter in the canon's versification (largest across the
+/// English Protestant traditions; `scripture::verse_counts`), or `None` for a
+/// chapter the book does not have.
+pub fn verse_count(book: &Book, chapter: u16) -> Option<u16> {
+    let (_, counts) = crate::scripture::verse_counts::VERSE_COUNTS
+        .get(usize::from(book.ordinal).checked_sub(1)?)?;
+    counts.get(usize::from(chapter).checked_sub(1)?).copied()
+}
+
 pub fn by_ordinal(ordinal: u8) -> Option<&'static Book> {
     BOOKS.get(usize::from(ordinal).checked_sub(1)?)
 }
@@ -231,5 +240,34 @@ mod tests {
         assert!(NON_CANONICAL_USFM_CODES
             .iter()
             .all(|c| by_code(c).is_none()));
+    }
+
+    #[test]
+    fn verse_counts_cover_every_chapter_of_the_canon_in_order() {
+        use crate::scripture::verse_counts::VERSE_COUNTS;
+        assert_eq!(VERSE_COUNTS.len(), 66);
+        for (book, (code, counts)) in BOOKS.iter().zip(VERSE_COUNTS) {
+            assert_eq!(book.code, *code);
+            assert_eq!(counts.len(), usize::from(book.chapter_count), "{code}");
+            assert!(counts.iter().all(|n| *n >= 2), "{code}");
+        }
+        let psalms = by_code("PSA").unwrap();
+        assert_eq!(verse_count(psalms, 119), Some(176));
+        assert_eq!(verse_count(psalms, 117), Some(2));
+        assert_eq!(verse_count(psalms, 151), None);
+        assert_eq!(verse_count(by_code("JON").unwrap(), 3), Some(10));
+        assert_eq!(verse_count(by_code("JHN").unwrap(), 3), Some(36));
+        assert_eq!(verse_count(by_code("JUD").unwrap(), 1), Some(25));
+        assert_eq!(verse_count(by_code("JUD").unwrap(), 0), None);
+        let total: usize = VERSE_COUNTS
+            .iter()
+            .map(|(_, c)| c.iter().map(|n| usize::from(*n)).sum::<usize>())
+            .sum();
+        // 31,102 in the KJV, plus 3 John 15 and Revelation 12:18 as modern
+        // English Bibles number them (2 Corinthians 13:14 is the KJV's own).
+        assert_eq!(total, 31_104);
+        assert_eq!(verse_count(by_code("REV").unwrap(), 12), Some(18));
+        assert_eq!(verse_count(by_code("2CO").unwrap(), 13), Some(14));
+        assert_eq!(verse_count(by_code("3JN").unwrap(), 1), Some(15));
     }
 }

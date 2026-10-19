@@ -45,6 +45,12 @@
 //!    have says so (the Bible's language first, then the interface's, then a
 //!    reviewed pack's); anything else is `reference.notRecognised`.
 //!
+//! Verses are checked against the canon (`canon::verse_count`) before any of
+//! this: a reading that names a verse the canon does not have (`Jn 3:16` read
+//! as Jonah 3:16; Jonah 3 has 10 verses) is invalid and never competes with a
+//! real passage, whatever language read it. A verse beyond the canon that the
+//! Bible being read does have is accepted ([`resolve_with`]).
+//!
 //! Input longer than [`MAX_TYPED`] characters is not a reference.
 //!
 //! Running text (sources, notes) is read by `scripture::recognise`, which is
@@ -154,8 +160,21 @@ impl Context {
     }
 }
 
-/// Reads a typed reference in any language, in the person's context.
+/// Reads a typed reference in any language, in the person's context, with
+/// verses checked against the canon only.
 pub fn resolve(input: &str, context: Context) -> AppResult<ScriptureRef> {
+    resolve_with(input, context, &|_, _, _| false)
+}
+
+/// As [`resolve`]. `bible_has_verse` says whether the Bible being read has a
+/// verse the canon does not (Louis Segond's Exodus 7:29): such a verse is
+/// accepted, never refused. A verse missing from that Bible is never a reason
+/// to refuse a reference the canon has.
+pub fn resolve_with(
+    input: &str,
+    context: Context,
+    bible_has_verse: &dyn Fn(&'static Book, u16, u16) -> bool,
+) -> AppResult<ScriptureRef> {
     let text = input.trim();
     if text
         .trim_matches(|c: char| c.is_whitespace() || ".,;".contains(c))
@@ -171,10 +190,16 @@ pub fn resolve(input: &str, context: Context) -> AppResult<ScriptureRef> {
         .iter()
         .filter(|pack| pack.reads(text))
         .map(|pack| {
-            (
-                pack.language,
-                ReferenceParser::for_language(pack.language).read(text),
-            )
+            let reading = match ReferenceParser::for_language(pack.language).read(text) {
+                // A verse the canon does not have is not a passage: it never
+                // competes with a real one ("Jn 3:16" is not Jonah 3:16).
+                Reading::Found(reference) => match reference.canon_verse_error(bible_has_verse) {
+                    Some(error) => Reading::Invalid(error),
+                    None => Reading::Found(reference),
+                },
+                other => other,
+            };
+            (pack.language, reading)
         })
         .collect();
     let reviewed = |l: &ReferenceLanguage| packs::pack(*l).is_reviewed();

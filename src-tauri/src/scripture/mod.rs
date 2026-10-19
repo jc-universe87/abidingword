@@ -19,6 +19,7 @@ pub mod recognise;
 pub mod reference;
 pub mod resolve;
 pub mod usfm;
+pub mod verse_counts;
 
 use serde::{Deserialize, Serialize};
 

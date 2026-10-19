@@ -32,6 +32,8 @@
     "notABook": "“{{text}}” não é um livro da Bíblia.",
     "oneChapter": "{{book}} tem apenas um capítulo.",
     "chapterCount": "{{book}} tem {{count}} capítulos.",
+    "verseCount": "{{book}} {{chapter}} tem {{count}} versículos.",
+    "verseCountBook": "{{book}} tem {{count}} versículos.",
     "badVerse": "{{verse}} não é um número de versículo válido.",
     "endBeforeStart": "O fim da passagem vem antes do início.",
     "invalid": "“{{text}}” não é uma referência de passagem válida.",
