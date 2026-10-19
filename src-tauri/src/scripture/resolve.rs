@@ -27,7 +27,10 @@
 //!    numbered book in a reviewed language or a deuterocanonical abbreviation
 //!    (`Sam`, `Sir`, `Mak`). Where a reviewed pack read the input, passages
 //!    only generated packs read are not credible beside it, unless one of
-//!    them is a context language's reading.
+//!    them is a context language's reading and no passage has two or more
+//!    reviewed languages behind it. These rules hold for the Bible's own
+//!    language too (a Romanian Bible's `Jud 3:5` still says Jude has one
+//!    chapter).
 //! 3. **Several credible passages** (`Jn 3:5`: John in English, French and
 //!    Spanish, Jonah in Portuguese), in this order:
 //!    1. the **Bible's language** decides, if it read the input;
@@ -208,9 +211,18 @@ pub fn resolve(input: &str, context: Context) -> AppResult<ScriptureRef> {
     }
     if any_reviewed {
         // Beside a reviewed reading, one only generated packs give is not
-        // credible — unless it is the reading of a context language (an
-        // Italian Bible's "Es 3:5" is Exodus).
-        groups.retain(|(_, l)| l.iter().any(|l| reviewed(l) || context.contains(*l)));
+        // credible — unless it is the reading of a context language and no
+        // passage has two or more reviewed languages behind it (an Italian
+        // Bible's "Es 3:5" is Exodus against English alone; its data's
+        // "Gn 3:5" is not Jonah against four reviewed readings of Genesis).
+        let strongest = groups
+            .iter()
+            .map(|(_, l)| l.iter().filter(|l| reviewed(l)).count())
+            .max()
+            .unwrap_or(0);
+        groups.retain(|(_, l)| {
+            l.iter().any(reviewed) || (strongest <= 1 && l.iter().any(|l| context.contains(*l)))
+        });
     }
     if groups.len() == 1 {
         return Ok(groups.remove(0).0);
@@ -284,6 +296,19 @@ pub fn language_of_tag(tag: Option<&str>) -> Option<ReferenceLanguage> {
     if !(2..=3).contains(&primary.len()) || !primary.chars().all(|c| c.is_ascii_alphabetic()) {
         return None;
     }
+    let primary = primary.to_ascii_lowercase();
+    // ISO 639-2/B codes and the macrolanguage members Bible files use.
+    let primary = match primary.as_str() {
+        "cmn" | "chi" => "zh",
+        "dut" => "nl",
+        "per" | "fas" | "pes" => "fa",
+        "ara" | "arb" => "ar",
+        "rum" => "ro",
+        "cze" => "cs",
+        "gre" => "el",
+        "msa" | "may" | "zsm" => "ms",
+        other => other,
+    };
     ReferenceLanguage::from_label(primary)
 }
 

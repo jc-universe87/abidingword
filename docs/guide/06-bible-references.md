@@ -80,9 +80,11 @@ chapter.
 Abiding Word decides in this order:
 
 1. **The language of the Bible you are reading** (in a presentation, the
-   presentation's Bible). It is taken from the Bible's own language
-   information, never guessed from its name; a Bible without that
-   information is simply skipped here.
+   presentation's Bible). It is taken from the Bible's stored language
+   information, never guessed from its name. Today the Bibles that come with
+   Abiding Word (English, German, Korean, French, Spanish, Portuguese) carry
+   it; a Bible you added from a file does not yet, so it is simply skipped
+   here and the next step decides.
 2. **The language Abiding Word is in.**
 3. **The common reading:** when the other languages agree (or most of the
    hand-checked ones do), that passage.

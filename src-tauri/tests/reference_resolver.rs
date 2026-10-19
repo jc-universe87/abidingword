@@ -251,6 +251,16 @@ fn a_bible_language_then_the_interface_then_the_common_reading_then_ask() {
     let italian = ReferenceLanguage::from_label("it");
     assert_eq!(read_in("Es 3:5", italian, Some(En)), "EXO.3.5");
     assert_eq!(read_in("Es 3:5", None, Some(En)), "EST.3.5");
+    // …but not against two or more reviewed languages: the Italian data lists
+    // "Gn" for Jonah, while English, French, Spanish and Portuguese read Genesis.
+    assert_eq!(read_in("Gn 3:5", italian, Some(En)), "GEN.3.5");
+    assert_eq!(read_in("Gn 3:5", italian, Some(De)), "GEN.3.5");
+    // The safety rules hold for the Bible's own language too.
+    let romanian = ReferenceLanguage::from_label("ro");
+    assert_eq!(
+        refusal_in("Jud 3:5", Context::new(romanian, Some(En))).0,
+        "reference.oneChapter"
+    );
     // E. Neither decides: the common reading — here three of the four
     // reviewed languages that read "Jn" (German, Korean read nothing).
     for (bible, interface) in [
@@ -408,6 +418,27 @@ fn a_bibles_language_comes_from_its_stored_tag_only() {
     assert_eq!(language_of_tag(Some("pt-BR")), Some(Pt));
     assert_eq!(language_of_tag(Some("de_CH")), Some(De));
     assert_eq!(language_of_tag(Some("deu")), Some(De));
+    assert_eq!(language_of_tag(Some("ger")), Some(De));
+    assert_eq!(language_of_tag(Some("PT")), Some(Pt));
+    for (tag, code) in [
+        ("cmn", "zh"),
+        ("chi", "zh"),
+        ("dut", "nl"),
+        ("fas", "fa"),
+        ("per", "fa"),
+        ("ara", "ar"),
+        ("rum", "ro"),
+        ("cze", "cs"),
+        ("gre", "el"),
+        ("msa", "ms"),
+    ] {
+        assert_eq!(
+            language_of_tag(Some(tag)),
+            ReferenceLanguage::from_label(code),
+            "{tag}"
+        );
+        assert!(language_of_tag(Some(tag)).is_some(), "{tag}");
+    }
     assert_eq!(
         language_of_tag(Some("zh")),
         ReferenceLanguage::from_label("zh")

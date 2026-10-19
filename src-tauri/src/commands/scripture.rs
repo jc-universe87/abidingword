@@ -69,7 +69,8 @@ pub fn scripture_reference_parse(
     translation_id: Option<String>,
 ) -> CommandResult<ScriptureRefDto> {
     let bible = match translation_id.as_deref().filter(|id| !id.is_empty()) {
-        Some(id) => state.db(|conn| Ok(bible_language(conn, id)))?,
+        // A Bible that cannot be read now is no signal, never a failed parse.
+        Some(id) => state.db(|conn| Ok(bible_language(conn, id))).ok().flatten(),
         None => None,
     };
     let context = resolve::Context::new(bible, resolve::preferred(language.as_deref()));

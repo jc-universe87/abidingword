@@ -36,9 +36,13 @@ not routed through it.
 `resolve::resolve(input, Context { bible, interface })`. The context is two
 optional languages: the **Bible's language** — from the stored language tag
 of the translation being read (`bibles.language_code`, via
-`resolve::language_of_tag`: `pt`, `pt-BR`, `deu`; never from a name, short
-name, file or publisher; a Bible without a tag is no signal) — and the
-**interface language**. English has no place of its own.
+`resolve::language_of_tag`: `pt`, `pt-BR`, `deu`, `ger`, `cmn`; never from a
+name, short name, file or publisher; a Bible without a tag, or a database
+that cannot be read at that moment, is no signal) — and the
+**interface language**. English has no place of its own. Today only the
+bundled Bibles store a tag (en, de, ko, fr, es, pt); a Bible imported from a
+file has none (the import review does not ask for one yet), so for it the
+interface language decides first.
 
 1. Every pack whose script occurs in the input reads it as a whole
    (`ReferenceParser::read`). No language is a gate: a Korean interface reads
@@ -52,8 +56,12 @@ name, file or publisher; a Bible without a tag is no signal) — and the
      `Kön`), or a deuterocanonical abbreviation (`Sir`, `Tob`, `Mak`, `Bar`,
      `Weish`, …);
    - beside a reviewed reading, a passage only generated packs read is not
-     credible — unless a context language read it (an Italian Bible's
-     `Es 3:5` is Exodus, not English Esther).
+     credible — unless a context language read it and no passage has two or
+     more reviewed languages behind it (an Italian Bible's `Es 3:5` is
+     Exodus against English Esther alone; the Italian data's `Gn` for Jonah
+     does not beat four reviewed readings of Genesis);
+   - these rules hold for the Bible's own language too (a Romanian Bible's
+     `Jud 3:5` still says Jude has one chapter).
 3. **Several credible passages**, in this order:
    1. the **Bible's language** decides, if it read the input;
    2. the **interface language** decides, if it read the input;

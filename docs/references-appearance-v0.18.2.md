@@ -27,7 +27,9 @@ Presenter parser.
 - The Bible's language comes from the translation's stored language tag
   (`bibles.language_code`, read in the core by translation id through
   `resolve::language_of_tag`); it is never inferred from a name, short name,
-  file or publisher. A Bible without a tag skips step 1. No migration.
+  file or publisher. A Bible without a tag skips step 1. No migration. Today
+  only the bundled Bibles carry a tag; imported Bibles have none, because
+  the import review has no field for it (adding one is a separate change).
 - `scripture_reference_parse(text, language?, translationId?)` and
   `scripture_reference_detect(text, language?)`: no new command.
   `src/lib/api.ts` sends `i18n.language`; each typed-entry screen passes the
@@ -151,6 +153,24 @@ design is never altered.
 | 10 | `Script::of` gaps: half-width katakana, 々/〇, Han Extension B+ | added (`script_detection_and_native_digits`) |
 | 11 | Light focus ring below 3:1 on some panes; dark Parchment text on cards 10.4:1 vs the comment's 11:1 | deeper brass on all light backgrounds; comment and test state 9:1 for cards (`appearance-themes`) |
 
+Review of the priority refinement (§1a):
+
+| # | Finding | Fix (regression test) |
+|---|---|---|
+| 1 | Only bundled Bibles store a language tag; imported ones never do | documented in the guide and both records (no import field: out of this change's scope) |
+| 2 | A generated Bible language could beat a reading several reviewed languages agree on (Italian Bible: `Gn 3:5` → Jonah, `Ac 3:5` → Habakkuk) | its reading stays credible only when no passage has two or more reviewed languages behind it (`a_bible_language_then_the_interface_then_the_common_reading_then_ask`) |
+| 3 | Safety rules beat the Bible's own language (Romanian Bible, `Jud 3:5`) without the docs saying so | documented; test added |
+| 4 | ISO 639-2/B and macrolanguage tags (`cmn`, `dut`, `per`, `ara`, `rum`, `cze`, `gre`, `msa`) not mapped | mapped (`a_bibles_language_comes_from_its_stored_tag_only`) |
+| 5 | A database error while reading the Bible's tag failed the parse | treated as no signal |
+| 6 | The memory test API had a literal English default | the common reading, named as such |
+| 7 | Assistant suggestions: `Hb 1:1` now dropped, `Mc` now Mark | accepted and documented (no context in the assistant) |
+
+Checked and fine: no name-based inference; no hidden English fallback; the
+majority step decides between books for only `jn` and `mc` among every key
+of the six reviewed packs (no bad guesses); every row of the docs table
+reproduces; all six call sites pass the right Bible; running-text detection
+untouched; no global state, no new strings, no migration.
+
 Checked and fine: the Presentation side uses the shared engine; audience
 slides are never recoloured; the Presenter preference migration; radio groups
 labelled; Match my computer live; English/German sources not widened; the
@@ -162,8 +182,11 @@ preferences); script detection and offsets; German "du" in new strings.
 - Only chapters are validated (no verse counts in the canon): with a
   Portuguese Bible (or interface) `Jn 3:16` opens Jonah 3, which has no
   verse 16.
-- A Bible imported without a language tag gives no Bible-language signal;
-  the interface language decides instead.
+- Bibles imported from files carry no language tag (the import review does
+  not ask for one), so for them the interface language decides first.
+- The generated Italian data lists `Gn` for Jonah; it cannot override the
+  reviewed languages' Genesis, but with an Italian Bible and no reviewed
+  reading the data is used as published.
 - The assistant has no Bible or interface context: an ambiguous abbreviation
   in its suggestions follows the common reading or is left out.
 - In running text, generated-language sources find references only with `:`

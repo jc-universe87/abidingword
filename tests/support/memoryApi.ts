@@ -202,7 +202,8 @@ function parseForTests(text: string, languages: (string | null | undefined)[] = 
   const match = /^\s*([1-3]?\s?[\p{L}]+)\s*(\d+)(?:[:,](\d+)(?:-(\d+))?)?\s*$/iu.exec(text.replace(/(\d+)장\s*(\d+)절/, "$1:$2"));
   const written = (match?.[1] ?? "").toLowerCase();
   const decider = languages.map((l) => l?.split(/[-_]/)[0]).find((l) => l && JN_BY_LANGUAGE[l]);
-  const book = written === "jn" ? JN_BY_LANGUAGE[decider ?? "en"] : match ? ALIASES[written] : undefined;
+  // Neither language decides: the common reading (John in three of the four).
+  const book = written === "jn" ? (decider ? JN_BY_LANGUAGE[decider] : "JHN") : match ? ALIASES[written] : undefined;
   const info = book ? bookByCode.get(book) : undefined;
   const chapter = Number(match?.[2]);
   if (!match || !book || !info || chapter < 1 || chapter > info.chapterCount) {
