@@ -335,12 +335,15 @@ build.
 **11. Imported Bible with language metadata**
 - [ ] Import a USFM `.zip` without metadata: Language starts unchosen; *Add this Bible* waits until one is chosen.
 - [ ] Import a DBL bundle (with `metadata.xml`) or a Paratext project `.zip` (with `Settings.xml`): Language is filled in.
+- [ ] Choose loose USFM files together with their `metadata.xml` in the file dialog (the "Bible files" filter shows `.xml`): Language is filled in, named in the language itself.
+- [ ] *Another language…*: the cursor moves to the name field; a screen reader reads the hint; *Save language* in Settings returns focus to *Change language*.
 - [ ] Settings → Bible texts → Details → *Change language* on an older imported Bible → Portuguese; `Jn 3:5` while reading it → Jonah 3:5 at once; its text and notes unchanged.
 
 **12. Verse-boundary validation**
-- [ ] `Jonah 3:16` → "Jonah 3 has 10 verses."; `Psalm 119:176` opens, `Psalm 119:177` → "Psalms 119 has 176 verses."; `Jude 25` opens, `Jude 26` → "Jude has 25 verses."; `John 3:16-37` refused; `John 3:36-4:54` opens.
+- [ ] `Jonah 3:16` → "Jonah 3 has 10 verses."; `Psalm 119:176` opens, `Psalm 119:177` → "Psalm 119 has 176 verses." (Korean interface: "시편 119편은 176절까지 있습니다."); `Jude 25` opens, `Jude 26` → "Jude has 25 verses."; `John 3:16-37` refused; `John 3:36-4:54` opens.
 - [ ] Reading a Portuguese Bible: `Jn 3:16` → John 3:16 (not an error).
 - [ ] Reading Louis Segond: `Ex 7:29` opens (a verse this Bible has).
+- [ ] With Louis Segond installed but the BSB open (or no Bible open): `Ps 51:21` still opens.
 
 **13. Light/dark and background families**
 - [ ] Each of the six backgrounds in Light and Dark: calm and readable; the focus ring is visible on pages and side panes.
