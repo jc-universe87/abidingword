@@ -9,26 +9,38 @@ use abiding_word_lib::presentation::template::TemplateAsset;
 use abiding_word_lib::presentation::template_store::TemplateStore;
 
 fn fixture(name: &str) -> Vec<u8> {
-    std::fs::read(Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/templates").join(name)).unwrap()
+    std::fs::read(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/templates")
+            .join(name),
+    )
+    .unwrap()
 }
 
 /// The image files in the store itself (not in `staging/`).
 fn kept_files(store: &TemplateStore) -> Vec<PathBuf> {
-    let Ok(entries) = std::fs::read_dir(&store.dir) else { return Vec::new() };
-    let mut files: Vec<PathBuf> = entries.map(|e| e.unwrap().path()).filter(|p| p.is_file()).collect();
+    let Ok(entries) = std::fs::read_dir(&store.dir) else {
+        return Vec::new();
+    };
+    let mut files: Vec<PathBuf> = entries
+        .map(|e| e.unwrap().path())
+        .filter(|p| p.is_file())
+        .collect();
     files.sort();
     files
 }
 
 fn staged_files(store: &TemplateStore) -> usize {
-    std::fs::read_dir(store.staging_dir()).map(|e| e.count()).unwrap_or(0)
+    std::fs::read_dir(store.staging_dir())
+        .map(|e| e.count())
+        .unwrap_or(0)
 }
 
 /// A real 1×1 PNG, made distinct by its text chunk.
 fn png(tag: u8) -> Vec<u8> {
     let mut bytes = vec![
-        0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 13, b'I', b'H', b'D', b'R', 0, 0, 0, 1, 0, 0, 0, 1, 8, 6,
-        0, 0, 0, 0x1F, 0x15, 0xC4, 0x89,
+        0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 13, b'I', b'H', b'D', b'R', 0, 0,
+        0, 1, 0, 0, 0, 1, 8, 6, 0, 0, 0, 0x1F, 0x15, 0xC4, 0x89,
     ];
     bytes.extend_from_slice(&[0, 0, 0, 1, b't', b'E', b'X', b't', tag, 0, 0, 0, 0]);
     bytes.extend_from_slice(&[0, 0, 0, 0, b'I', b'E', b'N', b'D', 0xAE, 0x42, 0x60, 0x82]);
@@ -44,8 +56,18 @@ fn store() -> (tempfile::TempDir, TemplateStore) {
 #[test]
 fn a_powerpoint_import_stages_its_images_and_cancelling_leaves_the_store_empty() {
     let (_dir, store) = store();
-    let imported = pptx_import::import(&fixture("powerpoint-16x9.pptx"), "church.pptx", &store, &[], &|_, _| {}).unwrap();
-    assert!(!imported.definition.assets.is_empty(), "the fixture has images");
+    let imported = pptx_import::import(
+        &fixture("powerpoint-16x9.pptx"),
+        "church.pptx",
+        &store,
+        &[],
+        &|_, _| {},
+    )
+    .unwrap();
+    assert!(
+        !imported.definition.assets.is_empty(),
+        "the fixture has images"
+    );
     // Under review: readable (previews), but nothing in the store.
     for asset in &imported.definition.assets {
         assert!(store.read(asset).is_some());
@@ -74,7 +96,8 @@ fn an_import_that_fails_halfway_leaves_nothing_in_the_store() {
 #[test]
 fn keeping_copies_exactly_the_templates_images_and_a_failed_save_takes_back_only_those() {
     let (_dir, store) = store();
-    let imported = pptx_import::import(&fixture("keynote.pptx"), "k.pptx", &store, &[], &|_, _| {}).unwrap();
+    let imported =
+        pptx_import::import(&fixture("keynote.pptx"), "k.pptx", &store, &[], &|_, _| {}).unwrap();
     let assets = imported.definition.assets.clone();
     let copied = store.keep(&assets).unwrap();
     assert_eq!(copied.len(), assets.len());
@@ -92,9 +115,15 @@ fn keeping_copies_exactly_the_templates_images_and_a_failed_save_takes_back_only
     let shared = assets[0].clone();
     let new = store.add(&png(7), "new.png").unwrap();
     let copied = store.keep(&[shared.clone(), new.clone()]).unwrap();
-    assert_eq!(copied.iter().map(|a| a.id.clone()).collect::<Vec<_>>(), vec![new.id.clone()]);
+    assert_eq!(
+        copied.iter().map(|a| a.id.clone()).collect::<Vec<_>>(),
+        vec![new.id.clone()]
+    );
     store.unkeep(&copied);
-    assert!(store.path(&shared).is_file(), "an image another template uses is never removed");
+    assert!(
+        store.path(&shared).is_file(),
+        "an image another template uses is never removed"
+    );
     assert!(!store.path(&new).is_file());
 }
 
@@ -120,11 +149,16 @@ fn the_same_image_twice_is_one_file_and_shared_images_are_never_deleted() {
 fn an_image_changed_in_staging_is_not_kept() {
     let (_dir, store) = store();
     let asset = store.add(&png(9), "logo.png").unwrap();
-    let staged = store.staging_dir().join(store.path(&asset).file_name().unwrap());
+    let staged = store
+        .staging_dir()
+        .join(store.path(&asset).file_name().unwrap());
     std::fs::write(&staged, png(10)).unwrap();
     assert!(store.read(&asset).is_none());
     assert!(store.keep(&[asset.clone()]).is_err());
     assert_eq!(kept_files(&store), Vec::<PathBuf>::new());
-    let missing = TemplateAsset { id: "0".repeat(64), ..asset };
+    let missing = TemplateAsset {
+        id: "0".repeat(64),
+        ..asset
+    };
     assert!(store.keep(&[missing]).is_err());
 }
