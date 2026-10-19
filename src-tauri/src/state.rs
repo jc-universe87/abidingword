@@ -61,6 +61,10 @@ impl AppState {
             let db = Database::open(&path, &dirs.pre_migration_backups())?;
             // Imported EPUBs read again where extraction has improved (once per
             // improvement). Derived text never stops the app from opening.
+            // Images staged for templates that were never saved (an import or
+            // design left open or cancelled): nothing can be using them now.
+            crate::presentation::template_store::TemplateStore::from(dirs.presentation_templates())
+                .clear_staging();
             let sources = dirs.sources();
             if let Err(error) =
                 db.with_conn(|conn| text_refresh::ensure_extracted_text(conn, &sources))

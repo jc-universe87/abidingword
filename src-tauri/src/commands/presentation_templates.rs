@@ -65,13 +65,37 @@ pub fn presentation_template_get(
     state.db(|conn| templates::get(conn, &id))
 }
 
+/// Saves a template's database row with its images: they are copied from
+/// staging into the store first, and taken back out if the save fails, so
+/// the store only ever holds images of saved templates (v0.18.3).
+fn save_with_images<T>(
+    state: &AppState,
+    def: Option<&TemplateDefinition>,
+    save: impl FnOnce(&rusqlite::Connection) -> crate::error::AppResult<T>,
+) -> CommandResult<T> {
+    let store = kept(state)?;
+    let copied = match def {
+        Some(def) => {
+            images_kept(def, &store)?;
+            store.keep(&def.assets)?
+        }
+        None => Vec::new(),
+    };
+    let saved = state.db(save);
+    if saved.is_err() {
+        store.unkeep(&copied);
+    }
+    saved
+}
+
 #[tauri::command(async)]
 pub fn presentation_template_create(
     state: State<'_, AppState>,
     input: CreatePresentationTemplate,
 ) -> CommandResult<PresentationTemplate> {
-    images_kept(&input.definition, &kept(&state)?)?;
-    state.db(|conn| templates::create(conn, &input))
+    save_with_images(&state, Some(&input.definition), |conn| {
+        templates::create(conn, &input)
+    })
 }
 
 #[tauri::command(async)]
@@ -79,10 +103,9 @@ pub fn presentation_template_update(
     state: State<'_, AppState>,
     input: UpdatePresentationTemplate,
 ) -> CommandResult<PresentationTemplate> {
-    if let Some(def) = &input.definition {
-        images_kept(def, &kept(&state)?)?;
-    }
-    state.db(|conn| templates::update(conn, &input))
+    save_with_images(&state, input.definition.as_ref(), |conn| {
+        templates::update(conn, &input)
+    })
 }
 
 #[tauri::command(async)]
@@ -90,7 +113,8 @@ pub fn presentation_template_delete(state: State<'_, AppState>, id: String) -> C
     state.db(|conn| templates::delete(conn, &id))
 }
 
-/// Keeps an image the person chose (a logo, a background) for a template.
+/// Stages an image the person chose (a logo, a background) for a template;
+/// it is kept when the template is saved.
 #[tauri::command(async)]
 pub fn presentation_template_asset_add(
     state: State<'_, AppState>,
@@ -173,7 +197,7 @@ pub fn presentation_template_import_package(
         .file_name()
         .and_then(|n| n.to_str())
         .map(str::to_string);
-    state.db(|conn| {
+    save_with_images(&state, Some(&package.definition), |conn| {
         templates::create(
             conn,
             &CreatePresentationTemplate {
@@ -255,7 +279,8 @@ struct ImportProgress {
 
 /// Reads the design of a PowerPoint file (also one saved from Keynote,
 /// Google Slides or LibreOffice) for the person to review. Its images are
-/// kept; nothing is saved as a template until the person accepts it.
+/// staged; nothing is saved as a template, and no image kept, until the
+/// person accepts it.
 #[tauri::command(async)]
 pub fn presentation_template_import_pptx(
     app: AppHandle,
