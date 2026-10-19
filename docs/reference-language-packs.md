@@ -96,7 +96,7 @@ Input longer than 200 characters is not a reference. **Verses are validated
 (v0.18.3)** against the canon's verse counts before any priority applies: a
 reading naming a verse that does not exist is invalid and never competes, so
 `Jn 3:16` is John 3:16 even with a Portuguese Bible (Jonah 3 has 10 verses).
-A verse beyond the canon that the Bible being read has is accepted
+A verse beyond the canon that any installed Bible has is accepted
 ([`correctness-hardening-v0.18.3.md`](correctness-hardening-v0.18.3.md) §2).
 
 A bare book name opens chapter 1. A chapter alone is a chapter. Titles in

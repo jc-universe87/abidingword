@@ -34,6 +34,8 @@
     "chapterCount": "{{book}} compte {{count}} chapitres.",
     "verseCount": "{{book}} {{chapter}} compte {{count}} versets.",
     "verseCountBook": "{{book}} compte {{count}} versets.",
+    "chapterCountPsalms": "Les Psaumes comptent {{count}} psaumes.",
+    "verseCountPsalm": "Le psaume {{chapter}} compte {{count}} versets.",
     "badVerse": "{{verse}} n’est pas un numéro de verset valide.",
     "endBeforeStart": "La fin du passage précède son début.",
     "invalid": "« {{text}} » n’est pas une référence de passage valide.",

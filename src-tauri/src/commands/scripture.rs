@@ -70,20 +70,19 @@ pub fn scripture_reference_parse(
 ) -> CommandResult<ScriptureRefDto> {
     let interface = resolve::preferred(language.as_deref());
     let id = translation_id.filter(|id| !id.is_empty());
-    if let Some(id) = id.as_deref() {
-        // With the Bible being read: its language, and its own verses beyond the canon.
-        let read = state.db(|conn| {
-            let context = resolve::Context::new(bible_language(conn, id), interface);
-            Ok(resolve::resolve_with(
-                &text,
-                context,
-                &|book, chapter, verse| bibles::has_verse(conn, id, book, chapter, verse),
-            ))
-        });
-        // A Bible that cannot be read now is no signal, never a failed parse.
-        if let Ok(result) = read {
-            return Ok(result?.to_dto());
-        }
+    // The language of the Bible being read, and every installed Bible's own
+    // verses beyond the canon (v0.18.3).
+    let read = state.db(|conn| {
+        let bible = id.as_deref().and_then(|id| bible_language(conn, id));
+        Ok(resolve::resolve_with(
+            &text,
+            resolve::Context::new(bible, interface),
+            &|book, chapter, verse| bibles::any_has_verse(conn, book, chapter, verse),
+        ))
+    });
+    // A database that cannot be read now is no signal, never a failed parse.
+    if let Ok(result) = read {
+        return Ok(result?.to_dto());
     }
     Ok(resolve::resolve(&text, resolve::Context::new(None, interface))?.to_dto())
 }

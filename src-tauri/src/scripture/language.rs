@@ -178,9 +178,13 @@ pub fn fold_char(c: char) -> char {
 /// A stored language tag, well formed (BCP 47 in its common shapes): a
 /// primary language of two or three letters, then optionally a script
 /// (`Hant`), a region (`BR`, `419`) and variants. Case is normalised
-/// (`PT_br` → `pt-BR`). Anything else — a name such as "Português", an empty
-/// value, "und"/"mul"/"zxx"/"mis", private use — is no tag at all. A tag
-/// says what a Bible *is*; nothing here guesses it.
+/// (`PT_br` → `pt-BR`), a three-letter code with a two-letter one becomes
+/// it (`deu` → `de`, as BCP 47 asks), an extended language becomes the
+/// language (`zh-yue-HK` → `yue-HK`), and extensions and private use after
+/// the language are dropped (`en-US-u-ca-gregory` → `en-US`). Anything else —
+/// a name such as "Português", an empty value, "und"/"mul"/"zxx"/"mis", a
+/// private-use language (`qaa`–`qtz`, `x-…`) — is no tag at all. A tag says
+/// what a Bible *is*; nothing here guesses it.
 pub fn normalise_tag(input: &str) -> Option<String> {
     let input = input.trim();
     if input.is_empty() || input.len() > 35 {
@@ -191,16 +195,25 @@ pub fn normalise_tag(input: &str) -> Option<String> {
     if !(2..=3).contains(&primary.len())
         || !primary.chars().all(|c| c.is_ascii_alphabetic())
         || matches!(primary.as_str(), "und" | "mul" | "zxx" | "mis")
+        || (primary.len() == 3 && ("qaa"..="qtz").contains(&primary.as_str()))
     {
         return None;
     }
     let mut out = vec![primary];
     let mut stage = 0; // 0: script next, 1: region next, 2: variants
+    let mut extlang = false;
     for part in parts {
         let alnum = part.chars().all(|c| c.is_ascii_alphanumeric());
         let alpha = part.chars().all(|c| c.is_ascii_alphabetic());
         let digits = part.chars().all(|c| c.is_ascii_digit());
-        if stage == 0 && part.len() == 4 && alpha {
+        if part.len() == 1 {
+            // An extension or private use ("-u-…", "-x-…"): the tag ends here.
+            break;
+        }
+        if stage == 0 && !extlang && part.len() == 3 && alpha {
+            out[0] = part.to_ascii_lowercase();
+            extlang = true;
+        } else if stage == 0 && part.len() == 4 && alpha {
             out.push(format!(
                 "{}{}",
                 part[..1].to_ascii_uppercase(),
@@ -217,8 +230,17 @@ pub fn normalise_tag(input: &str) -> Option<String> {
             out.push(part.to_ascii_lowercase());
             stage = 2;
         } else {
-            // Extensions and private use ("x-…") are not kept; malformed parts end the tag.
+            // A malformed part: not a tag.
             return None;
+        }
+    }
+    // The shortest code for the language: "deu", "ger" → "de".
+    if out[0].len() == 3 {
+        if let Some(code) = crate::scripture::resolve::language_of_tag(Some(&out[0]))
+            .map(ReferenceLanguage::code)
+            .filter(|c| c.len() == 2)
+        {
+            out[0] = code.to_string();
         }
     }
     Some(out.join("-"))
@@ -235,7 +257,17 @@ mod tests {
             ("PT_br", Some("pt-BR")),
             ("zh-hant-tw", Some("zh-Hant-TW")),
             ("es-419", Some("es-419")),
-            ("deu", Some("deu")),
+            ("deu", Some("de")),
+            ("ger-CH", Some("de-CH")),
+            ("fra", Some("fr")),
+            ("por", Some("pt")),
+            ("tpi", Some("tpi")),
+            ("en-US-x-twain", Some("en-US")),
+            ("en-US-u-ca-gregory", Some("en-US")),
+            ("en-a-bbb", Some("en")),
+            ("zh-yue-HK", Some("yue-HK")),
+            ("qaa", None),
+            ("qtz-Latn", None),
             (" ko ", Some("ko")),
             ("de-1996", Some("de-1996")),
             ("Português", None),
@@ -244,7 +276,7 @@ mod tests {
             ("und", None),
             ("mul", None),
             ("x-foo", None),
-            ("en-x-private", None),
+            ("en-x-private", Some("en")),
             ("e", None),
             ("12", None),
             ("en--US", None),

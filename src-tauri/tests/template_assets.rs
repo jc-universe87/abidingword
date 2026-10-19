@@ -94,13 +94,12 @@ fn an_import_that_fails_halfway_leaves_nothing_in_the_store() {
 }
 
 #[test]
-fn keeping_copies_exactly_the_templates_images_and_a_failed_save_takes_back_only_those() {
+fn keeping_copies_exactly_the_templates_images_once() {
     let (_dir, store) = store();
     let imported =
         pptx_import::import(&fixture("keynote.pptx"), "k.pptx", &store, &[], &|_, _| {}).unwrap();
     let assets = imported.definition.assets.clone();
-    let copied = store.keep(&assets).unwrap();
-    assert_eq!(copied.len(), assets.len());
+    assert_eq!(store.keep(&assets).unwrap(), assets.len());
     assert_eq!(kept_files(&store).len(), assets.len());
     // Kept images stay readable after staging is emptied.
     store.clear_staging();
@@ -108,23 +107,52 @@ fn keeping_copies_exactly_the_templates_images_and_a_failed_save_takes_back_only
         assert_eq!(store.read(asset).map(|b| !b.is_empty()), Some(true));
     }
     // Keeping again copies nothing.
-    assert!(store.keep(&assets).unwrap().is_empty());
-
-    // A second template: one image already kept, one new. Its save fails: only
-    // the new one is taken back out.
-    let shared = assets[0].clone();
+    assert_eq!(store.keep(&assets).unwrap(), 0);
+    // A second template: one image already kept, one new: only the new one
+    // is copied.
     let new = store.add(&png(7), "new.png").unwrap();
-    let copied = store.keep(&[shared.clone(), new.clone()]).unwrap();
+    assert_eq!(store.keep(&[assets[0].clone(), new.clone()]).unwrap(), 1);
+    assert!(store.path(&new).is_file());
+}
+
+#[test]
+fn two_saves_keeping_the_same_new_image_both_keep_it_even_if_one_fails() {
+    // Review finding (v0.18.3): a failed save once took its copied images
+    // back out, which could remove one a second save had just relied on.
+    let (_dir, store) = store();
+    let x = store.add(&png(11), "logo.png").unwrap();
+    let saves: Vec<_> = (0..4)
+        .map(|_| {
+            let (store, x) = (store.clone(), x.clone());
+            std::thread::spawn(move || store.keep(std::slice::from_ref(&x)).unwrap())
+        })
+        .collect();
+    let copied: usize = saves.into_iter().map(|t| t.join().unwrap()).sum();
+    assert!(copied >= 1);
+    // Whatever became of any one save, the image stays, whole, after a restart.
+    store.clear_staging();
+    assert!(store.read(&x).is_some());
     assert_eq!(
-        copied.iter().map(|a| a.id.clone()).collect::<Vec<_>>(),
-        vec![new.id.clone()]
+        kept_files(&store),
+        vec![store.path(&x)],
+        "no partial file left"
     );
-    store.unkeep(&copied);
-    assert!(
-        store.path(&shared).is_file(),
-        "an image another template uses is never removed"
-    );
-    assert!(!store.path(&new).is_file());
+}
+
+#[test]
+fn an_asset_id_that_is_not_a_sha256_names_no_file() {
+    let (dir, store) = store();
+    std::fs::write(dir.path().join("secret.png"), png(12)).unwrap();
+    let outside = TemplateAsset {
+        id: "../secret".into(),
+        media_type: "image/png".into(),
+        width: 1,
+        height: 1,
+        name: String::new(),
+    };
+    assert!(!store.has(&outside));
+    assert!(store.read(&outside).is_none());
+    assert!(store.keep(&[outside]).is_err());
 }
 
 #[test]

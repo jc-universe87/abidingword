@@ -12,7 +12,7 @@ import { localizeMessage } from "@/i18n/messages";
 import { bookName } from "@/i18n/scripture";
 import type { BibleTranslation, BundledBibleInfo, ImportIssue, ImportPreview } from "@/types/scripture";
 import { useScripture } from "./ScriptureContext";
-import { LanguageChoice, storedName, type LanguageValue } from "./LanguageChoice";
+import { LanguageChoice, type LanguageValue } from "./LanguageChoice";
 
 type Step =
   | { kind: "choose" }
@@ -244,13 +244,9 @@ function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCa
   const s = preview.suggested;
   const [name, setName] = useState(s.name);
   const [shortName, setShortName] = useState(s.shortName);
-  const { i18n } = useTranslation();
-  // Chosen only from the files' own metadata (or the bundled list); otherwise left for the person.
-  const [language, setLanguage] = useState<LanguageValue | null>(() =>
-    s.languageCode
-      ? { code: s.languageCode, name: s.language || storedName(undefined, s.languageCode, i18n.resolvedLanguage ?? "en") }
-      : null,
-  );
+  // Chosen only from the files' own metadata (or the bundled list); otherwise
+  // left for the person. A tag without a name is named by LanguageChoice.
+  const [language, setLanguage] = useState<LanguageValue | null>(() => (s.languageCode ? { code: s.languageCode, name: s.language } : null));
   const [busy, setBusy] = useState(false);
   const errors = preview.issues.filter((i) => i.severity === "error");
   const warnings = preview.issues.filter((i) => i.severity === "warning");

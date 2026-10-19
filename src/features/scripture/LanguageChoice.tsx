@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useApi } from "@/lib/ApiContext";
 import type { BibleLanguageOption } from "@/types/scripture";
@@ -30,9 +30,13 @@ function localName(code: string, locale: string): string | undefined {
   }
 }
 
-/** The name stored with a Bible for a listed language: its own name first. */
+/**
+ * The name stored with a Bible for a tag: the language's own name ("português",
+ * "português (Brasil)"), whether it was chosen from the list or read from the
+ * files' metadata; else its name in the interface language.
+ */
 export function storedName(option: BibleLanguageOption | undefined, code: string, locale: string): string {
-  return option?.native ?? localName(code, locale) ?? option?.name ?? code;
+  return option?.native ?? localName(code, code) ?? localName(code, locale) ?? option?.name ?? code;
 }
 
 export function LanguageChoice({
@@ -48,8 +52,10 @@ export function LanguageChoice({
 }) {
   const { t, i18n } = useTranslation();
   const api = useApi();
-  const [options, setOptions] = useState<BibleLanguageOption[]>([]);
+  const [options, setOptions] = useState<BibleLanguageOption[] | null>(null);
   const [other, setOther] = useState(value !== null && value.code === null);
+  const otherInput = useRef<HTMLInputElement>(null);
+  const focusOther = useRef(false);
 
   useEffect(() => {
     let live = true;
@@ -66,8 +72,24 @@ export function LanguageChoice({
   }, [api]);
 
   const locale = i18n.resolvedLanguage ?? i18n.language ?? "en";
+
+  // A tag given without a name (from the Bible's metadata) is named as a
+  // choice from the list would be: its own name first, once the list is here.
+  useEffect(() => {
+    if (options !== null && value?.code && !value.name.trim()) {
+      onChange({ code: value.code, name: storedName(options.find((o) => o.code === value.code), value.code, locale) });
+    }
+  }, [options, value, locale, onChange]);
+
+  useEffect(() => {
+    if (other && focusOther.current) {
+      focusOther.current = false;
+      otherInput.current?.focus();
+    }
+  }, [other]);
+
   const labelled = useMemo(() => {
-    const list = options.map((o) => {
+    const list = (options ?? []).map((o) => {
       const local = localName(o.code, locale) ?? o.name;
       const text = o.native && o.native.toLowerCase() !== local.toLowerCase() ? `${local} (${o.native})` : local;
       return { code: o.code, text };
@@ -82,6 +104,7 @@ export function LanguageChoice({
   const selected = other ? OTHER : (value?.code ?? "");
   const choose = (code: string) => {
     if (code === OTHER) {
+      focusOther.current = true;
       setOther(true);
       onChange({ code: null, name: value?.code === null ? value.name : "" });
       return;
@@ -91,7 +114,7 @@ export function LanguageChoice({
       onChange(null);
       return;
     }
-    onChange({ code, name: storedName(options.find((o) => o.code === code), code, locale) });
+    onChange({ code, name: storedName(options?.find((o) => o.code === code), code, locale) });
   };
 
   return (
@@ -118,8 +141,12 @@ export function LanguageChoice({
         <label className="mt-2 flex flex-col gap-1">
           <span className="text-[0.9375rem] text-text-strong">{t("scripture.language.otherName")}</span>
           <input
+            ref={otherInput}
             value={value?.name ?? ""}
             onChange={(e) => onChange({ code: null, name: e.target.value })}
+            required
+            aria-invalid={!value?.name.trim()}
+            aria-describedby={`${id}-hint`}
             className="h-10 rounded-aw border border-border bg-bg px-3 text-base"
           />
         </label>

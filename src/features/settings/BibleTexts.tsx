@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
@@ -122,6 +122,20 @@ function BibleLanguage({ bible }: { bible: BibleTranslation }) {
   const [value, setValue] = useState<LanguageValue | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const changeButton = useRef<HTMLButtonElement>(null);
+  const returnFocus = useRef(false);
+
+  // Back on "Change language" after Save or Cancel, as from any small editor.
+  useEffect(() => {
+    if (!editing && returnFocus.current) {
+      returnFocus.current = false;
+      changeButton.current?.focus();
+    }
+  }, [editing]);
+  const finish = () => {
+    returnFocus.current = true;
+    setEditing(false);
+  };
 
   const start = () => {
     setValue(bible.languageCode ? { code: bible.languageCode, name: bible.language } : bible.language ? { code: null, name: bible.language } : null);
@@ -135,7 +149,7 @@ function BibleLanguage({ bible }: { bible: BibleTranslation }) {
     try {
       await api.bibleSetLanguage({ id: bible.id, language: value.name.trim(), languageCode: value.code });
       await reloadTranslations();
-      setEditing(false);
+      finish();
     } catch (e) {
       setError(toApiError(e).message);
     } finally {
@@ -147,7 +161,9 @@ function BibleLanguage({ bible }: { bible: BibleTranslation }) {
     return (
       <span className="inline-flex flex-wrap items-baseline gap-x-3">
         <span>{bible.language || t("scripture.bibles.languageNotSet")}</span>
-        <Button variant="quiet" onClick={start}>{t("scripture.bibles.changeLanguage")}</Button>
+        <Button ref={changeButton} variant="quiet" onClick={start}>
+          {t("scripture.bibles.changeLanguage")}
+        </Button>
       </span>
     );
   }
@@ -158,7 +174,7 @@ function BibleLanguage({ bible }: { bible: BibleTranslation }) {
         <Button variant="primary" onClick={save} disabled={busy || !value || !value.name.trim()}>
           {t("scripture.bibles.saveLanguage")}
         </Button>
-        <Button onClick={() => setEditing(false)}>{t("common.cancel")}</Button>
+        <Button onClick={finish}>{t("common.cancel")}</Button>
       </div>
       {error && <p role="alert" className="m-0 text-danger">{error}</p>}
     </div>

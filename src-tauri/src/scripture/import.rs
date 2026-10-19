@@ -524,23 +524,45 @@ pub fn metadata_language(files: &[SourceText]) -> Option<String> {
         let end = start + text[start..].find('<')?;
         Some(text[start..end].trim())
     }
+    /// The text without XML comments: a commented-out block states nothing.
+    fn uncommented(text: &str) -> String {
+        let mut out = String::with_capacity(text.len());
+        let mut rest = text;
+        while let Some(at) = rest.find("<!--") {
+            out.push_str(&rest[..at]);
+            rest = rest[at..]
+                .find("-->")
+                .map_or("", |end| &rest[at + end + 3..]);
+        }
+        out.push_str(rest);
+        out
+    }
     let mut found: Vec<String> = Vec::new();
     for file in files.iter().filter(|f| is_metadata_file(&f.name)) {
-        let tag = if let Some(at) = file.text.find("<language>") {
-            let block = &file.text[at..];
+        let text = uncommented(&file.text);
+        let tag = if let Some(at) = text.find("<language>") {
+            let block = &text[at..];
             let block = &block[..block.find("</language>").unwrap_or(block.len())];
             ["bcp47", "ldml", "iso"]
                 .iter()
                 .find_map(|t| field(block, t).and_then(crate::scripture::language::normalise_tag))
         } else {
-            field(&file.text, "LanguageIsoCode")
-                .and_then(|code| code.split(':').next())
-                .and_then(crate::scripture::language::normalise_tag)
+            // Paratext writes "language:script:region:variant" ("sr:Latn:RS:").
+            field(&text, "LanguageIsoCode")
+                .map(|code| {
+                    code.split(':')
+                        .filter(|p| !p.is_empty())
+                        .collect::<Vec<_>>()
+                        .join("-")
+                })
+                .and_then(|tag| crate::scripture::language::normalise_tag(&tag))
         };
         if let Some(tag) = tag {
             found.push(tag);
         }
     }
+    // Tags are normalised ("deu" → "de"), so the same language agrees.
+    found.sort();
     found.dedup();
     match found.as_slice() {
         [one] => Some(one.clone()),
@@ -627,6 +649,9 @@ fn unsupported(kind: &str) -> AppError {
     )
 }
 
+/// A metadata file larger than this is not read (bytes).
+const METADATA_MAX: u64 = 1024 * 1024;
+
 fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
     let mut total: u64 = 0;
     let mut texts = Vec::new();
@@ -647,6 +672,18 @@ fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
         let size = fs::metadata(path)
             .map_err(|e| AppError::filesystem(path, e))?
             .len();
+        if is_metadata_file(&file_name(path)) {
+            // Optional, as inside an archive: too large or unreadable is no language.
+            if size <= METADATA_MAX {
+                if let Ok(Ok(text)) = fs::read(path).map(String::from_utf8) {
+                    texts.push(SourceText {
+                        name: file_name(path),
+                        text,
+                    });
+                }
+            }
+            continue;
+        }
         total += size;
         if total > MAX_TOTAL_BYTES {
             return Err(AppError::Import(UserMessage::new(
@@ -658,15 +695,6 @@ fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
             texts.extend(read_zip(path, &mut total)?);
         } else {
             let bytes = fs::read(path).map_err(|e| AppError::filesystem(path, e))?;
-            if is_metadata_file(&file_name(path)) {
-                if let Ok(text) = String::from_utf8(bytes) {
-                    texts.push(SourceText {
-                        name: file_name(path),
-                        text,
-                    });
-                }
-                continue;
-            }
             texts.push(SourceText {
                 name: file_name(path),
                 text: decode(&bytes, &file_name(path))?,
@@ -709,7 +737,7 @@ fn read_zip(path: &Path, total: &mut u64) -> AppResult<Vec<SourceText>> {
                 || lower.ends_with(".sfm")
                 || lower.ends_with(".ptx")
                 || metadata)
-            || (metadata && entry.size() > 1024 * 1024)
+            || (metadata && entry.size() > METADATA_MAX)
         {
             continue;
         }
@@ -721,7 +749,11 @@ fn read_zip(path: &Path, total: &mut u64) -> AppResult<Vec<SourceText>> {
             )));
         }
         let mut bytes = Vec::new();
-        entry.read_to_end(&mut bytes).map_err(|e| {
+        let read = entry.read_to_end(&mut bytes);
+        if metadata && read.is_err() {
+            continue;
+        }
+        read.map_err(|e| {
             AppError::Import(
                 UserMessage::new(
                     "bibleImport.badZipEntry",

@@ -631,7 +631,8 @@ export const tauriApi: Api = {
       directory: false,
       title: "Choose a Bible to add",
       filters: [
-        { name: "Bible files (USFM or .zip)", extensions: ["zip", "usfm", "sfm", "ptx", "txt"] },
+        // metadata.xml / Settings.xml chosen alongside name the language (v0.18.3).
+        { name: "Bible files (USFM or .zip)", extensions: ["zip", "usfm", "sfm", "ptx", "txt", "xml"] },
         { name: "All files", extensions: ["*"] },
       ],
     });

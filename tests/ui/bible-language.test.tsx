@@ -38,13 +38,21 @@ describe("a Bible's language", () => {
     expect(language).toHaveValue("pt-BR");
     await user.type(screen.getByLabelText(/Short name/), "NVI");
     await user.click(screen.getByRole("button", { name: "Add this Bible" }));
-    await waitFor(() => expect(api.state.bibles.at(-1)).toMatchObject({ shortName: "NVI", languageCode: "pt-BR" }));
+    // Named as a choice from the list would be: in the language itself.
+    await waitFor(() => expect(api.state.bibles.at(-1)).toMatchObject({ shortName: "NVI", languageCode: "pt-BR", language: "português (Brasil)" }));
   });
 
   it("can be a language outside the list, by name only (no tag)", async () => {
     const { api, user } = await importFiles(["/home/me/latin.zip"]);
     await user.selectOptions(screen.getByRole("combobox", { name: "Language" }), "Another language…");
-    await user.type(screen.getByRole("textbox", { name: "Name of the language" }), "Latina");
+    const name = screen.getByRole("textbox", { name: "Name of the language" });
+    // Focus moves to the name; it is required and described by the hint.
+    expect(name).toHaveFocus();
+    expect(name).toBeRequired();
+    expect(name).toHaveAttribute("aria-invalid", "true");
+    expect(name).toHaveAccessibleDescription(/abbreviations you type/);
+    await user.type(name, "Latina");
+    expect(name).toHaveAttribute("aria-invalid", "false");
     await user.type(screen.getByLabelText(/Short name/), "VUL");
     await user.click(screen.getByRole("button", { name: "Add this Bible" }));
     await waitFor(() => expect(api.state.bibles.at(-1)).toMatchObject({ shortName: "VUL", language: "Latina", languageCode: null }));
@@ -71,6 +79,11 @@ describe("a Bible's language", () => {
     await waitFor(() => expect(api.state.bibles[0]).toMatchObject({ language: "português", languageCode: "pt" }));
     expect(api.state.bibles[0]).toMatchObject({ name: before.name, shortName: before.shortName, verseCount: before.verseCount });
     expect(await within(section).findByText("português")).toBeInTheDocument();
+    // Focus is back on "Change language"; Cancel returns it there too.
+    await waitFor(() => expect(within(section).getByRole("button", { name: "Change language" })).toHaveFocus());
+    await user.click(within(section).getByRole("button", { name: "Change language" }));
+    await user.click(within(section).getByRole("button", { name: "Cancel" }));
+    expect(within(section).getByRole("button", { name: "Change language" })).toHaveFocus();
 
     // The Bible's language now decides: "Jn" is Jonah in Portuguese.
     await user.click(screen.getByRole("button", { name: "Back to workspace" }));

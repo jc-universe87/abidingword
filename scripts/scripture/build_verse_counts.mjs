@@ -11,6 +11,8 @@
 // differs from this app's canon.
 //
 // Usage: node scripts/scripture/build_verse_counts.mjs <package>/esm/lang/en.js
+// then `cargo fmt` in src-tauri/ (the checked-in file is rustfmt-formatted;
+// `cargo fmt -- --check` fails until it is).
 import fs from "node:fs";
 
 const source = fs.readFileSync(process.argv[2], "utf8");

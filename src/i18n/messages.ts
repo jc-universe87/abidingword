@@ -52,8 +52,15 @@ function values(params: MessageParams): Record<string, unknown> {
 /** A coded message in the interface language, or `fallback` if the code is unknown. */
 export function localizeMessage(code: string | null | undefined, params: MessageParams | undefined, fallback: string): string {
   if (!code || !i18n.exists(`errors.${code}`)) return fallback;
-  return translate(`errors.${code}`, values(params ?? {}));
+  // The Psalms are counted in psalms, not chapters ("시편 119편", "Psalm 119").
+  const psalms = params?.bookCode === "PSA" ? PSALM_WORDING[code] : undefined;
+  return translate(`errors.${psalms ?? code}`, values(params ?? {}));
 }
+
+const PSALM_WORDING: Record<string, string> = {
+  "reference.chapterCount": "reference.chapterCountPsalms",
+  "reference.verseCount": "reference.verseCountPsalm",
+};
 
 /** An error from the core, in the interface language. */
 export function localizeError(kind: string, message: string, code?: string | null, params?: MessageParams): string {

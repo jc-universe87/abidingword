@@ -282,18 +282,15 @@ pub fn set_language(
     get(conn, id)
 }
 
-/// Whether a translation has this verse (by its own numbering).
-pub fn has_verse(
-    conn: &Connection,
-    translation_id: &str,
-    book: &canon::Book,
-    chapter: u16,
-    verse: u16,
-) -> bool {
+/// Whether any installed Bible has this verse (by its own numbering): a
+/// Bible that counts Psalm titles as verses (Ps 51:21) makes that citation
+/// good whichever Bible is being read. Asked only for a verse beyond the
+/// canon's count, so the scan is rare.
+pub fn any_has_verse(conn: &Connection, book: &canon::Book, chapter: u16, verse: u16) -> bool {
     let verse_id = verse_key(book.ordinal, chapter, verse);
     conn.query_row(
-        "SELECT 1 FROM bible_verse_texts WHERE translation_id = ?1 AND verse_id = ?2",
-        rusqlite::params![translation_id, verse_id],
+        "SELECT 1 FROM bible_verse_texts WHERE verse_id = ?1 LIMIT 1",
+        [verse_id],
         |_| Ok(()),
     )
     .is_ok()

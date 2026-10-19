@@ -9,12 +9,15 @@
 //! template copies its images into the store ([`TemplateStore::keep`]);
 //! cancelling leaves nothing in the store, and `staging/` is emptied when the
 //! app starts. Nothing is ever deleted from the store itself: images are
-//! shared between templates, and a database backup restored later may name
-//! images no current template uses. Also the template package: a template
+//! shared between templates (two saves may keep the same image at once), and
+//! a database backup restored later may name images no current template
+//! uses. A save that fails after its images were kept leaves them there,
+//! unused, rather than risk removing one another save has just relied on. Also the template package: a template
 //! with its images in one JSON file, to back up or to use on another
 //! installation (fonts are named, never included).
 
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use base64::Engine as _;
 use serde::{Deserialize, Serialize};
@@ -65,13 +68,20 @@ fn file_name(asset: &TemplateAsset) -> String {
     format!("{}.{}", asset.id, extension(&asset.media_type))
 }
 
-/// Writes beside, then moves: a file is never half there.
+/// Writes beside, then moves: a file is never half there. Each write has
+/// its own partial file, so two saves writing the same image never collide;
+/// the contents are the same, so whichever move lands last is right.
 fn write_whole(path: &Path, bytes: &[u8]) -> AppResult<()> {
+    static WRITES: AtomicU64 = AtomicU64::new(0);
     let dir = path.parent().unwrap_or(path);
     std::fs::create_dir_all(dir).map_err(|e| AppError::filesystem(dir, e))?;
-    let partial = path.with_extension("partial");
+    let n = WRITES.fetch_add(1, Ordering::Relaxed);
+    let partial = path.with_extension(format!("{}-{n}.partial", std::process::id()));
     std::fs::write(&partial, bytes).map_err(|e| AppError::filesystem(&partial, e))?;
-    std::fs::rename(&partial, path).map_err(|e| AppError::filesystem(path, e))
+    std::fs::rename(&partial, path).map_err(|e| {
+        let _ = std::fs::remove_file(&partial);
+        AppError::filesystem(path, e)
+    })
 }
 
 impl TemplateStore {
@@ -101,35 +111,25 @@ impl TemplateStore {
 
     /// Copies the images of a template being saved from `staging/` into the
     /// store (those it does not have yet), checking each is still the same.
-    /// Returns the images copied now, so a save that then fails can take
-    /// exactly those back out ([`Self::unkeep`]).
-    pub fn keep(&self, assets: &[TemplateAsset]) -> AppResult<Vec<TemplateAsset>> {
-        let mut copied = Vec::new();
+    /// Returns how many were copied now. Never removes anything: see the
+    /// module notes.
+    pub fn keep(&self, assets: &[TemplateAsset]) -> AppResult<usize> {
+        let mut copied = 0;
         for asset in assets {
+            if !is_asset_id(&asset.id) {
+                return Err(gone());
+            }
             if self.path(asset).is_file() {
                 continue;
             }
             let staged = std::fs::read(self.staged_path(asset)).ok();
             let Some(bytes) = staged.filter(|b| sha256_hex(b) == asset.id) else {
-                self.unkeep(&copied);
                 return Err(gone());
             };
-            if let Err(error) = write_whole(&self.path(asset), &bytes) {
-                self.unkeep(&copied);
-                return Err(error);
-            }
-            copied.push(asset.clone());
+            write_whole(&self.path(asset), &bytes)?;
+            copied += 1;
         }
         Ok(copied)
-    }
-
-    /// Takes back out images [`Self::keep`] has just copied for a save that
-    /// failed: no saved template can be using them, since they were not in
-    /// the store before.
-    pub fn unkeep(&self, copied: &[TemplateAsset]) {
-        for asset in copied {
-            let _ = std::fs::remove_file(self.path(asset));
-        }
     }
 
     /// Stages an image (once) and describes it; see the module notes.
@@ -167,6 +167,9 @@ impl TemplateStore {
     /// The image, when it is there and still the same: in the store, or
     /// staged for a template being reviewed or designed.
     pub fn read(&self, asset: &TemplateAsset) -> Option<Vec<u8>> {
+        if !is_asset_id(&asset.id) {
+            return None;
+        }
         [self.path(asset), self.staged_path(asset)]
             .iter()
             .filter_map(|p| std::fs::read(p).ok())
@@ -175,7 +178,7 @@ impl TemplateStore {
 
     /// In the store or staged: a template using it can be saved.
     pub fn has(&self, asset: &TemplateAsset) -> bool {
-        self.path(asset).is_file() || self.staged_path(asset).is_file()
+        is_asset_id(&asset.id) && (self.path(asset).is_file() || self.staged_path(asset).is_file())
     }
 }
 

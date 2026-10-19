@@ -34,6 +34,8 @@
     "chapterCount": "{{book}} tiene {{count}} capítulos.",
     "verseCount": "{{book}} {{chapter}} tiene {{count}} versículos.",
     "verseCountBook": "{{book}} tiene {{count}} versículos.",
+    "chapterCountPsalms": "Los Salmos tienen {{count}} salmos.",
+    "verseCountPsalm": "El salmo {{chapter}} tiene {{count}} versículos.",
     "badVerse": "{{verse}} no es un número de versículo válido.",
     "endBeforeStart": "El final del pasaje está antes de su comienzo.",
     "invalid": "“{{text}}” no es una referencia de pasaje válida.",

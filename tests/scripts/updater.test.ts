@@ -222,9 +222,12 @@ describe("committed configuration", () => {
     expect(read("src-tauri/updater/test-channel.json")).not.toMatch(/secret key|PRIVATE/i);
   });
 
-  it("grants the window only the permissions it needs (updater, the open and save dialogs, and opening http(s) links), and no wider CSP", () => {
+  it("grants the main window only the permissions it needs (its own commands, updater, the open and save dialogs, and opening http(s) links), and no wider CSP", () => {
     const capability = JSON.parse(read("src-tauri/capabilities/default.json"));
+    expect(capability.windows).toEqual(["main"]);
     expect(capability.permissions).toEqual([
+      // The app's own commands the main window may call (v0.18.3, permissions/windows.toml).
+      "main-window",
       "core:default",
       "dialog:allow-open",
       // Choosing where a presentation export is saved (v0.18).
@@ -238,10 +241,11 @@ describe("committed configuration", () => {
     expect(csp).not.toMatch(/https?:\/\/(?!ipc\.localhost)/);
   });
 
-  it("gives the audience screen's window nothing but the events that tell it which slide to show", () => {
+  it("gives the audience screen's window nothing but its five read commands and listening for the slide to show", () => {
     const capability = JSON.parse(read("src-tauri/capabilities/audience.json"));
     expect(capability.windows).toEqual(["audience"]);
-    expect(capability.permissions).toEqual(["core:event:default"]);
+    // No emit, no window control, no dialogs (v0.18.3).
+    expect(capability.permissions).toEqual(["audience-window", "core:event:allow-listen", "core:event:allow-unlisten"]);
   });
 
   describe("the publish workflow", () => {

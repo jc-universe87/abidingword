@@ -19,7 +19,7 @@ use crate::domain::{
 use crate::error::{AppError, UserMessage};
 use crate::presentation::font_catalog::{self, InstalledFont};
 use crate::presentation::pptx_import::{self, ImportedTemplate};
-use crate::presentation::template::{TemplateAsset, TemplateDefinition};
+use crate::presentation::template::{self, TemplateAsset, TemplateDefinition};
 use crate::presentation::template_store::{self, TemplateStore};
 use crate::state::AppState;
 
@@ -66,26 +66,21 @@ pub fn presentation_template_get(
 }
 
 /// Saves a template's database row with its images: they are copied from
-/// staging into the store first, and taken back out if the save fails, so
-/// the store only ever holds images of saved templates (v0.18.3).
+/// staging into the store first, so a saved template never names an image
+/// the store lacks (v0.18.3). Cancelling never reaches here, so the store
+/// holds no image of an unsaved template, except after a save that failed
+/// (see `template_store`'s notes on why those are not removed).
 fn save_with_images<T>(
     state: &AppState,
     def: Option<&TemplateDefinition>,
     save: impl FnOnce(&rusqlite::Connection) -> crate::error::AppResult<T>,
 ) -> CommandResult<T> {
-    let store = kept(state)?;
-    let copied = match def {
-        Some(def) => {
-            images_kept(def, &store)?;
-            store.keep(&def.assets)?
-        }
-        None => Vec::new(),
-    };
-    let saved = state.db(save);
-    if saved.is_err() {
-        store.unkeep(&copied);
+    if let Some(def) = def {
+        let store = kept(state)?;
+        images_kept(def, &store)?;
+        store.keep(&def.assets)?;
     }
-    saved
+    state.db(save)
 }
 
 #[tauri::command(async)]
@@ -130,7 +125,9 @@ pub fn presentation_template_asset(
     state: State<'_, AppState>,
     asset: TemplateAsset,
 ) -> CommandResult<String> {
-    if !template_store::is_asset_id(&asset.id) {
+    if !template_store::is_asset_id(&asset.id)
+        || !template::IMAGE_TYPES.contains(&asset.media_type.as_str())
+    {
         return Err(AppError::InvalidInput(UserMessage::new(
             "presentation.imageGone",
             "This image is not available on this computer.",

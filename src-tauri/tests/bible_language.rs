@@ -84,11 +84,47 @@ fn structured_metadata_beside_the_usfm_names_the_language() {
     // Paratext Settings.xml, inside a .zip.
     let (_dir, zip) = zipped(&[("Settings.xml", PARATEXT)]);
     let staged = import::stage(&[zip], ImportOrigin::UserFiles).unwrap();
-    assert_eq!(staged.language_tag.as_deref(), Some("deu"));
+    // "deu" is stored as its two-letter code, as the language list has it.
+    assert_eq!(staged.language_tag.as_deref(), Some("de"));
     assert_eq!(
         language_of_tag(staged.language_tag.as_deref()),
         Some(ReferenceLanguage::De)
     );
+}
+
+#[test]
+fn metadata_details_found_in_review() {
+    let tag = |files: &[(&str, &str)]| {
+        let (_dir, paths) = with_files(files);
+        import::stage(&paths, ImportOrigin::UserFiles)
+            .unwrap()
+            .language_tag
+    };
+    // A commented-out block states nothing.
+    let commented = r#"<DBLMetadata><!-- <language><iso>fra</iso></language> -->
+<language><ldml>de</ldml></language></DBLMetadata>"#;
+    assert_eq!(tag(&[("metadata.xml", commented)]).as_deref(), Some("de"));
+    // DBL "de" and Paratext "deu" are the same language: they agree.
+    let dbl_de = "<DBLMetadata><language><ldml>de</ldml></language></DBLMetadata>";
+    assert_eq!(
+        tag(&[("metadata.xml", dbl_de), ("Settings.xml", PARATEXT)]).as_deref(),
+        Some("de")
+    );
+    // A three-letter ISO code becomes the two-letter one.
+    let fra = "<DBLMetadata><language><iso>fra</iso></language></DBLMetadata>";
+    assert_eq!(tag(&[("metadata.xml", fra)]).as_deref(), Some("fr"));
+    // Paratext's script and region are kept.
+    let serbian = "<ScriptureText><LanguageIsoCode>sr:Latn:RS:</LanguageIsoCode></ScriptureText>";
+    assert_eq!(
+        tag(&[("Settings.xml", serbian)]).as_deref(),
+        Some("sr-Latn-RS")
+    );
+    // A loose metadata file too large to be metadata is not read.
+    let huge = format!(
+        "<DBLMetadata><language><iso>fra</iso></language>{}</DBLMetadata>",
+        " ".repeat(1024 * 1024)
+    );
+    assert_eq!(tag(&[("metadata.xml", &huge)]), None);
 }
 
 #[test]
@@ -241,4 +277,90 @@ fn correcting_the_language_later_changes_only_the_language_and_reaches_typed_ref
         Ok(())
     })
     .unwrap();
+}
+
+#[test]
+fn a_verse_beyond_the_canon_is_good_when_any_installed_bible_has_it() {
+    // Review finding (v0.18.3): a Bible that numbers Psalm titles as verses
+    // (Louis Segond's Ps 51:21) made those citations good only while that
+    // Bible was the one being read. Any installed Bible's own verses count.
+    use abiding_word_lib::scripture::canon;
+    use abiding_word_lib::scripture::resolve::resolve_with;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("19-PSA.usfm");
+    std::fs::write(
+        &file,
+        "\\id PSA Extra numbering (test only)\n\\c 117\n\\p\n\\v 1 One.\n\\v 2 Two.\n\\v 3 A third verse the canon does not count.\n",
+    )
+    .unwrap();
+    let db = Database::open_in_memory().unwrap();
+    db.with_conn(|conn| {
+        let psalms = canon::by_code("PSA").unwrap();
+        assert!(!bibles::any_has_verse(conn, psalms, 117, 3));
+        let staged = import::stage(std::slice::from_ref(&file), ImportOrigin::UserFiles)?;
+        let meta = CommitImport {
+            preview_id: staged.id.clone(),
+            name: "Extra".into(),
+            short_name: "EXTRA".into(),
+            language: "Français".into(),
+            language_code: Some("fr".into()),
+            publisher: None,
+            copyright_notice: None,
+            license_type: None,
+        };
+        bibles::commit_import(
+            conn,
+            &bibles::new_translation_id(),
+            &staged.content,
+            &meta,
+            &source(),
+        )?;
+        assert!(bibles::any_has_verse(conn, psalms, 117, 3));
+        assert!(!bibles::any_has_verse(conn, psalms, 117, 4));
+        let has = |book: &'static canon::Book, chapter, verse| {
+            bibles::any_has_verse(conn, book, chapter, verse)
+        };
+        // No Bible being read, another interface: still good.
+        let context = Context::new(None, Some(ReferenceLanguage::En));
+        assert_eq!(
+            resolve_with("Ps 117:3", context, &has).unwrap().canonical(),
+            "PSA.117.3"
+        );
+        assert!(resolve_with("Ps 117:4", context, &has).is_err());
+        // Without the installed Bible's verses the canon alone refuses it.
+        assert!(resolve("Ps 117:3", context).is_err());
+        Ok(())
+    })
+    .unwrap();
+}
+
+#[test]
+fn a_damaged_metadata_entry_in_a_zip_is_skipped_never_a_failed_import() {
+    // Review finding (v0.18.3): a CRC error in metadata.xml failed the import.
+    let marker = "<iso>fra</iso>";
+    let dbl = format!("<DBLMetadata><language>{marker}</language></DBLMetadata>");
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("bible.zip");
+    let mut zip = zip::ZipWriter::new(std::fs::File::create(&path).unwrap());
+    let stored: zip::write::SimpleFileOptions =
+        zip::write::SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
+    for file in fixture_files() {
+        zip.start_file(file.file_name().unwrap().to_string_lossy(), stored)
+            .unwrap();
+        zip.write_all(&std::fs::read(&file).unwrap()).unwrap();
+    }
+    zip.start_file("metadata.xml", stored).unwrap();
+    zip.write_all(dbl.as_bytes()).unwrap();
+    zip.finish().unwrap();
+    // Change one stored byte: the entry no longer matches its checksum.
+    let mut bytes = std::fs::read(&path).unwrap();
+    let at = bytes
+        .windows(marker.len())
+        .position(|w| w == marker.as_bytes())
+        .unwrap();
+    bytes[at + 5] = b'x';
+    std::fs::write(&path, bytes).unwrap();
+    let staged = import::stage(&[path], ImportOrigin::UserFiles).unwrap();
+    assert_eq!(staged.language_tag, None);
+    assert!(!staged.content.books.is_empty());
 }

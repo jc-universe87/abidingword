@@ -114,14 +114,15 @@ const PRIVILEGED: &[&str] = &[
     "settings_get",
     "settings_update",
     "presentation_export",
-    "presentation_template_import",
+    "presentation_template_import_pptx",
+    "presentation_template_import_package",
     "presentation_audience_open",
     "presentation_audience_show",
-    "library_import",
-    "library_source_remove",
-    "assistant_settings_update",
+    "library_import_commit",
+    "library_remove_source",
+    "assistant_settings_set",
+    "assistant_ask",
     "assistant_key_set",
-    "backup_create",
     "app_log_error",
 ];
 
@@ -131,6 +132,14 @@ fn the_permission_sets_match_the_registered_commands_and_the_interface() {
     let main = set("main-window");
     let audience = set("audience-window");
     assert!(registered.len() > 150, "{}", registered.len());
+    // The privileged commands the audience is tested against are real ones,
+    // so their refusal proves something.
+    for name in PRIVILEGED {
+        assert!(
+            registered.contains(*name),
+            "{name} is not a registered command"
+        );
+    }
     // Only registered commands are granted.
     for name in main.iter().chain(&audience) {
         assert!(

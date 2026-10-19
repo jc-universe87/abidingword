@@ -166,9 +166,9 @@ pub fn resolve(input: &str, context: Context) -> AppResult<ScriptureRef> {
     resolve_with(input, context, &|_, _, _| false)
 }
 
-/// As [`resolve`]. `bible_has_verse` says whether the Bible being read has a
+/// As [`resolve`]. `bible_has_verse` says whether an installed Bible has a
 /// verse the canon does not (Louis Segond's Exodus 7:29): such a verse is
-/// accepted, never refused. A verse missing from that Bible is never a reason
+/// accepted, never refused. A verse missing from a Bible is never a reason
 /// to refuse a reference the canon has.
 pub fn resolve_with(
     input: &str,

@@ -94,9 +94,9 @@ Abiding Word decides in this order:
 Jonah. *Jn 3:5* exists in both books, so there the order above decides: a
 Portuguese Bible opens Jonah 3:5, an English one John 3:5. Typing a verse
 that is not there says so plainly: *Jonah 3:16* → “Jonah 3 has 10 verses.”,
-*Psalm 119:177* → “Psalms 119 has 176 verses.” Some Bibles number a few
+*Psalm 119:177* → “Psalm 119 has 176 verses.” Some Bibles number a few
 verses differently (the French Louis Segond counts Exodus 7 to verse 29); a
-verse that the Bible you are reading has is always accepted.
+verse that any Bible you have installed has is always accepted.
 
 *Hb 3:5* is Habakkuk in English and Hebrews in Portuguese, and with a German
 Bible and German interface nothing settles it, so it asks: *“Hb 3:5” could

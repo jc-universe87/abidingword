@@ -16,8 +16,12 @@ Bibles never did, so that step was silently skipped for them.
 **Model.** The existing column `bible_translations.language_code` is used; no
 schema change. Values are BCP 47 tags in their common shapes, normalised on
 save by `language::normalise_tag` (`PT_br` → `pt-BR`, `zh-hant-tw` →
-`zh-Hant-TW`, `es-419`, `deu`). Names (`Português`), empty values,
-`und`/`mul`/`zxx`/`mis`, private-use and malformed tags are not tags:
+`zh-Hant-TW`, `es-419`; a three-letter code with a two-letter one becomes it,
+`deu` → `de`, so the picker never shows a language twice; `zh-yue-HK` →
+`yue-HK`; extensions and private use after the language are dropped,
+`en-US-u-ca-gregory` → `en-US`). Names (`Português`), empty values,
+`und`/`mul`/`zxx`/`mis`, private-use languages (`qaa`–`qtz`, `x-…`) and
+malformed tags are not tags:
 `bibles::commit_import` and `bibles::set_language` refuse them
 (`bibles.badLanguage`). The resolver still reads ISO 639-2/B and
 macrolanguage codes (`ger`, `dut`, `cmn`, `per`, `ara` …) through
@@ -30,9 +34,10 @@ the files):
 | File | Field |
 |---|---|
 | Digital Bible Library `metadata.xml` | `<language>` → `<bcp47>`, else `<ldml>`, else `<iso>` |
-| Paratext `Settings.xml` | `<LanguageIsoCode>` (before the first `:`) |
+| Paratext `Settings.xml` | `<LanguageIsoCode>` (`sr:Latn:RS:` → `sr-Latn-RS`) |
 
-Several files that disagree give no tag; unreadable or oversized (>1 MB)
+XML comments are ignored. Several files that disagree give no tag (`de` and
+`deu` agree); unreadable (including a damaged zip entry) or oversized (>1 MB)
 metadata is ignored, never a failed import; an `.xml` that is not one of
 these is still refused as before. USFM itself has no language marker, and
 the bundled eBible.org zips carry only prose (`copr.htm`), which is not read.
@@ -43,7 +48,11 @@ text.
 review and in Settings → Bible texts → Details → *Change language*: the 100
 reference languages (`bible_language_options`), each named in the interface
 language (`Intl.DisplayNames`) with its own name, plus *Another language…*
-(a name only, no tag). It starts unchosen unless the metadata named the
+(a name only, no tag; the name field takes focus, is required and is
+described by the hint). The name stored is the language's own ("português",
+"português (Brasil)") whether chosen from the list or read from metadata.
+The file dialog's "Bible files" filter includes `.xml`, so the metadata file
+can be chosen with the USFM. It starts unchosen unless the metadata named the
 language, and a Bible cannot be added until a language is chosen.
 `bible_set_language` changes the name and tag only — no text, verse or
 reference — and the next typed reference uses it (the command reads the tag
@@ -67,20 +76,25 @@ Bibles number them). A test keeps it aligned with `canon::BOOKS`.
 Louis Segond in **83 chapters** (Exodus 7:29, Malachi, Hosea…), the WEB's
 Romans 14:24–26, the Korean Song of Songs 6:14 — so stored references,
 highlights and links to those verses stay valid. A typed verse beyond the
-canon that **the Bible being read has** is accepted (`bibles::has_verse`);
-a verse it lacks is never a reason to refuse one the canon has. Checked:
+canon that **any installed Bible has** is accepted (`bibles::any_has_verse`):
+Louis Segond's Ps 51:21 is good whichever Bible is open, or none. A verse a
+Bible lacks is never a reason to refuse one the canon has. Checked:
 start and end verse, across chapters; whole chapters and chapter ranges as
 before; the end before the start as before.
 
-**In the resolver.** A reading that names a verse the canon (and the Bible
-being read) does not have becomes *invalid* before any priority applies, so
+**In the resolver.** A reading that names a verse the canon (and every
+installed Bible) does not have becomes *invalid* before any priority applies, so
 it never competes: `Jn 3:16` is John 3:16 with a Portuguese Bible, because
 Jonah 3 has 10 verses. Context languages choose between **valid** readings
 only. Errors: `reference.verseCount` ("Jonah 3 has 10 verses.") and
-`reference.verseCountBook` ("Jude has 25 verses."), in six languages.
+`reference.verseCountBook` ("Jude has 25 verses."), in six languages; for
+the Psalms `reference.verseCountPsalm` / `reference.chapterCountPsalms`
+("Psalm 117 has 2 verses.", "시편 117편은 2절까지 있습니다.").
 
 **Not changed:** running-text detection does not check verse counts (a
-source in Louis Segond numbering would lose real references).
+source in Louis Segond numbering would lose real references). References in
+the assistant's suggestions are checked against the canon only (the
+assistant runs without the database); one numbered beyond it is dropped.
 
 ## 3. Per-window command allowlisting
 
@@ -175,10 +189,16 @@ them there.
 
 **Now:** such images are written to `sources/presentation-templates/staging/`
 only. Saving a template (create, update, add from a file) copies its images
-into the store, each checked against its SHA-256 (`TemplateStore::keep`);
-if the database save then fails, exactly the images copied for it are taken
-back out (`unkeep` — they were not in the store before, so nothing saved can
-use them). Reading an image looks in the store, then in staging, so previews
+into the store, each checked against its SHA-256 (`TemplateStore::keep`),
+before the database row is saved, so a saved template never names an image
+the store lacks. If the database save then fails, the images stay in the
+store unused: taking them back out could remove one that a second save
+(a double click, an import accepted while the designer saves) has just
+relied on (review finding 2). Each write has its own partial file, so two
+saves of the same image never collide. Asset ids must be SHA-256 hex and
+media types one of PNG, JPEG, GIF, WebP (`template::validate`,
+`presentation_template_asset`), so no id names a file outside the store.
+Reading an image looks in the store, then in staging, so previews
 work during review. Staging is emptied at startup (`AppState::start`), when
 no review can be open; it is never emptied while the app runs, so two open
 reviews cannot take each other's images.
@@ -191,8 +211,9 @@ v0.18.1 imports therefore stay (harmless).
 
 Tests (`tests/template_assets.rs`): import then cancel (store empty),
 failure halfway, import then keep, the same image twice (one file), two
-templates sharing an image, a failed save taking back only its own copies,
-an image changed in staging refused.
+templates sharing an image, four concurrent saves of one new image (it stays,
+no partial file left), an id that is not a SHA-256 naming no file, an image
+changed in staging refused.
 
 ## 5. PowerPoint font replacement
 
@@ -221,22 +242,47 @@ is on the checklist below.
 
 ## 7. Independent review
 
-See §9 (filled in after the review).
+An independent review of `a238a11..` (the whole milestone) ran every check
+and probed the resolver, tag normalisation, metadata parsing, staging races
+and path handling with throw-away tests (deleted). Its findings and the
+fixes are in §9.
 
 ## 8. Limitations
 
 - Running-text detection does not check verse counts (see §2).
 - Only DBL and Paratext metadata are read for a Bible's language; other
   downloads need the person to choose it.
-- Images left in the template store by v0.18.1 cancelled imports are not
-  removed (§4).
+- Images left in the template store by v0.18.1 cancelled imports, or by a
+  template save whose database step failed, are not removed (§4).
+- Extended-language and grandfathered tags other than the common shapes
+  (`en-GB-oed`) are not tags; such a Bible is named by the person.
 - The Windows behaviour of the capability model (a denied command shows as
   an error) is covered by the mock-runtime test; the real app is on the
   checklist.
 
 ## 9. Independent review: findings and fixes
 
-(Filled in below.)
+| # | Finding | Fix | Regression test |
+|---|---|---|---|
+| 1 | **Blocking.** `tests/scripts/updater.test.ts` still asserted the old capability lists: `npm test` failed (2 of 783), so CI on `main` would have gone red and published nothing. | Expectations updated: `default.json` starts with `main-window`; `audience.json` is `audience-window` + `core:event:allow-listen`/`allow-unlisten` (narrower than the old `core:event:default`, which also allowed emit). | the two updater tests |
+| 2 | A failed save's `unkeep` could delete an image a concurrent save had just kept; two saves of one image shared a `.partial` file. | `unkeep` removed (nothing is deleted from the store); unique partial names; rename failure removes the partial. | `two_saves_keeping_the_same_new_image_both_keep_it_even_if_one_fails` |
+| 3 | Asset ids from the interface were not checked to be SHA-256 hex on save (`../secret` was an existence oracle); the preview put any `media_type` into a `data:` URL. | `template::validate` requires a SHA-256 id and one of four image types; `has`/`read`/`keep` refuse other ids; the preview command checks the type. | `broken_definitions_are_refused`, `an_asset_id_that_is_not_a_sha256_names_no_file` |
+| 4 | A verse beyond the canon was accepted only from the Bible being read (Ps 51:21 refused in French with no or another Bible open). | `bibles::any_has_verse` across installed Bibles, with or without a Bible open. Assistant: canon only (noted in §2). | `a_verse_beyond_the_canon_is_good_when_any_installed_bible_has_it` |
+| 5 | Metadata: a commented-out block won; `de` vs `deu` disagreed; 3-letter codes duplicated a list entry; Paratext script/region dropped; a damaged zip entry failed the import; a large loose file counted toward the size limit. | Comments stripped; tags normalised before comparing; script/region kept; damaged or >1 MB metadata skipped in both paths. | `metadata_details_found_in_review`, `a_damaged_metadata_entry_in_a_zip_is_skipped_never_a_failed_import` |
+| 6 | `normalise_tag` accepted `qaa`; refused `en-US-x-twain` / `-u-` extensions instead of truncating; comment wrong. | Private-use languages refused; truncation at the first singleton; extlang canonicalised; comment fixed. | `language_tags_are_normalised_and_names_are_not_tags` |
+| 7 | The file dialog's filter lacked `.xml`. | Added. | — (native dialog; checklist §10) |
+| 8 | A metadata tag stored its name in the interface language, a list choice the native name. | One rule (`storedName`): the language's own name. | `bible-language.test.tsx` (pt-BR → "português (Brasil)") |
+| 9 | The other-language name field: no focus move, no description, no `required`; focus not returned after Save/Cancel in Settings. | All four added. | `bible-language.test.tsx` |
+| 10 | The verse-count generator's output is not rustfmt-formatted. | Header says to run `cargo fmt` after it. | — |
+| 11 | `PRIVILEGED` named five unregistered commands (`backup_create`, `presentation_template_import`, `library_import`, `library_source_remove`, `assistant_settings_update`); Korean said 장 for the Psalms. | Removed, and every listed command is asserted registered; Psalm wording keys in six languages (편 in Korean). | `capabilities.rs`, `referenceApi.test.ts` |
+
+Checked and fine by the review: verse boundaries (Ps 117/119/150/151,
+Mal 4:6, Rev 12:18, 2 Cor 13:14, one-chapter books in both forms,
+chapter-crossing ranges), the context language never overriding
+impossibility, the table total, the capability model (an unlisted command is
+refused, not escalated; the audience has exactly five commands plus
+listen/unlisten), staging lifecycle, replacement fonts in all three outputs,
+no schema change, German "du" and natural Korean.
 
 ## 10. Combined Windows acceptance checklist (v0.18 – v0.18.3)
 

@@ -428,6 +428,9 @@ fn invalid(text: impl Into<String>) -> AppError {
 
 /// Checks a definition before it is kept: known roles, sizes on the page,
 /// real colours, images it has.
+/// The kinds of image a template may use.
+pub const IMAGE_TYPES: [&str; 4] = ["image/png", "image/jpeg", "image/gif", "image/webp"];
+
 pub fn validate(def: &TemplateDefinition) -> AppResult<()> {
     if def.format != FORMAT || def.version > VERSION {
         return Err(invalid("This template was made by a newer version."));
@@ -443,6 +446,15 @@ pub fn validate(def: &TemplateDefinition) -> AppResult<()> {
     ] {
         if !is_hex(c) {
             return Err(invalid(format!("“{c}” is not a colour.")));
+        }
+    }
+    // An image is named by its SHA-256 and is one of the four kinds the
+    // store keeps; anything else would name no file of the store (v0.18.3).
+    for asset in &def.assets {
+        if !super::template_store::is_asset_id(&asset.id)
+            || !IMAGE_TYPES.contains(&asset.media_type.as_str())
+        {
+            return Err(invalid("The template refers to an image it does not have."));
         }
     }
     let known: Vec<&str> = def.assets.iter().map(|a| a.id.as_str()).collect();
@@ -621,5 +633,20 @@ mod tests {
         let mut def = builtin("light");
         def.colors.text = "red".into();
         assert!(validate(&def).is_err());
+        // An image is named by its SHA-256 and is one of the four kinds.
+        let image = |id: &str, media_type: &str| {
+            let mut def = builtin("light");
+            def.assets.push(TemplateAsset {
+                id: id.into(),
+                media_type: media_type.into(),
+                width: 1,
+                height: 1,
+                name: String::new(),
+            });
+            validate(&def)
+        };
+        assert!(image(&"a".repeat(64), "image/png").is_ok());
+        assert!(image("../secret", "image/png").is_err());
+        assert!(image(&"a".repeat(64), "text/html").is_err());
     }
 }
