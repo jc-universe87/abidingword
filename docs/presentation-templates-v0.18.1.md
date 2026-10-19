@@ -205,8 +205,13 @@ read once): *installed*, *installed without this style*, or *missing*; a
 missing font gets an **offered** suggestion (the same family without the
 style word, or a metric-compatible family such as Carlito for Calibri) —
 never applied. Boxes set in a font that is not installed get a *wrap risk*
-item. The person's replacement is stored in the template and used by the
-live view and PDF; PowerPoint keeps the original family name.
+item. The person's replacement is stored in the template and used by every
+output alike: the live view and PDF (one layout) and PowerPoint (the
+theme's heading and body fonts and every text run). *Corrected in v0.18.3:*
+this record first said PowerPoint kept the original family name; the code
+has always used the replacement, and a test now holds it
+(`a_chosen_replacement_font_is_used_alike_by_the_live_view_pdf_and_powerpoint`).
+No font file is copied into any output.
 
 The result (`ImportedTemplate`: definition, source layouts, suggestions,
 report) is reviewed in the interface; nothing is saved until **Keep this
@@ -293,9 +298,10 @@ size and footer, a passage shown as a Scripture slide, page JSON);
 - ODP is not read (§6). Google Drive direct import is not offered.
 - Gradients, patterns, effects, rotated items, non-rectangular shapes,
   tables, charts and SmartArt are reported, not drawn.
-- In PowerPoint a replaced font keeps the original family name (PowerPoint
-  substitutes on computers without it); the live view and PDF use the
-  replacement.
+- A replaced font is named as the replacement in PowerPoint too (v0.18.3
+  correction of this record): on a computer without the replacement,
+  PowerPoint substitutes it in turn; the original family is not kept in the
+  file.
 - The live view positions lines exactly as the PDF; glyph widths come from
   the browser's font, so a line's length can differ by a few pixels where
   the font is not the same file.

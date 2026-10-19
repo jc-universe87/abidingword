@@ -1711,3 +1711,99 @@ fn a_passage_shown_for_a_moment_uses_the_scripture_layout_and_the_pages_reach_th
         Ok(())
     });
 }
+
+/// v0.18.3 review: a replacement font the person chose for a missing template
+/// font ("use Carlito instead of Calibri") is the font of every output — the
+/// live view and PDF (one layout) and PowerPoint (theme and every run) —
+/// never the missing original. No font file is copied into any output.
+#[test]
+fn a_chosen_replacement_font_is_used_alike_by_the_live_view_pdf_and_powerpoint() {
+    use abiding_word_lib::presentation::template::FontChoice;
+    let temp = tempfile::tempdir().unwrap();
+    let store = store(temp.path());
+    with_db(|conn| {
+        let (_, p, template_id) = with_template(conn, &store)?;
+        let mut definition = presentation_templates::get(conn, &template_id)?.definition;
+        definition.fonts.heading = FontChoice {
+            family: "Calibri".into(),
+            replacement: Some("Carlito".into()),
+        };
+        definition.fonts.body = FontChoice {
+            family: "Segoe UI".into(),
+            replacement: Some("DejaVu Sans".into()),
+        };
+        presentation_templates::update(
+            conn,
+            &UpdatePresentationTemplate {
+                id: template_id.clone(),
+                definition: Some(definition),
+                ..Default::default()
+            },
+        )?;
+        // One layout for the live view and the PDF.
+        let doc = document::build(conn, &p.id, &store)?;
+        let design = doc.design();
+        let fonts = FontSet::empty();
+        let shaper = abiding_word_lib::presentation::text::Shaper { fonts: &fonts };
+        let locale = ExportOptions::default().locale;
+        let mut families = std::collections::BTreeSet::new();
+        for slide in &doc.slides {
+            for block in slide_layout::page(slide, &doc, &design, &shaper, &locale).blocks {
+                if let Block::Text(t) = block {
+                    families.insert(t.family.clone().unwrap_or_default());
+                }
+            }
+        }
+        assert!(
+            families.contains("Carlito") && families.contains("DejaVu Sans"),
+            "{families:?}"
+        );
+        assert!(
+            !families.contains("Calibri") && !families.contains("Segoe UI"),
+            "{families:?}"
+        );
+        // PowerPoint: the theme's fonts and every run name the replacements.
+        let doc = package::build(conn, &p.id, &store)?;
+        let (bytes, _) = abiding_word_lib::commands::presentations::render_counted(
+            &doc,
+            "pptx",
+            &options(false),
+            FontSet::empty,
+        )
+        .unwrap();
+        let files = unzip(&bytes);
+        let theme = files
+            .iter()
+            .find(|(n, _)| n == "ppt/theme/theme1.xml")
+            .map(|(_, d)| String::from_utf8_lossy(d).to_string())
+            .unwrap();
+        assert!(
+            theme.contains(r#"<a:majorFont><a:latin typeface="Carlito"/>"#),
+            "heading font in the theme"
+        );
+        assert!(
+            theme.contains(r#"<a:minorFont><a:latin typeface="DejaVu Sans"/>"#),
+            "body font in the theme"
+        );
+        let mut runs_with_replacement = 0;
+        for (name, data) in &files {
+            if name.ends_with(".xml") {
+                let xml = String::from_utf8_lossy(data);
+                assert!(
+                    !xml.contains("Calibri") && !xml.contains("Segoe UI"),
+                    "{name} names a missing font"
+                );
+                runs_with_replacement += xml.matches(r#"<a:latin typeface="Carlito"/>"#).count();
+            }
+            assert!(
+                !name.starts_with("ppt/fonts/"),
+                "no font file is embedded: {name}"
+            );
+        }
+        assert!(
+            runs_with_replacement > 1,
+            "the text runs are set in the replacement too"
+        );
+        Ok(())
+    });
+}
