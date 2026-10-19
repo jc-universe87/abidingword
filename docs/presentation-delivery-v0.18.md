@@ -246,13 +246,13 @@ Focus starts on *Next* and returns to *Start Presenter View* on exit.
   last state so a reopened or reloaded window shows the right slide
   (`presentation_audience_state`). Closing the window tells the main window
   (`presentation-audience-closed`); leaving the Presenter View closes it.
-  The window's capability (`capabilities/audience.json`) is
-  `core:event:default` only: no dialogs, updater or links. (The app's own
-  commands are not limited per window yet — there is no app command manifest
-  — so the audience page could technically call them; it is the app's own
-  bundled page and calls only `presentation_audience`, `presentation_audience_state`,
-  `presentation_image` and `presentation_audience_key`. Limiting commands per
-  window is a hardening follow-up, §20.)
+  The window's capability (`capabilities/audience.json`) is the
+  `audience-window` set and event listening only: no dialogs, updater or
+  links. Since v0.18.3 the app's own commands are limited per window too
+  (an app command manifest): the audience page may call only
+  `presentation_audience`, `presentation_audience_state`,
+  `presentation_audience_key`, `presentation_layout` and `presentation_image`
+  ([`correctness-hardening-v0.18.3.md`](correctness-hardening-v0.18.3.md) §3).
 - The audience window opens **without taking focus** and focus is given back
   to the main window, so the keyboard and a clicker stay with the Presenter
   View. Keys pressed while the audience window has focus are handed to the

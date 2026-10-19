@@ -47,9 +47,18 @@ normal local notation, so that nobody has to learn Abiding Word syntax.
 
 **Status (v0.9):** source-language-aware detection is implemented for English,
 German, Korean, French, Spanish and Portuguese (see
-[`passage-aware-sources-v0.9.md`](passage-aware-sources-v0.9.md)). Remaining:
-Greek and Hebrew forms, tolerance of looser natural phrasing, and use of the
-interface language for typed input.
+[`passage-aware-sources-v0.9.md`](passage-aware-sources-v0.9.md)).
+
+**Status (v0.18.2–v0.18.3):** typed references are read in 100 languages by
+one shared resolver, decided by the Bible's language, then the interface
+language, then the common reading, otherwise asking; verses are checked
+against the canon; imported Bibles carry a language
+([`reference-language-packs.md`](reference-language-packs.md),
+[`correctness-hardening-v0.18.3.md`](correctness-hardening-v0.18.3.md)).
+Remaining: Biblical Greek and Hebrew book names beyond the generated packs,
+looser natural phrasing, verse-count checks in running text (they would need
+per-Bible versification), and language metadata from other download
+formats.
 
 ### Passage-aware sources: what remains after the first v0.9 checkpoint
 

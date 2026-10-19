@@ -39,10 +39,12 @@ of the translation being read (`bibles.language_code`, via
 `resolve::language_of_tag`: `pt`, `pt-BR`, `deu`, `ger`, `cmn`; never from a
 name, short name, file or publisher; a Bible without a tag, or a database
 that cannot be read at that moment, is no signal) — and the
-**interface language**. English has no place of its own. Today only the
-bundled Bibles store a tag (en, de, ko, fr, es, pt); a Bible imported from a
-file has none (the import review does not ask for one yet), so for it the
-interface language decides first.
+**interface language**. English has no place of its own. The bundled Bibles
+store a tag (en, de, ko, fr, es, pt); since v0.18.3 an imported Bible does
+too: from its DBL or Paratext metadata when present, otherwise chosen by
+the person on import or later in Settings
+([`correctness-hardening-v0.18.3.md`](correctness-hardening-v0.18.3.md) §1).
+A Bible still without one (older imports not yet set) skips step 1.
 
 1. Every pack whose script occurs in the input reads it as a whole
    (`ReferenceParser::read`). No language is a gate: a Korean interface reads
@@ -90,10 +92,12 @@ interface language decides first.
 | `Mc 3:5` | — | German | Mark 3:5 (French, Spanish, Portuguese against English) |
 | `Mc 3:5` | English | French | Micah 3:5 |
 
-Input longer than 200 characters is not a reference. Only chapters are
-validated (`canon` has chapter counts, not verse counts): `Jn 3:16` with a
-Portuguese Bible opens Jonah 3, whose verse 16 the Bible text does not
-have.
+Input longer than 200 characters is not a reference. **Verses are validated
+(v0.18.3)** against the canon's verse counts before any priority applies: a
+reading naming a verse that does not exist is invalid and never competes, so
+`Jn 3:16` is John 3:16 even with a Portuguese Bible (Jonah 3 has 10 verses).
+A verse beyond the canon that the Bible being read has is accepted
+([`correctness-hardening-v0.18.3.md`](correctness-hardening-v0.18.3.md) §2).
 
 A bare book name opens chapter 1. A chapter alone is a chapter. Titles in
 《》 or 「」 are read without the brackets; a trailing full stop is ignored.

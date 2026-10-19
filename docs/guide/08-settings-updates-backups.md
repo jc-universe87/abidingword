@@ -93,7 +93,11 @@ order and size. Your studies and library are not touched.
 - **Add a Bible…** adds one of the free Bibles included with Abiding Word
   (English, German, Korean, French, Spanish, Portuguese) or a Bible file you own (see
   [Getting started](01-getting-started.md#add-a-bible)).
-- **Details** shows a Bible's publisher, licence and contents.
+- **Details** shows a Bible's language, publisher, licence and contents.
+  **Change language** corrects the language (for example a Bible you added
+  before choosing it was possible): pick it from the list and click **Save
+  language**. Only the language changes — the Bible's text, your notes and
+  your links stay as they are — and passages you type use it at once.
 - **Remove…** removes a Bible. Your notes and highlights are kept with their
   verses.
 

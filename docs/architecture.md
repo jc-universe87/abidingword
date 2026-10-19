@@ -150,6 +150,13 @@ Mobile may later be used for:
 - AI interaction
 - lightweight editing
 
+**Window permissions (v0.18.3).** Each window may call only the app
+commands it needs: the build declares every registered command to Tauri, and
+`src-tauri/permissions/windows.toml` grants the main window the commands its
+interface calls and the presentation's audience screen five read-only ones.
+Inventory, rationale and tests:
+[`correctness-hardening-v0.18.3.md`](correctness-hardening-v0.18.3.md) §3.
+
 ### Why Tauri
 
 Preferred over Electron because:

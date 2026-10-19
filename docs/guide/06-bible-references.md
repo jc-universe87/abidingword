@@ -80,27 +80,29 @@ chapter.
 Abiding Word decides in this order:
 
 1. **The language of the Bible you are reading** (in a presentation, the
-   presentation's Bible). It is taken from the Bible's stored language
-   information, never guessed from its name. Today the Bibles that come with
-   Abiding Word (English, German, Korean, French, Spanish, Portuguese) carry
-   it; a Bible you added from a file does not yet, so it is simply skipped
-   here and the next step decides.
+   presentation's Bible). It is the language the Bible is marked with —
+   chosen when it was added, and changeable in Settings → Bible texts →
+   Details — never guessed from its name. A Bible without a language is
+   simply skipped here.
 2. **The language Abiding Word is in.**
 3. **The common reading:** when the other languages agree (or most of the
    hand-checked ones do), that passage.
 4. **Otherwise it asks** instead of guessing.
 
-*Jn 3:5* is Jonah in Portuguese but John in English, French and Spanish. So
-with a Portuguese Bible it opens Jonah 3:5 even if Abiding Word is in
-English; with an English Bible it opens John 3:5 even if Abiding Word is in
-Portuguese; with a German Bible and Abiding Word in German (German writes
-*Joh*) the common reading, John 3:5, is used. *Hb 3:5* is Habakkuk in English
-and Hebrews in Portuguese, and no other language settles it, so with
-a German Bible and German interface it asks: *“Hb 3:5” could mean Habakkuk
-3:5 / Hebrews 3:5*. English is not a hidden tie-breaker. (*Jn 15:5* is
-always John: Jonah has four chapters.) Names you would mean otherwise are
-never taken from another language: *Sam 3:5* is not read as some language's
-Psalms, and *Jud 3:5* says Jude has one chapter.
+**A verse that does not exist never counts.** Jonah 3 has 10 verses, so
+*Jn 3:16* can only be John 3:16 — even with a Portuguese Bible, where *Jn* is
+Jonah. *Jn 3:5* exists in both books, so there the order above decides: a
+Portuguese Bible opens Jonah 3:5, an English one John 3:5. Typing a verse
+that is not there says so plainly: *Jonah 3:16* → “Jonah 3 has 10 verses.”,
+*Psalm 119:177* → “Psalms 119 has 176 verses.” Some Bibles number a few
+verses differently (the French Louis Segond counts Exodus 7 to verse 29); a
+verse that the Bible you are reading has is always accepted.
+
+*Hb 3:5* is Habakkuk in English and Hebrews in Portuguese, and with a German
+Bible and German interface nothing settles it, so it asks: *“Hb 3:5” could
+mean Habakkuk 3:5 / Hebrews 3:5*. English is not a hidden tie-breaker. Names
+you would mean otherwise are never taken from another language: *Sam 3:5* is
+not read as some language's Psalms, and *Jud 3:5* says Jude has one chapter.
 
 The 100 languages are listed in the technical notes
 ([reference language packs](../reference-language-packs.md)). Underlined

@@ -27,9 +27,9 @@ Presenter parser.
 - The Bible's language comes from the translation's stored language tag
   (`bibles.language_code`, read in the core by translation id through
   `resolve::language_of_tag`); it is never inferred from a name, short name,
-  file or publisher. A Bible without a tag skips step 1. No migration. Today
-  only the bundled Bibles carry a tag; imported Bibles have none, because
-  the import review has no field for it (adding one is a separate change).
+  file or publisher. A Bible without a tag skips step 1. No migration. At
+  v0.18.2 only the bundled Bibles carried a tag; *v0.18.3 adds one for
+  imported Bibles* ([`correctness-hardening-v0.18.3.md`](correctness-hardening-v0.18.3.md) §1).
 - `scripture_reference_parse(text, language?, translationId?)` and
   `scripture_reference_detect(text, language?)`: no new command.
   `src/lib/api.ts` sends `i18n.language`; each typed-entry screen passes the
@@ -179,10 +179,10 @@ preferences); script detection and offsets; German "du" in new strings.
 
 ## 5. Limitations
 
-- Only chapters are validated (no verse counts in the canon): with a
+- *(Resolved in v0.18.3: verses are now validated.)* Only chapters are validated (no verse counts in the canon): with a
   Portuguese Bible (or interface) `Jn 3:16` opens Jonah 3, which has no
   verse 16.
-- Bibles imported from files carry no language tag (the import review does
+- *(Resolved in v0.18.3: imported Bibles have a language.)* Bibles imported from files carry no language tag (the import review does
   not ask for one), so for them the interface language decides first.
 - The generated Italian data lists `Gn` for Jonah; it cannot override the
   reviewed languages' Genesis, but with an Italian Bible and no reviewed

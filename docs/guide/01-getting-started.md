@@ -84,6 +84,13 @@ You can add as many as you like and switch between them at any time.
 > "USFM" format, often a `.zip` download), click **Choose Bible files…**.
 > Abiding Word checks every book, chapter and verse, explains anything unusual
 > in plain words, and only then adds it. Your original file is never changed.
+>
+> Choose the Bible's **Language** there too. If the files say which language
+> they are in (some downloads include a small information file), it is filled
+> in for you; otherwise pick it from the list, or choose *Another language…*
+> and type its name. Abiding Word never guesses it from the file's name. The
+> language helps it read abbreviations you type, such as *Jn 3:5*, the way
+> this Bible means them; you can change it later in Settings.
 
 ## A tour of the screen
 

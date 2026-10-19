@@ -163,6 +163,15 @@ pass; no unreviewed work directly on `main`; no force-pushing or history
 rewriting unless explicitly authorised; no credentials or tokens in the
 repository. Native acceptance still happens on real target systems.
 
+### Adding a native command
+
+Register it in `generate_handler!` in `src-tauri/src/lib.rs` as before, then
+grant it to the window that calls it: add `allow-<command-with-hyphens>` to
+the `main-window` (or, rarely, `audience-window`) set in
+`src-tauri/permissions/windows.toml`. Until then every window is refused it,
+and `src-tauri/tests/capabilities.rs` fails naming it. See
+[`correctness-hardening-v0.18.3.md`](correctness-hardening-v0.18.3.md) §3.
+
 ### Interface languages (i18n)
 
 The interface is available in English, German, Korean, French, Spanish and
