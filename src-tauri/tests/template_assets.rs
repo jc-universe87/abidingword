@@ -105,7 +105,7 @@ fn keeping_copies_exactly_the_templates_images_and_a_failed_save_takes_back_only
     // Kept images stay readable after staging is emptied.
     store.clear_staging();
     for asset in &assets {
-        assert_eq!(store.read(asset).map(|b| b.len() > 0), Some(true));
+        assert_eq!(store.read(asset).map(|b| !b.is_empty()), Some(true));
     }
     // Keeping again copies nothing.
     assert!(store.keep(&assets).unwrap().is_empty());
@@ -135,8 +135,8 @@ fn the_same_image_twice_is_one_file_and_shared_images_are_never_deleted() {
     assert_eq!(a.id, b.id);
     assert_eq!(staged_files(&store), 1);
     // Two templates share it; keeping for each stores it once.
-    store.keep(&[a.clone()]).unwrap();
-    store.keep(&[b.clone()]).unwrap();
+    store.keep(std::slice::from_ref(&a)).unwrap();
+    store.keep(std::slice::from_ref(&b)).unwrap();
     assert_eq!(kept_files(&store).len(), 1);
     // Deleting a template (a soft delete in the database) touches no file;
     // nothing removes kept images, so the other template and any restored
@@ -154,7 +154,7 @@ fn an_image_changed_in_staging_is_not_kept() {
         .join(store.path(&asset).file_name().unwrap());
     std::fs::write(&staged, png(10)).unwrap();
     assert!(store.read(&asset).is_none());
-    assert!(store.keep(&[asset.clone()]).is_err());
+    assert!(store.keep(std::slice::from_ref(&asset)).is_err());
     assert_eq!(kept_files(&store), Vec::<PathBuf>::new());
     let missing = TemplateAsset {
         id: "0".repeat(64),
