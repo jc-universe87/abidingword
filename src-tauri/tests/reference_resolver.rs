@@ -12,10 +12,11 @@ use abiding_word_lib::scripture::language::ReferenceLanguage::{self, De, En, Es,
 use abiding_word_lib::scripture::packs::{self, Script};
 use abiding_word_lib::scripture::parser::{Reading, ReferenceParser};
 use abiding_word_lib::scripture::recognise::Recogniser;
-use abiding_word_lib::scripture::resolve::{preferred, resolve};
+use abiding_word_lib::scripture::resolve::{language_of_tag, preferred, resolve, Context};
 
+/// With only an interface language (no Bible in context).
 fn canonical(input: &str, language: Option<ReferenceLanguage>) -> String {
-    match resolve(input, language) {
+    match resolve(input, Context::new(None, language)) {
         Ok(reference) => reference.canonical(),
         Err(error) => panic!("{input:?} ({language:?}): {error:?}"),
     }
@@ -23,7 +24,23 @@ fn canonical(input: &str, language: Option<ReferenceLanguage>) -> String {
 
 /// The error code and its values for an input that is not one passage.
 fn refusal(input: &str, language: Option<ReferenceLanguage>) -> (String, Vec<(String, String)>) {
-    match resolve(input, language) {
+    refusal_in(input, Context::new(None, language))
+}
+
+/// With the Bible's language and the interface language.
+fn read_in(
+    input: &str,
+    bible: Option<ReferenceLanguage>,
+    interface: Option<ReferenceLanguage>,
+) -> String {
+    match resolve(input, Context::new(bible, interface)) {
+        Ok(reference) => reference.canonical(),
+        Err(error) => panic!("{input:?} (Bible {bible:?}, interface {interface:?}): {error:?}"),
+    }
+}
+
+fn refusal_in(input: &str, context: Context) -> (String, Vec<(String, String)>) {
+    match resolve(input, context) {
         Ok(reference) => panic!(
             "{input:?} should not resolve, got {}",
             reference.canonical()
@@ -202,38 +219,76 @@ fn a_genuinely_ambiguous_input_is_never_guessed() {
         let canonicals = &params.iter().find(|(k, _)| k == "canonicals").unwrap().1;
         assert!(canonicals.contains("PHP.1.1"), "{canonicals}");
     }
+    for bible in [Some(En), Some(De), Some(Pt)] {
+        assert_eq!(
+            refusal_in("фил 1:1", Context::new(bible, Some(Ko))).0,
+            "reference.ambiguous"
+        );
+    }
     // 雅 is James and the Song of Songs in Chinese and Japanese.
     assert_eq!(refusal("雅 1:1", None).0, "reference.ambiguous");
 }
 
+/// The final priority for typed references: the Bible's language, the
+/// interface language, the common reading, otherwise ask. English has no
+/// place of its own. "Jn" is John in English, French and Spanish and Jonah in
+/// Portuguese; German and Korean do not read it.
 #[test]
-fn a_tie_between_reviewed_packs_is_settled_by_the_person_then_by_english() {
-    // "Jn" is John in English, French and Spanish and Jonah in Portuguese.
-    // The interface language decides; otherwise English, as typed passages
-    // always were read before v0.18.2 (review finding: German and Korean
-    // interfaces must not lose "Jn 3:16").
-    for preference in [None, Some(En), Some(De), Some(Ko), Some(Fr), Some(Es)] {
+fn a_bible_language_then_the_interface_then_the_common_reading_then_ask() {
+    // A. The Bible's language beats the interface language…
+    assert_eq!(read_in("Jn 3:5", Some(Pt), Some(En)), "JON.3.5");
+    // B. …in either direction.
+    assert_eq!(read_in("Jn 3:5", Some(En), Some(Pt)), "JHN.3.5");
+    assert_eq!(read_in("Jn 3:5", Some(Fr), Some(Pt)), "JHN.3.5");
+    // C. No Bible language: the interface decides.
+    assert_eq!(read_in("Jn 3:5", None, Some(Pt)), "JON.3.5");
+    assert_eq!(read_in("Jn 3:5", None, Some(Es)), "JHN.3.5");
+    // D. The Bible's language does not read the input: the interface decides.
+    assert_eq!(read_in("Jn 3:5", Some(De), Some(Pt)), "JON.3.5");
+    assert_eq!(read_in("Jn 3:5", Some(Ko), Some(En)), "JHN.3.5");
+    // A generated Bible language decides too (Italian "Gv" is John only, but
+    // Italian "Es" is Exodus where English reads Esther).
+    let italian = ReferenceLanguage::from_label("it");
+    assert_eq!(read_in("Es 3:5", italian, Some(En)), "EXO.3.5");
+    assert_eq!(read_in("Es 3:5", None, Some(En)), "EST.3.5");
+    // E. Neither decides: the common reading — here three of the four
+    // reviewed languages that read "Jn" (German, Korean read nothing).
+    for (bible, interface) in [
+        (None, None),
+        (None, Some(De)),
+        (Some(De), Some(Ko)),
+        (Some(Ko), None),
+    ] {
         assert_eq!(
-            canonical("Jn 3:16", preference),
+            read_in("Jn 3:16", bible, interface),
             "JHN.3.16",
-            "{preference:?}"
+            "{bible:?} {interface:?}"
         );
-        assert_eq!(canonical("Jn 3:5", preference), "JHN.3.5", "{preference:?}");
-    }
-    assert_eq!(canonical("Jn 3:5", Some(Pt)), "JON.3.5");
-    // "Mc": Micah in English, Mark in French; "Hb": Habakkuk in English, Hebrews in Portuguese.
-    assert_eq!(canonical("Mc 3:5", Some(De)), "MIC.3.5");
-    assert_eq!(canonical("Mc 3:5", Some(Fr)), "MRK.3.5");
-    assert_eq!(canonical("Hb 3:5", Some(Ko)), "HAB.3.5");
-    assert_eq!(canonical("Hb 3:5", Some(Pt)), "HEB.3.5");
-    // Jonah has four chapters: "Jn 15:5" can only be John.
-    for preference in EVERY_PREFERENCE {
         assert_eq!(
-            canonical("Jn 15:5", preference),
-            "JHN.15.5",
-            "{preference:?}"
+            read_in("Jn 3:5", bible, interface),
+            "JHN.3.5",
+            "{bible:?} {interface:?}"
         );
     }
+    // Many languages agreeing on one passage is accepted without asking.
+    for (bible, interface) in [(None, None), (Some(Ko), Some(De)), (Some(Pt), Some(Fr))] {
+        assert_eq!(read_in("Joh 15,5", bible, interface), "JHN.15.5");
+        assert_eq!(read_in("Jn 15:5", bible, interface), "JHN.15.5"); // Jonah has four chapters
+    }
+    // F. A genuine tie with nothing to decide it asks — English does not win
+    // because it is English. "Hb": Habakkuk in English, Hebrews in Portuguese.
+    for (bible, interface) in [(None, None), (None, Some(De)), (Some(Ko), Some(De))] {
+        let (code, params) = refusal_in("Hb 3:5", Context::new(bible, interface));
+        assert_eq!(code, "reference.ambiguous", "{bible:?} {interface:?}");
+        let books = &params.iter().find(|(k, _)| k == "books").unwrap().1;
+        assert!(books.contains("HAB") && books.contains("HEB"), "{books}");
+    }
+    assert_eq!(read_in("Hb 3:5", None, Some(En)), "HAB.3.5");
+    assert_eq!(read_in("Hb 3:5", Some(Pt), Some(En)), "HEB.3.5");
+    // "Mc": Micah in English, Mark in French, Spanish and Portuguese.
+    assert_eq!(read_in("Mc 3:5", None, Some(De)), "MRK.3.5");
+    assert_eq!(read_in("Mc 3:5", None, Some(En)), "MIC.3.5");
+    assert_eq!(read_in("Mc 3:5", Some(En), Some(Fr)), "MIC.3.5");
 }
 
 #[test]
@@ -345,6 +400,35 @@ fn the_interface_language_code_becomes_a_preference_not_a_gate() {
         canonical("Johannes 15,5", preferred(Some("ko"))),
         "JHN.15.5"
     );
+}
+
+#[test]
+fn a_bibles_language_comes_from_its_stored_tag_only() {
+    assert_eq!(language_of_tag(Some("pt")), Some(Pt));
+    assert_eq!(language_of_tag(Some("pt-BR")), Some(Pt));
+    assert_eq!(language_of_tag(Some("de_CH")), Some(De));
+    assert_eq!(language_of_tag(Some("deu")), Some(De));
+    assert_eq!(
+        language_of_tag(Some("zh")),
+        ReferenceLanguage::from_label("zh")
+    );
+    assert!(matches!(
+        language_of_tag(Some("ja")),
+        Some(ReferenceLanguage::Data(_))
+    ));
+    // Names, empty tags and unknown languages are no signal.
+    for tag in [
+        None,
+        Some(""),
+        Some("  "),
+        Some("Português"),
+        Some("Deutsch"),
+        Some("Lutherbibel"),
+        Some("xx"),
+        Some("la"),
+    ] {
+        assert_eq!(language_of_tag(tag), None, "{tag:?}");
+    }
 }
 
 #[test]
@@ -505,7 +589,7 @@ fn running_text_is_not_widened_by_the_generated_packs() {
 fn reading_typed_input_in_every_language_is_fast() {
     // Build every pack's parser once (as the first typed reference does).
     let started = Instant::now();
-    let _ = resolve("John 3:16", None);
+    let _ = resolve("John 3:16", Context::default());
     for language in ReferenceLanguage::all() {
         let _ = ReferenceParser::for_language(language).read("x 1:1");
     }
@@ -522,7 +606,7 @@ fn reading_typed_input_in_every_language_is_fast() {
     let started = Instant::now();
     for _ in 0..rounds {
         for input in inputs {
-            let _ = resolve(input, Some(De));
+            let _ = resolve(input, Context::new(Some(Pt), Some(De)));
         }
     }
     let each = started.elapsed() / (rounds * inputs.len() as u32);

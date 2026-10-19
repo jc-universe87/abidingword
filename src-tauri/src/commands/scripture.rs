@@ -57,15 +57,29 @@ pub fn scripture_concordance(
 }
 
 /// A typed reference in any of the 100 reference languages
-/// (`scripture::resolve`). `language` is the interface language: it settles a
-/// genuine tie between languages, nothing else.
+/// (`scripture::resolve`). The context: `translation_id`, the Bible the
+/// person is reading — its stored language tag decides first, and a Bible
+/// without one (or an unknown id) is simply no signal; then `language`, the
+/// interface language. Neither is a gate.
 #[tauri::command(async)]
 pub fn scripture_reference_parse(
+    state: State<'_, AppState>,
     text: String,
     language: Option<String>,
+    translation_id: Option<String>,
 ) -> CommandResult<ScriptureRefDto> {
-    let preferred = resolve::preferred(language.as_deref());
-    Ok(resolve::resolve(&text, preferred)?.to_dto())
+    let bible = match translation_id.as_deref().filter(|id| !id.is_empty()) {
+        Some(id) => state.db(|conn| Ok(bible_language(conn, id)))?,
+        None => None,
+    };
+    let context = resolve::Context::new(bible, resolve::preferred(language.as_deref()));
+    Ok(resolve::resolve(&text, context)?.to_dto())
+}
+
+/// The reference language of a Bible from its stored language tag only.
+fn bible_language(conn: &rusqlite::Connection, id: &str) -> Option<ReferenceLanguage> {
+    let translation = bibles::get(conn, id).ok()?;
+    resolve::language_of_tag(translation.language_code.as_deref())
 }
 
 /// The explicit references in a text, read as a source in `language` — the

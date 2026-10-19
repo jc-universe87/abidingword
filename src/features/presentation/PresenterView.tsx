@@ -1502,7 +1502,7 @@ function ScripturePanel({
         setError(t("presentation.presenter.noBible"));
         return;
       }
-      const ref = canonical ?? (await api.referenceParse(text)).canonical;
+      const ref = canonical ?? (await api.referenceParse(text, doc.bible?.id)).canonical;
       const passage = await api.scriptureGetPassage({ translationId: doc.bible.id, reference: ref });
       const info = passage.reference;
       setFound({ label: refLabel(info), bible: doc.bible.shortName, verses: passage.verses.map((v) => ({ chapter: v.chapter, verse: v.verse, text: v.text })) });

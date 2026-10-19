@@ -7,6 +7,7 @@ import systematicTheology from "../../resources/templates/systematic-theology-st
 import teachingStudy from "../../resources/templates/teaching-study.json";
 import topicalStudy from "../../resources/templates/topical-study.json";
 import wordStudy from "../../resources/templates/word-study.json";
+import i18n from "i18next";
 import { ApiError, type Api } from "@/lib/api";
 import type {
   AppInfo,
@@ -189,10 +190,19 @@ const ALIASES: Record<string, string> = {
   johannes: "JHN", joh: "JHN", jean: "JHN", juan: "JHN", "joão": "JHN", "요한복음": "JHN",
 };
 
-/** A deliberately small stand-in for the native English parser. */
-function parseForTests(text: string): ScriptureRef {
+/**
+ * "Jn" as the shared resolver reads it (scripture::resolve): Jonah in
+ * Portuguese, John in English, French and Spanish; the Bible's language
+ * decides first, then the interface language, then the common reading (John).
+ */
+const JN_BY_LANGUAGE: Record<string, string> = { pt: "JON", en: "JHN", fr: "JHN", es: "JHN" };
+
+/** A deliberately small stand-in for the native resolver. `languages`: the Bible's, then the interface's. */
+function parseForTests(text: string, languages: (string | null | undefined)[] = []): ScriptureRef {
   const match = /^\s*([1-3]?\s?[\p{L}]+)\s*(\d+)(?:[:,](\d+)(?:-(\d+))?)?\s*$/iu.exec(text.replace(/(\d+)장\s*(\d+)절/, "$1:$2"));
-  const book = match ? ALIASES[(match[1] ?? "").toLowerCase()] : undefined;
+  const written = (match?.[1] ?? "").toLowerCase();
+  const decider = languages.map((l) => l?.split(/[-_]/)[0]).find((l) => l && JN_BY_LANGUAGE[l]);
+  const book = written === "jn" ? JN_BY_LANGUAGE[decider ?? "en"] : match ? ALIASES[written] : undefined;
   const info = book ? bookByCode.get(book) : undefined;
   const chapter = Number(match?.[2]);
   if (!match || !book || !info || chapter < 1 || chapter > info.chapterCount) {
@@ -1021,7 +1031,8 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         hitsComplete: Boolean(book) || found.length <= 200,
       };
     },
-    referenceParse: async (text) => parseForTests(text),
+    referenceParse: async (text, translationId) =>
+      parseForTests(text, [state.bibles.find((b) => b.id === translationId)?.languageCode, i18n.language]),
     referenceDetect: async (text) => {
       const found = [];
       for (const match of text.matchAll(/\b(?:John|Romans|Rom|Psalm|Ps) \d+(?::\d+(?:-\d+)?)?/g)) {

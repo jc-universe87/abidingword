@@ -1,41 +1,46 @@
 //! One reader for typed Bible references in any of the 100 languages
 //! (v0.18.2).
 //!
-//! Scripture navigation, Bible Study passage fields, Teaching, Presenter View
-//! (*Bible passage*) and the assistant all read what a person types with
-//! [`resolve`], through the one `scripture_reference_parse` command. The
-//! person's interface language is a **preference, never a gate**: `Johannes
+//! Scripture navigation, Bible Study passage fields, Teaching, the
+//! presentation editor, Presenter View (*Bible passage*) and the assistant all
+//! read what a person types with [`resolve`], through the one
+//! `scripture_reference_parse` command. No language is a gate: `Johannes
 //! 15,5`, `Joh 15,5`, `John 15:5`, `Jean 15,5`, `Juan 15:5`, `João 15:5`,
 //! `요한복음 15장 5절`, `約翰福音 15:5` and `Иоанна 15:5` all come out as
-//! `JHN.15.5` whatever language the interface is in.
+//! `JHN.15.5` whatever the Bible and the interface are in.
+//!
+//! The context ([`Context`]) is two languages, each optional: the language
+//! of the Bible translation the person is reading (its stored language tag,
+//! never guessed from its name) and the interface language. English has no
+//! place of its own in the order.
 //!
 //! The policy, for one typed input:
 //!
 //! 1. Every pack whose script occurs in the input reads it as a whole
 //!    (`ReferenceParser::read`; a generated pack by lookup, so 100 languages
-//!    cost about as much as one).
-//! 2. The passages found are grouped by canonical reference. One passage →
-//!    that passage, however many languages agree on it (but see 3).
-//! 3. A passage read **only by generated packs** is refused when the
-//!    person's own language or a reviewed pack knows the book and says the
+//!    cost about as much as one). The passages found are grouped by
+//!    canonical reference.
+//! 2. **Safety:** a passage read **only by generated packs** is refused when
+//!    a context language or a reviewed pack knows the book and says the
 //!    passage is not in it (`Jud 3:5`: Jude has one chapter — not Romanian
 //!    Judges), and when the book is a reserved stem: the bare name of a
 //!    numbered book in a reviewed language or a deuterocanonical abbreviation
-//!    (`Sam`, `Sir`, `Mak`), which the person means otherwise.
-//! 4. Several passages (`Jn 3:5`: John in English, French and Spanish, Jonah
-//!    in Portuguese):
-//!    * the preferred language decides if it read the input;
-//!    * otherwise English, if it read the input (the long-standing reading of
-//!      typed passages before v0.18.2);
-//!    * otherwise, if exactly one of the passages was read by a reviewed pack
-//!      (English, German, Korean, French, Spanish, Portuguese — the
-//!      hand-checked dictionaries), that one;
-//!    * otherwise nothing is guessed: the error lists the passages
-//!      (`reference.ambiguous`).
-//! 5. Nothing found: a name that means two books in its own language asks
+//!    (`Sam`, `Sir`, `Mak`). Where a reviewed pack read the input, passages
+//!    only generated packs read are not credible beside it, unless one of
+//!    them is a context language's reading.
+//! 3. **Several credible passages** (`Jn 3:5`: John in English, French and
+//!    Spanish, Jonah in Portuguese), in this order:
+//!    1. the **Bible's language** decides, if it read the input;
+//!    2. the **interface language** decides, if it read the input;
+//!    3. the **common reading**: one passage left, or one that a strict
+//!       majority of the reviewed languages reading the input agree on
+//!       (`Jn` is John in three of the four) — generated packs do not vote;
+//!    4. otherwise nothing is guessed: the error lists the passages
+//!       (`reference.ambiguous`).
+//! 4. Nothing found: a name that means two books in its own language asks
 //!    which (`reference.ambiguous`); a known book with a passage it does not
-//!    have says so (the preferred language's error first, then a reviewed
-//!    pack's); anything else is `reference.notRecognised`.
+//!    have says so (the Bible's language first, then the interface's, then a
+//!    reviewed pack's); anything else is `reference.notRecognised`.
 //!
 //! Input longer than [`MAX_TYPED`] characters is not a reference.
 //!
@@ -122,9 +127,32 @@ fn book_stem(text: &str) -> Option<String> {
 }
 use crate::scripture::reference::ScriptureRef;
 
-/// Reads a typed reference in any language. `preferred` is the person's
-/// language (the interface language): it settles a genuine tie, nothing else.
-pub fn resolve(input: &str, preferred: Option<ReferenceLanguage>) -> AppResult<ScriptureRef> {
+/// What the person is doing when they type a reference: the language of the
+/// Bible they are reading and the interface language. Either may be absent.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct Context {
+    /// From the translation's stored language tag (`bibles.language_code`).
+    pub bible: Option<ReferenceLanguage>,
+    pub interface: Option<ReferenceLanguage>,
+}
+
+impl Context {
+    pub fn new(bible: Option<ReferenceLanguage>, interface: Option<ReferenceLanguage>) -> Self {
+        Self { bible, interface }
+    }
+
+    /// The context languages, strongest first.
+    fn deciders(&self) -> impl Iterator<Item = ReferenceLanguage> {
+        [self.bible, self.interface].into_iter().flatten()
+    }
+
+    fn contains(&self, language: ReferenceLanguage) -> bool {
+        self.bible == Some(language) || self.interface == Some(language)
+    }
+}
+
+/// Reads a typed reference in any language, in the person's context.
+pub fn resolve(input: &str, context: Context) -> AppResult<ScriptureRef> {
     let text = input.trim();
     if text
         .trim_matches(|c: char| c.is_whitespace() || ".,;".contains(c))
@@ -146,12 +174,13 @@ pub fn resolve(input: &str, preferred: Option<ReferenceLanguage>) -> AppResult<S
             )
         })
         .collect();
-    // The person's language or a reviewed pack knows the book but not the passage.
+    let reviewed = |l: &ReferenceLanguage| packs::pack(*l).is_reviewed();
+    // A context language or a reviewed pack knows the book but not the passage.
     let known_but_invalid = readings.iter().position(|(l, r)| {
-        matches!(r, Reading::Invalid(_)) && (Some(*l) == preferred || packs::pack(*l).is_reviewed())
+        matches!(r, Reading::Invalid(_)) && (context.contains(*l) || reviewed(l))
     });
 
-    // Rule 2: the passages found, each with the languages that read it.
+    // The passages found, each with the languages that read it.
     let mut groups: Vec<(ScriptureRef, Vec<ReferenceLanguage>)> = Vec::new();
     for (language, reading) in &readings {
         if let Reading::Found(reference) = reading {
@@ -164,16 +193,11 @@ pub fn resolve(input: &str, preferred: Option<ReferenceLanguage>) -> AppResult<S
             }
         }
     }
-    // Rule 3: an answer only generated packs give, where it would surprise.
-    let generated_only = !groups.is_empty()
-        && groups
-            .iter()
-            .all(|(_, languages)| languages.iter().all(|l| !packs::pack(*l).is_reviewed()));
-    if generated_only {
+    // Rule 2: safety.
+    let any_reviewed = groups.iter().any(|(_, l)| l.iter().any(reviewed));
+    if !groups.is_empty() && !any_reviewed {
         if let Some(index) = known_but_invalid {
-            if let Reading::Invalid(error) =
-                readings.into_iter().nth(index).map(|(_, r)| r).unwrap()
-            {
+            if let Some((_, Reading::Invalid(error))) = readings.into_iter().nth(index) {
                 return Err(error);
             }
             unreachable!("the position found an Invalid reading");
@@ -182,25 +206,30 @@ pub fn resolve(input: &str, preferred: Option<ReferenceLanguage>) -> AppResult<S
             return Err(not_recognised_error(text));
         }
     }
+    if any_reviewed {
+        // Beside a reviewed reading, one only generated packs give is not
+        // credible — unless it is the reading of a context language (an
+        // Italian Bible's "Es 3:5" is Exodus).
+        groups.retain(|(_, l)| l.iter().any(|l| reviewed(l) || context.contains(*l)));
+    }
     if groups.len() == 1 {
         return Ok(groups.remove(0).0);
     }
     if groups.len() > 1 {
-        // Rule 4.
-        for decider in [preferred, Some(ReferenceLanguage::En)]
-            .into_iter()
-            .flatten()
-        {
+        // Rule 3: the Bible's language, then the interface language.
+        for decider in context.deciders() {
             if let Some((reference, _)) = groups.iter().find(|(_, l)| l.contains(&decider)) {
                 return Ok(*reference);
             }
         }
-        let reviewed: Vec<&(ScriptureRef, Vec<ReferenceLanguage>)> = groups
+        // The common reading: a strict majority of the reviewed languages.
+        let votes: Vec<usize> = groups
             .iter()
-            .filter(|(_, languages)| languages.iter().any(|l| packs::pack(*l).is_reviewed()))
+            .map(|(_, l)| l.iter().filter(|l| reviewed(l)).count())
             .collect();
-        if reviewed.len() == 1 {
-            return Ok(reviewed[0].0);
+        let total: usize = votes.iter().sum();
+        if let Some(winner) = votes.iter().position(|v| 2 * v > total) {
+            return Ok(groups[winner].0);
         }
         groups.sort_by_key(|(r, _)| (r.book.ordinal, r.start_key()));
         let mut books: Vec<&'static Book> = Vec::new();
@@ -213,15 +242,17 @@ pub fn resolve(input: &str, preferred: Option<ReferenceLanguage>) -> AppResult<S
         return Err(ambiguous_error(text, &books, Some(&passages)));
     }
 
-    // Rule 5: nothing found. The preferred language speaks first, then the
-    // reviewed packs, then the rest.
+    // Rule 4: nothing found. The Bible's language speaks first, then the
+    // interface's, then the reviewed packs, then the rest.
     let rank = |l: &ReferenceLanguage| {
-        if Some(*l) == preferred {
+        if context.bible == Some(*l) {
             0
-        } else if packs::pack(*l).is_reviewed() {
+        } else if context.interface == Some(*l) {
             1
-        } else {
+        } else if reviewed(l) {
             2
+        } else {
+            3
         }
     };
     let mut readings = readings;
@@ -242,6 +273,18 @@ pub fn resolve(input: &str, preferred: Option<ReferenceLanguage>) -> AppResult<S
         return Err(error);
     }
     Err(not_recognised_error(text))
+}
+
+/// The reference language a stored language tag names ("pt", "pt-BR", "zh",
+/// "deu"), for a Bible's `language_code`. A tag only: a name ("Português"),
+/// an empty or missing tag, or an unknown language is no signal. Never
+/// guessed from a translation's name, short name, file or publisher.
+pub fn language_of_tag(tag: Option<&str>) -> Option<ReferenceLanguage> {
+    let primary = tag?.trim().split(['-', '_']).next()?;
+    if !(2..=3).contains(&primary.len()) || !primary.chars().all(|c| c.is_ascii_alphabetic()) {
+        return None;
+    }
+    ReferenceLanguage::from_label(primary)
 }
 
 /// The reference language an interface language code names ("de", "ko-KR").

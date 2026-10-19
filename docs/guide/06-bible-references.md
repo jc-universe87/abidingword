@@ -76,15 +76,29 @@ Numbers may be written with the digits of the language (١٥, १५, ১৫, �
 chapter and verse with `:`, `,` or `.`, and a book name alone opens its first
 chapter.
 
-**When it could mean two passages**, Abiding Word does not guess. *Jn 3:5*
-is John in English, French and Spanish but Jonah in Portuguese: Abiding Word
-in Portuguese opens Jonah 3:5, in any other language John 3:5 (the English
-reading decides when your own language does not). When no language decides —
-*фил 1:1* is Philippians in one language and Philemon in another — it asks:
-*“фил 1:1” could mean Philippians 1:1 / Philemon 1* — type a little more of
-the name. (*Jn 15:5* is always John: Jonah has four chapters.) Names you
-would mean otherwise are never taken from another language: *Sam 3:5* is not
-read as some language's Psalms, and *Jud 3:5* says Jude has one chapter.
+**When an abbreviation means different books in different languages**,
+Abiding Word decides in this order:
+
+1. **The language of the Bible you are reading** (in a presentation, the
+   presentation's Bible). It is taken from the Bible's own language
+   information, never guessed from its name; a Bible without that
+   information is simply skipped here.
+2. **The language Abiding Word is in.**
+3. **The common reading:** when the other languages agree (or most of the
+   hand-checked ones do), that passage.
+4. **Otherwise it asks** instead of guessing.
+
+*Jn 3:5* is Jonah in Portuguese but John in English, French and Spanish. So
+with a Portuguese Bible it opens Jonah 3:5 even if Abiding Word is in
+English; with an English Bible it opens John 3:5 even if Abiding Word is in
+Portuguese; with a German Bible and Abiding Word in German (German writes
+*Joh*) the common reading, John 3:5, is used. *Hb 3:5* is Habakkuk in English
+and Hebrews in Portuguese, and no other language settles it, so with
+a German Bible and German interface it asks: *“Hb 3:5” could mean Habakkuk
+3:5 / Hebrews 3:5*. English is not a hidden tie-breaker. (*Jn 15:5* is
+always John: Jonah has four chapters.) Names you would mean otherwise are
+never taken from another language: *Sam 3:5* is not read as some language's
+Psalms, and *Jud 3:5* says Jude has one chapter.
 
 The 100 languages are listed in the technical notes
 ([reference language packs](../reference-language-packs.md)). Underlined

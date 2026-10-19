@@ -32,7 +32,7 @@ interface LinksProps {
 export function TeachingLinks({ preparation, pointId, scope, studyFindings, onChanged, onRevealScripture }: LinksProps) {
   const { t } = useTranslation();
   const api = useApi();
-  const { goTo } = useScripture();
+  const { goTo, translation } = useScripture();
   const id = useId();
   const [picking, setPicking] = useState(false);
   const [choice, setChoice] = useState("");
@@ -206,7 +206,7 @@ export function TeachingLinks({ preparation, pointId, scope, studyFindings, onCh
         <form
           onSubmit={(e: FormEvent) => {
             e.preventDefault();
-            void act(async () => api.teachingPassageAdd({ preparationId: preparation.id, pointId, reference: (await api.referenceParse(reference)).canonical })).then((ok) => {
+            void act(async () => api.teachingPassageAdd({ preparationId: preparation.id, pointId, reference: (await api.referenceParse(reference, translation?.id)).canonical })).then((ok) => {
               if (ok) {
                 setReference("");
                 setAdding(false);

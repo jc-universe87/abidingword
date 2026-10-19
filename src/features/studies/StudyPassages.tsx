@@ -27,7 +27,7 @@ interface PassagesProps {
 export function StudyPassages({ studyId, title = "", passages, reload, onReveal }: PassagesProps & { onReveal: () => void }) {
   const { t } = useTranslation();
   const api = useApi();
-  const { goTo, currentPassage } = useScripture();
+  const { goTo, currentPassage, translation } = useScripture();
   const id = useId();
   const [adding, setAdding] = useState(false);
   const [text, setText] = useState("");
@@ -97,7 +97,7 @@ export function StudyPassages({ studyId, title = "", passages, reload, onReveal 
         <form
           onSubmit={(e: FormEvent) => {
             e.preventDefault();
-            void add(async () => (await api.referenceParse(text)).canonical);
+            void add(async () => (await api.referenceParse(text, translation?.id)).canonical);
           }}
           onKeyDown={(e) => {
             if (e.key === "Escape") {

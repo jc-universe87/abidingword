@@ -723,8 +723,30 @@ describe("presenting: the useful few things, simply", () => {
     await user.type(within(scripture).getByRole("textbox", { name: "Passage" }), "Johannes 15,5{Enter}");
     // The same reader as Scripture navigation, Bible Study and Teaching — no
     // parser of the Presenter View's own, and the English interface no gate.
-    expect(parse).toHaveBeenCalledWith("Johannes 15,5");
+    expect(parse).toHaveBeenCalledWith("Johannes 15,5", api.state.bibles[0]!.id);
     await within(view).findByRole("region", { name: "John 15:5" });
+  });
+
+  it("Bible passage: the presentation's Bible language decides an ambiguous abbreviation before the interface language", async () => {
+    // "Jn" is Jonah in Portuguese and John in English. Interface English, the
+    // presentation's Bible Portuguese (its stored language tag): Jonah.
+    const { api, user, view } = await presenting();
+    api.state.bibles[0]!.languageCode = "pt";
+    const parse = vi.spyOn(api, "referenceParse");
+    await user.click(within(view).getByRole("button", { name: "Bible passage" }));
+    const scripture = await within(view).findByRole("dialog", { name: "Bible passage" });
+    await user.type(within(scripture).getByRole("textbox", { name: "Passage" }), "Jn 3:5{Enter}");
+    expect(parse).toHaveBeenCalledWith("Jn 3:5", api.state.bibles[0]!.id);
+    await within(view).findByRole("region", { name: "Jonah 3:5" });
+    // The other way round: an English Bible under a Portuguese interface reads John.
+    api.state.bibles[0]!.languageCode = "en";
+    await act(async () => {
+      await i18n.changeLanguage("pt");
+    });
+    const box = within(view).getByRole("textbox", { name: "Passagem" });
+    await user.clear(box);
+    await user.type(box, "Jn 3:5{Enter}");
+    await within(view).findByRole("region", { name: "João 3:5" });
   });
 
   it("a clicker's Page Down / Page Up, the arrows and Space move; a number and Enter go to that slide", async () => {

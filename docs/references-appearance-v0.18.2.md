@@ -17,15 +17,21 @@ Presenter parser.
 
 **Architecture** (details: [reference-language-packs.md](reference-language-packs.md)):
 
-- `scripture::resolve::resolve(input, preferred)` reads typed input with
-  every pack whose script occurs in it, groups readings by canonical
-  reference, refuses surprising generated-only answers, and applies the
-  documented tie policy (preferred language, then English, then the reviewed
-  packs, then `reference.ambiguous` with the options).
-- `scripture_reference_parse(text, language?)` and
-  `scripture_reference_detect(text, language?)` are the same commands with
-  an optional preferred language; `src/lib/api.ts` sends `i18n.language`.
-  No new command; no call site changed its call.
+- `scripture::resolve::resolve(input, Context { bible, interface })` reads
+  typed input with every pack whose script occurs in it, groups readings by
+  canonical reference, refuses surprising generated-only answers, and then
+  decides: **(1) the active Bible translation's language, (2) the interface
+  language, (3) the common reading, (4) otherwise ask.** English is no longer
+  a hidden fallback; it wins only as the Bible's or interface's language, as
+  the only reading, or as part of the common reading.
+- The Bible's language comes from the translation's stored language tag
+  (`bibles.language_code`, read in the core by translation id through
+  `resolve::language_of_tag`); it is never inferred from a name, short name,
+  file or publisher. A Bible without a tag skips step 1. No migration.
+- `scripture_reference_parse(text, language?, translationId?)` and
+  `scripture_reference_detect(text, language?)`: no new command.
+  `src/lib/api.ts` sends `i18n.language`; each typed-entry screen passes the
+  id of the Bible it is reading.
 - 94 generated packs beside the six reviewed ones: 100 languages, 30
   scripts, native digits. `ReferenceLanguage::Data(u8)` indexes them.
 - Running text keeps its protection: reviewed six plus the source's own pack.
@@ -34,13 +40,13 @@ Presenter parser.
 
 | Call site | Before | Now |
 |---|---|---|
-| Scripture *Go to passage* (`ScriptureContext.tsx`) | `api.referenceParse` → English parser | same call → shared resolver |
-| Study passages (`StudyPassages.tsx`), new study (`NewStudyForm.tsx`) | same | same call → shared resolver |
-| Teaching passages (`TeachingLinks.tsx`) | same | same call → shared resolver |
-| Presentation editor passage (`PresentationView.tsx`) | same | same call → shared resolver |
-| Presenter View *Bible passage* (`PresenterView.tsx`) | same | same call → shared resolver (integration test in `tests/ui/presentation.test.tsx`) |
+| Scripture *Go to passage* (`ScriptureContext.tsx`) | `api.referenceParse` → English parser | shared resolver; Bible: the translation being read |
+| Study passages (`StudyPassages.tsx`), new study (`NewStudyForm.tsx`) | same | shared resolver; Bible: the workspace's current translation |
+| Teaching passages (`TeachingLinks.tsx`) | same | shared resolver; Bible: the workspace's current translation |
+| Presentation editor passage (`PresentationView.tsx`) | same | shared resolver; Bible: the presentation's Bible |
+| Presenter View *Bible passage* (`PresenterView.tsx`) | same | shared resolver; Bible: the presentation's Bible (integration tests in `tests/ui/presentation.test.tsx`) |
 | Detected references in study notes (`DetectedReferences.tsx`) | English parser only | `Recogniser` with English first (reviewed six); the interface language is not sent — it is not the note's language |
-| Assistant passage suggestions (`assistant/mod.rs`) | `ReferenceParser::english().parse` | `resolve(r, None)` |
+| Assistant passage suggestions (`assistant/mod.rs`) | `ReferenceParser::english().parse` | `resolve(r, Context::default())`: no Bible or interface context, so the common reading or nothing |
 | Sources (`library/passage_index.rs`) | `Recogniser` for the source language | unchanged; a source labelled in one of the 94 languages now reads its own pack |
 | Stored canonical values (`ScriptureRef::from_canonical`) | canonical only | unchanged, deliberately |
 
@@ -48,6 +54,30 @@ Presenter parser.
 (e.g. *Italiano*) used to fall back to English; it now reads with its own
 pack (plus the reviewed six). Unlabelled and unknown labels still read as
 English.
+
+## 1a. Priority refinement: Bible language, interface, common reading, ask
+
+The first v0.18.2 policy let the interface language decide and then fell
+back to English. The final policy for **deliberately typed** references:
+
+1. the language of the Bible translation being read (stored tag only);
+2. the interface language;
+3. the common reading — all readings agree, one credible passage remains, or
+   a strict majority of the reviewed languages that read the input agree;
+4. otherwise `reference.ambiguous`.
+
+The safety rules (generated-only answers vs a known invalid book, reserved
+stems, generated packs' restrictions, the length cap, digits, scripts) are
+unchanged and apply before the priority. Running-text detection is separate
+and unchanged: a source is read in its own language, the interface language
+is never sent with it, and generated packs stay stricter in prose.
+
+**Interpretation to note:** the brief asks that `Jn 3:5` with a German
+interface and no Bible give John, and that `Jn 3:16` under German and Korean
+stay John. German and Korean do not read `Jn`, so neither step 1 nor 2
+decides; "common reading" is therefore taken as including a strict majority
+of the reviewed languages that read the input (three for John against one
+for Jonah). A one-to-one split (`Hb 3:5`) still asks.
 
 ## 2. Appearance: a dark variant per family
 
@@ -109,7 +139,7 @@ design is never altered.
 
 | # | Finding | Fix (regression test) |
 |---|---|---|
-| 1 | Typed `Jn 3:16`, `Mc 3:5`, `Hb 3:5` refused under German/Korean interfaces and dropped by the assistant (v0.18.1 read them in English) | English decides after the preferred language (`a_tie_between_reviewed_packs_is_settled_by_the_person_then_by_english`) |
+| 1 | Typed `Jn 3:16`, `Mc 3:5`, `Hb 3:5` refused under German/Korean interfaces and dropped by the assistant (v0.18.1 read them in English) | first fixed with an English fallback; replaced in the priority refinement (§1a) by the Bible's language, the interface language and the common reading — `Jn 3:16` is John again by common reading; `Hb 3:5` asks when nothing decides |
 | 2 | Chinese/Japanese decimals in running text read as references (`民3.5`, `出3.2`) | generated packs' running text accepts only `:` or units (`running_text_is_not_widened_by_the_generated_packs`) |
 | 3 | Dutch/Italian/Polish/Russian decimals and times read as references (`Op 12.30 uur`, `Es 3.5`, `Rz 2,5`) | same; 3–4-letter aliases need a verse or unit; reviewed packs' readings in such sources need `:`; a match followed by `,`/`.`+digit is dropped whole (same test) |
 | 4 | Generated packs answered `Sam`, `Sir`, `1 Mak`, `So`, `Jud 3:5` with the wrong book | generated-only answers refused when a known book is invalid or the stem is reserved (`a_generated_pack_never_answers_what_a_reviewed_language_means_otherwise`) |
@@ -129,8 +159,13 @@ preferences); script detection and offsets; German "du" in new strings.
 
 ## 5. Limitations
 
-- Only chapters are validated (no verse counts in the canon): a Portuguese
-  interface opens `Jn 3:16` as Jonah 3, which has no verse 16.
+- Only chapters are validated (no verse counts in the canon): with a
+  Portuguese Bible (or interface) `Jn 3:16` opens Jonah 3, which has no
+  verse 16.
+- A Bible imported without a language tag gives no Bible-language signal;
+  the interface language decides instead.
+- The assistant has no Bible or interface context: an ambiguous abbreviation
+  in its suggestions follows the common reading or is left out.
 - In running text, generated-language sources find references only with `:`
   or units, so Italian `Gv 3,16` in an Italian book is not linked (typed, it
   is read).
@@ -154,11 +189,14 @@ Typed passages (interface in English, then German, then Korean):
 
 - [ ] *Go to passage*: `Johannes 15,5`, `Joh 15,5`, `John 15:5`, `Jean 15,5`, `Juan 15:5`, `João 15:5`, `요한복음 15장 5절` each open John 15:5.
 - [ ] *Go to passage*: `约翰福音 15:5`, `Иоанна 15:5`, `يوحنا ١٥:٥` open John 15:5.
-- [ ] `Jn 3:5`: English, German, Korean → John 3:5; Portuguese → Jonah 3:5. `фил 1:1` → a message offering Philippians and Philemon (in the interface language).
+- [ ] Reading the Portuguese *Bíblia Livre* with the interface in English: `Jn 3:5` → Jonah 3:5.
+- [ ] Reading the BSB (English) with the interface in Portuguese: `Jn 3:5` → John 3:5 (shown as João 3:5).
+- [ ] Reading the Lutherbibel with the interface in German: `Jn 3:16` → John 3:16; `Hb 3:5` → a message offering Habakkuk 3:5 and Hebrews 3:5 (in German).
+- [ ] `фил 1:1` → a message offering Philippians and Philemon (in the interface language).
 - [ ] `Sam 3:5` → "not a passage I recognise" (not Psalms); `Jud 3:5` → "Jude has only one chapter".
 - [ ] `John 51` → "John has 21 chapters" in the interface language.
 - [ ] Study: add passage `1 Kor 13,4-7` → 1 Corinthians 13:4–7. Teaching: add `Römer 8,28`.
-- [ ] Presenter View → *Bible passage*: type `Johannes 15,5`, Enter → John 15:5 shown privately; *Show to audience* works.
+- [ ] A presentation whose Bible is the Bíblia Livre, interface English → Presenter View → *Bible passage*: `Jn 3:5` → Jonah 3:5; `Johannes 15,5` → John 15:5; *Show to audience* works.
 
 Appearance:
 

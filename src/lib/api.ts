@@ -361,8 +361,13 @@ export interface Api {
   scriptureSearch(input: SearchScripture): Promise<SearchResults>;
   /** Where a word or phrase occurs in one translation (v0.12). */
   scriptureConcordance(input: ConcordanceQuery): Promise<ConcordanceResult>;
-  /** A typed passage in any of the 100 reference languages ("Johannes 15,5", "요한복음 15장 5절"). */
-  referenceParse(text: string): Promise<ScriptureRef>;
+  /**
+   * A typed passage in any of the 100 reference languages ("Johannes 15,5",
+   * "요한복음 15장 5절"). `translationId` is the Bible the person is reading:
+   * its stored language decides an ambiguous abbreviation first, then the
+   * interface language (scripture::resolve).
+   */
+  referenceParse(text: string, translationId?: string | null): Promise<ScriptureRef>;
   referenceDetect(text: string): Promise<DetectedReference[]>;
 
   bibleList(): Promise<BibleTranslation[]>;
@@ -607,8 +612,8 @@ export const tauriApi: Api = {
   scriptureSearch: (input) => call("scripture_search", { input }),
   scriptureConcordance: (input) => call("scripture_concordance", { input }),
   // One reader for typed passages in any of the 100 reference languages; the
-  // interface language only settles a genuine tie (scripture::resolve).
-  referenceParse: (text) => call("scripture_reference_parse", { text, language: i18n.language }),
+  // Bible being read, then the interface language, settle a genuine tie.
+  referenceParse: (text, translationId) => call("scripture_reference_parse", { text, language: i18n.language, translationId: translationId ?? null }),
   // Detection reads text whose language is unknown: the interface language is
   // not the language of a study note, so it is read as before (English first).
   referenceDetect: (text) => call("scripture_reference_detect", { text }),

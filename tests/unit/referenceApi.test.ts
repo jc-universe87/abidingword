@@ -18,7 +18,10 @@ describe("the shared reference API", () => {
     const { tauriApi } = await import("@/lib/api");
     await i18n.changeLanguage("ko");
     await tauriApi.referenceParse("Johannes 15,5");
-    expect(invoke).toHaveBeenCalledWith("scripture_reference_parse", { text: "Johannes 15,5", language: "ko" });
+    expect(invoke).toHaveBeenCalledWith("scripture_reference_parse", { text: "Johannes 15,5", language: "ko", translationId: null });
+    // The Bible being read goes along by id; the core reads its stored language tag.
+    await tauriApi.referenceParse("Jn 3:5", "bible-1");
+    expect(invoke).toHaveBeenCalledWith("scripture_reference_parse", { text: "Jn 3:5", language: "ko", translationId: "bible-1" });
     // Detection is not told the interface language: it is not the language of the text.
     await i18n.changeLanguage("de");
     await tauriApi.referenceDetect("Jn 3:5");

@@ -21,8 +21,9 @@ reference was written in.
 | Context (`15:4`, `v. 5`) | `scripture/parser/context.rs` | no (driven by pack data) |
 
 Every place a person types a passage calls the one command
-`scripture_reference_parse(text, language)` (`src/lib/api.ts` adds the
-interface language) and gets a canonical reference back: Scripture
+`scripture_reference_parse(text, language, translationId)` (`src/lib/api.ts`
+adds the interface language; each screen passes the Bible it is reading) and
+gets a canonical reference back: Scripture
 navigation, Bible Study passage fields, a new study's passage, Teaching
 passages, the presentation editor's passage, and the Presenter View's
 *Bible passage*. There is no parser of any screen's own, and future mobile
@@ -32,43 +33,58 @@ not routed through it.
 
 ## Typed input: the policy
 
-`resolve::resolve(input, preferred)`:
+`resolve::resolve(input, Context { bible, interface })`. The context is two
+optional languages: the **Bible's language** — from the stored language tag
+of the translation being read (`bibles.language_code`, via
+`resolve::language_of_tag`: `pt`, `pt-BR`, `deu`; never from a name, short
+name, file or publisher; a Bible without a tag is no signal) — and the
+**interface language**. English has no place of its own.
 
 1. Every pack whose script occurs in the input reads it as a whole
-   (`ReferenceParser::read`). The interface language is **not a gate**: a
-   Korean interface reads `Johannes 15,5`.
-2. The passages found are grouped by canonical reference. **One passage**
-   (however many languages agree) → that passage.
-3. **Only generated packs found it** — refused where it would surprise:
-   - when the preferred language or a reviewed pack knows the book and says
-     the passage is not in it (`Jud 3:5`: Jude has one chapter — not
-     Romanian Judges 3:5), that error is the answer;
-   - when the book is a **reserved stem** — the bare name of a numbered book
-     in a reviewed language that is not a book name itself (`Sam`, `Kön`),
-     or a deuterocanonical abbreviation (`Sir`, `Tob`, `Mak`, `Bar`, `Weish`,
-     …) — it is `reference.notRecognised` (Malayalam "Sam" is Psalms; Kurdish
-     "Şîr", folded, is Proverbs; the person means Samuel or Sirach).
-4. **Several passages** — `Jn 3:5` is John in English, French and Spanish
-   and Jonah in Portuguese, and Jonah 3:5 exists:
-   - the **preferred** (interface) language decides, if it read the input;
-   - otherwise **English**, if it read the input — typed passages were read
-     in English before v0.18.2, and a German or Korean interface must not
-     lose `Jn 3:16`;
-   - otherwise, if exactly one of the passages was read by a **reviewed**
-     pack, that one;
-   - otherwise nothing is guessed: `reference.ambiguous` lists the passages
-     (`canonicals`, shown in the interface language) and asks for more of the
-     book's name (`фил 1:1`: Philippians or Philemon; `雅 1:1`: James or the
-     Song of Songs).
-5. **Nothing found:** a spelling that names two books in its own language
-   (listed per pack as `ambiguous`) gives `reference.ambiguous` with the
-   books; a known book with a passage it does not have gives that error
-   (`reference.chapterCount` …), the preferred language's first, then a
-   reviewed pack's; anything else is `reference.notRecognised`.
+   (`ReferenceParser::read`). No language is a gate: a Korean interface reads
+   `Johannes 15,5`. The passages found are grouped by canonical reference.
+2. **Safety** (unchanged):
+   - a passage only generated packs read is refused when a context language
+     or a reviewed pack knows the book and says the passage is not in it
+     (`Jud 3:5`: Jude has one chapter — not Romanian Judges 3:5);
+   - and when its book is a **reserved stem** — the bare name of a numbered
+     book in a reviewed language that is not a book name itself (`Sam`,
+     `Kön`), or a deuterocanonical abbreviation (`Sir`, `Tob`, `Mak`, `Bar`,
+     `Weish`, …);
+   - beside a reviewed reading, a passage only generated packs read is not
+     credible — unless a context language read it (an Italian Bible's
+     `Es 3:5` is Exodus, not English Esther).
+3. **Several credible passages**, in this order:
+   1. the **Bible's language** decides, if it read the input;
+   2. the **interface language** decides, if it read the input;
+   3. the **common reading**: a strict majority of the reviewed languages
+      that read the input agree (`Jn`: John in English, French and Spanish
+      against Jonah in Portuguese); generated packs do not vote;
+   4. otherwise nothing is guessed: `reference.ambiguous` lists the passages
+      (`canonicals`, shown in the interface language) — `Hb 3:5` with
+      neither language deciding (Habakkuk in English, Hebrews in Portuguese),
+      `фил 1:1` (Philippians or Philemon), `雅 1:1` (James or the Song of
+      Songs).
+4. **Nothing found:** a spelling that names two books in its own language
+   gives `reference.ambiguous` with the books; a known book with a passage
+   it does not have gives that error (`reference.chapterCount` …), the
+   Bible's language first, then the interface's, then a reviewed pack's;
+   anything else is `reference.notRecognised`.
 
-Input longer than 200 characters is not a reference. Only verses' chapters
-are checked (`canon` has chapter counts, not verse counts): `Jn 3:16` with a
-Portuguese interface opens Jonah 3, whose verse 16 the Bible text does not
+| Input | Bible | Interface | Result |
+|---|---|---|---|
+| `Jn 3:5` | Portuguese | English | Jonah 3:5 |
+| `Jn 3:5` | English | Portuguese | John 3:5 |
+| `Jn 3:5` | — | Portuguese | Jonah 3:5 |
+| `Jn 3:5` | German | Portuguese | Jonah 3:5 (German does not read `Jn`) |
+| `Jn 3:5` | — / German | German / Korean | John 3:5 (common reading) |
+| `Hb 3:5` | — / Korean | German | asks: Habakkuk 3:5 / Hebrews 3:5 |
+| `Mc 3:5` | — | German | Mark 3:5 (French, Spanish, Portuguese against English) |
+| `Mc 3:5` | English | French | Micah 3:5 |
+
+Input longer than 200 characters is not a reference. Only chapters are
+validated (`canon` has chapter counts, not verse counts): `Jn 3:16` with a
+Portuguese Bible opens Jonah 3, whose verse 16 the Bible text does not
 have.
 
 A bare book name opens chapter 1. A chapter alone is a chapter. Titles in

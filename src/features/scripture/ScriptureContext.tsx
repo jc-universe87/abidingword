@@ -191,11 +191,11 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
 
   const navigateText = useCallback(
     async (text: string) => {
-      const ref = await api.referenceParse(text);
+      const ref = await api.referenceParse(text, translation?.id);
       goTo(ref);
       return ref;
     },
-    [api, goTo],
+    [api, goTo, translation],
   );
 
   const reloadTranslations = useCallback(async () => {

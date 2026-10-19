@@ -312,7 +312,9 @@ pub fn interpret(context: &Context, answer: &Value) -> AppResult<AssistResult> {
                                 .flatten()
                                 .filter_map(|r| r.as_str())
                                 .take(5)
-                                .filter_map(|r| crate::scripture::resolve::resolve(r, None).ok())
+                                .filter_map(|r| {
+                                    crate::scripture::resolve::resolve(r, Default::default()).ok()
+                                })
                                 .map(|r| r.to_dto())
                                 .collect();
                             Some(Comment {

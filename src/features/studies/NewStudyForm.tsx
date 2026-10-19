@@ -6,6 +6,7 @@ import { Button } from "@/design-system/Button";
 import { useLoad } from "@/hooks/useLoad";
 import { referenceLabel } from "@/i18n/scripture";
 import { toApiError } from "@/lib/api";
+import { useScripture } from "@/features/scripture/ScriptureContext";
 import { useApi } from "@/lib/ApiContext";
 import type { StudyType } from "@/types/studies";
 import { isPassageCentred } from "./labels";
@@ -66,6 +67,7 @@ interface NewStudyFormProps {
 export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false }: NewStudyFormProps) {
   const { t } = useTranslation();
   const api = useApi();
+  const { translation } = useScripture();
   const id = useId();
   const templates = useLoad(useCallback(() => api.templateList(), [api]));
   const [subject, setSubject] = useState("");
@@ -96,7 +98,7 @@ export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false
       let primary: string | undefined;
       let derived = text;
       if (aboutAPassage) {
-        const ref = await api.referenceParse(text);
+        const ref = await api.referenceParse(text, translation?.id);
         primary = ref.canonical;
         const label = referenceLabel(ref);
         derived = label;

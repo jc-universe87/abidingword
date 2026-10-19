@@ -632,7 +632,7 @@ function SlideRow({
   const setReference = async () => {
     setRefError(null);
     try {
-      const ref = await api.referenceParse(refText);
+      const ref = await api.referenceParse(refText, doc?.bible?.id);
       await onUpdate({ id: item.id, reference: ref.canonical });
       setRefText("");
     } catch (e) {
