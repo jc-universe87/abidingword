@@ -1,11 +1,13 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "audience",
-  "description": "Permissions for the audience screen of a presentation (v0.18): it only receives the slide to show from the main window. No dialogs, no updater, no links.",
+  "description": "Permissions for the audience screen of a presentation (v0.18, narrowed in v0.18.3): the five commands of the audience-window set in permissions/windows.toml, and listening for where the presenter is. No dialogs, no updater, no links, no window control, no other app commands.",
   "windows": [
     "audience"
   ],
   "permissions": [
-    "core:event:default"
+    "audience-window",
+    "core:event:allow-listen",
+    "core:event:allow-unlisten"
   ]
 }

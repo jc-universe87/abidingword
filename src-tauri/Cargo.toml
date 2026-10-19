@@ -54,6 +54,8 @@ ttf-parser = "0.25"
 
 [dev-dependencies]
 tempfile = "3"
+# The mock runtime, to check each window's command permissions (v0.18.3).
+tauri = { version = "2", features = ["test"] }
 
 [profile.release]
 codegen-units = 1

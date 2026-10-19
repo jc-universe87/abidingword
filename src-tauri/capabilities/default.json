@@ -1,11 +1,12 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Permissions for the main window: core features, the system open-file dialog (to choose a Bible to import) and save dialog (to choose where a presentation export is saved), the updater (checking for and installing a signed update; only active in builds that configure it) and opening an http(s) link, on the person's explicit click, in the default browser. The app's own commands are always available.",
+  "description": "Permissions for the main window (v0.18.3): the app's own commands its interface calls (the main-window set in permissions/windows.toml), core features, the system open-file dialog (to choose a Bible or template to import) and save dialog (to choose where an export is saved), the updater (checking for and installing a signed update; only active in builds that configure it) and opening an http(s) link, on the person's explicit click, in the default browser.",
   "windows": [
     "main"
   ],
   "permissions": [
+    "main-window",
     "core:default",
     "dialog:allow-open",
     "dialog:allow-save",
