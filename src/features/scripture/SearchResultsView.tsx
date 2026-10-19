@@ -26,7 +26,7 @@ export function SearchResultsView() {
         <h2 id={`${id}-title`} className="m-0 font-display text-[1.5rem] font-heading text-text-strong">
           {t("scripture.search.title")}
         </h2>
-        <button type="button" onClick={closeSearch} className="inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-strong hover:bg-bg">
+        <button type="button" onClick={closeSearch} className="inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-strong hover:bg-bg-secondary">
           <ArrowLeft className="size-4" aria-hidden="true" /> {t("scripture.search.backToReading")}
         </button>
       </div>
@@ -36,7 +36,7 @@ export function SearchResultsView() {
         </label>
         <div className="flex gap-2">
           <input id={`${id}-q`} value={query} onChange={(e) => setQuery(e.target.value)} className="h-10 min-w-0 flex-1 rounded-aw border border-border bg-bg px-3 text-[0.9375rem]" />
-          <button type="submit" className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium hover:bg-bg">{t("scripture.search.submit")}</button>
+          <button type="submit" className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium hover:bg-bg-secondary">{t("scripture.search.submit")}</button>
         </div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.9375rem]">
           <label className="flex items-center gap-2">
@@ -69,7 +69,7 @@ export function SearchResultsView() {
           <ol aria-label={t("scripture.search.results")} className="m-0 flex list-none flex-col p-0">
             {search.results.hits.map((hit) => (
               <li key={`${hit.translationId}-${hit.reference.canonical}`} className="border-t border-border-subtle">
-                <button type="button" onClick={() => goTo(hit.reference)} className="flex w-full flex-col items-start gap-1 px-1 py-3 text-left hover:bg-bg">
+                <button type="button" onClick={() => goTo(hit.reference)} className="flex w-full flex-col items-start gap-1 px-1 py-3 text-left hover:bg-bg-secondary">
                   <span className="text-[0.9375rem] font-semibold text-link">
                     {referenceLabel(hit.reference, bookByCode.get(hit.reference.book)?.chapterCount)}
                     <span className="font-normal text-text-muted">

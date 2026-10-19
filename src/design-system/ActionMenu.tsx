@@ -101,11 +101,13 @@ export function ActionMenu({
           }}
           className="absolute right-0 top-full z-30 mt-1 flex min-w-max flex-col rounded-aw border border-border bg-bg p-1 font-ui shadow-md"
         >
-          {actions.map((action) => (
+          {actions.map((action, index) => (
             <button
               key={action.label}
               type="button"
               role="menuitem"
+              // The item is named by its label; the line under it describes it.
+              aria-describedby={action.description ? `${id}-d${index}` : undefined}
               onClick={() => {
                 setOpen(false);
                 action.onSelect(button.current);
@@ -118,7 +120,9 @@ export function ActionMenu({
               {action.description ? (
                 <span className="flex flex-col">
                   <span>{action.label}</span>
-                  <span className="type-meta">{action.description}</span>
+                  <span id={`${id}-d${index}`} aria-hidden="true" className="type-meta">
+                    {action.description}
+                  </span>
                 </span>
               ) : (
                 action.label

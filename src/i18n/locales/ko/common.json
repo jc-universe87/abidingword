@@ -26,5 +26,6 @@
   "clear": "지우기",
   "keep": "유지",
   "tryAgain": "다시 시도",
-  "listSeparator": " · "
+  "listSeparator": " · ",
+  "labelSeparator": ": "
 }

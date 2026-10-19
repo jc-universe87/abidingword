@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import i18n from "@/i18n";
 import { createMemoryApi } from "../support/memoryApi";
@@ -95,8 +95,9 @@ describe("the open Bible Teaching", () => {
     const items = within(menu).getAllByRole("menuitem");
     // Only what exists is offered: no manuscript or worksheet pretends to be there.
     expect(items).toHaveLength(1);
-    expect(items[0]).toHaveTextContent("Presentation");
-    expect(items[0]).toHaveTextContent("Slides for the screen, made from this teaching");
+    // Named by its label; described by the line under it (review fix).
+    expect(items[0]).toHaveAccessibleName("Presentation");
+    expect(items[0]).toHaveAccessibleDescription("Slides for the screen, made from this teaching");
     expect(items[0]).toHaveFocus();
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("menu")).toBeNull();
@@ -124,5 +125,33 @@ describe("the open Bible Teaching", () => {
     } finally {
       await i18n.changeLanguage("en");
     }
+  });
+
+  it("keeps the keyboard on the teaching picker even when the chosen teaching takes a while to load", async () => {
+    // Review finding (v0.18.4): the picker is drawn anew with the teaching, after it has loaded.
+    const api = await setup();
+    const studyId = api.state.studies[0]!.id;
+    await api.teachingCreate({ studyId, title: "Group study", kind: "bible_study" });
+    const get = api.teachingGet.bind(api);
+    api.teachingGet = async (id) => {
+      await new Promise((r) => setTimeout(r, 60));
+      return get(id);
+    };
+    const { user } = await openTeaching(api);
+    const picker = () => within(studyPane()).getByRole("combobox", { name: "Teaching:" });
+    await user.selectOptions(picker(), api.state.teaching.preparations[1]!.id);
+    await within(studyPane()).findByRole("article", { name: "Group study" });
+    await waitFor(() => expect(picker()).toHaveFocus());
+  });
+
+  it("lets an input method finish a syllable with Enter in the title", async () => {
+    const api = await setup();
+    const { article } = await openTeaching(api);
+    const title = within(article).getByRole("textbox", { name: "Title" });
+    // Enter while composing (Korean) is the input method's, not a line break to prevent.
+    const composing = fireEvent.keyDown(title, { key: "Enter", isComposing: true });
+    expect(composing).toBe(true);
+    const plain = fireEvent.keyDown(title, { key: "Enter" });
+    expect(plain).toBe(false);
   });
 });

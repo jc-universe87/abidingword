@@ -61,7 +61,7 @@ export function TeachingLinks({ preparation, pointId, scope, studyFindings, onCh
   return (
     <div className="flex flex-col gap-2">
       {(passages.length > 0 || links.length > 0 || materials.length > 0) && (
-        <h5 className="m-0 text-[0.875rem] font-semibold text-text-muted">{t("studies.teaching.links.used", { scope })}</h5>
+        <h5 className="type-meta m-0 font-medium">{t("studies.teaching.links.used", { scope })}</h5>
       )}
       {passages.length > 0 && (
         <ul aria-label={t("studies.teaching.links.passages", { scope })} className="m-0 flex list-none flex-wrap gap-2 p-0">
@@ -99,7 +99,7 @@ export function TeachingLinks({ preparation, pointId, scope, studyFindings, onCh
             <li key={link.id} className="flex flex-col gap-1 border-l-[3px] border-border pl-3">
               <div className="flex items-start justify-between gap-2">
                 <p className="reading m-0 whitespace-pre-wrap text-text">
-                  <span className="mr-1 font-ui text-[0.8125rem] font-semibold uppercase tracking-wide text-text-muted">{findingLabel(t, link.finding.findingType)}</span>
+                  <span className="type-meta mr-1 font-medium">{findingLabel(t, link.finding.findingType)}</span>
                   {link.finding.content}
                 </p>
                 <button
@@ -275,7 +275,7 @@ function Material({ material, onRemove }: { material: TeachingMaterial; onRemove
     <li className="flex flex-col gap-1 rounded-aw border border-dashed border-border bg-bg-secondary px-3 py-2">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-0.5">
-          <span className="text-[0.8125rem] font-semibold uppercase tracking-wide text-text-muted">{t(`studies.teaching.material.${material.kind}`)}</span>
+          <span className="type-meta font-medium">{t(`studies.teaching.material.${material.kind}`)}</span>
           <span className={`text-[0.875rem] font-medium ${tone}`}>{standingLabel(t, material.standing, image?.licence)}</span>
         </div>
         <button
@@ -287,7 +287,7 @@ function Material({ material, onRemove }: { material: TeachingMaterial; onRemove
           <X className="size-4" aria-hidden="true" />
         </button>
       </div>
-      {material.title && <p className="m-0 font-semibold text-text-strong">{material.title}</p>}
+      {material.title && <p className="type-subhead m-0">{material.title}</p>}
       {image &&
         (preview ? (
           <img src={preview} alt={material.title || material.content} className="w-full max-w-xs rounded-aw border border-border-subtle" />
@@ -297,10 +297,10 @@ function Material({ material, onRemove }: { material: TeachingMaterial; onRemove
           </span>
         ))}
       {material.content && <p className="m-0 whitespace-pre-wrap text-text">{material.content}</p>}
-      {image?.attribution && <p className="m-0 text-[0.8125rem] text-text-muted">{image.attribution}</p>}
+      {image?.attribution && <p className="type-meta m-0">{image.attribution}</p>}
       {image?.pageUrl && <Sources sources={[{ title: t("studies.teaching.assist.images.source"), url: image.pageUrl, site: "commons.wikimedia.org" }]} />}
       <Sources sources={material.sources} />
-      {material.assistant && <p className="m-0 text-[0.8125rem] text-text-muted">{t("studies.teaching.assist.from", { assistant: material.assistant })}</p>}
+      {material.assistant && <p className="type-meta m-0">{t("studies.teaching.assist.from", { assistant: material.assistant })}</p>}
     </li>
   );
 }

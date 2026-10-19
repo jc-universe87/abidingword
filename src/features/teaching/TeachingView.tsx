@@ -42,6 +42,8 @@ export function TeachingView({ studyId, studyTitle, findings, onRevealScripture 
   // After a new teaching is put away or one is deleted, the keyboard goes back to "Prepare another".
   const anotherButton = useRef<HTMLButtonElement>(null);
   const focusAnother = useRef(false);
+  // Choosing another teaching draws its picker anew once it has loaded: the keyboard goes back to it then.
+  const focusWhich = useRef(false);
   useEffect(() => {
     if (!focusAnother.current || !anotherButton.current) return;
     anotherButton.current.focus();
@@ -91,11 +93,16 @@ export function TeachingView({ studyId, studyTitle, findings, onRevealScripture 
           </label>
           <select
             id={`${id}-which`}
+            ref={(el) => {
+              if (el && focusWhich.current) {
+                focusWhich.current = false;
+                el.focus();
+              }
+            }}
             value={currentId ?? ""}
             onChange={(e) => {
+              focusWhich.current = true;
               setChosen(e.target.value);
-              // The picker is part of the teaching shown, so it is drawn anew: the keyboard stays on it.
-              requestAnimationFrame(() => document.getElementById(`${id}-which`)?.focus());
             }}
             className="h-11 min-w-0 max-w-full rounded-aw border border-border-subtle bg-field px-2 text-[0.9375rem]"
           >
@@ -506,10 +513,13 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
             aria-expanded={aboutOpen}
             aria-controls={`about-${prep.id}`}
             onClick={toggleAbout}
-            className="-ml-2 inline-flex min-h-11 min-w-0 max-w-full flex-1 basis-64 items-center gap-x-2 rounded-aw px-2 text-left hover:bg-bg-secondary"
+            className="-ml-2 inline-flex min-h-11 max-w-full flex-1 items-center gap-x-2 rounded-aw px-2 text-left hover:bg-bg-secondary"
           >
             <ChevronRight className={`size-4 shrink-0 text-text-muted transition-transform ${aboutOpen ? "rotate-90" : ""}`} aria-hidden="true" />
-            <span className="type-subhead shrink-0">{t("studies.teaching.about")}</span>
+            <span className="type-subhead shrink-0">
+              {t("studies.teaching.about")}
+              <span className="sr-only">{t("common.labelSeparator")}</span>
+            </span>
             <span className="type-meta min-w-0 truncate" title={aboutSummary || undefined}>
               {aboutSummary || t("studies.teaching.aboutEmpty")}
             </span>
@@ -522,7 +532,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         id={`about-${prep.id}`}
         aria-labelledby={`about-title-${prep.id}`}
         hidden={!aboutOpen}
-        className="flex flex-col gap-4 rounded-aw bg-bg-secondary/60 px-4 py-3"
+        className="flex flex-col gap-4 border-l-2 border-border-subtle py-1 pl-4"
       >
         <h3 id={`about-title-${prep.id}`} className="sr-only">
           {t("studies.teaching.about")}

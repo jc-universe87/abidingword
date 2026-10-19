@@ -1,4 +1,4 @@
-import { useCallback, useId, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Undo2 } from "lucide-react";
 import { useAutosave } from "@/hooks/useAutosave";
@@ -84,6 +84,20 @@ export function TeachingField(props: TeachingFieldProps) {
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
   }, [text]);
+  // A title wraps with the pane's width (a resized pane, Materials moving under it): it refits then too.
+  useEffect(() => {
+    const el = area.current;
+    if (emphasis !== "title" || !(el instanceof HTMLTextAreaElement) || typeof ResizeObserver !== "function") return;
+    let width = el.clientWidth;
+    const observer = new ResizeObserver(() => {
+      if (el.clientWidth === width) return;
+      width = el.clientWidth;
+      el.style.height = "auto";
+      el.style.height = `${el.scrollHeight}px`;
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [emphasis]);
 
   useLayoutEffect(() => {
     if (autoFocus) area.current?.focus();
@@ -193,7 +207,7 @@ export function TeachingField(props: TeachingFieldProps) {
         </div>
       )}
       {hint && (
-        <p id={`${id}-hint`} className="m-0 text-[0.875rem] text-text-muted">
+        <p id={`${id}-hint`} className="type-meta m-0">
           {hint}
         </p>
       )}
@@ -211,7 +225,8 @@ export function TeachingField(props: TeachingFieldProps) {
           onKeyDown={
             emphasis === "title"
               ? (e) => {
-                  if (e.key === "Enter") {
+                  // Not while an input method is composing (Korean): its Enter commits the syllable.
+                  if (e.key === "Enter" && !e.nativeEvent.isComposing) {
                     e.preventDefault();
                     flush();
                   }

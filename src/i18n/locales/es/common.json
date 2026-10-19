@@ -26,5 +26,6 @@
   "clear": "Borrar",
   "keep": "Conservar",
   "tryAgain": "Intentar de nuevo",
-  "listSeparator": " · "
+  "listSeparator": " · ",
+  "labelSeparator": ": "
 }

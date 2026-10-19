@@ -26,5 +26,6 @@
   "clear": "Clear",
   "keep": "Keep",
   "tryAgain": "Try again",
-  "listSeparator": " · "
+  "listSeparator": " · ",
+  "labelSeparator": ": "
 }

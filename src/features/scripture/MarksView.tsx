@@ -417,7 +417,7 @@ function MarkCard({ mark, chapterCount, onOpen }: { mark: Annotation; chapterCou
       type="button"
       onClick={onOpen}
       title={t("scripture.marks.result.show")}
-      className="flex w-full flex-col gap-1 rounded-aw border border-border-subtle bg-bg p-3 text-left font-ui hover:bg-bg-secondary"
+      className="flex w-full flex-col gap-1 rounded-aw border border-border-subtle bg-pane-work p-3 text-left font-ui hover:bg-bg-secondary"
     >
       <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
         <span className="font-medium text-text-strong">{referenceLabel(mark.reference, chapterCount)}</span>
@@ -441,7 +441,7 @@ function SourceMarkCard({ mark, onOpen }: { mark: SourceMark; onOpen: () => void
       type="button"
       onClick={onOpen}
       title={t("scripture.marks.result.showSource")}
-      className="flex min-w-0 flex-1 flex-col gap-1 rounded-aw border border-border-subtle bg-bg p-3 text-left font-ui hover:bg-bg-secondary"
+      className="flex min-w-0 flex-1 flex-col gap-1 rounded-aw border border-border-subtle bg-pane-work p-3 text-left font-ui hover:bg-bg-secondary"
     >
       <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
         <span className="font-medium text-text-strong">{mark.sourceTitle}</span>

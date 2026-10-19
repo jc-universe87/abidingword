@@ -35,11 +35,11 @@ children: *Welcome, Bible story, Question, Activity, Prayer*); the other kinds
 start empty.
 
 One study can lead to **several teachings**, for example a Sunday sermon, a
-group Bible study and a children's lesson. Above the teaching, click
-**+ Prepare another Bible Teaching**, choose its kind and click **Start**.
-Each teaching is its own: nothing in the study or in your other teachings
-changes. Once there is more than one, switch between them with
-**Teaching:** beside that button.
+group Bible study and a children's lesson. On the quiet line under the
+teaching's title, click **+ Prepare another Bible Teaching**, choose its kind
+and click **Start**. Each teaching is its own: nothing in the study or in your
+other teachings changes. Once there is more than one, switch between them with
+**Teaching:** on the same line.
 
 ## A canvas for each kind of teaching
 
