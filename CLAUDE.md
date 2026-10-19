@@ -45,3 +45,9 @@ finished while the channel lacks the green commit.
   `cargo clippy --all-targets --locked -- -D warnings`, `cargo test --locked`.
 - Rust CI builds without debug information (`CARGO_PROFILE_*_DEBUG=0` in
   `ci.yml`): the runner's disk fills up otherwise.
+
+## Shared, project-adapted agent standards
+
+@AGENTS.md
+
+The imported guidance is pinned and reviewable in `docs/agent-commons-adoption.md`. This supplement does not alter the Windows test-update, CI, signing, or approval rules above.
