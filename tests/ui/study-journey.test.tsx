@@ -1,0 +1,158 @@
+import { screen, waitFor, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it } from "vitest";
+import { hasJourney, namesRun, phaseOfKey, phaseRuns } from "@/features/studies/journey";
+import type { StudySection } from "@/types/domain";
+import { createMemoryApi } from "../support/memoryApi";
+import { renderApp } from "../support/render";
+
+// The study journey (v0.18.6): a Bible Study's parts grouped into its
+// movement from the text to teaching, where they stand, with an outline to
+// find one's place and a quiet way on to a Bible Teaching. All text invented.
+
+beforeEach(() => window.localStorage.clear());
+
+const part = (key: string | null, title = key ?? "Mine"): StudySection => ({
+  id: `${key ?? "own"}-${title}`,
+  studyId: "s",
+  key,
+  title,
+  guidance: null,
+  position: 0,
+  blocks: [],
+  createdAt: "",
+  updatedAt: "",
+  revision: 1,
+});
+
+describe("the phases of a study", () => {
+  it("group the parts of a passage study from the text to its application, in their own order", () => {
+    const runs = phaseRuns(["text", "observations", "context", "meaning", "theology", "application"].map((k) => part(k)), "passage");
+    expect(runs.map((r) => [r.phase, r.sections.map((s) => s.key)])).toEqual([
+      ["text", ["text", "observations", "context"]],
+      ["understanding", ["meaning"]],
+      ["theology", ["theology"]],
+      ["application", ["application"]],
+    ]);
+    expect(hasJourney(runs)).toBe(true);
+  });
+
+  it("follow an older study's full set of parts through audience to teaching", () => {
+    const keys = ["text", "context", "observations", "structure", "exegesis", "theology", "application", "audience", "teaching"];
+    expect(phaseRuns(keys.map((k) => part(k)), "passage").map((r) => r.phase)).toEqual(["text", "understanding", "theology", "application", "audience", "teaching"]);
+  });
+
+  it("read the same part differently where the kind of study gives it another meaning", () => {
+    expect(phaseOfKey("conclusions", "word")).toBe("understanding");
+    expect(phaseOfKey("conclusions", "systematic_theology")).toBe("theology");
+    expect(phaseOfKey("structure", "passage")).toBe("text");
+    expect(phaseOfKey("structure", "teaching")).toBe("teaching");
+    const teaching = ["text", "main-idea", "exegesis", "theology", "purpose", "audience", "structure", "illustrations", "application", "teaching-outline"];
+    expect(phaseRuns(teaching.map((k) => part(k)), "teaching").map((r) => r.phase)).toEqual(["text", "understanding", "theology", "teaching"]);
+  });
+
+  it("keep a part of the person's own with the part before it, and never reorder", () => {
+    const sections = [part("text"), part(null, "My questions"), part("meaning"), part("theology"), part(null, "Hymns")];
+    const runs = phaseRuns(sections, "passage");
+    expect(runs.map((r) => r.sections.map((s) => s.title))).toEqual([["text", "My questions"], ["meaning"], ["theology", "Hymns"]]);
+    expect(runs.flatMap((r) => r.sections)).toEqual(sections);
+  });
+
+  it("show a part of an earlier phase placed later as it is: a run of its own", () => {
+    const runs = phaseRuns(["text", "meaning", "theology", "application", "structure"].map((k) => part(k)), "passage");
+    expect(runs.map((r) => r.phase)).toEqual(["text", "understanding", "theology", "application", "text"]);
+  });
+
+  it("force no shape on a study of the person's own, or one with too little movement", () => {
+    expect(phaseRuns([part(null, "Notes")], "custom")).toEqual([{ phase: null, sections: [expect.objectContaining({ title: "Notes" })] }]);
+    expect(hasJourney(phaseRuns([part(null, "Notes"), part(null, "More")], "custom"))).toBe(false);
+    expect(hasJourney(phaseRuns(["word", "occurrences", "semantic-range"].map((k) => part(k)), "word"))).toBe(false);
+  });
+
+  it("name a phase above its parts only when the first part does not already say it", () => {
+    const title = (s: StudySection) => s.title;
+    expect(namesRun({ phase: "theology", sections: [part("theology", "Theology")] }, "Theology", title)).toBe(false);
+    expect(namesRun({ phase: "text", sections: [part("text", "Text"), part("context", "Context")] }, "Text", title)).toBe(false);
+    expect(namesRun({ phase: "understanding", sections: [part("meaning", "Meaning")] }, "Understanding", title)).toBe(true);
+    expect(namesRun({ phase: null, sections: [part(null)] }, "", title)).toBe(false);
+  });
+});
+
+async function withStudy(studyType: "passage" | "custom" = "passage") {
+  const api = createMemoryApi();
+  api.installFixtureBible("FXA", "alpha");
+  const project = await api.projectCreate({ workspaceId: api.state.workspace.id, title: "John" });
+  const detail = await api.studyCreate({ projectId: project.id, title: "Abiding", studyType });
+  return { api, detail };
+}
+
+async function openStudy(api: ReturnType<typeof createMemoryApi>) {
+  const { user } = await renderApp(api);
+  await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /Abiding/ }));
+  await screen.findByRole("textbox", { name: "Study title" });
+  return user;
+}
+const study = () => screen.getByRole("main", { name: "Study" });
+
+describe("the study's movement on screen", () => {
+  it("shows an outline of its phases that takes the person to a phase and its first part", async () => {
+    const { api } = await withStudy();
+    const user = await openStudy(api);
+    const outline = within(study()).getByRole("navigation", { name: "Study outline" });
+    expect(within(outline).getAllByRole("button").map((b) => b.textContent)).toEqual(["Text", "Understanding", "Theology", "Application"]);
+    await user.click(within(outline).getByRole("button", { name: "Go to Theology" }));
+    expect(within(study()).getByRole("heading", { level: 2, name: "Theology" })).toHaveFocus();
+  });
+
+  it("names a phase as a group only where it adds something; every part keeps its own heading", async () => {
+    const { api } = await withStudy();
+    await openStudy(api);
+    expect(within(study()).getByRole("group", { name: "Understanding" })).toBeInTheDocument();
+    expect(within(study()).queryByRole("group", { name: "Theology" })).not.toBeInTheDocument();
+    for (const name of ["Text", "Observations", "Context", "Meaning", "Theology", "Application"]) {
+      expect(within(study()).getByRole("heading", { level: 2, name })).toBeInTheDocument();
+    }
+  });
+
+  it("sets the part being worked in apart from the others, and folding still works part by part", async () => {
+    const { api } = await withStudy();
+    const user = await openStudy(api);
+    const theology = within(study()).getByRole("region", { name: "Theology" });
+    await user.click(within(theology).getByRole("button", { name: "Theology" }));
+    // Folded: a folded part is never marked as the one being worked in.
+    expect(within(theology).getByRole("button", { name: "Theology" })).toHaveAttribute("aria-expanded", "false");
+    expect(theology).not.toHaveAttribute("data-active");
+    await user.click(within(theology).getByRole("button", { name: "Theology" }));
+    expect(theology).toHaveAttribute("data-active", "true");
+    expect(within(study()).getByRole("region", { name: "Meaning" })).not.toHaveAttribute("data-active");
+  });
+
+  it("offers a Bible Teaching at its end, quietly, and opens the one prepared once there is one", async () => {
+    const { api, detail } = await withStudy();
+    const user = await openStudy(api);
+    const end = await within(study()).findByRole("complementary", { name: "Bible Teaching" });
+    expect(end).toHaveTextContent("this study can become a Bible Teaching");
+    await user.click(within(end).getByRole("button", { name: "Prepare a Bible Teaching" }));
+    expect(within(study()).getByRole("button", { name: "Bible Teaching", pressed: true })).toBeInTheDocument();
+
+    await api.teachingCreate({ studyId: detail.study.id, title: "Remain in the vine", kind: "sermon" });
+    await user.click(within(study()).getByRole("button", { name: "Bible Study" }));
+    await waitFor(() => expect(within(study()).getByRole("complementary", { name: "Bible Teaching" })).toBeInTheDocument());
+  });
+
+  it("names the Bible Teaching already prepared instead of offering to make one", async () => {
+    const { api, detail } = await withStudy();
+    await api.teachingCreate({ studyId: detail.study.id, title: "Remain in the vine", kind: "sermon" });
+    await openStudy(api);
+    const end = await within(study()).findByRole("complementary", { name: "Bible Teaching" });
+    await waitFor(() => expect(end).toHaveTextContent("Prepared from this study: Remain in the vine"));
+    expect(within(end).getByRole("button", { name: "Open the Bible Teaching" })).toBeInTheDocument();
+    expect(within(end).queryByRole("button", { name: "Prepare a Bible Teaching" })).not.toBeInTheDocument();
+  });
+
+  it("shows no outline and no phase names for a study of the person's own shape", async () => {
+    const { api } = await withStudy("custom");
+    await openStudy(api);
+    expect(within(study()).queryByRole("navigation", { name: "Study outline" })).not.toBeInTheDocument();
+    expect(within(study()).getByRole("heading", { level: 2, name: "Notes" })).toBeInTheDocument();
+  });
+});

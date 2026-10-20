@@ -86,6 +86,14 @@ async function seed(api: MemoryApi) {
     "The word “remain” comes again and again in verses 4 to 10.",
     "The branch does not produce fruit by effort; it bears fruit because it stays joined to the vine.",
   );
+  // Writing further along the study (v0.18.6 review): enough that it scrolls and several phases hold work.
+  await write(
+    "Meaning",
+    "To remain is to keep living in what Jesus has already done and said: the disciples are clean already (verse 3).",
+    "Pruning is the Father’s care, not his anger. The branch that bears fruit is cut back so that it bears more.",
+  );
+  await write("Theology", "Union with Christ is the root of the Christian life. Fruit is the evidence of that life, never its price.");
+  await write("Application", "Where am I trying to produce fruit by effort instead of staying close to him?");
   const observations = vine.sections.find((s) => s.title === "Observations");
   const application = vine.sections.find((s) => s.title === "Application");
   const fruit = await api.findingCreate({

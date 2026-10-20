@@ -1003,5 +1003,24 @@
     "own": "Your own heading",
     "collapseAll": "Fold all",
     "expandAll": "Unfold all"
+  },
+  "journey": {
+    "label": "Study outline",
+    "phase": {
+      "text": "Text",
+      "understanding": "Understanding",
+      "theology": "Theology",
+      "application": "Application",
+      "audience": "Audience",
+      "teaching": "Teaching"
+    },
+    "next": {
+      "ready": "When you are ready, this study can become a Bible Teaching: a sermon, a group Bible study or a lesson.",
+      "prepare": "Prepare a Bible Teaching",
+      "existing": "Prepared from this study: {{title}}",
+      "existingMany": "{{count}} Bible Teachings prepared from this study",
+      "open": "Open the Bible Teaching"
+    },
+    "goTo": "Go to {{phase}}"
   }
 }

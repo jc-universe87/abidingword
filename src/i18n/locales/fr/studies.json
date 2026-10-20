@@ -1013,5 +1013,24 @@
     "own": "Votre propre titre",
     "collapseAll": "Tout replier",
     "expandAll": "Tout déplier"
+  },
+  "journey": {
+    "label": "Plan de l’étude",
+    "phase": {
+      "text": "Texte",
+      "understanding": "Compréhension",
+      "theology": "Théologie",
+      "application": "Application",
+      "audience": "Auditoire",
+      "teaching": "Enseignement"
+    },
+    "next": {
+      "ready": "Quand vous serez prêt, cette étude peut devenir un enseignement biblique : une prédication, une étude biblique en groupe ou une leçon.",
+      "prepare": "Préparer un enseignement biblique",
+      "existing": "Préparé à partir de cette étude : {{title}}",
+      "existingMany": "{{count}} enseignements bibliques préparés à partir de cette étude",
+      "open": "Ouvrir l’enseignement biblique"
+    },
+    "goTo": "Aller à « {{phase}} »"
   }
 }

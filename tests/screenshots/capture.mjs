@@ -689,6 +689,21 @@ Object.assign(scenes, {
     await shot(page, "r-workspace");
     await page.close();
   },
+  // A long Bible Study partway down, working in one part (v0.18.6): where am I, what is around it?
+  async "r-study-deep"() {
+    const page = await open("", { height: H });
+    await openStudy(page);
+    const writing = page.getByRole("main").getByText(/Union with Christ|Die Einheit|그리스도와의/).first();
+    await writing.click();
+    await page.evaluate(() => {
+      const root = document.querySelector("main [data-scroll-root]");
+      const theology = [...document.querySelectorAll("main section")].find((s) => s.textContent?.includes("Union with Christ"));
+      if (root && theology) root.scrollTop += theology.getBoundingClientRect().top - root.getBoundingClientRect().top - 220;
+    });
+    await page.waitForTimeout(500);
+    await shot(page, "r-study-deep");
+    await page.close();
+  },
   async "r-teaching"() {
     const page = await open("", { height: H });
     await openTeaching(page);

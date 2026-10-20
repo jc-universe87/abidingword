@@ -1013,5 +1013,24 @@
     "own": "Tu propio título",
     "collapseAll": "Plegar todo",
     "expandAll": "Desplegar todo"
+  },
+  "journey": {
+    "label": "Recorrido del estudio",
+    "phase": {
+      "text": "Texto",
+      "understanding": "Comprensión",
+      "theology": "Teología",
+      "application": "Aplicación",
+      "audience": "Público",
+      "teaching": "Enseñanza"
+    },
+    "next": {
+      "ready": "Cuando estés listo, este estudio puede convertirse en una enseñanza bíblica: un sermón, un estudio bíblico en grupo o una lección.",
+      "prepare": "Preparar una enseñanza bíblica",
+      "existing": "Preparado a partir de este estudio: {{title}}",
+      "existingMany": "{{count}} enseñanzas bíblicas preparadas a partir de este estudio",
+      "open": "Abrir la enseñanza bíblica"
+    },
+    "goTo": "Ir a «{{phase}}»"
   }
 }

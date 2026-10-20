@@ -35,6 +35,8 @@ interface SectionEditorProps {
   onRevealScripture: () => void;
   /** A section just added: bring it into view and focus its heading. */
   reveal?: boolean;
+  /** The part the person is working in (v0.18.6): it stands out from the parts around it. */
+  active?: boolean;
   /** The user is working in this section (focus entered it): the study's Add puts a text block here. */
   onActive: () => void;
   /** A block just added from the study's Add: focus it. */
@@ -47,7 +49,7 @@ interface SectionEditorProps {
 const tool = "inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-hover hover:text-text-strong disabled:opacity-40";
 
 export function SectionEditor(props: SectionEditorProps) {
-  const { section, isFirst, isLast, hasFindings, notes, noteCount, capture, collapsed, onCollapsedChange, onAddWriting, onAddNote, onChange, onMove, onDeleted, onRevealScripture, reveal = false, onActive, newBlockId, typed, onContent } = props;
+  const { section, isFirst, isLast, hasFindings, notes, noteCount, capture, collapsed, onCollapsedChange, onAddWriting, onAddNote, onChange, onMove, onDeleted, onRevealScripture, reveal = false, active = false, onActive, newBlockId, typed, onContent } = props;
   const { t } = useTranslation();
   const api = useApi();
   const { track, settled } = useSaveTracker();
@@ -120,7 +122,10 @@ export function SectionEditor(props: SectionEditorProps) {
     <section
       aria-labelledby={headingId}
       id={`section-anchor-${section.id}`}
-      className="scroll-mt-4 border-t border-border-subtle pt-3"
+      // The part being worked in carries the brass line of work in progress; a folded part's
+      // title is quieter than an open one's, so the shape reads even without colour (v0.18.6).
+      className={`scroll-mt-14 border-t border-border-subtle pt-3 ${active && !collapsed ? "aw-part-active" : ""}`}
+      data-active={active && !collapsed ? "true" : undefined}
       onFocusCapture={onActive}
       onKeyDown={(e) => {
         if (e.key !== "Escape") return;
@@ -136,7 +141,7 @@ export function SectionEditor(props: SectionEditorProps) {
       ) : (
         <div className="flex items-center gap-2">
           {/* The heading folds the part away and opens it again. */}
-          <h2 id={headingId} tabIndex={-1} className="type-section m-0 min-w-0">
+          <h2 id={headingId} tabIndex={-1} className={`type-section m-0 min-w-0 ${collapsed ? "!font-medium !text-text" : ""}`}>
             <button
               type="button"
               aria-expanded={!collapsed}

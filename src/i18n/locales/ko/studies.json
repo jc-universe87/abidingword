@@ -993,5 +993,24 @@
     "own": "직접 정한 제목",
     "collapseAll": "모두 접기",
     "expandAll": "모두 펼치기"
+  },
+  "journey": {
+    "label": "성경공부의 흐름",
+    "phase": {
+      "text": "본문",
+      "understanding": "이해",
+      "theology": "신학",
+      "application": "적용",
+      "audience": "청중",
+      "teaching": "가르침"
+    },
+    "next": {
+      "ready": "준비가 되면 이 성경공부로 설교, 소그룹 성경공부, 교육 같은 성경 가르침을 준비할 수 있습니다.",
+      "prepare": "성경 가르침 준비하기",
+      "existing": "이 성경공부로 준비한 가르침: {{title}}",
+      "existingMany": "이 성경공부로 준비한 성경 가르침 {{count}}개",
+      "open": "성경 가르침 열기"
+    },
+    "goTo": "{{phase}} 부분으로 이동"
   }
 }

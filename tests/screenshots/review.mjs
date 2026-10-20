@@ -16,9 +16,9 @@ const [out, ...only] = process.argv.slice(2);
 if (!out) throw new Error("usage: node tests/screenshots/review.mjs <out-dir> [scene …]");
 mkdirSync(out, { recursive: true });
 const capture = fileURLToPath(new URL("./capture.mjs", import.meta.url));
-const ALL = ["r-workspace", "r-teaching", "r-library", "r-reader", "r-reader-pdf", "r-settings", "r-settings-assistant", "r-presentation", "r-presenter", "r-template-import", "r-template-designer", "r-dialog"];
+const ALL = ["r-workspace", "r-study-deep", "r-teaching", "r-library", "r-reader", "r-reader-pdf", "r-settings", "r-settings-assistant", "r-presentation", "r-presenter", "r-template-import", "r-template-designer", "r-dialog"];
 /** Scenes whose navigation uses only translated words (see WORDS in capture.mjs). */
-const LANGUAGE_SCENES = ["r-workspace", "r-teaching", "r-library", "r-settings"];
+const LANGUAGE_SCENES = ["r-workspace", "r-study-deep", "r-teaching", "r-library", "r-settings"];
 const pick = (list) => (only.length ? list.filter((s) => only.includes(s)) : list);
 
 const runs = [];

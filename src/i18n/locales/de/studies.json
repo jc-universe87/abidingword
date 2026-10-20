@@ -1003,5 +1003,24 @@
     "own": "Eigene Überschrift",
     "collapseAll": "Alle zuklappen",
     "expandAll": "Alle aufklappen"
+  },
+  "journey": {
+    "label": "Aufbau des Bibelstudiums",
+    "phase": {
+      "text": "Text",
+      "understanding": "Verstehen",
+      "theology": "Theologie",
+      "application": "Anwendung",
+      "audience": "Zuhörerschaft",
+      "teaching": "Vermittlung"
+    },
+    "next": {
+      "ready": "Wenn du so weit bist, kann aus diesem Bibelstudium eine Bibellehre werden: eine Predigt, ein Hauskreis-Bibelgespräch oder eine Lektion.",
+      "prepare": "Bibellehre vorbereiten",
+      "existing": "Aus diesem Bibelstudium vorbereitet: {{title}}",
+      "existingMany": "{{count}} Bibellehren aus diesem Bibelstudium",
+      "open": "Bibellehre öffnen"
+    },
+    "goTo": "Zu „{{phase}}“ springen"
   }
 }
