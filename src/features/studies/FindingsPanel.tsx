@@ -270,7 +270,7 @@ export const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(f
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder={t("studies.findings.writePlaceholder")}
-        className="reading rounded-aw border border-border bg-bg px-3 py-2 text-[1rem] placeholder:text-text-muted"
+        className="aw-writing"
       />
       <div role="radiogroup" aria-label={t("studies.findings.kindGroup")} className="flex flex-wrap items-center gap-2" onKeyDown={arrows}>
         {kinds.map((option) => (

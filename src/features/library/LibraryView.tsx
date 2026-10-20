@@ -198,7 +198,7 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
                       onClick={() => confirm(s.id)}
                       aria-label={t("library.remove.label", { title: s.title })}
                       title={t("library.remove.label", { title: s.title })}
-                      className="aw-icon-button hover:!text-danger"
+                      className="aw-icon-button size-11 hover:!text-danger"
                     >
                       <Trash2 className="size-4" aria-hidden="true" />
                     </button>

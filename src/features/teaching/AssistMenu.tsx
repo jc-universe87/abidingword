@@ -106,7 +106,7 @@ export function AssistMenu({
   };
 
   const item =
-    "flex min-h-11 w-full items-center gap-2 px-3 text-left text-[0.9375rem] text-text-strong outline-none hover:bg-hover focus-visible:bg-bg-secondary focus-visible:shadow-[inset_3px_0_0_var(--aw-primary)]";
+    "flex min-h-11 w-full items-center gap-2 px-3 text-left text-[0.9375rem] text-text-strong outline-none hover:bg-hover focus-visible:bg-hover focus-visible:shadow-[inset_3px_0_0_var(--aw-primary)]";
   const menuName = category ? t(`studies.teaching.assist.category.${category}`) : t("studies.teaching.assist.menuLabel", { part: partLabel });
 
   return (
@@ -132,7 +132,7 @@ export function AssistMenu({
           role="menu"
           aria-label={menuName}
           onKeyDown={keys}
-          className="absolute right-0 top-full z-40 mt-1 flex max-h-[70vh] w-80 max-w-[calc(100vw-2rem)] flex-col overflow-y-auto rounded-aw border border-border bg-bg py-1 shadow-lg"
+          className="absolute right-0 top-full z-40 mt-1 flex max-h-[70vh] w-80 max-w-[calc(100vw-2rem)] flex-col overflow-y-auto aw-popover py-1"
         >
           {category ? (
             <>

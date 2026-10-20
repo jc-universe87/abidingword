@@ -331,11 +331,11 @@ function PresentationEditor({
           <p className="type-meta -mt-2 mb-0">{t("presentation.editor.targetHint")}</p>
           <div className="flex flex-wrap items-center gap-2">
             {confirmDelete ? (
-              <span className="flex flex-wrap items-center gap-2 rounded-aw bg-hover px-2 py-1 text-[0.9375rem]">
+              <span className="flex flex-wrap items-center gap-2 rounded-aw border-l-[3px] border-danger bg-hover px-2 py-1 text-[0.9375rem]">
                 <span>{t("presentation.editor.deleteConfirm")}</span>
-                <button type="button" onClick={() => void api.presentationDelete(presentation.id).then(onDeleted, (e: unknown) => setError(toApiError(e).message))} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-hover">
+                <Button variant="danger" className="min-h-11" onClick={() => void api.presentationDelete(presentation.id).then(onDeleted, (e: unknown) => setError(toApiError(e).message))}>
                   {t("common.delete")}
-                </button>
+                </Button>
                 <button type="button" autoFocus onClick={() => setConfirmDelete(false)} className="min-h-11 rounded px-2 hover:bg-hover">
                   {t("common.keep")}
                 </button>

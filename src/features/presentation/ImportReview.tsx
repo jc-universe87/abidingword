@@ -158,7 +158,7 @@ export function ImportReview({ imported, fileName, onDone }: { imported: Importe
                     </td>
                     <td className="py-2 pr-2">
                       <span className="inline-flex items-center gap-1">
-                        {f.status === "installed" ? <CircleCheck className="size-4 text-primary" aria-hidden="true" /> : <TriangleAlert className="size-4 text-accent" aria-hidden="true" />}
+                        {f.status === "installed" ? <CircleCheck className="size-4 text-success" aria-hidden="true" /> : <TriangleAlert className="size-4 text-warning" aria-hidden="true" />}
                         {status(f)}
                       </span>
                       {f.status === "installed" && !f.embeddable && <span className="block type-meta">{t("presentation.templates.notEmbeddable")}</span>}

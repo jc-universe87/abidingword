@@ -387,7 +387,7 @@
     border: 1px solid var(--aw-border);
     border-radius: var(--aw-radius);
     background: var(--aw-raised);
-    box-shadow: 0 8px 24px -8px rgba(22, 39, 31, 0.28);
+    box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.3);
   }
 
   /* Long-form reading and writing: serif, 18px, comfortable measure. */

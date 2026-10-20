@@ -89,7 +89,7 @@ export function RelationManager({ studyId, relations, reload }: { studyId: strin
         />
       ) : (
         <div>
-          <Button variant="quiet" className="min-h-11 text-[0.9375rem] text-text-muted" onClick={() => setAdding(true)}>
+          <Button variant="quiet" className="min-h-11 text-[0.9375rem] !text-text-muted hover:!text-text-strong" onClick={() => setAdding(true)}>
             {t("studies.relations.add")}
           </Button>
         </div>
@@ -142,7 +142,7 @@ function AddRelation({ studyId, excluded, onAdd, onCancel }: { studyId: string; 
         </label>
       ) : (
         <div>
-          <Button variant="quiet" className="min-h-11 text-text-muted" aria-expanded={false} onClick={() => setDescribing(true)}>
+          <Button variant="quiet" className="min-h-11 !text-text-muted hover:!text-text-strong" aria-expanded={false} onClick={() => setDescribing(true)}>
             {t("studies.relations.describe")}
           </Button>
         </div>

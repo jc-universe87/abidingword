@@ -71,14 +71,26 @@ describe("the shared primitives", () => {
         .map(() => f.path),
     );
     expect(wrong).toEqual([]);
-    expect(all.filter((f) => f.text.includes('role="alertdialog"')).length).toBeGreaterThanOrEqual(5);
+    // Every confirmation was looked at (a longer one would slip past the pattern above).
+    const dialogs = all.reduce((n, f) => n + (f.text.match(/role="alertdialog"/g)?.length ?? 0), 0);
+    const seen = all.reduce((n, f) => n + [...f.text.matchAll(/role="alertdialog"[\s\S]{0,900}?<\/div>/g)].length, 0);
+    expect(seen).toBe(dialogs);
+    expect(dialogs).toBeGreaterThanOrEqual(5);
+    // Inline confirmations (delete a teaching, a point, a block, a presentation) use it too.
+    expect(all.filter((f) => /font-medium text-danger hover:bg-hover/.test(f.text)).map((f) => f.path)).toEqual([]);
+  });
+
+  it("show a pressed app-bar toggle by more than a tint", () => {
+    const bar = readFileSync("src/layouts/AppBar.tsx", "utf8");
+    expect(bar).toMatch(/aria-pressed:bg-selected aria-pressed:shadow-\[inset_0_-2px_0_var\(--aw-text-strong\)\]/);
   });
 
   it("let a slide row in the editor follow its pane's width, not the window's", () => {
     const editor = readFileSync("src/features/presentation/PresentationView.tsx", "utf8");
     // With all three panes open at 1100 px the words of a slide were squeezed to one letter a line.
-    expect(editor).toContain("hidden w-32 shrink-0 @md:block");
-    expect(editor).not.toMatch(/hidden w-32 shrink-0 sm:block/);
+    expect(editor).toMatch(/className=\{`@container relative flex/);
+    expect(editor).toMatch(/className="[^"]*\bhidden\b[^"]*@md:block[^"]*"/);
+    expect(editor).not.toMatch(/\bsm:(block|ml-8)\b/);
   });
 });
 

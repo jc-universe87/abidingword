@@ -1,6 +1,7 @@
 import { useCallback, useId, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowDown, ArrowUp, MoreHorizontal, Trash2 } from "lucide-react";
+import { Button } from "@/design-system/Button";
 import { useAutosave } from "@/hooks/useAutosave";
 import { useApi } from "@/lib/ApiContext";
 import type { BlockType, StudyBlock } from "@/types/domain";
@@ -132,11 +133,11 @@ export function BlockEditor(props: BlockEditorProps) {
             </>
           )}
           {confirming ? (
-            <span className="flex flex-wrap items-center gap-1 rounded-aw border border-border bg-bg px-2 py-1 text-[0.9375rem]">
+            <span className="flex flex-wrap items-center gap-1 rounded-aw border-l-[3px] border-danger bg-hover px-2 py-1 text-[0.9375rem]">
               <span>{t("studies.blocks.confirmDelete", { type })}</span>
-              <button type="button" onClick={remove} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-hover">
+              <Button variant="danger" className="min-h-11" onClick={remove}>
                 {t("common.delete")}
-              </button>
+              </Button>
               {/* Focus lands on the safe choice when the question appears. */}
               <button type="button" autoFocus onClick={() => setConfirming(false)} className="min-h-11 rounded px-2 hover:bg-hover">
                 {t("common.keep")}

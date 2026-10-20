@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { ExternalLink, Tag } from "lucide-react";
+import { ExternalLink, Plus, Tag } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { HelpTip } from "@/design-system/HelpTip";
 import { useLoad } from "@/hooks/useLoad";
@@ -362,7 +362,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                   {t("settings.assistant.keySave")}
                 </Button>
                 {keyShown && (
-                  <Button variant="quiet" className="min-h-11 text-text-muted hover:!text-danger" disabled={busy !== null} onClick={() => void run(() => api.assistantKeySet("provider", ""), t("settings.assistant.keyRemoved"))}>
+                  <Button variant="quiet" className="min-h-11 !text-text-muted hover:!text-danger" disabled={busy !== null} onClick={() => void run(() => api.assistantKeySet("provider", ""), t("settings.assistant.keyRemoved"))}>
                     {t("settings.assistant.keyRemove")}
                   </Button>
                 )}
@@ -527,7 +527,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                         {t("settings.assistant.keySave")}
                       </Button>
                       {searchKeyShown && (
-                        <Button variant="quiet" className="min-h-11 text-text-muted hover:!text-danger" disabled={busy !== null} onClick={() => {
+                        <Button variant="quiet" className="min-h-11 !text-text-muted hover:!text-danger" disabled={busy !== null} onClick={() => {
                             setBusy("save");
                             setSearchCheck(null);
                             api
@@ -650,8 +650,10 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                       key={example}
                       type="button"
                       onClick={() => set("perspective", config.perspective.trim() ? `${config.perspective.trim()} ${text}` : text)}
+                      // An example adds its words to the field (it is not a choice that stays selected).
                       className="aw-choice min-h-8 px-2.5 text-[0.875rem]"
                     >
+                      <Plus className="size-3.5 shrink-0" aria-hidden="true" />
                       {text}
                     </button>
                   );

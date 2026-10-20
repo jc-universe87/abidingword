@@ -22,7 +22,7 @@ interface AppBarProps {
 
 const iconButton =
   "inline-flex size-10 items-center justify-center rounded-aw text-text-strong hover:bg-hover " +
-  "aria-pressed:bg-selected disabled:opacity-50";
+  "aria-pressed:bg-selected aria-pressed:shadow-[inset_0_-2px_0_var(--aw-text-strong)] disabled:opacity-50";
 
 type Scope = "scripture" | "studies" | "library";
 

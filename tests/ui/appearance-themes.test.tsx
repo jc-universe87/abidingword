@@ -196,7 +196,8 @@ describe("the background follows the theme in effect", () => {
     const api = createMemoryApi();
     api.state.settings.theme = "system";
     const { user } = await renderApp(api);
-    expect(document.documentElement.dataset.theme).toBe("light");
+    // The theme is applied once the settings have loaded (later on a busy machine).
+    await waitFor(() => expect(document.documentElement.dataset.theme).toBe("light"));
     const appearance = await openSettingsSection(user, "Appearance");
     const group = within(appearance).getByRole("radiogroup", { name: "Background" });
     await user.click(within(group).getByRole("radio", { name: "Sage" }));

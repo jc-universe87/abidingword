@@ -293,7 +293,7 @@ export function AssistPanel(props: AssistPanelProps) {
                 onChange={(e) => setRequest(e.target.value)}
                 aria-describedby={`${id}-request-hint`}
                 placeholder={t("studies.teaching.assist.freePlaceholder")}
-                className="w-full rounded-aw border border-border bg-bg px-3 py-2 text-[0.9375rem] placeholder:text-text-muted"
+                className="aw-input w-full px-3 py-2"
               />
               <p id={`${id}-request-hint`} className="m-0 type-meta">
                 {t("studies.teaching.assist.freeHint")}

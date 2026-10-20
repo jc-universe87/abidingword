@@ -157,7 +157,7 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
   const footer: Footer | null = def.footer;
   const colorInput = (key: keyof TemplateDefinition["colors"]) => (
     <label key={key} className="flex items-center gap-2 text-[0.9375rem]">
-      <input type="color" value={def.colors[key]} onChange={(e) => setDef((d) => ({ ...d, colors: { ...d.colors, [key]: e.target.value.toUpperCase() } }))} className="h-11 w-12 aw-input" />
+      <input type="color" value={def.colors[key]} onChange={(e) => setDef((d) => ({ ...d, colors: { ...d.colors, [key]: e.target.value.toUpperCase() } }))} className="h-11 w-12 rounded-aw border border-border bg-field p-1" />
       {t(`presentation.templates.colors.${key}`)}
     </label>
   );

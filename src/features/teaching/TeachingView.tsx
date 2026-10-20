@@ -222,7 +222,7 @@ function NewTeaching({
         <legend className="type-subhead mb-1">{t("studies.teaching.kindLabel")}</legend>
         <div className="flex flex-wrap gap-2">
           {TEACHING_KINDS.map((k) => (
-            <label key={k} className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-border px-4 text-[0.9375rem] has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-on-primary">
+            <label key={k} className="aw-choice min-h-11 cursor-pointer gap-2 px-4">
               <input type="radio" name={`${id}-kind`} value={k} checked={kind === k} onChange={() => setKind(k)} className="sr-only" aria-describedby={`${id}-format`} />
               {teachingKindLabel(t, k)}
             </label>
@@ -543,11 +543,11 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         <TeachingLinks preparation={prep} pointId={null} scope={t("studies.teaching.links.wholeScope")} studyFindings={findings} onChanged={setPrep} onRevealScripture={onRevealScripture} />
         <div className="flex flex-wrap items-center gap-2">
           {confirmDelete ? (
-            <span className="flex flex-wrap items-center gap-2 rounded-aw border border-border bg-bg px-2 py-1 text-[0.9375rem]">
+            <span className="flex flex-wrap items-center gap-2 rounded-aw border-l-[3px] border-danger bg-hover px-2 py-1 text-[0.9375rem]">
               <span>{t("studies.teaching.deleteConfirm")}</span>
-              <button type="button" onClick={() => void remove()} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-hover">
+              <Button variant="danger" className="min-h-11" onClick={() => void remove()}>
                 {t("common.delete")}
-              </button>
+              </Button>
               <button type="button" autoFocus onClick={() => setConfirmDelete(false)} className="min-h-11 rounded px-2 hover:bg-hover">
                 {t("common.keep")}
               </button>
@@ -759,11 +759,11 @@ function DeletePoint({ name, confirm, hasContent, onDelete }: { name: string; co
   const [confirming, setConfirming] = useState(false);
   if (confirming)
     return (
-      <span className="flex flex-wrap items-center gap-1 rounded-aw border border-border bg-bg px-2 text-[0.9375rem]">
+      <span className="flex flex-wrap items-center gap-1 rounded-aw border-l-[3px] border-danger bg-hover px-2 text-[0.9375rem]">
         <span>{confirm}</span>
-        <button type="button" onClick={onDelete} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-hover">
+        <Button variant="danger" className="min-h-11" onClick={onDelete}>
           {t("common.delete")}
-        </button>
+        </Button>
         <button type="button" autoFocus onClick={() => setConfirming(false)} className="min-h-11 rounded px-2 hover:bg-hover">
           {t("common.keep")}
         </button>

@@ -6,7 +6,7 @@ import { toApiError } from "@/lib/api";
 import { useScripture } from "./ScriptureContext";
 
 const field =
-  "h-10 min-w-0 rounded-aw border border-border bg-bg px-2 text-[0.9375rem] text-text";
+  "aw-input h-10 px-2";
 // Quiet around the text: the arrows need no box of their own.
 const iconButton =
   "inline-flex size-10 shrink-0 items-center justify-center rounded-aw text-text-strong " +
