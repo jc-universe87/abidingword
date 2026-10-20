@@ -7,20 +7,48 @@
 // Needs Playwright with a Chromium (`npm i --no-save playwright` once, or set
 // PLAYWRIGHT_MODULE to an installed copy, and CHROMIUM_PATH if its browser is
 // elsewhere). Images are written to docs/guide/images/.
+//
+// Review captures (v0.18.5): the same scenes under other conditions, written
+// elsewhere with a suffix, never over the guide's images:
+//   SCREENSHOT_OUT=<dir>   where to write (default docs/guide/images/)
+//   REVIEW_THEME=dark      add theme=dark to every scene
+//   REVIEW_LANG=de|ko      interface language (scenes with translated names only)
+//   REVIEW_WIDTH=980       viewport width (heights stay the scene's)
+//   REVIEW_SUFFIX=-dark-980 appended to each file name
+// tests/screenshots/review.mjs runs the review set.
 import { createRequire } from "node:module";
 import { mkdirSync } from "node:fs";
 
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE ?? "playwright");
 const BASE = process.env.SCREENSHOT_URL ?? "http://localhost:1430/tests/screenshots/index.html";
-const OUT = new URL("../../docs/guide/images/", import.meta.url).pathname;
+const OUT = process.env.SCREENSHOT_OUT ? `${process.env.SCREENSHOT_OUT.replace(/\/$/, "")}/` : new URL("../../docs/guide/images/", import.meta.url).pathname;
+const REVIEW = {
+  theme: process.env.REVIEW_THEME ?? "",
+  lang: process.env.REVIEW_LANG ?? "",
+  width: Number(process.env.REVIEW_WIDTH) || 0,
+  suffix: process.env.REVIEW_SUFFIX ?? "",
+};
+/** Interface words the review scenes click, in the review language. */
+const WORDS = {
+  en: { teaching: "Bible Teaching", settings: "Settings", library: "Open library", sources: "Sources", scripture: "Scripture" },
+  de: { teaching: "Bibellehre", settings: "Einstellungen", library: "Bibliothek öffnen", sources: "Quellen", scripture: "Bibel" },
+  ko: { teaching: "성경 가르침", settings: "설정", library: "자료실 열기", sources: "자료", scripture: "성경" },
+};
+const word = (key) => (WORDS[REVIEW.lang] ?? WORDS.en)[key];
 mkdirSync(OUT, { recursive: true });
 
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 
 /** Opens the app with the sample library; `query` adds harness options (theme, lang, passage). */
 async function open(query = "", { width = 1440, height = 900, scale = 1 } = {}) {
-  const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: scale });
+  const extra = [
+    REVIEW.theme && !/theme=/.test(query) ? `theme=${REVIEW.theme}` : "",
+    REVIEW.lang ? `lang=${REVIEW.lang}` : "",
+    REVIEW.width ? "sourcesOpen=1" : "",
+  ].filter(Boolean);
+  query = [query, ...extra].filter(Boolean).join("&");
+  const page = await browser.newPage({ viewport: { width: REVIEW.width || width, height }, deviceScaleFactor: scale });
   await page.goto(`${BASE}${query ? `?${query}` : ""}`);
   await page.getByRole("main").first().waitFor();
   await page.waitForTimeout(800);
@@ -28,11 +56,12 @@ async function open(query = "", { width = 1440, height = 900, scale = 1 } = {}) 
 }
 const shot = async (page, name, target) => {
   await page.waitForTimeout(500);
-  await (target ?? page).screenshot({ path: `${OUT}${name}.png`, animations: "disabled" });
-  console.log(`  ${name}.png`);
+  await page.mouse.move(1, 1);
+  await (target ?? page).screenshot({ path: `${OUT}${name}${REVIEW.suffix}.png`, animations: "disabled" });
+  console.log(`  ${name}${REVIEW.suffix}.png`);
 };
-const scripture = (page) => page.getByRole("complementary", { name: "Scripture" });
-const sources = (page) => page.getByRole("complementary", { name: "Sources" });
+const scripture = (page) => page.getByRole("complementary", { name: word("scripture"), exact: true });
+const sources = (page) => page.getByRole("complementary", { name: word("sources"), exact: true });
 const openStudy = async (page, title = "Abiding in the Vine") => {
   await page.getByRole("main").getByRole("button", { name: new RegExp(`^${title}`) }).first().click();
   await page.waitForTimeout(700);
@@ -44,7 +73,7 @@ const openSource = async (page, title) => {
 
 const openTeaching = async (page) => {
   await openStudy(page);
-  await page.getByRole("main").getByRole("button", { name: "Bible Teaching", exact: true }).click();
+  await page.getByRole("main").getByRole("button", { name: word("teaching"), exact: true }).click();
   await page.waitForTimeout(800);
 };
 
@@ -646,6 +675,111 @@ Object.assign(scenes, {
     const page = await open("sourcesWidth=440", { width: 1600, height: 1000 });
     await openStudy(page);
     await shot(page, "sources", sources(page));
+    await page.close();
+  },
+});
+
+// Review scenes (v0.18.5): whole windows at the review width, theme and
+// language (see the header), for the visual-system review; never the guide's.
+const H = 860;
+Object.assign(scenes, {
+  async "r-workspace"() {
+    const page = await open("", { height: H });
+    await openStudy(page);
+    await shot(page, "r-workspace");
+    await page.close();
+  },
+  async "r-teaching"() {
+    const page = await open("", { height: H });
+    await openTeaching(page);
+    await shot(page, "r-teaching");
+    await page.close();
+  },
+  async "r-library"() {
+    const page = await open("", { height: H });
+    await sources(page).getByRole("button", { name: word("library") }).click();
+    await page.waitForTimeout(800);
+    await shot(page, "r-library");
+    await page.close();
+  },
+  async "r-reader"() {
+    const page = await open("", { height: H });
+    await sources(page).getByRole("button", { name: word("library") }).click();
+    await page.getByRole("button", { name: /^Notes on Abiding/ }).first().click();
+    await page.waitForTimeout(900);
+    await shot(page, "r-reader");
+    await page.close();
+  },
+  async "r-reader-pdf"() {
+    const page = await open("", { height: H });
+    await sources(page).getByRole("button", { name: word("library") }).click();
+    await page.getByRole("button", { name: /^A Short Guide to Bible Study/ }).first().click();
+    await page.getByRole("button", { name: "Original" }).click();
+    await page.locator("[data-pdf-reference] button").first().waitFor();
+    await page.waitForTimeout(900);
+    await shot(page, "r-reader-pdf");
+    await page.close();
+  },
+  async "r-settings"() {
+    const page = await open("", { height: H });
+    await page.getByRole("button", { name: word("settings") }).click();
+    await page.waitForTimeout(700);
+    await shot(page, "r-settings");
+    await page.close();
+  },
+  async "r-settings-assistant"() {
+    const page = await open("", { height: 1400 });
+    await page.getByRole("button", { name: "Settings" }).click();
+    const section = page.getByRole("region", { name: "AI Assistant" });
+    await section.getByRole("button", { name: "AI Assistant" }).click();
+    await page.waitForTimeout(500);
+    await section.scrollIntoViewIfNeeded();
+    await shot(page, "r-settings-assistant");
+    await page.close();
+  },
+  async "r-presentation"() {
+    const page = await open("", { height: H });
+    const main = await openPresentation(page);
+    await main.getByRole("listitem", { name: /^Slide 5:/ }).getByRole("button", { name: /Jesus is the true vine/ }).click();
+    await page.waitForTimeout(500);
+    await shot(page, "r-presentation");
+    await page.close();
+  },
+  async "r-presenter"() {
+    const page = await open("", { height: H });
+    await startPresenting(page, { target: 30 });
+    await shot(page, "r-presenter");
+    await page.close();
+  },
+  async "r-template-import"() {
+    const page = await open("", { height: H });
+    const main = await openPresentation(page);
+    await main.getByText("Name, design, Bible and target time").click();
+    await main.getByRole("button", { name: "Manage templates…" }).click();
+    await page.getByRole("dialog", { name: "Church templates" }).getByRole("button", { name: "Import from PowerPoint…" }).click();
+    await page.getByRole("dialog", { name: "Check the imported design" }).waitFor();
+    await page.waitForTimeout(1200);
+    await shot(page, "r-template-import");
+    await page.close();
+  },
+  async "r-template-designer"() {
+    const page = await open("", { height: H });
+    const main = await openPresentation(page);
+    await main.getByText("Name, design, Bible and target time").click();
+    await main.getByRole("button", { name: "Manage templates…" }).click();
+    await page.getByRole("dialog", { name: "Church templates" }).getByRole("button", { name: "New template" }).click();
+    const designer = page.getByRole("dialog", { name: "New church template" });
+    await designer.getByRole("textbox", { name: "Name of the template" }).fill("Youth night");
+    await page.waitForTimeout(900);
+    await shot(page, "r-template-designer");
+    await page.close();
+  },
+  async "r-dialog"() {
+    const page = await open("", { height: H });
+    const main = await openPresentation(page);
+    await main.getByRole("button", { name: "Export…" }).click();
+    await page.waitForTimeout(500);
+    await shot(page, "r-dialog");
     await page.close();
   },
 });

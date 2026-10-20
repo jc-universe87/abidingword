@@ -289,6 +289,8 @@ async function start() {
   });
   if (params.get("empty") !== "1") await seed(api);
   await i18n.changeLanguage(params.get("lang") ?? "en");
+  // All three panes even in a narrow window, as the owner works (review scenes, v0.18.5).
+  if (params.get("sourcesOpen") === "1") localStorage.setItem("abiding-word.layout.sourcesOpen", "true");
   // Wider side panes for close-ups (layout preferences live in browser storage).
   for (const pane of ["scriptureWidth", "sourcesWidth"]) {
     const width = params.get(pane);
