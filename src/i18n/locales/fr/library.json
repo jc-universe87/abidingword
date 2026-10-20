@@ -57,7 +57,6 @@
     "listLabel": "Sources"
   },
   "remove": {
-    "button": "Retirer…",
     "label": "Retirer {{title}}",
     "dialogLabel": "Retirer {{title}} ?",
     "message": "Retirer <strong>{{title}}</strong> de votre bibliothèque ? Son texte et la copie du fichier conservée par Abiding Word sont supprimés ; votre fichier d’origine n’est pas touché. Les notes d’étude qui la citent gardent une trace de la référence.",

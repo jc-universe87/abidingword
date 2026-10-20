@@ -53,7 +53,6 @@
     "listLabel": "자료"
   },
   "remove": {
-    "button": "제거…",
     "label": "{{title}} 제거",
     "dialogLabel": "{{title}}을(를) 제거할까요?",
     "message": "자료실에서 <strong>{{title}}</strong>을(를) 제거할까요? 텍스트와 Abiding Word가 보관하던 파일 사본이 삭제되며, 원본 파일은 그대로 남습니다. 이 자료를 인용한 기록에는 출처 기록이 남습니다.",

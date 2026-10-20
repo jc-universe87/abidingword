@@ -57,7 +57,6 @@
     "listLabel": "Fontes"
   },
   "remove": {
-    "button": "Remover…",
     "label": "Remover {{title}}",
     "dialogLabel": "Remover {{title}}?",
     "message": "Remover <strong>{{title}}</strong> da sua biblioteca? O texto e a cópia do arquivo feita pelo Abiding Word são excluídos; seu arquivo original não é alterado. As anotações que a citam mantêm um registro da referência.",

@@ -73,4 +73,157 @@ names and titles.
 
 ## 2. Principles
 
-(See the sections below; filled in with the system as built.)
+1. **Content first.** Scripture, the person's writing and their sources carry
+   the colour, the serif and the size. Chrome is sans, muted, one step back.
+2. **One way to say one thing.** One hover tint, one selected state per kind
+   of control, one field, one dialog, one destructive confirmation.
+3. **State is never colour alone.** Selected = weight + bar or fill + border;
+   errors = message + `aria-invalid`; warnings carry words.
+4. **The pane decides, not the window.** Layout inside a pane uses container
+   queries (`@md:`), so three open panes at 1100 px behave like a narrow window.
+5. **Fewer, calmer variants.** Nothing was added that has only one use.
+
+## 3. Typography
+
+| Level | Class | Face / size / weight | Used for |
+|---|---|---|---|
+| A | `type-title` | serif 1.625 rem 600 | page titles (Library, Settings, Search, Marks) |
+| — | `type-worktitle` | serif 1.25 rem | the work's title, dialog titles, form titles, a source's title in the reader |
+| B | `type-section` | sans 1.0625 rem 600 | a major working section (Settings sections, Library sections) |
+| — | `type-item` | sans 1.0625 rem 500, strong | a list item's name (sources, studies, templates, Bibles) |
+| — | `type-group` | sans 0.9375 rem 600 | a small group heading inside a section or panel |
+| C | `type-subhead` | sans 0.9375 rem 500, strong | field labels, legends |
+| D | `type-meta` | sans 0.875 rem 400, muted (Korean 500) | metadata, hints, counts |
+| — | `.reading` | reading serif 1.125 rem | Scripture and long reading text |
+| — | `caps-label` | small caps | pane names |
+
+Serif set directly (`font-display`, outside the A and work-title classes):
+**2** places (was 28 at `fd96d00`); text sizes per area fell from 9–11 to
+4–7 (Settings 9 → 5, Presentation 11 → 7, Library 10 → 7). Semibold/bold uses: 27 (was 76), most now in the slide
+renderer and Presenter View, where slide text is bold by design.
+
+## 4. Surfaces
+
+| Surface | Token / class | Light | Dark |
+|---|---|---|---|
+| Work (Study, Teaching, pages) | `bg-pane-work` | brightest | deepest |
+| Primary reference (Scripture) | `bg-pane-scripture` | one step back | one step up |
+| Secondary reference (Sources) | `bg-pane-sources` | two steps back | two steps up |
+| Inset field | `bg-field` (= the Scripture step) | | |
+| Hover | `bg-hover` = text-strong 6 % (8 % dark) | | |
+| Selected | `bg-selected` = text-strong 10 % (13 % dark) | | |
+| Dialog, sheet, floating panel, action panel | `bg-raised` | = work (lightest) | `bg-secondary` (lifted) |
+| Popover / menu | `.aw-popover` (raised + border + soft shadow) | | |
+| Backdrop | `--aw-backdrop` | forest 42 % | black 55 % |
+| PDF page | `.aw-paper` | always white; highlight tokens pinned to their light values | |
+
+Hover and selected are mixes of the text colour, so they show on every pane in
+all six families × Light/Dark (tested: `appearance-themes.test.tsx`).
+
+## 5. Fields
+
+| Kind | Class | Look |
+|---|---|---|
+| Compact field (text, number, search, select) | `.aw-input` | field fill + 1 px border, border darkens on hover; 2.5 rem min |
+| Large writing (Study, Teaching) | `TeachingField`, block editor (v0.18.4) | soft fill, outline on hover/use |
+| Note beside a source or verse | `.aw-writing` | field fill + border, reading face |
+| Readonly (text from the teaching) | `.aw-readonly` | no fill, a rule beside it |
+| Disabled | `:disabled` | 60 % opacity, not-allowed cursor |
+| Error | `aria-invalid="true"` | danger border + the message |
+| Focus | global brass ring (v0.18.2) | unchanged |
+
+## 6. Actions
+
+`Button` variants: **primary** (Forest fill; one per view), **secondary**
+(outline), **quiet** (text; hover tint), **danger** (danger outline/text;
+every delete/remove confirmation). Icon-only actions: `.aw-icon-button`,
+40 px (44 px where touch matters), always with `aria-label` and `title`.
+A destructive action on a row is a muted icon that turns danger on hover; the
+confirmation sits inline on the hover surface with a danger bar, the danger
+action, and *Keep* focused.
+
+## 7. Selected states
+
+| Control | Class | Selected shown by |
+|---|---|---|
+| View switch (Bible / Marks / Concordance; Study / Teaching; Reading / Original) | `.aw-tab` + `aria-pressed` | weight 600 + 2 px bar under |
+| List row (contents entry, current slide, marked heading) | `.aw-row` + `aria-current` / `aria-selected` / `data-selected` | selected tint + inset 2 px bar |
+| Option among several (filters, kinds, examples, template boxes) | `.aw-choice` + `aria-pressed` / `aria-checked` / checked input | selected tint + strong border + 600 |
+| Pane toggle in the app bar | `aria-pressed:bg-selected` | tint + pressed state |
+| Presenter current slide | presenter text colour at 10 % + inset bar + 600 | same idea in the presenter's own colours |
+
+No filled Forest blocks remain as selections (the static count went from 9 to 3; the 3 left are primary *buttons*, not selections).
+
+## 8. Dialogs and panels
+
+`Dialog`: `bg-raised`, large radius, `type-worktitle` title, body gap 0.75 rem,
+actions at the end (primary last), `max-w-lg` (wide `max-w-5xl`), Escape
+closes, focus moves in and returns to the opener, the body scrolls.
+`Sheet` uses the same surface and backdrop. Selection panels (mark words,
+Add to Study, verse note) share `.aw-action-panel`: raised, border, a brass
+line along the top. Presenter View's panels keep the presenter's own colours
+with the shared shadow and title weight.
+
+## 9. Responsive rules and screenshots
+
+Review harness (development only): `tests/screenshots/review.mjs <out>`
+captures 12 scenes (workspace, Teaching, Library, Reader, PDF, Settings, AI
+Assistant, presentation editor, Presenter, template import, designer, a
+dialog) in Light and Dark at 980 and 1440 px plus German and Korean at 980 px
+(56 images); `REVIEW_WIDTHS=1100,1280,1600,1920` adds the width pass (1100 and
+1280 with all three panes open are the constrained arrangement).
+
+Findings fixed in the width pass: the presentation editor's slide rows used a
+window breakpoint (`sm:`), so with three panes at 1100 px the words of a slide
+were one letter wide; now `@container` + `@md:`. Library's back bar now spans
+the page like Settings'.
+
+## 10. Accessibility
+
+- Every button in the workspace (Teaching open), Library and AI Assistant
+  settings has an accessible name (`visual-system.test.tsx`).
+- Selection always has a non-colour cue (weight, bar, border, `aria-*`).
+- The v0.18.2 focus ring is untouched; no new `outline-none` without a
+  visible replacement.
+- Status colours (success, warning, danger) reach 4.5:1 on every pane and the
+  raised surface in all 12 palettes (`appearance-themes.test.tsx`).
+- Touch targets stay 44 px where they were; drag in the slide list keeps its
+  keyboard alternative (move up/down).
+
+## 11. Changes by screen
+
+- **Workspace / Study / Teaching** — lists use `type-item`; new-study and
+  Add-to-Study chips are `.aw-choice`; form labels `type-subhead`.
+- **Library** — title A, sections B, sources `type-item` + `type-meta`; Remove
+  is a muted icon with a danger confirmation; fields `.aw-input`; full-width
+  back bar.
+- **Source Reader** — Reading/Original and Contents/Marks are `.aw-tab` (no
+  filled block); one quiet header line; contents rows `.aw-row`; PDF notes in
+  brand burgundy with brass focus on an `.aw-paper` page; note fields
+  `.aw-writing`; selection panels `.aw-action-panel`.
+- **Settings** — no serif section wall (B, sans); summaries `type-meta`; AI
+  Assistant fields `.aw-input`, labels C, examples `.aw-choice`, *Remove key*
+  quiet with danger hover; Bible texts and templates confirm with danger.
+- **Presentation editor** — slides are rows (no card borders; the open one on
+  the hover tint), teaching text readonly, warnings in words in the warning
+  colour, slide rows follow the pane.
+- **Presenter View** — *Next* in the presenter text colour (not burgundy);
+  current slide row/tile in the shared selected pattern; arrangement outlines
+  visible in Dark; empty state uses the shared title and button.
+- **Church templates** — manager is a list; import report levels: taken over
+  (success), needs a look (warning), cannot be reproduced (muted), each with
+  its words; designer labels C, box picker `.aw-choice`.
+- **Dialogs** — raised surface, shared backdrop, `type-worktitle` titles.
+- **Status** — `Notice` has info / success / warning / error tones.
+
+## 12. Known exceptions
+
+- Slide rendering (`SlideView`) and the audience screen use the template's
+  fonts, weights and colours — they are the church's design, not app chrome.
+- The PDF page stays white in Dark (paper); its notes use fixed brand colours.
+- Brass bars on quoted words (marks, Add to Study) mean "the words you
+  marked", matching the brass highlight.
+- Presenter View keeps its own palette (it may differ from the app's when the
+  speaker chooses another), with the shared patterns drawn in that palette.
+- `font-semibold` remains on concordance hit words and search highlights
+  (the emphasis is the content).

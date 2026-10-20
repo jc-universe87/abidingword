@@ -297,5 +297,16 @@ presentation is its only item so far.
 **Still open:** a manuscript (the teaching as a readable text to preach or
 teach from), a worksheet and a question sheet for a group, each made from the
 teaching as the presentation is, and offered in the same menu only once it
-exists. Also: the Source reader, Library, Settings and presentation editor
-under the v0.18.4 type levels; regenerating the guide's screenshots.
+exists. Also: regenerating the guide's screenshots.
+
+### Desktop visual system
+
+**Since v0.18.5** (see [`desktop-visual-system-v0.18.5.md`](desktop-visual-system-v0.18.5.md)):
+Library, Source Reader, Settings, the presentation editor, Presenter View,
+church templates and dialogs use the workspace's type levels, surfaces,
+fields, actions and selected states; one hover and one selected tint; status
+colours tested on every pane in all 12 palettes.
+
+**Still open:** the owner's visual pass on Windows (see the screenshot
+package); regenerating the guide's screenshots under the new system; the
+remaining exceptions listed in §12 of the v0.18.5 record.

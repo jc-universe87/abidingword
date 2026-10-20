@@ -55,7 +55,6 @@
     "listLabel": "Sources"
   },
   "remove": {
-    "button": "Remove…",
     "label": "Remove {{title}}",
     "dialogLabel": "Remove {{title}}?",
     "message": "Remove <strong>{{title}}</strong> from your library? Its text and Abiding Word’s copy of the file are deleted; your original file is not touched. Study notes that cite it keep a record of the citation.",
