@@ -5,6 +5,9 @@
 //   node tests/screenshots/review.mjs <out-dir> [scene …]
 // with the harness server running (see capture.mjs); SCREENSHOT_URL points
 // at another copy of it (for before/after comparisons from an older commit).
+// REVIEW_WIDTHS=1100,1280,1600,1920 captures Light only at those widths instead
+// (the width pass; at 1100 and 1280 all three panes are open, the constrained
+// arrangement).
 import { spawnSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -19,8 +22,12 @@ const LANGUAGE_SCENES = ["r-workspace", "r-teaching", "r-library", "r-settings"]
 const pick = (list) => (only.length ? list.filter((s) => only.includes(s)) : list);
 
 const runs = [];
-for (const theme of ["light", "dark"]) for (const width of [980, 1440]) runs.push({ theme, width, lang: "", scenes: pick(ALL) });
-for (const lang of ["de", "ko"]) runs.push({ theme: "light", width: 980, lang, scenes: pick(LANGUAGE_SCENES) });
+const widths = (process.env.REVIEW_WIDTHS ?? "").split(",").map(Number).filter(Boolean);
+if (widths.length) for (const width of widths) runs.push({ theme: "light", width, lang: "", scenes: pick(ALL) });
+else {
+  for (const theme of ["light", "dark"]) for (const width of [980, 1440]) runs.push({ theme, width, lang: "", scenes: pick(ALL) });
+  for (const lang of ["de", "ko"]) runs.push({ theme: "light", width: 980, lang, scenes: pick(LANGUAGE_SCENES) });
+}
 let failed = false;
 for (const run of runs) {
   if (!run.scenes.length) continue;

@@ -648,7 +648,7 @@ function SlideRow({
       data-drag-item=""
       data-drop={drag.dropBefore ? "before" : drag.dropAfter ? "after" : undefined}
       // Slides are rows of a list, not boxed cards; the one open sits on a soft fill.
-      className={`relative flex flex-col gap-3 rounded-aw p-2 ${open ? "bg-hover" : ""} ${item.skipped ? "opacity-70" : ""} ${drag.dragging ? "opacity-50" : ""}`}
+      className={`@container relative flex flex-col gap-3 rounded-aw p-2 ${open ? "bg-hover" : ""} ${item.skipped ? "opacity-70" : ""} ${drag.dragging ? "opacity-50" : ""}`}
     >
       {/* Where the dragged slide would land. */}
       {(drag.dropBefore || drag.dropAfter) && (
@@ -674,14 +674,15 @@ function SlideRow({
         >
           <ChevronRight className={`size-4 shrink-0 transition-transform ${open ? "rotate-90" : ""}`} aria-hidden="true" />
           <span className="type-meta w-6 shrink-0 text-right font-medium">{number}</span>
-          <span className="hidden w-32 shrink-0 sm:block" aria-hidden="true">
+          {/* The picture only where the pane has room for it beside the words (a pane, not the window, decides). */}
+          <span className="hidden w-32 shrink-0 @md:block" aria-hidden="true">
             {slide ? (
               <SlideView slide={slide.audience} kind={item.kind} theme={theme} image={image} page={page} images={images} showOverflow label="" className="rounded border border-border" />
             ) : (
               <span className="block aspect-video w-full rounded border border-dashed border-border" />
             )}
           </span>
-          <span className="flex min-w-0 flex-col">
+          <span className="flex min-w-0 flex-1 flex-col">
             <span className="break-words text-[0.9375rem] font-medium text-text-strong">{name}</span>
             <span className="type-meta">
               {[
@@ -715,7 +716,7 @@ function SlideRow({
         </div>
       </div>
       {open && (
-        <div id={`slide-edit-${item.id}`} className="flex flex-col gap-3 border-l-2 border-border pb-1 pl-3 sm:ml-8">
+        <div id={`slide-edit-${item.id}`} className="flex flex-col gap-3 border-l-2 border-border pb-1 pl-3 @md:ml-8">
           <div className="flex flex-wrap items-center gap-4">
             <label className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
               <span className="type-meta">{t("presentation.editor.kind")}</span>
