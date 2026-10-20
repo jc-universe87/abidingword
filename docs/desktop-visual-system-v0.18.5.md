@@ -178,6 +178,10 @@ window breakpoint (`sm:`), so with three panes at 1100 px the words of a slide
 were one letter wide; now `@container` + `@md:`. Library's back bar now spans
 the page like Settings'.
 
+Owner screenshot package: [`images/desktop-v0.18.5/`](images/desktop-v0.18.5/README.md)
+(contact sheets, before/after compares from `fd96d00`, all review images and
+the width pass).
+
 ## 10. Accessibility
 
 - Every button in the workspace (Teaching open), Library and AI Assistant
