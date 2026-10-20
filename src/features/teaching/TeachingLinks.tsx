@@ -56,7 +56,7 @@ export function TeachingLinks({ preparation, pointId, scope, studyFindings, onCh
     }
   };
 
-  const quiet = "inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong";
+  const quiet = "inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-hover hover:text-text-strong";
 
   return (
     <div className="flex flex-col gap-2">
@@ -75,7 +75,7 @@ export function TeachingLinks({ preparation, pointId, scope, studyFindings, onCh
                     goTo(p.reference);
                     onRevealScripture();
                   }}
-                  className="inline-flex min-h-11 items-center gap-1 px-3 text-[0.9375rem] font-medium text-link hover:bg-bg-secondary"
+                  className="inline-flex min-h-11 items-center gap-1 px-3 text-[0.9375rem] font-medium text-link hover:bg-hover"
                 >
                   <BookOpen className="size-4" aria-hidden="true" />
                   {name}
@@ -84,7 +84,7 @@ export function TeachingLinks({ preparation, pointId, scope, studyFindings, onCh
                   type="button"
                   onClick={() => void act(() => api.teachingPassageRemove(p.id))}
                   aria-label={t("studies.teaching.links.removePassage", { passage: name })}
-                  className="inline-flex size-11 items-center justify-center text-text-muted hover:bg-bg-secondary"
+                  className="inline-flex size-11 items-center justify-center text-text-muted hover:bg-hover"
                 >
                   <X className="size-4" aria-hidden="true" />
                 </button>
@@ -107,7 +107,7 @@ export function TeachingLinks({ preparation, pointId, scope, studyFindings, onCh
                   onClick={() => void act(() => api.teachingFindingUnlink(link.id))}
                   aria-label={t("studies.teaching.links.removeFinding")}
                   title={t("studies.teaching.links.removeFindingHint")}
-                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary"
+                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-aw text-text-muted hover:bg-hover"
                 >
                   <X className="size-4" aria-hidden="true" />
                 </button>
@@ -122,7 +122,7 @@ export function TeachingLinks({ preparation, pointId, scope, studyFindings, onCh
                         goTo(p.reference);
                         onRevealScripture();
                       }}
-                      className="min-h-11 rounded-aw px-2 text-[0.875rem] text-link underline underline-offset-2 hover:bg-bg-secondary"
+                      className="min-h-11 rounded-aw px-2 text-[0.875rem] text-link underline underline-offset-2 hover:bg-hover"
                     >
                       {referenceLabel(p.reference)}
                     </button>
@@ -184,7 +184,7 @@ export function TeachingLinks({ preparation, pointId, scope, studyFindings, onCh
             autoFocus
             value={choice}
             onChange={(e) => setChoice(e.target.value)}
-            className="h-11 min-w-0 max-w-full flex-1 basis-60 rounded-aw border border-border bg-bg px-2 text-[0.9375rem]"
+            className="h-11 min-w-0 max-w-full flex-1 basis-60 aw-input px-2 text-[0.9375rem]"
           >
             <option value="">{t("studies.teaching.links.pick")}</option>
             {available.map((f) => (
@@ -199,7 +199,7 @@ export function TeachingLinks({ preparation, pointId, scope, studyFindings, onCh
           <Button className="min-h-11" onClick={() => setPicking(false)}>
             {t("common.cancel")}
           </Button>
-          <p className="m-0 basis-full text-[0.875rem] text-text-muted">{t("studies.teaching.links.findingNote")}</p>
+          <p className="m-0 basis-full type-meta">{t("studies.teaching.links.findingNote")}</p>
         </form>
       )}
       {adding && (
@@ -231,7 +231,7 @@ export function TeachingLinks({ preparation, pointId, scope, studyFindings, onCh
             value={reference}
             onChange={(e) => setReference(e.target.value)}
             placeholder={t("studies.passages.placeholder")}
-            className="h-11 min-w-0 flex-1 basis-48 rounded-aw border border-border bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted"
+            className="h-11 min-w-0 flex-1 basis-48 aw-input px-3 text-[0.9375rem] placeholder:text-text-muted"
           />
           <Button type="submit" variant="primary" className="min-h-11">
             {t("common.add")}
@@ -282,7 +282,7 @@ function Material({ material, onRemove }: { material: TeachingMaterial; onRemove
           type="button"
           onClick={onRemove}
           aria-label={t("studies.teaching.material.remove")}
-          className="inline-flex size-11 shrink-0 items-center justify-center rounded-aw text-text-muted hover:bg-bg"
+          className="inline-flex size-11 shrink-0 items-center justify-center rounded-aw text-text-muted hover:bg-hover"
         >
           <X className="size-4" aria-hidden="true" />
         </button>

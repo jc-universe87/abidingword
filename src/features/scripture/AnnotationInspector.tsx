@@ -24,7 +24,7 @@ interface AnnotationInspectorProps {
 
 const base =
   "inline-flex min-h-10 items-center gap-1.5 rounded-aw border border-border bg-bg px-3 font-ui text-[0.9375rem] " +
-  "text-text-strong hover:bg-bg-secondary aria-pressed:border-accent aria-pressed:bg-note";
+  "text-text-strong hover:bg-hover aria-pressed:border-accent aria-pressed:bg-note";
 
 /**
  * Everything to do with the marks on one verse, in a panel at the foot of the
@@ -136,7 +136,7 @@ export function AnnotationInspector({ id, canonical, verse, annotations, layout,
       }`}
     >
       <div className="flex items-center justify-between gap-2">
-        <h3 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 text-[1rem] font-semibold text-text-strong">
+        <h3 id={`${id}-title`} ref={heading} tabIndex={-1} className="type-group m-0">
           {t("scripture.verseTools.toolsFor", { verse })}
         </h3>
         <button type="button" onClick={onClose} aria-label={t("common.close")} title={t("common.close")} className={`${base} min-h-10 min-w-10 justify-center px-2`}>
@@ -375,7 +375,7 @@ function SavedNote({ note, onChanged, onRemoved }: { note: Annotation; onChanged
         <>
           {note.anchor && <q className="reading m-0 mb-1 block break-words text-[0.9375rem] text-text-muted">{note.anchor.quote}</q>}
           <p className="reading m-0 whitespace-pre-wrap break-words text-[1rem]">{note.content}</p>
-          <p className="m-0 mt-1 flex flex-wrap items-center gap-x-2 text-[0.875rem] text-text-muted">
+          <p className="m-0 mt-1 flex flex-wrap items-center gap-x-2 type-meta">
             <span>
               {t("scripture.verseTools.on", { passage: referenceLabel(note.reference) })}
               {note.anchor && !note.anchor.shown && (

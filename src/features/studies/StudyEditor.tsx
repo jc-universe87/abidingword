@@ -278,7 +278,7 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
                 onClick={back.onBack}
                 aria-label={back.label}
                 title={back.label}
-                className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+                className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-hover hover:text-text-strong"
               >
                 <ArrowLeft className="size-5" aria-hidden="true" />
               </button>

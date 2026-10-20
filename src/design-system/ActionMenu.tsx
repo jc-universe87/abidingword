@@ -72,8 +72,8 @@ export function ActionMenu({
         onClick={() => setOpen((v) => !v)}
         className={
           trigger
-            ? "inline-flex min-h-11 items-center gap-1.5 rounded-aw px-2 text-[0.9375rem] font-medium text-text-strong hover:bg-bg-secondary"
-            : "inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+            ? "inline-flex min-h-11 items-center gap-1.5 rounded-aw px-2 text-[0.9375rem] font-medium text-text-strong hover:bg-hover"
+            : "inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-hover hover:text-text-strong"
         }
       >
         {trigger ?? <MoreHorizontal className="size-4" aria-hidden="true" />}
@@ -99,7 +99,7 @@ export function ActionMenu({
               setOpen(false);
             }
           }}
-          className="absolute right-0 top-full z-30 mt-1 flex min-w-max flex-col rounded-aw border border-border bg-bg p-1 font-ui shadow-md"
+          className="aw-popover absolute right-0 top-full z-30 mt-1 flex min-w-max flex-col p-1 font-ui"
         >
           {actions.map((action, index) => (
             <button
@@ -112,7 +112,7 @@ export function ActionMenu({
                 setOpen(false);
                 action.onSelect(button.current);
               }}
-              className={`flex min-h-11 items-center gap-2 rounded-[4px] px-3 text-left text-[0.9375rem] text-text-strong hover:bg-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary ${
+              className={`flex min-h-11 items-center gap-2 rounded-[4px] px-3 text-left text-[0.9375rem] text-text-strong hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary ${
                 action.description ? "max-w-80 py-1.5" : "whitespace-nowrap"
               }`}
             >

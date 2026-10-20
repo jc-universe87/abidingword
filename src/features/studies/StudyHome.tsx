@@ -53,7 +53,7 @@ export function StudyHome({ workspace, onOpenProject, onOpenStudy, onProjectList
   }
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="m-0 font-display text-[1.875rem] font-heading text-text-strong">{t("studies.home.title")}</h1>
+      <h1 className="type-title m-0">{t("studies.home.title")}</h1>
       <NewStudyForm projectId={() => ensureStudyProject(api, workspace.id, t)} onCreated={onOpenStudy} />
       <div>
         <Button variant="quiet" onClick={onProjectList}>

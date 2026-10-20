@@ -30,7 +30,7 @@ export function PassageLinkNote({ segmentId }: { segmentId: string }) {
     .slice(0, MAX_SHOWN);
   if (shown.length === 0) return null;
   return (
-    <ul data-passage-note className="m-0 flex list-none flex-col gap-0 pl-4 pr-3 font-ui text-[0.875rem] text-text-muted">
+    <ul data-passage-note className="m-0 flex list-none flex-col gap-0 pl-4 pr-3 font-ui type-meta">
       {shown.map((link) => (
         <li key={`${link.origin}-${link.reference.canonical}`}>
           {passageReason(t, link.origin, referenceLabel(link.reference))}

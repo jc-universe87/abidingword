@@ -30,9 +30,9 @@ interface MarksViewProps {
   onOpenSource: (mark: SourceMark) => void;
 }
 
-const pill =
-  "min-h-9 rounded-full border border-border px-3 font-ui text-[0.9375rem] text-text-strong hover:bg-bg-secondary aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-on-primary";
-const select = "h-9 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2";
+// A filter is an option among several: the shared choice chip (v0.18.5).
+const pill = "aw-choice";
+const select = "h-9 min-w-0 max-w-full aw-input px-2";
 
 /**
  * Everything the reader has marked: notes, highlights and bookmarks in the
@@ -77,7 +77,7 @@ export function MarksView({ translation, onOpen, onOpenSource }: MarksViewProps)
 
   return (
     <section aria-labelledby={`${id}-title`} className="flex flex-col gap-4">
-      <h2 id={`${id}-title`} className="m-0 font-display text-[1.5rem] font-heading text-text-strong">
+      <h2 id={`${id}-title`} className="type-title m-0">
         {t("scripture.marks.title")}
       </h2>
 
@@ -142,7 +142,7 @@ export function MarksView({ translation, onOpen, onOpenSource }: MarksViewProps)
               value={text}
               placeholder={t("scripture.marks.searchPlaceholder")}
               onChange={(e) => setText(e.target.value)}
-              className="h-10 w-full min-w-0 rounded-aw border border-border bg-bg px-3 text-[0.9375rem]"
+              className="h-10 w-full min-w-0 aw-input px-3 text-[0.9375rem]"
             />
           </div>
         )}
@@ -247,7 +247,7 @@ function ListFrame({ heading, together, ready, count, error, hasMore, loadingMor
   if (together && ready && count === 0 && !error) return null;
   return (
     <div className="flex flex-col gap-3">
-      {heading && <h3 className="m-0 font-display text-[1.125rem] font-heading text-text-strong">{heading}</h3>}
+      {heading && <h3 className="type-group m-0">{heading}</h3>}
       {error && <Notice tone="error">{error}</Notice>}
       {!ready && !error && <p role="status" className="m-0 text-text-muted">{t("scripture.marks.loading")}</p>}
       <p role="status" className="sr-only">{ready ? t("scripture.marks.count", { count }) : ""}</p>
@@ -395,7 +395,7 @@ function KindLine({ kind, color }: { kind: AnnotationKind; color: HighlightColor
   const { t } = useTranslation();
   const Icon = KIND_ICON[kind];
   return (
-    <span className="inline-flex items-center gap-1.5 text-[0.875rem] text-text-muted">
+    <span className="inline-flex items-center gap-1.5 type-meta">
       <Icon className="size-3.5" aria-hidden="true" />
       {t(`scripture.marks.result.${kind}`)}
       {kind === "highlight" && color && (
@@ -417,16 +417,16 @@ function MarkCard({ mark, chapterCount, onOpen }: { mark: Annotation; chapterCou
       type="button"
       onClick={onOpen}
       title={t("scripture.marks.result.show")}
-      className="flex w-full flex-col gap-1 rounded-aw border border-border-subtle bg-pane-work p-3 text-left font-ui hover:bg-bg-secondary"
+      className="flex w-full flex-col gap-1 rounded-aw border border-border-subtle bg-pane-work p-3 text-left font-ui hover:bg-hover"
     >
       <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
         <span className="font-medium text-text-strong">{referenceLabel(mark.reference, chapterCount)}</span>
         <KindLine kind={mark.kind} color={mark.kind === "highlight" ? mark.color : null} />
       </span>
       {quote && <span className="reading text-[0.9375rem] italic text-text">“{quote}”</span>}
-      {mark.kind === "highlight" && !quote && <span className="text-[0.875rem] text-text-muted">{t("scripture.marks.result.wholeVerse")}</span>}
+      {mark.kind === "highlight" && !quote && <span className="type-meta">{t("scripture.marks.result.wholeVerse")}</span>}
       {mark.kind === "note" && mark.content && <span className="line-clamp-4 whitespace-pre-wrap text-[0.9375rem] text-text">{mark.content}</span>}
-      {mark.anchor && !mark.anchor.shown && <span className="text-[0.875rem] text-text-muted">{t("scripture.verseTools.notShown")}</span>}
+      {mark.anchor && !mark.anchor.shown && <span className="type-meta">{t("scripture.verseTools.notShown")}</span>}
     </button>
   );
 }
@@ -441,16 +441,16 @@ function SourceMarkCard({ mark, onOpen }: { mark: SourceMark; onOpen: () => void
       type="button"
       onClick={onOpen}
       title={t("scripture.marks.result.showSource")}
-      className="flex min-w-0 flex-1 flex-col gap-1 rounded-aw border border-border-subtle bg-pane-work p-3 text-left font-ui hover:bg-bg-secondary"
+      className="flex min-w-0 flex-1 flex-col gap-1 rounded-aw border border-border-subtle bg-pane-work p-3 text-left font-ui hover:bg-hover"
     >
       <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
         <span className="font-medium text-text-strong">{mark.sourceTitle}</span>
-        {place && <span className="text-[0.875rem] text-text-muted">{place}</span>}
+        {place && <span className="type-meta">{place}</span>}
         <KindLine kind={mark.kind} color={mark.kind === "highlight" ? mark.color : null} />
       </span>
       {mark.quote && <span className="reading line-clamp-3 whitespace-pre-line text-[0.9375rem] italic text-text">“{mark.quote}”</span>}
       {mark.kind === "note" && mark.content && <span className="line-clamp-4 whitespace-pre-wrap text-[0.9375rem] text-text">{mark.content}</span>}
-      {mark.state === "unresolved" && <span className="text-[0.875rem] text-text-muted">{t("library.marks.unresolved")}</span>}
+      {mark.state === "unresolved" && <span className="type-meta">{t("library.marks.unresolved")}</span>}
     </button>
   );
 }

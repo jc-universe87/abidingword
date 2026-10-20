@@ -49,7 +49,7 @@ export function PassageSourceList({
               <button
                 type="button"
                 onClick={() => onOpen(group.sourceId, best.segmentId)}
-                className="flex w-full flex-col items-start gap-0.5 rounded-aw px-2 py-2 text-left hover:bg-text-strong/[0.06]"
+                className="flex w-full flex-col items-start gap-0.5 rounded-aw px-2 py-2 text-left hover:bg-hover"
               >
                 {/* A source's name is readable, not loud: many of them stand one under another. */}
                 <span id={titleId} className="font-medium text-text">
@@ -67,7 +67,7 @@ export function PassageSourceList({
                       <button
                         type="button"
                         onClick={() => onOpen(group.sourceId, place.segmentId)}
-                        className="flex w-full flex-col items-start gap-0 rounded-aw py-1 pl-3 text-left text-[0.875rem] hover:bg-text-strong/[0.06]"
+                        className="flex w-full flex-col items-start gap-0 rounded-aw py-1 pl-3 text-left text-[0.875rem] hover:bg-hover"
                       >
                         <span className="text-text">{locatorLabel(t, place.locator)}</span>
                         <span className="text-text-muted">{reason(place)}</span>
@@ -94,7 +94,7 @@ export function PassageSourceList({
                           <button
                             type="button"
                             onClick={() => onOpen(group.sourceId, place.segmentId)}
-                            className="flex w-full flex-col items-start gap-0 rounded-aw py-1 pl-3 text-left text-[0.875rem] hover:bg-text-strong/[0.06]"
+                            className="flex w-full flex-col items-start gap-0 rounded-aw py-1 pl-3 text-left text-[0.875rem] hover:bg-hover"
                           >
                             <span className="text-text">{locatorLabel(t, place.locator)}</span>
                             <span className="text-text-muted">{reason(place)}</span>
@@ -111,14 +111,14 @@ export function PassageSourceList({
                     aria-expanded={Boolean(more?.open)}
                     aria-controls={extra.length > 0 ? moreId : undefined}
                     onClick={() => onToggleMore(group.sourceId)}
-                    className="rounded-sm text-left text-[0.875rem] text-text-muted underline-offset-2 hover:text-text-strong hover:underline"
+                    className="rounded-sm text-left type-meta underline-offset-2 hover:text-text-strong hover:underline"
                   >
                     {more?.open
                       ? t("library.pane.showFewerLocations")
                       : t("library.pane.moreLocations", { count: group.moreLocations })}
                   </button>
                   {more?.status === "loading" && (
-                    <p role="status" className="m-0 pt-1 text-[0.875rem] text-text-muted">
+                    <p role="status" className="m-0 pt-1 type-meta">
                       {t("library.pane.loadingLocations")}
                     </p>
                   )}

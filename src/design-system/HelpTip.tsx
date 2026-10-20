@@ -66,7 +66,7 @@ export function HelpTip({ name, children, align = "start" }: HelpTipProps) {
         aria-expanded={state === "pinned"}
         aria-controls={id}
         onClick={() => setState((s) => (s === "pinned" ? "closed" : "pinned"))}
-        className="-my-2 inline-flex size-11 items-center justify-center rounded-full text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+        className="-my-2 inline-flex size-11 items-center justify-center rounded-full text-text-muted hover:bg-hover hover:text-text-strong"
       >
         <CircleHelp className="size-[1.125rem]" aria-hidden="true" />
       </button>
@@ -74,7 +74,7 @@ export function HelpTip({ name, children, align = "start" }: HelpTipProps) {
         id={id}
         role="note"
         hidden={!open}
-        className={`absolute top-full z-30 mt-1 block w-max max-w-[min(20rem,calc(100vw-2rem))] rounded-aw border border-border bg-bg px-3 py-2 text-left text-[0.875rem] font-normal leading-snug text-text shadow-lg ${align === "end" ? "right-0" : "left-0"}`}
+        className={`absolute top-full z-30 mt-1 block w-max max-w-[min(20rem,calc(100vw-2rem))] aw-popover px-3 py-2 text-left text-[0.875rem] font-normal leading-snug text-text shadow-lg ${align === "end" ? "right-0" : "left-0"}`}
       >
         {children}
       </span>

@@ -23,10 +23,10 @@ export function SearchResultsView() {
   return (
     <section aria-labelledby={`${id}-title`} className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
-        <h2 id={`${id}-title`} className="m-0 font-display text-[1.5rem] font-heading text-text-strong">
+        <h2 id={`${id}-title`} className="type-title m-0">
           {t("scripture.search.title")}
         </h2>
-        <button type="button" onClick={closeSearch} className="inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-strong hover:bg-bg-secondary">
+        <button type="button" onClick={closeSearch} className="inline-flex min-h-9 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-strong hover:bg-hover">
           <ArrowLeft className="size-4" aria-hidden="true" /> {t("scripture.search.backToReading")}
         </button>
       </div>
@@ -35,8 +35,8 @@ export function SearchResultsView() {
           {t("scripture.search.queryLabel")}
         </label>
         <div className="flex gap-2">
-          <input id={`${id}-q`} value={query} onChange={(e) => setQuery(e.target.value)} className="h-10 min-w-0 flex-1 rounded-aw border border-border bg-bg px-3 text-[0.9375rem]" />
-          <button type="submit" className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium hover:bg-bg-secondary">{t("scripture.search.submit")}</button>
+          <input id={`${id}-q`} value={query} onChange={(e) => setQuery(e.target.value)} className="h-10 min-w-0 flex-1 aw-input px-3 text-[0.9375rem]" />
+          <button type="submit" className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium hover:bg-hover">{t("scripture.search.submit")}</button>
         </div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.9375rem]">
           <label className="flex items-center gap-2">
@@ -45,7 +45,7 @@ export function SearchResultsView() {
           </label>
           <label className="flex items-center gap-2">
             <span>{t("scripture.search.book")}</span>
-            <select value={book} onChange={(e) => setBook(e.target.value)} className="h-9 rounded-aw border border-border bg-bg px-2">
+            <select value={book} onChange={(e) => setBook(e.target.value)} className="h-9 aw-input px-2">
               <option value="">{t("scripture.search.allBooks")}</option>
               {books.map((b) => (
                 <option key={b.code} value={b.code}>{bookName(b.code, b.name)}</option>
@@ -69,8 +69,8 @@ export function SearchResultsView() {
           <ol aria-label={t("scripture.search.results")} className="m-0 flex list-none flex-col p-0">
             {search.results.hits.map((hit) => (
               <li key={`${hit.translationId}-${hit.reference.canonical}`} className="border-t border-border-subtle">
-                <button type="button" onClick={() => goTo(hit.reference)} className="flex w-full flex-col items-start gap-1 px-1 py-3 text-left hover:bg-bg-secondary">
-                  <span className="text-[0.9375rem] font-semibold text-link">
+                <button type="button" onClick={() => goTo(hit.reference)} className="flex w-full flex-col items-start gap-1 px-1 py-3 text-left hover:bg-hover">
+                  <span className="text-[0.9375rem] font-medium text-link">
                     {referenceLabel(hit.reference, bookByCode.get(hit.reference.book)?.chapterCount)}
                     <span className="font-normal text-text-muted">
                       {t("common.listSeparator")}

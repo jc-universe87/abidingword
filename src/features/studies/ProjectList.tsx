@@ -41,7 +41,7 @@ export function ProjectList({ workspace, onHome, onOpenProject, onOpenStudy }: P
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="m-0 font-display text-[1.875rem] font-heading text-text-strong">{t("studies.projects.title")}</h1>
+        <h1 className="type-title m-0">{t("studies.projects.title")}</h1>
         <p className="mt-2 mb-0 text-text-muted">
           {t("studies.projects.intro")}
         </p>
@@ -85,10 +85,10 @@ export function ProjectList({ workspace, onHome, onOpenProject, onOpenStudy }: P
               <button
                 type="button"
                 onClick={() => onOpenProject(project.id)}
-                className="flex w-full items-center gap-4 px-2 py-4 text-left hover:bg-bg-secondary"
+                className="flex w-full items-center gap-4 px-2 py-4 text-left hover:bg-hover"
               >
                 <span className="min-w-0 flex-1">
-                  <span className="block font-display text-[1.25rem] font-heading text-text-strong">
+                  <span className="type-item block">
                     {project.title}
                   </span>
                   <span className="mt-1 block text-[0.9375rem] text-text-muted">
@@ -104,7 +104,7 @@ export function ProjectList({ workspace, onHome, onOpenProject, onOpenStudy }: P
 
       {projects.data && projects.data.length > 0 && (
         <section aria-labelledby="all-studies-heading" className="flex flex-col gap-3">
-          <h2 id="all-studies-heading" className="m-0 text-[1.125rem] font-semibold text-text-strong">
+          <h2 id="all-studies-heading" className="type-section m-0">
             {t("studies.projects.allStudies")}
           </h2>
           <StudyList projects={projects.data} onOpen={onOpenStudy} />

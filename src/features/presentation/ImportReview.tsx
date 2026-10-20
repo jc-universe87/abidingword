@@ -20,9 +20,11 @@ import { TemplateSlide } from "./TemplateSlide";
 import { roleLabel, useTemplateImages, useTemplatePreview } from "./templateSupport";
 
 const LEVELS: { level: ReportLevel; Icon: typeof CircleCheck; tone: string }[] = [
-  { level: "unsupported", Icon: CircleX, tone: "text-danger" },
-  { level: "attention", Icon: TriangleAlert, tone: "text-accent" },
-  { level: "supported", Icon: CircleCheck, tone: "text-primary" },
+  // Clear, not alarming (v0.18.5): what cannot be carried over is a fact, shown quietly; what needs a look
+  // is the one to act on. Each level has its own icon and heading, never colour alone.
+  { level: "unsupported", Icon: CircleX, tone: "text-text-muted" },
+  { level: "attention", Icon: TriangleAlert, tone: "text-warning" },
+  { level: "supported", Icon: CircleCheck, tone: "text-success" },
 ];
 
 /** Font replacements chosen here, applied to the design's font choices. */
@@ -100,22 +102,22 @@ export function ImportReview({ imported, fileName, onDone }: { imported: Importe
         </>
       }
     >
-      <p className="m-0 text-[0.9375rem] text-text-muted">
+      <p className="type-meta m-0">
         {t("presentation.templates.summary", { file: report.fileName, ratio: report.ratio === "other" ? `${Math.round(report.width)} × ${Math.round(report.height)}` : report.ratio, count: report.layouts })}
       </p>
       <label className="flex flex-col gap-1 text-[0.9375rem]">
-        <span className="font-medium text-text-strong">{t("presentation.templates.name")}</span>
-        <input value={name} onChange={(e) => setName(e.target.value)} className="h-11 rounded-aw border border-border bg-bg px-2" />
+        <span className="type-subhead">{t("presentation.templates.name")}</span>
+        <input value={name} onChange={(e) => setName(e.target.value)} className="h-11 aw-input px-2" />
       </label>
 
       <section aria-labelledby={`${id}-report`} className="flex flex-col gap-2">
-        <h3 id={`${id}-report`} className="m-0 mt-2 text-[1rem] font-semibold text-text-strong">{t("presentation.templates.report")}</h3>
+        <h3 id={`${id}-report`} className="type-group m-0 mt-2">{t("presentation.templates.report")}</h3>
         {LEVELS.map(({ level, Icon, tone }) => {
           const groups = grouped(level);
           if (groups.length === 0) return null;
           return (
             <div key={level} className="flex flex-col gap-1">
-              <h4 className="m-0 flex items-center gap-2 text-[0.9375rem] font-semibold text-text-strong">
+              <h4 className="type-group m-0 flex items-center gap-2">
                 <Icon className={`size-4 shrink-0 ${tone}`} aria-hidden="true" />
                 {t(`presentation.templates.levels.${level}`)}
               </h4>
@@ -133,8 +135,8 @@ export function ImportReview({ imported, fileName, onDone }: { imported: Importe
       </section>
 
       <section aria-labelledby={`${id}-fonts`} className="flex flex-col gap-2">
-        <h3 id={`${id}-fonts`} className="m-0 mt-2 text-[1rem] font-semibold text-text-strong">{t("presentation.templates.fonts")}</h3>
-        <p className="m-0 text-[0.875rem] text-text-muted">{t("presentation.templates.fontsHint")}</p>
+        <h3 id={`${id}-fonts`} className="type-group m-0 mt-2">{t("presentation.templates.fonts")}</h3>
+        <p className="m-0 type-meta">{t("presentation.templates.fontsHint")}</p>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left text-[0.9375rem]">
             <thead>
@@ -152,14 +154,14 @@ export function ImportReview({ imported, fileName, onDone }: { imported: Importe
                   <tr key={`${f.family}-${f.bold}-${f.italic}`} className="border-b border-border-subtle align-top">
                     <td className="py-2 pr-2">
                       <span className="font-medium">{f.family}</span>
-                      <span className="block text-[0.8125rem] text-text-muted">{style(f)}</span>
+                      <span className="block type-meta">{style(f)}</span>
                     </td>
                     <td className="py-2 pr-2">
                       <span className="inline-flex items-center gap-1">
                         {f.status === "installed" ? <CircleCheck className="size-4 text-primary" aria-hidden="true" /> : <TriangleAlert className="size-4 text-accent" aria-hidden="true" />}
                         {status(f)}
                       </span>
-                      {f.status === "installed" && !f.embeddable && <span className="block text-[0.8125rem] text-text-muted">{t("presentation.templates.notEmbeddable")}</span>}
+                      {f.status === "installed" && !f.embeddable && <span className="block type-meta">{t("presentation.templates.notEmbeddable")}</span>}
                     </td>
                     <td className="py-2">
                       <div className="flex flex-wrap items-center gap-2">
@@ -167,7 +169,7 @@ export function ImportReview({ imported, fileName, onDone }: { imported: Importe
                           aria-label={t("presentation.templates.replacementFor", { font: label })}
                           value={replacements[key] ?? ""}
                           onChange={(e) => setReplacements((r) => ({ ...r, [key]: e.target.value }))}
-                          className="h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2"
+                          className="h-11 min-w-0 max-w-full aw-input px-2"
                         >
                           <option value="">{t("presentation.templates.keepFont")}</option>
                           {families.map((family) => (
@@ -175,7 +177,7 @@ export function ImportReview({ imported, fileName, onDone }: { imported: Importe
                           ))}
                         </select>
                         {f.suggestion && replacements[key] !== f.suggestion && (
-                          <button type="button" onClick={() => setReplacements((r) => ({ ...r, [key]: f.suggestion! }))} className="min-h-11 rounded-aw px-2 font-medium text-link hover:bg-bg-secondary">
+                          <button type="button" onClick={() => setReplacements((r) => ({ ...r, [key]: f.suggestion! }))} className="min-h-11 rounded-aw px-2 font-medium text-link hover:bg-hover">
                             {t("presentation.templates.useSuggestion", { font: f.suggestion })}
                           </button>
                         )}
@@ -190,8 +192,8 @@ export function ImportReview({ imported, fileName, onDone }: { imported: Importe
       </section>
 
       <section aria-labelledby={`${id}-roles`} className="flex flex-col gap-2">
-        <h3 id={`${id}-roles`} className="m-0 mt-2 text-[1rem] font-semibold text-text-strong">{t("presentation.templates.layouts")}</h3>
-        <p className="m-0 text-[0.875rem] text-text-muted">{t("presentation.templates.layoutsHint")}</p>
+        <h3 id={`${id}-roles`} className="type-group m-0 mt-2">{t("presentation.templates.layouts")}</h3>
+        <p className="m-0 type-meta">{t("presentation.templates.layoutsHint")}</p>
         <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2">
           {TEMPLATE_ROLES.map((role) => {
             const page = preview.pages.get(role);
@@ -203,7 +205,7 @@ export function ImportReview({ imported, fileName, onDone }: { imported: Importe
                   <select
                     value={mapping[role] ?? ""}
                     onChange={(e) => setMapping((m) => ({ ...m, [role]: e.target.value || undefined }))}
-                    className="h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2"
+                    className="h-11 min-w-0 max-w-full aw-input px-2"
                   >
                     <option value="">{t("presentation.templates.builtInArrangement")}</option>
                     {imported.layouts.map((l) => (

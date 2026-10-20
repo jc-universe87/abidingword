@@ -253,9 +253,9 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
     }
   };
 
-  const field = "h-11 w-full max-w-md rounded-aw border border-border bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted";
-  const labelText = "text-[0.9375rem] font-semibold text-text-strong";
-  const hint = "m-0 max-w-prose text-[0.875rem] text-text-muted";
+  const field = "aw-input h-11 w-full max-w-md px-3";
+  const labelText = "type-subhead";
+  const hint = "m-0 max-w-prose type-meta";
   const about = (topic: string) => t("settings.help.about", { topic });
   const imageProvider: ProviderKind = config.imageService === "openai" ? "openai" : provider;
   // The capability shown is the core's for the saved set-up; for an unsaved choice it is worked out the same way.
@@ -400,7 +400,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                   aria-label={t(service.download ? "settings.assistant.modelsLocal" : "settings.assistant.modelsLink", { service: label })}
                   title={t(service.download ? "settings.assistant.modelsLocal" : "settings.assistant.modelsLink", { service: label })}
                   onClick={() => void api.openExternalLink(service.modelsPage!).catch(() => undefined)}
-                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-aw text-text-muted hover:bg-hover hover:text-text-strong"
                 >
                   <ExternalLink className="size-4" aria-hidden="true" />
                 </button>
@@ -411,7 +411,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                   aria-label={t("settings.assistant.pricesLink", { service: label })}
                   title={t("settings.assistant.pricesLink", { service: label })}
                   onClick={() => void api.openExternalLink(service.pricesPage!).catch(() => undefined)}
-                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-aw text-text-muted hover:bg-hover hover:text-text-strong"
                 >
                   <Tag className="size-4" aria-hidden="true" />
                 </button>
@@ -447,7 +447,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
           )}
 
           <div className="flex flex-col gap-4 border-t border-border-subtle pt-4">
-            <h3 className="m-0 text-[1rem] font-semibold text-text-strong">{t("settings.assistant.extras")}</h3>
+            <h3 className="type-group m-0">{t("settings.assistant.extras")}</h3>
 
             <div role="group" aria-labelledby={`${id}-search-label`} className="flex flex-col gap-2">
               <div className="mb-1 flex items-center gap-1">
@@ -639,10 +639,10 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                 rows={2}
                 value={config.perspective}
                 onChange={(e) => set("perspective", e.target.value)}
-                className="w-full max-w-xl rounded-aw border border-border bg-bg px-3 py-2 text-[0.9375rem]"
+                className="aw-input w-full max-w-xl px-3 py-2"
               />
               <div role="group" aria-label={t("settings.assistant.perspectiveExamples")} className="flex flex-wrap items-center gap-1.5">
-                <span className="text-[0.8125rem] text-text-muted">{t("settings.assistant.perspectiveExamples")}</span>
+                <span className="type-meta">{t("settings.assistant.perspectiveExamples")}</span>
                 {PERSPECTIVE_EXAMPLES.map((example) => {
                   const text = t(`settings.assistant.perspectiveExample.${example}`);
                   return (
@@ -650,7 +650,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                       key={example}
                       type="button"
                       onClick={() => set("perspective", config.perspective.trim() ? `${config.perspective.trim()} ${text}` : text)}
-                      className="min-h-8 rounded-full border border-border-subtle px-2.5 text-[0.8125rem] text-text hover:bg-bg-secondary"
+                      className="aw-choice min-h-8 px-2.5 text-[0.875rem]"
                     >
                       {text}
                     </button>
@@ -685,7 +685,7 @@ function Step({ title, htmlFor, help, children }: { title: string; htmlFor: stri
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center gap-1">
-        <label htmlFor={htmlFor} className="text-[0.9375rem] font-semibold text-text-strong">
+        <label htmlFor={htmlFor} className="type-subhead">
           {title}
         </label>
         {help}
@@ -714,7 +714,7 @@ function OfficialLink({ url, text }: { url: string; text: string }) {
         <ExternalLink className="size-4" aria-hidden="true" />
         {text}
       </Button>
-      <code className="break-all text-[0.8125rem] text-text-muted">{url}</code>
+      <code className="type-meta break-all">{url}</code>
     </span>
   );
 }

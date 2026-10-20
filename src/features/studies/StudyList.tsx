@@ -19,7 +19,7 @@ interface StudyListProps {
   version?: number;
 }
 
-const select = "h-11 rounded-aw border border-border bg-bg px-2 text-[0.9375rem]";
+const select = "h-11 aw-input px-2 text-[0.9375rem]";
 
 /** A list shorter than this has no filters to offer: they would be more noise than help. */
 export const LIST_FILTER_MIN = 6;
@@ -106,10 +106,10 @@ export function StudyList({ projectId, projects, onOpen, version = 0 }: StudyLis
               <button
                 type="button"
                 onClick={() => onOpen(study)}
-                className="flex w-full items-center gap-4 px-2 py-3 text-left hover:bg-bg-secondary"
+                className="flex w-full items-center gap-4 px-2 py-3 text-left hover:bg-hover"
               >
                 <span className="min-w-0 flex-1">
-                  <span className="block font-display text-[1.25rem] font-heading text-text-strong">{study.title}</span>
+                  <span className="type-item block">{study.title}</span>
                   <span className="mt-1 block text-[0.9375rem] text-text-muted">
                     {[
                       studyTypeLabel(t, study.studyType),
@@ -142,7 +142,7 @@ export function StudyList({ projectId, projects, onOpen, version = 0 }: StudyLis
             type="button"
             aria-pressed={showArchived}
             onClick={() => setShowArchived(!showArchived)}
-            className="inline-flex min-h-11 items-center rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+            className="inline-flex min-h-11 items-center rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-hover hover:text-text-strong"
           >
             {showArchived ? t("studies.list.hideArchived") : t("studies.list.showArchived", { count: archived.length })}
           </button>

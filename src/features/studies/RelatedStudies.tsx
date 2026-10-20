@@ -70,7 +70,7 @@ export function RelationManager({ studyId, relations, reload }: { studyId: strin
                 type="button"
                 onClick={() => void act(() => api.studyRelationDelete(r.id))}
                 aria-label={t("studies.relations.remove", { title: r.other.title })}
-                className="ml-auto inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg"
+                className="ml-auto inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-hover"
               >
                 <X className="size-4" aria-hidden="true" />
               </button>
@@ -108,7 +108,7 @@ function AddRelation({ studyId, excluded, onAdd, onCancel }: { studyId: string; 
   const [type, setType] = useState<RelationType>("related");
   const [describing, setDescribing] = useState(false);
   const choices = (all.data ?? []).filter((s) => !excluded.has(s.id) && s.id !== studyId);
-  const field = "h-11 rounded-aw border border-border bg-bg px-2";
+  const field = "h-11 aw-input px-2";
   return (
     <div
       role="group"

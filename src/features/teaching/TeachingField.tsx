@@ -273,7 +273,7 @@ export function TeachingField(props: TeachingFieldProps) {
               setNotice(t("studies.teaching.assist.undone"));
               area.current?.focus();
             }}
-            className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-text-strong underline underline-offset-2 hover:bg-bg-secondary"
+            className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-text-strong underline underline-offset-2 hover:bg-hover"
           >
             <Undo2 className="size-4" aria-hidden="true" />
             {t("studies.teaching.assist.undo")}

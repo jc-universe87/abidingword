@@ -44,7 +44,7 @@ interface SectionEditorProps {
   onContent: (blockId: string, hasContent: boolean) => void;
 }
 
-const tool = "inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong disabled:opacity-40";
+const tool = "inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-hover hover:text-text-strong disabled:opacity-40";
 
 export function SectionEditor(props: SectionEditorProps) {
   const { section, isFirst, isLast, hasFindings, notes, noteCount, capture, collapsed, onCollapsedChange, onAddWriting, onAddNote, onChange, onMove, onDeleted, onRevealScripture, reveal = false, onActive, newBlockId, typed, onContent } = props;
@@ -142,7 +142,7 @@ export function SectionEditor(props: SectionEditorProps) {
               aria-expanded={!collapsed}
               aria-controls={bodyId}
               onClick={() => onCollapsedChange(!collapsed)}
-              className="-ml-1 flex min-h-11 items-center gap-1.5 rounded-aw px-1 text-left hover:bg-bg-secondary"
+              className="-ml-1 flex min-h-11 items-center gap-1.5 rounded-aw px-1 text-left hover:bg-hover"
             >
               <ChevronRight className={`size-4 shrink-0 text-text-muted transition-transform ${collapsed ? "" : "rotate-90"}`} aria-hidden="true" />
               <span className="min-w-0 break-words">{title}</span>
@@ -157,7 +157,7 @@ export function SectionEditor(props: SectionEditorProps) {
             aria-label={t("studies.sections.options", { title })}
             title={t("studies.sections.optionsTooltip")}
             onClick={() => setManaging(!managing)}
-            className="ml-auto inline-flex size-11 shrink-0 items-center justify-center self-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+            className="ml-auto inline-flex size-11 shrink-0 items-center justify-center self-center rounded-aw text-text-muted hover:bg-hover hover:text-text-strong"
           >
             <MoreHorizontal className="size-4" aria-hidden="true" />
           </button>

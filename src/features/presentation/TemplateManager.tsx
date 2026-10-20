@@ -128,8 +128,8 @@ function TemplateList({
           {t("presentation.templates.new")}
         </Button>
       </div>
-      <details className="rounded-aw border border-border-subtle px-3 py-1 text-[0.9375rem]">
-        <summary className="flex min-h-11 cursor-pointer items-center font-medium text-text-strong">{t("presentation.templates.otherApps")}</summary>
+      <details className="border-y border-border-subtle text-[0.9375rem]">
+        <summary className="type-subhead flex min-h-11 cursor-pointer items-center rounded-aw px-1 hover:bg-hover">{t("presentation.templates.otherApps")}</summary>
         <ul className="mb-2 mt-0 flex flex-col gap-1 pl-5">
           <li>{t("presentation.templates.keynote")}</li>
           <li>{t("presentation.templates.googleSlides")}</li>
@@ -145,38 +145,39 @@ function TemplateList({
       {status && <p role="status" className="m-0 break-words text-[0.9375rem]">{status}</p>}
       {error && <p role="alert" className="m-0 text-danger">{error}</p>}
       {list.error && <p role="alert" className="m-0 text-danger">{list.error.message}</p>}
-      <h3 className="m-0 mt-2 text-[1rem] font-semibold text-text-strong">{t("presentation.templates.yours")}</h3>
-      {list.data && templates.length === 0 && <p className="m-0 text-[0.9375rem] text-text-muted">{t("presentation.templates.none")}</p>}
-      <ul className="m-0 flex list-none flex-col gap-2 p-0">
+      <h3 className="type-group m-0 mt-2">{t("presentation.templates.yours")}</h3>
+      {list.data && templates.length === 0 && <p className="type-meta m-0">{t("presentation.templates.none")}</p>}
+      {/* A list, not a stack of boxes (v0.18.5). */}
+      <ul className="m-0 flex list-none flex-col border-t border-border-subtle p-0">
         {templates.map((tpl) => (
-          <li key={tpl.id} className="flex flex-wrap items-center gap-2 rounded-aw border border-border-subtle px-3 py-2">
+          <li key={tpl.id} className="flex flex-wrap items-center gap-2 border-b border-border-subtle py-2">
             <span className="flex min-w-0 flex-1 flex-col">
-              <span className="break-words font-medium text-text-strong">{tpl.name}</span>
-              <span className="text-[0.8125rem] text-text-muted">
+              <span className="type-item break-words">{tpl.name}</span>
+              <span className="type-meta">
                 {[t(`presentation.templates.source.${tpl.sourceFormat}`), tpl.width / tpl.height > 1.5 ? "16:9" : tpl.width / tpl.height > 1.2 ? "4:3" : `${tpl.width} × ${tpl.height}`, tpl.description].filter(Boolean).join(" · ")}
               </span>
             </span>
             {confirm === tpl.id ? (
               <span className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
                 <span>{t("presentation.templates.deleteConfirm")}</span>
-                <button type="button" onClick={() => void remove(tpl.id, tpl.name)} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-bg-secondary">
+                <button type="button" onClick={() => void remove(tpl.id, tpl.name)} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-hover">
                   {t("common.delete")}
                 </button>
-                <button type="button" autoFocus onClick={() => setConfirm(null)} className="min-h-11 rounded px-2 hover:bg-bg-secondary">
+                <button type="button" autoFocus onClick={() => setConfirm(null)} className="min-h-11 rounded px-2 hover:bg-hover">
                   {t("common.keep")}
                 </button>
               </span>
             ) : (
               <span className="flex flex-wrap items-center">
-                <button type="button" onClick={() => void edit(tpl.id)} disabled={busy} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] hover:bg-bg-secondary">
+                <button type="button" onClick={() => void edit(tpl.id)} disabled={busy} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] hover:bg-hover">
                   <Pencil className="size-4" aria-hidden="true" />
                   {t("presentation.templates.edit", { name: tpl.name })}
                 </button>
-                <button type="button" onClick={() => void exportOne(tpl.id, tpl.name)} disabled={busy} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] hover:bg-bg-secondary">
+                <button type="button" onClick={() => void exportOne(tpl.id, tpl.name)} disabled={busy} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] hover:bg-hover">
                   <FileDown className="size-4" aria-hidden="true" />
                   {t("presentation.templates.export", { name: tpl.name })}
                 </button>
-                <button type="button" onClick={() => setConfirm(tpl.id)} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-danger">
+                <button type="button" onClick={() => setConfirm(tpl.id)} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-hover hover:text-danger">
                   <Trash2 className="size-4" aria-hidden="true" />
                   {t("presentation.templates.delete", { name: tpl.name })}
                 </button>

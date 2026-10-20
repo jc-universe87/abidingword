@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
@@ -85,7 +85,7 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
     }
   };
 
-  const select = "h-9 rounded-aw border border-border bg-bg px-2 text-[0.9375rem]";
+  const select = "aw-input";
   return (
     <main aria-labelledby={`${id}-title`} className="min-h-0 flex-1 overflow-y-auto bg-bg">
       <div className="mx-auto flex max-w-[52rem] flex-col gap-8 px-8 pb-24 pt-8">
@@ -97,7 +97,7 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
         </div>
         <div className="flex flex-col items-start gap-4">
           <div className="flex w-full flex-wrap items-end justify-between gap-3">
-            <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
+            <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="type-title m-0">
               {t("library.view.title")}
             </h1>
             <Button variant="primary" onClick={addSource}>
@@ -108,10 +108,10 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
         </div>
 
         <section aria-labelledby={`${id}-search`} className="flex flex-col gap-3">
-          <h2 id={`${id}-search`} className="m-0 text-[1.125rem] font-semibold text-text-strong">{t("library.search.heading")}</h2>
+          <h2 id={`${id}-search`} className="type-section m-0">{t("library.search.heading")}</h2>
           <form onSubmit={submit} className="flex gap-2" noValidate role="search">
             <label htmlFor={`${id}-q`} className="sr-only">{t("library.search.label")}</label>
-            <input id={`${id}-q`} value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("library.search.placeholder")} className="h-10 min-w-0 flex-1 rounded-aw border border-border bg-bg px-3" />
+            <input id={`${id}-q`} value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("library.search.placeholder")} className="aw-input flex-1" />
             <Button type="submit">{t("common.search")}</Button>
           </form>
           {searchError && <Notice tone="error">{searchError}</Notice>}
@@ -128,8 +128,8 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
               <ol aria-label={t("library.search.resultsLabel")} className="m-0 flex list-none flex-col p-0">
                 {results.hits.map((hit) => (
                   <li key={hit.segmentId} className="border-t border-border-subtle">
-                    <button type="button" onClick={() => openSource(hit.sourceId, hit.segmentId)} className="flex w-full flex-col items-start gap-1 px-1 py-3 text-left hover:bg-bg-secondary">
-                      <span className="font-semibold text-text-strong">
+                    <button type="button" onClick={() => openSource(hit.sourceId, hit.segmentId)} className="flex w-full flex-col items-start gap-1 px-1 py-3 text-left hover:bg-hover">
+                      <span className="font-medium text-text-strong">
                         {hit.author ? `${hit.author}, ` : ""}
                         <cite className="not-italic">{hit.sourceTitle}</cite>
                         {hit.locator && <span className="font-normal text-text-muted">{t("common.listSeparator")}{locatorLabel(t, hit.locator)}</span>}
@@ -149,7 +149,7 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
         </section>
 
         <section aria-labelledby={`${id}-all`} className="flex flex-col gap-3">
-          <h2 id={`${id}-all`} className="m-0 text-[1.125rem] font-semibold text-text-strong">{t("library.filter.heading")}</h2>
+          <h2 id={`${id}-all`} className="type-section m-0">{t("library.filter.heading")}</h2>
           <div role="group" aria-label={t("library.filter.label")} className="flex flex-wrap gap-x-4 gap-y-2 text-[0.9375rem]">
             <label className="flex items-center gap-2">
               {t("library.filter.type")}
@@ -174,11 +174,11 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
           {sources.data && sources.data.length > 0 && (
             <ul aria-label={t("library.filter.listLabel")} className="m-0 list-none border-t border-border-subtle p-0">
               {sources.data.map((s) => (
-                <li key={s.id} className="flex flex-col gap-2 border-b border-border-subtle py-3">
+                <li key={s.id} className="flex flex-col gap-2 border-b border-border-subtle py-2.5">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <button type="button" onClick={() => openSource(s.id)} className="min-w-0 text-left">
-                      <span className="block font-display text-[1.25rem] font-heading text-text-strong hover:underline">{s.title}</span>
-                      <span className="block text-[0.9375rem] text-text-muted">
+                      <span className="type-item block hover:underline">{s.title}</span>
+                      <span className="type-meta block">
                         {[
                           s.author,
                           sourceTypeLabel(t, s.sourceType),
@@ -190,16 +190,25 @@ export function LibraryView({ initialQuery, onSearched, onClose, onRemoved }: { 
                           .join(t("common.listSeparator"))}
                       </span>
                     </button>
-                    <Button variant="quiet" onClick={() => confirm(s.id)} aria-label={t("library.remove.label", { title: s.title })}>{t("library.remove.button")}</Button>
+                    {/* Rarely needed: a quiet icon on each row, its name saying which source. */}
+                    <button
+                      type="button"
+                      onClick={() => confirm(s.id)}
+                      aria-label={t("library.remove.label", { title: s.title })}
+                      title={t("library.remove.label", { title: s.title })}
+                      className="aw-icon-button hover:!text-danger"
+                    >
+                      <Trash2 className="size-4" aria-hidden="true" />
+                    </button>
                   </div>
                   {confirming === s.id && (
-                    <div role="alertdialog" aria-label={t("library.remove.dialogLabel", { title: s.title })} className="flex flex-col gap-3 border-l-[3px] border-danger bg-bg-secondary px-4 py-3">
+                    <div role="alertdialog" aria-label={t("library.remove.dialogLabel", { title: s.title })} className="flex flex-col gap-3 border-l-[3px] border-danger bg-hover px-4 py-3">
                       <p className="m-0">
                         <Trans i18nKey="library.remove.message" values={{ title: s.title }} components={{ strong: <strong /> }} />
                       </p>
                       {markCount?.sourceId === s.id && markCount.count > 0 && <p className="m-0">{t("library.remove.marks", { count: markCount.count })}</p>}
                       <div className="flex gap-2">
-                        <Button variant="primary" onClick={() => remove(s.id)}>{t("library.remove.confirm")}</Button>
+                        <Button variant="danger" onClick={() => remove(s.id)}>{t("library.remove.confirm")}</Button>
                         <Button autoFocus onClick={() => setConfirming(null)}>{t("library.remove.keep")}</Button>
                       </div>
                     </div>

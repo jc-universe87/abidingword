@@ -67,8 +67,8 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
   const linked = currentPassage && finding.passages.some((p) => p.reference.canonical === currentPassage.canonical);
   const excerpt = finding.content.slice(0, 60);
 
-  const field = "h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2";
-  const quiet = "inline-flex min-h-11 items-center rounded-aw px-2 text-text-muted hover:bg-bg-secondary hover:text-text-strong disabled:opacity-40";
+  const field = "h-11 min-w-0 max-w-full aw-input px-2";
+  const quiet = "inline-flex min-h-11 items-center rounded-aw px-2 text-text-muted hover:bg-hover hover:text-text-strong disabled:opacity-40";
 
   return (
     <li>
@@ -108,7 +108,7 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
                   goTo(p.reference);
                   onRevealScripture();
                 }}
-                className="-ml-2 min-h-11 rounded-aw px-2 font-medium text-link hover:bg-bg-secondary"
+                className="-ml-2 min-h-11 rounded-aw px-2 font-medium text-link hover:bg-hover"
               >
                 {referenceLabel(p.reference)}
               </button>
@@ -194,7 +194,7 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
                   type="button"
                   onClick={() => act(() => api.findingUnlinkPassage(p.id))}
                   aria-label={t("studies.findings.unlink", { passage: referenceLabel(p.reference) })}
-                  className="inline-flex min-h-11 items-center gap-1 rounded-aw border border-border px-2 text-text-muted hover:bg-bg"
+                  className="inline-flex min-h-11 items-center gap-1 rounded-aw border border-border px-2 text-text-muted hover:bg-hover"
                 >
                   {referenceLabel(p.reference)}
                   <X className="size-3.5" aria-hidden="true" />

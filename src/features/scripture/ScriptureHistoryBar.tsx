@@ -5,7 +5,7 @@ import { useScripture } from "./ScriptureContext";
 
 const iconButton =
   "inline-flex size-10 shrink-0 items-center justify-center rounded-aw text-text-strong " +
-  "hover:bg-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50";
+  "hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50";
 
 /**
  * Back / Forward through the passages the pane has shown, and, when a Study is
@@ -31,7 +31,7 @@ export function ScriptureHistoryBar() {
         <button
           type="button"
           onClick={() => goTo(studyPassage)}
-          className="inline-flex min-h-10 min-w-0 items-center gap-2 rounded-aw border border-border px-3 text-left text-[0.9375rem] font-medium text-text-strong hover:bg-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
+          className="inline-flex min-h-10 min-w-0 items-center gap-2 rounded-aw border border-border px-3 text-left text-[0.9375rem] font-medium text-text-strong hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
         >
           <CornerUpLeft className="size-4 shrink-0" aria-hidden="true" />
           <span className="min-w-0">{t("scripture.history.backToStudy", { passage: label })}</span>

@@ -49,7 +49,7 @@ export function AddSourceView({ onClose }: { onClose: () => void }) {
           <Button variant="quiet" onClick={cancel} disabled={checking}>
             <ArrowLeft className="size-4" aria-hidden="true" /> {t("common.back")}
           </Button>
-          <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
+          <h1 id={`${id}-title`} ref={heading} tabIndex={-1} className="type-title m-0">
             {t("library.add.title")}
           </h1>
         </div>
@@ -117,12 +117,12 @@ function Review({ preview, onCancel, onAdded, onError }: { preview: SourceImport
         ? // EPUB counts chapters; Markdown counts its main headings.
           sized(preview.format === "epub" ? "chapters" : "sections", preview.chapterCount)
         : sized("paragraphs", preview.segmentCount);
-  const field = "h-10 rounded-aw border border-border bg-bg px-3 text-base";
+  const field = "h-10 aw-input px-3 text-base";
 
   return (
     <div className="flex flex-col gap-6">
       <section aria-label={t("library.add.whatFound")} className="flex flex-col gap-1">
-        <p className="reading m-0 text-[1.25rem] font-semibold">{title || preview.fileName}</p>
+        <p className="type-worktitle m-0">{title || preview.fileName}</p>
         {author && <p className="reading m-0">{author}</p>}
         <p className="m-0 mt-2">{[formatLabel(t, preview.format), size].join(t("common.listSeparator"))}</p>
         {preview.canImport ? (

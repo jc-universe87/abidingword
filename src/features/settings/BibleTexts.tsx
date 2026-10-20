@@ -55,7 +55,7 @@ function BibleRow({ bible }: { bible: BibleTranslation }) {
     <li className="flex flex-col gap-2 border-b border-border-subtle py-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
-          <p className="m-0 font-semibold text-text-strong">
+          <p className="type-item m-0">
             {bible.name} <span className="font-normal text-text-muted">({bible.shortName})</span>
           </p>
           <p className="m-0 text-[0.9375rem] text-text-muted">

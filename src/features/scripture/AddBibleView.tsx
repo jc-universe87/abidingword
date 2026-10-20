@@ -82,7 +82,7 @@ export function AddBibleView({ onClose }: { onClose: () => void }) {
             <ArrowLeft className="size-4" aria-hidden="true" />
             {step.kind === "done" ? t("common.back") : t("common.cancel")}
           </Button>
-          <h1 id="add-bible-title" ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
+          <h1 id="add-bible-title" ref={heading} tabIndex={-1} className="type-title m-0">
             {title}
           </h1>
         </div>
@@ -162,7 +162,7 @@ function ChooseStep({ onBundled, onFiles }: { onBundled: (id: string) => void; o
     <div className="flex flex-col gap-8">
       {chosen && (
         <section className="flex flex-col items-start gap-3 border-t border-border-subtle pt-6">
-          <h2 className="m-0 text-[1.125rem] font-semibold text-text-strong">{t("scripture.addBible.included")}</h2>
+          <h2 className="type-section m-0">{t("scripture.addBible.included")}</h2>
           <label htmlFor={selectId} className="font-medium">
             {t("scripture.addBible.chooseLabel")}
           </label>
@@ -171,7 +171,7 @@ function ChooseStep({ onBundled, onFiles }: { onBundled: (id: string) => void; o
               id={selectId}
               value={chosen.id}
               onChange={(e) => setChosenId(e.target.value)}
-              className="h-10 min-w-0 flex-1 rounded-aw border border-border bg-bg px-3"
+              className="h-10 min-w-0 flex-1 aw-input px-3"
             >
               {groups.map((group) => (
                 <optgroup key={group.code} label={group.name}>
@@ -218,7 +218,7 @@ function ChooseStep({ onBundled, onFiles }: { onBundled: (id: string) => void; o
         </section>
       )}
       <section className="flex flex-col items-start gap-2 border-t border-border-subtle pt-6">
-        <h2 className="m-0 text-[1.125rem] font-semibold text-text-strong">{t("scripture.addBible.ownTitle")}</h2>
+        <h2 className="type-section m-0">{t("scripture.addBible.ownTitle")}</h2>
         <p className="m-0 text-text-muted">
           {t("scripture.addBible.ownBody")}
         </p>
@@ -323,7 +323,7 @@ function Field(props: { id: string; label: string; value: string; onChange: (v: 
         value={props.value}
         placeholder={props.hint}
         onChange={(e) => props.onChange(e.target.value)}
-        className="h-10 rounded-aw border border-border bg-bg px-3 text-base placeholder:text-text-muted"
+        className="h-10 aw-input px-3 text-base placeholder:text-text-muted"
       />
     </label>
   );
@@ -338,7 +338,7 @@ function BookStatus({ status }: { status: "ok" | "warning" | "error" }) {
   };
   const [icon, label] = map[status];
   return (
-    <span className="inline-flex items-center gap-1.5 text-[0.875rem] text-text-muted" title={label}>
+    <span className="inline-flex items-center gap-1.5 type-meta" title={label}>
       {icon}
       <span className="sr-only">{label}</span>
     </span>
@@ -348,7 +348,7 @@ function BookStatus({ status }: { status: "ok" | "warning" | "error" }) {
 function IssueGroup({ title, issues, open }: { title: string; issues: ImportIssue[]; open?: boolean }) {
   return (
     <details open={open} className="border-l-[3px] border-border pl-4">
-      <summary className="cursor-pointer font-semibold text-text-strong">{title}</summary>
+      <summary className="type-subhead cursor-pointer">{title}</summary>
       <ul className="m-0 mt-2 flex list-none flex-col gap-1.5 p-0 text-[0.9375rem]">
         {issues.map((issue, index) => (
           <li key={index}>{localizeMessage(issue.code, issue.params, issue.message)}</li>

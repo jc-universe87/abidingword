@@ -157,10 +157,9 @@ export function AddToStudyPanel({
     requestAnimationFrame(() => document.getElementById(`${id}-kind-${next}`)?.focus());
   };
 
-  const pill =
-    "min-h-11 rounded-full border border-border px-4 font-ui text-[0.9375rem] text-text-strong hover:bg-bg " +
-    "aria-checked:border-primary aria-checked:bg-primary aria-checked:text-on-primary";
-  const select = "h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2";
+  // The kind of note is an option among several: the shared choice chip (v0.18.5).
+  const pill = "aw-choice min-h-11 px-4";
+  const select = "h-11 min-w-0 max-w-full aw-input px-2";
   const citation = citationText(t, from);
   const noStudies = studies !== null && studies.length === 0;
   const heading = detail && !choosing ? t("studies.fromSource.title", { study: detail.study.title }) : t("studies.fromSource.label");
@@ -173,7 +172,7 @@ export function AddToStudyPanel({
       className="@container flex select-none flex-col gap-3 rounded-aw border border-t-[4px] border-border border-t-accent bg-bg-secondary px-4 py-3.5 font-ui text-[0.9375rem] shadow-[0_-6px_20px_rgba(0,0,0,0.22)]"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 id={`${id}-title`} className="m-0 text-[1rem] font-semibold text-text-strong">
+        <h3 id={`${id}-title`} className="type-group m-0">
           {heading}
         </h3>
         {!choosing && (
@@ -189,14 +188,14 @@ export function AddToStudyPanel({
             {from.quote}
           </blockquote>
           {citation && (
-            <figcaption className="flex items-center gap-1 text-[0.875rem] text-text-muted">
+            <figcaption className="flex items-center gap-1 type-meta">
               <BookOpen className="size-3.5 shrink-0" aria-hidden="true" />— {citation}
             </figcaption>
           )}
         </figure>
       )}
       {from.quote === null && citation && (
-        <p className="m-0 flex items-center gap-1 text-[0.875rem] text-text-muted">
+        <p className="m-0 flex items-center gap-1 type-meta">
           <BookOpen className="size-3.5 shrink-0" aria-hidden="true" />
           {citation}
         </p>
@@ -222,7 +221,7 @@ export function AddToStudyPanel({
       {!noStudies && (
         <>
           <label className="flex flex-col gap-1">
-            <span className="text-[0.875rem] font-semibold text-text-strong">{t("studies.fromSource.yourNote")}</span>
+            <span className="type-meta font-medium !text-text-strong">{t("studies.fromSource.yourNote")}</span>
             <textarea
               ref={field}
               rows={3}
@@ -289,7 +288,7 @@ export function AddToStudyPanel({
         <Button className="min-h-11" onClick={onCancel}>
           {t("common.cancel")}
         </Button>
-        {!noStudies && <span className="text-[0.875rem] text-text-muted">{t("studies.findings.saveHint")}</span>}
+        {!noStudies && <span className="type-meta">{t("studies.findings.saveHint")}</span>}
       </div>
     </section>
   );

@@ -13,7 +13,7 @@ export function StartupScreen({ message, logDirectory }: StartupScreenProps) {
   return (
     <main className="fixed inset-0 flex flex-col items-center justify-center-safe gap-6 overflow-y-auto bg-bg px-8 text-center text-text">
       <Logomark height={56} />
-      <p className="m-0 font-display text-[1.875rem] font-heading text-text-strong">{t("common.appName")}</p>
+      <p className="type-title m-0">{t("common.appName")}</p>
       {message ? (
         <div role="alert" className="flex max-w-[36rem] flex-col gap-3">
           <p className="m-0 text-[1.0625rem] text-danger">{message}</p>

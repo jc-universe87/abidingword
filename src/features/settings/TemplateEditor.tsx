@@ -21,7 +21,7 @@ export function TemplateEditor({ templateId, onClose }: { templateId: string | n
         <Button variant="quiet" className="self-start" autoFocus onClick={onClose}>
           <ArrowLeft className="size-4" aria-hidden="true" /> {t("studies.templateEditor.back")}
         </Button>
-        <h1 id="template-editor-title" className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
+        <h1 id="template-editor-title" className="type-title m-0">
           {t("studies.templateEditor.editTitle")}
         </h1>
         <p role={templates.error ? "alert" : "status"} className={`m-0 ${templates.error ? "text-danger" : "text-text-muted"}`}>
@@ -77,7 +77,7 @@ function Form({ templateId, initial, onClose }: FormProps) {
     }
   };
 
-  const field = "h-10 rounded-aw border border-border bg-bg px-3 text-base";
+  const field = "aw-input h-10 px-3 text-base";
   return (
     <div
       className="h-full overflow-y-auto bg-bg"
@@ -98,7 +98,7 @@ function Form({ templateId, initial, onClose }: FormProps) {
           </Button>
         </div>
         <div className="flex flex-col items-start gap-4">
-          <h1 id="template-editor-title" ref={heading} tabIndex={-1} className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
+          <h1 id="template-editor-title" ref={heading} tabIndex={-1} className="type-title m-0">
             {templateId ? t("studies.templateEditor.editTitle") : t("studies.templateEditor.newTitle")}
           </h1>
         </div>
@@ -121,7 +121,7 @@ function Form({ templateId, initial, onClose }: FormProps) {
         </label>
 
         <section aria-labelledby={`${id}-sections`} className="flex flex-col gap-3">
-          <h2 id={`${id}-sections`} className="m-0 text-[1.125rem] font-semibold text-text-strong">{t("studies.templateEditor.sections")}</h2>
+          <h2 id={`${id}-sections`} className="type-section m-0">{t("studies.templateEditor.sections")}</h2>
           <ol aria-label={t("studies.templateEditor.sectionsList")} className="m-0 flex list-none flex-col gap-3 p-0">
             {sections.map((section, index) => {
               const sectionName = section.title || t("studies.templateEditor.untitledSection");
@@ -133,13 +133,13 @@ function Form({ templateId, initial, onClose }: FormProps) {
                     <span className="sr-only">{t("studies.templateEditor.sectionTitle", { number })}</span>
                     <input value={section.title} onChange={(e) => update(index, { title: e.target.value })} className={`${field} w-full`} aria-label={t("studies.templateEditor.sectionTitle", { number })} />
                   </label>
-                  <button type="button" disabled={index === 0} onClick={() => move(index, -1)} aria-label={t("studies.templateEditor.moveUp", { title: sectionName })} className="inline-flex size-10 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40">
+                  <button type="button" disabled={index === 0} onClick={() => move(index, -1)} aria-label={t("studies.templateEditor.moveUp", { title: sectionName })} className="inline-flex size-10 items-center justify-center rounded-aw text-text-muted hover:bg-hover disabled:opacity-40">
                     <ArrowUp className="size-4" aria-hidden="true" />
                   </button>
-                  <button type="button" disabled={index === sections.length - 1} onClick={() => move(index, 1)} aria-label={t("studies.templateEditor.moveDown", { title: sectionName })} className="inline-flex size-10 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40">
+                  <button type="button" disabled={index === sections.length - 1} onClick={() => move(index, 1)} aria-label={t("studies.templateEditor.moveDown", { title: sectionName })} className="inline-flex size-10 items-center justify-center rounded-aw text-text-muted hover:bg-hover disabled:opacity-40">
                     <ArrowDown className="size-4" aria-hidden="true" />
                   </button>
-                  <button type="button" disabled={sections.length === 1} onClick={() => setSections(sections.filter((_, i) => i !== index))} aria-label={t("studies.templateEditor.remove", { title: sectionName })} className="inline-flex size-10 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-danger disabled:opacity-40">
+                  <button type="button" disabled={sections.length === 1} onClick={() => setSections(sections.filter((_, i) => i !== index))} aria-label={t("studies.templateEditor.remove", { title: sectionName })} className="inline-flex size-10 items-center justify-center rounded-aw text-text-muted hover:bg-hover hover:text-danger disabled:opacity-40">
                     <Trash2 className="size-4" aria-hidden="true" />
                   </button>
                 </div>

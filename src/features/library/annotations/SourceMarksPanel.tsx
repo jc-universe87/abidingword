@@ -51,7 +51,7 @@ export function SourceMarksPanel({ id, title, marks, layout, switcher, onSelect,
       className={`${place} z-20 flex min-h-0 flex-col bg-bg font-ui`}
     >
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border-subtle px-3 py-1.5">
-        <h3 ref={heading} tabIndex={-1} className="m-0 font-display text-[1.0625rem] font-heading text-text-strong">
+        <h3 ref={heading} tabIndex={-1} className="type-group m-0">
           {t("library.marks.title")}
         </h3>
         <div className="flex shrink-0 items-center gap-1">
@@ -95,7 +95,7 @@ function MarkRow({ mark, onSelect, onChanged, actions }: { mark: SourceAnnotatio
   const place = mark.locator ? locatorLabel(t, mark.locator, mark.pageNumber ?? undefined) : null;
   const body = (
     <>
-      <span className="flex flex-wrap items-center gap-x-2 text-[0.875rem] text-text-muted">
+      <span className="flex flex-wrap items-center gap-x-2 type-meta">
         <Icon className="size-3.5 text-accent" aria-hidden="true" />
         <span className="font-medium text-text-strong">{t(`library.marks.kind.${mark.kind}`)}</span>
         {mark.color && <span aria-hidden="true" className={`inline-block size-3 rounded-full border border-text-muted ${SWATCH_CLASS[mark.color]}`} />}
@@ -122,7 +122,7 @@ function MarkRow({ mark, onSelect, onChanged, actions }: { mark: SourceAnnotatio
   if (mark.state !== "unresolved") {
     return (
       <div className="flex items-start gap-1">
-        <button type="button" onClick={onSelect} className="flex min-w-0 flex-1 flex-col gap-0.5 rounded-aw px-2 py-1.5 text-left hover:bg-bg-secondary">
+        <button type="button" onClick={onSelect} className="flex min-w-0 flex-1 flex-col gap-0.5 rounded-aw px-2 py-1.5 text-left hover:bg-hover">
           {body}
         </button>
         {menu}
@@ -135,7 +135,7 @@ function MarkRow({ mark, onSelect, onChanged, actions }: { mark: SourceAnnotatio
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">{body}</div>
         {menu}
       </div>
-      <p className="m-0 text-[0.875rem] text-text-muted">{t("library.marks.unresolved")}</p>
+      <p className="m-0 type-meta">{t("library.marks.unresolved")}</p>
       <Button
         className="self-start"
         onClick={() =>

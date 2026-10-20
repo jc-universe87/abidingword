@@ -106,7 +106,7 @@ export function AssistMenu({
   };
 
   const item =
-    "flex min-h-11 w-full items-center gap-2 px-3 text-left text-[0.9375rem] text-text-strong outline-none hover:bg-bg-secondary focus-visible:bg-bg-secondary focus-visible:shadow-[inset_3px_0_0_var(--aw-primary)]";
+    "flex min-h-11 w-full items-center gap-2 px-3 text-left text-[0.9375rem] text-text-strong outline-none hover:bg-hover focus-visible:bg-bg-secondary focus-visible:shadow-[inset_3px_0_0_var(--aw-primary)]";
   const menuName = category ? t(`studies.teaching.assist.category.${category}`) : t("studies.teaching.assist.menuLabel", { part: partLabel });
 
   return (
@@ -120,7 +120,7 @@ export function AssistMenu({
         aria-label={t("studies.teaching.assist.menuLabel", { part: partLabel })}
         title={t("studies.teaching.assist.menuTitle")}
         onClick={() => (open ? close(false) : setOpen(true))}
-        className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+        className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-hover hover:text-text-strong"
       >
         <Lightbulb className="size-4" aria-hidden="true" />
         {t("studies.teaching.assist.menu")}
@@ -151,14 +151,14 @@ export function AssistMenu({
                 ))}
               </div>
               {category === "ideas" && imagesNote && (
-                <p role="none" className="m-0 border-t border-border-subtle px-3 py-1.5 text-[0.8125rem] text-text-muted">
+                <p role="none" className="m-0 border-t border-border-subtle px-3 py-1.5 type-meta">
                   {t(`studies.teaching.assist.visuals.cannotMake.${imagesNote}`)}
                 </p>
               )}
             </>
           ) : (
             <>
-              <p aria-hidden="true" className="m-0 px-3 pb-1 pt-1.5 text-[0.8125rem] text-text-muted">
+              <p aria-hidden="true" className="m-0 px-3 pb-1 pt-1.5 type-meta">
                 {t("studies.teaching.assist.menuIntro")}
               </p>
               {categories.map(({ category: c }) => (

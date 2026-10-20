@@ -125,7 +125,7 @@ export function TeachingView({ studyId, studyTitle, findings, onRevealScripture 
         }}
         type="button"
         onClick={() => setCreating(true)}
-        className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.875rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+        className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 type-meta hover:bg-hover hover:text-text-strong"
       >
         <Plus className="size-4" aria-hidden="true" />
         {t("studies.teaching.another")}
@@ -219,7 +219,7 @@ function NewTeaching({
       </h3>
       {first && <p className="m-0 max-w-prose text-text">{t("studies.teaching.empty.text")}</p>}
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-        <legend className="mb-1 text-[0.9375rem] font-semibold text-text-strong">{t("studies.teaching.kindLabel")}</legend>
+        <legend className="type-subhead mb-1">{t("studies.teaching.kindLabel")}</legend>
         <div className="flex flex-wrap gap-2">
           {TEACHING_KINDS.map((k) => (
             <label key={k} className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-border px-4 text-[0.9375rem] has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-on-primary">
@@ -240,7 +240,7 @@ function NewTeaching({
         </p>
       </fieldset>
       <label className="flex flex-col gap-1">
-        <span className="text-[0.9375rem] font-semibold text-text-strong">{t("studies.teaching.titleLabel")}</span>
+        <span className="type-subhead">{t("studies.teaching.titleLabel")}</span>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -433,7 +433,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
       <select
         value={prep.kind ?? ""}
         onChange={(e) => void act(() => api.teachingUpdate({ id: prep.id, kind: e.target.value as TeachingKind | "" }))}
-        className="h-11 rounded-aw border border-border bg-bg px-2"
+        className="h-11 aw-input px-2"
       >
         <option value="">{t("studies.teaching.kindNone")}</option>
         {TEACHING_KINDS.map((k) => (
@@ -513,7 +513,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
             aria-expanded={aboutOpen}
             aria-controls={`about-${prep.id}`}
             onClick={toggleAbout}
-            className="-ml-2 inline-flex min-h-11 max-w-full flex-1 items-center gap-x-2 rounded-aw px-2 text-left hover:bg-bg-secondary"
+            className="-ml-2 inline-flex min-h-11 max-w-full flex-1 items-center gap-x-2 rounded-aw px-2 text-left hover:bg-hover"
           >
             <ChevronRight className={`size-4 shrink-0 text-text-muted transition-transform ${aboutOpen ? "rotate-90" : ""}`} aria-hidden="true" />
             <span className="type-subhead shrink-0">
@@ -545,10 +545,10 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
           {confirmDelete ? (
             <span className="flex flex-wrap items-center gap-2 rounded-aw border border-border bg-bg px-2 py-1 text-[0.9375rem]">
               <span>{t("studies.teaching.deleteConfirm")}</span>
-              <button type="button" onClick={() => void remove()} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-bg-secondary">
+              <button type="button" onClick={() => void remove()} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-hover">
                 {t("common.delete")}
               </button>
-              <button type="button" autoFocus onClick={() => setConfirmDelete(false)} className="min-h-11 rounded px-2 hover:bg-bg-secondary">
+              <button type="button" autoFocus onClick={() => setConfirmDelete(false)} className="min-h-11 rounded px-2 hover:bg-hover">
                 {t("common.keep")}
               </button>
             </span>
@@ -556,7 +556,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
             <button
               type="button"
               onClick={() => setConfirmDelete(true)}
-              className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-danger"
+              className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-hover hover:text-danger"
             >
               <Trash2 className="size-4" aria-hidden="true" />
               {t("studies.teaching.delete")}
@@ -653,7 +653,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
                       disabled={index === 0}
                       onClick={() => void movePoint(index, -1)}
                       aria-label={t("studies.teaching.points.moveUp", { point: name })}
-                      className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40"
+                      className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-hover disabled:opacity-40"
                     >
                       <ArrowUp className="size-4" aria-hidden="true" />
                     </button>
@@ -663,7 +663,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
                       disabled={index === prep.points.length - 1}
                       onClick={() => void movePoint(index, 1)}
                       aria-label={t("studies.teaching.points.moveDown", { point: name })}
-                      className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary disabled:opacity-40"
+                      className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-hover disabled:opacity-40"
                     >
                       <ArrowDown className="size-4" aria-hidden="true" />
                     </button>
@@ -761,10 +761,10 @@ function DeletePoint({ name, confirm, hasContent, onDelete }: { name: string; co
     return (
       <span className="flex flex-wrap items-center gap-1 rounded-aw border border-border bg-bg px-2 text-[0.9375rem]">
         <span>{confirm}</span>
-        <button type="button" onClick={onDelete} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-bg-secondary">
+        <button type="button" onClick={onDelete} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-hover">
           {t("common.delete")}
         </button>
-        <button type="button" autoFocus onClick={() => setConfirming(false)} className="min-h-11 rounded px-2 hover:bg-bg-secondary">
+        <button type="button" autoFocus onClick={() => setConfirming(false)} className="min-h-11 rounded px-2 hover:bg-hover">
           {t("common.keep")}
         </button>
       </span>
@@ -774,7 +774,7 @@ function DeletePoint({ name, confirm, hasContent, onDelete }: { name: string; co
       type="button"
       onClick={() => (hasContent ? setConfirming(true) : onDelete())}
       aria-label={t("studies.teaching.points.delete", { point: name })}
-      className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-danger"
+      className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-hover hover:text-danger"
     >
       <Trash2 className="size-4" aria-hidden="true" />
     </button>

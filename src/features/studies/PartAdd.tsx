@@ -33,7 +33,7 @@ export function PartAdd({ part, onWriting, onNote }: PartAddProps) {
     action();
   };
   const kinds = more ? [...FINDING_TYPES] : COMMON;
-  const item = "inline-flex min-h-11 items-center gap-1 rounded-aw px-3 text-[0.9375rem] text-text-strong hover:bg-bg-secondary";
+  const item = "inline-flex min-h-11 items-center gap-1 rounded-aw px-3 text-[0.9375rem] text-text-strong hover:bg-hover";
 
   return (
     <div
@@ -58,7 +58,7 @@ export function PartAdd({ part, onWriting, onNote }: PartAddProps) {
           setOpen(!open);
           setMore(false);
         }}
-        className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+        className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-hover hover:text-text-strong"
       >
         <Plus className="size-4" aria-hidden="true" />
         {t("studies.add.toggle")}

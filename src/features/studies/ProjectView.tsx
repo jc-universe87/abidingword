@@ -40,7 +40,7 @@ export function ProjectView({ project, plain = false, onProjects, onProjectChang
   return (
     <div className="flex flex-col gap-8">
       {plain ? (
-        <h1 className="m-0 font-display text-[1.875rem] font-heading text-text-strong">{t("studies.home.title")}</h1>
+        <h1 className="type-title m-0">{t("studies.home.title")}</h1>
       ) : (
         <div>
           <p className="caps-label m-0 mb-2">{t("studies.projects.project")}</p>
@@ -69,7 +69,7 @@ export function ProjectView({ project, plain = false, onProjects, onProjectChang
 
       {!empty && (
         <section aria-labelledby="studies-heading" className="flex flex-col gap-3">
-          <h2 id="studies-heading" className="m-0 text-[1.125rem] font-semibold text-text-strong">
+          <h2 id="studies-heading" className="type-section m-0">
             {t("studies.projects.studies")}
           </h2>
           <StudyList projectId={project.id} onOpen={(s: StudySummary) => onOpenStudy(s)} />

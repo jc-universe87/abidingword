@@ -11,6 +11,11 @@
   --color-pane-scripture: var(--aw-pane-scripture);
   --color-pane-sources: var(--aw-pane-sources);
   --color-field: var(--aw-field);
+  --color-hover: var(--aw-hover);
+  --color-selected: var(--aw-selected);
+  --color-raised: var(--aw-raised);
+  --color-success: var(--aw-success);
+  --color-warning: var(--aw-warning);
   --color-border: var(--aw-border);
   --color-border-subtle: var(--aw-border-subtle);
   --color-text: var(--aw-text);
@@ -134,7 +139,9 @@
    *   B  type-section  a major working section (a Study part, Central message,
    *                    Questions and answers): one treatment for all of them
    *   C  type-subhead  a supporting heading or label (About this teaching,
-   *                    a source's name)
+   *                    a field's label in a form)
+   *      type-group    the heading of a small group (Optional extras)
+   *      type-item     the name of an item in a list (a source, a study)
    *   D  type-meta     metadata, counts, help and secondary actions
    * Pane names keep `caps-label`; reading text keeps `reading`.
    */
@@ -157,6 +164,22 @@
     font-size: 1.0625rem;
     font-weight: 600;
     line-height: 1.35;
+    color: var(--aw-text-strong);
+  }
+  /* Level C for the name of an item in a list (a source, a study, a template). */
+  .type-item {
+    font-family: var(--aw-font-ui);
+    font-size: 1.0625rem;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--aw-text-strong);
+  }
+  /* Level C as the heading of a small group (Optional extras, Recently added). */
+  .type-group {
+    font-family: var(--aw-font-ui);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.4;
     color: var(--aw-text-strong);
   }
   .type-subhead {
@@ -194,7 +217,7 @@
   }
   .aw-tab:hover {
     color: var(--aw-text-strong);
-    background: var(--aw-bg-secondary);
+    background: var(--aw-hover);
   }
   .aw-tab[aria-pressed="true"] {
     font-weight: 600;
@@ -209,6 +232,130 @@
     height: 2px;
     border-radius: 1px;
     background: var(--aw-text-strong);
+  }
+
+  /*
+   * Selection, three patterns only (v0.18.5). Each shows the choice by more
+   * than colour: weight and a bar or an outline, and the ARIA state.
+   *   .aw-tab    a view of the same thing (Bible | Marks | Concordance,
+   *              Bible Study | Bible Teaching, Reading | Original): weight and
+   *              a short bar beneath (above);
+   *   .aw-row    one item of a list (the current slide, a template, a source):
+   *              a soft fill and a bar at its start;
+   *   .aw-choice a small option among several (a filter, a kind, a colour
+   *              family): an outlined chip that fills softly when chosen.
+   */
+  .aw-row {
+    border-radius: var(--aw-radius);
+  }
+  .aw-row:hover {
+    background: var(--aw-hover);
+  }
+  .aw-row[aria-current="true"],
+  .aw-row[aria-current="page"],
+  .aw-row[aria-current="step"],
+  .aw-row[aria-selected="true"],
+  .aw-row[data-selected="true"] {
+    background: var(--aw-selected);
+    box-shadow: inset 2px 0 0 var(--aw-text-strong);
+    color: var(--aw-text-strong);
+  }
+  .aw-choice {
+    display: inline-flex;
+    min-height: 2.25rem;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--aw-border);
+    border-radius: 999px;
+    font-family: var(--aw-font-ui);
+    font-size: 0.9375rem;
+    color: var(--aw-text);
+    background: transparent;
+  }
+  .aw-choice:hover {
+    background: var(--aw-hover);
+  }
+  .aw-choice[aria-pressed="true"],
+  .aw-choice[aria-checked="true"],
+  .aw-choice:has(input:checked) {
+    background: var(--aw-selected);
+    border-color: var(--aw-text-strong);
+    color: var(--aw-text-strong);
+    font-weight: 600;
+  }
+
+  /*
+   * Fields (v0.18.5).
+   *   .aw-input    a compact field: text, number, search or select in a form,
+   *                a toolbar or a dialog — a fill one step back from its
+   *                surface and a border, so it reads as editable at rest;
+   *   writing      long writing in the Study and Teaching is a soft fill with
+   *                no outline until hovered or in use (TeachingField), or a
+   *                resting underline (Study paragraphs, titles);
+   *   .aw-readonly a value the person sees but does not edit here (text that
+   *                comes from the teaching): no fill, a quiet rule beside it.
+   * Focus is always the global brass ring; an error has aria-invalid.
+   */
+  .aw-input {
+    min-height: 2.5rem;
+    min-width: 0;
+    padding: 0 0.625rem;
+    border: 1px solid var(--aw-border);
+    border-radius: var(--aw-radius);
+    background: var(--aw-field);
+    color: var(--aw-text);
+    font-family: var(--aw-font-ui);
+    font-size: 0.9375rem;
+  }
+  textarea.aw-input {
+    padding: 0.5rem 0.625rem;
+  }
+  .aw-input::placeholder {
+    color: var(--aw-text-muted);
+  }
+  .aw-input:hover:not(:disabled) {
+    border-color: var(--aw-text-muted);
+  }
+  .aw-input[aria-invalid="true"] {
+    border-color: var(--aw-danger);
+  }
+  .aw-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  .aw-readonly {
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--aw-border);
+    color: var(--aw-text);
+  }
+
+  /* An action shown as an icon only: named and titled where it is used. */
+  .aw-icon-button {
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--aw-radius);
+    color: var(--aw-text-muted);
+  }
+  .aw-icon-button:hover:not(:disabled) {
+    background: var(--aw-hover);
+    color: var(--aw-text-strong);
+  }
+  .aw-icon-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
+  /* Menus and popovers: raised, outlined, a soft shadow. */
+  .aw-popover {
+    border: 1px solid var(--aw-border);
+    border-radius: var(--aw-radius);
+    background: var(--aw-raised);
+    box-shadow: 0 8px 24px -8px rgba(22, 39, 31, 0.28);
   }
 
   /* Long-form reading and writing: serif, 18px, comfortable measure. */

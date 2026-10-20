@@ -80,7 +80,7 @@ export function StudyDetailsPanel({ id, study, findings, templates, passages, re
   // Built-in templates are an implementation detail; only the user's own say where a study came from.
   const own = template && !template.isBuiltin ? template : null;
   const group = "flex flex-col gap-3";
-  const heading = "m-0 text-[0.9375rem] font-semibold text-text-strong";
+  const heading = "type-group m-0";
 
   return (
     <section id={id} aria-label={t("studies.header.detailsToggle")} className="flex flex-col gap-6 rounded-aw border border-border-subtle bg-bg-secondary px-4 py-4">
@@ -95,7 +95,7 @@ export function StudyDetailsPanel({ id, study, findings, templates, passages, re
           <select
             value={study.status}
             onChange={(e) => setStatus(e.target.value as StudyStatus)}
-            className="h-11 rounded-aw border border-border bg-bg px-2 text-text-strong"
+            className="h-11 aw-input px-2 text-text-strong"
           >
             {STUDY_STATUSES.map((s) => (
               <option key={s} value={s}>{statusLabel(t, s)}</option>
@@ -217,7 +217,7 @@ function DetailsFields({ study, onChanged, onRevealScripture }: { study: Study; 
                   setValues(next);
                   void save(next).catch(() => undefined);
                 }}
-                className="h-11 rounded-aw border border-border bg-bg px-2 text-text-strong"
+                className="h-11 aw-input px-2 text-text-strong"
               >
                 {translations.map((b) => (
                   <option key={b.id} value={b.id}>{b.shortName}</option>
@@ -229,7 +229,7 @@ function DetailsFields({ study, onChanged, onRevealScripture }: { study: Study; 
             type="button"
             disabled={!word}
             onClick={findOccurrences}
-            className="h-11 rounded-aw border border-border px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-bg-secondary disabled:opacity-50"
+            className="h-11 rounded-aw border border-border px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-hover disabled:opacity-50"
           >
             {t("studies.header.findOccurrences")}
           </button>

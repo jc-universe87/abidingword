@@ -226,7 +226,7 @@ function Verse({ verse, annotations, current, selected, inspectorOpen, inspector
           aria-expanded={inspectorOpen}
           aria-controls={inspectorOpen ? inspectorId : undefined}
           aria-label={label}
-          className="-my-1.5 mr-1 inline-flex min-h-8 min-w-8 select-none items-center justify-center rounded px-1 align-baseline font-ui text-[0.8125rem] font-semibold text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+          className="-my-1.5 mr-1 inline-flex min-h-8 min-w-8 select-none items-center justify-center rounded px-1 align-baseline font-ui text-[0.8125rem] font-semibold text-text-muted hover:bg-hover hover:text-text-strong"
         >
           {verse.verse}
         </button>
@@ -260,7 +260,7 @@ function Verse({ verse, annotations, current, selected, inspectorOpen, inspector
             aria-controls={inspectorOpen ? inspectorId : undefined}
             aria-label={markerLabel}
             title={markerLabel}
-            className="-my-1.5 ml-1 inline-flex size-8 select-none items-center justify-center rounded align-middle text-accent hover:bg-bg-secondary"
+            className="-my-1.5 ml-1 inline-flex size-8 select-none items-center justify-center rounded align-middle text-accent hover:bg-hover"
           >
             <MarkIcon className="size-3.5" aria-hidden="true" />
           </button>

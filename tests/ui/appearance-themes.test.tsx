@@ -24,6 +24,12 @@ function contrast(a: string, b: string) {
   return (x! + 0.05) / (y! + 0.05);
 }
 
+/** `share` of colour b over a, as color-mix(in srgb, b share, a) shows it. */
+function mix(a: string, b: string, share: number) {
+  const channel = (hex: string, i: number) => parseInt(hex.slice(i, i + 2), 16);
+  return `#${[1, 3, 5].map((i) => Math.round(channel(a, i) * (1 - share) + channel(b, i) * share).toString(16).padStart(2, "0")).join("")}`;
+}
+
 /** The tokens in force for one family in one mode, resolved as the cascade does. */
 function tokens(family: string, mode: "light" | "dark"): Record<string, string> {
   const blocks: string[] = [];
@@ -149,6 +155,32 @@ describe("twelve calm palettes", () => {
       // A field is one step back from the work it sits in, and its text reads as well as body text.
       expect(field).toBe(scripture);
       expect(contrast(t["--aw-text"]!, field)).toBeGreaterThan(9);
+    },
+  );
+
+  it.each(FAMILIES.flatMap((f) => [[f, "light"] as const, [f, "dark"] as const]))(
+    "%s (%s): status colours read on every surface, hover and selection show on every pane (v0.18.5)",
+    (family, mode) => {
+      const t = tokens(family, mode);
+      const surfaces = ["--aw-pane-work", "--aw-pane-scripture", "--aw-pane-sources", "--aw-raised"].map((n) => {
+        expect(t[n], `${family} ${mode} ${n}`).toMatch(/^#[0-9a-f]{6}$/);
+        return t[n]!;
+      });
+      for (const surface of surfaces) {
+        for (const status of ["--aw-success", "--aw-warning", "--aw-danger"]) {
+          expect(contrast(t[status]!, surface), `${family} ${mode} ${status}`).toBeGreaterThanOrEqual(4.5);
+        }
+        // hover and selected are tints of the strong text colour (color-mix): visible, and selection stronger.
+        for (const [token, min] of [["--aw-hover", 1.03], ["--aw-selected", 1.06]] as const) {
+          const share = Number(/(\d+)%/.exec(t[token]!)![1]) / 100;
+          const tinted = mix(surface, t["--aw-text-strong"]!, share);
+          expect(contrast(tinted, surface), `${family} ${mode} ${token}`).toBeGreaterThan(min);
+          // Text stays readable on a hovered or selected row.
+          expect(contrast(t["--aw-text"]!, tinted)).toBeGreaterThan(7);
+        }
+      }
+      // Raised (dialogs, menus) stands apart from the page in Dark, where it comes forward.
+      if (mode === "dark") expect(luminance(t["--aw-raised"]!)).toBeGreaterThan(luminance(t["--aw-bg"]!));
     },
   );
 

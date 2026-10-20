@@ -566,7 +566,8 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
         onClick={() => run({ type: "next" })}
         disabled={index >= total - 1}
         className="inline-flex min-h-14 flex-[2] items-center justify-center gap-1 rounded-aw px-4 text-[1.0625rem] font-semibold disabled:opacity-50"
-        style={{ backgroundColor: colours.accent, color: colours.background }}
+        // The primary action, as in the rest of the app: the strongest neutral of the surface (v0.18.5).
+        style={{ backgroundColor: colours.text, color: colours.background }}
       >
         {t("presentation.presenter.next")}
         <ChevronRight className="size-5" aria-hidden="true" />
@@ -888,7 +889,8 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
                   aria-current={s.index === index ? "step" : undefined}
                   onClick={() => go(s.index)}
                   className="flex min-h-11 w-full items-start gap-2 rounded-aw px-2 py-1 text-left text-[0.9375rem]"
-                  style={s.index === index ? { backgroundColor: `${colours.accent}33`, fontWeight: 600 } : undefined}
+                  // The slide on screen, marked as a list's current row is everywhere in the app (v0.18.5).
+                  style={s.index === index ? { backgroundColor: `${colours.text}1a`, boxShadow: `inset 2px 0 0 ${colours.text}`, fontWeight: 600 } : undefined}
                 >
                   <span className="tabular-nums" style={{ color: colours.muted }}>{s.index + 1}</span>
                   <span className="min-w-0 flex-1 break-words">{slideName(s)}</span>
@@ -1034,7 +1036,7 @@ function Overview({
   pageOf: (s: Slide) => Page | null;
   images: Map<string, string>;
   name: (s: Slide) => string;
-  colours: { accent: string; muted: string };
+  colours: { accent: string; muted: string; text: string };
   onChoose: (index: number) => void;
 }) {
   const { t } = useTranslation();
@@ -1049,7 +1051,7 @@ function Overview({
               aria-current={here ? "step" : undefined}
               onClick={() => onChoose(s.index)}
               className="flex min-h-11 w-full flex-col gap-1 rounded-aw border p-1 text-left text-[0.9375rem]"
-              style={here ? { borderColor: colours.accent, boxShadow: `0 0 0 2px ${colours.accent}`, fontWeight: 600 } : { borderColor: `${colours.muted}55` }}
+              style={here ? { borderColor: colours.text, boxShadow: `0 0 0 2px ${colours.text}`, fontWeight: 600 } : { borderColor: `${colours.muted}55` }}
             >
               {!compact && (
                 <span aria-hidden="true" className="block">
@@ -1525,7 +1527,7 @@ function ScripturePanel({
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={t("presentation.presenter.passageHint")}
-          className="h-11 min-w-0 flex-1 basis-40 rounded-aw border border-border bg-bg px-3 text-text"
+          className="h-11 min-w-0 flex-1 basis-40 aw-input px-3 text-text"
         />
         <button type="submit" className="min-h-11 rounded-aw border px-3 font-medium">{t("presentation.presenter.lookUp")}</button>
       </form>

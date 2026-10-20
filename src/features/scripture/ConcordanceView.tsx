@@ -9,7 +9,7 @@ import type { ConcordanceHit, ConcordanceMode, ConcordanceResult } from "@/types
 import { useScripture } from "./ScriptureContext";
 
 const HEBREW = /[֐-׿יִ-ﭏ]/;
-const field = "h-10 min-w-0 rounded-aw border border-border bg-bg px-2 text-[0.9375rem] text-text";
+const field = "h-10 min-w-0 aw-input px-2 text-[0.9375rem] text-text";
 
 /** Text written right to left (Hebrew) is shown so; everything around it keeps the interface's direction. */
 export function textDirection(text: string): "rtl" | undefined {
@@ -102,9 +102,9 @@ export function ConcordanceView() {
               type="button"
               onClick={() => goTo(hit.reference)}
               aria-label={t("scripture.concordance.open", { passage })}
-              className="flex w-full flex-col items-start gap-0.5 rounded-sm px-1 py-2 text-left hover:bg-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
+              className="flex w-full flex-col items-start gap-0.5 rounded-sm px-1 py-2 text-left hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
             >
-              <span className="font-ui text-[0.875rem] font-semibold text-text-strong">{passage}</span>
+              <span className="type-meta font-medium !text-text-strong">{passage}</span>
               <span className="reading text-[0.9375rem] text-text" dir={textDirection(hit.text)}>
                 {highlighted(hit)}
               </span>
@@ -145,11 +145,11 @@ export function ConcordanceView() {
               </select>
             </label>
           )}
-          <button type="submit" disabled={!query.trim() || !chosen} className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-bg disabled:opacity-50">
+          <button type="submit" disabled={!query.trim() || !chosen} className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-hover disabled:opacity-50">
             {t("scripture.concordance.find")}
           </button>
         </div>
-        <p className="m-0 text-[0.875rem] text-text-muted">{t("scripture.concordance.hint")}</p>
+        <p className="m-0 type-meta">{t("scripture.concordance.hint")}</p>
       </form>
 
       <div role="status" className="text-[0.9375rem] text-text-strong">
@@ -167,7 +167,7 @@ export function ConcordanceView() {
 
       {data && data.books.length > 0 && (
         <section aria-labelledby={`${id}-books`} className="flex flex-col gap-1">
-          <h3 id={`${id}-books`} className="m-0 text-[1rem] font-semibold text-text-strong">{t("scripture.concordance.books")}</h3>
+          <h3 id={`${id}-books`} className="type-group m-0">{t("scripture.concordance.books")}</h3>
           <ul className="m-0 flex list-none flex-col p-0">
             {data.books.map((b) => {
               const name = bookName(b.code, b.name);
@@ -179,7 +179,7 @@ export function ConcordanceView() {
                 return (
                   <li key={b.code} className="border-t border-border-subtle pt-1">
                     <section aria-labelledby={groupId}>
-                      <h4 id={groupId} className="m-0 py-1 font-ui text-[0.9375rem] font-semibold text-text-strong">{label}</h4>
+                      <h4 id={groupId} className="type-group m-0 py-1">{label}</h4>
                       {hitList(listed)}
                     </section>
                   </li>
@@ -192,7 +192,7 @@ export function ConcordanceView() {
                     aria-expanded={Boolean(state?.open)}
                     aria-controls={state?.open ? groupId : undefined}
                     onClick={() => void toggleBook(b.code)}
-                    className="flex min-h-10 w-full items-center gap-1.5 rounded-sm px-1 text-left font-ui text-[0.9375rem] font-semibold text-text-strong hover:bg-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
+                    className="flex min-h-10 w-full items-center gap-1.5 rounded-sm px-1 text-left font-ui text-[0.9375rem] font-semibold text-text-strong hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
                   >
                     {state?.open ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
                     {label}

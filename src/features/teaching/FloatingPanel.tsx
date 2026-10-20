@@ -172,7 +172,7 @@ export function FloatingPanel({ label, children }: FloatingPanelProps) {
           type="button"
           onClick={() => setMinimised(false)}
           title={t("studies.teaching.assist.restore")}
-          className="fixed bottom-4 right-4 z-30 inline-flex min-h-11 max-w-[min(24rem,calc(100vw-2rem))] items-center gap-2 rounded-full border border-border bg-bg px-4 text-[0.9375rem] font-medium text-text-strong shadow-lg hover:bg-bg-secondary"
+          className="fixed bottom-4 right-4 z-30 inline-flex min-h-11 max-w-[min(24rem,calc(100vw-2rem))] items-center gap-2 rounded-full border border-border bg-bg px-4 text-[0.9375rem] font-medium text-text-strong shadow-lg hover:bg-hover"
         >
           <Lightbulb
             className="size-4 shrink-0 text-accent"
@@ -221,7 +221,7 @@ export function FloatingPanel({ label, children }: FloatingPanelProps) {
               setMinimised(true);
             }
           }}
-          className="flex shrink-0 cursor-move select-none items-center gap-2 border-b border-border-subtle px-3 py-1 text-[0.8125rem] text-text-muted"
+          className="flex shrink-0 cursor-move select-none items-center gap-2 border-b border-border-subtle px-3 py-1 type-meta"
         >
           <button
             type="button"
@@ -236,7 +236,7 @@ export function FloatingPanel({ label, children }: FloatingPanelProps) {
             }}
             aria-label={t("studies.teaching.assist.move")}
             title={t("studies.teaching.assist.move")}
-            className="-ml-2 inline-flex size-11 cursor-move items-center justify-center rounded-aw hover:bg-bg hover:text-text-strong"
+            className="-ml-2 inline-flex size-11 cursor-move items-center justify-center rounded-aw hover:bg-hover hover:text-text-strong"
           >
             <GripHorizontal className="size-4" aria-hidden="true" />
           </button>
@@ -249,7 +249,7 @@ export function FloatingPanel({ label, children }: FloatingPanelProps) {
             onClick={() => setMinimised(true)}
             aria-label={t("studies.teaching.assist.minimise")}
             title={t("studies.teaching.assist.minimise")}
-            className="inline-flex size-11 items-center justify-center rounded-aw hover:bg-bg hover:text-text-strong"
+            className="inline-flex size-11 items-center justify-center rounded-aw hover:bg-hover hover:text-text-strong"
           >
             <Minus className="size-4" aria-hidden="true" />
           </button>

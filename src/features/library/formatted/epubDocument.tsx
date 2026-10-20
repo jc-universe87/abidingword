@@ -257,7 +257,7 @@ export function renderEpubNodes(nodes: EpubNode[], ctx: Omit<Context, "counter">
 }
 
 const LINK = "#762e32";
-const FOCUS = "#2563eb";
+const FOCUS = "#9a6b27";
 
 /** The reader's own defaults for a page; the book's style comes after, and a few protections come last. */
 const BASE_CSS = `
@@ -286,7 +286,7 @@ const BASE_CSS = `
 .aw-doc mark.aw-mark-amber { background: #f0d78c; } .aw-doc mark.aw-mark-green { background: #bcd9b0; }
 .aw-doc mark.aw-mark-blue { background: #b9d1e8; } .aw-doc mark.aw-mark-rose { background: #ecc0c4; }
 .aw-doc mark.aw-mark-grey { background: #d3d0c8; }
-.aw-doc mark.aw-mark-note { text-decoration: underline dotted 2px #b45309; text-underline-offset: 4px; }
+.aw-doc mark.aw-mark-note { text-decoration: underline dotted 2px #9a6b27; text-underline-offset: 4px; }
 .aw-sref { position: relative; display: inline; }
 .aw-sref-trigger { all: unset; display: inline; cursor: pointer; text-decoration: underline dotted 1px; text-underline-offset: 3px; }
 .aw-sref-trigger:hover { text-decoration-style: solid; }

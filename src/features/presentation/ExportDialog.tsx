@@ -87,7 +87,7 @@ export function ExportDialog({ doc, onClose }: { doc: PresentationDocument; onCl
             <input type="radio" name={`${id}-format`} checked={format === f} onChange={() => setFormat(f)} className="mt-1 size-5 shrink-0" />
             <span className="flex flex-col">
               <span className="font-medium text-text-strong">{t(`presentation.export.formats.${f}.name`)}</span>
-              <span className="text-[0.875rem] text-text-muted">{t(`presentation.export.formats.${f}.hint`)}</span>
+              <span className="type-meta">{t(`presentation.export.formats.${f}.hint`)}</span>
             </span>
           </label>
         ))}
@@ -104,7 +104,7 @@ export function ExportDialog({ doc, onClose }: { doc: PresentationDocument; onCl
           {t("presentation.export.includeSources")}
         </label>
       )}
-      <p className="m-0 text-[0.875rem] text-text-muted">{t("presentation.export.private")}</p>
+      <p className="m-0 type-meta">{t("presentation.export.private")}</p>
       {result && <p role="status" className="m-0 break-words">{result}</p>}
       {error && <p role="alert" className="m-0 text-danger">{error}</p>}
     </Dialog>

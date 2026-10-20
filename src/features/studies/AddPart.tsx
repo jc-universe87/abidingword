@@ -75,7 +75,7 @@ export function AddPart({ template, sections, onAdd }: AddPartProps) {
                   autoFocus={index === 0}
                   disabled={busy}
                   onClick={() => void add(s)}
-                  className="min-h-11 rounded-full border border-border px-4 text-[0.9375rem] text-text-strong hover:bg-bg-secondary"
+                  className="min-h-11 rounded-full border border-border px-4 text-[0.9375rem] text-text-strong hover:bg-hover"
                 >
                   {s.title}
                 </button>
@@ -98,7 +98,7 @@ export function AddPart({ template, sections, onAdd }: AddPartProps) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t("studies.parts.own")}
-              className="h-11 min-w-0 flex-1 basis-48 rounded-aw border border-border bg-bg px-3 text-[0.9375rem] placeholder:text-text-muted"
+              className="h-11 min-w-0 flex-1 basis-48 aw-input px-3 text-[0.9375rem] placeholder:text-text-muted"
             />
             <Button type="submit" variant="primary" className="min-h-11" disabled={busy || !title.trim()}>
               {t("common.add")}

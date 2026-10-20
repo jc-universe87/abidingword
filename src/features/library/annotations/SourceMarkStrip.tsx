@@ -10,9 +10,9 @@ import { wholeParagraph, type SourceSelection, type StoredText } from "./sourceS
 
 // The same weight as the Bible's selection bar: when text is selected the
 // reader should see at once that a choice is waiting.
-const action = "inline-flex min-h-11 items-center gap-2 rounded-aw px-4 font-ui text-[1rem] font-semibold ";
+const action = "inline-flex min-h-11 items-center gap-2 rounded-aw px-4 font-ui text-[0.9375rem] font-medium ";
 const primary = action + "bg-primary text-on-primary hover:bg-primary-hover";
-const outlined = action + "border-2 border-text-strong bg-bg text-text-strong hover:bg-bg-secondary";
+const outlined = action + "border-2 border-text-strong bg-bg text-text-strong hover:bg-hover";
 
 type Step = { kind: "actions" } | { kind: "color" } | { kind: "note"; text: string };
 
@@ -194,7 +194,7 @@ export function SourceMarkStrip({ root, sourceId, read: readSelection, cannotPla
       }}
       className="sticky bottom-2 z-10 flex select-none flex-col gap-3 rounded-aw border border-t-[4px] border-border border-t-accent bg-bg-secondary px-4 py-3.5 font-ui text-[0.9375rem] shadow-[0_-6px_20px_rgba(0,0,0,0.22)]"
     >
-      <p className="m-0 text-[0.875rem] font-semibold text-text-strong">{quote !== null ? t("library.marks.selectedText") : place?.segmentId ? t("library.marks.noteHere") : t("library.marks.notePage")}</p>
+      <p className="type-meta m-0 font-medium">{quote !== null ? t("library.marks.selectedText") : place?.segmentId ? t("library.marks.noteHere") : t("library.marks.notePage")}</p>
       {quote !== null && (
         <q className="reading m-0 line-clamp-3 whitespace-pre-line break-words border-l-[3px] border-accent bg-bg px-3 py-1.5 text-[1.0625rem] text-text-strong [quotes:none]" data-testid="source-selection-quote">
           {quote}

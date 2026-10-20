@@ -79,7 +79,7 @@ export function BlockEditor(props: BlockEditorProps) {
     }
   };
 
-  const tool = "inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-text-strong disabled:opacity-40";
+  const tool = "inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-hover hover:text-text-strong disabled:opacity-40";
   const single = isFirst && isLast;
 
   return (
@@ -115,7 +115,7 @@ export function BlockEditor(props: BlockEditorProps) {
         aria-label={t("studies.blocks.options", { type, section: sectionTitle })}
         title={t("studies.blocks.optionsTooltip")}
         onClick={() => setManaging(!managing)}
-        className="absolute right-1 top-0 inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-text-strong"
+        className="absolute right-1 top-0 inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-hover hover:text-text-strong"
       >
         <MoreHorizontal className="size-4" aria-hidden="true" />
       </button>
@@ -134,11 +134,11 @@ export function BlockEditor(props: BlockEditorProps) {
           {confirming ? (
             <span className="flex flex-wrap items-center gap-1 rounded-aw border border-border bg-bg px-2 py-1 text-[0.9375rem]">
               <span>{t("studies.blocks.confirmDelete", { type })}</span>
-              <button type="button" onClick={remove} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-bg-secondary">
+              <button type="button" onClick={remove} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-hover">
                 {t("common.delete")}
               </button>
               {/* Focus lands on the safe choice when the question appears. */}
-              <button type="button" autoFocus onClick={() => setConfirming(false)} className="min-h-11 rounded px-2 hover:bg-bg-secondary">
+              <button type="button" autoFocus onClick={() => setConfirming(false)} className="min-h-11 rounded px-2 hover:bg-hover">
                 {t("common.keep")}
               </button>
             </span>

@@ -52,14 +52,14 @@ export function Sheet({ labelledBy, children }: SheetProps) {
   }, [opener]);
 
   return createPortal(
-    <div className="fixed inset-0 z-40 bg-[rgba(22,39,31,0.35)]">
+    <div className="fixed inset-0 z-40 bg-[var(--aw-backdrop)]">
       <div
         ref={panel}
         role="dialog"
         aria-modal="true"
         aria-labelledby={labelledBy}
         data-testid="sheet"
-        className="absolute inset-2 flex flex-col overflow-hidden rounded-[var(--aw-radius-lg)] border border-border bg-bg text-text shadow-2xl sm:inset-4 md:left-auto md:w-[min(48rem,calc(100%-6rem))]"
+        className="absolute inset-2 flex flex-col overflow-hidden rounded-[var(--aw-radius-lg)] border border-border bg-raised text-text shadow-2xl sm:inset-4 md:left-auto md:w-[min(48rem,calc(100%-6rem))]"
       >
         {children}
       </div>

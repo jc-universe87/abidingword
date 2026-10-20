@@ -351,7 +351,7 @@ export function EpubViewer({ sourceId, kind = "epub", structure, start, jumpTo, 
         {current && (
           <>
             {current.missingImages > 0 && (
-              <p className="m-0 mx-auto max-w-[46rem] px-6 pt-3 text-[0.875rem] text-text-muted">{t("library.formatted.missingImages", { count: current.missingImages })}</p>
+              <p className="m-0 mx-auto max-w-[46rem] px-6 pt-3 type-meta">{t("library.formatted.missingImages", { count: current.missingImages })}</p>
             )}
             <EpubDocument key={current.id} item={current} onLink={follow} onExternal={onExternal ? external : undefined} tableLabel={t("library.formatted.table")} onRoot={onRoot}
               onDrawn={onDrawn}

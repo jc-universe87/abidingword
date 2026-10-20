@@ -21,7 +21,7 @@ export const PaneControlsProvider = PaneControlsContext.Provider;
 
 const moveButton =
   "inline-flex size-8 shrink-0 items-center justify-center rounded-aw text-text-muted " +
-  "hover:bg-text-strong/[0.06] hover:text-text-strong disabled:opacity-40 disabled:hover:bg-transparent";
+  "hover:bg-hover hover:text-text-strong disabled:opacity-40 disabled:hover:bg-transparent";
 
 /** The labelled strip at the top of each workspace pane. */
 export function PaneHeader({ id, title, children }: { id: string; title: string; children?: ReactNode }) {

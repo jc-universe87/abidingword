@@ -157,7 +157,7 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
   const footer: Footer | null = def.footer;
   const colorInput = (key: keyof TemplateDefinition["colors"]) => (
     <label key={key} className="flex items-center gap-2 text-[0.9375rem]">
-      <input type="color" value={def.colors[key]} onChange={(e) => setDef((d) => ({ ...d, colors: { ...d.colors, [key]: e.target.value.toUpperCase() } }))} className="h-11 w-12 rounded-aw border border-border bg-bg" />
+      <input type="color" value={def.colors[key]} onChange={(e) => setDef((d) => ({ ...d, colors: { ...d.colors, [key]: e.target.value.toUpperCase() } }))} className="h-11 w-12 aw-input" />
       {t(`presentation.templates.colors.${key}`)}
     </label>
   );
@@ -179,11 +179,11 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label className="flex flex-col gap-1 text-[0.9375rem]">
           <span className="font-medium text-text-strong">{t("presentation.templates.name")}</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} className="h-11 rounded-aw border border-border bg-bg px-2" />
+          <input value={name} onChange={(e) => setName(e.target.value)} className="h-11 aw-input px-2" />
         </label>
         <label className="flex flex-col gap-1 text-[0.9375rem]">
           <span className="font-medium text-text-strong">{t("presentation.templates.description")}</span>
-          <input value={description} onChange={(e) => setDescription(e.target.value)} className="h-11 rounded-aw border border-border bg-bg px-2" />
+          <input value={description} onChange={(e) => setDescription(e.target.value)} className="h-11 aw-input px-2" />
         </label>
       </div>
 
@@ -209,7 +209,7 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
             <select
               value={def.fonts[which].replacement ?? def.fonts[which].family}
               onChange={(e) => setDef((d) => ({ ...d, fonts: { ...d.fonts, [which]: { family: e.target.value, replacement: null } } }))}
-              className="h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2"
+              className="h-11 min-w-0 max-w-full aw-input px-2"
             >
               <option value="">{t("presentation.templates.usualFont")}</option>
               {[...new Set([def.fonts[which].family, ...families])].filter(Boolean).map((f) => (
@@ -261,12 +261,12 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
               footer: text ? { text, frame: d.footer?.frame ?? textFrame({ x: 64, y: d.height - 40, w: d.width - 128, h: 28, size: 14, minSize: 14, color: "muted", align: "center", fit: "none" }) } : null,
             }));
           }}
-          className="h-11 rounded-aw border border-border bg-bg px-2"
+          className="h-11 aw-input px-2"
         />
       </label>
 
       <section aria-labelledby={`${id}-layouts`} className="flex flex-col gap-2">
-        <h3 id={`${id}-layouts`} className="m-0 mt-2 text-[1rem] font-semibold text-text-strong">{t("presentation.templates.layouts")}</h3>
+        <h3 id={`${id}-layouts`} className="type-group m-0 mt-2">{t("presentation.templates.layouts")}</h3>
         <div className="flex flex-wrap items-center gap-3">
           <label className="flex items-center gap-2 text-[0.9375rem]">
             <span>{t("presentation.templates.kind")}</span>
@@ -278,7 +278,7 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
                 // Keep a box of that kind selected, so its settings show straight away.
                 const l = def.roles[next];
                 if (l && !l[box]) setBox(BOXES.find((b) => l[b]) ?? "title");
-              }} className="h-11 rounded-aw border border-border bg-bg px-2">
+              }} className="h-11 aw-input px-2">
               {TEMPLATE_ROLES.map((r) => (
                 <option key={r} value={r}>{roleLabel(t, r)}</option>
               ))}
@@ -312,7 +312,7 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
             </>
           )}
         </div>
-        {!layout && <p className="m-0 text-[0.875rem] text-text-muted">{t("presentation.templates.builtInHint")}</p>}
+        {!layout && <p className="m-0 type-meta">{t("presentation.templates.builtInHint")}</p>}
 
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <Canvas def={def} page={page ?? null} images={images} layout={layout} selected={box} onSelect={setBox} onFrame={setFrame} />
@@ -444,7 +444,7 @@ function NumberFields({ value, onChange, label }: { value: { x: number; y: numbe
             aria-label={`${label}: ${t(`presentation.templates.posLong.${k}`)}`}
             value={Math.round(value[k])}
             onChange={(e) => Number.isFinite(e.target.valueAsNumber) && onChange({ ...value, [k]: e.target.valueAsNumber })}
-            className="h-11 w-20 rounded-aw border border-border bg-bg px-2"
+            className="h-11 w-20 aw-input px-2"
           />
         </label>
       ))}
@@ -461,11 +461,11 @@ function FrameFields({ frame, onChange, onRemove }: { frame: TextFrame; onChange
       <div className="flex flex-wrap items-center gap-2">
         <label className="flex items-center gap-1">
           <span>{t("presentation.templates.textSize")}</span>
-          <input type="number" min={8} max={200} value={frame.size} onChange={(e) => Number.isFinite(e.target.valueAsNumber) && onChange({ ...frame, size: e.target.valueAsNumber, minSize: Math.min(frame.minSize, e.target.valueAsNumber) })} className="h-11 w-20 rounded-aw border border-border bg-bg px-2" />
+          <input type="number" min={8} max={200} value={frame.size} onChange={(e) => Number.isFinite(e.target.valueAsNumber) && onChange({ ...frame, size: e.target.valueAsNumber, minSize: Math.min(frame.minSize, e.target.valueAsNumber) })} className="h-11 w-20 aw-input px-2" />
         </label>
         <label className="flex items-center gap-1">
           <span>{t("presentation.templates.align")}</span>
-          <select value={frame.align} onChange={(e) => onChange({ ...frame, align: e.target.value as TextFrame["align"] })} className="h-11 rounded-aw border border-border bg-bg px-2">
+          <select value={frame.align} onChange={(e) => onChange({ ...frame, align: e.target.value as TextFrame["align"] })} className="h-11 aw-input px-2">
             {(["left", "center", "right"] as const).map((a) => (
               <option key={a} value={a}>{t(`presentation.templates.aligns.${a}`)}</option>
             ))}
@@ -473,7 +473,7 @@ function FrameFields({ frame, onChange, onRemove }: { frame: TextFrame; onChange
         </label>
         <label className="flex items-center gap-1">
           <span>{t("presentation.templates.valign")}</span>
-          <select value={frame.valign} onChange={(e) => onChange({ ...frame, valign: e.target.value as TextFrame["valign"] })} className="h-11 rounded-aw border border-border bg-bg px-2">
+          <select value={frame.valign} onChange={(e) => onChange({ ...frame, valign: e.target.value as TextFrame["valign"] })} className="h-11 aw-input px-2">
             {(["top", "middle", "bottom"] as const).map((a) => (
               <option key={a} value={a}>{t(`presentation.templates.valigns.${a}`)}</option>
             ))}
@@ -491,7 +491,7 @@ function FrameFields({ frame, onChange, onRemove }: { frame: TextFrame; onChange
         </label>
         <label className="flex items-center gap-1">
           <span>{t("presentation.templates.textColor")}</span>
-          <select value={["text", "muted", "accent"].includes(frame.color) ? frame.color : "text"} onChange={(e) => onChange({ ...frame, color: e.target.value })} className="h-11 rounded-aw border border-border bg-bg px-2">
+          <select value={["text", "muted", "accent"].includes(frame.color) ? frame.color : "text"} onChange={(e) => onChange({ ...frame, color: e.target.value })} className="h-11 aw-input px-2">
             {(["text", "muted", "accent"] as const).map((c) => (
               <option key={c} value={c}>{t(`presentation.templates.colors.${c}`)}</option>
             ))}

@@ -10,7 +10,7 @@ const field =
 // Quiet around the text: the arrows need no box of their own.
 const iconButton =
   "inline-flex size-10 shrink-0 items-center justify-center rounded-aw text-text-strong " +
-  "hover:bg-bg-secondary disabled:cursor-not-allowed disabled:opacity-40";
+  "hover:bg-hover disabled:cursor-not-allowed disabled:opacity-40";
 
 /** Book and chapter pickers, previous/next, and a typed-reference box. */
 export function PassageNav() {
@@ -59,7 +59,7 @@ export function PassageNav() {
             aria-describedby={error ? `${id}-error` : undefined}
             className={`${field} flex-1 px-3 placeholder:text-text-muted`}
           />
-          <button type="submit" className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-bg-secondary">
+          <button type="submit" className="h-10 rounded-aw border border-border px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-hover">
             {t("scripture.nav.go")}
           </button>
         </div>

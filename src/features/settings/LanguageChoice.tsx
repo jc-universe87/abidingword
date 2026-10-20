@@ -22,7 +22,7 @@ export function LanguageChoice() {
         id="settings-ui-language"
         value={active}
         onChange={(e) => void setLanguage(e.target.value as Language)}
-        className="h-10 min-w-56 rounded-aw border border-border bg-bg px-3 text-[1rem] text-text-strong"
+        className="h-10 min-w-56 aw-input px-3 text-[1rem] text-text-strong"
       >
         {LANGUAGES.map((language) => (
           <option key={language.code} value={language.code} lang={language.code}>

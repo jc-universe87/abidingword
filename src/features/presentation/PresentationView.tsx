@@ -65,13 +65,13 @@ export function PresentationView({ preparation, labels, onBack }: PresentationVi
   return (
     <section aria-labelledby={`${id}-title`} className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" onClick={onBack} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-link hover:bg-bg-secondary">
+        <button type="button" onClick={onBack} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-link hover:bg-hover">
           <ArrowLeft className="size-4" aria-hidden="true" />
           {t("presentation.backToTeaching")}
         </button>
       </div>
       <header className="flex flex-col gap-1">
-        <h3 ref={heading} tabIndex={-1} id={`${id}-title`} className="m-0 font-display text-[1.375rem] font-heading text-text-strong outline-none">
+        <h3 ref={heading} tabIndex={-1} id={`${id}-title`} className="type-worktitle m-0 outline-none">
           {t("presentation.title", { title: preparation.title })}
         </h3>
         <p className="m-0 max-w-prose text-[0.9375rem] text-text-muted">{t("presentation.intro")}</p>
@@ -79,7 +79,7 @@ export function PresentationView({ preparation, labels, onBack }: PresentationVi
       {list.error && <p role="alert" className="m-0 text-danger">{list.error.message}</p>}
       {error && <p role="alert" className="m-0 text-danger">{error}</p>}
       {list.data && presentations.length === 0 && (
-        <div className="flex flex-col gap-3 rounded-aw border border-border-subtle p-4">
+        <div className="flex flex-col gap-3 rounded-aw bg-hover p-4">
           <p className="m-0 max-w-prose">{t("presentation.start.text")}</p>
           <div className="flex flex-wrap gap-2">
             <Button variant="primary" onClick={() => void create(true)} disabled={busy}>
@@ -89,22 +89,22 @@ export function PresentationView({ preparation, labels, onBack }: PresentationVi
               {t("presentation.start.empty")}
             </Button>
           </div>
-          <p className="m-0 max-w-prose text-[0.875rem] text-text-muted">{t("presentation.start.noAi")}</p>
+          <p className="type-meta m-0 max-w-prose">{t("presentation.start.noAi")}</p>
         </div>
       )}
       {presentations.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
           {presentations.length > 1 && (
             <>
-              <label htmlFor={`${id}-which`} className="text-[0.9375rem] text-text-muted">{t("presentation.which")}</label>
-              <select id={`${id}-which`} value={currentId ?? ""} onChange={(e) => setChosen(e.target.value)} className="h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2 text-[0.9375rem]">
+              <label htmlFor={`${id}-which`} className="type-meta">{t("presentation.which")}</label>
+              <select id={`${id}-which`} value={currentId ?? ""} onChange={(e) => setChosen(e.target.value)} className="aw-input h-11 max-w-full px-2">
                 {presentations.map((p) => (
                   <option key={p.id} value={p.id}>{p.title}</option>
                 ))}
               </select>
             </>
           )}
-          <button type="button" onClick={() => void create(true)} disabled={busy} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] font-medium text-link hover:bg-bg-secondary">
+          <button type="button" onClick={() => void create(true)} disabled={busy} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] font-medium text-link hover:bg-hover">
             <Plus className="size-4" aria-hidden="true" />
             {t("presentation.another")}
           </button>
@@ -259,11 +259,12 @@ function PresentationEditor({
           <Download className="size-4" aria-hidden="true" />
           {t("presentation.export.open")}
         </Button>
-        <span className="text-[0.9375rem] text-text-muted">{t("presentation.editor.count", { count: shown })}</span>
+        <span className="type-meta">{t("presentation.editor.count", { count: shown })}</span>
       </div>
 
-      <details className="rounded-aw border border-border-subtle px-4 py-2">
-        <summary className="flex min-h-11 cursor-pointer items-center text-[0.9375rem] font-medium text-text-strong">{t("presentation.editor.settings")}</summary>
+      {/* The presentation's details recede: one quiet line that opens (v0.18.5). */}
+      <details className="border-y border-border-subtle">
+        <summary className="type-subhead flex min-h-11 cursor-pointer items-center rounded-aw px-1 hover:bg-hover">{t("presentation.editor.settings")}</summary>
         <div className="flex flex-col gap-3 pb-2 pt-1">
           <DraftField
             label={t("presentation.editor.name")}
@@ -289,7 +290,7 @@ function PresentationEditor({
                   api.presentationUpdate(what === "template" ? { id: presentation.id, templateId: value } : { id: presentation.id, theme: value as Presentation["theme"], templateId: "" }),
                 );
               }}
-              className="h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2"
+              className="aw-input h-11 max-w-full px-2"
             >
               <optgroup label={t("presentation.editor.builtIn")}>
                 {PRESENTATION_THEMES.map((theme) => (
@@ -304,14 +305,14 @@ function PresentationEditor({
                 </optgroup>
               )}
             </select>
-            <button type="button" onClick={() => setManaging(true)} className="inline-flex min-h-11 items-center rounded-aw px-2 font-medium text-link hover:bg-bg-secondary">
+            <button type="button" onClick={() => setManaging(true)} className="inline-flex min-h-11 items-center rounded-aw px-2 font-medium text-link hover:bg-hover">
               {t("presentation.templates.manage")}
             </button>
           </div>
-          <p className="-mt-2 mb-0 text-[0.875rem] text-text-muted">{t("presentation.editor.designHint")}</p>
+          <p className="type-meta -mt-2 mb-0">{t("presentation.editor.designHint")}</p>
           <label className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
-            <span className="text-text-muted">{t("presentation.editor.bible")}</span>
-            <select value={presentation.translationId ?? ""} onChange={(e) => void act(() => api.presentationUpdate({ id: presentation.id, translationId: e.target.value }))} className="h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2">
+            <span className="type-meta">{t("presentation.editor.bible")}</span>
+            <select value={presentation.translationId ?? ""} onChange={(e) => void act(() => api.presentationUpdate({ id: presentation.id, translationId: e.target.value }))} className="aw-input h-11 max-w-full px-2">
               <option value="">{t("presentation.editor.bibleDefault")}</option>
               {(bibles.data ?? []).map((b) => (
                 <option key={b.id} value={b.id}>{`${b.name} (${b.shortName})`}</option>
@@ -319,28 +320,28 @@ function PresentationEditor({
             </select>
           </label>
           <label className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
-            <span className="text-text-muted">{t("presentation.editor.target")}</span>
-            <select value={presentation.targetMinutes ?? 0} onChange={(e) => void act(() => api.presentationUpdate({ id: presentation.id, targetMinutes: Number(e.target.value) }))} className="h-11 rounded-aw border border-border bg-bg px-2">
+            <span className="type-meta">{t("presentation.editor.target")}</span>
+            <select value={presentation.targetMinutes ?? 0} onChange={(e) => void act(() => api.presentationUpdate({ id: presentation.id, targetMinutes: Number(e.target.value) }))} className="aw-input h-11 px-2">
               <option value={0}>{t("presentation.editor.targetNone")}</option>
               {targetChoices(presentation.targetMinutes).map((m) => (
                 <option key={m} value={m}>{t("presentation.editor.minutes", { count: m })}</option>
               ))}
             </select>
           </label>
-          <p className="-mt-2 mb-0 text-[0.875rem] text-text-muted">{t("presentation.editor.targetHint")}</p>
+          <p className="type-meta -mt-2 mb-0">{t("presentation.editor.targetHint")}</p>
           <div className="flex flex-wrap items-center gap-2">
             {confirmDelete ? (
-              <span className="flex flex-wrap items-center gap-2 rounded-aw border border-border px-2 py-1 text-[0.9375rem]">
+              <span className="flex flex-wrap items-center gap-2 rounded-aw bg-hover px-2 py-1 text-[0.9375rem]">
                 <span>{t("presentation.editor.deleteConfirm")}</span>
-                <button type="button" onClick={() => void api.presentationDelete(presentation.id).then(onDeleted, (e: unknown) => setError(toApiError(e).message))} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-bg-secondary">
+                <button type="button" onClick={() => void api.presentationDelete(presentation.id).then(onDeleted, (e: unknown) => setError(toApiError(e).message))} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-hover">
                   {t("common.delete")}
                 </button>
-                <button type="button" autoFocus onClick={() => setConfirmDelete(false)} className="min-h-11 rounded px-2 hover:bg-bg-secondary">
+                <button type="button" autoFocus onClick={() => setConfirmDelete(false)} className="min-h-11 rounded px-2 hover:bg-hover">
                   {t("common.keep")}
                 </button>
               </span>
             ) : (
-              <button type="button" onClick={() => setConfirmDelete(true)} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-bg-secondary hover:text-danger">
+              <button type="button" onClick={() => setConfirmDelete(true)} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-hover hover:text-danger">
                 <Trash2 className="size-4" aria-hidden="true" />
                 {t("presentation.editor.delete")}
               </button>
@@ -478,10 +479,10 @@ function DraftField({
     if (timer.current !== null) window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => flush(text), 800);
   };
-  const fieldClass = "w-full rounded-aw border border-border bg-bg px-3 py-2 text-[0.9375rem]";
+  const fieldClass = "aw-input w-full px-3 py-2";
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-[0.875rem] font-medium text-text-muted">{label}</label>
+      <label htmlFor={id} className="type-meta font-medium">{label}</label>
       {multiline ? (
         <textarea id={id} value={draft} rows={rows} onBlur={() => flush(draft)} onChange={(e) => change(e.target.value)} className={fieldClass} />
       ) : (
@@ -514,16 +515,17 @@ function Wording({
   if (own === null && gives) {
     return (
       <div className="flex flex-col gap-1">
-        <span className="text-[0.875rem] font-medium text-text-muted">{label}</span>
-        <p className="m-0 whitespace-pre-wrap rounded-aw bg-bg-secondary px-3 py-2 text-[0.9375rem]">{teaching ?? t("presentation.editor.teachingEmpty")}</p>
-        <div className="flex flex-wrap items-center gap-2 text-[0.875rem] text-text-muted">
+        <span className="type-meta font-medium">{label}</span>
+        {/* From the teaching: shown, not edited here (no field look). */}
+        <p className="aw-readonly m-0 whitespace-pre-wrap py-1 text-[0.9375rem]">{teaching ?? t("presentation.editor.teachingEmpty")}</p>
+        <div className="type-meta flex flex-wrap items-center gap-2">
           <span>{t("presentation.editor.followsTeaching")}</span>
           <button
             type="button"
             onClick={() =>
               void onUpdate({ id: item.id, [part]: teaching ?? "" }).then(() => requestAnimationFrame(() => document.getElementById(fieldId)?.focus()))
             }
-            className="min-h-11 rounded-aw px-2 font-medium text-link hover:bg-bg-secondary"
+            className="min-h-11 rounded-aw px-2 font-medium text-link hover:bg-hover"
           >
             {t("presentation.editor.writeOwn")}
           </button>
@@ -542,9 +544,9 @@ function Wording({
       onSave={(value) => onUpdate({ id: item.id, [part]: value })}
       hint={
         gives ? (
-          <div className="flex flex-wrap items-center gap-2 text-[0.875rem] text-text-muted">
+          <div className="type-meta flex flex-wrap items-center gap-2">
             <span>{t("presentation.editor.ownWording")}</span>
-            <button type="button" onClick={() => void onUpdate({ id: item.id, [part === "heading" ? "followHeading" : "followBody"]: true })} className="min-h-11 rounded-aw px-2 font-medium text-link hover:bg-bg-secondary">
+            <button type="button" onClick={() => void onUpdate({ id: item.id, [part === "heading" ? "followHeading" : "followBody"]: true })} className="min-h-11 rounded-aw px-2 font-medium text-link hover:bg-hover">
               {t("presentation.editor.useTeaching")}
             </button>
           </div>
@@ -645,7 +647,8 @@ function SlideRow({
       aria-label={t("presentation.editor.slideLabel", { number, title: name })}
       data-drag-item=""
       data-drop={drag.dropBefore ? "before" : drag.dropAfter ? "after" : undefined}
-      className={`relative flex flex-col gap-3 rounded-aw border border-border-subtle p-2 ${item.skipped ? "opacity-70" : ""} ${drag.dragging ? "opacity-50" : ""}`}
+      // Slides are rows of a list, not boxed cards; the one open sits on a soft fill.
+      className={`relative flex flex-col gap-3 rounded-aw p-2 ${open ? "bg-hover" : ""} ${item.skipped ? "opacity-70" : ""} ${drag.dragging ? "opacity-50" : ""}`}
     >
       {/* Where the dragged slide would land. */}
       {(drag.dropBefore || drag.dropAfter) && (
@@ -657,7 +660,7 @@ function SlideRow({
           {...drag.handle}
           aria-hidden="true"
           title={t("presentation.editor.dragHint")}
-          className="inline-flex min-h-11 w-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary active:cursor-grabbing"
+          className="inline-flex min-h-11 w-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-aw text-text-muted hover:bg-hover active:cursor-grabbing"
         >
           <GripVertical className="size-5" />
         </span>
@@ -667,10 +670,10 @@ function SlideRow({
           aria-expanded={open}
           aria-controls={`slide-edit-${item.id}`}
           onClick={onToggle}
-          className="flex min-h-11 min-w-0 flex-1 items-center gap-3 rounded-aw px-1 text-left hover:bg-bg-secondary"
+          className="flex min-h-11 min-w-0 flex-1 items-center gap-3 rounded-aw px-1 text-left hover:bg-hover"
         >
           <ChevronRight className={`size-4 shrink-0 transition-transform ${open ? "rotate-90" : ""}`} aria-hidden="true" />
-          <span className="w-6 shrink-0 text-right font-ui text-[0.875rem] font-semibold text-text-muted">{number}</span>
+          <span className="type-meta w-6 shrink-0 text-right font-medium">{number}</span>
           <span className="hidden w-32 shrink-0 sm:block" aria-hidden="true">
             {slide ? (
               <SlideView slide={slide.audience} kind={item.kind} theme={theme} image={image} page={page} images={images} showOverflow label="" className="rounded border border-border" />
@@ -680,7 +683,7 @@ function SlideRow({
           </span>
           <span className="flex min-w-0 flex-col">
             <span className="break-words text-[0.9375rem] font-medium text-text-strong">{name}</span>
-            <span className="text-[0.8125rem] text-text-muted">
+            <span className="type-meta">
               {[
                 itemKindLabel(t, item.kind),
                 sourceLabel(t, item.source, preparation),
@@ -692,31 +695,31 @@ function SlideRow({
                 .join(" · ")}
             </span>
             {warnings.map((w) => (
-              <span key={w.code} className="text-[0.9375rem] font-medium text-danger">{t(`presentation.warnings.${w.code}`)}</span>
+              <span key={w.code} className="type-meta font-medium !text-warning">{t(`presentation.warnings.${w.code}`)}</span>
             ))}
             {page?.blocks.some((b) => b.type === "text" && b.overflow) && (
-              <span className="text-[0.9375rem] font-medium text-danger">{t("presentation.templates.overflowSlide")}</span>
+              <span className="type-meta font-medium !text-warning">{t("presentation.templates.overflowSlide")}</span>
             )}
           </span>
         </button>
         <div className="flex items-center">
-          <button id={`slide-move-${item.id}-up`} type="button" disabled={index === 0} onClick={() => onMove(-1)} aria-label={t("presentation.editor.moveUp", { number })} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-aw hover:bg-bg-secondary disabled:opacity-40">
+          <button id={`slide-move-${item.id}-up`} type="button" disabled={index === 0} onClick={() => onMove(-1)} aria-label={t("presentation.editor.moveUp", { number })} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-aw hover:bg-hover disabled:opacity-40">
             <ArrowUp className="size-4" aria-hidden="true" />
           </button>
-          <button id={`slide-move-${item.id}-down`} type="button" disabled={last} onClick={() => onMove(1)} aria-label={t("presentation.editor.moveDown", { number })} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-aw hover:bg-bg-secondary disabled:opacity-40">
+          <button id={`slide-move-${item.id}-down`} type="button" disabled={last} onClick={() => onMove(1)} aria-label={t("presentation.editor.moveDown", { number })} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-aw hover:bg-hover disabled:opacity-40">
             <ArrowDown className="size-4" aria-hidden="true" />
           </button>
-          <button type="button" onClick={onRemove} aria-label={t("presentation.editor.remove", { number })} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-aw text-text-muted hover:bg-bg-secondary hover:text-danger">
+          <button type="button" onClick={onRemove} aria-label={t("presentation.editor.remove", { number })} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-aw text-text-muted hover:bg-hover hover:text-danger">
             <Trash2 className="size-4" aria-hidden="true" />
           </button>
         </div>
       </div>
       {open && (
-        <div id={`slide-edit-${item.id}`} className="flex flex-col gap-3 border-l-[3px] border-accent pb-1 pl-3 sm:ml-8">
+        <div id={`slide-edit-${item.id}`} className="flex flex-col gap-3 border-l-2 border-border pb-1 pl-3 sm:ml-8">
           <div className="flex flex-wrap items-center gap-4">
             <label className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
-              <span className="text-text-muted">{t("presentation.editor.kind")}</span>
-              <select value={item.kind} onChange={(e) => void onUpdate({ id: item.id, kind: e.target.value as ItemKind })} className="h-11 rounded-aw border border-border bg-bg px-2">
+              <span className="type-meta">{t("presentation.editor.kind")}</span>
+              <select value={item.kind} onChange={(e) => void onUpdate({ id: item.id, kind: e.target.value as ItemKind })} className="aw-input h-11 px-2">
                 {ITEM_KINDS.map((k) => (
                   <option key={k} value={k}>{itemKindLabel(t, k)}</option>
                 ))}
@@ -728,12 +731,12 @@ function SlideRow({
             </label>
           </div>
           {item.kind === "pause" ? (
-            <p className="m-0 text-[0.9375rem] text-text-muted">{t("presentation.editor.pauseHint")}</p>
+            <p className="type-meta m-0">{t("presentation.editor.pauseHint")}</p>
           ) : (
             <>
               {item.kind === "scripture" && (
                 <div className="flex flex-col gap-1">
-                  <span className="text-[0.875rem] font-medium text-text-muted">{t("presentation.editor.passage")}</span>
+                  <span className="type-meta font-medium">{t("presentation.editor.passage")}</span>
                   <p className="m-0 text-[0.9375rem]">
                     {slide?.audience.reference ? referenceLabel({ ...slide.audience.reference, display: "" }) : t("presentation.editor.noPassage")}
                     {item.reference && item.source?.kind === "passage" ? ` · ${t("presentation.editor.ownPassage")}` : ""}
@@ -746,7 +749,7 @@ function SlideRow({
                     }}
                   >
                     <label htmlFor={`ref-${item.id}`} className="sr-only">{t("presentation.editor.otherPassage")}</label>
-                    <input id={`ref-${item.id}`} value={refText} onChange={(e) => setRefText(e.target.value)} placeholder={t("presentation.editor.passageHint")} className="h-11 min-w-0 flex-1 basis-40 rounded-aw border border-border bg-bg px-3 text-[0.9375rem]" />
+                    <input id={`ref-${item.id}`} value={refText} onChange={(e) => setRefText(e.target.value)} placeholder={t("presentation.editor.passageHint")} className="aw-input h-11 flex-1 basis-40 px-3" />
                     <Button type="submit" className="min-h-11">{t("presentation.editor.setPassage")}</Button>
                     {item.reference && item.source?.kind === "passage" && (
                       <Button className="min-h-11" onClick={() => void onUpdate({ id: item.id, followReference: true })}>
@@ -791,7 +794,7 @@ function SlideRow({
           )}
           {slide && slide.speaker.manuscript.length > 0 && (
             <div className="flex flex-col gap-1 text-[0.9375rem]">
-              <span className="text-[0.875rem] font-medium text-text-muted">{t("presentation.editor.manuscript")}</span>
+              <span className="type-meta font-medium">{t("presentation.editor.manuscript")}</span>
               <p className="m-0 line-clamp-3 whitespace-pre-wrap text-text-muted">
                 {slide.speaker.manuscript.map((m) => (m.field === "standing" ? t(`presentation.export.standings.${m.text}`, { defaultValue: m.text }) : m.text)).join("\n")}
               </p>
@@ -804,7 +807,7 @@ function SlideRow({
             multiline
             rows={3}
             onSave={(value) => onUpdate({ id: item.id, notes: value })}
-            hint={<span className="text-[0.8125rem] text-text-muted">{t("presentation.editor.notesHint")}</span>}
+            hint={<span className="type-meta">{t("presentation.editor.notesHint")}</span>}
           />
         </div>
       )}
@@ -852,7 +855,7 @@ function AddSlide({
     onAdd(kind, source);
   };
   const OWN: ItemKind[] = ["heading", "text", "scripture", "question", "activity", "quote", "section", "pause", "title"];
-  const chip = "min-h-11 rounded-full border border-border px-3 text-[0.9375rem] text-text-strong hover:bg-bg-secondary";
+  const chip = "aw-choice min-h-11";
   return (
     <div
       className="flex flex-col gap-2"
@@ -869,10 +872,10 @@ function AddSlide({
         {t("presentation.editor.add")}
       </Button>
       {open && (
-        <div className="flex flex-col gap-3 border-l-[3px] border-border-subtle pl-3">
+        <div className="flex flex-col gap-3 border-l-2 border-border-subtle pl-3">
           {parts.length > 0 && (
             <div role="group" aria-label={t("presentation.editor.fromTeaching")} className="flex flex-col gap-1">
-              <span className="text-[0.875rem] font-medium text-text-muted">{t("presentation.editor.fromTeaching")}</span>
+              <span className="type-meta font-medium">{t("presentation.editor.fromTeaching")}</span>
               <div className="flex flex-wrap gap-2">
                 {parts.map((p, i) => (
                   <button key={`${p.source.kind}-${p.source.id}-${p.source.field ?? ""}`} type="button" autoFocus={i === 0} onClick={() => choose(p.kind, p.source)} className={chip}>
@@ -883,7 +886,7 @@ function AddSlide({
             </div>
           )}
           <div role="group" aria-label={t("presentation.editor.ownSlide")} className="flex flex-col gap-1">
-            <span className="text-[0.875rem] font-medium text-text-muted">{t("presentation.editor.ownSlide")}</span>
+            <span className="type-meta font-medium">{t("presentation.editor.ownSlide")}</span>
             <div className="flex flex-wrap gap-2">
               {OWN.map((kind, i) => (
                 <button key={kind} type="button" autoFocus={parts.length === 0 && i === 0} onClick={() => choose(kind, null)} className={chip}>

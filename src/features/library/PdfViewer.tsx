@@ -422,7 +422,7 @@ export function PdfViewer({ sourceId, initialPage, onPageChange, jumpTo, onOutli
               if (e.key === "Enter") commitDraft();
               if (e.key === "Escape") setDraft(null);
             }}
-            className="h-9 w-14 rounded-aw border border-border bg-bg px-2 text-center"
+            className="aw-input h-9 min-h-9 w-14 px-2 text-center"
           />
           <span aria-hidden="true">{total ? t("library.original.pageTotal", { total: formatNumber(total) }) : ""}</span>
           <span role="status" className="sr-only">
@@ -519,9 +519,9 @@ const PDF_MARK_CLASS = "pointer-events-none absolute mix-blend-multiply opacity-
 const PDF_REFERENCE_CLASSES: ScriptureReferenceClasses = {
   wrap: "relative block h-full w-full",
   trigger:
-    "block h-full w-full cursor-pointer rounded-[2px] border-0 border-b-2 border-dotted border-[#2563eb] bg-transparent p-0 text-transparent hover:bg-[rgba(37,99,235,0.14)] focus-visible:bg-[rgba(37,99,235,0.14)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#2563eb] aria-expanded:bg-[rgba(37,99,235,0.18)]",
+    "block h-full w-full cursor-pointer rounded-[2px] border-0 border-b-2 border-dotted border-[#762e32] bg-transparent p-0 text-transparent hover:bg-[rgba(118,46,50,0.14)] focus-visible:bg-[rgba(118,46,50,0.14)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#9a6b27] aria-expanded:bg-[rgba(118,46,50,0.18)]",
   menu: "absolute left-0 top-full z-30 mt-1 flex min-w-max flex-col rounded-aw border border-border bg-surface p-1 font-ui text-text shadow-md",
-  item: "min-h-10 whitespace-nowrap rounded-[4px] px-3 text-left text-[0.9375rem] text-text-strong hover:bg-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary",
+  item: "min-h-10 whitespace-nowrap rounded-[4px] px-3 text-left text-[0.9375rem] text-text-strong hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary",
 };
 
 const boxStyle = (box: PdfBox): React.CSSProperties => ({
@@ -700,7 +700,7 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onO
       role="group"
       aria-label={t("library.original.pageLabel", { page: formatNumber(n) })}
       data-rendered={near || undefined}
-      className="relative shrink-0 bg-white text-black shadow-md"
+      className="aw-paper relative shrink-0 bg-white text-black shadow-md"
       style={{ width: size.width * scale, height: size.height * scale, marginTop: GAP, marginBottom: GAP }}
     >
       {near && <canvas ref={canvas} className="block" />}
@@ -715,7 +715,7 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onO
             aria-label={t("library.links.follow")}
             title={t("library.links.follow")}
             onClick={() => onFollow(link.dest)}
-            className="absolute cursor-pointer rounded-[2px] bg-transparent hover:bg-[rgba(37,99,235,0.14)] focus-visible:bg-[rgba(37,99,235,0.14)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#2563eb]"
+            className="absolute cursor-pointer rounded-[2px] bg-transparent hover:bg-[rgba(118,46,50,0.14)] focus-visible:bg-[rgba(118,46,50,0.14)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#9a6b27]"
             style={{
               left: `${(link.x / layer.page.width) * 100}%`,
               top: `${(link.y / layer.page.height) * 100}%`,
@@ -731,7 +731,7 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onO
               key={`m${mark.id}-${i}`}
               data-pdf-mark={mark.color ?? "note"}
               aria-hidden="true"
-              className={`${PDF_MARK_CLASS} ${mark.color ? PHRASE_CLASS[mark.color as keyof typeof PHRASE_CLASS] : "border-b-2 border-dotted border-[#b45309]"}`}
+              className={`${PDF_MARK_CLASS} ${mark.color ? PHRASE_CLASS[mark.color as keyof typeof PHRASE_CLASS] : "border-b-2 border-dotted border-[#9a6b27]"}`}
               style={boxStyle(box)}
             />
           )),
@@ -772,7 +772,7 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onO
             ref={i === 0 ? findMark : undefined}
             data-pdf-find
             aria-hidden="true"
-            className="pointer-events-none absolute rounded-[2px] bg-[rgba(250,204,21,0.45)] outline outline-2 outline-[#b45309]"
+            className="pointer-events-none absolute rounded-[2px] bg-[rgba(250,204,21,0.45)] outline outline-2 outline-[#9a6b27]"
             style={boxStyle(box)}
           />
         ))}
@@ -787,7 +787,7 @@ function PageView({ doc, n, size, scale, onSize, onFailed, onFollow, detect, onO
               </div>
             ) : (
               // A reference broken over two lines: the rest of it is underlined too, and acted on through its first part.
-              <div key={`r${reference.start}-${i}`} aria-hidden="true" className="pointer-events-none absolute border-b-2 border-dotted border-[#2563eb]" style={boxStyle(box)} />
+              <div key={`r${reference.start}-${i}`} aria-hidden="true" className="pointer-events-none absolute border-b-2 border-dotted border-[#762e32]" style={boxStyle(box)} />
             ),
           ),
         )}

@@ -169,7 +169,7 @@ export function FindBar({ find, focusKey, onType, onSubmit, onStep, onClose }: F
         maxLength={200}
         className="min-h-9 min-w-0 flex-1 basis-40 rounded-aw border border-border bg-bg px-2 font-ui text-[0.9375rem] text-text"
       />
-      <span role="status" aria-live="polite" className="min-w-[6rem] font-ui text-[0.875rem] text-text-muted">
+      <span role="status" aria-live="polite" className="min-w-[6rem] font-ui type-meta">
         {status}
       </span>
       <div className="flex shrink-0 items-center">

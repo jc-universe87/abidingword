@@ -148,7 +148,7 @@ export function SelectionSpike({
                 setVerdict(null);
                 setRaw("");
               }}
-              className="min-h-9 rounded-aw border border-border px-3 hover:bg-bg-secondary"
+              className="min-h-9 rounded-aw border border-border px-3 hover:bg-hover"
             >
               {/* i18n-ignore */}
               Clear

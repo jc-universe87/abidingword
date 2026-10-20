@@ -156,7 +156,7 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
           <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {PLANNED.map((item) => (
               <li key={item} className="flex items-center gap-1 border-l-[3px] border-border pl-4">
-                <span className="font-semibold text-text-strong">{t(`settings.planned.${item}`)}</span>
+                <span className="font-medium text-text-strong">{t(`settings.planned.${item}`)}</span>
                 <HelpTip name={t("settings.help.about", { topic: t(`settings.planned.${item}`) })}>{t(`settings.planned.${item}Text`)}</HelpTip>
               </li>
             ))}
@@ -187,7 +187,7 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
               id="settings-title"
               ref={heading}
               tabIndex={-1}
-              className="m-0 font-display text-[1.5rem] font-heading text-text-strong"
+              className="type-title m-0"
             >
               {t("settings.title")}
             </h1>
@@ -202,7 +202,7 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
                       e.preventDefault();
                       jump(name);
                     }}
-                    className="inline-flex min-h-9 items-center rounded-aw px-2.5 text-[0.875rem] text-text-muted no-underline hover:bg-bg-secondary hover:text-text-strong"
+                    className="inline-flex min-h-9 items-center rounded-aw px-2.5 type-meta no-underline hover:bg-hover hover:text-text-strong"
                   >
                     {t(TITLE_KEY[name])}
                   </a>
@@ -285,14 +285,15 @@ function Section({ name, title, summary, open, onToggle, toggleRef, children }: 
           aria-labelledby={id}
           aria-describedby={summary ? summaryId : undefined}
           onClick={() => onToggle(!open)}
-          className="flex min-h-14 w-full flex-wrap items-center gap-x-3 gap-y-0.5 rounded-aw py-3 text-left hover:bg-bg-secondary"
+          className="flex min-h-14 w-full flex-wrap items-center gap-x-3 gap-y-0.5 rounded-aw py-3 text-left hover:bg-hover"
         >
           <ChevronRight className={`size-5 shrink-0 text-text-muted transition-transform ${open ? "rotate-90" : ""}`} aria-hidden="true" />
-          <span id={id} className="font-display text-[1.25rem] font-heading text-text-strong">
+          {/* One quiet level for every section (v0.18.5): the names read as a list, not a wall of titles. */}
+          <span id={id} className="type-section">
             {title}
           </span>
           {summary && (
-            <span id={summaryId} className="ml-auto min-w-0 text-[0.9375rem] text-text-muted">
+            <span id={summaryId} className="type-meta ml-auto min-w-0">
               {summary}
             </span>
           )}

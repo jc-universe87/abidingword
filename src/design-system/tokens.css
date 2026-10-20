@@ -282,3 +282,42 @@
 [data-theme="dark"][data-paper="clear"] {
   --aw-pane-scripture: #202020;
 }
+
+/*
+ * Interaction and status (v0.18.5), the same on every surface:
+ *  - hover / selected: a tint of the strong text colour, so they show on any
+ *    pane, card or dialog in all twelve palettes (a fixed surface colour as a
+ *    hover disappears on a surface of that colour);
+ *  - raised: dialogs, menus and popovers — the work surface in Light, one step
+ *    lighter than the page in Dark (raised things come forward);
+ *  - backdrop: behind a modal dialog or sheet;
+ *  - success / warning: status text (danger is above), each at least 4.5:1
+ *    on every pane and on raised surfaces (tests/ui/appearance-themes.test.tsx).
+ */
+:root {
+  --aw-hover: color-mix(in srgb, var(--aw-text-strong) 6%, transparent);
+  --aw-selected: color-mix(in srgb, var(--aw-text-strong) 10%, transparent);
+  --aw-raised: var(--aw-pane-work);
+  --aw-backdrop: rgba(22, 39, 31, 0.42);
+  --aw-success: #2e5e3f;
+  --aw-warning: #7a4f0f;
+}
+
+[data-theme="dark"] {
+  --aw-hover: color-mix(in srgb, var(--aw-text-strong) 8%, transparent);
+  --aw-selected: color-mix(in srgb, var(--aw-text-strong) 13%, transparent);
+  --aw-raised: var(--aw-bg-secondary);
+  --aw-backdrop: rgba(0, 0, 0, 0.55);
+  --aw-success: #9fd3ad;
+  --aw-warning: #e6bd74;
+}
+
+/* A page that is always paper-white (a PDF page): its highlights keep their
+   light colours in either theme, as they would on paper. */
+.aw-paper {
+  --aw-hl-amber: #f0d78c;
+  --aw-hl-green: #bcd9b0;
+  --aw-hl-blue: #b9d1e8;
+  --aw-hl-rose: #ecc0c4;
+  --aw-hl-grey: #d3d0c8;
+}

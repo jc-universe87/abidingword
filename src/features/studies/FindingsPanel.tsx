@@ -138,7 +138,7 @@ export function KindFilter({ findings, filter, onFilter }: { findings: Finding[]
       <select
         value={filter && counts.has(filter) ? filter : ""}
         onChange={(e) => onFilter((e.target.value || null) as FindingType | null)}
-        className="h-11 max-w-full rounded-aw border border-border bg-bg px-2 text-text-strong"
+        className="h-11 max-w-full aw-input px-2 text-text-strong"
       >
         <option value="">{t("studies.findings.all", { count: findings.length })}</option>
         {FINDING_TYPES.filter((type) => counts.has(type)).map((type) => (
@@ -254,10 +254,9 @@ export const QuickCapture = forwardRef<HTMLTextAreaElement, QuickCaptureProps>(f
     requestAnimationFrame(() => document.getElementById(`${id}-kind-${next}`)?.focus());
   };
 
-  const pill =
-    "min-h-11 rounded-full border border-border px-4 font-ui text-[0.9375rem] text-text-strong hover:bg-bg " +
-    "aria-checked:border-primary aria-checked:bg-primary aria-checked:text-on-primary";
-  const field = "h-11 min-w-0 max-w-full rounded-aw border border-border bg-bg px-2";
+  // The kind of note is an option among several: the shared choice chip (v0.18.5).
+  const pill = "aw-choice min-h-11 px-4";
+  const field = "h-11 min-w-0 max-w-full aw-input px-2";
 
   return (
     <div role="group" aria-label={t("studies.findings.addGroup")} className="@container flex flex-col gap-3 border-l-[3px] border-accent bg-bg-secondary px-4 py-3" onKeyDown={keys}>

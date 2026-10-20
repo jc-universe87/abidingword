@@ -53,7 +53,7 @@ export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
             <select
               value={translation.id}
               onChange={(e) => setTranslation(e.target.value)}
-              className="h-9 max-w-40 rounded-aw border border-border bg-bg px-2 text-[0.9375rem]"
+              className="h-9 max-w-40 aw-input px-2 text-[0.9375rem]"
             >
               {translations.map((bible) => (
                 <option key={bible.id} value={bible.id}>{bible.shortName}</option>

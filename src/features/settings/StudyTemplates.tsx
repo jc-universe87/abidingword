@@ -74,7 +74,7 @@ export function StudyTemplates({ onEdit, version = 0 }: { onEdit: (templateId: s
       <li key={template.id} className="flex flex-col gap-2 border-b border-border-subtle py-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div>
-            <p className="m-0 font-semibold text-text-strong">{name}</p>
+            <p className="type-item m-0">{name}</p>
             <p className="m-0 text-[0.9375rem] text-text-muted">
               {[
                 studyTypeLabel(t, template.studyType),
@@ -119,7 +119,7 @@ export function StudyTemplates({ onEdit, version = 0 }: { onEdit: (templateId: s
   };
 
   const list = (templates.data ?? []).filter((template) => !(template.isBuiltin && RETIRED_TEMPLATES.has(template.key)));
-  const heading = "m-0 text-[1rem] font-semibold text-text-strong";
+  const heading = "type-group m-0";
   return (
     <div className="flex flex-col gap-5">
       <section aria-labelledby="templates-study" className="flex flex-col gap-3">
@@ -140,7 +140,7 @@ export function StudyTemplates({ onEdit, version = 0 }: { onEdit: (templateId: s
         <ul aria-label={t("studies.templates.teachingListLabel")} className="m-0 list-none border-t border-border-subtle p-0">
           {TEACHING_KINDS.map((kind) => (
             <li key={kind} className="flex flex-col gap-0.5 border-b border-border-subtle py-3">
-              <p className="m-0 font-semibold text-text-strong">{teachingKindLabel(t, kind)}</p>
+              <p className="type-item m-0">{teachingKindLabel(t, kind)}</p>
               <p className="m-0 text-[0.9375rem] text-text-muted">
                 {t(`studies.teaching.format.${canvasShape(kind)}`)}
                 {STARTING_STEPS[kind] &&

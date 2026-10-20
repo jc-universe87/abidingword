@@ -12,9 +12,9 @@ import { HighlightColors } from "./HighlightColors";
 // when words are selected the reader should see at once that a choice is
 // waiting. "primary" is the filled brand button; the other is outlined.
 const action =
-  "inline-flex min-h-11 items-center gap-2 rounded-aw px-4 font-ui text-[1rem] font-semibold ";
+  "inline-flex min-h-11 items-center gap-2 rounded-aw px-4 font-ui text-[0.9375rem] font-medium ";
 const primary = action + "bg-primary text-on-primary hover:bg-primary-hover";
-const outlined = action + "border-2 border-text-strong bg-bg text-text-strong hover:bg-bg-secondary";
+const outlined = action + "border-2 border-text-strong bg-bg text-text-strong hover:bg-hover";
 
 type Step = { kind: "actions" } | { kind: "color" } | { kind: "note"; text: string };
 
@@ -113,7 +113,7 @@ export function SelectionToolbar({ root, translationId, onSaved }: Props) {
       // A raised panel with a brass rule on top: clearly an active state, not a footer.
       className="sticky bottom-2 z-10 flex flex-col gap-3 rounded-aw border border-t-[4px] border-border border-t-accent bg-bg-secondary px-4 py-3.5 font-ui text-[0.9375rem] shadow-[0_-6px_20px_rgba(0,0,0,0.22)]"
     >
-      <p className="m-0 text-[0.875rem] font-semibold text-text-strong">{t("scripture.selection.selectedWords")}</p>
+      <p className="type-meta m-0 font-medium">{t("scripture.selection.selectedWords")}</p>
       <q
         className="reading m-0 line-clamp-3 break-words border-l-[3px] border-accent bg-bg px-3 py-1.5 text-[1.0625rem] text-text-strong [quotes:none]"
         data-testid="selection-quote"

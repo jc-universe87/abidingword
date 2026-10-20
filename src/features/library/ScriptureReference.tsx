@@ -16,7 +16,7 @@ export const APP_REFERENCE_CLASSES: ScriptureReferenceClasses = {
   trigger:
     "inline cursor-pointer rounded-sm p-0 text-left align-baseline font-[inherit] text-[length:inherit] text-inherit underline decoration-dotted decoration-1 underline-offset-[3px] hover:decoration-solid focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary aria-expanded:bg-note",
   menu: "absolute left-0 top-full z-20 mt-1 flex min-w-max flex-col rounded-aw border border-border bg-surface p-1 font-ui shadow-md",
-  item: "min-h-10 whitespace-nowrap rounded-[4px] px-3 text-left text-[0.9375rem] text-text-strong hover:bg-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary",
+  item: "min-h-10 whitespace-nowrap rounded-[4px] px-3 text-left text-[0.9375rem] text-text-strong hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary",
 };
 
 interface ScriptureReferenceProps {

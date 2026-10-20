@@ -44,10 +44,10 @@ export function StudySearchResults({ query, onOpen, onClose }: Props) {
   return (
     <section aria-labelledby="study-search-title" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 id="study-search-title" className="m-0 font-display text-[1.875rem] font-heading text-text-strong">
+        <h1 id="study-search-title" className="type-title m-0">
           {t("studies.search.heading", { query })}
         </h1>
-        <button type="button" onClick={onClose} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-strong hover:bg-bg-secondary">
+        <button type="button" onClick={onClose} className="inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-strong hover:bg-hover">
           <ArrowLeft className="size-4" aria-hidden="true" /> {t("common.back")}
         </button>
       </div>
@@ -64,9 +64,9 @@ export function StudySearchResults({ query, onOpen, onClose }: Props) {
                 <button
                   type="button"
                   onClick={() => onOpen({ id: hit.studyId, projectId: hit.projectId })}
-                  className="flex w-full flex-col items-start gap-1 px-1 py-3 text-left hover:bg-bg-secondary"
+                  className="flex w-full flex-col items-start gap-1 px-1 py-3 text-left hover:bg-hover"
                 >
-                  <span className="font-display text-[1.125rem] font-heading text-text-strong">{hit.studyTitle}</span>
+                  <span className="type-item">{hit.studyTitle}</span>
                   <span className="text-[0.9375rem] text-text-muted">{locationLabel(t, hit)}</span>
                   <span className="reading text-[1rem]">{highlighted(hit.snippet)}</span>
                 </button>

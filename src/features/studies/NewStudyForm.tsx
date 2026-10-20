@@ -42,10 +42,9 @@ type Approach = StudyType | "mine";
 const COMMON: StudyType[] = ["passage", "word", "topical", "teaching"];
 const MORE: StudyType[] = ["biblical_theology", "systematic_theology", "custom"];
 
-const field = "h-10 min-w-0 rounded-aw border border-border bg-bg px-3 text-base placeholder:text-text-muted";
-const pill =
-  "min-h-11 rounded-full border border-border px-3 font-ui text-[0.9375rem] text-text-strong hover:bg-bg-secondary " +
-  "aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-on-primary";
+const field = "h-10 min-w-0 aw-input px-3 text-base placeholder:text-text-muted";
+// The kind of study is an option among several: the shared choice chip (v0.18.5).
+const pill = "aw-choice min-h-11";
 
 interface NewStudyFormProps {
   /** The project to create in, or a way to find (or make) it when the user has not chosen one. */
@@ -147,7 +146,7 @@ export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false
   return (
     <form onSubmit={submit} onKeyDown={onKeyDown} className="flex flex-col gap-4" noValidate aria-label={t("studies.newStudy.formLabel")}>
       <div className="flex flex-col gap-2">
-        <h2 id={`${id}-heading`} className="m-0 font-display text-[1.375rem] font-heading text-text-strong">
+        <h2 id={`${id}-heading`} className="type-worktitle m-0">
           {t("studies.newStudy.heading")}
         </h2>
         <input

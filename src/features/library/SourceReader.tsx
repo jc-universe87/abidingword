@@ -837,7 +837,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
               id={`${id}-title`}
               ref={heading}
               tabIndex={-1}
-              className="m-0 font-display font-heading text-[1.375rem] leading-snug text-text-strong"
+              className="type-worktitle m-0"
             >
               {s.title}
             </Title>
@@ -1063,7 +1063,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
             type="button"
             aria-pressed={which === "marks" ? marksPanel : panel !== null}
             onClick={() => switchPanels(which)}
-            className="min-h-8 rounded-[4px] px-2 font-ui text-[0.875rem] text-text-strong hover:bg-bg-secondary aria-pressed:bg-primary aria-pressed:text-on-primary"
+            className="aw-tab"
           >
             {which === "marks" ? t("library.marks.title") : t("library.contents.title")}
           </button>
@@ -1161,7 +1161,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   // reachable however far the text is scrolled) above the content.
   return (
     <main aria-labelledby={`${id}-title`} className="flex min-h-0 flex-1 flex-col bg-bg" onKeyDown={onReaderKey}>
-      <div data-testid="reader-header" className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-border bg-bg px-4 py-2">
+      {/* Chrome recedes around the book: one quiet bar, the title in the interface voice. */}
+      <div data-testid="reader-header" className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-border-subtle bg-bg px-4 py-1.5">
         <Button variant="quiet" className="shrink-0" onClick={() => onClose(positionNow())}>
           <ArrowLeft className="size-4" aria-hidden="true" /> {t("common.back")}
         </Button>
@@ -1170,7 +1171,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
           ref={heading}
           tabIndex={-1}
           title={s?.title}
-          className="m-0 min-w-0 flex-1 truncate font-display text-[1.125rem] font-heading text-text-strong"
+          className="type-item m-0 min-w-0 flex-1 truncate"
         >
           {s?.title}
         </h1>
@@ -1207,14 +1208,14 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
 function ModeSwitch({ mode, onChange }: { mode: ReaderMode; onChange: (mode: ReaderMode) => void }) {
   const { t } = useTranslation();
   return (
-    <div role="group" aria-label={t("library.original.modesLabel")} className="flex shrink-0 rounded-aw border border-border p-0.5">
+    <div role="group" aria-label={t("library.original.modesLabel")} className="flex shrink-0">
       {(["reading", "original"] as const).map((m) => (
         <button
           key={m}
           type="button"
           aria-pressed={mode === m}
           onClick={() => onChange(m)}
-          className="min-h-9 rounded-[4px] px-3 font-ui text-[0.9375rem] text-text-strong hover:bg-bg-secondary aria-pressed:bg-primary aria-pressed:text-on-primary"
+          className="aw-tab"
         >
           {t(`library.original.${m}`)}
         </button>

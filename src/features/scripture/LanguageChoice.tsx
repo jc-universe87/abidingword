@@ -127,7 +127,7 @@ export function LanguageChoice({
         value={selected}
         onChange={(e) => choose(e.target.value)}
         aria-describedby={`${id}-hint`}
-        className="h-10 rounded-aw border border-border bg-bg px-2 text-base"
+        className="h-10 aw-input px-2 text-base"
       >
         <option value="">{t("scripture.language.choose")}</option>
         {labelled.map((o) => (
@@ -147,11 +147,11 @@ export function LanguageChoice({
             required
             aria-invalid={!value?.name.trim()}
             aria-describedby={`${id}-hint`}
-            className="h-10 rounded-aw border border-border bg-bg px-3 text-base"
+            className="h-10 aw-input px-3 text-base"
           />
         </label>
       )}
-      <p id={`${id}-hint`} className="m-0 text-[0.875rem] text-text-muted">
+      <p id={`${id}-hint`} className="m-0 type-meta">
         {t("scripture.language.hint")}
       </p>
     </div>
