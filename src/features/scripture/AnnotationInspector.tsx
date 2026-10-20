@@ -131,7 +131,7 @@ export function AnnotationInspector({ id, canonical, verse, annotations, layout,
       aria-labelledby={`${id}-title`}
       data-layout={layout}
       onKeyDown={onKeyDown}
-      className={`flex min-w-0 flex-col gap-3 overflow-y-auto rounded-aw border border-t-[4px] border-border border-t-accent bg-bg-secondary px-4 py-3 font-ui text-[0.9375rem] shadow-[0_-6px_20px_rgba(0,0,0,0.18)] ${
+      className={`flex min-w-0 flex-col gap-3 overflow-y-auto aw-action-panel px-4 py-3 font-ui text-[0.9375rem] ${
         sheet ? "max-h-[55vh]" : "max-h-[45vh]"
       }`}
     >
@@ -183,7 +183,7 @@ export function AnnotationInspector({ id, canonical, verse, annotations, layout,
               rows={3}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              className="reading w-full min-w-0 rounded-aw border-2 border-border bg-bg px-3 py-2 text-[1rem]"
+              className="aw-writing w-full min-w-0"
             />
           </label>
           <div className="flex flex-wrap gap-2">
@@ -360,7 +360,7 @@ function SavedNote({ note, onChanged, onRemoved }: { note: Annotation; onChanged
             rows={3}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="reading w-full min-w-0 rounded-aw border-2 border-border bg-bg px-3 py-2 text-[1rem]"
+            className="aw-writing w-full min-w-0"
           />
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={() => void save()} className="min-h-10 rounded-aw bg-primary px-3 text-on-primary hover:bg-primary-hover">

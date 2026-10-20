@@ -293,6 +293,7 @@
    *   writing      long writing in the Study and Teaching is a soft fill with
    *                no outline until hovered or in use (TeachingField), or a
    *                resting underline (Study paragraphs, titles);
+   *   .aw-writing  a note beside a source or passage (reading face);
    *   .aw-readonly a value the person sees but does not edit here (text that
    *                comes from the teaching): no fill, a quiet rule beside it.
    * Focus is always the global brass ring; an error has aria-invalid.
@@ -324,10 +325,41 @@
     cursor: not-allowed;
     opacity: 0.6;
   }
+  /* A note written beside a source or a passage: the field, in the reading face. */
+  .aw-writing {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--aw-border);
+    border-radius: var(--aw-radius);
+    background: var(--aw-field);
+    color: var(--aw-text);
+    font-family: var(--aw-font-reading);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+  .aw-writing::placeholder {
+    color: var(--aw-text-muted);
+  }
+  .aw-writing:hover:not(:disabled) {
+    border-color: var(--aw-text-muted);
+  }
   .aw-readonly {
     padding-left: 0.75rem;
     border-left: 2px solid var(--aw-border);
     color: var(--aw-text);
+  }
+
+  /*
+   * A panel that rises over the text to act on a selection (mark these
+   * words, add them to a Study, the note on a verse): raised, with the brass
+   * line of an action in progress along its top (v0.18.5: one class, not four
+   * copies).
+   */
+  .aw-action-panel {
+    border: 1px solid var(--aw-border);
+    border-top: 3px solid var(--aw-accent);
+    border-radius: var(--aw-radius);
+    background: var(--aw-raised);
+    box-shadow: 0 -6px 20px -6px rgba(0, 0, 0, 0.28);
   }
 
   /* An action shown as an icon only: named and titled where it is used. */
@@ -372,6 +404,9 @@
 
   /* The Korean interface is a little heavier (below); reading text keeps its normal weight. */
   :root:lang(ko) .reading {
+    font-weight: 400;
+  }
+  :root:lang(ko) .aw-writing {
     font-weight: 400;
   }
 }

@@ -158,7 +158,7 @@ function MarkItem({ mark, onChanged, onAddToStudy, onCopy }: { mark: SourceAnnot
         <div className="flex flex-col gap-2">
           <label className="flex flex-col gap-1">
             <span className="sr-only">{t("library.marks.noteField")}</span>
-            <textarea autoFocus rows={3} value={text} onChange={(e) => setText(e.target.value)} className="reading select-text rounded-aw border-2 border-border bg-bg px-3 py-2 text-[1rem]" />
+            <textarea autoFocus rows={3} value={text} onChange={(e) => setText(e.target.value)} className="aw-writing select-text" />
           </label>
           <div className="flex flex-wrap gap-2">
             <Button variant="primary" disabled={busy || !text.trim()} onClick={() => void run(() => api.sourceAnnotationUpdate({ id: mark.id, content: text.trim() }))}>

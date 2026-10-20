@@ -317,7 +317,7 @@ function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCa
 function Field(props: { id: string; label: string; value: string; onChange: (v: string) => void; hint?: string }) {
   return (
     <label htmlFor={props.id} className="flex flex-col gap-1">
-      <span className="text-[0.9375rem] font-medium text-text-strong">{props.label}</span>
+      <span className="type-subhead">{props.label}</span>
       <input
         id={props.id}
         value={props.value}

@@ -119,7 +119,7 @@ export function LanguageChoice({
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-[0.9375rem] font-medium text-text-strong">
+      <label htmlFor={id} className="type-subhead">
         {label}
       </label>
       <select

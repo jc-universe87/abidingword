@@ -238,7 +238,7 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
         {confirming && (
           <div role="alertdialog" aria-label={t("studies.findings.confirmDelete", { type })} className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
             <span>{t("studies.findings.confirmDelete", { type })}</span>
-            <Button variant="primary" onClick={() => act(() => api.findingDelete(finding.id))}>{t("common.delete")}</Button>
+            <Button variant="danger" onClick={() => act(() => api.findingDelete(finding.id))}>{t("common.delete")}</Button>
             <Button autoFocus onClick={() => setConfirming(false)}>{t("common.keep")}</Button>
           </div>
         )}

@@ -122,7 +122,7 @@ export function ConcordanceView() {
     <div className="flex flex-col gap-4">
       <form onSubmit={submit} className="flex flex-col gap-3" noValidate>
         <label className="flex flex-col gap-1">
-          <span className="text-[0.9375rem] font-medium text-text-strong">{t("scripture.concordance.queryLabel")}</span>
+          <span className="type-subhead">{t("scripture.concordance.queryLabel")}</span>
           <input value={query} onChange={(e) => setQuery(e.target.value)} dir="auto" className={`${field} px-3`} />
         </label>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">

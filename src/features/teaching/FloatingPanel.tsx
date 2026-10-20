@@ -207,7 +207,7 @@ export function FloatingPanel({ label, children }: FloatingPanelProps) {
                 maxHeight: box.height,
               }
         }
-        className="fixed z-30 flex min-h-48 [&[hidden]]:hidden min-w-72 max-w-[calc(100vw-1.5rem)] resize flex-col overflow-hidden rounded-[var(--aw-radius-lg)] border border-border bg-bg-secondary shadow-2xl"
+        className="fixed z-30 flex min-h-48 [&[hidden]]:hidden min-w-72 max-w-[calc(100vw-1.5rem)] resize flex-col overflow-hidden rounded-[var(--aw-radius-lg)] border border-border bg-raised shadow-2xl"
       >
         <div
           onPointerDown={startDrag}

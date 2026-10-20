@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useReducer, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { BookOpen, ChevronLeft, ChevronRight, CircleHelp, EyeOff, Eraser, Highlighter, LayoutGrid, Menu, Minus, MonitorUp, MousePointer2, Pause, Play, Plus, RotateCcw, Settings2, X } from "lucide-react";
+import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { readLocal, writeLocal } from "@/lib/storage";
@@ -478,11 +479,11 @@ export function PresenterView({ doc, onClose }: PresenterViewProps) {
   if (!slide) {
     return (
       <div role="dialog" aria-modal="true" aria-labelledby={titleId} className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-bg p-4">
-        <h2 id={titleId} className="m-0 text-xl">{t("presentation.presenter.title")}</h2>
+        <h2 id={titleId} className="type-worktitle m-0">{t("presentation.presenter.title")}</h2>
         <p className="m-0 text-text-muted">{t("presentation.presenter.empty")}</p>
-        <button type="button" onClick={onClose} className="min-h-11 rounded-aw border border-border px-4">
+        <Button className="min-h-11" onClick={onClose}>
           {t("presentation.presenter.exit")}
-        </button>
+        </Button>
       </div>
     );
   }
@@ -1179,7 +1180,7 @@ function FloatingPanel({
         aria-modal="true"
         aria-labelledby={titleId}
         data-presenter-panel=""
-        className={`absolute z-30 flex flex-col overflow-hidden border shadow-2xl ${position}`}
+        className={`absolute z-30 flex flex-col overflow-hidden border shadow-[0_8px_24px_-8px_rgba(0,0,0,0.35)] ${position}`}
         style={{ backgroundColor: colours.background, color: colours.text, borderColor: `${colours.muted}66`, ...(left !== null ? { left } : {}) }}
       >
         <div className="flex shrink-0 items-center gap-2 border-b py-1 pl-4 pr-1" style={{ borderColor: `${colours.muted}44` }}>
@@ -1237,7 +1238,7 @@ function SettingsPanel({ prefs, setPrefs, awake, phone }: { prefs: Prefs; setPre
           <legend className="mb-1 p-0">{t("presentation.presenter.arrangement")}</legend>
           <div className="grid grid-cols-3 gap-2">
             {ARRANGEMENTS.map((a) => (
-              <label key={a} className="flex cursor-pointer flex-col items-center gap-1 rounded-aw border p-2 text-center text-[0.875rem] has-[:checked]:border-current has-[:checked]:font-semibold" style={{ borderColor: prefs.arrangement === a ? undefined : "rgb(0 0 0 / 0.2)" }}>
+              <label key={a} className="flex cursor-pointer flex-col items-center gap-1 rounded-aw border p-2 text-center text-[0.875rem] has-[:checked]:border-current has-[:checked]:font-semibold" style={{ borderColor: prefs.arrangement === a ? undefined : "color-mix(in srgb, currentColor 25%, transparent)" }}>
                 <input type="radio" name={`${id}-arrangement`} checked={prefs.arrangement === a} onChange={() => setPrefs({ arrangement: a })} className="sr-only" />
                 <ArrangementPicture arrangement={a} />
                 {t(`presentation.presenter.arrangements.${a}`)}

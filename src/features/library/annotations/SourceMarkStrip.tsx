@@ -192,7 +192,7 @@ export function SourceMarkStrip({ root, sourceId, read: readSelection, cannotPla
           cancel();
         }
       }}
-      className="sticky bottom-2 z-10 flex select-none flex-col gap-3 rounded-aw border border-t-[4px] border-border border-t-accent bg-bg-secondary px-4 py-3.5 font-ui text-[0.9375rem] shadow-[0_-6px_20px_rgba(0,0,0,0.22)]"
+      className="sticky bottom-2 z-10 flex select-none flex-col gap-3 aw-action-panel px-4 py-3.5 font-ui text-[0.9375rem]"
     >
       <p className="type-meta m-0 font-medium">{quote !== null ? t("library.marks.selectedText") : place?.segmentId ? t("library.marks.noteHere") : t("library.marks.notePage")}</p>
       {quote !== null && (
@@ -244,7 +244,7 @@ export function SourceMarkStrip({ root, sourceId, read: readSelection, cannotPla
               rows={3}
               value={step.text}
               onChange={(e) => setStep({ kind: "note", text: e.target.value })}
-              className="reading select-text rounded-aw border-2 border-border bg-bg px-3 py-2 text-[1rem]"
+              className="aw-writing select-text"
             />
           </label>
           <div className="flex flex-wrap gap-3">

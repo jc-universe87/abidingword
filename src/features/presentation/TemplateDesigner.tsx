@@ -178,17 +178,17 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label className="flex flex-col gap-1 text-[0.9375rem]">
-          <span className="font-medium text-text-strong">{t("presentation.templates.name")}</span>
+          <span className="type-subhead">{t("presentation.templates.name")}</span>
           <input value={name} onChange={(e) => setName(e.target.value)} className="h-11 aw-input px-2" />
         </label>
         <label className="flex flex-col gap-1 text-[0.9375rem]">
-          <span className="font-medium text-text-strong">{t("presentation.templates.description")}</span>
+          <span className="type-subhead">{t("presentation.templates.description")}</span>
           <input value={description} onChange={(e) => setDescription(e.target.value)} className="h-11 aw-input px-2" />
         </label>
       </div>
 
       <fieldset className="m-0 flex flex-wrap items-center gap-4 border-0 p-0">
-        <legend className="mb-1 p-0 text-[0.9375rem] font-medium text-text-strong">{t("presentation.templates.size")}</legend>
+        <legend className="type-subhead mb-1 p-0">{t("presentation.templates.size")}</legend>
         {[WIDE, STANDARD].map(([w, h]) => (
           <label key={w} className="flex min-h-11 items-center gap-2 text-[0.9375rem]">
             <input type="radio" name={`${id}-size`} checked={def.width === w && def.height === h} onChange={() => setDef((d) => rescale(d, w, h))} className="size-5" />
@@ -198,14 +198,14 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
       </fieldset>
 
       <fieldset className="m-0 flex flex-wrap gap-4 border-0 p-0">
-        <legend className="mb-1 p-0 text-[0.9375rem] font-medium text-text-strong">{t("presentation.templates.colorsTitle")}</legend>
+        <legend className="type-subhead mb-1 p-0">{t("presentation.templates.colorsTitle")}</legend>
         {(["background", "text", "muted", "accent"] as const).map(colorInput)}
       </fieldset>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {(["heading", "body"] as const).map((which) => (
           <label key={which} className="flex flex-col gap-1 text-[0.9375rem]">
-            <span className="font-medium text-text-strong">{t(`presentation.templates.fontFor.${which}`)}</span>
+            <span className="type-subhead">{t(`presentation.templates.fontFor.${which}`)}</span>
             <select
               value={def.fonts[which].replacement ?? def.fonts[which].family}
               onChange={(e) => setDef((d) => ({ ...d, fonts: { ...d.fonts, [which]: { family: e.target.value, replacement: null } } }))}
@@ -221,7 +221,7 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
       </div>
 
       <div className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
-        <span className="font-medium text-text-strong">{t("presentation.templates.backgroundImage")}</span>
+        <span className="type-subhead">{t("presentation.templates.backgroundImage")}</span>
         <Button onClick={() => void addImage((a) => setDef((d) => ({ ...d, background: { ...d.background, image: { assetId: a.id, crop: { left: 0, top: 0, right: 0, bottom: 0 } } } })))}>
           <ImagePlus className="size-4" aria-hidden="true" />
           {def.background.image ? t("presentation.templates.replaceImage") : t("presentation.templates.chooseImageButton")}
@@ -234,7 +234,7 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
         )}
       </div>
       <div className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
-        <span className="font-medium text-text-strong">{t("presentation.templates.logo")}</span>
+        <span className="type-subhead">{t("presentation.templates.logo")}</span>
         <Button onClick={() => void addImage((a) => setDef((d) => ({ ...d, logo: placed(a.id, { x: d.width - 24 - 120, y: 24, w: 120, h: Math.round((120 * a.height) / Math.max(1, a.width)) }) })))}>
           <ImagePlus className="size-4" aria-hidden="true" />
           {def.logo ? t("presentation.templates.replaceImage") : t("presentation.templates.chooseImageButton")}
@@ -250,7 +250,7 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
         )}
       </div>
       <label className="flex flex-col gap-1 text-[0.9375rem]">
-        <span className="font-medium text-text-strong">{t("presentation.templates.footer")}</span>
+        <span className="type-subhead">{t("presentation.templates.footer")}</span>
         <input
           value={footer?.text ?? ""}
           placeholder={t("presentation.templates.footerPlaceholder")}
@@ -320,7 +320,7 @@ export function TemplateDesigner({ template, onDone }: { template: PresentationT
             <div className="flex flex-col gap-2">
               <div role="radiogroup" aria-label={t("presentation.templates.box")} className="flex flex-wrap gap-1">
                 {BOXES.map((b) => (
-                  <label key={b} className={`flex min-h-11 items-center gap-2 rounded-aw border px-2 text-[0.9375rem] ${box === b ? "border-primary" : "border-border-subtle"}`}>
+                  <label key={b} className="aw-choice min-h-11 gap-2 px-3">
                     <input type="radio" name={`${id}-box`} checked={box === b} onChange={() => setBox(b)} className="size-4" />
                     {t(`presentation.templates.boxes.${b}`)}
                   </label>
@@ -423,7 +423,7 @@ function Canvas({
               className={`absolute cursor-move touch-none border-2 ${selected === b ? "border-primary" : "border-dashed border-text-muted/60"}`}
               style={{ left: pct(f.x, def.width), top: pct(f.y, def.height), width: pct(f.w, def.width), height: pct(f.h, def.height) }}
             >
-              <span className="pointer-events-none absolute right-0 top-0 bg-primary/80 px-1 text-[0.6875rem] text-on-primary">{t(`presentation.templates.boxes.${b}`)}</span>
+              <span className="pointer-events-none absolute right-0 top-0 bg-primary/80 px-1 text-[0.75rem] text-on-primary">{t(`presentation.templates.boxes.${b}`)}</span>
               <span aria-hidden="true" onPointerDown={(e) => start(e, b, "size")} className="absolute -bottom-1.5 -right-1.5 size-3 cursor-se-resize rounded-sm border border-white bg-primary" />
             </div>
           );

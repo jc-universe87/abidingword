@@ -106,9 +106,9 @@ export function StudyTemplates({ onEdit, version = 0 }: { onEdit: (templateId: s
           </div>
         </div>
         {confirming === template.id && (
-          <div role="alertdialog" aria-label={t("studies.templates.confirmLabel", { name })} className="flex flex-wrap items-center gap-2 border-l-[3px] border-danger bg-bg-secondary px-4 py-3">
+          <div role="alertdialog" aria-label={t("studies.templates.confirmLabel", { name })} className="flex flex-wrap items-center gap-2 border-l-[3px] border-danger bg-hover px-4 py-3">
             <span>{t("studies.templates.confirm", { name })}</span>
-            <Button variant="primary" onClick={() => act(async () => { await api.templateDelete(template.id); setConfirming(null); })}>
+            <Button variant="danger" onClick={() => act(async () => { await api.templateDelete(template.id); setConfirming(null); })}>
               {t("studies.templates.deleteTemplate")}
             </Button>
             <Button autoFocus onClick={() => setConfirming(null)}>{t("studies.keepIt")}</Button>

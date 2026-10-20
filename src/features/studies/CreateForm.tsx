@@ -39,7 +39,7 @@ export function CreateForm({ label, placeholder, submitLabel, onCreate }: Create
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-2" noValidate>
-      <label htmlFor={id} className="text-[0.9375rem] font-medium text-text-strong">
+      <label htmlFor={id} className="type-subhead">
         {label}
       </label>
       <div className="flex flex-wrap gap-2">

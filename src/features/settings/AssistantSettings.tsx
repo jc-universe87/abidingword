@@ -362,7 +362,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                   {t("settings.assistant.keySave")}
                 </Button>
                 {keyShown && (
-                  <Button className="min-h-11" disabled={busy !== null} onClick={() => void run(() => api.assistantKeySet("provider", ""), t("settings.assistant.keyRemoved"))}>
+                  <Button variant="quiet" className="min-h-11 text-text-muted hover:!text-danger" disabled={busy !== null} onClick={() => void run(() => api.assistantKeySet("provider", ""), t("settings.assistant.keyRemoved"))}>
                     {t("settings.assistant.keyRemove")}
                   </Button>
                 )}
@@ -527,7 +527,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                         {t("settings.assistant.keySave")}
                       </Button>
                       {searchKeyShown && (
-                        <Button className="min-h-11" disabled={busy !== null} onClick={() => {
+                        <Button variant="quiet" className="min-h-11 text-text-muted hover:!text-danger" disabled={busy !== null} onClick={() => {
                             setBusy("save");
                             setSearchCheck(null);
                             api
@@ -545,7 +545,7 @@ function Form({ initial, onStatus }: { initial: Settings; onStatus?: (settings: 
                   )}
                   {search === "searxng" && (
                     <label className="flex flex-col gap-1">
-                      <span className="text-[0.9375rem] text-text-strong">{t("settings.assistant.searchAddress")}</span>
+                      <span className="type-subhead">{t("settings.assistant.searchAddress")}</span>
                       <input value={config.searchUrl} onChange={(e) => set("searchUrl", e.target.value)} placeholder={URL_START} className={field} />
                     </label>
                   )}

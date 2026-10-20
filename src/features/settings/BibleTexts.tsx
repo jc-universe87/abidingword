@@ -90,7 +90,7 @@ function BibleRow({ bible }: { bible: BibleTranslation }) {
       )}
 
       {confirming && (
-        <div role="alertdialog" aria-labelledby={`remove-${bible.id}`} className="flex flex-col gap-3 border-l-[3px] border-danger bg-bg-secondary px-4 py-3">
+        <div role="alertdialog" aria-labelledby={`remove-${bible.id}`} className="flex flex-col gap-3 border-l-[3px] border-danger bg-hover px-4 py-3">
           <p id={`remove-${bible.id}`} className="m-0">
             <Trans
               i18nKey={bible.sourceOrigin === "managed_copy" ? "scripture.bibles.confirmRemoveManaged" : "scripture.bibles.confirmRemove"}
@@ -99,7 +99,7 @@ function BibleRow({ bible }: { bible: BibleTranslation }) {
             />
           </p>
           <div className="flex gap-2">
-            <Button variant="primary" onClick={remove}>{t("scripture.bibles.removeNamed", { name: bible.shortName })}</Button>
+            <Button variant="danger" onClick={remove}>{t("scripture.bibles.removeNamed", { name: bible.shortName })}</Button>
             <Button autoFocus onClick={() => setConfirming(false)}>{t("scripture.bibles.keep")}</Button>
           </div>
         </div>

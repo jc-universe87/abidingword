@@ -31,7 +31,7 @@ export function SearchResultsView() {
         </button>
       </div>
       <form onSubmit={submit} className="flex flex-col gap-2" noValidate>
-        <label htmlFor={`${id}-q`} className="text-[0.9375rem] font-medium text-text-strong">
+        <label htmlFor={`${id}-q`} className="type-subhead">
           {t("scripture.search.queryLabel")}
         </label>
         <div className="flex gap-2">

@@ -111,7 +111,7 @@ export function SelectionToolbar({ root, translationId, onSaved }: Props) {
         if (e.key === "Escape" && step.kind !== "actions") cancel();
       }}
       // A raised panel with a brass rule on top: clearly an active state, not a footer.
-      className="sticky bottom-2 z-10 flex flex-col gap-3 rounded-aw border border-t-[4px] border-border border-t-accent bg-bg-secondary px-4 py-3.5 font-ui text-[0.9375rem] shadow-[0_-6px_20px_rgba(0,0,0,0.22)]"
+      className="sticky bottom-2 z-10 flex flex-col gap-3 aw-action-panel px-4 py-3.5 font-ui text-[0.9375rem]"
     >
       <p className="type-meta m-0 font-medium">{t("scripture.selection.selectedWords")}</p>
       <q
@@ -150,7 +150,7 @@ export function SelectionToolbar({ root, translationId, onSaved }: Props) {
               rows={3}
               value={step.text}
               onChange={(e) => setStep({ kind: "note", text: e.target.value })}
-              className="reading rounded-aw border-2 border-border bg-bg px-3 py-2 text-[1rem]"
+              className="aw-writing"
             />
           </label>
           <div className="flex flex-wrap gap-3">

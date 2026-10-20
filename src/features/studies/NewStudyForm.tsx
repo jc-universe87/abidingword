@@ -167,7 +167,7 @@ export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false
 
       {approach === "mine" && own.length > 0 && (
         <label className="flex flex-col gap-1">
-          <span className="text-[0.9375rem] font-medium text-text-strong">{t("studies.newStudy.template")}</span>
+          <span className="type-subhead">{t("studies.newStudy.template")}</span>
           <select value={chosenOwn?.id ?? ""} onChange={(e) => setMine(e.target.value)} className={field}>
             {own.map((template) => (
               <option key={template.id} value={template.id}>{template.name}</option>
@@ -189,7 +189,7 @@ export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false
         </button>
         {more && (
           <label id={`${id}-more`} className="flex flex-col gap-1">
-            <span className="text-[0.9375rem] font-medium text-text-strong">
+            <span className="type-subhead">
               {t("studies.newStudy.title")} <span className="font-normal text-text-muted">{t("studies.newStudy.optional")}</span>
             </span>
             <input value={customTitle} onChange={(e) => setCustomTitle(e.target.value)} className={field} />

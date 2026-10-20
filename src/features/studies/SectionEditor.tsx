@@ -195,12 +195,12 @@ export function SectionEditor(props: SectionEditorProps) {
         </div>
       )}
       {confirmingDelete && (
-        <div role="alertdialog" aria-label={t("studies.sections.confirmLabel", { title })} className="mt-2 flex flex-col gap-2 border-l-[3px] border-danger bg-bg-secondary px-4 py-3">
+        <div role="alertdialog" aria-label={t("studies.sections.confirmLabel", { title })} className="mt-2 flex flex-col gap-2 border-l-[3px] border-danger bg-hover px-4 py-3">
           <p className="m-0">
             {t(hasFindings ? "studies.sections.confirmWithFindings" : "studies.sections.confirm", { title })}
           </p>
           <div className="flex gap-2">
-            <Button variant="primary" onClick={() => remove(true)}>{t("studies.sections.deleteSection")}</Button>
+            <Button variant="danger" onClick={() => remove(true)}>{t("studies.sections.deleteSection")}</Button>
             <Button autoFocus onClick={() => setConfirmingDelete(false)}>{t("studies.keepIt")}</Button>
           </div>
         </div>

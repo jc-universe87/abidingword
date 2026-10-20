@@ -673,7 +673,7 @@ export function Sources({ sources }: { sources: { title: string; url: string; si
   if (sources.length === 0) return null;
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[0.8125rem] font-medium text-text-muted">{t("studies.teaching.assist.stories.sources")}</span>
+      <span className="type-meta font-medium">{t("studies.teaching.assist.stories.sources")}</span>
       <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
         {sources.map((s) => (
           <li key={s.url}>
@@ -799,13 +799,13 @@ function Visuals({ reply, heading, kept, onKeep, canFindImages, canGenerateImage
                           <ImageIcon className="size-6" aria-hidden="true" />
                         </span>
                       )}
-                      <span className="text-[0.8125rem] text-text">{image.title}</span>
+                      <span className="type-meta !text-text">{image.title}</span>
                       <span className="type-meta">{t("studies.teaching.standing.found", { licence: image.licence })}</span>
                       {image.author && <span className="type-meta">{t("studies.teaching.assist.images.by", { author: image.author })}</span>}
                       <button
                         type="button"
                         onClick={() => void api.openExternalLink(image.pageUrl)}
-                        className="inline-flex min-h-11 items-center gap-1 rounded-aw px-1 text-left text-[0.8125rem] text-link underline underline-offset-2"
+                        className="inline-flex min-h-11 items-center gap-1 rounded-aw px-1 text-left text-[0.875rem] text-link underline underline-offset-2"
                       >
                         <ExternalLink className="size-3.5" aria-hidden="true" />
                         {t("studies.teaching.assist.images.source")}

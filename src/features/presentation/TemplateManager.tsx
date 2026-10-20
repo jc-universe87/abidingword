@@ -160,12 +160,12 @@ function TemplateList({
             {confirm === tpl.id ? (
               <span className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
                 <span>{t("presentation.templates.deleteConfirm")}</span>
-                <button type="button" onClick={() => void remove(tpl.id, tpl.name)} className="min-h-11 rounded px-2 font-medium text-danger hover:bg-hover">
+                <Button variant="danger" onClick={() => void remove(tpl.id, tpl.name)}>
                   {t("common.delete")}
-                </button>
-                <button type="button" autoFocus onClick={() => setConfirm(null)} className="min-h-11 rounded px-2 hover:bg-hover">
+                </Button>
+                <Button autoFocus onClick={() => setConfirm(null)}>
                   {t("common.keep")}
-                </button>
+                </Button>
               </span>
             ) : (
               <span className="flex flex-wrap items-center">
