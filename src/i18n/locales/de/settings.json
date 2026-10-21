@@ -95,7 +95,7 @@
     "findImages": "Frei lizenzierte Bilder auf Wikimedia Commons finden (nur Suchbegriffe werden gesendet)",
     "generateImages": "Bilder erstellen erlauben (immer als vom Assistenten erstellt gekennzeichnet)",
     "perspective": "Wie soll die KI an theologische Fragen herangehen?",
-    "perspectiveHint": "Optional. Hier geht es nicht um deine Lebensgeschichte: Schreib, wenn es hilft, nur eine kurze theologische oder kirchliche Ausrichtung (z. B. „evangelisch-reformiert“). Die KI berücksichtigt sie bei umstrittenen theologischen Fragen und nennt trotzdem andere ernsthafte Auslegungen. Bleibt das Feld leer, wird keine Tradition vorausgesetzt.",
+    "perspectiveHint": "Optional. Hier geht es nicht um deine Lebensgeschichte: Schreib, wenn es hilft, nur eine kurze theologische oder kirchliche Ausrichtung (z. B. „evangelikal-reformiert“). Die KI berücksichtigt sie bei umstrittenen theologischen Fragen und nennt trotzdem andere ernsthafte Auslegungen. Bleibt das Feld leer, wird keine Tradition vorausgesetzt.",
     "save": "Speichern",
     "saved": "Gespeichert.",
     "test": "Verbindung prüfen",
