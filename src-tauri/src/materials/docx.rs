@@ -35,6 +35,8 @@ pub struct MaterialDocument {
 #[serde(rename_all = "camelCase")]
 pub struct Verse {
     pub number: String,
+    #[serde(default)]
+    pub title: Option<String>,
     pub text: String,
 }
 
@@ -183,6 +185,13 @@ fn body(doc: &MaterialDocument) -> String {
                 out.push_str(&paragraph("AwLabel", &runs(label, "")));
                 let mut content = String::new();
                 for (i, verse) in verses.iter().enumerate() {
+                    if let Some(title) = verse.title.as_deref().filter(|t| !t.trim().is_empty()) {
+                        if i > 0 {
+                            content.push_str("<w:r><w:br/></w:r>");
+                        }
+                        content.push_str(&runs(title, "<w:i/>"));
+                        content.push_str("<w:r><w:br/></w:r>");
+                    }
                     content.push_str(&runs(&verse.number, "<w:vertAlign w:val=\"superscript\"/>"));
                     let words = if i + 1 < verses.len() {
                         format!("\u{00A0}{} ", verse.text)
@@ -209,10 +218,11 @@ fn body(doc: &MaterialDocument) -> String {
                     // Room to draw: one empty framed cell, kept on one page.
                     out.push_str(BOX);
                 } else {
-                    // Room to write: a few ruled lines, which stay editable.
-                    for _ in 0..3 {
-                        out.push_str(&paragraph("AwLine", ""));
-                    }
+                    // Room to write: three ruled lines, which stay editable; the last does not
+                    // hold on to what follows, so a long sheet can break between questions.
+                    out.push_str(&paragraph("AwLine", ""));
+                    out.push_str(&paragraph("AwLine", ""));
+                    out.push_str(&paragraph("AwLineLast", ""));
                 }
             }
         }
@@ -220,13 +230,48 @@ fn body(doc: &MaterialDocument) -> String {
     out
 }
 
-const BOX: &str = r#"<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:tblBorders><w:top w:val="single" w:sz="6" w:space="0" w:color="B9BCBA"/><w:left w:val="single" w:sz="6" w:space="0" w:color="B9BCBA"/><w:bottom w:val="single" w:sz="6" w:space="0" w:color="B9BCBA"/><w:right w:val="single" w:sz="6" w:space="0" w:color="B9BCBA"/></w:tblBorders><w:tblLook w:val="0000"/></w:tblPr><w:tblGrid><w:gridCol w:w="9360"/></w:tblGrid><w:tr><w:trPr><w:cantSplit/><w:trHeight w:val="2600" w:hRule="atLeast"/></w:trPr><w:tc><w:tcPr><w:tcW w:w="5000" w:type="pct"/></w:tcPr><w:p/></w:tc></w:tr></w:tbl><w:p/>"#;
+const BOX: &str = r#"<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:tblBorders><w:top w:val="single" w:sz="6" w:space="0" w:color="B9BCBA"/><w:left w:val="single" w:sz="6" w:space="0" w:color="B9BCBA"/><w:bottom w:val="single" w:sz="6" w:space="0" w:color="B9BCBA"/><w:right w:val="single" w:sz="6" w:space="0" w:color="B9BCBA"/></w:tblBorders><w:tblLook w:val="0000"/></w:tblPr><w:tblGrid><w:gridCol w:w="9070"/></w:tblGrid><w:tr><w:trPr><w:cantSplit/><w:trHeight w:val="2600" w:hRule="atLeast"/></w:trPr><w:tc><w:tcPr><w:tcW w:w="5000" w:type="pct"/></w:tcPr><w:p/></w:tc></w:tr></w:tbl><w:p/>"#;
 
 const NS: &str = r#"xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships""#;
 
-fn document_xml(doc: &MaterialDocument) -> String {
+/// How the document is laid out and spell-checked: the person's language and paper.
+#[derive(Debug, Clone, Default, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase", default)]
+pub struct Format {
+    /// A BCP 47 tag such as "de-DE" or "ko"; the document's proofing language.
+    pub language: Option<String>,
+    /// "letter" or "a4" (the default).
+    pub paper: Option<String>,
+}
+
+impl Format {
+    /// A language tag Word accepts: letters, digits and hyphens, else English.
+    fn language(&self) -> String {
+        self.language
+            .as_deref()
+            .map(str::trim)
+            .filter(|l| {
+                !l.is_empty()
+                    && l.len() <= 35
+                    && l.chars().all(|c| c.is_ascii_alphanumeric() || c == '-')
+            })
+            .unwrap_or("en-GB")
+            .to_string()
+    }
+    /// The page in twentieths of a point (width, height, margin).
+    fn page(&self) -> (u32, u32, u32) {
+        if self.paper.as_deref() == Some("letter") {
+            (12240, 15840, 1440)
+        } else {
+            (11906, 16838, 1418)
+        }
+    }
+}
+
+fn document_xml(doc: &MaterialDocument, format: &Format) -> String {
+    let (w, h, m) = format.page();
     format!(
-        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<w:document {NS}><w:body>{}<w:sectPr><w:pgSz w:w=\"11906\" w:h=\"16838\"/><w:pgMar w:top=\"1418\" w:right=\"1418\" w:bottom=\"1418\" w:left=\"1418\" w:header=\"709\" w:footer=\"709\" w:gutter=\"0\"/></w:sectPr></w:body></w:document>",
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<w:document {NS}><w:body>{}<w:sectPr><w:pgSz w:w=\"{w}\" w:h=\"{h}\"/><w:pgMar w:top=\"{m}\" w:right=\"{m}\" w:bottom=\"{m}\" w:left=\"{m}\" w:header=\"709\" w:footer=\"709\" w:gutter=\"0\"/></w:sectPr></w:body></w:document>",
         body(doc)
     )
 }
@@ -234,7 +279,7 @@ fn document_xml(doc: &MaterialDocument) -> String {
 /// Restrained styles with real names, so headings show in Word's navigation
 /// and the person can restyle the whole document at once.
 const STYLES: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Georgia" w:hAnsi="Georgia" w:eastAsia="Malgun Gothic" w:cs="Georgia"/><w:sz w:val="23"/><w:szCs w:val="23"/><w:lang w:val="en-GB" w:eastAsia="ko-KR"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="140" w:line="300" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style><w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:spacing w:after="120"/></w:pPr><w:rPr><w:b/><w:sz w:val="40"/><w:szCs w:val="40"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:keepLines/><w:spacing w:before="320" w:after="100"/><w:outlineLvl w:val="0"/></w:pPr><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:b/><w:sz w:val="26"/><w:szCs w:val="26"/></w:rPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwReference"><w:name w:val="Bible reference"/><w:basedOn w:val="Normal"/><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:color w:val="55585A"/><w:sz w:val="21"/></w:rPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwNotice"><w:name w:val="Notice"/><w:basedOn w:val="Normal"/><w:pPr><w:pBdr><w:left w:val="single" w:sz="18" w:space="8" w:color="762E32"/></w:pBdr><w:ind w:left="200"/></w:pPr><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:b/><w:sz w:val="21"/></w:rPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwLabel"><w:name w:val="Label"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:pPr><w:keepNext/><w:spacing w:before="160" w:after="40"/></w:pPr><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:b/><w:caps/><w:color w:val="55585A"/><w:sz w:val="17"/></w:rPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwMessage"><w:name w:val="Message"/><w:basedOn w:val="Normal"/><w:pPr><w:pBdr><w:left w:val="single" w:sz="18" w:space="8" w:color="B48135"/></w:pBdr><w:ind w:left="200"/></w:pPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwQuestion"><w:name w:val="Question"/><w:basedOn w:val="Normal"/><w:pPr><w:keepNext/><w:keepLines/><w:tabs><w:tab w:val="left" w:pos="420"/></w:tabs><w:spacing w:before="240"/><w:ind w:left="420" w:hanging="420"/></w:pPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwScripture"><w:name w:val="Scripture"/><w:basedOn w:val="Normal"/><w:pPr><w:pBdr><w:left w:val="single" w:sz="8" w:space="8" w:color="B9BCBA"/></w:pBdr><w:ind w:left="200"/></w:pPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwNote"><w:name w:val="Note"/><w:basedOn w:val="Normal"/><w:pPr><w:ind w:left="200"/></w:pPr><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:color w:val="55585A"/><w:sz w:val="19"/></w:rPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwLine"><w:name w:val="Writing line"/><w:basedOn w:val="Normal"/><w:pPr><w:keepNext/><w:pBdr><w:bottom w:val="single" w:sz="4" w:space="1" w:color="B9BCBA"/></w:pBdr><w:spacing w:before="200" w:after="0"/></w:pPr></w:style></w:styles>"#;
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Georgia" w:hAnsi="Georgia" w:eastAsia="Malgun Gothic" w:cs="Georgia"/><w:sz w:val="23"/><w:szCs w:val="23"/><w:lang w:val="{LANG}" w:eastAsia="ko-KR"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="140" w:line="300" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style><w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:spacing w:after="120"/></w:pPr><w:rPr><w:b/><w:sz w:val="40"/><w:szCs w:val="40"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:keepLines/><w:spacing w:before="320" w:after="100"/><w:outlineLvl w:val="0"/></w:pPr><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:b/><w:sz w:val="26"/><w:szCs w:val="26"/></w:rPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwReference"><w:name w:val="Bible reference"/><w:basedOn w:val="Normal"/><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:color w:val="55585A"/><w:sz w:val="21"/></w:rPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwNotice"><w:name w:val="Notice"/><w:basedOn w:val="Normal"/><w:pPr><w:pBdr><w:left w:val="single" w:sz="18" w:space="8" w:color="762E32"/></w:pBdr><w:ind w:left="200"/></w:pPr><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:b/><w:sz w:val="21"/></w:rPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwLabel"><w:name w:val="Label"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:pPr><w:keepNext/><w:spacing w:before="160" w:after="40"/></w:pPr><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:b/><w:caps/><w:color w:val="55585A"/><w:sz w:val="17"/></w:rPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwMessage"><w:name w:val="Message"/><w:basedOn w:val="Normal"/><w:pPr><w:pBdr><w:left w:val="single" w:sz="18" w:space="8" w:color="B48135"/></w:pBdr><w:ind w:left="200"/></w:pPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwQuestion"><w:name w:val="Question"/><w:basedOn w:val="Normal"/><w:pPr><w:keepNext/><w:keepLines/><w:tabs><w:tab w:val="left" w:pos="420"/></w:tabs><w:spacing w:before="240"/><w:ind w:left="420" w:hanging="420"/></w:pPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwScripture"><w:name w:val="Scripture"/><w:basedOn w:val="Normal"/><w:pPr><w:pBdr><w:left w:val="single" w:sz="8" w:space="8" w:color="B9BCBA"/></w:pBdr><w:ind w:left="200"/></w:pPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwNote"><w:name w:val="Note"/><w:basedOn w:val="Normal"/><w:pPr><w:ind w:left="200"/></w:pPr><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:color w:val="55585A"/><w:sz w:val="19"/></w:rPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwLine"><w:name w:val="Writing line"/><w:basedOn w:val="Normal"/><w:pPr><w:keepNext/><w:pBdr><w:bottom w:val="single" w:sz="4" w:space="1" w:color="B9BCBA"/><w:between w:val="single" w:sz="4" w:space="1" w:color="B9BCBA"/></w:pBdr><w:spacing w:before="200" w:after="0"/></w:pPr></w:style><w:style w:type="paragraph" w:customStyle="1" w:styleId="AwLineLast"><w:name w:val="Writing line (last)"/><w:basedOn w:val="AwLine"/><w:pPr><w:keepNext w:val="0"/></w:pPr></w:style></w:styles>"#;
 
 const CONTENT_TYPES: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>"#;
@@ -253,14 +298,17 @@ fn core_xml(title: &str) -> String {
 }
 
 /// The material as the bytes of a .docx file.
-pub fn render(doc: &MaterialDocument) -> AppResult<Vec<u8>> {
+pub fn render(doc: &MaterialDocument, format: &Format) -> AppResult<Vec<u8>> {
     let files: [(&str, String); 6] = [
         ("[Content_Types].xml", CONTENT_TYPES.to_string()),
         ("_rels/.rels", RELS.to_string()),
         ("docProps/core.xml", core_xml(&doc.title)),
         ("word/_rels/document.xml.rels", DOCUMENT_RELS.to_string()),
-        ("word/document.xml", document_xml(doc)),
-        ("word/styles.xml", STYLES.to_string()),
+        ("word/document.xml", document_xml(doc, format)),
+        (
+            "word/styles.xml",
+            STYLES.replace("{LANG}", &format.language()),
+        ),
     ];
     let mut writer = ZipWriter::new(Cursor::new(Vec::new()));
     let fail = |e: &dyn std::fmt::Display| AppError::Unexpected(format!("Word document: {e}"));

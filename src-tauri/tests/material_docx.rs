@@ -129,7 +129,7 @@ fn paragraphs(xml: &str) -> Vec<Para> {
 }
 
 fn document_of(doc: &MaterialDocument) -> (Vec<(String, String)>, Vec<Para>) {
-    let parts = unzip(&docx::render(doc).unwrap());
+    let parts = unzip(&docx::render(doc, &Default::default()).unwrap());
     let xml = parts
         .iter()
         .find(|(n, _)| n == "word/document.xml")
@@ -200,8 +200,8 @@ fn every_document_is_a_word_package_with_its_parts_and_well_formed_xml() {
         assert_eq!(paras[0].style, "Title", "{}", f.name);
         // The same material gives the same file.
         assert_eq!(
-            docx::render(&f.document).unwrap(),
-            docx::render(&f.document).unwrap()
+            docx::render(&f.document, &Default::default()).unwrap(),
+            docx::render(&f.document, &Default::default()).unwrap()
         );
         assert!(parts
             .iter()
@@ -389,12 +389,16 @@ fn saving_writes_a_docx_where_asked_and_never_replaces_a_file_it_was_not_asked_a
         material_save_docx(SaveMaterialDocx {
             path: path.to_string_lossy().into_owned(),
             document: doc.clone(),
+            format: Default::default(),
         })
     };
 
     let saved = save(&dir.join("Group sheet")).unwrap();
     assert!(saved.ends_with("Group sheet.docx"));
-    assert_eq!(std::fs::read(&saved).unwrap(), docx::render(&doc).unwrap());
+    assert_eq!(
+        std::fs::read(&saved).unwrap(),
+        docx::render(&doc, &Default::default()).unwrap()
+    );
 
     // "Sermon.txt" was asked about; "Sermon.txt.docx", someone else's, was not.
     let other = dir.join("Sermon.txt.docx");
@@ -416,4 +420,53 @@ fn saving_writes_a_docx_where_asked_and_never_replaces_a_file_it_was_not_asked_a
         .collect();
     assert!(left.is_empty(), "{left:?}");
     let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn room_to_write_is_three_ruled_lines_and_the_page_and_language_are_the_persons() {
+    let doc = fixture("group-sheet");
+    let (parts, paras) = document_of(&doc);
+    let styles = &parts
+        .iter()
+        .find(|(n, _)| n == "word/styles.xml")
+        .unwrap()
+        .1;
+    // Neighbouring ruled paragraphs are one group in Word: the rule between them is drawn too.
+    assert!(styles.contains("w:styleId=\"AwLine\"") && styles.contains("<w:between "));
+    let lines: Vec<&str> = paras
+        .iter()
+        .filter(|p| p.style.starts_with("AwLine"))
+        .map(|p| p.style.as_str())
+        .collect();
+    assert_eq!(&lines[..3], ["AwLine", "AwLine", "AwLineLast"]);
+    assert!(styles.contains("w:val=\"en-GB\""));
+    let german = docx::render(
+        &doc,
+        &docx::Format {
+            language: Some("de-DE".into()),
+            paper: Some("letter".into()),
+        },
+    )
+    .unwrap();
+    let parts = unzip(&german);
+    let get = |name: &str| parts.iter().find(|(n, _)| n == name).unwrap().1.clone();
+    assert!(get("word/styles.xml").contains("<w:lang w:val=\"de-DE\""));
+    assert!(get("word/document.xml").contains("<w:pgSz w:w=\"12240\" w:h=\"15840\"/>"));
+    // A language tag that is not one is never written into the XML.
+    let odd = unzip(
+        &docx::render(
+            &doc,
+            &docx::Format {
+                language: Some("\"><x/>".into()),
+                paper: None,
+            },
+        )
+        .unwrap(),
+    );
+    assert!(odd
+        .iter()
+        .find(|(n, _)| n == "word/styles.xml")
+        .unwrap()
+        .1
+        .contains("w:val=\"en-GB\""));
 }

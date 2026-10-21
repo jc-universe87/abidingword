@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import i18n from "@/i18n";
+import { ApiError } from "@/lib/api";
 import { derive, toMarkdown } from "@/features/materials/derive";
 import type { MaterialScripture } from "@/types/scripture";
 import type { TeachingPreparation } from "@/types/teaching";
@@ -52,9 +53,9 @@ describe("the passage's text in the material model", () => {
     const doc = derive(t, "manuscript", prep({ kind: "sermon" }), { includePassage: true }, german);
     const block = doc.blocks.find((b) => b.type === "scripture")!;
     expect(block.type === "scripture" && block.verses.map((v) => v.verse)).toEqual([1, 3]);
-    expect(block).toMatchObject({ note: "The LUT has no text for verse 15:2; it is left out, not taken from another Bible." });
+    expect(block).toMatchObject({ note: "LUT has no text for verse 15:2; it is left out, not taken from another Bible." });
     const none = derive(t, "manuscript", prep({ kind: "sermon" }), { includePassage: true }, text("LUT", [], ["15:1", "15:2", "15:3"]));
-    expect(none.blocks.find((b) => b.type === "scripture")).toMatchObject({ verses: [], note: "The LUT has no text for this passage. Only the reference is shown." });
+    expect(none.blocks.find((b) => b.type === "scripture")).toMatchObject({ verses: [], note: "LUT has no text for this passage. Only the reference is shown." });
   });
 
   it("keeps a long passage whole", () => {
@@ -92,9 +93,52 @@ describe("Include Bible passage, on screen", () => {
     await waitFor(() => expect(page).toHaveTextContent("Fixture alpha JHN 15:1 about the vine."));
     expect(page).toHaveTextContent("Fixture alpha JHN 15:7.");
     expect(page).not.toHaveTextContent("Fixture beta");
-    expect(page).toHaveTextContent("The FXA has no text for verse 15:8; it is left out, not taken from another Bible.");
+    expect(page).toHaveTextContent("FXA has no text for verse 15:8; it is left out, not taken from another Bible.");
     // Turned off again: only the reference.
     await user.click(within(pane()).getByRole("checkbox", { name: "Include Bible passage (FXA)" }));
     expect(page).not.toHaveTextContent("Fixture alpha");
+  });
+});
+
+describe("review fixes (v0.18.8)", () => {
+  it("labels a bridged verse 25–27, keeps a psalm's title, and names the Bible when it has no notice", () => {
+    const bridged: MaterialScripture = {
+      translationId: "x", name: "Good News Fixture", shortName: "GNF", copyrightNotice: null,
+      passages: [{ canonical: "JHN.15.1-JHN.15.3", missing: [], verses: [
+        { canonical: "JHN.15.1", chapter: 15, verse: 1, title: "A song of the vine", text: "One." },
+        { canonical: "JHN.15.2", chapter: 15, verse: 2, bridgeEnd: 3, text: "Two and three." },
+      ] }],
+    };
+    const block = derive(t, "manuscript", prep({ kind: "sermon" }), { includePassage: true }, bridged).blocks.find((b) => b.type === "scripture")!;
+    expect(block.type === "scripture" && block.verses.map((v) => v.number)).toEqual(["1", "2–3"]);
+    expect(block.type === "scripture" && block.verses[0]!.title).toBe("A song of the vine");
+    expect(block).toMatchObject({ attribution: "Bible text: Good News Fixture." });
+  });
+
+  it("does not print, save or copy while the passage asked for is not there", async () => {
+    const api = createMemoryApi();
+    const bible = api.installFixtureBible("FXA", "alpha");
+    api.state.settings.scriptureTranslationId = bible.id;
+    const project = await api.projectCreate({ workspaceId: api.state.workspace.id, title: "John" });
+    const { study } = await api.studyCreate({ projectId: project.id, title: "Abiding" });
+    const created = await api.teachingCreate({ studyId: study.id, title: "Remain in the vine", kind: "sermon", points: [{ title: "Stay connected" }] });
+    await api.teachingPassageAdd({ preparationId: created.id, reference: "JHN.15.1-JHN.15.3" });
+    api.materialScripture = async () => {
+      throw new ApiError("notFound", "The Bible is being removed");
+    };
+    const { user } = await renderApp(api);
+    const pane = () => screen.getByRole("main", { name: "Study" });
+    await user.click(within(await screen.findByRole("list", { name: "Studies" })).getByRole("button", { name: /Abiding/ }));
+    await user.click(await within(pane()).findByRole("button", { name: "Bible Teaching" }));
+    await within(pane()).findByRole("article", { name: "Remain in the vine" });
+    await user.click(within(pane()).getByRole("button", { name: "Materials" }));
+    await user.click(within(pane()).getByRole("menuitem", { name: /Manuscript/ }));
+    const word = await within(pane()).findByRole("button", { name: "Save as a Word document…" });
+    expect(word).toBeEnabled();
+    await user.click(within(pane()).getByRole("checkbox", { name: "Include Bible passage (FXA)" }));
+    expect(await within(pane()).findByRole("alert")).toHaveTextContent("The passage could not be read. The Bible is being removed. The reference stays");
+    for (const name of ["Print or save as PDF…", "Save as a text file…", "Save as a Word document…", "Copy the text"]) expect(within(pane()).getByRole("button", { name })).toBeDisabled();
+    await user.click(within(pane()).getByRole("checkbox", { name: "Include Bible passage (FXA)" }));
+    expect(word).toBeEnabled();
   });
 });

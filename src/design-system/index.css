@@ -478,6 +478,10 @@
     font-weight: 600;
     color: #55585a;
   }
+  .aw-material-psalm-title {
+    display: block;
+    margin-bottom: 0.25rem;
+  }
   .aw-material-note,
   .aw-material-attribution {
     font-family: var(--aw-font-ui);

@@ -1170,10 +1170,11 @@
     },
     "scripture": {
       "reading": "Bibeltext wird gelesen …",
-      "failed": "Der Bibeltext konnte nicht gelesen werden: {{reason}} Die Bibelstelle bleibt in der Unterlage.",
-      "none": "Die {{bible}} hat keinen Text für diese Stelle. Nur die Bibelstelle wird gezeigt.",
-      "missing_one": "Die {{bible}} hat keinen Text für Vers {{verses}}; er fehlt hier und wird nicht aus einer anderen Bibel genommen.",
-      "missing_other": "Die {{bible}} hat keinen Text für die Verse {{verses}}; sie fehlen hier und werden nicht aus einer anderen Bibel genommen."
+      "failed": "Der Bibeltext konnte nicht gelesen werden. {{reason}} Die Bibelstelle bleibt in der Unterlage; gedruckt oder gespeichert werden kann sie erst, wenn der Text gelesen ist oder die Auswahl aus ist.",
+      "none": "{{bible}} hat keinen Text für diese Stelle. Nur die Bibelstelle wird gezeigt.",
+      "missing_one": "{{bible}} hat keinen Text für Vers {{verses}}; er fehlt hier und wird nicht aus einer anderen Bibel genommen.",
+      "missing_other": "{{bible}} hat keinen Text für die Verse {{verses}}; sie fehlen hier und werden nicht aus einer anderen Bibel genommen.",
+      "from": "Bibeltext: {{name}}."
     }
   },
   "phase": {

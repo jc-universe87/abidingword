@@ -303,7 +303,8 @@ export interface MarksPage {
 /** The text of a material's passages from one Bible (v0.18.8): only that Bible, with what it lacks named. */
 export interface MaterialPassage {
   canonical: string;
-  verses: VerseText[];
+  /** In order; a bridge ("25–27") is one verse with its last; a psalm's title comes on its first verse. */
+  verses: (VerseText & { bridgeEnd?: number; title?: string })[];
   /** "chapter:verse" of each verse the Bible has no text for. */
   missing: string[];
 }

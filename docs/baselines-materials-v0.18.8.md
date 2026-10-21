@@ -176,14 +176,33 @@ passage and the study's related passages are not added.
 
 Nothing is fetched from the internet, and nothing is filled in.
 
+**Bridges and versification:**
+* verses a translation combines ("Romans 16:25–27") count as there, are
+  numbered "25–27", and a passage that starts inside a bridge starts with it;
+* a verse named beyond the canon's count is asked for too, and named if
+  absent.
+
+Bridges are recorded at import since migration **0015** (`bible_verse_texts.bridge_end`,
+one new nullable column). A Bible added before has no record of its bridges
+until it is added again. Until then, the verses its bridges cover are named
+as lacking, which is honest about what is stored, if not about the
+translation.
+
 **Formatting:**
 * verses appear in order, with superscript numbers, as one block set apart
   from the teaching's own words (a quiet rule on the left);
+* a psalm's title comes before verse 1 when the passage takes the psalm from
+  its beginning;
 * the label is the reference plus the Bible's short name;
-* if the Bible has a copyright or licence notice, it appears under the last
-  passage;
-* paragraphs are not invented, because the verse store has none, and Psalm
-  titles are not included.
+* under the last passage: the Bible's notice, or, without one, "Bible text:
+  *its name*";
+* paragraphs are not invented, because the verse store has none.
+* Hebrew versification (a psalm title counted as verse 1) is not mapped. A
+  reference reads the chosen Bible's own numbering.
+
+**Not out of step:** while the passage is being read, or if it could not be
+read, the material cannot be printed, saved or copied. It never goes out
+without the text that was asked for.
 
 **Your Bible stays yours.**
 * The text of an imported Bible goes only into the material the person makes
@@ -205,6 +224,10 @@ text file…* and *Copy the text*.
   dependency**.
 * It needs no Word, no LibreOffice and no Python, and works offline.
 * It is deterministic: the same material gives the same bytes.
+* It is spell-checked in the person's language: the interface language, with
+  the system's region where it is the same language.
+* It uses US Letter where that is the usual paper (the system's region),
+  and A4 elsewhere.
 
 **What goes in it:** real, editable structure.
 
@@ -219,7 +242,7 @@ text file…* and *Copy the text*.
 | text | *Normal*, line breaks kept |
 | field | *Label* + *Normal* |
 | question | *Question*: "1.⇥text", the model's number, not Word list numbering, kept with what follows |
-| room to write | three ruled *Writing line* paragraphs (still editable) |
+| room to write | three ruled *Writing line* paragraphs, with the rule between them drawn too; the last does not keep with the next, so long sheets break between questions |
 | room to draw | one framed table cell that does not split across pages |
 
 Headings, labels and questions keep with the next paragraph, so pages do not
@@ -249,7 +272,17 @@ acceptance. The tests check the package and its XML, not Word's rendering.
 | Worksheet (lesson) | the one thing to remember, questions and activities with room to write or draw, Bible readings named | answers to listen for, what an activity needs, teacher's notes |
 | Listening notes (sermon, talk) | the points in order with room under each, room for the listener's own notes | the explanations, applications and illustrations, personal notes |
 
-## 5. Save as my template
+## 5. Migrations
+
+* **0015 `verse_bridges`**: one new nullable column, recording where a
+  bridged verse ends. Nothing existing is changed. Tested in
+  `src-tauri/tests/material_scripture.rs`, and by every database test that
+  migrates to the latest version.
+
+No other schema change: the baselines, previews, template choice and
+materials needed none.
+
+## 5a. Save as my template
 
 This was rechecked now that Materials matter more. It still keeps
 **structure only**. It copies no passage, Scripture text, writing, answers,
@@ -266,7 +299,29 @@ stored with the teaching, so they cannot become structure.
 * Word-specific styling choices, page numbers and headers.
 * A PDF written by the core (macOS has no print in its web view).
 
-## 7. Tests
+## 7. Independent review
+
+There was no high-severity finding. Every finding was fixed:
+* Word drew one line for "room to write": the writing lines now have a rule
+  between them, and the last does not keep with the next;
+* bridged verses were called missing: bridges are recorded (migration 0015)
+  and honoured;
+* a material could be saved without the asked-for passage while it was read
+  or after it failed: exports wait for the text;
+* Word files were always British English on A4: they now use the person's
+  language and paper;
+* verses beyond the canon's count vanished silently: they are asked for and
+  named;
+* Psalm titles were left out: they are included for a psalm from its start;
+* the table grid in the box was wider than the text;
+* Korean "15:4절" wording, articles before Bible names, and run-on error
+  sentences were fixed in six languages;
+* the passage checkbox showed checked when it could do nothing;
+* there was no attribution without a notice: the Bible's name is used;
+* an empty paragraph appeared for a passage with no text;
+* the preview's separator came from the wrong translator.
+
+## 8. Tests
 
 **Baselines** (`tests/ui/baselines.test.tsx`):
 * files parse, keys are unique and stable, phases are valid, kinds are

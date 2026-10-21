@@ -36,7 +36,8 @@
        "number": "3",
        "text": "You are already clean."
       }
-     ]
+     ],
+     "attribution": "Bible text: BSB."
     },
     {
      "type": "question",
@@ -289,7 +290,8 @@
        "text": "I am the true vine."
       }
      ],
-     "note": "The BSB has no text for verses 15:2, 15:3; they are left out, not taken from another Bible."
+     "note": "BSB has no text for verses 15:2, 15:3; they are left out, not taken from another Bible.",
+     "attribution": "Bible text: BSB."
     },
     {
      "type": "message",
@@ -945,7 +947,8 @@
        "number": "3",
        "text": "너희는 내가 일러준 말로 이미 깨끗하였으니"
       }
-     ]
+     ],
+     "attribution": "성경 본문: 개역한글."
     },
     {
      "type": "question",

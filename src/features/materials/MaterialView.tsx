@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import i18n from "i18next";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Copy, FileText, FileType, Printer } from "lucide-react";
 import { Button } from "@/design-system/Button";
@@ -58,6 +59,9 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
   }, [api, wanted, translation, references]);
   const read = scripture && scripture.key === wanted ? scripture : null;
   const doc = useMemo(() => derive(t, kind, preparation, options, read?.text ?? null), [t, kind, preparation, options, read]);
+  // Asked-for text not (yet) there: nothing is printed, saved or copied without it, unnoticed.
+  const waiting = !!wanted && (!read || !!read.error);
+  const blocked = doc.empty || waiting;
 
   useEffect(() => {
     heading.current?.focus();
@@ -109,7 +113,7 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
         extension: "docx",
       });
       if (!path) return;
-      const saved = await api.materialSaveDocx({ path, document: doc });
+      const saved = await api.materialSaveDocx({ path, document: doc, format: docxFormat() });
       setStatus({ tone: "ok", text: t("studies.materials.status.saved", { path: saved }) });
     } catch (e) {
       setStatus({ tone: "error", text: toApiError(e).message });
@@ -153,19 +157,19 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
       </header>
 
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <Button variant="primary" className="min-h-11" onClick={() => setPrinting((n) => n + 1)} disabled={doc.empty}>
+        <Button variant="primary" className="min-h-11" onClick={() => setPrinting((n) => n + 1)} disabled={blocked}>
           <Printer className="size-4" aria-hidden="true" />
           {t("studies.materials.action.print")}
         </Button>
-        <Button className="min-h-11" onClick={() => void saveMarkdown()} disabled={doc.empty}>
+        <Button className="min-h-11" onClick={() => void saveMarkdown()} disabled={blocked}>
           <FileText className="size-4" aria-hidden="true" />
           {t("studies.materials.action.markdown")}
         </Button>
-        <Button className="min-h-11" onClick={() => void saveDocx()} disabled={doc.empty}>
+        <Button className="min-h-11" onClick={() => void saveDocx()} disabled={blocked}>
           <FileType className="size-4" aria-hidden="true" />
           {t("studies.materials.action.docx")}
         </Button>
-        <Button variant="quiet" className="min-h-11" onClick={() => void copy()} disabled={doc.empty}>
+        <Button variant="quiet" className="min-h-11" onClick={() => void copy()} disabled={blocked}>
           <Copy className="size-4" aria-hidden="true" />
           {t("studies.materials.action.copy")}
         </Button>
@@ -173,12 +177,15 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
           <fieldset className="m-0 flex flex-wrap items-center gap-x-4 border-0 p-0 @lg:ml-auto">
             <legend className="type-meta float-left mr-2 p-0">{t("studies.materials.view.options")}</legend>
             {offered.map((option) => (
-              <label key={option} className="inline-flex min-h-11 cursor-pointer items-center gap-2 text-[0.9375rem]">
+              <label
+                key={option}
+                className={`inline-flex min-h-11 items-center gap-2 text-[0.9375rem] ${option === "includePassage" && !translation ? "cursor-default text-text-muted" : "cursor-pointer"}`}
+              >
                 <input
                   type="checkbox"
                   className="size-4"
                   disabled={option === "includePassage" && !translation}
-                  checked={!!options[option]}
+                  checked={!!options[option] && !(option === "includePassage" && !translation)}
                   onChange={(e) => setOptions((o) => ({ ...o, [option]: e.target.checked }))}
                 />
                 {optionLabel(option)}
@@ -188,7 +195,7 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
         )}
       </div>
       {wanted && !read && <p role="status" className="type-meta m-0">{t("studies.materials.scripture.reading")}</p>}
-      {read?.error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{t("studies.materials.scripture.failed", { reason: read.error })}</p>}
+      {read?.error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{t("studies.materials.scripture.failed", { reason: sentence(read.error) })}</p>}
       {status && (
         <p role={status.tone === "error" ? "alert" : "status"} className={`m-0 break-words text-[0.9375rem] ${status.tone === "error" ? "text-danger" : ""}`}>
           {status.text}
@@ -206,6 +213,22 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
       {printing > 0 && createPortal(<div id="material-print"><MaterialPage doc={doc} /></div>, document.body)}
     </section>
   );
+}
+
+/** An error's words as a sentence, so the next one does not run into it. */
+const sentence = (text: string) => (/[.!?。！？]$/.test(text.trim()) ? text.trim() : `${text.trim()}.`);
+
+/**
+ * The Word document's proofing language and paper: the interface language
+ * (with the system's region where it is the same language), and US Letter
+ * where that is the usual paper.
+ */
+function docxFormat(): { language: string; paper: "a4" | "letter" } {
+  const system = typeof navigator === "undefined" ? "" : navigator.language || "";
+  const ui = i18n.language || "en";
+  const language = system.toLowerCase().startsWith(ui.toLowerCase()) ? system : ui;
+  const region = (system.split("-")[1] ?? "").toUpperCase();
+  return { language, paper: ["US", "CA", "MX", "PH", "CL", "CO", "VE", "PR", "GT", "CR", "PA", "DO", "SV", "NI", "HN"].includes(region) ? "letter" : "a4" };
 }
 
 /** The material as a page of paper: always white, in the reading face, the same on screen and when printed. */
@@ -232,14 +255,17 @@ function MaterialBlock({ block }: { block: Block }) {
       return (
         <blockquote className="aw-material-scripture">
           <p className="aw-material-label">{block.label}</p>
+          {block.verses.length > 0 && (
           <p>
             {block.verses.map((v, i) => (
               <span key={i}>
+                {v.title && <em className="aw-material-psalm-title">{v.title}</em>}
                 <sup className="aw-material-verse">{v.number}</sup>
                 {v.text}{" "}
               </span>
             ))}
           </p>
+          )}
           {block.note && <p className="aw-material-note">{block.note}</p>}
           {block.attribution && <p className="aw-material-attribution">{block.attribution}</p>}
         </blockquote>

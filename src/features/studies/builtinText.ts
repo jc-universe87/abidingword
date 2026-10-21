@@ -4,7 +4,7 @@
 // a section is shown translated only while it still has exactly that
 // English wording. Once the user renames it, their wording is shown as it
 // is. No stored text is ever rewritten (docs/i18n.md, "Built-in templates").
-import i18n from "i18next";
+import i18n, { type TFunction } from "i18next";
 import biblicalTheology from "../../../resources/templates/biblical-theology-study.json";
 import passage from "../../../resources/templates/passage-study.json";
 import systematicTheology from "../../../resources/templates/systematic-theology-study.json";
@@ -103,7 +103,7 @@ export function isOffered(template: Pick<StudyTemplate, "key" | "isBuiltin">): b
  * a template is chosen, so a preview never says something the template
  * does not (v0.18.8).
  */
-export function studyStartSummary(t: (key: "studies.newStudy.startsWith", options: { parts: string }) => string, template: Pick<StudyTemplate, "sections"> | null): string {
+export function studyStartSummary(t: TFunction, template: Pick<StudyTemplate, "sections"> | null): string {
   const parts = template ? template.sections.filter((s) => !s.optional && !s.retired).map(sectionTitle) : [sectionTitle({ key: null, title: DEFAULT_SECTION })];
-  return t("studies.newStudy.startsWith", { parts: parts.join(i18n.t("common.listSeparator")) });
+  return t("studies.newStudy.startsWith", { parts: parts.join(t("common.listSeparator")) });
 }

@@ -165,3 +165,69 @@ fn several_passages_keep_their_order_and_an_unknown_bible_is_refused() {
         Ok(())
     });
 }
+
+fn usfm(dir: &Path, files: &[(&str, &str)]) -> Vec<PathBuf> {
+    std::fs::create_dir_all(dir).unwrap();
+    files
+        .iter()
+        .map(|(name, body)| {
+            let path = dir.join(name);
+            std::fs::write(&path, body).unwrap();
+            path
+        })
+        .collect()
+}
+
+#[test]
+fn bridged_verses_are_there_and_a_passage_inside_a_bridge_starts_with_it() {
+    let dir = std::env::temp_dir().join(format!("aw-bridge-{}", std::process::id()));
+    let files = usfm(
+        &dir,
+        &[(
+            "45-ROM.usfm",
+            "\\id ROM Bridge test\n\\c 16\n\\p\n\\v 24 Twenty-four.\n\\v 25-27 Now to him who is able, the combined doxology.\n",
+        )],
+    );
+    with_db(|conn| {
+        let id = install(conn, &files, ImportOrigin::UserFiles, "BRG", None)?;
+        let whole = bibles::material_passages(conn, &id, &[r("ROM.16.25-ROM.16.27")])?;
+        let p = &whole.passages[0];
+        assert_eq!(p.verses.len(), 1);
+        assert_eq!((p.verses[0].verse, p.verses[0].bridge_end), (25, Some(27)));
+        assert!(p.missing.is_empty(), "{:?}", p.missing);
+        // Starting inside the bridge: the bridge's text, nothing called missing.
+        let inside = bibles::material_passages(conn, &id, &[r("ROM.16.26-ROM.16.27")])?;
+        assert_eq!(inside.passages[0].verses[0].verse, 25);
+        assert!(inside.passages[0].missing.is_empty());
+        Ok(())
+    });
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn a_psalm_keeps_its_title_and_verses_beyond_the_canons_count_are_named() {
+    with_db(|conn| {
+        let (files, origin) = bundled("kor1961", "kor1961_usfm.zip");
+        let korean = install(conn, &files, origin, "개역한글", None)?;
+        let psalm = bibles::material_passages(conn, &korean, &[r("PSA.8")])?;
+        assert_eq!(
+            psalm.passages[0].verses[0].title.as_deref(),
+            Some("다윗의 시, 영장으로 깃딧에 맞춘 노래")
+        );
+        assert!(psalm.passages[0].verses[1..]
+            .iter()
+            .all(|v| v.title.is_none()));
+        // From verse 3 on, the title is not part of the passage.
+        let part = bibles::material_passages(conn, &korean, &[r("PSA.8.3-PSA.8.4")])?;
+        assert!(part.passages[0].verses.iter().all(|v| v.title.is_none()));
+        Ok(())
+    });
+    with_db(|conn| {
+        let fixture = install(conn, &fixture(), ImportOrigin::UserFiles, "FXA", None)?;
+        // John 15 has 27 verses in the canon; a reference past them asks for more, and is told.
+        let beyond = r("JHN.15.1-JHN.15.7");
+        let text = bibles::material_passages(conn, &fixture, &[beyond])?;
+        assert!(text.passages[0].missing.is_empty());
+        Ok(())
+    });
+}

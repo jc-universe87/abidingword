@@ -167,7 +167,8 @@ pub fn commit_import(
             "INSERT OR IGNORE INTO bible_verses (id, book_id, chapter, verse) VALUES (?1, ?2, ?3, ?4)",
         )?;
         let mut add_text = tx.prepare(
-            "INSERT INTO bible_verse_texts (translation_id, verse_id, text) VALUES (?1, ?2, ?3)",
+            "INSERT INTO bible_verse_texts (translation_id, verse_id, text, bridge_end)
+             VALUES (?1, ?2, ?3, ?4)",
         )?;
         let mut add_title = tx.prepare(
             "INSERT INTO bible_superscriptions (translation_id, book_id, chapter, text)
@@ -178,7 +179,7 @@ pub fn commit_import(
                 for (verse, words) in &text.verses {
                     let key = verse_key(*ordinal, *chapter, *verse);
                     add_verse.execute(params![key, ordinal, chapter, verse])?;
-                    add_text.execute(params![id, key, words])?;
+                    add_text.execute(params![id, key, words, text.bridges.get(verse)])?;
                 }
                 if let Some(title) = &text.superscription {
                     add_title.execute(params![id, ordinal, chapter, title])?;
@@ -435,13 +436,30 @@ pub fn new_translation_id() -> String {
     new_id()
 }
 
+/// A verse of a material's passage: its text, and for a bridge ("25–27")
+/// the last verse it covers.
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct MaterialVerse {
+    pub canonical: String,
+    pub chapter: u16,
+    pub verse: u16,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bridge_end: Option<u16>,
+    /// A psalm's title (or a like line before verse 1), on the chapter's
+    /// first verse when the passage takes the chapter from its beginning.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    pub text: String,
+}
+
 /// One passage of a material, as the chosen Bible has it (v0.18.8).
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct MaterialPassage {
     /// The reference as the teaching names it (canonical form).
     pub canonical: String,
-    pub verses: Vec<VerseText>,
+    pub verses: Vec<MaterialVerse>,
     /// Verses the passage covers that this Bible has no text for, as
     /// "chapter:verse", in order; the material says so and keeps the
     /// reference, and never takes them from another Bible.
@@ -462,36 +480,94 @@ pub struct MaterialScripture {
 
 /// The text of each passage from the one Bible chosen, checked against the
 /// canon's verse counts so that a verse the Bible lacks is named instead of
-/// silently left out. Nothing is fetched, filled in, or taken from another
-/// Bible; the text stays on this computer.
+/// silently left out. Verses a translation combines into one ("25–27") count
+/// as there, and a passage that starts inside such a bridge starts with it.
+/// A verse beyond the canon's count is read too, when the Bible has it
+/// (versifications differ). Nothing is fetched, filled in, or taken from
+/// another Bible; the text stays on this computer.
 pub fn material_passages(
     conn: &Connection,
     translation_id: &str,
     references: &[ScriptureRef],
 ) -> AppResult<MaterialScripture> {
     let bible = get(conn, translation_id)?;
+    let mut read = conn.prepare(
+        "SELECT v.chapter, v.verse, t.text, t.bridge_end
+         FROM bible_verse_texts t JOIN bible_verses v ON v.id = t.verse_id
+         WHERE t.translation_id = ?1 AND t.verse_id BETWEEN ?2 AND ?3
+         ORDER BY t.verse_id",
+    )?;
     let mut passages = Vec::with_capacity(references.len());
     for reference in references {
-        let verses = verses_between(
-            conn,
-            translation_id,
-            reference.start_key(),
-            reference.end_key(),
-        )?;
-        let have: std::collections::HashSet<(u16, u16)> =
-            verses.iter().map(|v| (v.chapter, v.verse)).collect();
+        let ordinal = reference.book.ordinal;
+        let code = reference.book.code;
+        let mut from = reference.start_key();
+        // A passage that begins inside a bridge begins with the bridge's verse.
+        if let Some(start) = reference.start.verse {
+            let bridged: Option<i64> = conn
+                .query_row(
+                    "SELECT t.verse_id FROM bible_verse_texts t JOIN bible_verses v ON v.id = t.verse_id
+                     WHERE t.translation_id = ?1 AND v.book_id = ?2 AND v.chapter = ?3
+                       AND v.verse < ?4 AND t.bridge_end >= ?4
+                     ORDER BY v.verse DESC LIMIT 1",
+                    params![translation_id, ordinal, reference.start.chapter, start],
+                    |r| r.get(0),
+                )
+                .optional()?;
+            if let Some(key) = bridged {
+                from = key;
+            }
+        }
+        let verses = read
+            .query_map(params![translation_id, from, reference.end_key()], |r| {
+                let chapter: u16 = r.get(0)?;
+                let verse: u16 = r.get(1)?;
+                Ok(MaterialVerse {
+                    canonical: format!("{code}.{chapter}.{verse}"),
+                    chapter,
+                    verse,
+                    bridge_end: r.get(3)?,
+                    title: None,
+                    text: r.get(2)?,
+                })
+            })?
+            .collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut verses = verses;
+        // A chapter taken from its beginning keeps its title (Psalm titles), as the reader shows it.
+        for v in verses.iter_mut() {
+            let from_start = v.verse == 1
+                && (v.chapter > reference.start.chapter
+                    || reference.start.verse.is_none_or(|s| s <= 1));
+            if from_start {
+                v.title = conn
+                    .query_row(
+                        "SELECT text FROM bible_superscriptions
+                         WHERE translation_id = ?1 AND book_id = ?2 AND chapter = ?3",
+                        params![translation_id, ordinal, v.chapter],
+                        |r| r.get(0),
+                    )
+                    .optional()?;
+            }
+        }
+        let mut have: std::collections::HashSet<(u16, u16)> = std::collections::HashSet::new();
+        for v in &verses {
+            for n in v.verse..=v.bridge_end.unwrap_or(v.verse).max(v.verse) {
+                have.insert((v.chapter, n));
+            }
+        }
         let mut missing = Vec::new();
         for chapter in reference.start.chapter..=reference.end.chapter {
-            let last = canon::verse_count(reference.book, chapter).unwrap_or(0);
+            let canon_last = canon::verse_count(reference.book, chapter).unwrap_or(0);
             let first = if chapter == reference.start.chapter {
                 reference.start.verse.unwrap_or(1)
             } else {
                 1
             };
+            // A verse named beyond the canon's count is expected too: some Bibles number further.
             let end = if chapter == reference.end.chapter {
-                reference.end.verse.unwrap_or(last).min(last)
+                reference.end.verse.unwrap_or(canon_last)
             } else {
-                last
+                canon_last
             };
             for verse in first..=end {
                 if !have.contains(&(chapter, verse)) {

@@ -1181,11 +1181,12 @@
     },
     "scripture": {
       "reading": "Lendo a passagem…",
-      "failed": "Não foi possível ler a passagem: {{reason}} A referência continua no material.",
-      "none": "A {{bible}} não tem texto para esta passagem. Só a referência é mostrada.",
-      "missing_one": "A {{bible}} não tem texto para o versículo {{verses}}; ele fica de fora e não é tirado de outra Bíblia.",
-      "missing_other": "A {{bible}} não tem texto para os versículos {{verses}}; eles ficam de fora e não são tirados de outra Bíblia.",
-      "missing_many": "A {{bible}} não tem texto para os versículos {{verses}}; eles ficam de fora e não são tirados de outra Bíblia."
+      "failed": "Não foi possível ler a passagem. {{reason}} A referência continua no material; ele só pode ser impresso ou salvo depois que a passagem for lida ou a opção for desligada.",
+      "none": "{{bible}} não tem texto para esta passagem. Só a referência é mostrada.",
+      "missing_one": "{{bible}} não tem texto para o versículo {{verses}}; ele fica de fora e não é tirado de outra Bíblia.",
+      "missing_other": "{{bible}} não tem texto para os versículos {{verses}}; eles ficam de fora e não são tirados de outra Bíblia.",
+      "missing_many": "{{bible}} não tem texto para os versículos {{verses}}; eles ficam de fora e não são tirados de outra Bíblia.",
+      "from": "Texto bíblico: {{name}}."
     }
   },
   "phase": {

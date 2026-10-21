@@ -33,6 +33,8 @@ export interface ScriptureVerse {
   chapter: number;
   verse: number;
   number: string;
+  /** A psalm's title, before its first verse. */
+  title?: string;
   text: string;
 }
 
@@ -99,16 +101,21 @@ function scriptureBlocks(t: TFunction, prep: TeachingPreparation, o: Required<Ma
         ? t("studies.materials.scripture.missing", { bible: scripture.shortName, verses: text.missing.join(", "), count: text.missing.length })
         : undefined;
     // The numbers are worked out once, here: screen, paper, Markdown and Word show the same.
-    const verses = text.verses.map(({ chapter, verse, text: words }, i) => ({
-      chapter,
-      verse,
-      number: i > 0 && chapter !== text.verses[i - 1]!.chapter ? `${chapter}:${verse}` : String(verse),
-      text: words,
-    }));
+    const verses = text.verses.map(({ chapter, verse, bridgeEnd, title, text: words }, i) => {
+      const own = bridgeEnd && bridgeEnd > verse ? `${verse}–${bridgeEnd}` : String(verse);
+      return {
+        chapter,
+        verse,
+        number: i > 0 && chapter !== text.verses[i - 1]!.chapter ? `${chapter}:${own}` : own,
+        ...(title?.trim() ? { title: title.trim() } : {}),
+        text: words,
+      };
+    });
     return [{ type: "scripture", label, verses, ...(note ? { note } : {}) }];
   });
   const last = blocks[blocks.length - 1];
-  if (last && last.type === "scripture" && scripture.copyrightNotice?.trim()) last.attribution = scripture.copyrightNotice.trim();
+  // Where the words come from: the Bible's own notice, else its name.
+  if (last && last.type === "scripture") last.attribution = scripture.copyrightNotice?.trim() || t("studies.materials.scripture.from", { name: scripture.name });
   return blocks;
 }
 
@@ -321,7 +328,7 @@ export function toMarkdown(doc: MaterialDocument): string {
         out.push(
           [
             `> **${lines(block.label)}**`,
-            `> ${block.verses.map((v) => `**${v.number}** ${escape(v.text)}`).join(" ")}`,
+            `> ${block.verses.map((v) => `${v.title ? `*${escape(v.title)}*  \n> ` : ""}**${v.number}** ${escape(v.text)}`).join(" ")}`,
             block.note ? `> *${lines(block.note)}*` : "",
             block.attribution ? `> ${lines(block.attribution)}` : "",
           ]

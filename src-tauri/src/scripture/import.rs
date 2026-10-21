@@ -171,6 +171,9 @@ pub struct ImportIssue {
 #[derive(Debug, Default)]
 pub struct StagedChapter {
     pub verses: BTreeMap<u16, String>,
+    /// Bridged verses (v0.18.8): the first verse of a bridge such as "4-5"
+    /// and its last; the text is stored on the first.
+    pub bridges: BTreeMap<u16, u16>,
     pub superscription: Option<String>,
 }
 
@@ -336,6 +339,14 @@ impl StagedContent {
             );
         }
         verses.insert(verse, text);
+        if let Some(last) = last {
+            content
+                .chapters
+                .entry(chapter)
+                .or_default()
+                .bridges
+                .insert(verse, last);
+        }
     }
 
     /// Structure checks that need the whole book: missing chapters and

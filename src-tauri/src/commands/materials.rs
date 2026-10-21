@@ -137,13 +137,16 @@ pub struct SaveMaterialDocx {
     /// The material as the interface put it together (the same one the
     /// preview, the printed page and the Markdown show).
     pub document: docx::MaterialDocument,
+    /// The person's language and paper, for spell-checking and the page.
+    #[serde(default)]
+    pub format: docx::Format,
 }
 
 /// Saves a material as a Word document (.docx), by the same rules as the
 /// Markdown file. Returns where it went.
 #[tauri::command(async)]
 pub fn material_save_docx(input: SaveMaterialDocx) -> CommandResult<String> {
-    let bytes = docx::render(&input.document)?;
+    let bytes = docx::render(&input.document, &input.format)?;
     if bytes.len() > MAX_BYTES {
         return Err(too_long().into());
     }

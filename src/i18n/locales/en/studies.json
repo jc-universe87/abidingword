@@ -1170,10 +1170,11 @@
     },
     "scripture": {
       "reading": "Reading the passage…",
-      "failed": "The passage could not be read: {{reason}} The reference stays on the material.",
-      "none": "The {{bible}} has no text for this passage. Only the reference is shown.",
-      "missing_one": "The {{bible}} has no text for verse {{verses}}; it is left out, not taken from another Bible.",
-      "missing_other": "The {{bible}} has no text for verses {{verses}}; they are left out, not taken from another Bible."
+      "failed": "The passage could not be read. {{reason}} The reference stays on the material, and it cannot be printed or saved until the passage is read or the choice is turned off.",
+      "none": "{{bible}} has no text for this passage. Only the reference is shown.",
+      "missing_one": "{{bible}} has no text for verse {{verses}}; it is left out, not taken from another Bible.",
+      "missing_other": "{{bible}} has no text for verses {{verses}}; they are left out, not taken from another Bible.",
+      "from": "Bible text: {{name}}."
     }
   },
   "phase": {
