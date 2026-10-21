@@ -776,7 +776,7 @@
       "shared": {
         "remote": "Para ayudar, esto se enviará a {{assistant}}:",
         "local": "Esto se queda en este ordenador ({{assistant}}). Verá:",
-        "text": "tu parte «{{part}}»",
+        "text": "lo que escribiste para {{part}}",
         "selection": "las palabras seleccionadas",
         "request": "lo que pediste",
         "teaching": "el título y el tipo de la enseñanza, y su público, propósito y mensaje central si están escritos",
