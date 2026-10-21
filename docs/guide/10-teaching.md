@@ -90,6 +90,38 @@ beside it; delete it with 🗑 (if you wrote in it, you are asked first).
   item. Click it to open it in the Bible. It is not added to your study's
   own passages.
 
+## Materials: what your teaching becomes
+
+Click **Materials** next to the teaching's title to see what you can prepare
+from it. What is offered depends on the kind of teaching:
+
+| Kind of teaching | Materials |
+|---|---|
+| Sermon, talk, youth, other | **Presentation**, **Manuscript** (the whole teaching as one text to preach from), **Listening notes** (the points with room to write, to hand out) |
+| Group Bible study | **Presentation**, **Leader’s guide** (the questions with where each may lead), **Question sheet** (the questions for the group) |
+| Lesson, children | **Presentation**, **Teacher’s guide** (the lesson step by step), **Worksheet** (its questions and activities with room to write or draw) |
+
+Each one opens straight away as the page it will be. It is put together from
+what you wrote in the teaching, in its order, word for word: nothing is written
+for you, and a part you left empty is simply left out. To change it, change the
+teaching; it changes here too. Opening a material never changes your teaching.
+
+- **Print or save as PDF…** opens the print dialog. Only the material is
+  printed; choose *Save as PDF* (or *Microsoft Print to PDF*) there to keep a file.
+- **Save as a text file…** saves it as Markdown, a plain text file any editor opens.
+- **Copy the text** puts it on the clipboard for a document or an email.
+
+A few plain choices sit beside it. **My notes for myself** adds your notes to the
+manuscript; they are never put on a sheet for others. A question sheet is for
+the group: only the title, the passage and the questions. Your notes on where a
+question may lead, follow-up questions and notes for leading are on it only when
+you tick **Leader’s version**, which then says at the top that it is not for
+handing out. **“Opening” and “Closing”** adds those to the group's sheet.
+
+Once you have made slides, **Save the presentation as a file…** is also in
+Materials: the same PowerPoint, PDF, speaker sheet, Markdown and delivery
+package as in the presentation itself.
+
 ## The assistant (optional)
 
 The AI Assistant is **off** until you turn it on in **Settings → AI

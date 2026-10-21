@@ -126,7 +126,8 @@ somewhere safe. See [Backups](08-settings-updates-backups.md#backups).
 | **Reference** | A written pointer to a passage, such as *Rom 8:1* or *Joh 15,5* |
 | **Concordance** | A list of every place a word appears in a Bible |
 | **USFM** | A common file format for Bibles |
-| **Materials** | What a Bible Teaching becomes, gathered in one place; today its presentation (not your library: that is *Sources*) |
+| **Materials** | What a Bible Teaching becomes, gathered in one place: its presentation, manuscript or guide, and sheets to hand out (not your library: that is *Sources*) |
+| **Study outline** | The line at the top of a Bible Study showing its steps, from the text to teaching; it marks where you are and takes you to a step |
 | **Presentation** | Slides made from a Bible Teaching; they follow the teaching as it changes |
 | **Presenter View** | Your screen while you present: the slides, your notes, the timer |
 | **Audience screen** | What the audience sees: only the slides, never your notes |

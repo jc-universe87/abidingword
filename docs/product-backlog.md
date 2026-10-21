@@ -294,10 +294,30 @@ a teaching's outputs are gathered under one quiet **Materials** menu
 (*Unterlagen*, *가르침 자료*, *Supports*, *Materiales*, *Materiais*); the
 presentation is its only item so far.
 
-**Still open:** a manuscript (the teaching as a readable text to preach or
-teach from), a worksheet and a question sheet for a group, each made from the
-teaching as the presentation is, and offered in the same menu only once it
-exists. Also: regenerating the guide's screenshots.
+**Since v0.18.6** (see [`study-flow-materials-v0.18.6.md`](study-flow-materials-v0.18.6.md)):
+a manuscript (a leader's guide for a group study, a teacher's guide for a
+lesson), a question sheet with a separate leader's version, and a worksheet
+(listening notes for a sermon), each put together from the teaching by fixed
+rules, previewed at once, printed or saved as PDF, saved as Markdown or copied;
+the presentation's files are reachable from Materials too.
+
+**Still open:** the passage's text on a sheet (in the chosen translation); a
+Word (.docx) file; editable wording that belongs only to a material (deferred
+on purpose: one source of truth); assistant help on materials (explicit and
+bounded, as elsewhere); a printable PDF written by the core rather than the
+system's print dialog (needed on macOS, whose web view has no print); more
+materials (an announcement slide, a prayer sheet). Also: regenerating the
+guide's screenshots.
+
+### Study journey
+
+**Since v0.18.6:** a Bible Study's parts are grouped into its movement
+(text, understanding, theology, application, audience, teaching) with a quiet
+outline that marks where one is, and an optional way on to a Bible Teaching.
+
+**Still open:** phases for the person's own templates (a template could say
+which phase each of its parts belongs to); folding a whole phase at once, if
+owners ask for it.
 
 ### Desktop visual system
 

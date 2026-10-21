@@ -288,6 +288,10 @@ Not mandatory.
 
 ## 13. Exports
 
+Since v0.18.6 the same export dialog is also reached from the teaching's
+**Materials** menu (*Save the presentation as a file…*) once slides exist; the
+editor's own export button is unchanged ([`study-flow-materials-v0.18.6.md`](study-flow-materials-v0.18.6.md)).
+
 All exports: the native **save dialog** (`dialog:allow-save`; it asks before
 replacing a file), a file name from the title ("Remain in the vine.pptx",
 "… – speaker sheet.pdf"), the extension added when missing, written to a

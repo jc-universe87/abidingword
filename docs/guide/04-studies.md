@@ -65,11 +65,19 @@ From top to bottom:
 | **Bible Study / Bible Teaching** | The study itself, or the teachings you prepare from it. A study opens again on the side you last used. |
 | **Study details** | The study's purpose, its status (*active, paused, completed, archived*), a short overview, which passage is the main one, related studies, and **Duplicate…** |
 | **Passage buttons** | The main passage and related passages. Click one to open it on the left. **+ Related passage** adds another. |
+| **The study outline** | One quiet line: *Text · Understanding · Theology · Application · Audience · Teaching* (the steps your kind of study has). It stays at the top while you scroll, marks where you are, and takes you to a step with one click. It is only a way to find your place: you can work on any part at any time. |
 | **Fold all / Unfold all** | Folds every part to its heading, so the study reads as an outline, and opens them again |
 | **The parts** | *Text, Observations, Context…* Write straight into them. Click a part's heading to fold it away (it then says how many notes it holds). The **…** button beside it renames, moves or deletes the part. |
 | **+ Add** at the end of each part | More writing, or a note of a kind: **Observation**, **Question**, **Interpretation**, **Application**, and under **More types** *Quotation, Doctrine, Illustration, Teaching idea, Unresolved issue, Conclusion* |
 | **Other notes** | Notes that belong to no particular part, after the last part |
 | **Add a part** · **Note** | At the very end: a new part (suggested ones, or your own heading), or a note for the whole study |
+| **Prepare a Bible Teaching** | At the very end, when you are ready: the way on to a sermon, a group Bible study or a lesson. Once you have prepared one, it is named there and opens with one click. |
+
+The parts are grouped by where they belong in the study: first the text and
+what you see in it, then what it means, what it teaches about God, how to live
+it, the people it is for, and teaching it. The part you are working in has a
+thin brass line beside it. Your own parts stay where you put them, with the
+part before them.
 
 Everything is **saved automatically** as you type.
 
