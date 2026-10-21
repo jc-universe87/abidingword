@@ -20,7 +20,8 @@
     "i18n:check": "node scripts/i18n-check.mjs",
     "lint:rust": "cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings",
     "format:rust": "cargo fmt --manifest-path src-tauri/Cargo.toml",
-    "check": "npm run typecheck && npm run lint && npm run i18n:check && npm test && npm run lint:rust && npm run test:rust"
+    "check": "npm run typecheck && npm run lint && npm run i18n:check && npm test && npm run lint:rust && npm run test:rust",
+    "i18n:corpus": "node scripts/i18n-corpus.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
