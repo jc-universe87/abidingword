@@ -7,52 +7,62 @@
     {
       "key": "text",
       "title": "Text",
-      "guidance": "The passage to be taught."
+      "guidance": "The passage to be taught.",
+      "phase": "text"
     },
     {
       "key": "main-idea",
       "title": "Main Idea",
-      "guidance": "The one main thing the text says, in one sentence."
+      "guidance": "The one main thing the text says, in one sentence.",
+      "phase": "understanding"
     },
     {
       "key": "exegesis",
       "title": "Exegesis",
-      "guidance": "What the text meant for its first readers."
+      "guidance": "What the text meant for its first readers.",
+      "phase": "understanding"
     },
     {
       "key": "theology",
       "title": "Theology",
-      "guidance": "What the text teaches about God and his ways."
+      "guidance": "What the text teaches about God and his ways.",
+      "phase": "theology"
     },
     {
       "key": "purpose",
       "title": "Purpose",
-      "guidance": "What the text aims to do in its hearers."
+      "guidance": "What the text aims to do in its hearers.",
+      "phase": "teaching"
     },
     {
       "key": "audience",
       "title": "Audience",
-      "guidance": "Who will hear this, and what they need."
+      "guidance": "Who will hear this, and what they need.",
+      "phase": "teaching"
     },
     {
       "key": "structure",
       "title": "Structure",
-      "guidance": "How the teaching will move from beginning to end."
+      "guidance": "How the teaching will move from beginning to end.",
+      "phase": "teaching"
     },
     {
       "key": "illustrations",
       "title": "Illustrations",
-      "guidance": "Pictures and examples that serve the text."
+      "guidance": "Pictures and examples that serve the text.",
+      "phase": "teaching"
     },
     {
       "key": "application",
       "title": "Application",
-      "guidance": "Concrete, appropriate applications."
+      "guidance": "Concrete, appropriate applications.",
+      "phase": "teaching"
     },
     {
       "key": "teaching-outline",
       "title": "Teaching Outline",
-      "guidance": "The outline you will teach from."
+      "guidance": "The outline you will teach from.",
+      "phase": "teaching"
     }
   ]
 }

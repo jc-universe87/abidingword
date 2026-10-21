@@ -1193,7 +1193,7 @@ describe("the teaching canvas", () => {
     await user.click(within(form).getByRole("radio", { name: "Children" }));
     // The kind says what it gives to work in, and what it starts with.
     expect(within(form).getByText(/A lesson in steps: teaching, Bible reading, questions, activities and pictures/)).toBeInTheDocument();
-    expect(within(form).getByText("Starts with: Welcome · Bible story · Question · Activity · Prayer.")).toBeInTheDocument();
+    expect(form).toHaveTextContent("Starts with: Welcome · Bible story · Question · Activity · Prayer.");
     await user.click(within(form).getByRole("button", { name: "Start" }));
     const article = await within(studyPane()).findByRole("article", { name: "Children · Abiding" });
     expect(prep(api).points.map((p) => [p.title, p.kind])).toEqual([
@@ -1224,8 +1224,9 @@ describe("the teaching canvas", () => {
     await waitFor(() => expect(prep(api).points[0]!.kind).toBe("image"));
     const first = within(article).getAllByRole("listitem", { name: /^Step \d/ })[0]!;
     expect(within(first).getByRole("textbox", { name: "What it shows, and when you show it" })).toHaveValue("Hello everyone.");
-    // A new step starts as teaching.
+    // A new step is added as a kind of step (v0.18.7): here, teaching.
     await user.click(within(article).getByRole("button", { name: "Add a step" }));
+    await user.click(within(article).getByRole("menuitem", { name: "Teaching" }));
     await waitFor(() => expect(prep(api).points).toHaveLength(6));
     expect(prep(api).points[5]!.kind).toBe("text");
   });

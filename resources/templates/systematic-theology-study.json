@@ -7,44 +7,52 @@
     {
       "key": "doctrine",
       "title": "Doctrine",
-      "guidance": "The doctrine under study, stated plainly."
+      "guidance": "The doctrine under study, stated plainly.",
+      "phase": "text"
     },
     {
       "key": "key-texts",
       "title": "Key Biblical Texts",
-      "guidance": "The passages on which the doctrine rests."
+      "guidance": "The passages on which the doctrine rests.",
+      "phase": "text"
     },
     {
       "key": "biblical-synthesis",
       "title": "Biblical Synthesis",
-      "guidance": "What these texts teach together."
+      "guidance": "What these texts teach together.",
+      "phase": "theology"
     },
     {
       "key": "conclusions",
       "title": "Conclusions",
-      "guidance": "Your conclusions and how firmly you hold them."
+      "guidance": "Your conclusions and how firmly you hold them.",
+      "phase": "theology"
     },
     {
       "key": "application",
       "title": "Application",
-      "guidance": "Why this doctrine matters for faith and life."
+      "guidance": "Why this doctrine matters for faith and life.",
+      "phase": "application"
     },
     {
       "key": "historical-theology",
       "title": "Historical Theology",
       "guidance": "How the church has understood the doctrine through its history.",
+      "phase": "theology",
       "optional": true
     },
     {
       "key": "confessional-witness",
       "title": "Confessional Witness",
       "guidance": "What the creeds and confessions say.",
+      "phase": "theology",
       "optional": true
     },
     {
       "key": "alternative-positions",
       "title": "Alternative Positions",
       "guidance": "Other views, fairly stated, with their reasons.",
+      "phase": "theology",
       "optional": true
     }
   ]

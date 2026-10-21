@@ -24,6 +24,7 @@ export function ActionMenu({
   className = "",
   trigger,
   buttonId,
+  align = "end",
 }: {
   label: string;
   actions: MenuAction[];
@@ -31,6 +32,8 @@ export function ActionMenu({
   /** Visible content of the button (a word and an icon); without it the button is a quiet "⋯". */
   trigger?: ReactNode;
   buttonId?: string;
+  /** Which edge of the button the menu lines up with: its end (the default, for a menu at the end of a row) or its start. */
+  align?: "start" | "end";
 }) {
   const id = useId();
   const [open, setOpen] = useState(false);
@@ -101,7 +104,7 @@ export function ActionMenu({
               setOpen(false);
             }
           }}
-          className="aw-popover absolute right-0 top-full z-30 mt-1 flex min-w-max flex-col p-1 font-ui"
+          className={`aw-popover absolute ${align === "start" ? "left-0" : "right-0"} top-full z-30 mt-1 flex min-w-max flex-col p-1 font-ui`}
         >
           {actions.map((action, index) => (
             <Fragment key={action.label}>

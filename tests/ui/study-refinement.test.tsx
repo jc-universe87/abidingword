@@ -105,8 +105,10 @@ describe("Study details", () => {
     await open(user, /The True Vine/);
     await user.click(screen.getByRole("button", { name: "Study details" }));
     const details = screen.getByRole("region", { name: "Study details" });
-    expect(details).not.toHaveTextContent(/Template/i);
-    expect(details).not.toHaveTextContent("Passage Study Template");
+    expect(details).not.toHaveTextContent(/Passage Study Template|From your template/i);
+    // The one mention of templates is the way to make one of the person's own (v0.18.7).
+    expect(details.textContent!.match(/template/gi)).toEqual(["template"]);
+    expect(within(details).getByRole("button", { name: "Save as my template" })).toBeInTheDocument();
   });
 
   it("says where a study came from only for the user's own template", async () => {

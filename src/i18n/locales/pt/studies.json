@@ -467,7 +467,15 @@
     "fromTemplate": "A partir do seu modelo: {{name}}",
     "groupAbout": "Sobre este estudo",
     "groupCopy": "Copiar",
-    "findOccurrences": "Encontrar ocorrências"
+    "findOccurrences": "Encontrar ocorrências",
+    "saveAsTemplate": "Salvar como meu modelo",
+    "saveAsTemplateGroup": "Salvar a estrutura deste estudo como modelo",
+    "templateName": "Nome do modelo",
+    "saveAsTemplateKeeps_one": "O modelo guarda a parte deste estudo: seu título, sua orientação e seu lugar no percurso. Seu texto, anotações, passagens e detalhes ficam neste estudo.",
+    "saveAsTemplateKeeps_other": "O modelo guarda as {{count}} partes deste estudo: seus títulos, orientações e lugares no percurso, nesta ordem. Seu texto, anotações, passagens e detalhes ficam neste estudo.",
+    "saveTemplate": "Salvar modelo",
+    "savedAsTemplate": "Salvo como seu modelo “{{name}}”. Você pode usá-lo em um novo estudo e alterá-lo em Configurações → Modelos.",
+    "saveAsTemplateKeeps_many": "O modelo guarda as {{count}} partes deste estudo: seus títulos, orientações e lugares no percurso, nesta ordem. Seu texto, anotações, passagens e detalhes ficam neste estudo."
   },
   "editor": {
     "opening": "Abrindo estudo…",
@@ -593,7 +601,6 @@
     "sectionCount_many": "{{count}} partes",
     "sectionCount_other": "{{count}} partes",
     "builtIn": "Incluído",
-    "duplicateCustomise": "Duplicar e personalizar",
     "edit": "Editar {{name}}",
     "duplicate": "Duplicar {{name}}",
     "delete": "Excluir {{name}}",
@@ -601,7 +608,8 @@
     "confirm": "Excluir o modelo “{{name}}”? Os estudos já criados a partir dele não são afetados.",
     "deleteTemplate": "Excluir modelo",
     "new": "Novo modelo…",
-    "teachingListLabel": "Formatos de ensino"
+    "saveAsMine": "Salvar como meu modelo",
+    "saveAsMineLabel": "Salvar “{{name}}” como meu modelo"
   },
   "templateEditor": {
     "opening": "Abrindo modelo…",
@@ -1003,7 +1011,41 @@
     },
     "materials": {
       "open": "Materiais"
-    }
+    },
+    "prepareWhat": "O que você quer preparar?",
+    "templates": {
+      "mine": "Seus modelos",
+      "listLabel": "Modelos de ensino bíblico",
+      "intro": "Um modelo de ensino bíblico é aquilo com que um novo ensino começa: seu formato e os pontos, perguntas ou etapas iniciais. O ensino recebe uma cópia ao ser criado; por isso, alterar ou excluir um modelo nunca altera um ensino.",
+      "saveAsMine": "Salvar como meu modelo",
+      "saveAsMineLabel": "Salvar “{{name}}” como meu modelo",
+      "edit": "Editar “{{name}}”",
+      "duplicate": "Duplicar “{{name}}”",
+      "delete": "Excluir “{{name}}”",
+      "confirmLabel": "Excluir “{{name}}”?",
+      "confirm": "Excluir o modelo “{{name}}”? Os ensinos já criados com ele não são afetados.",
+      "new": "Novo modelo de ensino…",
+      "newTitle": "Novo modelo de ensino",
+      "editTitle": "Editar o modelo de ensino",
+      "format": "Formato",
+      "pointsList": "Com o que o modelo começa",
+      "pointsHint": "Deixe um título vazio para nomeá-lo em cada ensino.",
+      "none": "Nada ainda: um ensino criado com este modelo começa vazio.",
+      "untitled": "sem título"
+    },
+    "saveTemplate": {
+      "action": "Salvar como meu modelo",
+      "group": "Salvar a estrutura deste ensino como modelo",
+      "name": "Nome do modelo",
+      "keeps": {
+        "points": "O modelo guarda o formato e tantos pontos principais quanto este ensino tem, em ordem. Os pontos começam sem título.",
+        "questions": "O modelo guarda o formato e tantas perguntas quanto este ensino tem. As perguntas começam vazias.",
+        "steps": "O modelo guarda o formato e as etapas em ordem, cada uma com seu título e tipo."
+      },
+      "notKept": "Nada do que você escreveu vem junto: nem público, nem propósito, nem mensagem, nem introdução, nem conclusão, nem notas, passagens, material guardado ou anotações do seu estudo.",
+      "saved": "Salvo como seu modelo “{{name}}”. Você pode escolhê-lo para seu próximo ensino e alterá-lo em Configurações → Modelos."
+    },
+    "addStepMenu": "Tipo de etapa a adicionar"
   },
   "parts": {
     "add": "Adicionar uma parte",
@@ -1128,5 +1170,11 @@
       "exportHint": "PowerPoint, PDF dos slides, folha do orador para celular, Markdown ou pacote de apresentação",
       "exportHintNamed": "“{{title}}”: PowerPoint, PDF dos slides, folha do orador para celular, Markdown ou pacote de apresentação"
     }
+  },
+  "phase": {
+    "label": "No percurso",
+    "none": "Fora do percurso",
+    "ofPart": "Lugar de “{{title}}” no percurso do estudo",
+    "ofTemplatePart": "Lugar da parte {{number}} no percurso do estudo"
   }
 }

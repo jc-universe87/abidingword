@@ -14,6 +14,14 @@ export const STUDY_TYPES = [
 ] as const;
 export type StudyType = (typeof STUDY_TYPES)[number];
 
+/**
+ * Where a part of a Bible Study belongs in its movement (v0.18.7), from the
+ * text to teaching it. A template says so for each part; a part may have
+ * none, and a template need not use all six, or use them in this order.
+ */
+export const STUDY_PHASES = ["text", "understanding", "theology", "application", "audience", "teaching"] as const;
+export type StudyPhase = (typeof STUDY_PHASES)[number];
+
 export const STUDY_STATUSES = ["active", "paused", "completed", "archived"] as const;
 export type StudyStatus = (typeof STUDY_STATUSES)[number];
 
@@ -143,6 +151,8 @@ export interface TemplateSection {
   optional?: boolean;
   /** Built-in only: no longer offered; kept so that older studies still show it translated. */
   retired?: boolean;
+  /** Where the part belongs in the study's movement; none for a part that stands on its own. */
+  phase?: StudyPhase | null;
 }
 
 /** A part a new study starts with (not optional, not retired). */

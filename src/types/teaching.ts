@@ -281,3 +281,36 @@ export interface GeneratedImage {
   dataUrl: string;
   assistant: string;
 }
+
+/**
+ * A Bible Teaching template (v0.18.7): a format and the points, questions or
+ * steps a new teaching starts with. Structure only. The built-in ones are
+ * application text (resources/teaching-templates.json); the person's own are
+ * kept by the core. A teaching copies its template when it is made and is
+ * never linked to it afterwards.
+ */
+export interface TeachingTemplatePoint {
+  /** The built-in starting step it came from: shown in the interface language while its title is unchanged. */
+  key?: string | null;
+  /** May be empty: a point to be named in the teaching. */
+  title: string;
+  kind?: StepKind | null;
+}
+
+export interface TeachingTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  kind: TeachingKind;
+  points: TeachingTemplatePoint[];
+  createdAt: string;
+  updatedAt: string;
+  revision: number;
+}
+
+export interface TeachingTemplateInput {
+  name: string;
+  description?: string | null;
+  kind: TeachingKind;
+  points: TeachingTemplatePoint[];
+}

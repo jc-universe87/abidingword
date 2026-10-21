@@ -95,7 +95,8 @@
   "templates": {
     "noSections": "Um modelo precisa de pelo menos uma parte para começar.",
     "tooManySections": "Um modelo pode ter no máximo {{max}} partes.",
-    "builtinReadOnly": "Os modelos incluídos não podem ser alterados. Duplique-o para criar sua própria versão."
+    "builtinReadOnly": "Os modelos incluídos não podem ser alterados. Duplique-o para criar sua própria versão.",
+    "duplicateKey": "Duas partes do modelo são a mesma parte. Remova uma delas."
   },
   "sections": {
     "hasContent": "“{{title}}” ainda tem texto ou anotações."
@@ -198,5 +199,9 @@
   },
   "material": {
     "tooLong": "É longo demais para salvar em um só arquivo."
+  },
+  "teachingTemplates": {
+    "noKind": "Escolha para que serve o modelo.",
+    "tooManyPoints": "Um modelo pode começar com no máximo {{max}} pontos ou etapas."
   }
 }

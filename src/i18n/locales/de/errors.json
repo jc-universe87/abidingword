@@ -92,7 +92,8 @@
   "templates": {
     "noSections": "Eine Vorlage braucht mindestens einen Teil, mit dem sie beginnt.",
     "tooManySections": "Eine Vorlage kann höchstens {{max}} Teile haben.",
-    "builtinReadOnly": "Mitgelieferte Vorlagen können nicht geändert werden. Dupliziere die Vorlage, um eine eigene Fassung zu erstellen."
+    "builtinReadOnly": "Mitgelieferte Vorlagen können nicht geändert werden. Dupliziere die Vorlage, um eine eigene Fassung zu erstellen.",
+    "duplicateKey": "Zwei Teile der Vorlage sind derselbe Teil. Entferne einen davon."
   },
   "sections": {
     "hasContent": "„{{title}}“ enthält noch Text oder Notizen."
@@ -195,5 +196,9 @@
   },
   "material": {
     "tooLong": "Das ist zu lang, um es als eine Datei zu sichern."
+  },
+  "teachingTemplates": {
+    "noKind": "Wähle, wofür die Vorlage ist.",
+    "tooManyPoints": "Eine Vorlage kann mit höchstens {{max}} Punkten oder Schritten beginnen."
   }
 }

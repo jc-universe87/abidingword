@@ -5,12 +5,13 @@ use rusqlite::{params, Connection, OptionalExtension, Row};
 use crate::db::{blocks, new_id, now, studies};
 use crate::domain::validate::{self, DESCRIPTION_MAX_CHARS};
 use crate::domain::{
-    BlockType, CreateStudySection, DeleteStudySection, Reorder, StudySection, UpdateStudySection,
+    BlockType, CreateStudySection, DeleteStudySection, Reorder, StudyPhase, StudySection,
+    UpdateStudySection,
 };
 use crate::error::{AppError, AppResult, UserMessage};
 
 const COLUMNS: &str =
-    "id, study_id, key, title, guidance, position, created_at, updated_at, revision";
+    "id, study_id, key, title, guidance, position, created_at, updated_at, revision, phase";
 
 fn from_row(row: &Row) -> rusqlite::Result<StudySection> {
     Ok(StudySection {
@@ -24,6 +25,10 @@ fn from_row(row: &Row) -> rusqlite::Result<StudySection> {
         created_at: row.get(6)?,
         updated_at: row.get(7)?,
         revision: row.get(8)?,
+        // An unknown stored value reads as no phase: the part stays, unplaced.
+        phase: row
+            .get::<_, Option<String>>(9)?
+            .and_then(|p| StudyPhase::parse(&p).ok()),
     })
 }
 
@@ -64,21 +69,36 @@ pub fn get(conn: &Connection, id: &str) -> AppResult<StudySection> {
     Ok(section)
 }
 
+/// A part as stored: where it comes from, its words and where it belongs.
+pub(crate) struct NewSection<'a> {
+    pub key: Option<&'a str>,
+    pub title: &'a str,
+    pub guidance: Option<&'a str>,
+    pub phase: Option<StudyPhase>,
+}
+
 pub(crate) fn insert(
     conn: &Connection,
     study_id: &str,
-    key: Option<&str>,
-    title: &str,
-    guidance: Option<&str>,
+    section: NewSection,
     position: i64,
     now: &str,
 ) -> AppResult<String> {
     let id = new_id();
     conn.execute(
         "INSERT INTO study_sections
-             (id, study_id, key, title, guidance, position, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?7)",
-        params![id, study_id, key, title, guidance, position, now],
+             (id, study_id, key, title, guidance, phase, position, created_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?8)",
+        params![
+            id,
+            study_id,
+            section.key,
+            section.title,
+            section.guidance,
+            section.phase.map(StudyPhase::as_str),
+            position,
+            now
+        ],
     )?;
     Ok(id)
 }
@@ -97,12 +117,21 @@ pub fn create(conn: &Connection, input: &CreateStudySection) -> AppResult<StudyS
     )?;
     let now = now();
     let tx = conn.unchecked_transaction()?;
+    // A part the template offers for later keeps its identity and its place in the movement.
+    let key = input
+        .key
+        .as_deref()
+        .map(str::trim)
+        .filter(|k| !k.is_empty());
     let id = insert(
         &tx,
         &input.study_id,
-        None,
-        &title,
-        guidance.as_deref(),
+        NewSection {
+            key,
+            title: &title,
+            guidance: guidance.as_deref(),
+            phase: input.phase,
+        },
         position,
         &now,
     )?;
@@ -192,11 +221,23 @@ pub fn update(conn: &Connection, input: &UpdateStudySection) -> AppResult<StudyS
         Some(text) => validate::optional_text(Some(text), DESCRIPTION_MAX_CHARS, "guidance")?,
         None => current.guidance,
     };
+    let phase = match input.phase.as_deref() {
+        Some("") => None,
+        Some(value) => Some(StudyPhase::parse(value)?),
+        None => current.phase,
+    };
     let now = now();
     conn.execute(
-        "UPDATE study_sections SET title = ?2, guidance = ?3, updated_at = ?4, revision = revision + 1
+        "UPDATE study_sections SET title = ?2, guidance = ?3, phase = ?4, updated_at = ?5,
+             revision = revision + 1
          WHERE id = ?1",
-        params![input.id, title, guidance, now],
+        params![
+            input.id,
+            title,
+            guidance,
+            phase.map(StudyPhase::as_str),
+            now
+        ],
     )?;
     studies::touch(conn, &current.study_id, &now)?;
     get(conn, &input.id)

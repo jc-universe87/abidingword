@@ -12,7 +12,9 @@ import { STEP_KINDS, TEACHING_KINDS, type ImageCapability, type ProviderKind, ty
 import { AssistMenu } from "./AssistMenu";
 import { AssistPanel } from "./AssistPanel";
 import { FloatingPanel, AssistDockProvider, useAssistDock } from "./FloatingPanel";
-import { STARTING_STEPS, assistLabel, canvasShape, pointFields, showsFrame, startingStepTitle, stepFieldLabel, teachingKindLabel, type ShapeText } from "./labels";
+import { assistLabel, canvasShape, pointFields, showsFrame, stepFieldLabel, teachingKindLabel, type ShapeText } from "./labels";
+import { SaveTeachingTemplate } from "./SaveTeachingTemplate";
+import { BUILTIN_TEACHING_TEMPLATES, startKind, startName, startSummary, startingPoints, type TeachingStart } from "./teachingTemplates";
 import { TeachingField, type AssistantHooks } from "./TeachingField";
 import { TeachingLinks } from "./TeachingLinks";
 import { PresentationView } from "@/features/presentation/PresentationView";
@@ -184,11 +186,19 @@ function NewTeaching({
   useEffect(() => {
     if (!first) heading.current?.focus();
   }, [first]);
-  const [kind, setKind] = useState<TeachingKind>("sermon");
+  // What to prepare: a built-in template (one per format) or one of the person's own (v0.18.7).
+  const mine = useLoad(useCallback(() => api.teachingTemplateList(), [api]));
+  const starts: { id: string; start: TeachingStart }[] = [
+    ...BUILTIN_TEACHING_TEMPLATES.map((b) => ({ id: `builtin:${b.key}`, start: { builtin: b } })),
+    ...(mine.data ?? []).map((m) => ({ id: `mine:${m.id}`, start: { mine: m } })),
+  ];
+  const [chosen, setChosen] = useState("builtin:sermon");
+  const start = (starts.find((s) => s.id === chosen) ?? starts[0]!).start;
+  const kind = startKind(start);
   const [title, setTitle] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const suggested = `${teachingKindLabel(t, kind)} · ${studyTitle}`;
+  const suggested = `${"mine" in start ? start.mine.name : teachingKindLabel(t, kind)} · ${studyTitle}`;
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -196,15 +206,20 @@ function NewTeaching({
     setBusy(true);
     setError(null);
     try {
-      // A lesson starts with its steps, named in the person's language; the others start empty.
-      const points = (STARTING_STEPS[kind] ?? []).map((step) => ({ title: startingStepTitle(t, kind, step.key), kind: step.kind }));
-      onCreated(await api.teachingCreate({ studyId, title: title.trim() || suggested, kind, points }));
+      // The template's points become the teaching's own, named in the person's language; nothing links them afterwards.
+      onCreated(await api.teachingCreate({ studyId, title: title.trim() || suggested, kind, points: startingPoints(t, start) }));
     } catch (err) {
       setError(toApiError(err).message);
     } finally {
       setBusy(false);
     }
   };
+  const choice = ({ id: value, start: s }: { id: string; start: TeachingStart }) => (
+    <label key={value} className="aw-choice min-h-11 cursor-pointer gap-2 px-4">
+      <input type="radio" name={`${id}-kind`} value={value} checked={chosen === value} onChange={() => setChosen(value)} className="sr-only" aria-describedby={`${id}-format`} />
+      {startName(t, s)}
+    </label>
+  );
 
   return (
     <form
@@ -223,24 +238,17 @@ function NewTeaching({
       </h3>
       {first && <p className="m-0 max-w-prose text-text">{t("studies.teaching.empty.text")}</p>}
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-        <legend className="type-subhead mb-1">{t("studies.teaching.kindLabel")}</legend>
-        <div className="flex flex-wrap gap-2">
-          {TEACHING_KINDS.map((k) => (
-            <label key={k} className="aw-choice min-h-11 cursor-pointer gap-2 px-4">
-              <input type="radio" name={`${id}-kind`} value={k} checked={kind === k} onChange={() => setKind(k)} className="sr-only" aria-describedby={`${id}-format`} />
-              {teachingKindLabel(t, k)}
-            </label>
-          ))}
-        </div>
-        {/* What the chosen kind gives to work in: the shape of its main canvas. */}
+        <legend className="type-subhead mb-1">{t("studies.teaching.prepareWhat")}</legend>
+        <div className="flex flex-wrap gap-2">{starts.filter((s) => "builtin" in s.start).map(choice)}</div>
+        {starts.some((s) => "mine" in s.start) && (
+          <div role="group" aria-label={t("studies.teaching.templates.mine")} className="flex flex-wrap items-center gap-2">
+            <span aria-hidden="true" className="type-meta">{t("studies.teaching.templates.mine")}</span>
+            {starts.filter((s) => "mine" in s.start).map(choice)}
+          </div>
+        )}
+        {/* What the chosen template gives to work in: its format and what it starts with. */}
         <p id={`${id}-format`} className="m-0 text-[0.9375rem] text-text">
-          {t(`studies.teaching.format.${canvasShape(kind)}`)}
-          {STARTING_STEPS[kind] && (
-            <span className="text-text-muted">
-              {" "}
-              {t("studies.teaching.startsWith", { steps: STARTING_STEPS[kind]!.map((step) => startingStepTitle(t, kind, step.key)).join(t("common.listSeparator")) })}
-            </span>
-          )}
+          {startSummary(t, start)}
         </p>
       </fieldset>
       <label className="flex flex-col gap-1">
@@ -314,7 +322,6 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const wholeButton = useRef<HTMLDivElement>(null);
-  const addButton = useRef<HTMLButtonElement>(null);
   // Points deleted in this session: a late save for one is not an error.
   const deleted = useRef(new Set<string>());
 
@@ -392,9 +399,9 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
           },
         );
 
-  const addPoint = async (after: string | null) => {
-    // A new step of a lesson starts as teaching; its kind can be changed at once.
-    const next = await act(() => api.teachingPointCreate({ preparationId: prep.id, afterPointId: after, kind: shapeName === "steps" ? "text" : null }));
+  const addPoint = async (after: string | null, kind: StepKind | null = null) => {
+    // A new step of a lesson is of the kind chosen ("Add a step ▸ Activity"), teaching when none was; it can be changed at once.
+    const next = await act(() => api.teachingPointCreate({ preparationId: prep.id, afterPointId: after, kind: shapeName === "steps" ? (kind ?? "text") : null }));
     if (next) {
       const ids = new Set(prep.points.map((p) => p.id));
       const fresh = next.points.find((p) => !ids.has(p.id));
@@ -584,6 +591,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
         <TeachingField key={`audience-${prep.id}`} level="field" label={t("studies.teaching.audience")} value={prep.audience ?? ""} save={save("audience")} part="audience" multiline={false} placeholder={t("studies.teaching.audiencePlaceholder")} assistant={hooks} />
         <TeachingField key={`purpose-${prep.id}`} level="field" label={t("studies.teaching.purpose")} value={prep.purpose ?? ""} save={save("purpose")} part="purpose" multiline={false} placeholder={t("studies.teaching.purposePlaceholder")} assistant={hooks} />
         <TeachingLinks preparation={prep} pointId={null} scope={t("studies.teaching.links.wholeScope")} studyFindings={findings} onChanged={setPrep} onRevealScripture={onRevealScripture} />
+        <SaveTeachingTemplate preparation={prep} />
         <div className="flex flex-wrap items-center gap-2">
           {confirmDelete ? (
             <span className="flex flex-wrap items-center gap-2 rounded-aw border-l-[3px] border-danger bg-hover px-2 py-1 text-[0.9375rem]">
@@ -727,7 +735,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
                           requestAnimationFrame(() =>
                             (target
                               ? document.getElementById(`point-title-${target.id}`)
-                              : addButton.current
+                              : document.getElementById(`add-point-${prep.id}`)
                             )?.focus(),
                           );
                         });
@@ -773,10 +781,30 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
           })}
         </ol>
         <div>
-          <Button ref={addButton} className="min-h-11" onClick={() => void addPoint(prep.points[prep.points.length - 1]?.id ?? null)}>
-            <Plus className="size-4" aria-hidden="true" />
-            {shape("add")}
-          </Button>
+          {shapeName === "steps" ? (
+            // A step is added as the kind of step it is: teaching, Bible reading, question, activity or picture.
+            <ActionMenu
+              label={t("studies.teaching.addStepMenu")}
+              buttonId={`add-point-${prep.id}`}
+              align="start"
+              trigger={
+                <>
+                  <Plus className="size-4" aria-hidden="true" />
+                  {shape("add")}
+                  <ChevronDown className="size-4 text-text-muted" aria-hidden="true" />
+                </>
+              }
+              actions={STEP_KINDS.map((kind) => ({
+                label: t(`studies.teaching.stepKind.${kind}`),
+                onSelect: () => void addPoint(prep.points[prep.points.length - 1]?.id ?? null, kind),
+              }))}
+            />
+          ) : (
+            <Button id={`add-point-${prep.id}`} className="min-h-11" onClick={() => void addPoint(prep.points[prep.points.length - 1]?.id ?? null)}>
+              <Plus className="size-4" aria-hidden="true" />
+              {shape("add")}
+            </Button>
+          )}
         </div>
       </section>
 

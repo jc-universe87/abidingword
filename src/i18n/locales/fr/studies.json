@@ -467,7 +467,15 @@
     "fromTemplate": "À partir de votre modèle : {{name}}",
     "groupAbout": "À propos de cette étude",
     "groupCopy": "Copier",
-    "findOccurrences": "Trouver les occurrences"
+    "findOccurrences": "Trouver les occurrences",
+    "saveAsTemplate": "Enregistrer comme mon modèle",
+    "saveAsTemplateGroup": "Enregistrer la structure de cette étude comme modèle",
+    "templateName": "Nom du modèle",
+    "saveAsTemplateKeeps_one": "Le modèle reprend la partie de cette étude : son titre, son indication et sa place dans le plan. Votre texte, vos notes, vos passages et vos détails restent dans cette étude.",
+    "saveAsTemplateKeeps_other": "Le modèle reprend les {{count}} parties de cette étude : leurs titres, leurs indications et leurs places dans le plan, dans cet ordre. Votre texte, vos notes, vos passages et vos détails restent dans cette étude.",
+    "saveTemplate": "Enregistrer le modèle",
+    "savedAsTemplate": "Enregistré comme votre modèle « {{name}} ». Vous pouvez l’utiliser pour une nouvelle étude, et le modifier dans Paramètres → Modèles.",
+    "saveAsTemplateKeeps_many": "Le modèle reprend les {{count}} parties de cette étude : leurs titres, leurs indications et leurs places dans le plan, dans cet ordre. Votre texte, vos notes, vos passages et vos détails restent dans cette étude."
   },
   "editor": {
     "opening": "Ouverture de l’étude…",
@@ -593,7 +601,6 @@
     "sectionCount_many": "{{count}} parties",
     "sectionCount_other": "{{count}} parties",
     "builtIn": "Intégré",
-    "duplicateCustomise": "Dupliquer et personnaliser",
     "edit": "Modifier {{name}}",
     "duplicate": "Dupliquer {{name}}",
     "delete": "Supprimer {{name}}",
@@ -601,7 +608,8 @@
     "confirm": "Supprimer le modèle « {{name}} » ? Les études déjà créées à partir de lui ne sont pas concernées.",
     "deleteTemplate": "Supprimer le modèle",
     "new": "Nouveau modèle…",
-    "teachingListLabel": "Formes d’enseignement"
+    "saveAsMine": "Enregistrer comme mon modèle",
+    "saveAsMineLabel": "Enregistrer « {{name}} » comme mon modèle"
   },
   "templateEditor": {
     "opening": "Ouverture du modèle…",
@@ -1003,7 +1011,41 @@
     },
     "materials": {
       "open": "Supports"
-    }
+    },
+    "prepareWhat": "Que voulez-vous préparer ?",
+    "templates": {
+      "mine": "Vos modèles",
+      "listLabel": "Modèles d’enseignement biblique",
+      "intro": "Un modèle d’enseignement biblique est le point de départ d’un nouvel enseignement : sa forme, et les points, questions ou étapes par lesquels il commence. Un enseignement en reçoit une copie à sa création : modifier ou supprimer un modèle ne change donc jamais un enseignement.",
+      "saveAsMine": "Enregistrer comme mon modèle",
+      "saveAsMineLabel": "Enregistrer « {{name}} » comme mon modèle",
+      "edit": "Modifier « {{name}} »",
+      "duplicate": "Dupliquer « {{name}} »",
+      "delete": "Supprimer « {{name}} »",
+      "confirmLabel": "Supprimer « {{name}} » ?",
+      "confirm": "Supprimer le modèle « {{name}} » ? Les enseignements déjà créés à partir de lui ne sont pas touchés.",
+      "new": "Nouveau modèle d’enseignement…",
+      "newTitle": "Nouveau modèle d’enseignement",
+      "editTitle": "Modifier le modèle d’enseignement",
+      "format": "Forme",
+      "pointsList": "Ce par quoi le modèle commence",
+      "pointsHint": "Laissez un titre vide pour le nommer dans chaque enseignement.",
+      "none": "Rien pour l’instant : un enseignement créé avec ce modèle commence vide.",
+      "untitled": "sans titre"
+    },
+    "saveTemplate": {
+      "action": "Enregistrer comme mon modèle",
+      "group": "Enregistrer la structure de cet enseignement comme modèle",
+      "name": "Nom du modèle",
+      "keeps": {
+        "points": "Le modèle reprend la forme et autant de points principaux que cet enseignement, dans l’ordre. Les points commencent sans titre.",
+        "questions": "Le modèle reprend la forme et autant de questions que cet enseignement. Les questions commencent vides.",
+        "steps": "Le modèle reprend la forme et les étapes dans l’ordre, chacune avec son titre et son type."
+      },
+      "notKept": "Rien de ce que vous avez écrit n’est repris : ni public, ni but, ni message, ni introduction, ni conclusion, ni notes, passages, éléments gardés ou notes de votre étude.",
+      "saved": "Enregistré comme votre modèle « {{name}} ». Vous pouvez le choisir pour votre prochain enseignement, et le modifier dans Paramètres → Modèles."
+    },
+    "addStepMenu": "Type d’étape à ajouter"
   },
   "parts": {
     "add": "Ajouter une partie",
@@ -1128,5 +1170,11 @@
       "exportHint": "PowerPoint, PDF des diapositives, feuillet de l’orateur pour téléphone, Markdown ou paquet de présentation",
       "exportHintNamed": "« {{title}} » : PowerPoint, PDF des diapositives, feuillet de l’orateur pour téléphone, Markdown ou paquet de présentation"
     }
+  },
+  "phase": {
+    "label": "Dans le plan",
+    "none": "Hors du plan",
+    "ofPart": "Place de « {{title}} » dans le plan de l’étude",
+    "ofTemplatePart": "Place de la partie {{number}} dans le plan de l’étude"
   }
 }

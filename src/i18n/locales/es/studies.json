@@ -467,7 +467,15 @@
     "fromTemplate": "Desde tu plantilla: {{name}}",
     "groupAbout": "Acerca de este estudio",
     "groupCopy": "Copiar",
-    "findOccurrences": "Buscar apariciones"
+    "findOccurrences": "Buscar apariciones",
+    "saveAsTemplate": "Guardar como mi plantilla",
+    "saveAsTemplateGroup": "Guardar la estructura de este estudio como plantilla",
+    "templateName": "Nombre de la plantilla",
+    "saveAsTemplateKeeps_one": "La plantilla conserva la parte de este estudio: su título, su indicación y su lugar en el recorrido. Tus textos, apuntes, pasajes y detalles se quedan en este estudio.",
+    "saveAsTemplateKeeps_other": "La plantilla conserva las {{count}} partes de este estudio: sus títulos, indicaciones y lugares en el recorrido, en este orden. Tus textos, apuntes, pasajes y detalles se quedan en este estudio.",
+    "saveTemplate": "Guardar plantilla",
+    "savedAsTemplate": "Guardado como tu plantilla «{{name}}». Puedes usarla para un estudio nuevo y cambiarla en Configuración → Plantillas.",
+    "saveAsTemplateKeeps_many": "La plantilla conserva las {{count}} partes de este estudio: sus títulos, indicaciones y lugares en el recorrido, en este orden. Tus textos, apuntes, pasajes y detalles se quedan en este estudio."
   },
   "editor": {
     "opening": "Abriendo el estudio…",
@@ -593,7 +601,6 @@
     "sectionCount_many": "{{count}} partes",
     "sectionCount_other": "{{count}} partes",
     "builtIn": "Integrada",
-    "duplicateCustomise": "Duplicar y personalizar",
     "edit": "Editar {{name}}",
     "duplicate": "Duplicar {{name}}",
     "delete": "Eliminar {{name}}",
@@ -601,7 +608,8 @@
     "confirm": "¿Eliminar la plantilla “{{name}}”? Los estudios ya creados a partir de ella no se ven afectados.",
     "deleteTemplate": "Eliminar plantilla",
     "new": "Nueva plantilla…",
-    "teachingListLabel": "Formatos de enseñanza"
+    "saveAsMine": "Guardar como mi plantilla",
+    "saveAsMineLabel": "Guardar «{{name}}» como mi plantilla"
   },
   "templateEditor": {
     "opening": "Abriendo la plantilla…",
@@ -1003,7 +1011,41 @@
     },
     "materials": {
       "open": "Materiales"
-    }
+    },
+    "prepareWhat": "¿Qué quieres preparar?",
+    "templates": {
+      "mine": "Tus plantillas",
+      "listLabel": "Plantillas de enseñanza bíblica",
+      "intro": "Una plantilla de enseñanza bíblica es aquello con lo que empieza una enseñanza nueva: su formato y los puntos, preguntas o pasos con los que comienza. La enseñanza recibe una copia al crearse, así que cambiar o eliminar una plantilla nunca cambia una enseñanza.",
+      "saveAsMine": "Guardar como mi plantilla",
+      "saveAsMineLabel": "Guardar «{{name}}» como mi plantilla",
+      "edit": "Editar «{{name}}»",
+      "duplicate": "Duplicar «{{name}}»",
+      "delete": "Eliminar «{{name}}»",
+      "confirmLabel": "¿Eliminar «{{name}}»?",
+      "confirm": "¿Eliminar la plantilla «{{name}}»? Las enseñanzas ya creadas con ella no cambian.",
+      "new": "Nueva plantilla de enseñanza…",
+      "newTitle": "Nueva plantilla de enseñanza",
+      "editTitle": "Editar la plantilla de enseñanza",
+      "format": "Formato",
+      "pointsList": "Con qué empieza la plantilla",
+      "pointsHint": "Deja un título vacío para ponerlo en cada enseñanza.",
+      "none": "Nada todavía: una enseñanza creada con esta plantilla empieza vacía.",
+      "untitled": "sin título"
+    },
+    "saveTemplate": {
+      "action": "Guardar como mi plantilla",
+      "group": "Guardar la estructura de esta enseñanza como plantilla",
+      "name": "Nombre de la plantilla",
+      "keeps": {
+        "points": "La plantilla conserva el formato y tantos puntos principales como tiene esta enseñanza, en orden. Los puntos empiezan sin título.",
+        "questions": "La plantilla conserva el formato y tantas preguntas como tiene esta enseñanza. Las preguntas empiezan vacías.",
+        "steps": "La plantilla conserva el formato y los pasos en orden, cada uno con su título y su tipo."
+      },
+      "notKept": "Nada de lo que escribiste se incluye: ni público, ni propósito, ni mensaje, ni introducción, ni conclusión, ni notas, pasajes, material guardado o apuntes de tu estudio.",
+      "saved": "Guardada como tu plantilla «{{name}}». Puedes elegirla para tu próxima enseñanza y cambiarla en Configuración → Plantillas."
+    },
+    "addStepMenu": "Tipo de paso que añadir"
   },
   "parts": {
     "add": "Añadir una parte",
@@ -1128,5 +1170,11 @@
       "exportHint": "PowerPoint, PDF de diapositivas, hoja del orador para el móvil, Markdown o paquete de presentación",
       "exportHintNamed": "«{{title}}»: PowerPoint, PDF de diapositivas, hoja del orador para el móvil, Markdown o paquete de presentación"
     }
+  },
+  "phase": {
+    "label": "En el recorrido",
+    "none": "Fuera del recorrido",
+    "ofPart": "Lugar de «{{title}}» en el recorrido del estudio",
+    "ofTemplatePart": "Lugar de la parte {{number}} en el recorrido del estudio"
   }
 }

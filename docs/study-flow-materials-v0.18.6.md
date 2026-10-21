@@ -18,6 +18,14 @@ Base: `db70242` (v0.18.5). No migration; no stored data changes shape.
 
 ### Mapping (src/features/studies/journey.ts)
 
+> **Since v0.18.7** the phase is no longer worked out in the interface: each
+> built-in part states it in its template (`resources/templates/*.json`, the
+> values in the table below), a study copies it (`study_sections.phase`,
+> migration 0013 gave existing parts exactly these values), and the person's
+> own templates and parts can say their own or none. A part without a phase
+> sits with the part before it **without** taking its meaning. See
+> [`user-templates-v0.18.7.md`](user-templates-v0.18.7.md).
+
 Six phases: **text, understanding, theology, application, audience,
 teaching**. A part's phase comes from the built-in part it was made from (its
 stable `key`, which stays when the part is renamed), read by the kind of study

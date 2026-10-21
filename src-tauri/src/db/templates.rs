@@ -185,12 +185,33 @@ fn validated(input: &TemplateInput) -> AppResult<(String, Option<String>, Vec<Te
             .with("max", MAX_SECTIONS),
         ));
     }
+    // A key says which part a study already has; two parts of one template never share one.
+    let mut keys = std::collections::HashSet::new();
+    if let Some(key) = input
+        .sections
+        .iter()
+        .filter_map(|s| s.key.as_deref().map(str::trim).filter(|k| !k.is_empty()))
+        .find(|k| !keys.insert(*k))
+    {
+        return Err(AppError::InvalidInput(
+            UserMessage::new(
+                "templates.duplicateKey",
+                "Two parts of the template are the same part. Remove one of them.",
+            )
+            .with("key", key),
+        ));
+    }
     let sections = input
         .sections
         .iter()
         .map(|s| {
             Ok(TemplateSection {
-                key: s.key.clone().filter(|k| !k.trim().is_empty()),
+                key: s
+                    .key
+                    .as_deref()
+                    .map(str::trim)
+                    .filter(|k| !k.is_empty())
+                    .map(str::to_owned),
                 title: validate::title(&s.title, "section")?,
                 guidance: validate::optional_text(
                     s.guidance.as_deref(),
@@ -200,6 +221,7 @@ fn validated(input: &TemplateInput) -> AppResult<(String, Option<String>, Vec<Te
                 // A person's own template may hold parts to add later; retiring is for built-ins.
                 optional: s.optional,
                 retired: false,
+                phase: s.phase,
             })
         })
         .collect::<AppResult<Vec<_>>>()?;

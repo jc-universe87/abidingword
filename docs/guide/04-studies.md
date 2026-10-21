@@ -38,6 +38,18 @@ short hint until you write in it. Parts you may want later (for a passage
 study: *Structure, Key Words, Related Scripture, Open Questions*) are offered
 when you click **Add a part** at the end of the study.
 
+Each part can say where it belongs in the study's **outline** (*Text,
+Understanding, Theology, Application, Audience, Teaching*). The template says
+so to start with. You can change it in the part's options (**⋯ → Outline**),
+or choose *Not in the outline*. A part you add with your own heading belongs
+to no phase. It simply sits after the part before it.
+
+To use a study's shape again, open **Study details** and click **Save as my
+template**. The template keeps the parts, their headings and hints, their
+order and their places in the outline. Your writing, notes and passages stay
+in the study. Your template is then offered under *More options* when you
+start a study, and can be changed in **Settings → Templates**.
+
 ## Projects: keeping studies together
 
 A **project** groups studies that belong together, for example a sermon series,

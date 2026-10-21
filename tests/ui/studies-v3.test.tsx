@@ -276,10 +276,10 @@ describe("templates", () => {
     // The old "Teaching / Sermon" study template is not offered: teaching is prepared in Bible Teaching.
     expect(within(templates).getAllByRole("listitem")).toHaveLength(5);
     expect(within(templates).queryByText("Teaching / Sermon Preparation")).not.toBeInTheDocument();
-    const formats = screen.getByRole("list", { name: "Bible Teaching formats" });
+    const formats = screen.getByRole("list", { name: "Bible Teaching templates" });
     expect(within(formats).getByText(/Starts with: Welcome · Bible story · Question · Activity · Prayer/)).toBeInTheDocument();
     const passage = within(templates).getByText("Passage Study").closest("li")!;
-    await user.click(within(passage as HTMLElement).getByRole("button", { name: "Duplicate and customise" }));
+    await user.click(within(passage as HTMLElement).getByRole("button", { name: "Save Passage Study as my template" }));
 
     expect(await screen.findByRole("heading", { level: 1, name: "Edit template" })).toBeInTheDocument();
     const name = screen.getByLabelText("Name");

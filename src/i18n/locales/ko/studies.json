@@ -457,7 +457,13 @@
     "fromTemplate": "내 공부 틀에서 시작함: {{name}}",
     "groupAbout": "이 성경공부에 관하여",
     "groupCopy": "복사",
-    "findOccurrences": "용례 찾기"
+    "findOccurrences": "용례 찾기",
+    "saveAsTemplate": "내 공부 틀로 저장",
+    "saveAsTemplateGroup": "이 성경공부의 구성을 공부 틀로 저장",
+    "templateName": "공부 틀 이름",
+    "saveAsTemplateKeeps_other": "공부 틀에는 이 성경공부의 부분 {{count}}개가 이 순서대로 담깁니다. 제목, 안내, 흐름에서의 자리입니다. 작성한 글, 기록, 본문, 세부 정보는 이 성경공부에 그대로 남습니다.",
+    "saveTemplate": "공부 틀 저장",
+    "savedAsTemplate": "내 공부 틀 ‘{{name}}’(으)로 저장했습니다. 새 성경공부에 쓸 수 있고, 설정 → 성경공부 틀에서 고칠 수 있습니다."
   },
   "editor": {
     "opening": "성경공부를 여는 중…",
@@ -579,7 +585,6 @@
     "listLabel": "성경공부 틀",
     "sectionCount_other": "부분 {{count}}개",
     "builtIn": "기본 제공",
-    "duplicateCustomise": "복제하여 내 공부 틀 만들기",
     "edit": "{{name}} 편집",
     "duplicate": "{{name}} 복제",
     "delete": "{{name}} 삭제",
@@ -587,7 +592,8 @@
     "confirm": "“{{name}}” 공부 틀을 삭제할까요? 이미 이 틀로 만든 성경공부에는 영향이 없습니다.",
     "deleteTemplate": "공부 틀 삭제",
     "new": "새 공부 틀…",
-    "teachingListLabel": "가르침 형식"
+    "saveAsMine": "내 공부 틀로 저장",
+    "saveAsMineLabel": "{{name}}을(를) 내 공부 틀로 저장"
   },
   "templateEditor": {
     "opening": "공부 틀을 여는 중…",
@@ -983,7 +989,41 @@
     },
     "materials": {
       "open": "가르침 자료"
-    }
+    },
+    "prepareWhat": "무엇을 준비할까요?",
+    "templates": {
+      "mine": "내 가르침 틀",
+      "listLabel": "성경 가르침 틀",
+      "intro": "가르침 틀은 새 성경 가르침이 시작하는 구성입니다. 형식과 처음에 들어갈 요점, 질문, 순서를 정합니다. 가르침은 만들 때 틀을 복사해 가지므로, 틀을 고치거나 지워도 이미 만든 가르침은 바뀌지 않습니다.",
+      "saveAsMine": "내 가르침 틀로 저장",
+      "saveAsMineLabel": "{{name}}을(를) 내 가르침 틀로 저장",
+      "edit": "{{name}} 고치기",
+      "duplicate": "{{name}} 복제",
+      "delete": "{{name}} 지우기",
+      "confirmLabel": "{{name}}을(를) 지울까요?",
+      "confirm": "가르침 틀 ‘{{name}}’을(를) 지울까요? 이미 이 틀로 만든 성경 가르침은 그대로 남습니다.",
+      "new": "새 가르침 틀…",
+      "newTitle": "새 가르침 틀",
+      "editTitle": "가르침 틀 고치기",
+      "format": "형식",
+      "pointsList": "가르침 틀이 시작하는 구성",
+      "pointsHint": "제목을 비워 두면 가르침마다 따로 이름을 붙일 수 있습니다.",
+      "none": "아직 없습니다. 이 틀로 만든 가르침은 빈 상태로 시작합니다.",
+      "untitled": "제목 없음"
+    },
+    "saveTemplate": {
+      "action": "내 가르침 틀로 저장",
+      "group": "이 가르침의 구성을 가르침 틀로 저장",
+      "name": "가르침 틀 이름",
+      "keeps": {
+        "points": "가르침 틀에는 형식과 이 가르침의 요점 개수가 순서대로 담깁니다. 요점은 제목 없이 시작합니다.",
+        "questions": "가르침 틀에는 형식과 이 가르침의 질문 개수가 담깁니다. 질문은 빈 상태로 시작합니다.",
+        "steps": "가르침 틀에는 형식과 순서들이 차례대로, 각각의 제목과 종류와 함께 담깁니다."
+      },
+      "notKept": "작성한 내용은 담기지 않습니다. 대상, 목적, 핵심 메시지, 시작과 마무리, 메모, 본문, 보관한 자료, 성경공부의 기록은 모두 빠집니다.",
+      "saved": "내 가르침 틀 ‘{{name}}’(으)로 저장했습니다. 다음 성경 가르침을 만들 때 고를 수 있고, 설정 → 성경공부 틀에서 고칠 수 있습니다."
+    },
+    "addStepMenu": "추가할 순서의 종류"
   },
   "parts": {
     "add": "부분 추가",
@@ -1108,5 +1148,11 @@
       "exportHint": "파워포인트, PDF 슬라이드, 휴대폰용 발표자 원고, 마크다운, 발표 꾸러미",
       "exportHintNamed": "“{{title}}”: 파워포인트, PDF 슬라이드, 휴대폰용 발표자 원고, 마크다운, 발표 꾸러미"
     }
+  },
+  "phase": {
+    "label": "흐름",
+    "none": "흐름에 넣지 않음",
+    "ofPart": "성경공부의 흐름에서 {{title}}이(가) 놓이는 곳",
+    "ofTemplatePart": "성경공부의 흐름에서 부분 {{number}}이(가) 놓이는 곳"
   }
 }

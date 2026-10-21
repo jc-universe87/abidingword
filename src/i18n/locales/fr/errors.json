@@ -95,7 +95,8 @@
   "templates": {
     "noSections": "Un modèle doit comporter au moins une partie de départ.",
     "tooManySections": "Un modèle peut comporter au plus {{max}} parties.",
-    "builtinReadOnly": "Les modèles intégrés ne peuvent pas être modifiés. Dupliquez-le pour créer votre propre version."
+    "builtinReadOnly": "Les modèles intégrés ne peuvent pas être modifiés. Dupliquez-le pour créer votre propre version.",
+    "duplicateKey": "Deux parties du modèle sont la même partie. Retirez-en une."
   },
   "sections": {
     "hasContent": "« {{title}} » contient encore du texte ou des notes."
@@ -198,5 +199,9 @@
   },
   "material": {
     "tooLong": "C’est trop long pour être enregistré en un seul fichier."
+  },
+  "teachingTemplates": {
+    "noKind": "Choisissez à quoi sert le modèle.",
+    "tooManyPoints": "Un modèle peut commencer avec {{max}} points ou étapes au plus."
   }
 }

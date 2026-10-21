@@ -7,73 +7,86 @@
     {
       "key": "text",
       "title": "Text",
-      "guidance": "The passage being studied, and any translation notes."
+      "guidance": "The passage being studied, and any translation notes.",
+      "phase": "text"
     },
     {
       "key": "observations",
       "title": "Observations",
-      "guidance": "What does the text say? Repeated words, connectors, contrasts, commands, questions."
+      "guidance": "What does the text say? Repeated words, connectors, contrasts, commands, questions.",
+      "phase": "text"
     },
     {
       "key": "context",
       "title": "Context",
-      "guidance": "Where the passage sits: the book, the surrounding argument, the historical setting."
+      "guidance": "Where the passage sits: the book, the surrounding argument, the historical setting.",
+      "phase": "text"
     },
     {
       "key": "meaning",
       "title": "Meaning",
-      "guidance": "What did the text mean for its first readers? Key words, grammar, difficult phrases."
+      "guidance": "What did the text mean for its first readers? Key words, grammar, difficult phrases.",
+      "phase": "understanding"
     },
     {
       "key": "theology",
       "title": "Theology",
-      "guidance": "What the passage teaches about God, Christ, salvation and the life of faith."
+      "guidance": "What the passage teaches about God, Christ, salvation and the life of faith.",
+      "phase": "theology"
     },
     {
       "key": "application",
       "title": "Application",
-      "guidance": "How the truth of the passage bears on belief, worship and life today."
+      "guidance": "How the truth of the passage bears on belief, worship and life today.",
+      "phase": "application"
     },
     {
       "key": "structure",
       "title": "Structure",
       "guidance": "How the passage is built: its movements, main clauses and turning points.",
+      "phase": "text",
       "optional": true
     },
     {
       "key": "key-words",
       "title": "Key Words",
       "guidance": "Words that carry the passage: what they mean here and elsewhere.",
+      "phase": "text",
       "optional": true
     },
     {
       "key": "related-scripture",
       "title": "Related Scripture",
       "guidance": "Other passages that explain, echo or fulfil this one.",
+      "phase": "understanding",
       "optional": true
     },
     {
       "key": "open-questions",
       "title": "Open Questions",
       "guidance": "What you do not yet understand, to come back to.",
+      "phase": "understanding",
       "optional": true
     },
     {
       "key": "exegesis",
       "title": "Exegesis",
       "guidance": "What did the text mean for its first readers? Key words, grammar, difficult phrases.",
+      "phase": "understanding",
       "retired": true
     },
     {
       "key": "audience",
       "title": "Audience",
       "guidance": "Who will hear this teaching, what they need, and what may hinder them.",
+      "phase": "audience",
       "retired": true
     },
     {
       "key": "teaching",
       "title": "Teaching",
       "guidance": "Main idea, outline, illustrations and how to communicate it with love.",
+      "phase": "teaching",
       "retired": true
     }
   ]

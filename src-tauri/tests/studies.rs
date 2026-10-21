@@ -7,8 +7,8 @@ use abiding_word_lib::db::{
 use abiding_word_lib::domain::{
     CreateFinding, CreateProject, CreateStudy, CreateStudyRelation, CreateStudySection,
     DeleteStudySection, DuplicateStudy, FindingType, ListStudies, PassageRole, RelationType,
-    Reorder, StudyDetails, StudyStatus, StudyType, TemplateInput, TemplateSection, UpdateStudy,
-    UpdateStudyBlock, UpdateTemplate,
+    Reorder, StudyDetails, StudyPhase, StudyStatus, StudyType, TemplateInput, TemplateSection,
+    UpdateStudy, UpdateStudyBlock, UpdateStudySection, UpdateTemplate,
 };
 use abiding_word_lib::error::{AppError, AppResult};
 use abiding_word_lib::scripture::AddStudyPassage;
@@ -203,6 +203,8 @@ fn sections_can_be_added_renamed_reordered_and_removed() {
                 study_id: s.clone(),
                 title: "Questions".into(),
                 guidance: Some("Open questions".into()),
+                key: None,
+                phase: None,
             },
         )?;
         assert_eq!(extra.blocks.len(), 1);
@@ -454,6 +456,7 @@ fn built_in_templates_start_small_and_offer_the_rest_later() {
                     guidance: None,
                     optional: true,
                     retired: false,
+                    phase: None,
                 }],
             },
         );
@@ -471,6 +474,7 @@ fn user_templates_can_be_created_duplicated_edited_and_deleted() {
             guidance: None,
             optional: false,
             retired: false,
+            phase: None,
         };
         let mine = templates::create(
             conn,
@@ -545,6 +549,7 @@ fn a_study_copies_its_template_and_does_not_follow_later_changes() {
             guidance: Some(format!("About {title}")),
             optional: false,
             retired: false,
+            phase: None,
         };
         let template = templates::create(
             conn,
@@ -840,4 +845,165 @@ fn study_data_survives_a_restart() {
         Ok(())
     })
     .unwrap();
+}
+
+// --- phases (v0.18.7) ------------------------------------------------------
+
+#[test]
+fn built_in_templates_say_where_every_part_belongs_and_studies_copy_it() {
+    with_db(|conn| {
+        for template in templates::list(conn)?.into_iter().filter(|t| t.is_builtin) {
+            for part in &template.sections {
+                assert!(part.phase.is_some(), "{}: {:?}", template.key, part.key);
+            }
+        }
+        let p = project(conn, "John")?;
+        let s = study(conn, &p, "Abiding", StudyType::Passage)?;
+        let phases: Vec<_> = sections::list(conn, &s)?
+            .into_iter()
+            .map(|x| x.phase.map(|p| p.as_str()))
+            .collect();
+        assert_eq!(
+            phases,
+            [
+                Some("text"),
+                Some("text"),
+                Some("text"),
+                Some("understanding"),
+                Some("theology"),
+                Some("application")
+            ]
+        );
+        // A study of its own shape: one part, and no phase.
+        let own = study(conn, &p, "Notes", StudyType::Custom)?;
+        assert_eq!(sections::list(conn, &own)?[0].phase, None);
+        Ok(())
+    });
+}
+
+#[test]
+fn a_part_keeps_its_key_and_phase_when_added_and_its_phase_can_change() {
+    with_db(|conn| {
+        let p = project(conn, "John")?;
+        let s = study(conn, &p, "Abiding", StudyType::Passage)?;
+        let later = sections::create(
+            conn,
+            &CreateStudySection {
+                study_id: s.clone(),
+                title: "Key Words".into(),
+                guidance: None,
+                key: Some(" key-words ".into()),
+                phase: Some(StudyPhase::Text),
+            },
+        )?;
+        assert_eq!(later.key.as_deref(), Some("key-words"));
+        assert_eq!(later.phase, Some(StudyPhase::Text));
+
+        let change = |phase: Option<&str>| UpdateStudySection {
+            id: later.id.clone(),
+            phase: phase.map(Into::into),
+            ..Default::default()
+        };
+        let moved = sections::update(conn, &change(Some("audience")))?;
+        assert_eq!(moved.phase, Some(StudyPhase::Audience));
+        // Renaming keeps it.
+        let renamed = sections::update(
+            conn,
+            &UpdateStudySection {
+                id: later.id.clone(),
+                title: Some("Words".into()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(renamed.phase, Some(StudyPhase::Audience));
+        assert_eq!(renamed.key.as_deref(), Some("key-words"));
+        assert_eq!(sections::update(conn, &change(Some("")))?.phase, None);
+        assert!(matches!(
+            sections::update(conn, &change(Some("doctrine"))),
+            Err(AppError::InvalidInput(_))
+        ));
+        Ok(())
+    });
+}
+
+#[test]
+fn a_template_of_ones_own_keeps_its_phases_and_never_two_parts_with_one_key() {
+    with_db(|conn| {
+        let part = |key: &str, title: &str, phase: Option<StudyPhase>| TemplateSection {
+            key: Some(key.into()),
+            title: title.into(),
+            guidance: None,
+            optional: false,
+            retired: false,
+            phase,
+        };
+        let input = |sections: Vec<TemplateSection>| TemplateInput {
+            name: "Lectio".into(),
+            description: None,
+            study_type: StudyType::Custom,
+            sections,
+        };
+        let mine = templates::create(
+            conn,
+            &input(vec![
+                part("own-1", "Read slowly", Some(StudyPhase::Text)),
+                part("own-2", "Pray", None),
+                part("own-3", "Read again", Some(StudyPhase::Text)),
+                part("own-4", "Live it", Some(StudyPhase::Application)),
+            ]),
+        )?;
+        assert_eq!(
+            mine.sections.iter().map(|s| s.phase).collect::<Vec<_>>(),
+            [
+                Some(StudyPhase::Text),
+                None,
+                Some(StudyPhase::Text),
+                Some(StudyPhase::Application)
+            ]
+        );
+        let p = project(conn, "Psalms")?;
+        let made = studies::create(
+            conn,
+            &CreateStudy {
+                project_id: p,
+                title: "Psalm 1".into(),
+                template_id: Some(mine.id.clone()),
+                ..Default::default()
+            },
+        )?;
+        assert_eq!(
+            made.sections
+                .iter()
+                .map(|s| (s.key.clone(), s.phase))
+                .collect::<Vec<_>>(),
+            [
+                (Some("own-1".into()), Some(StudyPhase::Text)),
+                (Some("own-2".into()), None),
+                (Some("own-3".into()), Some(StudyPhase::Text)),
+                (Some("own-4".into()), Some(StudyPhase::Application)),
+            ]
+        );
+
+        // Editing the template later never changes the study made from it.
+        templates::update(
+            conn,
+            &UpdateTemplate {
+                id: mine.id.clone(),
+                template: input(vec![part("own-1", "Read", Some(StudyPhase::Theology))]),
+            },
+        )?;
+        assert_eq!(
+            sections::list(conn, &made.study.id)?[0].phase,
+            Some(StudyPhase::Text)
+        );
+        templates::delete(conn, &mine.id)?;
+        assert_eq!(sections::list(conn, &made.study.id)?.len(), 4);
+
+        let twice = templates::create(
+            conn,
+            &input(vec![part("own-1", "A", None), part(" own-1", "B", None)]),
+        );
+        assert!(matches!(twice, Err(AppError::InvalidInput(_))));
+        Ok(())
+    });
 }

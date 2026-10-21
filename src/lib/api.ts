@@ -25,6 +25,7 @@ import type {
   UpdateSettings,
   UpdateStudy,
   UpdateStudyBlock,
+  CreateStudySection,
   UpdateStudySection,
   Workspace,
 } from "@/types/domain";
@@ -80,6 +81,8 @@ import type {
   StepKind,
   TeachingKind,
   TeachingPreparation,
+  TeachingTemplate,
+  TeachingTemplateInput,
   TeachingSummary,
   UpdateTeaching,
   UpdateTeachingPoint,
@@ -158,7 +161,7 @@ export interface Api {
   studyUpdate(input: UpdateStudy): Promise<Study>;
   studySectionList(studyId: string): Promise<StudySection[]>;
   studySectionUpdate(input: UpdateStudySection): Promise<StudySection>;
-  studySectionCreate(input: { studyId: string; title: string; guidance?: string }): Promise<StudySection>;
+  studySectionCreate(input: CreateStudySection): Promise<StudySection>;
   studySectionDelete(input: { id: string; force: boolean }): Promise<void>;
   studySectionReorder(input: Reorder): Promise<StudySection[]>;
   studyBlockReorder(input: Reorder): Promise<StudyBlock[]>;
@@ -251,6 +254,11 @@ export interface Api {
   teachingList(studyId: string): Promise<TeachingSummary[]>;
   teachingGet(id: string): Promise<TeachingPreparation>;
   /** `points`: the steps or points it starts with (a format's starting structure), in the person's language. */
+  /** The person's own Bible Teaching templates (v0.18.7); the built-in ones are in the interface. */
+  teachingTemplateList(): Promise<TeachingTemplate[]>;
+  teachingTemplateCreate(input: TeachingTemplateInput): Promise<TeachingTemplate>;
+  teachingTemplateUpdate(input: TeachingTemplateInput & { id: string }): Promise<TeachingTemplate>;
+  teachingTemplateDelete(id: string): Promise<void>;
   teachingCreate(input: { studyId: string; title: string; kind?: TeachingKind | null; points?: { title: string; kind?: StepKind | null }[] }): Promise<TeachingPreparation>;
   teachingUpdate(input: UpdateTeaching): Promise<TeachingPreparation>;
   teachingDelete(id: string): Promise<void>;
@@ -537,6 +545,10 @@ export const tauriApi: Api = {
   findingSourceLocate: (citationId) => call("finding_source_locate", { citationId }),
   teachingList: (studyId) => call("teaching_list", { studyId }),
   teachingGet: (id) => call("teaching_get", { id }),
+  teachingTemplateList: () => call("teaching_template_list"),
+  teachingTemplateCreate: (input) => call("teaching_template_create", { input }),
+  teachingTemplateUpdate: (input) => call("teaching_template_update", { input }),
+  teachingTemplateDelete: (id) => call("teaching_template_delete", { id }),
   teachingCreate: (input) => call("teaching_create", { input }),
   teachingUpdate: (input) => call("teaching_update", { input }),
   teachingDelete: (id) => call("teaching_delete", { id }),

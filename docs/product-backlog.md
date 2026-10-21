@@ -283,10 +283,17 @@ with a kind (teaching, Bible reading, question, activity, picture; audio
 reserved), starting steps for lessons, one Templates section for Study and
 Teaching, and "finding" dropped as a user-facing word.
 
-**Still open:** user-defined Bible Teaching templates (own formats and
-starting steps); audio steps and a step-level media attachment; an
-"Add a step ▸ kind" menu; moving notes between parts by dragging; the
-assistant inside Bible Study.
+**Since v0.18.7** (see [`user-templates-v0.18.7.md`](user-templates-v0.18.7.md)):
+Bible Teaching templates of the person's own (a format and the points,
+questions or steps a teaching starts with, each step with its kind), the
+built-in ones one per format; "Save as my template" from a teaching; and
+"Add a step ▸ kind".
+
+**Still open:** audio steps and a step-level media attachment; moving notes
+between parts by dragging; the assistant inside Bible Study; a file to share
+Study and Teaching templates (`.awstructure`, designed and deferred, never
+`.awtemplate`); refining the built-in Teaching baselines
+(`resources/teaching-templates.json`, the owner's call).
 ### More Materials for a Bible Teaching
 
 **Since v0.18.4** (see [`workspace-hierarchy-v0.18.4.md`](workspace-hierarchy-v0.18.4.md)):
@@ -315,9 +322,13 @@ guide's screenshots.
 (text, understanding, theology, application, audience, teaching) with a quiet
 outline that marks where one is, and an optional way on to a Bible Teaching.
 
-**Still open:** phases for the person's own templates (a template could say
-which phase each of its parts belongs to); folding a whole phase at once, if
-owners ask for it.
+**Since v0.18.7** (see [`user-templates-v0.18.7.md`](user-templates-v0.18.7.md)):
+each part carries its phase from its template (built-in or the person's own),
+the person can change it, and the outline follows the study's own structure;
+a part without one never acquires a meaning; "Save as my template" from a
+study keeps its structure only.
+
+**Still open:** folding a whole phase at once, if owners ask for it.
 
 ### Desktop visual system
 

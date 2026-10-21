@@ -54,7 +54,10 @@ fn a_v11_database_is_backed_up_and_its_presentations_keep_everything() {
         .unwrap()
         .starts_with("abiding-word-v11-"));
     db.with_conn(|conn| {
-        assert_eq!(migrations::current_version(conn)?, 12);
+        assert_eq!(
+            migrations::current_version(conn)?,
+            MIGRATIONS.last().unwrap().version
+        );
         let p = presentations::get(conn, "pr-1")?;
         assert_eq!(
             (p.title.as_str(), p.theme.as_str()),

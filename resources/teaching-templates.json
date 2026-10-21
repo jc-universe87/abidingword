@@ -1,0 +1,30 @@
+{
+  "comment": "The built-in Bible Teaching templates (v0.18.7): one starting structure per format, from the formats of v0.17. A template is a format and the points, questions or steps a new teaching starts with; the titles are application text (studies.teaching.starts.<kind>.<key> in every language). They cannot be changed in the app; the person saves a copy to make one their own. To refine a baseline, change it here: teachings already made are never affected. See docs/user-templates-v0.18.7.md.",
+  "templates": [
+    { "key": "sermon", "kind": "sermon", "points": [] },
+    { "key": "bible_study", "kind": "bible_study", "points": [] },
+    { "key": "youth", "kind": "youth", "points": [] },
+    {
+      "key": "children",
+      "kind": "children",
+      "points": [
+        { "key": "welcome", "kind": "text" },
+        { "key": "story", "kind": "scripture" },
+        { "key": "question", "kind": "question" },
+        { "key": "activity", "kind": "activity" },
+        { "key": "prayer", "kind": "text" }
+      ]
+    },
+    {
+      "key": "lesson",
+      "kind": "lesson",
+      "points": [
+        { "key": "teaching", "kind": "text" },
+        { "key": "discussion", "kind": "question" },
+        { "key": "activity", "kind": "activity" }
+      ]
+    },
+    { "key": "talk", "kind": "talk", "points": [] },
+    { "key": "other", "kind": "other", "points": [] }
+  ]
+}

@@ -25,14 +25,30 @@ your notes, passages and sources are at hand without being copied.
    Teaching side.)
 2. Under the study's title, click **Bible Teaching** (click **Bible Study**
    to go back).
-3. Choose what you are preparing: *Sermon*, *Group Bible study*, *Youth*,
-   *Children*, *Lesson*, *Talk* or *Other*. A line under the choices says what
-   it gives you to work in, and what it starts with.
+3. Under **What would you like to prepare?**, choose *Sermon*, *Group Bible
+   study*, *Youth*, *Children*, *Lesson*, *Talk* or *Other*, or one of **Your
+   templates** (see below). A line under the choices says what it gives you to
+   work in, and what it starts with.
 4. Change the title if you like, and click **Start**.
 
 Nothing is written for you. A lesson starts with a few empty steps (for
 children: *Welcome, Bible story, Question, Activity, Prayer*); the other kinds
 start empty.
+
+### Your own templates
+
+If you often prepare the same shape of teaching (a youth evening that always
+starts with a game, say), make it a **template**: in **About this teaching**,
+click **Save as my template**, give it a name and save. The template keeps
+the kind of teaching and its points, questions or steps in order. A lesson's
+steps keep their titles and kinds. A sermon's points and a group study's
+questions start without titles, because they are the teaching itself. Nothing
+you wrote comes with it.
+
+You can also make one in **Settings → Templates → Bible Teaching**: **New
+Bible Teaching template…**, or **Save as my template** beside a built-in
+one. A new teaching takes a copy of its template, so changing or deleting a
+template never changes a teaching.
 
 One study can lead to **several teachings**, for example a Sunday sermon, a
 group Bible study and a children's lesson. On the quiet line under the
@@ -75,6 +91,9 @@ that kind needs:
 **Notes for yourself** (reminders while you teach) are at the end of every
 kind. Changing the kind of a teaching, or of a step, never loses anything:
 a field with writing in it is always shown.
+
+In a lesson, **Add a step** asks which kind of step to add: *Teaching*,
+*Bible reading*, *Question*, *Activity* or *Picture*.
 
 Everything is **saved as you type**. Move an item with the ▲ ▼ buttons
 beside it; delete it with 🗑 (if you wrote in it, you are asked first).

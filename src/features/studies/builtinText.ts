@@ -17,7 +17,7 @@ interface BuiltinDefinition {
   key: string;
   name: string;
   description?: string | null;
-  sections: { key: string; title: string; guidance?: string | null; optional?: boolean; retired?: boolean }[];
+  sections: { key: string; title: string; guidance?: string | null; optional?: boolean; retired?: boolean; phase?: string | null }[];
 }
 
 const BUILTIN: BuiltinDefinition[] = [passage, word, topical, biblicalTheology, systematicTheology, teaching];
@@ -73,7 +73,7 @@ export function templateDescription(template: Pick<StudyTemplate, "key" | "descr
 
 /**
  * A built-in template's sections in the interface language, e.g. to make a
- * user's own copy in their language ("Duplicate and customise").
+ * user's own copy in their language ("Save as my template").
  */
 export function localizedSections(template: Pick<StudyTemplate, "key" | "isBuiltin" | "sections">): TemplateSection[] {
   if (!template.isBuiltin || !BY_KEY.has(template.key)) return template.sections;
@@ -84,6 +84,7 @@ export function localizedSections(template: Pick<StudyTemplate, "key" | "isBuilt
       key: s.key ?? null,
       title: sectionTitle({ key: s.key, title: s.title }),
       guidance: sectionGuidance({ key: s.key, guidance: s.guidance }),
+      phase: s.phase ?? null,
       ...(s.optional ? { optional: true } : {}),
     }));
 }

@@ -54,6 +54,20 @@ text_enum!(
     }
 );
 
+text_enum!(
+    /// Where a part of a Bible Study belongs in its movement (v0.18.7): semantic
+    /// guidance for grouping parts, never a required set of sections. A part may
+    /// have none.
+    StudyPhase, "study phase" {
+        Text => "text",
+        Understanding => "understanding",
+        Theology => "theology",
+        Application => "application",
+        Audience => "audience",
+        Teaching => "teaching",
+    }
+);
+
 text_enum!(StudyStatus, "study status" {
     Active => "active",
     Paused => "paused",
@@ -152,6 +166,12 @@ pub struct CreateStudySection {
     pub title: String,
     #[serde(default)]
     pub guidance: Option<String>,
+    /// The built-in part this is (a part the template offers for later), if any.
+    #[serde(default)]
+    pub key: Option<String>,
+    /// Where it belongs in the study's movement, if anywhere.
+    #[serde(default)]
+    pub phase: Option<StudyPhase>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

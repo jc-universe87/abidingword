@@ -462,7 +462,14 @@
     "fromTemplate": "From your template: {{name}}",
     "groupAbout": "About this study",
     "groupCopy": "Copy",
-    "findOccurrences": "Find occurrences"
+    "findOccurrences": "Find occurrences",
+    "saveAsTemplate": "Save as my template",
+    "saveAsTemplateGroup": "Save this study's structure as a template",
+    "templateName": "Name of the template",
+    "saveAsTemplateKeeps_one": "The template keeps this study's part: its heading, guidance and place in the outline. Your writing, notes, passages and details stay in this study.",
+    "saveAsTemplateKeeps_other": "The template keeps this study's {{count}} parts: their headings, guidance and places in the outline, in this order. Your writing, notes, passages and details stay in this study.",
+    "saveTemplate": "Save template",
+    "savedAsTemplate": "Saved as your template “{{name}}”. You can use it for a new study, and change it in Settings → Templates."
   },
   "editor": {
     "opening": "Opening study…",
@@ -586,7 +593,6 @@
     "sectionCount_one": "{{count}} part",
     "sectionCount_other": "{{count}} parts",
     "builtIn": "Built-in",
-    "duplicateCustomise": "Duplicate and customise",
     "edit": "Edit {{name}}",
     "duplicate": "Duplicate {{name}}",
     "delete": "Delete {{name}}",
@@ -594,7 +600,8 @@
     "confirm": "Delete the template “{{name}}”? Studies already made from it are not affected.",
     "deleteTemplate": "Delete template",
     "new": "New template…",
-    "teachingListLabel": "Bible Teaching formats"
+    "saveAsMine": "Save as my template",
+    "saveAsMineLabel": "Save {{name}} as my template"
   },
   "templateEditor": {
     "opening": "Opening template…",
@@ -993,7 +1000,41 @@
     },
     "materials": {
       "open": "Materials"
-    }
+    },
+    "prepareWhat": "What would you like to prepare?",
+    "templates": {
+      "mine": "Your templates",
+      "listLabel": "Bible Teaching templates",
+      "intro": "A Bible Teaching template is what a new teaching starts with: its format, and the points, questions or steps it begins with. A teaching takes a copy when it is made, so changing or deleting a template never changes a teaching.",
+      "saveAsMine": "Save as my template",
+      "saveAsMineLabel": "Save {{name}} as my template",
+      "edit": "Edit {{name}}",
+      "duplicate": "Duplicate {{name}}",
+      "delete": "Delete {{name}}",
+      "confirmLabel": "Delete {{name}}?",
+      "confirm": "Delete the template “{{name}}”? Bible Teachings already made from it are not affected.",
+      "new": "New Bible Teaching template…",
+      "newTitle": "New Bible Teaching template",
+      "editTitle": "Edit Bible Teaching template",
+      "format": "Format",
+      "pointsList": "What the template starts with",
+      "pointsHint": "Leave a title empty to name it in each teaching.",
+      "none": "Nothing yet: a teaching made with this template starts empty.",
+      "untitled": "untitled"
+    },
+    "saveTemplate": {
+      "action": "Save as my template",
+      "group": "Save this teaching's structure as a template",
+      "name": "Name of the template",
+      "keeps": {
+        "points": "The template keeps the format and as many main points as this teaching has, in order. The points start without titles.",
+        "questions": "The template keeps the format and as many questions as this teaching has. The questions start empty.",
+        "steps": "The template keeps the format and the steps in order, each with its title and kind."
+      },
+      "notKept": "Nothing you wrote comes with it: no audience, purpose, message, introduction, conclusion, notes, passages, kept material or notes from your study.",
+      "saved": "Saved as your template “{{name}}”. You can choose it for your next Bible Teaching, and change it in Settings → Templates."
+    },
+    "addStepMenu": "Kind of step to add"
   },
   "parts": {
     "add": "Add a part",
@@ -1118,5 +1159,11 @@
       "exportHint": "PowerPoint, PDF slides, a speaker sheet for a phone, Markdown or a delivery package",
       "exportHintNamed": "“{{title}}”: PowerPoint, PDF slides, a speaker sheet for a phone, Markdown or a delivery package"
     }
+  },
+  "phase": {
+    "label": "Outline",
+    "none": "Not in the outline",
+    "ofPart": "Where {{title}} belongs in the study outline",
+    "ofTemplatePart": "Where part {{number}} belongs in the study outline"
   }
 }

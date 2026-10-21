@@ -12,7 +12,7 @@ import type { StudySection } from "@/types/domain";
 import { FINDING_TYPES, type FindingType } from "@/types/studies";
 import { Button } from "@/design-system/Button";
 import { EditableTitle } from "./EditableTitle";
-import { AddPart } from "./AddPart";
+import { AddPart, type NewPart } from "./AddPart";
 import { FindingList, FindingsPanel, KindFilter, QuickCapture } from "./FindingsPanel";
 import { RelatedStudies } from "./RelatedStudies";
 import { SectionEditor } from "./SectionEditor";
@@ -184,8 +184,7 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
 
   const sections = useMemo(() => detail.data?.sections ?? [], [detail.data]);
   // The study's movement (v0.18.6): its parts in runs of one phase, where they stand.
-  const studyType = detail.data?.study.studyType ?? "custom";
-  const runs = useMemo(() => phaseRuns(sections, studyType), [sections, studyType]);
+  const runs = useMemo(() => phaseRuns(sections), [sections]);
   const journey = hasJourney(runs);
   const currentRun = useCurrentRun(article, runs, journey && view === "study", activeSection);
   const phaseName = usePhaseName();
@@ -225,10 +224,11 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
     }
   };
 
-  const addSection = async (part: { title: string; guidance?: string }) => {
+  const addSection = async (part: NewPart) => {
     setError(null);
     try {
-      const created = await api.studySectionCreate({ studyId: study.id, title: part.title, guidance: part.guidance });
+      // A part the template keeps for later comes with its key and phase; one of the person's own with neither.
+      const created = await api.studySectionCreate({ studyId: study.id, title: part.title, guidance: part.guidance, key: part.key ?? null, phase: part.phase ?? null });
       setNewSection(created.id);
       detail.reload();
     } catch (e) {
@@ -355,6 +355,7 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
           <StudyDetailsPanel
             id={detailsId}
             study={study}
+            sections={sections}
             findings={findings.data ?? []}
             templates={templates.data ?? []}
             passages={passages.data ?? []}

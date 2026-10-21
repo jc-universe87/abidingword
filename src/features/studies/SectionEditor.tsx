@@ -6,10 +6,11 @@ import { useSaveTracker } from "@/hooks/SaveTracker";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import type { StudySection } from "@/types/domain";
-import type { FindingType } from "@/types/studies";
+import type { FindingType, StudyPhase } from "@/types/studies";
 import { BlockEditor } from "./BlockEditor";
 import { sectionGuidance, sectionTitle } from "./builtinText";
 import { PartAdd } from "./PartAdd";
+import { PhaseSelect } from "./PhaseSelect";
 
 interface SectionEditorProps {
   section: StudySection;
@@ -104,6 +105,19 @@ export function SectionEditor(props: SectionEditorProps) {
       const error = toApiError(e);
       if (!force && error.kind === "conflict") setConfirmingDelete(true);
       else setError(error.message);
+    }
+  };
+
+  // Where the part belongs in the study outline: the person's to change, never a lock (v0.18.7).
+  const setPhase = async (next: StudyPhase | null) => {
+    const saving = api.studySectionUpdate({ id: section.id, phase: next ?? "" });
+    track(saving);
+    try {
+      const updated = await saving;
+      onChange({ ...updated, blocks: section.blocks });
+      setError(null);
+    } catch (e) {
+      setError(toApiError(e).message);
     }
   };
 
@@ -202,6 +216,7 @@ export function SectionEditor(props: SectionEditorProps) {
             <Trash2 className="size-4" aria-hidden="true" />
             {t("common.delete")}
           </button>
+          <PhaseSelect value={section.phase} onChange={(next) => void setPhase(next)} label={t("studies.phase.ofPart", { title })} className="ml-1" />
         </div>
       )}
       {confirmingDelete && (

@@ -116,14 +116,19 @@ type, ordered sections with optional guidance. Stored in `study_templates`
   (`passage-study`, `word-study`, `topical-study`,
   `biblical-theology-study`, `systematic-theology-study`,
   `teaching-study`), compiled in and installed or refreshed at startup.
-  They cannot be edited or deleted; "Duplicate and customise" makes a user
-  copy.
+  They cannot be edited or deleted; "Save as my template" (until v0.18.7
+  "Duplicate and customise") makes a user copy.
 - **User** templates can be created, renamed, described, retyped, have
   sections added, renamed, reordered and removed, duplicated and deleted
   (Settings → Study Templates).
 - **Applying**: a new study copies the template's sections. It keeps the
   template's id for reference only; later changes to, or deletion of, the
   template never change existing studies (tested).
+
+Since v0.18.7 each section of a template may say its **phase** (where it
+belongs in the study outline), a study copies it with its key, and a study's
+structure can be saved as a template of the person's own: see
+[`user-templates-v0.18.7.md`](user-templates-v0.18.7.md).
 
 ## Creating and duplicating studies
 

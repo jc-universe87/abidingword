@@ -156,6 +156,7 @@ pub fn create(conn: &Connection, input: &CreateStudy) -> AppResult<StudyDetail> 
             guidance: None,
             optional: false,
             retired: false,
+            phase: None,
         }],
     };
 
@@ -181,9 +182,12 @@ pub fn create(conn: &Connection, input: &CreateStudy) -> AppResult<StudyDetail> 
         let section_id = sections::insert(
             &tx,
             &id,
-            section.key.as_deref(),
-            &section.title,
-            section.guidance.as_deref(),
+            sections::NewSection {
+                key: section.key.as_deref(),
+                title: &section.title,
+                guidance: section.guidance.as_deref(),
+                phase: section.phase,
+            },
             index as i64,
             &now,
         )?;
@@ -265,9 +269,12 @@ pub fn duplicate(conn: &Connection, input: &DuplicateStudy) -> AppResult<StudyDe
         let new_section = sections::insert(
             &tx,
             &id,
-            section.key.as_deref(),
-            &section.title,
-            section.guidance.as_deref(),
+            sections::NewSection {
+                key: section.key.as_deref(),
+                title: &section.title,
+                guidance: section.guidance.as_deref(),
+                phase: section.phase,
+            },
             section.position,
             &now,
         )?;

@@ -50,7 +50,7 @@ fn invalid(code: &'static str, text: &str) -> AppError {
     AppError::InvalidInput(UserMessage::new(code, text))
 }
 
-fn check_kind(kind: Option<&str>) -> AppResult<Option<String>> {
+pub(crate) fn check_kind(kind: Option<&str>) -> AppResult<Option<String>> {
     match kind.map(str::trim).filter(|k| !k.is_empty()) {
         None => Ok(None),
         Some(k) if TEACHING_KINDS.contains(&k) => Ok(Some(k.to_string())),
@@ -64,7 +64,7 @@ fn check_kind(kind: Option<&str>) -> AppResult<Option<String>> {
     }
 }
 
-fn check_step_kind(kind: Option<&str>) -> AppResult<Option<String>> {
+pub(crate) fn check_step_kind(kind: Option<&str>) -> AppResult<Option<String>> {
     match kind.map(str::trim).filter(|k| !k.is_empty()) {
         None => Ok(None),
         Some(k) if STEP_KINDS.contains(&k) => Ok(Some(k.to_string())),
@@ -78,7 +78,7 @@ fn check_step_kind(kind: Option<&str>) -> AppResult<Option<String>> {
     }
 }
 
-fn point_title(title: &str) -> AppResult<String> {
+pub(crate) fn point_title(title: &str) -> AppResult<String> {
     let title = title.trim();
     if title.chars().count() > validate::TITLE_MAX_CHARS {
         return Err(invalid(
@@ -90,7 +90,7 @@ fn point_title(title: &str) -> AppResult<String> {
 }
 
 /// A format starts with at most this many steps.
-const STARTING_POINTS_MAX: usize = 20;
+pub(crate) const STARTING_POINTS_MAX: usize = 20;
 
 fn long_text(value: &str) -> AppResult<String> {
     if value.chars().count() > BLOCK_MAX_CHARS {

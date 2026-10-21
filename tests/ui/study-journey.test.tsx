@@ -1,32 +1,42 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
-import { hasJourney, namesRun, phaseOfKey, phaseRuns } from "@/features/studies/journey";
+import { hasJourney, namesRun, phaseRuns, type Phase } from "@/features/studies/journey";
 import type { StudySection } from "@/types/domain";
+import passageStudy from "../../resources/templates/passage-study.json";
+import teachingStudy from "../../resources/templates/teaching-study.json";
 import { createMemoryApi } from "../support/memoryApi";
 import { renderApp } from "../support/render";
 
-// The study journey (v0.18.6): a Bible Study's parts grouped into its
-// movement from the text to teaching, where they stand, with an outline to
-// find one's place and a quiet way on to a Bible Teaching. All text invented.
+// The study journey (v0.18.6, v0.18.7): a Bible Study's parts grouped into
+// its movement from the text to teaching, where they stand, by the phase
+// each part carries from its template, with an outline to find one's place
+// and a quiet way on to a Bible Teaching. All text invented.
 
 beforeEach(() => window.localStorage.clear());
 
-const part = (key: string | null, title = key ?? "Mine"): StudySection => ({
+const part = (key: string | null, title = key ?? "Mine", phase: Phase | null = null): StudySection => ({
   id: `${key ?? "own"}-${title}`,
   studyId: "s",
   key,
   title,
   guidance: null,
+  phase,
   position: 0,
   blocks: [],
   createdAt: "",
   updatedAt: "",
   revision: 1,
 });
+/** The parts of a built-in template, with the phases it gives them. */
+const builtin = (template: { sections: { key: string; title: string; phase?: string }[] }, keys: string[]) =>
+  keys.map((k) => {
+    const s = template.sections.find((x) => x.key === k)!;
+    return part(k, s.title, (s.phase ?? null) as Phase | null);
+  });
 
 describe("the phases of a study", () => {
   it("group the parts of a passage study from the text to its application, in their own order", () => {
-    const runs = phaseRuns(["text", "observations", "context", "meaning", "theology", "application"].map((k) => part(k)), "passage");
+    const runs = phaseRuns(builtin(passageStudy, ["text", "observations", "context", "meaning", "theology", "application"]));
     expect(runs.map((r) => [r.phase, r.sections.map((s) => s.key)])).toEqual([
       ["text", ["text", "observations", "context"]],
       ["understanding", ["meaning"]],
@@ -38,34 +48,54 @@ describe("the phases of a study", () => {
 
   it("follow an older study's full set of parts through audience to teaching", () => {
     const keys = ["text", "context", "observations", "structure", "exegesis", "theology", "application", "audience", "teaching"];
-    expect(phaseRuns(keys.map((k) => part(k)), "passage").map((r) => r.phase)).toEqual(["text", "understanding", "theology", "application", "audience", "teaching"]);
+    expect(phaseRuns(builtin(passageStudy, keys)).map((r) => r.phase)).toEqual(["text", "understanding", "theology", "application", "audience", "teaching"]);
   });
 
-  it("read the same part differently where the kind of study gives it another meaning", () => {
-    expect(phaseOfKey("conclusions", "word")).toBe("understanding");
-    expect(phaseOfKey("conclusions", "systematic_theology")).toBe("theology");
-    expect(phaseOfKey("structure", "passage")).toBe("text");
-    expect(phaseOfKey("structure", "teaching")).toBe("teaching");
+  it("take each part's phase from its template, so the same part can mean another thing in another template", () => {
     const teaching = ["text", "main-idea", "exegesis", "theology", "purpose", "audience", "structure", "illustrations", "application", "teaching-outline"];
-    expect(phaseRuns(teaching.map((k) => part(k)), "teaching").map((r) => r.phase)).toEqual(["text", "understanding", "theology", "teaching"]);
+    expect(phaseRuns(builtin(teachingStudy, teaching)).map((r) => r.phase)).toEqual(["text", "understanding", "theology", "teaching"]);
+    expect(builtin(passageStudy, ["structure"])[0]!.phase).toBe("text");
+    expect(builtin(teachingStudy, ["structure"])[0]!.phase).toBe("teaching");
   });
 
-  it("keep a part of the person's own with the part before it, and never reorder", () => {
-    const sections = [part("text"), part(null, "My questions"), part("meaning"), part("theology"), part(null, "Hymns")];
-    const runs = phaseRuns(sections, "passage");
-    expect(runs.map((r) => r.sections.map((s) => s.title))).toEqual([["text", "My questions"], ["meaning"], ["theology", "Hymns"]]);
+  it("give every built-in part a phase, written in its template", async () => {
+    const api = createMemoryApi();
+    for (const template of await api.templateList()) {
+      for (const section of template.sections) expect(section.phase, `${template.key}/${section.key}`).toBeTruthy();
+    }
+  });
+
+  it("keep a part without a phase with the part before it, without giving it a meaning, and never reorder", () => {
+    const sections = [part("text", "Text", "text"), part(null, "My questions"), part("meaning", "Meaning", "understanding"), part("theology", "Theology", "theology"), part(null, "Hymns")];
+    const runs = phaseRuns(sections);
+    expect(runs.map((r) => r.sections.map((s) => s.title))).toEqual([["Text", "My questions"], ["Meaning"], ["Theology", "Hymns"]]);
     expect(runs.flatMap((r) => r.sections)).toEqual(sections);
+    // The part itself still has none.
+    expect(sections[1]!.phase).toBeNull();
+  });
+
+  it("follow a template of the person's own: its own order, phases repeated, some left out", () => {
+    const sections = [
+      part(null, "Prayer"),
+      part("user-1", "Read it slowly", "text"),
+      part(null, "Who is it for?", "audience"),
+      part(null, "Read it again", "text"),
+      part(null, "Live it", "application"),
+    ];
+    const runs = phaseRuns(sections);
+    expect(runs.map((r) => r.phase)).toEqual([null, "text", "audience", "text", "application"]);
+    expect(hasJourney(runs)).toBe(true);
   });
 
   it("show a part of an earlier phase placed later as it is: a run of its own", () => {
-    const runs = phaseRuns(["text", "meaning", "theology", "application", "structure"].map((k) => part(k)), "passage");
+    const runs = phaseRuns(builtin(passageStudy, ["text", "meaning", "theology", "application", "structure"]));
     expect(runs.map((r) => r.phase)).toEqual(["text", "understanding", "theology", "application", "text"]);
   });
 
   it("force no shape on a study of the person's own, or one with too little movement", () => {
-    expect(phaseRuns([part(null, "Notes")], "custom")).toEqual([{ phase: null, sections: [expect.objectContaining({ title: "Notes" })] }]);
-    expect(hasJourney(phaseRuns([part(null, "Notes"), part(null, "More")], "custom"))).toBe(false);
-    expect(hasJourney(phaseRuns(["word", "occurrences", "semantic-range"].map((k) => part(k)), "word"))).toBe(false);
+    expect(phaseRuns([part(null, "Notes")])).toEqual([{ phase: null, sections: [expect.objectContaining({ title: "Notes" })] }]);
+    expect(hasJourney(phaseRuns([part(null, "Notes"), part(null, "More")]))).toBe(false);
+    expect(hasJourney(phaseRuns([part("word", "Word", "text"), part("occurrences", "Occurrences", "text"), part("semantic-range", "Range", "understanding")]))).toBe(false);
   });
 
   it("name a phase above its parts only when the first part does not already say it", () => {

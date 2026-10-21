@@ -11,6 +11,7 @@ import { SourcesPane, type PaneSource } from "@/features/library/SourcesPane";
 import { UpdateNotice } from "@/features/updates/UpdateNotice";
 import { Sheet } from "@/design-system/Sheet";
 import { SettingsView } from "@/features/settings/SettingsView";
+import { TeachingTemplateEditor } from "@/features/settings/TeachingTemplateEditor";
 import { TemplateEditor } from "@/features/settings/TemplateEditor";
 import { StudyPane } from "@/features/studies/StudyPane";
 import { AppBar } from "@/layouts/AppBar";
@@ -20,7 +21,7 @@ import type { AppInfo, Workspace } from "@/types/domain";
 
 type View = "workspace" | "settings" | "library" | "source" | "addSource";
 /** Tasks that open over the current page, which stays as it was behind them. */
-type Overlay = { kind: "addBible" } | { kind: "template"; templateId: string | null } | null;
+type Overlay = { kind: "addBible" } | { kind: "template"; templateId: string | null } | { kind: "teachingTemplate"; templateId: string | null } | null;
 
 export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace }) {
   const { t } = useTranslation();
@@ -28,6 +29,7 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
   const [returnTo, setReturnTo] = useState<View>("workspace");
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [templatesVersion, setTemplatesVersion] = useState(0);
+  const [teachingTemplatesVersion, setTeachingTemplatesVersion] = useState(0);
   const [studySearch, setStudySearch] = useState<string | null>(null);
   // Each request to open the library (id) remembers its latest search.
   const [library, setLibrary] = useState<{ id: number; query?: string }>({ id: 0 });
@@ -125,6 +127,8 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
           onAddBible={addBible}
           onEditTemplate={(templateId) => setOverlay({ kind: "template", templateId })}
           templatesVersion={templatesVersion}
+          onEditTeachingTemplate={(templateId) => setOverlay({ kind: "teachingTemplate", templateId })}
+          teachingTemplatesVersion={teachingTemplatesVersion}
         />
       )}
       {view === "library" && (
@@ -167,6 +171,17 @@ export function Shell({ info, workspace }: { info: AppInfo; workspace: Workspace
             onClose={() => {
               setOverlay(null);
               setTemplatesVersion((v) => v + 1);
+            }}
+          />
+        </Sheet>
+      )}
+      {overlay?.kind === "teachingTemplate" && (
+        <Sheet labelledBy="teaching-template-editor-title">
+          <TeachingTemplateEditor
+            templateId={overlay.templateId}
+            onClose={() => {
+              setOverlay(null);
+              setTeachingTemplatesVersion((v) => v + 1);
             }}
           />
         </Sheet>

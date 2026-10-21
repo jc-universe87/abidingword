@@ -95,7 +95,8 @@
   "templates": {
     "noSections": "Una plantilla necesita al menos una parte con la que empezar.",
     "tooManySections": "Una plantilla puede tener como máximo {{max}} partes.",
-    "builtinReadOnly": "Las plantillas integradas no se pueden modificar. Duplícala para crear tu propia versión."
+    "builtinReadOnly": "Las plantillas integradas no se pueden modificar. Duplícala para crear tu propia versión.",
+    "duplicateKey": "Dos partes de la plantilla son la misma parte. Quita una de ellas."
   },
   "sections": {
     "hasContent": "“{{title}}” todavía contiene texto o apuntes."
@@ -198,5 +199,9 @@
   },
   "material": {
     "tooLong": "Es demasiado largo para guardarlo en un solo archivo."
+  },
+  "teachingTemplates": {
+    "noKind": "Elige para qué es la plantilla.",
+    "tooManyPoints": "Una plantilla puede empezar con {{max}} puntos o pasos como máximo."
   }
 }

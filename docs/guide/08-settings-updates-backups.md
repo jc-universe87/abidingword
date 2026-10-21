@@ -107,15 +107,26 @@ A template is a reusable **starting structure**. Settings shows two kinds:
 
 - **Bible Study** templates: the parts a new study starts with (a passage
   study: *Text, Observations, Context, Meaning, Theology, Application*). The
-  built-in ones can't be changed, but you can **duplicate and customise** one:
-  rename parts, add hints, change the order, remove parts, and tick
-  **Add later** for a part you want offered under *Add a part* rather than
-  made at once.
-- **Bible Teaching** formats: what each kind of teaching gives you to work in
-  (main points for a sermon, questions for a group study, steps for a lesson)
-  and the steps a lesson starts with.
+  built-in ones can't be changed, but **Save as my template** makes your own
+  copy. In your own you can rename parts, add hints, change the order with
+  ▲ ▼, remove parts, tick **Add later** for a part you want offered under
+  *Add a part* rather than made at once, and choose where each part belongs
+  in the study **outline** (*Text, Understanding, Theology, Application,
+  Audience, Teaching*, or *Not in the outline*). Use as few or as many as you
+  like, in any order.
+- **Bible Teaching** templates: what a new teaching starts with, its kind and
+  its points, questions or steps. There is one built-in template for each
+  kind of teaching, which can't be changed. **Save as my template** beside one
+  makes your own copy, and **New Bible Teaching template…** starts one from
+  nothing. In your own you choose the kind, add, name, order and remove
+  points or steps, and give each step its kind.
 
-Changing a template never changes a study already made from it.
+Your own templates have **Edit**, **Duplicate** and **Delete…**. You use a
+template when you begin a study or a teaching. Changing or deleting a
+template never changes a study or teaching already made from it.
+
+These are not the **church templates** of a presentation (its colours, fonts
+and logo). Those are under *Church templates* in the presentation.
 
 ## Language
 

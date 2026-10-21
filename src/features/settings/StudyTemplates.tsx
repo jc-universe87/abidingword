@@ -8,8 +8,7 @@ import { useApi } from "@/lib/ApiContext";
 import { localizedSections, templateDescription, templateName } from "@/features/studies/builtinText";
 import { studyTypeLabel } from "@/features/studies/labels";
 import { startsWith, type StudyTemplate } from "@/types/studies";
-import { TEACHING_KINDS } from "@/types/teaching";
-import { STARTING_STEPS, canvasShape, startingStepTitle, teachingKindLabel } from "@/features/teaching/labels";
+import { TeachingTemplates } from "./TeachingTemplates";
 
 /**
  * Built-in templates no longer offered: the old "Teaching / Sermon" study is
@@ -20,10 +19,20 @@ export const RETIRED_TEMPLATES = new Set(["teaching-study"]);
 
 /**
  * Settings → Templates: reusable starting structures, for a Bible study
- * (its parts; built-in and the person's own) and for a Bible teaching (each
- * format's shape, and the steps a lesson starts with).
+ * (its parts; built-in and the person's own) and for a Bible teaching (its
+ * format and what it starts with; built-in and the person's own, v0.18.7).
  */
-export function StudyTemplates({ onEdit, version = 0 }: { onEdit: (templateId: string | null) => void; version?: number }) {
+export function StudyTemplates({
+  onEdit,
+  onEditTeaching,
+  version = 0,
+  teachingVersion = 0,
+}: {
+  onEdit: (templateId: string | null) => void;
+  onEditTeaching: (templateId: string | null) => void;
+  version?: number;
+  teachingVersion?: number;
+}) {
   const { t } = useTranslation();
   const api = useApi();
   // Reloaded when the template editor (over Settings) closes: `version` changes then.
@@ -42,7 +51,7 @@ export function StudyTemplates({ onEdit, version = 0 }: { onEdit: (templateId: s
     }
   };
 
-  // A built-in template becomes the user's own copy in the interface language.
+  // "Save as my template": a built-in template becomes the person's own copy, in their language, to change.
   const customise = async (template: StudyTemplate) => {
     const copy = await api.templateCreate({
       name: t("studies.builtin.copyTitle", { title: templateName(template) }),
@@ -87,8 +96,8 @@ export function StudyTemplates({ onEdit, version = 0 }: { onEdit: (templateId: s
           </div>
           <div className="flex gap-2">
             {template.isBuiltin ? (
-              <Button variant="quiet" onClick={() => act(() => customise(template))}>
-                {t("studies.templates.duplicateCustomise")}
+              <Button variant="quiet" onClick={() => act(() => customise(template))} aria-label={t("studies.templates.saveAsMineLabel", { name })}>
+                {t("studies.templates.saveAsMine")}
               </Button>
             ) : (
               <>
@@ -135,21 +144,7 @@ export function StudyTemplates({ onEdit, version = 0 }: { onEdit: (templateId: s
         </div>
         {error && <p role="alert" className="m-0 text-danger">{error}</p>}
       </section>
-      <section aria-labelledby="templates-teaching" className="flex flex-col gap-3">
-        <h3 id="templates-teaching" className={heading}>{t("studies.view.teaching")}</h3>
-        <ul aria-label={t("studies.templates.teachingListLabel")} className="m-0 list-none border-t border-border-subtle p-0">
-          {TEACHING_KINDS.map((kind) => (
-            <li key={kind} className="flex flex-col gap-0.5 border-b border-border-subtle py-3">
-              <p className="type-item m-0">{teachingKindLabel(t, kind)}</p>
-              <p className="m-0 text-[0.9375rem] text-text-muted">
-                {t(`studies.teaching.format.${canvasShape(kind)}`)}
-                {STARTING_STEPS[kind] &&
-                  ` ${t("studies.teaching.startsWith", { steps: STARTING_STEPS[kind]!.map((step) => startingStepTitle(t, kind, step.key)).join(t("common.listSeparator")) })}`}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <TeachingTemplates onEdit={onEditTeaching} version={teachingVersion} />
     </div>
   );
 }

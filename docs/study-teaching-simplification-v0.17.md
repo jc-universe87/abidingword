@@ -182,6 +182,11 @@ Teaching side (`studyView.ts`), so a teaching is always derived from a study.
 canvas and the steps a lesson starts with. Settings → Templates shows them as
 a second group. Custom teaching templates are deferred (§13).
 
+*Since v0.18.7:* the formats are the built-in Bible Teaching templates
+(`resources/teaching-templates.json`, the same starting steps), the person can
+make their own, and every built-in part of a Bible Study template states its
+phase. See [`user-templates-v0.18.7.md`](user-templates-v0.18.7.md).
+
 ## 7. Bible Teaching
 
 Study asks *what does this mean?*; Teaching asks *how will I communicate

@@ -92,7 +92,8 @@
   "templates": {
     "noSections": "A template needs at least one part to start with.",
     "tooManySections": "A template can have at most {{max}} parts.",
-    "builtinReadOnly": "Built-in templates can’t be changed. Duplicate it to make your own version."
+    "builtinReadOnly": "Built-in templates can’t be changed. Duplicate it to make your own version.",
+    "duplicateKey": "Two parts of the template are the same part. Remove one of them."
   },
   "sections": {
     "hasContent": "“{{title}}” still has writing or notes in it."
@@ -195,5 +196,9 @@
   },
   "material": {
     "tooLong": "This is too long to save as one file."
+  },
+  "teachingTemplates": {
+    "noKind": "Choose what the template is for.",
+    "tooManyPoints": "A template can start with at most {{max}} points or steps."
   }
 }

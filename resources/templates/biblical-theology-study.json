@@ -7,50 +7,59 @@
     {
       "key": "theme",
       "title": "Theme",
-      "guidance": "The theme being traced and why it matters."
+      "guidance": "The theme being traced and why it matters.",
+      "phase": "text"
     },
     {
       "key": "old-testament",
       "title": "Old Testament",
-      "guidance": "Where the theme begins and how it develops in the Law, Prophets and Writings."
+      "guidance": "Where the theme begins and how it develops in the Law, Prophets and Writings.",
+      "phase": "understanding"
     },
     {
       "key": "new-testament",
       "title": "New Testament",
-      "guidance": "How the theme comes to Christ and how the apostles take it up."
+      "guidance": "How the theme comes to Christ and how the apostles take it up.",
+      "phase": "understanding"
     },
     {
       "key": "fulfilment",
       "title": "Fulfilment / Consummation",
-      "guidance": "Its fulfilment in Christ and its final completion."
+      "guidance": "Its fulfilment in Christ and its final completion.",
+      "phase": "theology"
     },
     {
       "key": "synthesis",
       "title": "Synthesis",
-      "guidance": "The whole-Bible picture in a few sentences."
+      "guidance": "The whole-Bible picture in a few sentences.",
+      "phase": "theology"
     },
     {
       "key": "gospels",
       "title": "Gospels",
       "guidance": "How the theme comes to Christ in the Gospels.",
+      "phase": "understanding",
       "optional": true
     },
     {
       "key": "epistles",
       "title": "Epistles",
       "guidance": "How the apostles take up and apply the theme.",
+      "phase": "understanding",
       "optional": true
     },
     {
       "key": "canonical-development",
       "title": "Canonical Development",
       "guidance": "How the theme grows and changes across the canon.",
+      "phase": "understanding",
       "optional": true
     },
     {
       "key": "teaching",
       "title": "Teaching",
       "guidance": "How to teach this theme faithfully and clearly.",
+      "phase": "teaching",
       "retired": true
     }
   ]

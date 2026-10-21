@@ -1,6 +1,6 @@
 // TypeScript mirror of the native domain types (src-tauri/src/domain/mod.rs).
 // Keep both files in step when a field changes.
-import type { StudyDetails, StudyStatus, StudyType } from "./studies";
+import type { StudyDetails, StudyPhase, StudyStatus, StudyType } from "./studies";
 
 export interface Workspace {
   id: string;
@@ -48,6 +48,8 @@ export interface StudySection {
   key: string | null;
   title: string;
   guidance: string | null;
+  /** Where the part belongs in the study's movement, copied from its template (v0.18.7); null: none. */
+  phase: StudyPhase | null;
   position: number;
   blocks: StudyBlock[];
   createdAt: string;
@@ -158,6 +160,17 @@ export interface UpdateStudySection {
   title?: string;
   /** "" clears it. */
   guidance?: string;
+  /** "" clears it. */
+  phase?: StudyPhase | "";
+}
+
+export interface CreateStudySection {
+  studyId: string;
+  title: string;
+  guidance?: string;
+  /** The template part it was added from, when it was one. */
+  key?: string | null;
+  phase?: StudyPhase | null;
 }
 
 export interface CreateStudyBlock {

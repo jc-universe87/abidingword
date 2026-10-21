@@ -17,7 +17,10 @@ import type {
   SharedItem,
   TeachingMaterial,
   TeachingPreparation,
+  TeachingTemplate,
+  TeachingTemplateInput,
 } from "@/types/teaching";
+import { STEP_KINDS, TEACHING_KINDS } from "@/types/teaching";
 
 interface StoredPrep extends Omit<TeachingPreparation, "findings" | "passages" | "materials"> {
   links: { id: string; pointId: string | null; findingId: string }[];
@@ -27,6 +30,8 @@ interface StoredPrep extends Omit<TeachingPreparation, "findings" | "passages" |
 
 export interface TeachingState {
   preparations: StoredPrep[];
+  /** The person's own Bible Teaching templates (v0.18.7). */
+  templates: TeachingTemplate[];
   assistant: {
     config: AssistantConfig;
     /** provider kind, or "search:<kind>" → key (never returned). */
@@ -65,6 +70,7 @@ export function defaultAssistantConfig(): AssistantConfig {
 export function newTeachingState(): TeachingState {
   return {
     preparations: [],
+    templates: [],
     assistant: {
       config: defaultAssistantConfig(),
       keys: new Map(),
@@ -92,6 +98,10 @@ interface Helpers {
 
 type TeachingApi = Pick<
   Api,
+  | "teachingTemplateList"
+  | "teachingTemplateCreate"
+  | "teachingTemplateUpdate"
+  | "teachingTemplateDelete"
   | "teachingList"
   | "teachingGet"
   | "teachingCreate"
@@ -217,7 +227,44 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
     return p;
   };
 
+  // As the core (db/teaching_templates.rs): a format, at most 20 points, known step kinds; structure only.
+  const checkedTemplate = (input: TeachingTemplateInput) => {
+    const name = input.name.trim();
+    if (!name) throw new ApiError("invalidInput", "Please give the template a name.");
+    if (!TEACHING_KINDS.includes(input.kind)) throw new ApiError("invalidInput", "Choose what the template is for.");
+    if (input.points.length > 20) throw new ApiError("invalidInput", "A template can start with at most 20 points or steps.");
+    for (const point of input.points)
+      if (point.kind && point.kind !== "audio" && !(STEP_KINDS as readonly string[]).includes(point.kind)) throw new ApiError("invalidInput", `“${point.kind}” is not a valid kind of step.`);
+    return {
+      name,
+      description: input.description?.trim() || null,
+      kind: input.kind,
+      points: input.points.map((point) => ({ ...(point.key ? { key: point.key } : {}), title: point.title.trim(), ...(point.kind ? { kind: point.kind } : {}) })),
+    };
+  };
+  const template = (id: string) => {
+    const found = state.templates.find((x) => x.id === id);
+    if (!found) throw new ApiError("notFound", "This template no longer exists.");
+    return found;
+  };
+
   return {
+    teachingTemplateList: async () => [...state.templates].sort((a, b) => a.name.localeCompare(b.name)).map((x) => structuredClone(x)),
+    teachingTemplateCreate: async (input) => {
+      const t = h.now();
+      const created: TeachingTemplate = { id: h.id(), ...checkedTemplate(input), createdAt: t, updatedAt: t, revision: 1 };
+      state.templates.push(created);
+      return structuredClone(created);
+    },
+    teachingTemplateUpdate: async (input) => {
+      const found = template(input.id);
+      Object.assign(found, checkedTemplate(input), { updatedAt: h.now(), revision: found.revision + 1 });
+      return structuredClone(found);
+    },
+    teachingTemplateDelete: async (id) => {
+      template(id);
+      state.templates = state.templates.filter((x) => x.id !== id);
+    },
     teachingList: async (studyId) => {
       h.studyExists(studyId);
       return state.preparations.filter((p) => p.studyId === studyId).map((p) => ({ id: p.id, studyId, title: p.title, kind: p.kind, updatedAt: p.updatedAt }));

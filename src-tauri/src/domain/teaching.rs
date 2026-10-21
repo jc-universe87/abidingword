@@ -241,3 +241,50 @@ pub struct KeepTeachingMaterial {
     pub image: Option<ImageInfo>,
     pub assistant: Option<String>,
 }
+
+/// A Bible Teaching template of the person's own (v0.18.7): a format and the
+/// points, questions or steps a teaching starts with. Structure only.
+#[derive(Debug, Clone, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct TeachingTemplate {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    /// One of [`TEACHING_KINDS`].
+    pub kind: String,
+    pub points: Vec<TeachingTemplatePoint>,
+    pub created_at: String,
+    pub updated_at: String,
+    pub revision: i64,
+}
+
+/// One point, question or step a teaching starts with.
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase", default)]
+pub struct TeachingTemplatePoint {
+    /// The built-in starting step it was taken from, if any.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub key: Option<String>,
+    /// May be empty: a point to be named in the teaching.
+    pub title: String,
+    /// A step's kind (see [`STEP_KINDS`]), if any.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub kind: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct TeachingTemplateInput {
+    pub name: String,
+    pub description: Option<String>,
+    pub kind: String,
+    pub points: Vec<TeachingTemplatePoint>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateTeachingTemplate {
+    pub id: String,
+    #[serde(flatten)]
+    pub template: TeachingTemplateInput,
+}

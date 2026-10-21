@@ -7,38 +7,45 @@
     {
       "key": "word",
       "title": "Word",
-      "guidance": "The word being studied, its original form and how translations render it."
+      "guidance": "The word being studied, its original form and how translations render it.",
+      "phase": "text"
     },
     {
       "key": "occurrences",
       "title": "Occurrences",
-      "guidance": "Where the word appears. (Automatic occurrence lists arrive with the concordance.)"
+      "guidance": "Where the word appears. (Automatic occurrence lists arrive with the concordance.)",
+      "phase": "text"
     },
     {
       "key": "semantic-range",
       "title": "Semantic Range",
-      "guidance": "The range of meanings the word carries, and what decides between them."
+      "guidance": "The range of meanings the word carries, and what decides between them.",
+      "phase": "understanding"
     },
     {
       "key": "key-passages",
       "title": "Key Passages",
-      "guidance": "The passages where the word matters most."
+      "guidance": "The passages where the word matters most.",
+      "phase": "text"
     },
     {
       "key": "conclusions",
       "title": "Conclusions",
-      "guidance": "What you have concluded, and what remains open."
+      "guidance": "What you have concluded, and what remains open.",
+      "phase": "understanding"
     },
     {
       "key": "immediate-contexts",
       "title": "Immediate Contexts",
       "guidance": "How each important use is shaped by its sentence and paragraph.",
+      "phase": "understanding",
       "optional": true
     },
     {
       "key": "theological-significance",
       "title": "Theological Significance",
       "guidance": "What the word contributes to the Bible's teaching.",
+      "phase": "theology",
       "optional": true
     }
   ]

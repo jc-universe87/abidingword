@@ -27,6 +27,7 @@ pub mod source_annotations;
 pub mod studies;
 pub mod study_passages;
 pub mod teaching;
+pub mod teaching_templates;
 pub mod templates;
 pub mod workspaces;
 

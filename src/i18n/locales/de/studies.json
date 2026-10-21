@@ -462,7 +462,14 @@
     "fromTemplate": "Aus deiner Vorlage: {{name}}",
     "groupAbout": "Über dieses Bibelstudium",
     "groupCopy": "Kopieren",
-    "findOccurrences": "Vorkommen finden"
+    "findOccurrences": "Vorkommen finden",
+    "saveAsTemplate": "Als meine Vorlage speichern",
+    "saveAsTemplateGroup": "Den Aufbau dieses Bibelstudiums als Vorlage speichern",
+    "templateName": "Name der Vorlage",
+    "saveAsTemplateKeeps_one": "Die Vorlage übernimmt den Teil dieses Bibelstudiums: seine Überschrift, seinen Hinweis und seinen Platz im Aufbau. Deine Texte, Notizen, Bibelstellen und Angaben bleiben in diesem Bibelstudium.",
+    "saveAsTemplateKeeps_other": "Die Vorlage übernimmt die {{count}} Teile dieses Bibelstudiums: ihre Überschriften, Hinweise und Plätze im Aufbau, in dieser Reihenfolge. Deine Texte, Notizen, Bibelstellen und Angaben bleiben in diesem Bibelstudium.",
+    "saveTemplate": "Vorlage speichern",
+    "savedAsTemplate": "Als deine Vorlage „{{name}}“ gespeichert. Du kannst sie für ein neues Bibelstudium verwenden und unter Einstellungen → Vorlagen ändern."
   },
   "editor": {
     "opening": "Bibelstudium wird geöffnet …",
@@ -586,7 +593,6 @@
     "sectionCount_one": "{{count}} Teil",
     "sectionCount_other": "{{count}} Teile",
     "builtIn": "Mitgeliefert",
-    "duplicateCustomise": "Duplizieren und anpassen",
     "edit": "{{name}} bearbeiten",
     "duplicate": "{{name}} duplizieren",
     "delete": "{{name}} löschen",
@@ -594,7 +600,8 @@
     "confirm": "Die Vorlage „{{name}}“ löschen? Bibelstudien, die bereits damit erstellt wurden, bleiben unverändert.",
     "deleteTemplate": "Vorlage löschen",
     "new": "Neue Vorlage …",
-    "teachingListLabel": "Formen der Bibellehre"
+    "saveAsMine": "Als meine Vorlage speichern",
+    "saveAsMineLabel": "„{{name}}“ als meine Vorlage speichern"
   },
   "templateEditor": {
     "opening": "Vorlage wird geöffnet …",
@@ -993,7 +1000,41 @@
     },
     "materials": {
       "open": "Unterlagen"
-    }
+    },
+    "prepareWhat": "Was möchtest du vorbereiten?",
+    "templates": {
+      "mine": "Deine Vorlagen",
+      "listLabel": "Vorlagen für Bibellehren",
+      "intro": "Eine Vorlage für eine Bibellehre ist das, womit eine neue Lehre beginnt: ihre Form und die Punkte, Fragen oder Schritte am Anfang. Eine Lehre übernimmt beim Erstellen eine Kopie; Ändern oder Löschen einer Vorlage verändert also nie eine Lehre.",
+      "saveAsMine": "Als meine Vorlage speichern",
+      "saveAsMineLabel": "„{{name}}“ als meine Vorlage speichern",
+      "edit": "„{{name}}“ bearbeiten",
+      "duplicate": "„{{name}}“ duplizieren",
+      "delete": "„{{name}}“ löschen",
+      "confirmLabel": "„{{name}}“ löschen?",
+      "confirm": "Die Vorlage „{{name}}“ löschen? Bibellehren, die bereits damit erstellt wurden, bleiben, wie sie sind.",
+      "new": "Neue Vorlage für eine Bibellehre …",
+      "newTitle": "Neue Vorlage für eine Bibellehre",
+      "editTitle": "Vorlage für eine Bibellehre bearbeiten",
+      "format": "Form",
+      "pointsList": "Womit die Vorlage beginnt",
+      "pointsHint": "Lass einen Titel leer, um ihn in jeder Lehre selbst zu benennen.",
+      "none": "Noch nichts: Eine Lehre mit dieser Vorlage beginnt leer.",
+      "untitled": "ohne Titel"
+    },
+    "saveTemplate": {
+      "action": "Als meine Vorlage speichern",
+      "group": "Den Aufbau dieser Lehre als Vorlage speichern",
+      "name": "Name der Vorlage",
+      "keeps": {
+        "points": "Die Vorlage übernimmt die Form und so viele Hauptpunkte, wie diese Lehre hat, in ihrer Reihenfolge. Die Punkte beginnen ohne Titel.",
+        "questions": "Die Vorlage übernimmt die Form und so viele Fragen, wie diese Lehre hat. Die Fragen beginnen leer.",
+        "steps": "Die Vorlage übernimmt die Form und die Schritte in ihrer Reihenfolge, jeden mit Titel und Art."
+      },
+      "notKept": "Nichts von dem, was du geschrieben hast, kommt mit: keine Zielgruppe, kein Ziel, keine Botschaft, keine Einleitung, kein Schluss, keine Notizen, Bibelstellen, aufbewahrtes Material oder Notizen aus deinem Bibelstudium.",
+      "saved": "Als deine Vorlage „{{name}}“ gespeichert. Du kannst sie für deine nächste Bibellehre wählen und unter Einstellungen → Vorlagen ändern."
+    },
+    "addStepMenu": "Art des neuen Schritts"
   },
   "parts": {
     "add": "Teil hinzufügen",
@@ -1118,5 +1159,11 @@
       "exportHint": "PowerPoint, PDF mit Folien, Sprechzettel fürs Handy, Markdown oder Vortragspaket",
       "exportHintNamed": "„{{title}}“: PowerPoint, PDF mit Folien, Sprechzettel fürs Handy, Markdown oder Vortragspaket"
     }
+  },
+  "phase": {
+    "label": "Im Aufbau",
+    "none": "Nicht im Aufbau",
+    "ofPart": "Wo „{{title}}“ im Aufbau des Bibelstudiums steht",
+    "ofTemplatePart": "Wo Teil {{number}} im Aufbau des Bibelstudiums steht"
   }
 }

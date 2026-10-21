@@ -3,15 +3,23 @@ import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import type { StudySection } from "@/types/domain";
-import type { StudyTemplate } from "@/types/studies";
+import type { StudyPhase, StudyTemplate } from "@/types/studies";
 import { sectionGuidance, sectionTitle } from "./builtinText";
+
+/** A part to add: its heading and, for one the template keeps for later, its key and phase. */
+export interface NewPart {
+  title: string;
+  guidance?: string;
+  key?: string | null;
+  phase?: StudyPhase | null;
+}
 
 interface AddPartProps {
   /** The template the study was made with (or the built-in one for its kind): its parts to add later are suggested. */
   template: StudyTemplate | null;
   /** The study's parts now: a suggestion already there is not offered again. */
   sections: StudySection[];
-  onAdd: (part: { title: string; guidance?: string }) => Promise<void>;
+  onAdd: (part: NewPart) => Promise<void>;
 }
 
 /**
@@ -30,15 +38,15 @@ export function AddPart({ template, sections, onAdd }: AddPartProps) {
   const present = new Set(sections.flatMap((s) => [s.key ?? "", sectionTitle(s).toLocaleLowerCase()]));
   const suggestions = (template?.sections ?? [])
     .filter((s) => s.optional && !s.retired)
-    .map((s) => ({ key: s.key ?? "", title: sectionTitle(s), guidance: sectionGuidance(s) ?? undefined }))
-    .filter((s) => !present.has(s.key) && !present.has(s.title.toLocaleLowerCase()));
+    .map((s) => ({ key: s.key ?? null, title: sectionTitle(s), guidance: sectionGuidance(s) ?? undefined, phase: s.phase ?? null }))
+    .filter((s) => !(s.key && present.has(s.key)) && !present.has(s.title.toLocaleLowerCase()));
 
   const close = () => {
     setOpen(false);
     setTitle("");
     toggle.current?.focus();
   };
-  const add = async (part: { title: string; guidance?: string }) => {
+  const add = async (part: NewPart) => {
     if (busy || !part.title.trim()) return;
     setBusy(true);
     try {

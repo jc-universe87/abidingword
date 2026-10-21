@@ -60,6 +60,8 @@ interface SettingsViewProps {
   onEditTemplate: (templateId: string | null) => void;
   /** Changes when the template editor closes, so the list shows what was saved. */
   templatesVersion?: number;
+  onEditTeachingTemplate: (templateId: string | null) => void;
+  teachingTemplatesVersion?: number;
 }
 
 /**
@@ -67,7 +69,7 @@ interface SettingsViewProps {
  * where things stand, opened only when wanted. The header with "Back" and a
  * jump list stays at the top while the page scrolls.
  */
-export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditTemplate, templatesVersion = 0 }: SettingsViewProps) {
+export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditTemplate, templatesVersion = 0, onEditTeachingTemplate, teachingTemplatesVersion = 0 }: SettingsViewProps) {
   const { t, i18n } = useTranslation();
   const { theme, background } = useTheme();
   const updates = useUpdates();
@@ -144,7 +146,7 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
       case "bible-texts":
         return <BibleTexts onAddBible={onAddBible} />;
       case "study-templates":
-        return <StudyTemplates onEdit={onEditTemplate} version={templatesVersion} />;
+        return <StudyTemplates onEdit={onEditTemplate} version={templatesVersion} onEditTeaching={onEditTeachingTemplate} teachingVersion={teachingTemplatesVersion} />;
       case "language":
         return <LanguageChoice />;
       case "assistant":

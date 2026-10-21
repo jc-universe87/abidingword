@@ -80,6 +80,9 @@ pub struct StudySection {
     pub key: Option<String>,
     pub title: String,
     pub guidance: Option<String>,
+    /// Where the part belongs in the study's movement (v0.18.7); none for a
+    /// part the person did not place.
+    pub phase: Option<StudyPhase>,
     pub position: i64,
     pub blocks: Vec<StudyBlock>,
     pub created_at: String,
@@ -194,6 +197,10 @@ pub struct TemplateSection {
     /// its title and guidance in the interface language.
     #[serde(default, skip_serializing_if = "is_false")]
     pub retired: bool,
+    /// Where the part belongs in the study's movement (v0.18.7); the template is
+    /// authoritative, and a part may have none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub phase: Option<StudyPhase>,
 }
 
 impl TemplateSection {
@@ -301,6 +308,9 @@ pub struct UpdateStudySection {
     /// An empty string clears it.
     #[serde(default)]
     pub guidance: Option<String>,
+    /// A phase ("text", "understanding"…); an empty string clears it.
+    #[serde(default)]
+    pub phase: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

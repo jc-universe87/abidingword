@@ -7,44 +7,52 @@
     {
       "key": "topic",
       "title": "Question / Topic",
-      "guidance": "The question you are asking, stated as clearly as you can."
+      "guidance": "The question you are asking, stated as clearly as you can.",
+      "phase": "text"
     },
     {
       "key": "key-passages",
       "title": "Key Passages",
-      "guidance": "The passages that speak most directly to it."
+      "guidance": "The passages that speak most directly to it.",
+      "phase": "text"
     },
     {
       "key": "main-themes",
       "title": "Main Themes",
-      "guidance": "The main lines of teaching that emerge."
+      "guidance": "The main lines of teaching that emerge.",
+      "phase": "understanding"
     },
     {
       "key": "conclusions",
       "title": "Conclusions",
-      "guidance": "Your conclusions, with the passages that carry them."
+      "guidance": "Your conclusions, with the passages that carry them.",
+      "phase": "understanding"
     },
     {
       "key": "application",
       "title": "Application",
-      "guidance": "What this means for belief, worship and life."
+      "guidance": "What this means for belief, worship and life.",
+      "phase": "application"
     },
     {
       "key": "biblical-context",
       "title": "Biblical Context",
       "guidance": "Where and how the topic arises across the Bible.",
+      "phase": "understanding",
       "optional": true
     },
     {
       "key": "difficult-passages",
       "title": "Difficult Passages",
       "guidance": "Texts that seem to point another way, and how to read them.",
+      "phase": "understanding",
       "optional": true
     },
     {
       "key": "theology",
       "title": "Theology",
       "guidance": "How the passages fit together into coherent teaching.",
+      "phase": "theology",
       "optional": true
     }
   ]

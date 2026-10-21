@@ -349,7 +349,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       description: t.description,
       studyType: t.studyType as StudyType,
       isBuiltin: true,
-      sections: t.sections,
+      sections: t.sections as TemplateSection[],
       createdAt: stamp,
       updatedAt: stamp,
       revision: 1,
@@ -360,11 +360,15 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     const study = state.studies.find((s) => s.id === studyId);
     if (study) study.updatedAt = now();
   };
+  const requireDistinctKeys = (sections: TemplateSection[]) => {
+    const keys = sections.map((sec) => sec.key?.trim()).filter(Boolean);
+    if (new Set(keys).size !== keys.length) throw new ApiError("invalidInput", "Two parts of the template are the same part. Remove one of them.");
+  };
   const addSection = (studyId: string, section: TemplateSection, position: number) => {
     const t = now();
     const sectionId = id();
     state.sections.push({
-      id: sectionId, studyId, key: section.key ?? null, title: section.title, guidance: section.guidance ?? null,
+      id: sectionId, studyId, key: section.key ?? null, title: section.title, guidance: section.guidance ?? null, phase: section.phase ?? null,
       position, blocks: [], createdAt: t, updatedAt: t, revision: 1,
     });
     state.blocks.push({ id: id(), sectionId, blockType: "paragraph", position: 0, content: "", createdAt: t, updatedAt: t, revision: 1 });
@@ -783,10 +787,11 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const section = find(state.sections, input.id, "section");
       if (input.title !== undefined) section.title = requireTitle(input.title, "section");
       if (input.guidance !== undefined) section.guidance = input.guidance || null;
+      if (input.phase !== undefined) section.phase = input.phase || null;
       return { ...section, blocks: state.blocks.filter((b) => b.sectionId === section.id) };
     },
-    studySectionCreate: async ({ studyId, title, guidance }) => {
-      const sectionId = addSection(studyId, { title: requireTitle(title, "section"), guidance }, sectionsOf(studyId).length);
+    studySectionCreate: async ({ studyId, title, guidance, key, phase }) => {
+      const sectionId = addSection(studyId, { title: requireTitle(title, "section"), guidance, key: key?.trim() || null, phase: phase ?? null }, sectionsOf(studyId).length);
       touch(studyId);
       const section = find(state.sections, sectionId, "section");
       return { ...section, blocks: state.blocks.filter((b) => b.sectionId === sectionId) };
@@ -896,6 +901,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     templateList: async () => [...state.templates],
     templateCreate: async (input) => {
       if (!input.sections.some((sec) => !sec.optional)) throw new ApiError("invalidInput", "A template needs at least one part to start with.");
+      requireDistinctKeys(input.sections);
       const t = now();
       const template: StudyTemplate = {
         id: id(), key: `user-${counter}`, name: requireTitle(input.name, "template"), description: input.description ?? null,
@@ -908,6 +914,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     },
     templateUpdate: async (input) => {
       const template = userTemplate(input.id);
+      requireDistinctKeys(input.sections);
       template.name = requireTitle(input.name, "template");
       template.description = input.description ?? null;
       template.studyType = input.studyType;
