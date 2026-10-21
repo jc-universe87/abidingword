@@ -189,5 +189,8 @@
     "templateNewer": "이 서식은 더 새로운 버전의 Abiding Word로 만들어졌습니다.",
     "templateDescriptionLong": "설명이 너무 길어 저장할 수 없습니다.",
     "tooManySlides": "한 번에 보여 주기에는 슬라이드가 너무 많습니다."
+  },
+  "material": {
+    "tooLong": "너무 길어서 파일 하나로 저장할 수 없습니다."
   }
 }

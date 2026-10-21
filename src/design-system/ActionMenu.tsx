@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { MoreHorizontal } from "lucide-react";
 
 export interface MenuAction {
@@ -8,6 +8,8 @@ export interface MenuAction {
   icon?: ReactNode;
   /** A line under the label saying what the action makes or does. */
   description?: string;
+  /** Actions of another kind further down (v0.18.6): a quiet rule and this name above the first of them. */
+  group?: string;
 }
 
 /**
@@ -102,8 +104,18 @@ export function ActionMenu({
           className="aw-popover absolute right-0 top-full z-30 mt-1 flex min-w-max flex-col p-1 font-ui"
         >
           {actions.map((action, index) => (
+            <Fragment key={action.label}>
+            {index > 0 && action.group !== actions[index - 1]!.group && (
+              <>
+                <div role="separator" className="mx-2 my-1 h-px bg-border-subtle" />
+                {action.group && (
+                  <p aria-hidden="true" className="caps-label m-0 px-3 pb-0.5 pt-1 text-text-muted">
+                    {action.group}
+                  </p>
+                )}
+              </>
+            )}
             <button
-              key={action.label}
               type="button"
               role="menuitem"
               // The item is named by its label; the line under it describes it.
@@ -128,6 +140,7 @@ export function ActionMenu({
                 action.label
               )}
             </button>
+            </Fragment>
           ))}
         </div>
       )}

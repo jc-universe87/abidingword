@@ -15,6 +15,7 @@ pub mod bibles;
 pub mod blocks;
 pub mod findings;
 pub mod library;
+pub mod materials;
 pub mod presentation_templates;
 pub mod presentations;
 pub mod projects;

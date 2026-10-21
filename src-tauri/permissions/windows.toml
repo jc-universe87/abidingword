@@ -166,6 +166,7 @@ permissions = [
   "allow-presentation-image",
   "allow-presentation-image-save",
   "allow-presentation-export",
+  "allow-material-save-markdown",
   "allow-presentation-screens",
   "allow-presentation-audience-open",
   "allow-presentation-audience-show",

@@ -1032,5 +1032,103 @@
       "open": "Abrir o ensino bíblico"
     },
     "goTo": "Ir para “{{phase}}”"
+  },
+  "materials": {
+    "kinds": {
+      "presentation": {
+        "points": {
+          "name": "Apresentação",
+          "hint": "Slides para a tela, feitos a partir deste ensino"
+        },
+        "questions": {
+          "name": "Apresentação",
+          "hint": "Slides para a tela, feitos a partir deste ensino"
+        },
+        "steps": {
+          "name": "Apresentação",
+          "hint": "Slides para a tela, feitos a partir deste ensino"
+        }
+      },
+      "manuscript": {
+        "points": {
+          "name": "Manuscrito",
+          "hint": "Seu ensino em um texto contínuo, para pregar ou falar"
+        },
+        "questions": {
+          "name": "Guia do líder",
+          "hint": "As perguntas e aonde cada uma pode levar, para conduzir o grupo"
+        },
+        "steps": {
+          "name": "Guia do professor",
+          "hint": "A aula passo a passo, com o que você vai dizer e fazer"
+        }
+      },
+      "questions": {
+        "points": {
+          "name": "Folha de perguntas",
+          "hint": "As perguntas para o grupo, com espaço para escrever"
+        },
+        "questions": {
+          "name": "Folha de perguntas",
+          "hint": "As perguntas para o grupo, com espaço para escrever"
+        },
+        "steps": {
+          "name": "Folha de perguntas",
+          "hint": "As perguntas para o grupo, com espaço para escrever"
+        }
+      },
+      "worksheet": {
+        "points": {
+          "name": "Folha de anotações",
+          "hint": "Uma folha para acompanhar e anotar enquanto ouve"
+        },
+        "questions": {
+          "name": "Folha de atividades",
+          "hint": "Perguntas e atividades com espaço para escrever ou desenhar"
+        },
+        "steps": {
+          "name": "Folha de atividades",
+          "hint": "Perguntas e atividades com espaço para escrever ou desenhar"
+        }
+      }
+    },
+    "questions": {
+      "leaderNotice": "Versão do líder: com notas para conduzir. Não é para distribuir."
+    },
+    "worksheet": {
+      "ownNotes": "Minhas anotações"
+    },
+    "view": {
+      "back": "Voltar ao ensino",
+      "from": "Montado a partir do seu ensino “{{title}}”: altere o ensino, e isto muda junto.",
+      "empty": "Ainda não há nada. O que você escrever no ensino aparece aqui.",
+      "preview": "Pré-visualização: {{name}}",
+      "options": "O que inclui"
+    },
+    "option": {
+      "includeNotes": "Minhas anotações pessoais",
+      "leader": "Versão do líder, com notas para conduzir",
+      "includeFrame": "“{{opening}}” e “{{closing}}”",
+      "writingSpace": "Espaço para escrever"
+    },
+    "action": {
+      "print": "Imprimir ou salvar como PDF…",
+      "markdown": "Salvar como arquivo de texto (Markdown)…",
+      "copy": "Copiar o texto",
+      "filterName": "Arquivo de texto (Markdown)"
+    },
+    "status": {
+      "copied": "Copiado. Você pode colar em um documento ou e-mail.",
+      "copyFailed": "Não foi possível copiar. Salve como arquivo.",
+      "saved": "Salvo: {{path}}",
+      "printFailed": "Não é possível imprimir aqui. Salve como arquivo de texto."
+    },
+    "menu": {
+      "label": "Materiais deste ensino",
+      "files": "Arquivos da apresentação",
+      "exportPresentation": "Salvar a apresentação como arquivo…",
+      "exportHint": "PowerPoint, PDF dos slides, folha do orador para celular, Markdown ou pacote de apresentação",
+      "exportHintNamed": "“{{title}}”: PowerPoint, PDF dos slides, folha do orador para celular, Markdown ou pacote de apresentação"
+    }
   }
 }

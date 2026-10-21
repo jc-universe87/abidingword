@@ -195,5 +195,8 @@
     "templateNewer": "Esta plantilla se creó con una versión más reciente de Abiding Word.",
     "templateDescriptionLong": "Esta descripción es demasiado larga para guardarla.",
     "tooManySlides": "Demasiadas diapositivas para mostrarlas a la vez."
+  },
+  "material": {
+    "tooLong": "Es demasiado largo para guardarlo en un solo archivo."
   }
 }

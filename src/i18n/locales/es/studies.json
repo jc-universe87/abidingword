@@ -1032,5 +1032,103 @@
       "open": "Abrir la enseñanza bíblica"
     },
     "goTo": "Ir a «{{phase}}»"
+  },
+  "materials": {
+    "kinds": {
+      "presentation": {
+        "points": {
+          "name": "Presentación",
+          "hint": "Diapositivas para la pantalla, hechas a partir de esta enseñanza"
+        },
+        "questions": {
+          "name": "Presentación",
+          "hint": "Diapositivas para la pantalla, hechas a partir de esta enseñanza"
+        },
+        "steps": {
+          "name": "Presentación",
+          "hint": "Diapositivas para la pantalla, hechas a partir de esta enseñanza"
+        }
+      },
+      "manuscript": {
+        "points": {
+          "name": "Manuscrito",
+          "hint": "Tu enseñanza como un solo texto, para predicar o hablar"
+        },
+        "questions": {
+          "name": "Guía del líder",
+          "hint": "Las preguntas con hacia dónde puede llevar cada una, para guiar al grupo"
+        },
+        "steps": {
+          "name": "Guía del maestro",
+          "hint": "La lección paso a paso, con lo que vas a decir y hacer"
+        }
+      },
+      "questions": {
+        "points": {
+          "name": "Hoja de preguntas",
+          "hint": "Las preguntas para el grupo, con espacio para escribir"
+        },
+        "questions": {
+          "name": "Hoja de preguntas",
+          "hint": "Las preguntas para el grupo, con espacio para escribir"
+        },
+        "steps": {
+          "name": "Hoja de preguntas",
+          "hint": "Las preguntas para el grupo, con espacio para escribir"
+        }
+      },
+      "worksheet": {
+        "points": {
+          "name": "Hoja de apuntes",
+          "hint": "Una hoja para seguir y tomar notas mientras se escucha"
+        },
+        "questions": {
+          "name": "Hoja de trabajo",
+          "hint": "Preguntas y actividades con espacio para escribir o dibujar"
+        },
+        "steps": {
+          "name": "Hoja de trabajo",
+          "hint": "Preguntas y actividades con espacio para escribir o dibujar"
+        }
+      }
+    },
+    "questions": {
+      "leaderNotice": "Versión del líder: con notas para guiar. No es para repartir."
+    },
+    "worksheet": {
+      "ownNotes": "Mis notas"
+    },
+    "view": {
+      "back": "Volver a la enseñanza",
+      "from": "Hecho a partir de tu enseñanza «{{title}}»: cambia la enseñanza y esto cambia con ella.",
+      "empty": "Aún no hay nada. Lo que escribas en la enseñanza aparecerá aquí.",
+      "preview": "Vista previa: {{name}}",
+      "options": "Qué incluye"
+    },
+    "option": {
+      "includeNotes": "Mis notas personales",
+      "leader": "Versión del líder, con notas para guiar",
+      "includeFrame": "«{{opening}}» y «{{closing}}»",
+      "writingSpace": "Espacio para escribir"
+    },
+    "action": {
+      "print": "Imprimir o guardar como PDF…",
+      "markdown": "Guardar como archivo de texto (Markdown)…",
+      "copy": "Copiar el texto",
+      "filterName": "Archivo de texto (Markdown)"
+    },
+    "status": {
+      "copied": "Copiado. Puedes pegarlo en un documento o un correo.",
+      "copyFailed": "No se pudo copiar. Guárdalo como archivo.",
+      "saved": "Guardado: {{path}}",
+      "printFailed": "Aquí no se puede imprimir. Guárdalo como archivo de texto."
+    },
+    "menu": {
+      "label": "Materiales de esta enseñanza",
+      "files": "Archivos de la presentación",
+      "exportPresentation": "Guardar la presentación como archivo…",
+      "exportHint": "PowerPoint, PDF de diapositivas, hoja del orador para el móvil, Markdown o paquete de presentación",
+      "exportHintNamed": "«{{title}}»: PowerPoint, PDF de diapositivas, hoja del orador para el móvil, Markdown o paquete de presentación"
+    }
   }
 }

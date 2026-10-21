@@ -119,8 +119,48 @@ async function seed(api: MemoryApi) {
   await api.studyPassageAdd({ studyId: vine.study.id, reference: "GAL.5.22-GAL.5.23", role: "related" });
 
   await api.studyCreate({ projectId: john.id, title: "Abide (μένω) — word study", studyType: "word", templateKey: "word-study", primaryPassage: "JHN.15.4" });
-  await api.studyCreate({ projectId: john.id, title: "The Good Shepherd", studyType: "teaching", templateKey: "teaching-study", primaryPassage: "JHN.10.1-JHN.10.18" });
-  await api.studyCreate({ projectId: romans.id, title: "No condemnation", studyType: "passage", templateKey: "passage-study", primaryPassage: "ROM.8.1-ROM.8.11" });
+  const shepherd = await api.studyCreate({ projectId: john.id, title: "The Good Shepherd", studyType: "teaching", templateKey: "teaching-study", primaryPassage: "JHN.10.1-JHN.10.18" });
+  const condemnation = await api.studyCreate({ projectId: romans.id, title: "No condemnation", studyType: "passage", templateKey: "passage-study", primaryPassage: "ROM.8.1-ROM.8.11" });
+
+  // A group Bible study and a children's lesson, for the materials they become (v0.18.6). Sample writing.
+  const group = await api.teachingCreate({ studyId: condemnation.study.id, title: "Small group · No condemnation", kind: "bible_study" });
+  await api.teachingUpdate({
+    id: group.id,
+    centralMessage: "In Christ we are free from condemnation, and the Spirit gives us life.",
+    introduction: "Share a time you felt you had to earn someone’s approval.",
+    conclusion: "Pray in pairs for one area where you still live under condemnation.",
+  });
+  await api.teachingPassageAdd({ preparationId: group.id, reference: "ROM.8.1-ROM.8.11" });
+  const questions: [string, string, string, string][] = [
+    ["What does Paul say there is “now no” of, and for whom?", "Verse 1: no condemnation for those in Christ Jesus.", "Why does Paul say “now”? What has changed?", "Let several people answer before moving on."],
+    ["How does verse 3 explain what the law could not do?", "God sent his own Son; sin was condemned in his flesh.", "What does this say about God’s initiative?", ""],
+    ["Where do you notice yourself living by the flesh rather than by the Spirit?", "Honest answers; keep it personal, not abstract.", "", "Share first yourself to make it safe."],
+    ["What difference does verse 11 make to how you face this week?", "The Spirit who raised Jesus gives life to us.", "", ""],
+  ];
+  let after: string | undefined;
+  for (const [title, explanation, application, illustration] of questions) {
+    const next = await api.teachingPointCreate({ preparationId: group.id, title, afterPointId: after });
+    const added = next.points[next.points.length - 1]!;
+    await api.teachingPointUpdate({ id: added.id, explanation, application, illustration });
+    after = added.id;
+  }
+  const lesson = await api.teachingCreate({ studyId: shepherd.study.id, title: "The shepherd knows my name", kind: "children" });
+  await api.teachingUpdate({ id: lesson.id, centralMessage: "Jesus knows me and calls me by name." });
+  await api.teachingPassageAdd({ preparationId: lesson.id, reference: "JHN.10.3-JHN.10.4" });
+  const steps: { kind: "text" | "scripture" | "question" | "activity"; title: string; explanation: string; illustration?: string }[] = [
+    { kind: "text", title: "Welcome and name game", explanation: "Each child says their name and a favourite animal." },
+    { kind: "scripture", title: "The shepherd and his sheep", explanation: "Tell John 10:3–4 with a toy sheep." },
+    { kind: "question", title: "How does a sheep know its own shepherd?", explanation: "Listen for: by his voice." },
+    { kind: "activity", title: "Draw your shepherd and your sheep", explanation: "Each child draws a sheep with their own name on it.", illustration: "Paper, crayons" },
+    { kind: "text", title: "Thank you, Jesus, for knowing me", explanation: "A short prayer together." },
+  ];
+  let previous: string | undefined;
+  for (const step of steps) {
+    const next = await api.teachingPointCreate({ preparationId: lesson.id, title: step.title, kind: step.kind, afterPointId: previous });
+    const added = next.points[next.points.length - 1]!;
+    await api.teachingPointUpdate({ id: added.id, explanation: step.explanation, illustration: step.illustration ?? "" });
+    previous = added.id;
+  }
 
   // Marks on John 15.
   await api.annotationCreate({ reference: "JHN.15.5", kind: "highlight", color: "amber", translationId: web.id });

@@ -192,5 +192,8 @@
     "templateNewer": "This template was made by a newer version of Abiding Word.",
     "templateDescriptionLong": "This description is too long to save.",
     "tooManySlides": "Too many slides to show at once."
+  },
+  "material": {
+    "tooLong": "This is too long to save as one file."
   }
 }

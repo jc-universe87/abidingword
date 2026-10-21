@@ -93,8 +93,12 @@ describe("the open Bible Teaching", () => {
     await user.click(materials);
     const menu = screen.getByRole("menu", { name: "Materials" });
     const items = within(menu).getAllByRole("menuitem");
-    // Only what exists is offered: no manuscript or worksheet pretends to be there.
-    expect(items).toHaveLength(1);
+    // What a sermon can become (v0.18.6): each item exists and opens; no slides yet, so no presentation files.
+    expect(items.map((i) => i.textContent)).toEqual([
+      expect.stringMatching(/^Presentation/),
+      expect.stringMatching(/^Manuscript/),
+      expect.stringMatching(/^Listening notes/),
+    ]);
     // Named by its label; described by the line under it (review fix).
     expect(items[0]).toHaveAccessibleName("Presentation");
     expect(items[0]).toHaveAccessibleDescription("Slides for the screen, made from this teaching");

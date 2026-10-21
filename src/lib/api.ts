@@ -291,6 +291,10 @@ export interface Api {
   /** The system's save dialog; null when cancelled. It asks before replacing a file. */
   choosePresentationFile(input: { defaultName: string; format: ExportFormat; filterName: string }): Promise<string | null>;
   presentationExport(input: { id: string; format: ExportFormat; path: string; options: ExportOptions }): Promise<ExportResult>;
+  /** Teaching materials (v0.18.6): where to save one, chosen in the system's save dialog (null: cancelled). */
+  chooseMaterialFile(input: { defaultName: string; filterName: string }): Promise<string | null>;
+  /** Writes a material, as Markdown, to the chosen file; returns where it went. */
+  materialSaveMarkdown(input: { path: string; text: string }): Promise<string>;
   /** The displays connected; empty where a second window cannot be opened. */
   presentationScreens(): Promise<Screen[]>;
   presentationAudienceOpen(input: { presentationId: string; screen: number | null; title: string; state: AudienceState }): Promise<void>;
@@ -565,6 +569,8 @@ export const tauriApi: Api = {
     return save({ defaultPath: defaultName, filters: [{ name: filterName, extensions: [extension] }] });
   },
   presentationExport: (input) => call("presentation_export", { input }),
+  chooseMaterialFile: async ({ defaultName, filterName }) => save({ defaultPath: defaultName, filters: [{ name: filterName, extensions: ["md"] }] }),
+  materialSaveMarkdown: (input) => call("material_save_markdown", { input }),
   presentationScreens: () => call("presentation_screens"),
   presentationAudienceOpen: (input) => call("presentation_audience_open", { input }),
   presentationAudienceShow: (state) => call("presentation_audience_show", { input: state }),

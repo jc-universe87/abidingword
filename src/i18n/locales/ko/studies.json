@@ -1012,5 +1012,103 @@
       "open": "성경 가르침 열기"
     },
     "goTo": "{{phase}} 부분으로 이동"
+  },
+  "materials": {
+    "kinds": {
+      "presentation": {
+        "points": {
+          "name": "프레젠테이션",
+          "hint": "이 가르침으로 만드는 화면용 슬라이드"
+        },
+        "questions": {
+          "name": "프레젠테이션",
+          "hint": "이 가르침으로 만드는 화면용 슬라이드"
+        },
+        "steps": {
+          "name": "프레젠테이션",
+          "hint": "이 가르침으로 만드는 화면용 슬라이드"
+        }
+      },
+      "manuscript": {
+        "points": {
+          "name": "전체 원고",
+          "hint": "설교하거나 말씀을 전할 때 쓰는, 하나로 이어지는 원고"
+        },
+        "questions": {
+          "name": "인도자용 안내서",
+          "hint": "질문마다 이끌어 갈 방향을 담은 인도자용 자료"
+        },
+        "steps": {
+          "name": "교사용 지도안",
+          "hint": "말하고 할 일을 담은 단계별 수업 순서"
+        }
+      },
+      "questions": {
+        "points": {
+          "name": "질문지",
+          "hint": "모임에서 함께 나눌 질문과 적을 공간"
+        },
+        "questions": {
+          "name": "질문지",
+          "hint": "모임에서 함께 나눌 질문과 적을 공간"
+        },
+        "steps": {
+          "name": "질문지",
+          "hint": "모임에서 함께 나눌 질문과 적을 공간"
+        }
+      },
+      "worksheet": {
+        "points": {
+          "name": "말씀 노트",
+          "hint": "들으면서 따라가며 적을 수 있는 종이"
+        },
+        "questions": {
+          "name": "활동지",
+          "hint": "질문과 활동, 쓰거나 그릴 공간이 있는 종이"
+        },
+        "steps": {
+          "name": "활동지",
+          "hint": "질문과 활동, 쓰거나 그릴 공간이 있는 종이"
+        }
+      }
+    },
+    "questions": {
+      "leaderNotice": "인도자용입니다. 인도를 위한 메모가 들어 있으니 나눠 주지 마세요."
+    },
+    "worksheet": {
+      "ownNotes": "나의 메모"
+    },
+    "view": {
+      "back": "가르침으로 돌아가기",
+      "from": "“{{title}}” 가르침의 내용으로 만들었습니다. 가르침을 고치면 여기도 함께 바뀝니다.",
+      "empty": "아직 내용이 없습니다. 가르침에 쓴 내용이 여기에 나타납니다.",
+      "preview": "{{name}} 미리 보기",
+      "options": "포함할 내용"
+    },
+    "option": {
+      "includeNotes": "나만 보는 메모",
+      "leader": "인도 메모가 들어간 인도자용",
+      "includeFrame": "‘{{opening}}’과 ‘{{closing}}’",
+      "writingSpace": "쓸 공간"
+    },
+    "action": {
+      "print": "인쇄 또는 PDF로 저장…",
+      "markdown": "텍스트 파일로 저장(마크다운)…",
+      "copy": "텍스트 복사",
+      "filterName": "텍스트 파일(마크다운)"
+    },
+    "status": {
+      "copied": "복사했습니다. 문서나 이메일에 붙여 넣을 수 있습니다.",
+      "copyFailed": "복사하지 못했습니다. 대신 파일로 저장하세요.",
+      "saved": "저장했습니다: {{path}}",
+      "printFailed": "여기서는 인쇄할 수 없습니다. 대신 텍스트 파일로 저장하세요."
+    },
+    "menu": {
+      "label": "이 가르침으로 만드는 자료",
+      "files": "프레젠테이션 파일",
+      "exportPresentation": "프레젠테이션을 파일로 저장…",
+      "exportHint": "파워포인트, PDF 슬라이드, 휴대폰용 발표자 원고, 마크다운, 발표 꾸러미",
+      "exportHintNamed": "“{{title}}”: 파워포인트, PDF 슬라이드, 휴대폰용 발표자 원고, 마크다운, 발표 꾸러미"
+    }
   }
 }

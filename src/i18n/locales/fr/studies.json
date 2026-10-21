@@ -1032,5 +1032,103 @@
       "open": "Ouvrir l’enseignement biblique"
     },
     "goTo": "Aller à « {{phase}} »"
+  },
+  "materials": {
+    "kinds": {
+      "presentation": {
+        "points": {
+          "name": "Présentation",
+          "hint": "Des diapositives pour l’écran, faites à partir de cet enseignement"
+        },
+        "questions": {
+          "name": "Présentation",
+          "hint": "Des diapositives pour l’écran, faites à partir de cet enseignement"
+        },
+        "steps": {
+          "name": "Présentation",
+          "hint": "Des diapositives pour l’écran, faites à partir de cet enseignement"
+        }
+      },
+      "manuscript": {
+        "points": {
+          "name": "Manuscrit",
+          "hint": "Votre enseignement en un seul texte, pour prêcher ou parler"
+        },
+        "questions": {
+          "name": "Guide de l’animateur",
+          "hint": "Les questions et ce vers quoi chacune peut mener, pour animer le groupe"
+        },
+        "steps": {
+          "name": "Guide de l’enseignant",
+          "hint": "La leçon étape par étape, avec ce que vous direz et ferez"
+        }
+      },
+      "questions": {
+        "points": {
+          "name": "Feuille de questions",
+          "hint": "Les questions pour le groupe, avec de la place pour écrire"
+        },
+        "questions": {
+          "name": "Feuille de questions",
+          "hint": "Les questions pour le groupe, avec de la place pour écrire"
+        },
+        "steps": {
+          "name": "Feuille de questions",
+          "hint": "Les questions pour le groupe, avec de la place pour écrire"
+        }
+      },
+      "worksheet": {
+        "points": {
+          "name": "Feuille de notes",
+          "hint": "Une feuille pour suivre et prendre des notes pendant l’écoute"
+        },
+        "questions": {
+          "name": "Fiche d’activité",
+          "hint": "Questions et activités, avec de la place pour écrire ou dessiner"
+        },
+        "steps": {
+          "name": "Fiche d’activité",
+          "hint": "Questions et activités, avec de la place pour écrire ou dessiner"
+        }
+      }
+    },
+    "questions": {
+      "leaderNotice": "Version de l’animateur : avec les notes pour animer. À ne pas distribuer."
+    },
+    "worksheet": {
+      "ownNotes": "Mes notes"
+    },
+    "view": {
+      "back": "Retour à l’enseignement",
+      "from": "Composé à partir de votre enseignement « {{title}} » : modifiez l’enseignement, et ceci suit.",
+      "empty": "Rien pour l’instant. Ce que vous écrivez dans l’enseignement apparaît ici.",
+      "preview": "Aperçu : {{name}}",
+      "options": "Contenu"
+    },
+    "option": {
+      "includeNotes": "Mes notes personnelles",
+      "leader": "Version de l’animateur, avec les notes pour animer",
+      "includeFrame": "« {{opening}} » et « {{closing}} »",
+      "writingSpace": "Place pour écrire"
+    },
+    "action": {
+      "print": "Imprimer ou enregistrer en PDF…",
+      "markdown": "Enregistrer en fichier texte (Markdown)…",
+      "copy": "Copier le texte",
+      "filterName": "Fichier texte (Markdown)"
+    },
+    "status": {
+      "copied": "Copié. Vous pouvez le coller dans un document ou un e-mail.",
+      "copyFailed": "La copie n’a pas fonctionné. Enregistrez plutôt un fichier.",
+      "saved": "Enregistré : {{path}}",
+      "printFailed": "L’impression n’est pas possible ici. Enregistrez plutôt un fichier texte."
+    },
+    "menu": {
+      "label": "Supports de cet enseignement",
+      "files": "Fichiers de la présentation",
+      "exportPresentation": "Enregistrer la présentation dans un fichier…",
+      "exportHint": "PowerPoint, PDF des diapositives, feuillet de l’orateur pour téléphone, Markdown ou paquet de présentation",
+      "exportHintNamed": "« {{title}} » : PowerPoint, PDF des diapositives, feuillet de l’orateur pour téléphone, Markdown ou paquet de présentation"
+    }
   }
 }

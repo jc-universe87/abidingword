@@ -1022,5 +1022,103 @@
       "open": "Open the Bible Teaching"
     },
     "goTo": "Go to {{phase}}"
+  },
+  "materials": {
+    "kinds": {
+      "presentation": {
+        "points": {
+          "name": "Presentation",
+          "hint": "Slides for the screen, made from this teaching"
+        },
+        "questions": {
+          "name": "Presentation",
+          "hint": "Slides for the screen, made from this teaching"
+        },
+        "steps": {
+          "name": "Presentation",
+          "hint": "Slides for the screen, made from this teaching"
+        }
+      },
+      "manuscript": {
+        "points": {
+          "name": "Manuscript",
+          "hint": "The teaching as one readable text, to preach or speak from"
+        },
+        "questions": {
+          "name": "Leader’s guide",
+          "hint": "The questions with where each may lead, for leading the group"
+        },
+        "steps": {
+          "name": "Teacher’s guide",
+          "hint": "The lesson step by step, with what you will say and do"
+        }
+      },
+      "questions": {
+        "points": {
+          "name": "Question sheet",
+          "hint": "The questions for the group, with room to write"
+        },
+        "questions": {
+          "name": "Question sheet",
+          "hint": "The questions for the group, with room to write"
+        },
+        "steps": {
+          "name": "Question sheet",
+          "hint": "The questions for the group, with room to write"
+        }
+      },
+      "worksheet": {
+        "points": {
+          "name": "Listening notes",
+          "hint": "A sheet to follow along and write on while listening"
+        },
+        "questions": {
+          "name": "Worksheet",
+          "hint": "Questions and activities with room to write or draw"
+        },
+        "steps": {
+          "name": "Worksheet",
+          "hint": "Questions and activities with room to write or draw"
+        }
+      }
+    },
+    "questions": {
+      "leaderNotice": "Leader’s version: with notes for leading. Not for handing out."
+    },
+    "worksheet": {
+      "ownNotes": "My notes"
+    },
+    "view": {
+      "back": "Back to the teaching",
+      "from": "Put together from your teaching “{{title}}”: change the teaching, and this changes with it.",
+      "empty": "Nothing here yet. What you write in the teaching appears here.",
+      "preview": "Preview: {{name}}",
+      "options": "What it includes"
+    },
+    "option": {
+      "includeNotes": "My notes for myself",
+      "leader": "Leader’s version, with notes for leading",
+      "includeFrame": "“{{opening}}” and “{{closing}}”",
+      "writingSpace": "Room to write"
+    },
+    "action": {
+      "print": "Print or save as PDF…",
+      "markdown": "Save as a text file (Markdown)…",
+      "copy": "Copy the text",
+      "filterName": "Text file (Markdown)"
+    },
+    "status": {
+      "copied": "Copied. You can paste it into a document or an email.",
+      "copyFailed": "It could not be copied. Save it as a file instead.",
+      "saved": "Saved: {{path}}",
+      "printFailed": "Printing is not available here. Save it as a text file instead."
+    },
+    "menu": {
+      "label": "Materials for this teaching",
+      "files": "Presentation files",
+      "exportPresentation": "Save the presentation as a file…",
+      "exportHint": "PowerPoint, PDF slides, a speaker sheet for a phone, Markdown or a delivery package",
+      "exportHintNamed": "“{{title}}”: PowerPoint, PDF slides, a speaker sheet for a phone, Markdown or a delivery package"
+    }
   }
 }

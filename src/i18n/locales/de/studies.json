@@ -1022,5 +1022,103 @@
       "open": "Bibellehre öffnen"
     },
     "goTo": "Zu „{{phase}}“ springen"
+  },
+  "materials": {
+    "kinds": {
+      "presentation": {
+        "points": {
+          "name": "Präsentation",
+          "hint": "Folien für die Leinwand, aus dieser Bibellehre gemacht"
+        },
+        "questions": {
+          "name": "Präsentation",
+          "hint": "Folien für die Leinwand, aus dieser Bibellehre gemacht"
+        },
+        "steps": {
+          "name": "Präsentation",
+          "hint": "Folien für die Leinwand, aus dieser Bibellehre gemacht"
+        }
+      },
+      "manuscript": {
+        "points": {
+          "name": "Manuskript",
+          "hint": "Deine Bibellehre als zusammenhängender Text zum Predigen oder Vortragen"
+        },
+        "questions": {
+          "name": "Gesprächsleitfaden",
+          "hint": "Die Fragen mit dem, wohin sie führen können – zum Leiten der Gruppe"
+        },
+        "steps": {
+          "name": "Stundenablauf",
+          "hint": "Die Lektion Schritt für Schritt, mit dem, was du sagst und tust"
+        }
+      },
+      "questions": {
+        "points": {
+          "name": "Fragenblatt",
+          "hint": "Die Fragen für die Gruppe, mit Platz zum Schreiben"
+        },
+        "questions": {
+          "name": "Fragenblatt",
+          "hint": "Die Fragen für die Gruppe, mit Platz zum Schreiben"
+        },
+        "steps": {
+          "name": "Fragenblatt",
+          "hint": "Die Fragen für die Gruppe, mit Platz zum Schreiben"
+        }
+      },
+      "worksheet": {
+        "points": {
+          "name": "Mitschreibblatt",
+          "hint": "Ein Blatt zum Mitlesen und Mitschreiben beim Zuhören"
+        },
+        "questions": {
+          "name": "Arbeitsblatt",
+          "hint": "Fragen und Aktivitäten mit Platz zum Schreiben oder Malen"
+        },
+        "steps": {
+          "name": "Arbeitsblatt",
+          "hint": "Fragen und Aktivitäten mit Platz zum Schreiben oder Malen"
+        }
+      }
+    },
+    "questions": {
+      "leaderNotice": "Version für die Leitung: mit Hinweisen zum Leiten. Nicht zum Austeilen."
+    },
+    "worksheet": {
+      "ownNotes": "Meine Notizen"
+    },
+    "view": {
+      "back": "Zurück zur Bibellehre",
+      "from": "Aus deiner Bibellehre „{{title}}“ zusammengestellt: Was du dort änderst, ändert sich hier mit.",
+      "empty": "Hier steht noch nichts. Was du in der Bibellehre schreibst, erscheint hier.",
+      "preview": "Vorschau: {{name}}",
+      "options": "Was es enthält"
+    },
+    "option": {
+      "includeNotes": "Meine Notizen für mich",
+      "leader": "Version für die Leitung, mit Hinweisen zum Leiten",
+      "includeFrame": "„{{opening}}“ und „{{closing}}“",
+      "writingSpace": "Platz zum Schreiben"
+    },
+    "action": {
+      "print": "Drucken oder als PDF sichern …",
+      "markdown": "Als Textdatei sichern (Markdown) …",
+      "copy": "Text kopieren",
+      "filterName": "Textdatei (Markdown)"
+    },
+    "status": {
+      "copied": "Kopiert. Du kannst es in ein Dokument oder eine E-Mail einfügen.",
+      "copyFailed": "Kopieren hat nicht geklappt. Sichere es stattdessen als Datei.",
+      "saved": "Gesichert: {{path}}",
+      "printFailed": "Drucken ist hier nicht möglich. Sichere es stattdessen als Textdatei."
+    },
+    "menu": {
+      "label": "Unterlagen zu dieser Bibellehre",
+      "files": "Präsentationsdateien",
+      "exportPresentation": "Präsentation als Datei sichern …",
+      "exportHint": "PowerPoint, PDF mit Folien, Sprechzettel fürs Handy, Markdown oder Vortragspaket",
+      "exportHintNamed": "„{{title}}“: PowerPoint, PDF mit Folien, Sprechzettel fürs Handy, Markdown oder Vortragspaket"
+    }
   }
 }

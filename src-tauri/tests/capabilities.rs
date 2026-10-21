@@ -114,6 +114,7 @@ const PRIVILEGED: &[&str] = &[
     "settings_get",
     "settings_update",
     "presentation_export",
+    "material_save_markdown",
     "presentation_template_import_pptx",
     "presentation_template_import_package",
     "presentation_audience_open",

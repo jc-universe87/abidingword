@@ -195,5 +195,8 @@
     "templateNewer": "Ce modèle a été créé avec une version plus récente d'Abiding Word.",
     "templateDescriptionLong": "Cette description est trop longue pour être enregistrée.",
     "tooManySlides": "Trop de diapositives à afficher en une fois."
+  },
+  "material": {
+    "tooLong": "C’est trop long pour être enregistré en un seul fichier."
   }
 }

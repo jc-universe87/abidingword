@@ -195,5 +195,8 @@
     "templateNewer": "Este modelo foi criado com uma versão mais nova do Abiding Word.",
     "templateDescriptionLong": "Esta descrição é longa demais para ser salva.",
     "tooManySlides": "Slides demais para mostrar de uma vez."
+  },
+  "material": {
+    "tooLong": "É longo demais para salvar em um só arquivo."
   }
 }

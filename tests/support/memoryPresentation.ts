@@ -28,6 +28,10 @@ export interface PresentationState {
   /** What the next save dialog returns (null = cancelled). */
   nextSavePath: string | null;
   saveDialogs: { defaultName: string; format: ExportFormat }[];
+  /** Teaching materials saved as Markdown (v0.18.6), and the names offered in the save dialog. */
+  materialSaves: { path: string; text: string }[];
+  materialDialogs: string[];
+  nextMaterialPath: string | null;
   /** Displays a test pretends are connected; empty = no second window here. */
   screens: Screen[];
   audienceOpen: { presentationId: string; screen: number | null } | null;
@@ -48,6 +52,9 @@ export function newPresentationState(): PresentationState {
     exports: [],
     nextSavePath: "/home/test/Documents/Teaching.pptx",
     saveDialogs: [],
+    materialSaves: [],
+    materialDialogs: [],
+    nextMaterialPath: "/home/test/Documents/Teaching.md",
     screens: [],
     audienceOpen: null,
     audienceShown: [],
@@ -77,6 +84,8 @@ type PresentationApi = Pick<
   | "presentationImageSave"
   | "choosePresentationFile"
   | "presentationExport"
+  | "chooseMaterialFile"
+  | "materialSaveMarkdown"
   | "presentationScreens"
   | "presentationAudienceOpen"
   | "presentationAudienceShow"
@@ -412,6 +421,15 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
       const def = doc.template?.definition;
       const overflowing = def ? doc.slides.reduce((n, s) => n + memoryPage(def, s.kind, s.audience).blocks.filter((b) => b.type === "text" && b.overflow).length, 0) : 0;
       return { path: input.path, slides: doc.slides.length, missingImages: doc.images.filter((i) => !i.available).length, overflowing };
+    },
+    chooseMaterialFile: async ({ defaultName }) => {
+      state.materialDialogs.push(defaultName);
+      return state.nextMaterialPath;
+    },
+    materialSaveMarkdown: async ({ path, text }) => {
+      const saved = /\.(md|markdown)$/i.test(path) ? path : `${path}.md`;
+      state.materialSaves.push({ path: saved, text });
+      return saved;
     },
     presentationLayout: async ({ id, slides }) => {
       state.templates.layoutCalls += 1;

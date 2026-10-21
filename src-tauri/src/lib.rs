@@ -213,6 +213,7 @@ pub fn run() {
             commands::presentations::presentation_image,
             commands::presentations::presentation_image_save,
             commands::presentations::presentation_export,
+            commands::materials::material_save_markdown,
             commands::presentations::presentation_screens,
             commands::presentations::presentation_audience_open,
             commands::presentations::presentation_audience_show,

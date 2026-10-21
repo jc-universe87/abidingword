@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, FolderOpen, Plus, Presentation, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, FileDown, FolderOpen, MessageCircleQuestion, PencilLine, Plus, Presentation, ScrollText, Trash2 } from "lucide-react";
 import { ActionMenu } from "@/design-system/ActionMenu";
 import { Button } from "@/design-system/Button";
 import { useLoad } from "@/hooks/useLoad";
@@ -16,6 +16,10 @@ import { STARTING_STEPS, assistLabel, canvasShape, pointFields, showsFrame, star
 import { TeachingField, type AssistantHooks } from "./TeachingField";
 import { TeachingLinks } from "./TeachingLinks";
 import { PresentationView } from "@/features/presentation/PresentationView";
+import { ExportDialog } from "@/features/presentation/ExportDialog";
+import { MaterialView } from "@/features/materials/MaterialView";
+import { outputHint, outputName, outputsFor, type OutputKind } from "@/features/materials/derive";
+import type { PresentationDocument } from "@/types/presentation";
 
 interface TeachingViewProps {
   studyId: string;
@@ -297,8 +301,13 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
   // "About this teaching" (kind, audience, purpose, what it uses) stays folded away unless wanted:
   // open only right after the teaching was created, so its details can be filled in.
   const [aboutOpen, setAboutOpen] = useState(startOpen);
-  // What the teaching becomes (Materials, v0.18.4): today its presentation, made from it, shown in its place.
+  // What the teaching becomes (Materials, v0.18.4; more of them in v0.18.6): each is shown in the
+  // teaching's place, made from it; the presentation keeps its own editor.
   const [delivering, setDelivering] = useState(false);
+  const [material, setMaterial] = useState<Exclude<OutputKind, "presentation"> | null>(null);
+  // The presentation already made, if any: it can be saved as a file straight from Materials.
+  const presentations = useLoad(useCallback(() => api.presentationList(preparationId), [api, preparationId]));
+  const [exporting, setExporting] = useState<PresentationDocument | null>(null);
   const dock = useAssistDock();
   const [wholeRequest, setWholeRequest] = useState(0);
   const [wholeAction, setWholeAction] = useState<"structure" | "restructure" | "free" | null>(null);
@@ -445,21 +454,62 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
     </label>
   );
 
+  const backToTeaching = () => {
+    setDelivering(false);
+    setMaterial(null);
+    presentations.reload();
+    requestAnimationFrame(() => document.getElementById(`materials-${prep.id}`)?.focus());
+  };
   if (delivering) {
-    return (
-      <PresentationView
-        preparation={prep}
-        labels={{ introduction: shape("introduction"), conclusion: shape("conclusion") }}
-        onBack={() => {
-          setDelivering(false);
-          requestAnimationFrame(() => document.getElementById(`materials-${prep.id}`)?.focus());
-        }}
-      />
-    );
+    return <PresentationView preparation={prep} labels={{ introduction: shape("introduction"), conclusion: shape("conclusion") }} onBack={backToTeaching} />;
   }
+  if (material) return <MaterialView kind={material} preparation={prep} onBack={backToTeaching} />;
+
+  // Materials (v0.18.6): what can be prepared from this teaching, for its kind; then, once slides
+  // exist, the presentation's files. A material and the file it is saved as are kept apart.
+  const ICONS: Record<OutputKind, ReactNode> = {
+    presentation: <Presentation className="size-4 shrink-0 self-start mt-1" aria-hidden="true" />,
+    manuscript: <ScrollText className="size-4 shrink-0 self-start mt-1" aria-hidden="true" />,
+    questions: <MessageCircleQuestion className="size-4 shrink-0 self-start mt-1" aria-hidden="true" />,
+    worksheet: <PencilLine className="size-4 shrink-0 self-start mt-1" aria-hidden="true" />,
+  };
+  const madePresentations = presentations.data ?? [];
+  const materialActions = [
+    ...outputsFor(prep.kind).map((kind) => ({
+      label: outputName(t, kind, prep.kind),
+      description: outputHint(t, kind, prep.kind),
+      icon: ICONS[kind],
+      onSelect: () => (kind === "presentation" ? setDelivering(true) : setMaterial(kind)),
+    })),
+    ...(madePresentations.length > 0
+      ? [
+          {
+            label: t("studies.materials.menu.exportPresentation"),
+            description:
+              madePresentations.length > 1
+                ? t("studies.materials.menu.exportHintNamed", { title: madePresentations[0]!.title })
+                : t("studies.materials.menu.exportHint"),
+            icon: <FileDown className="size-4 shrink-0 self-start mt-1" aria-hidden="true" />,
+            group: t("studies.materials.menu.files"),
+            onSelect: () => {
+              api.presentationDocument(madePresentations[0]!.id).then(setExporting, (e: unknown) => setError(toApiError(e).message));
+            },
+          },
+        ]
+      : []),
+  ];
 
   return (
     <article aria-label={prep.title} className="flex flex-col gap-5">
+      {exporting && (
+        <ExportDialog
+          doc={exporting}
+          onClose={() => {
+            setExporting(null);
+            requestAnimationFrame(() => document.getElementById(`materials-${prep.id}`)?.focus());
+          }}
+        />
+      )}
       {/* The open teaching in two lines: its title with what it becomes (Materials), then its
           details folded into one quiet line, with the way to another teaching. */}
       <header className="flex flex-col gap-0.5">
@@ -495,14 +545,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
                 <ChevronDown className="size-4 text-text-muted" aria-hidden="true" />
               </>
             }
-            actions={[
-              {
-                label: t("studies.teaching.materials.presentation"),
-                description: t("studies.teaching.materials.presentationHint"),
-                icon: <Presentation className="size-4 shrink-0 self-start mt-1" aria-hidden="true" />,
-                onSelect: () => setDelivering(true),
-              },
-            ]}
+            actions={materialActions}
           />
         </div>
         {/* One line: the summary gives way (shortened) to the way to another teaching; the

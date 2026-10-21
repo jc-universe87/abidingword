@@ -31,9 +31,9 @@ const REVIEW = {
 };
 /** Interface words the review scenes click, in the review language. */
 const WORDS = {
-  en: { teaching: "Bible Teaching", settings: "Settings", library: "Open library", sources: "Sources", scripture: "Scripture" },
-  de: { teaching: "Bibellehre", settings: "Einstellungen", library: "Bibliothek öffnen", sources: "Quellen", scripture: "Bibel" },
-  ko: { teaching: "성경 가르침", settings: "설정", library: "자료실 열기", sources: "자료", scripture: "성경" },
+  en: { teaching: "Bible Teaching", settings: "Settings", library: "Open library", sources: "Sources", scripture: "Scripture", materials: "Materials" },
+  de: { teaching: "Bibellehre", settings: "Einstellungen", library: "Bibliothek öffnen", sources: "Quellen", scripture: "Bibel", materials: "Unterlagen" },
+  ko: { teaching: "성경 가르침", settings: "설정", library: "자료실 열기", sources: "자료", scripture: "성경", materials: "가르침 자료" },
 };
 const word = (key) => (WORDS[REVIEW.lang] ?? WORDS.en)[key];
 mkdirSync(OUT, { recursive: true });
@@ -69,6 +69,18 @@ const openStudy = async (page, title = "Abiding in the Vine") => {
 const openSource = async (page, title) => {
   await sources(page).getByRole("button", { name: new RegExp(`^${title}`) }).first().click();
   await page.waitForTimeout(700);
+};
+
+/** A study's Bible Teaching, then the material at that place in its Materials menu. */
+const openMaterial = async (title, index) => {
+  const page = await open("", { height: H });
+  await openStudy(page, title);
+  await page.getByRole("main").getByRole("button", { name: word("teaching"), exact: true }).click();
+  await page.waitForTimeout(800);
+  await page.getByRole("main").getByRole("button", { name: word("materials"), exact: true }).click();
+  await page.getByRole("menuitem").nth(index).click();
+  await page.waitForTimeout(700);
+  return page;
 };
 
 const openTeaching = async (page) => {
@@ -702,6 +714,37 @@ Object.assign(scenes, {
     });
     await page.waitForTimeout(500);
     await shot(page, "r-study-deep");
+    await page.close();
+  },
+  // Materials (v0.18.6): the menu, then each material as it opens (the sermon, a group study, a lesson).
+  async "r-materials"() {
+    const page = await open("", { height: H });
+    await openTeaching(page);
+    await page.getByRole("main").getByRole("button", { name: word("materials"), exact: true }).click();
+    await page.waitForTimeout(400);
+    await shot(page, "r-materials");
+    await page.close();
+  },
+  async "r-manuscript"() {
+    const page = await openMaterial("Abiding in the Vine", 1);
+    await shot(page, "r-manuscript");
+    await page.close();
+  },
+  async "r-question-sheet"() {
+    const page = await openMaterial("No condemnation", 2);
+    await shot(page, "r-question-sheet");
+    await page.close();
+  },
+  async "r-question-leader"() {
+    const page = await openMaterial("No condemnation", 2);
+    await page.getByRole("main").getByRole("checkbox").first().check();
+    await page.waitForTimeout(300);
+    await shot(page, "r-question-leader");
+    await page.close();
+  },
+  async "r-worksheet"() {
+    const page = await openMaterial("The Good Shepherd", 2);
+    await shot(page, "r-worksheet");
     await page.close();
   },
   async "r-teaching"() {
