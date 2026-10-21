@@ -58,6 +58,22 @@ pub fn material_save_markdown(input: SaveMaterial) -> CommandResult<String> {
         .into());
     }
     let path = markdown_path(&input.path)?;
+    // The save dialog asked about replacing the file it named; a file only reached by adding
+    // ".md" to that name was never asked about, so it is not replaced.
+    if path != std::path::Path::new(input.path.trim()) && path.exists() {
+        let name = path
+            .file_name()
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_default();
+        return Err(AppError::InvalidInput(
+            UserMessage::new(
+                "presentation.fileExists",
+                format!("A file named “{name}” already exists. Please choose another name."),
+            )
+            .with("name", name),
+        )
+        .into());
+    }
     write_atomically(&path, input.text.as_bytes())?;
     Ok(path.to_string_lossy().into_owned())
 }
@@ -130,6 +146,29 @@ mod tests {
             text: "x".repeat(MAX_BYTES + 1),
         })
         .is_err());
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn never_replaces_a_file_the_save_dialog_did_not_ask_about() {
+        let dir = std::env::temp_dir().join(format!("aw-material-ask-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let existing = dir.join("Sermon.txt.md");
+        std::fs::write(&existing, "kept").unwrap();
+        // The dialog named "Sermon.txt"; ".md" is added, and that file is someone else's.
+        assert!(material_save_markdown(SaveMaterial {
+            path: dir.join("Sermon.txt").to_string_lossy().into_owned(),
+            text: "new".into(),
+        })
+        .is_err());
+        assert_eq!(std::fs::read_to_string(&existing).unwrap(), "kept");
+        // The very file the dialog named (and asked about) is replaced.
+        material_save_markdown(SaveMaterial {
+            path: existing.to_string_lossy().into_owned(),
+            text: "new".into(),
+        })
+        .unwrap();
+        assert_eq!(std::fs::read_to_string(&existing).unwrap(), "new");
         let _ = std::fs::remove_dir_all(dir);
     }
 }

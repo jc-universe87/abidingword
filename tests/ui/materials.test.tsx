@@ -205,11 +205,33 @@ describe("the worksheet", () => {
   });
 });
 
+describe("numbers", () => {
+  it("are the same on the group's sheet, the leader's version and the leader's guide", () => {
+    const study = prep({
+      kind: "bible_study",
+      points: [point(1, { title: "Why?" }), point(2, { explanation: "LEADER: notes before the question is written." }), point(3, { title: "How?" })],
+    });
+    const numbered = (blocks: Block[]) => blocks.flatMap((b) => (b.type === "question" ? [`${b.number}. ${b.text}`] : b.type === "heading" && /^Question/.test(b.text) ? [b.text] : []));
+    expect(numbered(questionSheet(t, study).blocks)).toEqual(["1. Why?", "2. How?"]);
+    expect(numbered(questionSheet(t, study, { leader: true }).blocks)).toEqual(["1. Why?", "2. How?"]);
+    expect(numbered(manuscript(t, study).blocks)).toEqual(["Question 1: Why?", "Question 2: How?"]);
+    // The notes of the question not yet worded are still with the leader, unnumbered.
+    expect(questionSheet(t, study, { leader: true }).blocks).toContainEqual({ type: "heading", text: "Notes for a question not yet worded" });
+    expect(manuscript(t, study).blocks).toContainEqual({ type: "heading", text: "Notes for a question not yet worded" });
+  });
+});
+
 describe("Markdown", () => {
   it("writes the material block for block, keeping the person's line breaks", () => {
     const md = toMarkdown(derive(t, "manuscript", prep({ introduction: "Line one\nLine two", points: [point(1, { title: "First", explanation: "Said." })] })));
     expect(md).toBe("# Remain in the vine\n\n## Introduction\n\nLine one  \nLine two\n\n## Point 1: First\n\nSaid.\n");
     expect(toMarkdown(questionSheet(t, STUDY))).toContain("1. What does “remain” mean here?");
+  });
+
+  it("keeps the person's words as words, never as Markdown syntax", () => {
+    const md = toMarkdown(derive(t, "manuscript", prep({ title: "1. Remain", introduction: "# not a heading\n- not a list\n> not a quote" })));
+    expect(md).toContain("# 1\\. Remain");
+    expect(md).toContain("\\# not a heading  \n\\- not a list  \n\\> not a quote");
   });
 });
 
@@ -279,15 +301,26 @@ describe("Materials on screen", () => {
     const user = await openMaterials(api);
     await user.click(screen.getByRole("menuitem", { name: "Manuscript" }));
     await within(studyPane()).findByRole("article", { name: "Preview: Manuscript" });
+    // What was on the page while the print dialog was open, read afterwards (an assertion thrown
+    // inside the dialog would be caught by the view).
+    const seen: { printing: boolean; text: string | null }[] = [];
     const print = vi.spyOn(window, "print").mockImplementation(() => {
-      expect(document.body).toHaveClass("aw-printing");
-      expect(document.getElementById("material-print")).toHaveTextContent("Have you ever pruned a rose?");
+      seen.push({ printing: document.body.classList.contains("aw-printing"), text: document.getElementById("material-print")?.textContent ?? null });
       window.dispatchEvent(new Event("afterprint"));
     });
-    await user.click(within(studyPane()).getByRole("button", { name: "Print or save as PDF…" }));
+    const button = within(studyPane()).getByRole("button", { name: "Print or save as PDF…" });
+    await user.click(button);
     await waitFor(() => expect(print).toHaveBeenCalledTimes(1));
+    expect(seen[0]!.printing).toBe(true);
+    expect(seen[0]!.text).toContain("Have you ever pruned a rose?");
     await waitFor(() => expect(document.getElementById("material-print")).toBeNull());
     expect(document.body).not.toHaveClass("aw-printing");
+    // A web view that never says printing has finished can still print again.
+    print.mockImplementation(() => undefined);
+    await user.click(button);
+    await waitFor(() => expect(print).toHaveBeenCalledTimes(2));
+    await user.click(button);
+    await waitFor(() => expect(print).toHaveBeenCalledTimes(3));
     print.mockRestore();
   });
 

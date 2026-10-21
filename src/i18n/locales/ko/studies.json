@@ -982,9 +982,7 @@
       }
     },
     "materials": {
-      "open": "가르침 자료",
-      "presentation": "프레젠테이션",
-      "presentationHint": "이 가르침으로 만드는 화면용 슬라이드"
+      "open": "가르침 자료"
     }
   },
   "parts": {
@@ -1073,7 +1071,8 @@
       }
     },
     "questions": {
-      "leaderNotice": "인도자용입니다. 인도를 위한 메모가 들어 있으니 나눠 주지 마세요."
+      "leaderNotice": "인도자용입니다. 인도를 위한 메모가 들어 있으니 나눠 주지 마세요.",
+      "unworded": "아직 질문을 쓰지 않은 메모"
     },
     "worksheet": {
       "ownNotes": "나의 메모"
@@ -1104,7 +1103,6 @@
       "printFailed": "여기서는 인쇄할 수 없습니다. 대신 텍스트 파일로 저장하세요."
     },
     "menu": {
-      "label": "이 가르침으로 만드는 자료",
       "files": "프레젠테이션 파일",
       "exportPresentation": "프레젠테이션을 파일로 저장…",
       "exportHint": "파워포인트, PDF 슬라이드, 휴대폰용 발표자 원고, 마크다운, 발표 꾸러미",

@@ -1,11 +1,9 @@
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import type { TeachingSummary } from "@/types/teaching";
 import type { Phase, PhaseRun } from "./journey";
-
-export const runId = (studyId: string, index: number) => `study-${studyId}-phase-${index}`;
 
 /** The phase's name in the interface language. */
 export function usePhaseName() {
@@ -20,7 +18,7 @@ export function usePhaseName() {
  * way of finding one's place, never a sequence to follow: every part stays
  * open to work on.
  */
-export function JourneyOutline({ studyId, runs, current, onGo }: { studyId: string; runs: readonly PhaseRun[]; current: number; onGo: (index: number) => void }) {
+export function JourneyOutline({ runs, current, onGo }: { runs: readonly PhaseRun[]; current: number; onGo: (index: number) => void }) {
   const { t } = useTranslation();
   const name = usePhaseName();
   // One entry per phase where it first appears; a phase met again later goes to its first place.
@@ -38,7 +36,7 @@ export function JourneyOutline({ studyId, runs, current, onGo }: { studyId: stri
     if (left < nav.scrollLeft || left + here.offsetWidth > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = Math.max(0, left - 16);
   }, [currentPhase]);
   return (
-    <nav ref={line} aria-label={t("studies.journey.label")} className="sticky top-0 z-10 -mx-2 overflow-x-auto bg-pane-work px-2 [scrollbar-width:none]" data-journey="">
+    <nav ref={line} aria-label={t("studies.journey.label")} className="sticky top-0 z-10 -mx-2 overflow-x-auto bg-pane-work px-2 [scrollbar-width:thin]" data-journey="">
       <ol className="m-0 flex list-none items-center gap-0 whitespace-nowrap p-0 text-[0.875rem]">
         {entries.map(({ run, index }, i) => (
           <li key={run.phase} className="flex items-center">
@@ -50,7 +48,6 @@ export function JourneyOutline({ studyId, runs, current, onGo }: { studyId: stri
             <button
               type="button"
               aria-current={run.phase === currentPhase ? "step" : undefined}
-              aria-controls={runId(studyId, index)}
               aria-label={t("studies.journey.goTo", { phase: name(run.phase!) })}
               onClick={() => onGo(index)}
               className="aw-tab min-h-10 !px-1.5 text-[0.875rem]"
@@ -65,37 +62,40 @@ export function JourneyOutline({ studyId, runs, current, onGo }: { studyId: stri
 }
 
 /**
- * The run of the study's parts in view: the last whose top has passed the
- * outline at the top of the pane. Read on scroll (one frame at a time) and on
- * resize; nothing is measured while nothing moves.
+ * The run of the study's parts in view: the run of the part being worked in
+ * while it is on screen, else the last whose first part has passed the upper
+ * third of the pane. Read on scroll and when the study changes size (a part
+ * folded, writing pasted), one frame at a time; nothing is measured while
+ * nothing moves.
  */
-export function useCurrentRun(article: RefObject<HTMLElement | null>, studyId: string, count: number, enabled: boolean, activeSection: string | null = null): number {
+export function useCurrentRun(article: RefObject<HTMLElement | null>, runs: readonly PhaseRun[], enabled: boolean, activeSection: string | null = null): number {
   const [current, setCurrent] = useState(0);
+  const starts = runs.map((run) => run.sections[0]!.id).join(" ");
+  const runOf = new Map(runs.flatMap((run, index) => run.sections.map((section) => [section.id, index] as const)));
+  const activeRun = activeSection ? (runOf.get(activeSection) ?? null) : null;
   useEffect(() => {
     if (!enabled) return;
     const root = article.current?.closest<HTMLElement>("[data-scroll-root]") ?? null;
     if (!root) return;
+    const firsts = starts.split(" ");
     let frame = 0;
     const measure = () => {
       frame = 0;
       const box = root.getBoundingClientRect();
-      // The part being worked in, while it is on screen, says where the person is.
       const active = activeSection ? document.getElementById(`section-anchor-${activeSection}`) : null;
       const activeBox = active?.getBoundingClientRect();
-      const activeRun = active?.closest<HTMLElement>("[data-phase-run]");
-      if (activeBox && activeRun && activeBox.bottom > box.top + 48 && activeBox.top < box.bottom) {
-        setCurrent(Number(activeRun.dataset.phaseRun));
+      if (activeRun !== null && activeBox && activeBox.bottom > box.top + 48 && activeBox.top < box.bottom) {
+        setCurrent(activeRun);
         return;
       }
-      // Otherwise the last phase whose start has passed the upper third of the pane.
       const line = box.top + box.height / 3;
       let found = 0;
-      for (let i = 0; i < count; i++) {
-        const el = document.getElementById(runId(studyId, i));
+      firsts.forEach((id, i) => {
+        const el = document.getElementById(`section-anchor-${id}`);
         if (el && el.getBoundingClientRect().top <= line) found = i;
-      }
+      });
       // At the very end of the study the last phase is the one in view, however short it is.
-      if (root.scrollTop + root.clientHeight >= root.scrollHeight - 2) found = count - 1;
+      if (root.scrollTop + root.clientHeight >= root.scrollHeight - 2) found = firsts.length - 1;
       setCurrent(found);
     };
     const schedule = () => {
@@ -104,39 +104,16 @@ export function useCurrentRun(article: RefObject<HTMLElement | null>, studyId: s
     measure();
     root.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
+    const resized = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(schedule);
+    if (article.current) resized?.observe(article.current);
     return () => {
       if (frame) cancelAnimationFrame(frame);
       root.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
+      resized?.disconnect();
     };
-  }, [article, studyId, count, enabled, activeSection]);
-  return Math.min(current, Math.max(0, count - 1));
-}
-
-/**
- * A run of parts of one phase: named above when the name adds something,
- * set apart from the phase before by space and a firmer rule (no box, no
- * colour of its own). The group is announced with its phase's name.
- */
-export function PhaseGroup({ id, index, label, first, children }: { id: string; index: number; label: string | null; first: boolean; children: ReactNode }) {
-  const labelId = `${id}-label`;
-  return (
-    <div
-      id={id}
-      data-phase-run={index}
-      role="group"
-      aria-labelledby={label ? labelId : undefined}
-      // A new phase begins with more space and a firmer rule than a new part within one.
-      className={`aw-phase scroll-mt-14 flex flex-col gap-3 ${first ? "" : "mt-6"}`}
-    >
-      {label && (
-        <p id={labelId} className="caps-label m-0 -mb-1.5 text-text-muted">
-          {label}
-        </p>
-      )}
-      {children}
-    </div>
-  );
+  }, [article, starts, enabled, activeSection, activeRun]);
+  return Math.min(current, Math.max(0, runs.length - 1));
 }
 
 /**

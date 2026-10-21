@@ -21,7 +21,7 @@ import { useStudyFocus } from "./StudyFocus";
 import { StudyDetailsPanel } from "./StudyDetails";
 import { StudyPassages } from "./StudyPassages";
 import { hasJourney, namesRun, phaseRuns } from "./journey";
-import { JourneyOutline, NextStep, PhaseGroup, runId, useCurrentRun, usePhaseName } from "./StudyJourney";
+import { JourneyOutline, NextStep, useCurrentRun, usePhaseName } from "./StudyJourney";
 import { lastView, rememberView, type StudyView } from "./studyView";
 import { TeachingView } from "@/features/teaching/TeachingView";
 
@@ -102,6 +102,11 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
     setViewState(next);
     rememberView(studyId, next);
   };
+  // Back from the teachings, the way on at the study's end names what was prepared there.
+  const reloadTeachings = teachings.reload;
+  useEffect(() => {
+    if (view === "study") reloadTeachings();
+  }, [view, reloadTeachings]);
   const toggle = useRef<HTMLButtonElement>(null);
   const article = useRef<HTMLElement>(null);
   const openedId = detail.data?.study.id;
@@ -182,8 +187,15 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
   const studyType = detail.data?.study.studyType ?? "custom";
   const runs = useMemo(() => phaseRuns(sections, studyType), [sections, studyType]);
   const journey = hasJourney(runs);
-  const currentRun = useCurrentRun(article, studyId, runs.length, journey && view === "study", activeSection);
+  const currentRun = useCurrentRun(article, runs, journey && view === "study", activeSection);
   const phaseName = usePhaseName();
+  // Where each phase begins: its first part, the phase's number and, where it adds something, its name.
+  const phaseStarts = new Map(
+    runs.map((run, index) => [
+      run.sections[0]!.id,
+      { index, first: index === 0, label: run.phase && namesRun(run, phaseName(run.phase), sectionTitle) ? phaseName(run.phase) : null },
+    ]),
+  );
   if (missing) return null;
   if (detail.error) return <Notice tone="error">{detail.error.message}</Notice>;
   if (!detail.data) return <p className="text-text-muted">{t("studies.editor.opening")}</p>;
@@ -362,57 +374,50 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
       <>
       {journey && (
         <JourneyOutline
-          studyId={study.id}
           runs={runs}
           current={currentRun}
           onGo={(index) => {
             const first = runs[index]?.sections[0];
-            document.getElementById(runId(study.id, index))?.scrollIntoView?.({ block: "start" });
-            if (first) document.getElementById(`section-${first.id}`)?.focus({ preventScroll: true });
+            if (!first) return;
+            document.getElementById(`section-anchor-${first.id}`)?.scrollIntoView?.({ block: "start" });
+            document.getElementById(`section-${first.id}`)?.focus({ preventScroll: true });
           }}
         />
       )}
-      {runs.map((run, runIndex) => (
-        <PhaseGroup
-          key={run.sections[0]!.id}
-          id={runId(study.id, runIndex)}
-          index={runIndex}
-          first={runIndex === 0}
-          label={journey && run.phase && namesRun(run, phaseName(run.phase), sectionTitle) ? phaseName(run.phase) : null}
-        >
-          {run.sections.map((section) => (
-            <SectionEditor
-              key={section.id}
-              section={section}
-              isFirst={section.id === sections[0]?.id}
-              isLast={section.id === sections[sections.length - 1]?.id}
-              hasFindings={(findings.data ?? []).some((f) => f.sectionId === section.id)}
-              notes={sectionNotes(section.id)}
-              noteCount={(findings.data ?? []).filter((f) => f.sectionId === section.id).length}
-              capture={capture(section)}
-              collapsed={collapsed.has(section.id)}
-              onCollapsedChange={(fold) => setCollapsed(fold ? new Set([...collapsed, section.id]) : new Set([...collapsed].filter((id) => id !== section.id)))}
-              onAddWriting={() => void addWriting(section)}
-              onAddNote={(kind) => {
-                expand(section.id);
-                openCapture(section.id, kind);
-              }}
-              onChange={updateSection}
-              onMove={(delta) => moveSection(section.id, delta)}
-              onDeleted={() => {
-                detail.reload();
-                findings.reload();
-              }}
-              onRevealScripture={onRevealScripture}
-              reveal={section.id === newSection}
-              active={section.id === activeSection}
-              onActive={() => setActiveSection(section.id)}
-              newBlockId={newBlock}
-              typed={typed}
-              onContent={onContent}
-            />
-          ))}
-        </PhaseGroup>
+      {/* The parts stay siblings keyed by their own id, so moving one never rebuilds the others;
+          where a phase begins is marked on its first part (v0.18.6 review). */}
+      {sections.map((section) => (
+        <SectionEditor
+          key={section.id}
+          section={section}
+          isFirst={section.id === sections[0]?.id}
+          isLast={section.id === sections[sections.length - 1]?.id}
+          hasFindings={(findings.data ?? []).some((f) => f.sectionId === section.id)}
+          notes={sectionNotes(section.id)}
+          noteCount={(findings.data ?? []).filter((f) => f.sectionId === section.id).length}
+          capture={capture(section)}
+          collapsed={collapsed.has(section.id)}
+          onCollapsedChange={(fold) => setCollapsed(fold ? new Set([...collapsed, section.id]) : new Set([...collapsed].filter((id) => id !== section.id)))}
+          onAddWriting={() => void addWriting(section)}
+          onAddNote={(kind) => {
+            expand(section.id);
+            openCapture(section.id, kind);
+          }}
+          onChange={updateSection}
+          onMove={(delta) => moveSection(section.id, delta)}
+          onDeleted={() => {
+            detail.reload();
+            findings.reload();
+          }}
+          onRevealScripture={onRevealScripture}
+          reveal={section.id === newSection}
+          active={section.id === activeSection}
+          phase={journey ? phaseStarts.get(section.id) : undefined}
+          onActive={() => setActiveSection(section.id)}
+          newBlockId={newBlock}
+          typed={typed}
+          onContent={onContent}
+        />
       ))}
 
       <FindingsPanel

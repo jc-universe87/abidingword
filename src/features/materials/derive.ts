@@ -111,10 +111,15 @@ export function manuscript(t: TFunction, prep: TeachingPreparation, options: Mat
   if (has(prep.introduction) && showsFrame(shape, "introduction", prep.introduction)) {
     blocks.push({ type: "heading", text: s("introduction") }, { type: "text", text: trim(prep.introduction) });
   }
+  // A group's questions are numbered as the group sees them: only those with wording count.
+  let asked = 0;
   prep.points.forEach((point, index) => {
     if (isEmptyPoint(point)) return;
     const detail = shape === "steps" && point.kind && point.kind !== "audio" ? t(`studies.teaching.stepKind.${point.kind}`) : undefined;
-    blocks.push({ type: "heading", text: pointHeading(t, shape, point, index + 1), detail });
+    if (shape === "questions") {
+      if (has(point.title)) asked += 1;
+      blocks.push({ type: "heading", text: has(point.title) ? s("label", { number: asked, title: trim(point.title) }) : t("studies.materials.questions.unworded"), detail });
+    } else blocks.push({ type: "heading", text: pointHeading(t, shape, point, index + 1), detail });
     const own = passagesLine(prep, point.id);
     if (own) blocks.push({ type: "passages", text: own });
     for (const field of pointFields(shape, point)) {
@@ -158,12 +163,15 @@ export function questionSheet(t: TFunction, prep: TeachingPreparation, options: 
   if ((o.leader || o.includeFrame) && has(prep.introduction)) blocks.push({ type: "heading", text: s("introduction") }, { type: "text", text: trim(prep.introduction) });
   let number = 0;
   for (const point of prep.points) {
-    // A question with nothing to ask is not put to the group.
+    // A question with nothing to ask is not put to the group; on the leader's version its notes
+    // stand unnumbered, so the numbers are the same on both sheets.
     if (!has(point.title)) {
       if (!o.leader || isEmptyPoint(point)) continue;
+      blocks.push({ type: "heading", text: t("studies.materials.questions.unworded") });
+    } else {
+      number += 1;
+      blocks.push({ type: "question", number, text: trim(point.title) });
     }
-    number += 1;
-    blocks.push({ type: "question", number, text: has(point.title) ? trim(point.title) : s("untitled", { number }) });
     if (o.leader) {
       for (const field of ["explanation", "application", "illustration"] as const) {
         if (has(point[field])) blocks.push({ type: "field", label: s(field), text: trim(point[field]) });
@@ -237,15 +245,18 @@ export function derive(t: TFunction, kind: MaterialDocument["kind"], prep: Teach
  * line breaks kept as Markdown line breaks.
  */
 export function toMarkdown(doc: MaterialDocument): string {
-  const lines = (text: string) => text.replace(/\r\n?/g, "\n").replace(/\n(?!\n)/g, "  \n");
+  // The person's words are kept as words: a line that would read as Markdown (a heading, a list,
+  // a quotation) has its first mark escaped.
+  const escape = (text: string) => text.replace(/^(\s*)([#>+*-])/gm, "$1\\$2").replace(/^(\s*)(\d+)([.)])/gm, "$1$2\\$3");
+  const lines = (text: string) => escape(text.replace(/\r\n?/g, "\n")).replace(/\n(?!\n)/g, "  \n");
   const out: string[] = [];
   for (const block of doc.blocks) {
     switch (block.type) {
       case "title":
-        out.push(`# ${block.text}`);
+        out.push(`# ${lines(block.text)}`);
         break;
       case "passages":
-        out.push(`*${block.text}*`);
+        out.push(`*${lines(block.text)}*`);
         break;
       case "notice":
         out.push(`> ${block.text}`);
@@ -254,7 +265,7 @@ export function toMarkdown(doc: MaterialDocument): string {
         out.push(`> **${block.label}:** ${lines(block.text)}`);
         break;
       case "heading":
-        out.push(`## ${block.text}${block.detail ? ` · ${block.detail}` : ""}`);
+        out.push(`## ${lines(block.text)}${block.detail ? ` · ${lines(block.detail)}` : ""}`);
         break;
       case "text":
         out.push(lines(block.text));

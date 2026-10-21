@@ -1002,9 +1002,7 @@
       }
     },
     "materials": {
-      "open": "Materiais",
-      "presentation": "Apresentação",
-      "presentationHint": "Slides para a tela, feitos a partir deste ensino"
+      "open": "Materiais"
     }
   },
   "parts": {
@@ -1093,7 +1091,8 @@
       }
     },
     "questions": {
-      "leaderNotice": "Versão do líder: com notas para conduzir. Não é para distribuir."
+      "leaderNotice": "Versão do líder: com notas para conduzir. Não é para distribuir.",
+      "unworded": "Notas de uma pergunta ainda sem redação"
     },
     "worksheet": {
       "ownNotes": "Minhas anotações"
@@ -1124,7 +1123,6 @@
       "printFailed": "Não é possível imprimir aqui. Salve como arquivo de texto."
     },
     "menu": {
-      "label": "Materiais deste ensino",
       "files": "Arquivos da apresentação",
       "exportPresentation": "Salvar a apresentação como arquivo…",
       "exportHint": "PowerPoint, PDF dos slides, folha do orador para celular, Markdown ou pacote de apresentação",

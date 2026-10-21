@@ -368,11 +368,6 @@
    * The part of a Bible Study being worked in (v0.18.6): the brass line of
    * work in progress beside it, in the gutter, so the text does not move.
    */
-  /* A new phase of a Bible Study opens with a firmer rule than a new part within one. */
-  .aw-phase + .aw-phase > section:first-of-type,
-  .aw-phase + .aw-phase > p + section {
-    border-top-color: var(--aw-border);
-  }
   .aw-part-active {
     position: relative;
   }
@@ -575,7 +570,11 @@
   body.aw-printing > *:not(#material-print) {
     display: none !important;
   }
+  /* The app fills the window and scrolls inside it; on paper the material runs on over its pages. */
+  html:has(body.aw-printing),
   body.aw-printing {
+    height: auto !important;
+    overflow: visible !important;
     background: #fff !important;
   }
   body.aw-printing #material-print {

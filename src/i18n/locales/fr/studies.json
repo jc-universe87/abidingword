@@ -1002,9 +1002,7 @@
       }
     },
     "materials": {
-      "open": "Supports",
-      "presentation": "Présentation",
-      "presentationHint": "Des diapositives pour l’écran, faites à partir de cet enseignement"
+      "open": "Supports"
     }
   },
   "parts": {
@@ -1093,7 +1091,8 @@
       }
     },
     "questions": {
-      "leaderNotice": "Version de l’animateur : avec les notes pour animer. À ne pas distribuer."
+      "leaderNotice": "Version de l’animateur : avec les notes pour animer. À ne pas distribuer.",
+      "unworded": "Notes pour une question pas encore formulée"
     },
     "worksheet": {
       "ownNotes": "Mes notes"
@@ -1124,7 +1123,6 @@
       "printFailed": "L’impression n’est pas possible ici. Enregistrez plutôt un fichier texte."
     },
     "menu": {
-      "label": "Supports de cet enseignement",
       "files": "Fichiers de la présentation",
       "exportPresentation": "Enregistrer la présentation dans un fichier…",
       "exportHint": "PowerPoint, PDF des diapositives, feuillet de l’orateur pour téléphone, Markdown ou paquet de présentation",

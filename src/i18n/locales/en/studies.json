@@ -992,9 +992,7 @@
       }
     },
     "materials": {
-      "open": "Materials",
-      "presentation": "Presentation",
-      "presentationHint": "Slides for the screen, made from this teaching"
+      "open": "Materials"
     }
   },
   "parts": {
@@ -1083,7 +1081,8 @@
       }
     },
     "questions": {
-      "leaderNotice": "Leader’s version: with notes for leading. Not for handing out."
+      "leaderNotice": "Leader’s version: with notes for leading. Not for handing out.",
+      "unworded": "Notes for a question not yet worded"
     },
     "worksheet": {
       "ownNotes": "My notes"
@@ -1114,7 +1113,6 @@
       "printFailed": "Printing is not available here. Save it as a text file instead."
     },
     "menu": {
-      "label": "Materials for this teaching",
       "files": "Presentation files",
       "exportPresentation": "Save the presentation as a file…",
       "exportHint": "PowerPoint, PDF slides, a speaker sheet for a phone, Markdown or a delivery package",

@@ -52,9 +52,10 @@ Chosen after looking at the review set, deliberately few techniques:
 - **A one-line study outline** under the header: *Text · Understanding ·
   Theology · Application …* (only the phases the study has). It is the
   journey at a glance and the way through a long study.
-- **Space and a firmer rule** where a phase begins (1.5 rem and the border
-  colour instead of the subtle one between parts of a phase). Readable in
-  monochrome.
+- **Space and a firmer rule** where a phase begins, on the phase's first part
+  (extra space and the border colour instead of the subtle one between parts
+  of a phase). Readable in monochrome. The parts stay one list of siblings, so
+  moving or folding a part never rebuilds its neighbours.
 - **A phase name above its parts only where it adds something**: not when the
   first part's own title already says it (*Theology* above *Theology*; *Text*
   above *Text, Observations, Context*). In a passage study this leaves one
@@ -75,9 +76,10 @@ like every tab): the phase of the part being worked in while that part is on
 screen, otherwise the last phase whose start has passed the upper third of
 the pane, and the last phase at the very end. A click scrolls to the phase and
 moves focus to its first part's heading. In a narrow pane the line scrolls
-sideways and keeps the current phase in sight rather than wrapping. Position
-is read on scroll one animation frame at a time and on resize; nothing is
-measured while nothing moves.
+sideways (a thin scrollbar shows there is more) and keeps the current phase in
+sight rather than wrapping. Position is read on scroll, on resize and when the
+study changes size (a part folded, writing pasted), one animation frame at a
+time; nothing is measured while nothing moves.
 
 Not built: an outline sidebar, "fold this phase" buttons (no owner need yet;
 *Fold all* stays).
@@ -95,8 +97,8 @@ Teaching**. It is an invitation, never a step the study must take.
 Part headings stay `h2` (no change to heading navigation). The outline is a
 `navigation` landmark ("Study outline"); its buttons are named *"Go to
 Theology"* so they never share a name with the part's own fold button (found by
-the tests: two "Text" buttons). Phase runs with a visible name are `group`s
-named by it. Keyboard: the outline buttons are ordinary buttons; folding works
+the tests: two "Text" buttons). A phase's name, where shown, is read first
+inside its first part's region. Keyboard: the outline buttons are ordinary buttons; folding works
 part by part as before.
 
 ## 2. Materials
@@ -136,8 +138,9 @@ actions, and a few plain choices. No setup screen, no layout settings.
 
 - **Print or save as PDF…** — the system's print dialog; only the material is
   printed (a copy of the page is put at the top of the document while the
-  dialog is open; `@media print` hides the app). Checked with Chromium's PDF
-  output in English and Korean: one A4 page each, nothing of the app on it.
+  dialog is open; `@media print` hides the app and lets the page run on).
+  Checked with Chromium's PDF output: English and Korean sheets, nothing of the
+  app on them, and a long manuscript over five pages.
 - **Save as a text file…** — Markdown, through the save dialog; the core's new
   `material_save_markdown` writes only the chosen file (`.md` added when
   missing, written atomically, a 4 MB guard), main window only.
@@ -181,8 +184,11 @@ Rules (tested):
   handing out."* at the top. The opening and closing (the leader's words) join
   the group's sheet only when ticked.
 - Notes for oneself are on no sheet, ever.
-- A question with no wording is not put to the group (it appears, as
-  *Question n*, only on the leader's version if it has notes).
+- **Numbers are the same on every sheet:** only questions with wording are
+  numbered, on the group's sheet, the leader's version and the leader's guide
+  alike, so "question 2" means the same thing to the leader and the group. A
+  question not yet worded is not put to the group; its notes stay with the
+  leader, unnumbered, under *Notes for a question not yet worded*.
 
 ### Worksheet scope
 
@@ -247,9 +253,9 @@ offer *Microsoft Print to PDF*).
 
 ## 7. Tests
 
-`tests/ui/study-journey.test.tsx` (13), `tests/ui/materials.test.tsx` (18),
+`tests/ui/study-journey.test.tsx` (14), `tests/ui/materials.test.tsx` (20),
 the updated Materials test in `workspace-hierarchy.test.tsx`; Rust:
-`commands::materials` (3), the capabilities test (the new command is
+`commands::materials` (4), the capabilities test (the new command is
 main-window only and privileged).
 
 ## 8. Limitations
@@ -263,4 +269,26 @@ main-window only and privileged).
 
 ## 9. Independent review
 
-(See the commit after the review for the findings and fixes.)
+A separate review of the whole diff (`db70242..HEAD`) found three genuine bugs
+and nine smaller points; all were fixed, with regression tests where testable.
+
+| # | Finding | Fix |
+|---|---|---|
+| 1 | **Printing stopped after the first page**: the app's `html`/`body` are a fixed-height, non-scrolling frame; print never undid that. | Print rules reset height and overflow (and the background) while a material prints. Checked: a long manuscript prints over five A4 pages. |
+| 2 | **Moving a part remounted it** (and every part in its phase): the parts were wrapped per phase, keyed by the phase's first part, so a move closed the part's options and dropped keyboard focus. | Parts are siblings keyed by their own id again; where a phase begins is marked on its first part (space, rule, name). Test: a moved part is the same element and keeps focus on *Move up*. |
+| 3 | **Question numbers differed** between the group's sheet, the leader's version and the leader's guide when a question had notes but no wording yet. | Only worded questions are numbered, everywhere; the rest stay with the leader, unnumbered. Test. |
+| 4 | A web view that never reports the end of printing left Print unable to print again. | Each click is a new print request. Test. |
+| 5 | The print test's own checks ran inside the mocked dialog, where a failure would have been caught. | What was printed is recorded and checked afterwards. |
+| 6 | Back from preparing a teaching, the study still offered to prepare one. | The list is read again on returning to the study. Test. |
+| 7 | A study without an outline still had phase spacing and unnamed groups. | Nothing of the phases shows unless the outline does. |
+| 8 | The marked phase did not follow folding or pasting. | Also measured when the study changes size (one frame at a time). |
+| 9 | In a narrow pane the outline's hidden scrollbar hid later phases. | A thin scrollbar. |
+| 10 | A name typed with another extension (`Sermon.txt`) could replace `Sermon.txt.md` without the dialog having asked. | Refused with the existing "a file named … already exists" message. Rust test. |
+| 11 | A line of the person's own starting `#`, `-`, `>` or `1.` became Markdown syntax. | Escaped, so words stay words. Test. |
+| 12 | Unused strings left over. | Removed from all six languages. |
+
+Verified fine by the review: phases never reorder; group sheet holds no
+leader content by default; the worksheet never shows answers to listen for or
+what a teacher needs; Materials offered by kind; the presentation is not
+duplicated; the sheet stays white in Dark; the Rust guard, atomic write and
+main-window-only permission; German *du* and Korean particles.

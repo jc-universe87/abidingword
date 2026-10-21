@@ -34,7 +34,8 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
   const heading = useRef<HTMLHeadingElement>(null);
   const [options, setOptions] = useState<MaterialOptions>(DEFAULT_OPTIONS);
   const [status, setStatus] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
-  const [printing, setPrinting] = useState(false);
+  // Each request to print, counted: a web view that never says printing has finished can still print again.
+  const [printing, setPrinting] = useState(0);
   const name = outputName(t, kind, preparation.kind);
   const doc = useMemo(() => derive(t, kind, preparation, options), [t, kind, preparation, options]);
 
@@ -47,7 +48,7 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
   useEffect(() => {
     if (!printing) return;
     document.body.classList.add("aw-printing");
-    const done = () => setPrinting(false);
+    const done = () => setPrinting(0);
     window.addEventListener("afterprint", done);
     const frame = requestAnimationFrame(() => {
       try {
@@ -110,7 +111,7 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
       </header>
 
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <Button variant="primary" className="min-h-11" onClick={() => setPrinting(true)} disabled={doc.empty}>
+        <Button variant="primary" className="min-h-11" onClick={() => setPrinting((n) => n + 1)} disabled={doc.empty}>
           <Printer className="size-4" aria-hidden="true" />
           {t("studies.materials.action.print")}
         </Button>
@@ -153,7 +154,7 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
           <MaterialPage doc={doc} label={t("studies.materials.view.preview", { name })} />
         </div>
       )}
-      {printing && createPortal(<div id="material-print"><MaterialPage doc={doc} /></div>, document.body)}
+      {printing > 0 && createPortal(<div id="material-print"><MaterialPage doc={doc} /></div>, document.body)}
     </section>
   );
 }

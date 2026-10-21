@@ -103,11 +103,14 @@ describe("the study's movement on screen", () => {
     expect(within(study()).getByRole("heading", { level: 2, name: "Theology" })).toHaveFocus();
   });
 
-  it("names a phase as a group only where it adds something; every part keeps its own heading", async () => {
+  it("names a phase above its first part only where it adds something; every part keeps its own heading", async () => {
     const { api } = await withStudy();
     await openStudy(api);
-    expect(within(study()).getByRole("group", { name: "Understanding" })).toBeInTheDocument();
-    expect(within(study()).queryByRole("group", { name: "Theology" })).not.toBeInTheDocument();
+    const meaning = within(study()).getByRole("region", { name: "Meaning" });
+    expect(meaning).toHaveTextContent(/^Understanding/);
+    expect(within(study()).getByRole("region", { name: "Theology" })).not.toHaveTextContent(/^Theology.*Theology/);
+    expect(within(study()).getByRole("region", { name: "Meaning" })).toHaveAttribute("data-phase-start", "1");
+    expect(within(study()).getByRole("region", { name: "Observations" })).not.toHaveAttribute("data-phase-start");
     for (const name of ["Text", "Observations", "Context", "Meaning", "Theology", "Application"]) {
       expect(within(study()).getByRole("heading", { level: 2, name })).toBeInTheDocument();
     }
@@ -126,6 +129,19 @@ describe("the study's movement on screen", () => {
     expect(within(study()).getByRole("region", { name: "Meaning" })).not.toHaveAttribute("data-active");
   });
 
+  it("keeps a part as it is while it is moved, even when it then begins its phase", async () => {
+    const { api } = await withStudy();
+    const user = await openStudy(api);
+    const observations = within(study()).getByRole("region", { name: "Observations" });
+    await user.click(within(observations).getByRole("button", { name: "Options for part Observations" }));
+    // Up to the start of the study: the part that begins the phase changes.
+    await user.click(within(observations).getByRole("button", { name: "Move part Observations up" }));
+    await waitFor(() => expect(within(study()).getAllByRole("heading", { level: 2 })[0]).toHaveTextContent("Observations"));
+    const moved = within(study()).getByRole("region", { name: "Observations" });
+    expect(moved).toBe(observations);
+    expect(within(moved).getByRole("button", { name: "Move part Observations up" })).toHaveFocus();
+  });
+
   it("offers a Bible Teaching at its end, quietly, and opens the one prepared once there is one", async () => {
     const { api, detail } = await withStudy();
     const user = await openStudy(api);
@@ -136,7 +152,8 @@ describe("the study's movement on screen", () => {
 
     await api.teachingCreate({ studyId: detail.study.id, title: "Remain in the vine", kind: "sermon" });
     await user.click(within(study()).getByRole("button", { name: "Bible Study" }));
-    await waitFor(() => expect(within(study()).getByRole("complementary", { name: "Bible Teaching" })).toBeInTheDocument());
+    // Back at the study, its end names what was prepared, without leaving and coming back.
+    await waitFor(() => expect(within(study()).getByRole("complementary", { name: "Bible Teaching" })).toHaveTextContent("Prepared from this study: Remain in the vine"));
   });
 
   it("names the Bible Teaching already prepared instead of offering to make one", async () => {

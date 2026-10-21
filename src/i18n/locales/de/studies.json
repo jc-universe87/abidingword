@@ -992,9 +992,7 @@
       }
     },
     "materials": {
-      "open": "Unterlagen",
-      "presentation": "Präsentation",
-      "presentationHint": "Folien für die Leinwand, aus dieser Bibellehre gemacht"
+      "open": "Unterlagen"
     }
   },
   "parts": {
@@ -1083,7 +1081,8 @@
       }
     },
     "questions": {
-      "leaderNotice": "Version für die Leitung: mit Hinweisen zum Leiten. Nicht zum Austeilen."
+      "leaderNotice": "Version für die Leitung: mit Hinweisen zum Leiten. Nicht zum Austeilen.",
+      "unworded": "Notizen zu einer Frage, die noch nicht formuliert ist"
     },
     "worksheet": {
       "ownNotes": "Meine Notizen"
@@ -1114,7 +1113,6 @@
       "printFailed": "Drucken ist hier nicht möglich. Sichere es stattdessen als Textdatei."
     },
     "menu": {
-      "label": "Unterlagen zu dieser Bibellehre",
       "files": "Präsentationsdateien",
       "exportPresentation": "Präsentation als Datei sichern …",
       "exportHint": "PowerPoint, PDF mit Folien, Sprechzettel fürs Handy, Markdown oder Vortragspaket",
