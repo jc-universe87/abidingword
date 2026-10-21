@@ -25,7 +25,7 @@ sermon, a group study, a lesson) is **Bible Teaching**: see
    | Kind | Starts with |
    |---|---|
    | **Passage study** | Text · Observations · Context · Meaning · Theology · Application |
-   | **Word study** | Word · Occurrences · Semantic Range · Key Passages · Conclusions |
+   | **Word study** | Word · Occurrences · Range of Meaning · Key Passages · Conclusions |
    | **Topic** | Question / Topic · Key Passages · Main Themes · Conclusions · Application |
    | **Teaching preparation** | A passage study, opened straight on its **Bible Teaching** side, ready to choose a sermon, group study or lesson |
 

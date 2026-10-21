@@ -1,7 +1,7 @@
 {
   "key": "biblical-theology-study",
   "name": "Biblical Theology Study",
-  "description": "A theme traced along the storyline of Scripture from promise to fulfilment.",
+  "description": "A theme traced through the unfolding story of Scripture.",
   "studyType": "biblical_theology",
   "sections": [
     {
@@ -25,8 +25,11 @@
     {
       "key": "fulfilment",
       "title": "Fulfilment / Consummation",
-      "guidance": "Its fulfilment in Christ and its final completion.",
-      "phase": "theology"
+      "guidance": "Where and how the theme reaches its fulfilment or completion.",
+      "phase": "theology",
+      "formerGuidance": [
+        "Its fulfilment in Christ and its final completion."
+      ]
     },
     {
       "key": "synthesis",

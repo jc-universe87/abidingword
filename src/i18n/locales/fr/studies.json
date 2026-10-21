@@ -3,7 +3,7 @@
     "templates": {
       "biblical-theology-study": {
         "name": "Étude de théologie biblique",
-        "description": "Un thème suivi au fil du grand récit de l’Écriture, de la promesse à l’accomplissement.",
+        "description": "Un thème suivi au fil de l’histoire de l’Écriture qui se déploie.",
         "sections": {
           "theme": {
             "title": "Thème",
@@ -27,7 +27,7 @@
           },
           "fulfilment": {
             "title": "Accomplissement final",
-            "guidance": "Son accomplissement en Christ et son achèvement final."
+            "guidance": "Où et comment le thème trouve son accomplissement ou son achèvement."
           },
           "synthesis": {
             "title": "Synthèse",
@@ -45,7 +45,7 @@
       },
       "passage-study": {
         "name": "Étude de passage",
-        "description": "L’étude attentive d’un passage, du texte lui-même jusqu’à son enseignement.",
+        "description": "L’étude attentive d’un passage, du texte lui-même à ce qu’il signifie pour la foi et la vie.",
         "sections": {
           "text": {
             "title": "Texte",
@@ -229,11 +229,11 @@
         "sections": {
           "word": {
             "title": "Mot",
-            "guidance": "Le mot étudié, sa forme originale et la manière dont les traductions le rendent."
+            "guidance": "Le mot ou l’expression étudiés, et la manière dont les traductions les rendent."
           },
           "occurrences": {
             "title": "Occurrences",
-            "guidance": "Où le mot apparaît. (Les listes automatiques d’occurrences arriveront avec la concordance.)"
+            "guidance": "Où le mot apparaît ; la concordance peut en lister les occurrences."
           },
           "immediate-contexts": {
             "title": "Contextes immédiats",

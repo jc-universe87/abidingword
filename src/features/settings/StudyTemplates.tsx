@@ -81,7 +81,9 @@ export function StudyTemplates({
               {[studyTypeLabel(t, template.studyType), template.isBuiltin && t("studies.templates.builtIn")].filter(Boolean).join(t("common.listSeparator"))}
             </p>
             {/* What it starts with, from its own parts (v0.18.8). */}
-            <p className="m-0 text-[0.9375rem] text-text-muted">{studyStartSummary(t, template)}</p>
+            <p className="m-0 line-clamp-2 text-[0.9375rem] text-text-muted" title={studyStartSummary(t, template)}>
+              {studyStartSummary(t, template)}
+            </p>
           </div>
           <div className="flex gap-2">
             {template.isBuiltin ? (

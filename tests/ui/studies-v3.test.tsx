@@ -54,7 +54,7 @@ describe("creating studies", () => {
     expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("Remain (μένω)");
     // the kind of study is not in the everyday header; it is in Study details
     expect(screen.queryByText("Word Study", { selector: "span" })).not.toBeInTheDocument();
-    expect(sectionHeadings()).toEqual(["Word", "Occurrences", "Semantic Range", "Key Passages", "Conclusions"]);
+    expect(sectionHeadings()).toEqual(["Word", "Occurrences", "Range of Meaning", "Key Passages", "Conclusions"]);
     await user.click(screen.getByRole("button", { name: "Study details" }));
     expect(screen.getByRole("group", { name: "Word Study details" })).toBeInTheDocument();
     expect(screen.getByText(/Type: Word Study/)).toBeInTheDocument();

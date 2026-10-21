@@ -83,7 +83,7 @@ describe("what a template starts with", () => {
     await waitFor(() => expect(form).toHaveTextContent(starts));
     expect(form).not.toHaveTextContent("Starts with: Notes");
     await user.click(within(form).getByRole("button", { name: "Word study" }));
-    expect(form).toHaveTextContent("Starts with: Word · Occurrences · Semantic Range · Key Passages · Conclusions.");
+    expect(form).toHaveTextContent("Starts with: Word · Occurrences · Range of Meaning · Key Passages · Conclusions.");
     const templates = await openSettingsSection(user, "Templates");
     const row = within(within(templates).getByRole("list", { name: "Study templates" })).getByText("Passage Study").closest("li")!;
     expect(row).toHaveTextContent(starts);
@@ -144,5 +144,86 @@ describe("from a study to a teaching", () => {
     expect(api.state.teaching.preparations[0]!).toMatchObject({ kind: "sermon" });
     expect(api.state.teaching.preparations[0]!.points.map((p) => p.title)).toEqual(["", ""]);
     expect((await api.studyGet(study.id)).sections.map((s) => [s.id, s.title])).toEqual(sections.map((s) => [s.id, s.title]));
+  });
+});
+
+describe("refining a baseline (v0.18.9)", () => {
+  it("keeps a study made before the refinement in the interface language: its old wording is still known", async () => {
+    const { sectionTitle, sectionGuidance } = await import("@/features/studies/builtinText");
+    const i18n = (await import("@/i18n")).default;
+    await i18n.changeLanguage("de");
+    try {
+      // A word study made in v0.18.8 stored the English it was made with.
+      expect(sectionTitle({ key: "semantic-range", title: "Semantic Range" })).toBe("Bedeutungsspektrum");
+      expect(sectionGuidance({ key: "occurrences", guidance: "Where the word appears. (Automatic occurrence lists arrive with the concordance.)" })).toBe("Wo das Wort vorkommt; die Konkordanz kann seine Vorkommen auflisten.");
+      // The person's own wording stays theirs.
+      expect(sectionTitle({ key: "semantic-range", title: "Was das Wort heißt" })).toBe("Was das Wort heißt");
+    } finally {
+      await i18n.changeLanguage("en");
+    }
+  });
+
+  it("records former wording only as history: never the current wording, and only beside a part that changed", () => {
+    for (const template of studyTemplates) {
+      for (const s of template.sections as { key: string; title: string; guidance?: string; formerTitles?: string[]; formerGuidance?: string[] }[]) {
+        expect(s.formerTitles ?? [], `${template.key}/${s.key}`).not.toContain(s.title);
+        expect(s.formerGuidance ?? [], `${template.key}/${s.key}`).not.toContain(s.guidance);
+      }
+    }
+  });
+
+  it("keeps the old teaching study loadable, translated, and never offered", async () => {
+    const api = createMemoryApi();
+    const project = await api.projectCreate({ workspaceId: api.state.workspace.id, title: "John" });
+    const legacy = api.state.templates.find((t) => t.key === "teaching-study")!;
+    const detail = await api.studyCreate({ projectId: project.id, title: "Old sermon prep", templateId: legacy.id });
+    expect(detail.sections.map((s) => s.key)).toEqual(["text", "main-idea", "exegesis", "theology", "purpose", "audience", "structure", "illustrations", "application", "teaching-outline"]);
+    const { sectionTitle, isOffered } = await import("@/features/studies/builtinText");
+    expect(isOffered(legacy)).toBe(false);
+    const i18n = (await import("@/i18n")).default;
+    await i18n.changeLanguage("ko");
+    try {
+      expect(sectionTitle(detail.sections[1]!)).not.toBe("Main Idea");
+    } finally {
+      await i18n.changeLanguage("en");
+    }
+  });
+});
+
+describe("what each baseline makes (v0.18.9)", () => {
+  it("a study from each offered built-in starts with exactly its starting parts, and nothing written in them", async () => {
+    const api = createMemoryApi();
+    const project = await api.projectCreate({ workspaceId: api.state.workspace.id, title: "John" });
+    for (const template of studyTemplates.filter((t) => t.offered !== false)) {
+      const builtin = api.state.templates.find((t) => t.key === template.key)!;
+      const detail = await api.studyCreate({ projectId: project.id, title: template.name, templateId: builtin.id });
+      expect(detail.sections.map((s) => s.key), template.key).toEqual(template.sections.filter((s) => !s.optional && !s.retired).map((s) => s.key));
+      expect(detail.sections.length, template.key).toBeLessThanOrEqual(8);
+      // The guidance is a hint beside the part, never writing in it.
+      expect(detail.sections.flatMap((s) => s.blocks).every((b) => b.content === ""), template.key).toBe(true);
+    }
+  });
+
+  it("a teaching from each built-in starts with its steps, all of them empty, and its materials hold nothing yet", async () => {
+    const { startingPoints } = await import("@/features/teaching/teachingTemplates");
+    const { derive, outputsFor } = await import("@/features/materials/derive");
+    const i18n = (await import("@/i18n")).default;
+    const t = i18n.t.bind(i18n);
+    const api = createMemoryApi();
+    const project = await api.projectCreate({ workspaceId: api.state.workspace.id, title: "John" });
+    const { study } = await api.studyCreate({ projectId: project.id, title: "Abiding" });
+    for (const builtin of BUILTIN_TEACHING_TEMPLATES) {
+      const made = await api.teachingGet((await api.teachingCreate({ studyId: study.id, title: "New", kind: builtin.kind, points: startingPoints(t, { builtin }) })).id);
+      expect(made.points.map((p) => p.kind), builtin.kind).toEqual(builtin.points.map((p) => p.kind));
+      expect(made.points.every((p) => !p.explanation && !p.application && !p.illustration), builtin.kind).toBe(true);
+      expect([made.introduction, made.conclusion, made.notes, made.centralMessage ?? ""].every((x) => x === ""), builtin.kind).toBe(true);
+      for (const kind of outputsFor(builtin.kind).filter((k) => k !== "presentation")) {
+        const doc = derive(t, kind, made);
+        // Only the step titles a lesson starts with, never guidance or a description.
+        const words = JSON.stringify(doc.blocks.filter((b) => b.type !== "title"));
+        expect(words, `${builtin.kind}/${kind}`).not.toMatch(/Main points with explanation|A lesson in steps|Questions for the group/);
+        if (builtin.points.length === 0) expect(doc.empty, `${builtin.kind}/${kind}`).toBe(true);
+      }
+    }
   });
 });

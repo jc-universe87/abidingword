@@ -65,7 +65,7 @@ export function TeachingTemplates({ onEdit, version = 0 }: { onEdit: (templateId
             <li key={template.key} className="flex flex-wrap items-start justify-between gap-2 border-b border-border-subtle py-3">
               <div className="min-w-0 flex-1 basis-64">
                 <p className="type-item m-0">{name}</p>
-                <p className={meta}>
+                <p className={`${meta} line-clamp-2`} title={startSummary(t, { builtin: template })}>
                   {startSummary(t, { builtin: template })}
                   {t("common.listSeparator")}
                   {t("studies.templates.builtIn")}
@@ -82,7 +82,7 @@ export function TeachingTemplates({ onEdit, version = 0 }: { onEdit: (templateId
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0 flex-1 basis-64">
                 <p className="type-item m-0">{template.name}</p>
-                <p className={meta}>
+                <p className={`${meta} line-clamp-2`} title={startSummary(t, { mine: template })}>
                   {teachingKindLabel(t, template.kind)}
                   {t("common.listSeparator")}
                   {startSummary(t, { mine: template })}

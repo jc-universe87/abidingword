@@ -7,20 +7,29 @@
     {
       "key": "word",
       "title": "Word",
-      "guidance": "The word being studied, its original form and how translations render it.",
-      "phase": "text"
+      "guidance": "The word or expression being studied, and how translations render it.",
+      "phase": "text",
+      "formerGuidance": [
+        "The word being studied, its original form and how translations render it."
+      ]
     },
     {
       "key": "occurrences",
       "title": "Occurrences",
-      "guidance": "Where the word appears. (Automatic occurrence lists arrive with the concordance.)",
-      "phase": "text"
+      "guidance": "Where the word appears; the concordance can list its occurrences.",
+      "phase": "text",
+      "formerGuidance": [
+        "Where the word appears. (Automatic occurrence lists arrive with the concordance.)"
+      ]
     },
     {
       "key": "semantic-range",
-      "title": "Semantic Range",
+      "title": "Range of Meaning",
       "guidance": "The range of meanings the word carries, and what decides between them.",
-      "phase": "understanding"
+      "phase": "understanding",
+      "formerTitles": [
+        "Semantic Range"
+      ]
     },
     {
       "key": "key-passages",

@@ -19,7 +19,21 @@ interface BuiltinDefinition {
   description?: string | null;
   /** False: kept only for the studies made with it, never offered for a new one (e.g. the old teaching study). */
   offered?: boolean;
-  sections: { key: string; title: string; guidance?: string | null; optional?: boolean; retired?: boolean; phase?: string | null }[];
+  sections: {
+    key: string;
+    title: string;
+    guidance?: string | null;
+    optional?: boolean;
+    retired?: boolean;
+    phase?: string | null;
+    /**
+     * Earlier English wording of this part (v0.18.9): a study made before a
+     * baseline was refined still has it, and is still shown in the interface
+     * language. Refining a baseline adds the old wording here, never removes it.
+     */
+    formerTitles?: string[];
+    formerGuidance?: string[];
+  }[];
 }
 
 const BUILTIN: BuiltinDefinition[] = [passage, word, topical, biblicalTheology, systematicTheology, teaching];
@@ -32,11 +46,13 @@ function translate(key: string, fallback: string): string {
   return (i18n.t as (key: string, options: Record<string, unknown>) => string)(key, { defaultValue: fallback });
 }
 
-/** Finds the built-in section a stored section was copied from, by key and unchanged English. */
+/** Finds the built-in section a stored section was copied from, by key and unchanged English (now or before a refinement). */
 function builtinSection(key: string | null | undefined, field: "title" | "guidance", english: string) {
   if (!key) return null;
   for (const template of BUILTIN) {
-    const section = template.sections.find((s) => s.key === key && (s[field] ?? "") === english);
+    const section = template.sections.find(
+      (s) => s.key === key && ((s[field] ?? "") === english || (field === "title" ? s.formerTitles : s.formerGuidance)?.includes(english)),
+    );
     if (section) return { template: template.key, section: section.key };
   }
   return null;

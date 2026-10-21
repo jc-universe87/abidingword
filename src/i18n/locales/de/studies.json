@@ -3,7 +3,7 @@
     "templates": {
       "biblical-theology-study": {
         "name": "Biblisch-theologisches Studium",
-        "description": "Ein Thema, verfolgt entlang der Gesamterzählung der Schrift – von der Verheißung bis zur Erfüllung.",
+        "description": "Ein Thema, verfolgt durch die sich entfaltende Geschichte der Schrift.",
         "sections": {
           "theme": {
             "title": "Thema",
@@ -27,7 +27,7 @@
           },
           "fulfilment": {
             "title": "Erfüllung / Vollendung",
-            "guidance": "Seine Erfüllung in Christus und seine endgültige Vollendung."
+            "guidance": "Wo und wie das Thema seine Erfüllung oder Vollendung findet."
           },
           "synthesis": {
             "title": "Synthese",
@@ -45,7 +45,7 @@
       },
       "passage-study": {
         "name": "Bibelstellenstudium",
-        "description": "Ein sorgfältiges Studium einer Bibelstelle – vom Text selbst bis zu seiner Vermittlung.",
+        "description": "Ein sorgfältiges Studium einer Bibelstelle – vom Text selbst bis zu dem, was er für Glauben und Leben bedeutet.",
         "sections": {
           "text": {
             "title": "Text",
@@ -229,11 +229,11 @@
         "sections": {
           "word": {
             "title": "Wort",
-            "guidance": "Das untersuchte Wort, seine ursprüngliche Form und wie Übersetzungen es wiedergeben."
+            "guidance": "Das untersuchte Wort oder der Ausdruck, und wie Übersetzungen es wiedergeben."
           },
           "occurrences": {
             "title": "Vorkommen",
-            "guidance": "Wo das Wort vorkommt. (Automatische Listen der Vorkommen folgen mit der Konkordanz.)"
+            "guidance": "Wo das Wort vorkommt; die Konkordanz kann seine Vorkommen auflisten."
           },
           "immediate-contexts": {
             "title": "Unmittelbarer Kontext",

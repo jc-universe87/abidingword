@@ -3,7 +3,7 @@
     "templates": {
       "biblical-theology-study": {
         "name": "Estudio de teología bíblica",
-        "description": "Un tema seguido a lo largo de la historia de la Escritura, de la promesa al cumplimiento.",
+        "description": "Un tema seguido a lo largo de la historia de la Escritura que se va desplegando.",
         "sections": {
           "theme": {
             "title": "Tema",
@@ -27,7 +27,7 @@
           },
           "fulfilment": {
             "title": "Cumplimiento / Consumación",
-            "guidance": "Su cumplimiento en Cristo y su consumación final."
+            "guidance": "Dónde y cómo el tema llega a su cumplimiento o consumación."
           },
           "synthesis": {
             "title": "Síntesis",
@@ -45,7 +45,7 @@
       },
       "passage-study": {
         "name": "Estudio de pasaje",
-        "description": "Un estudio detenido de un pasaje, desde el propio texto hasta su enseñanza.",
+        "description": "Un estudio detenido de un pasaje, desde el propio texto hasta lo que significa para la fe y la vida.",
         "sections": {
           "text": {
             "title": "Texto",
@@ -229,11 +229,11 @@
         "sections": {
           "word": {
             "title": "Palabra",
-            "guidance": "La palabra que se estudia, su forma original y cómo la vierten las traducciones."
+            "guidance": "La palabra o expresión que se estudia, y cómo la vierten las traducciones."
           },
           "occurrences": {
             "title": "Apariciones",
-            "guidance": "Dónde aparece la palabra. (Las listas automáticas de apariciones llegarán con la concordancia.)"
+            "guidance": "Dónde aparece la palabra; la concordancia puede listar sus apariciones."
           },
           "immediate-contexts": {
             "title": "Contextos inmediatos",

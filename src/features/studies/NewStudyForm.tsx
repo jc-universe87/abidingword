@@ -168,7 +168,7 @@ export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false
 
       {/* What this way in starts with, from the template's own parts (v0.18.8). */}
       {/* Said only once the templates are known, so it never names a part a study will not have. */}
-      <p id={`${id}-starts`} className="type-meta m-0 min-h-5">
+      <p id={`${id}-starts`} className="type-meta m-0 min-h-5 line-clamp-2">
         {templates.data &&
           studyStartSummary(t, approach === "custom" ? null : approach === "mine" ? (chosenOwn ?? null) : (list.find((template) => template.isBuiltin && template.studyType === type) ?? null))}
       </p>

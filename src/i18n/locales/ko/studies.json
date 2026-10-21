@@ -3,7 +3,7 @@
     "templates": {
       "biblical-theology-study": {
         "name": "성경신학",
-        "description": "하나의 주제를 약속에서 성취까지 성경 전체의 이야기 흐름을 따라 추적합니다.",
+        "description": "하나의 주제를 펼쳐지는 성경의 이야기 전체를 따라 추적합니다.",
         "sections": {
           "theme": {
             "title": "주제",
@@ -27,7 +27,7 @@
           },
           "fulfilment": {
             "title": "성취 / 완성",
-            "guidance": "그리스도 안에서의 성취와 마지막 완성."
+            "guidance": "이 주제가 어디에서 어떻게 성취되거나 완성되는지."
           },
           "synthesis": {
             "title": "종합",
@@ -45,7 +45,7 @@
       },
       "passage-study": {
         "name": "본문 공부",
-        "description": "한 본문을 깊이 살펴보며 본문 자체에서 가르침까지 나아갑니다.",
+        "description": "한 본문을 깊이 살펴보며, 본문 자체에서 믿음과 삶에 주는 의미까지 나아갑니다.",
         "sections": {
           "text": {
             "title": "본문",
@@ -229,11 +229,11 @@
         "sections": {
           "word": {
             "title": "단어",
-            "guidance": "공부하는 단어, 원어 형태, 그리고 번역본들이 옮긴 방식."
+            "guidance": "공부하는 단어나 표현, 그리고 번역본들이 옮긴 방식."
           },
           "occurrences": {
             "title": "용례",
-            "guidance": "단어가 나오는 곳. (용례 목록 자동 생성은 성구 사전 기능과 함께 제공될 예정입니다.)"
+            "guidance": "단어가 나오는 곳. 성구 사전에서 용례를 찾아볼 수 있습니다."
           },
           "immediate-contexts": {
             "title": "가까운 문맥",
