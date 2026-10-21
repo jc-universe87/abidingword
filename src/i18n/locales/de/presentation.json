@@ -386,8 +386,8 @@
     "saving": "Wird gespeichert…",
     "tooLong": "Text zu lang",
     "overflowSlide": "Text zu lang für das Feld der Vorlage",
-    "overflowSummary_one": "Auf {{count}} Folie ist der Text zu lang für das Feld der Vorlage. Er wird nicht von selbst verkleinert: Kürze ihn oder lass das Feld in der Vorlage verkleinern.",
-    "overflowSummary_other": "Auf {{count}} Folien ist der Text zu lang für das Feld der Vorlage. Er wird nicht von selbst verkleinert: Kürze ihn oder lass das Feld in der Vorlage verkleinern.",
+    "overflowSummary_one": "Auf {{count}} Folie ist der Text zu lang für das Feld der Vorlage. Er wird nicht von selbst verkleinert: Kürze ihn oder aktiviere für dieses Feld in der Vorlage „Langen Text verkleinern, damit er passt“.",
+    "overflowSummary_other": "Auf {{count}} Folien ist der Text zu lang für das Feld der Vorlage. Er wird nicht von selbst verkleinert: Kürze ihn oder aktiviere für dieses Feld in der Vorlage „Langen Text verkleinern, damit er passt“.",
     "overflowExport_one": "{{count}} Textfeld ist zu klein für seinen Text; prüfe es in der Datei.",
     "overflowExport_other": "{{count}} Textfelder sind zu klein für ihren Text; prüfe sie in der Datei.",
     "roles": {
