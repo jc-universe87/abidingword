@@ -13,7 +13,7 @@
   },
   "language": {
     "label": "Langue de l’interface",
-    "hint": "Change la langue des menus, des boutons et des messages. Vos études, notes, votre bibliothèque et les textes bibliques restent inchangés."
+    "hint": "Change la langue des menus, des boutons et des messages. Vos études, vos notes, votre bibliothèque et les textes bibliques restent inchangés."
   },
   "theme": {
     "legend": "Thème",
@@ -119,7 +119,7 @@
       "title": "Comment obtenir une clé ?",
       "whatA": "Une clé est un long code fourni par {{service}}. Elle permet à Abiding Word d’utiliser votre compte. Traitez-la comme un mot de passe.",
       "open": "Ouvrir la page des clés de {{service}}",
-      "costA": "La plupart des services facturent un peu ce que vous utilisez et peuvent demander un moyen de paiement ou un crédit prépayé avant que la clé fonctionne. Cela se règle sur leur site, pas dans Abiding Word.",
+      "costA": "La plupart des services facturent une petite somme selon votre utilisation et peuvent demander un moyen de paiement ou un crédit prépayé avant que la clé fonctionne. Cela se règle sur leur site, pas dans Abiding Word.",
       "step1": "Ouvrez la page de {{service}} ci-dessous.",
       "step2": "Connectez-vous, ou créez un compte si vous n’en avez pas.",
       "step3": "Créez une nouvelle clé (elle peut s’appeler « clé API »).",
@@ -152,7 +152,7 @@
     "modelsLink": "Voir les modèles actuels de {{service}}",
     "modelsLocal": "Voir les modèles à télécharger pour {{service}}",
     "searchAdvanced": "Autres (avancé)",
-    "imagesHelp": "Trouver des images cherche des images sous licence libre sur Wikimedia Commons ; seuls vos mots de recherche sont envoyés. Créer des images demande à un service d’images IA d’en dessiner une, toujours indiquée comme faite par l’assistant. Tous les services d’IA ne savent pas créer d’images.",
+    "imagesHelp": "La recherche d’images interroge Wikimedia Commons pour trouver des images sous licence libre ; seuls vos mots de recherche sont envoyés. La création d’images demande à un service d’images IA d’en dessiner une, toujours indiquée comme créée par l’assistant. Tous les services d’IA ne savent pas créer d’images.",
     "imageService": "Créer les images avec",
     "imageServices": {
       "same": "Le même service d’IA (s’il le peut)",
@@ -165,7 +165,7 @@
     },
     "imageKey": "Clé OpenAI pour les images",
     "imageKeyMissing": "Aucune clé OpenAI pour les images n’est encore gardée : collez-la ci-dessous et appuyez sur « Garder la clé ».",
-    "imagesLeave": "Les descriptions d’images sont envoyées à OpenAI par Internet, même si votre service d’écriture ne l’est pas.",
+    "imagesLeave": "Les descriptions d’images sont envoyées à OpenAI par Internet, même si votre service d’écriture fonctionne sur cet ordinateur.",
     "searchShort": {
       "brave": "recherche web générale et simple",
       "tavily": "recherche conçue pour les assistants IA",
@@ -177,7 +177,7 @@
     "searchRecommended": "Recommandés",
     "searchWhat": {
       "brave": "Brave Search est un moteur de recherche web indépendant. Son service pour les programmes (la « Search API ») renvoie des résultats web ordinaires avec un court extrait.",
-      "tavily": "Tavily est un service de recherche conçu pour les assistants IA. Il renvoie des pages web avec un extrait lisible de chacune, ce qui aide l’Assistant IA à montrer ce que dit une page.",
+      "tavily": "Tavily est un service de recherche conçu pour les assistants IA. Il renvoie des pages web avec un extrait lisible de chacune, ce qui aide l’assistant IA à montrer ce que dit une page.",
       "exa": "Exa cherche selon le sens et pas seulement selon les mots. Il renvoie des pages avec les passages qui correspondent le mieux à votre demande.",
       "searxng": "SearXNG est un programme de recherche libre que certaines personnes font tourner sur leur propre serveur. Il vous faut l’adresse d’un serveur SearXNG qui accepte les recherches venant de programmes (résultats « JSON »). Si cela ne vous dit rien, choisissez plutôt un des services recommandés.",
       "serpapi": "SerpApi fournit aux programmes les résultats de recherche de Google. C’est un service payant avec un petit quota gratuit, destiné plutôt aux personnes qui l’utilisent déjà."
@@ -185,7 +185,7 @@
     "searchSetup": {
       "title": "Comment configurer {{service}} ?",
       "step1": "Ouvrez la page de {{service}} ci-dessous et connectez-vous, ou créez un compte.",
-      "step2": "Créez-y une clé (elle peut s’appeler « API key ») et copiez-la.",
+      "step2": "Créez-y une clé (elle peut s’appeler « clé API ») et copiez-la.",
       "step3": "Collez-la dans le champ de la clé de recherche et appuyez sur « Garder la clé ».",
       "step4": "Appuyez sur « Vérifier la recherche ».",
       "open": "Ouvrir la page de {{service}}",

@@ -26,8 +26,8 @@
     "noFiles": "Choisissez au moins un fichier."
   },
   "reference": {
-    "empty": "Saisissez un passage, par exemple « John 15 » ou « Rom 8:1-17 ».",
-    "notRecognised": "« {{text}} » n’est pas un passage reconnu par Abiding Word. Essayez une forme comme « John 15 » ou « Rom 8:1-17 ».",
+    "empty": "Saisissez un passage, par exemple « Jean 15 » ou « Rm 8:1-17 ».",
+    "notRecognised": "« {{text}} » n’est pas un passage reconnu par Abiding Word. Essayez une forme comme « Jean 15 » ou « Rm 8:1-17 ».",
     "unknownBook": "Livre inconnu : « {{text}} ».",
     "notABook": "« {{text}} » n’est pas un livre de la Bible.",
     "oneChapter": "{{book}} ne compte qu’un seul chapitre.",
@@ -40,10 +40,10 @@
     "endBeforeStart": "La fin du passage précède son début.",
     "invalid": "« {{text}} » n’est pas une référence de passage valide.",
     "oneBook": "Un passage doit rester à l’intérieur d’un seul livre.",
-    "ambiguous": "« {{text}} » peut désigner {{options}}. Tapez davantage du nom du livre pour choisir."
+    "ambiguous": "« {{text}} » peut désigner {{options}}. Tapez une plus grande partie du nom du livre pour préciser."
   },
   "bibles": {
-    "hasProblems": "Cette Bible présente des problèmes qui doivent être résolus avant de pouvoir l’ajouter.",
+    "hasProblems": "Cette Bible présente des problèmes qui doivent être résolus avant qu’elle puisse être ajoutée.",
     "shortNameTooLong": "Veuillez ne pas dépasser {{max}} caractères pour le nom court.",
     "badLanguage": "« {{text}} » n’est pas une langue connue d’Abiding Word."
   },
@@ -96,12 +96,12 @@
     "noSections": "Un modèle doit comporter au moins une partie de départ.",
     "tooManySections": "Un modèle peut comporter au plus {{max}} parties.",
     "builtinReadOnly": "Les modèles intégrés ne peuvent pas être modifiés. Utilisez « Enregistrer comme mon modèle » pour créer votre propre version.",
-    "duplicateKey": "Deux parties du modèle sont la même partie. Retirez-en une.",
+    "duplicateKey": "Le modèle contient deux fois la même partie. Retirez-en une.",
     "invalidKey": "L’identifiant de cette partie n’est pas valide."
   },
   "sections": {
     "hasContent": "« {{title}} » contient encore du texte ou des notes.",
-    "duplicateKey": "Cette étude a déjà cette partie."
+    "duplicateKey": "Cette étude contient déjà cette partie."
   },
   "relations": {
     "self": "Une étude ne peut pas être liée à elle-même.",
@@ -134,31 +134,31 @@
     "noPlace": "Choisissez d’abord un endroit dans la source.",
     "bookmarkPlace": "Un signet marque un endroit, pas des mots.",
     "wordsOnlyNotes": "Seules les notes ont un texte propre.",
-    "bookmarkNotStudy": "Un signet marque seulement un endroit ; il n’y a rien à ajouter à une étude."
+    "bookmarkNotStudy": "Un signet marque seulement un endroit ; il ne contient rien à ajouter à une étude."
   },
   "assistant": {
     "off": "L’assistant IA est désactivé. Vous pouvez l’activer dans Paramètres → Assistant IA.",
     "notSetUp": "L’assistant IA n’est pas encore configuré. Vous pouvez le configurer dans Paramètres → Assistant IA.",
-    "noModel": "Choisissez le modèle à utiliser dans les Réglages.",
+    "noModel": "Choisissez le modèle à utiliser dans les Paramètres.",
     "noKey": "L’assistant IA a besoin de sa clé. Vous pouvez l’ajouter dans Paramètres → Assistant IA.",
-    "keyRefused": "Le service n’a pas accepté la clé. Vérifiez-la dans les Réglages.",
+    "keyRefused": "Le service n’a pas accepté la clé. Vérifiez-la dans les Paramètres.",
     "modelMissing": "Le service d’IA ne connaît pas ce modèle. Vérifiez le nom du modèle dans Paramètres → Assistant IA (le ↗ à côté de « Modèle » montre les modèles actuels).",
     "busy": "Le service est occupé ou la limite du compte est atteinte. Réessayez plus tard.",
     "failed": "Le service n’a pas pu répondre cette fois. Réessayez.",
     "badReply": "La réponse de l’assistant n’était pas utilisable. Rien n’a changé. Réessayez.",
-    "unreachable": "L’assistant est injoignable. Vérifiez la connexion Internet ou l’adresse dans les Réglages.",
-    "writeFirst": "Écrivez d’abord quelque chose ici. L’assistant aide avec ce que vous avez écrit.",
+    "unreachable": "L’assistant est injoignable. Vérifiez la connexion Internet ou l’adresse dans les Paramètres.",
+    "writeFirst": "Écrivez d’abord quelque chose ici. L’assistant travaille à partir de ce que vous avez écrit.",
     "sayWhat": "Dites en quelques mots ce que vous cherchez.",
-    "structureFirst": "Écrivez d’abord au moins deux points. L’assistant commente la structure que vous avez.",
-    "chooseAudience": "Indiquez pour qui c’est.",
+    "structureFirst": "Écrivez d’abord au moins deux points. L’assistant commente la structure existante.",
+    "chooseAudience": "Indiquez le public visé.",
     "chooseLanguage": "Choisissez la langue cible.",
     "textTooLong": "Ce texte est trop long pour être envoyé d’un coup. Sélectionnez-en une partie et réessayez.",
     "tooMuch": "La suggestion était bien plus longue que votre texte ; elle n’a donc pas été affichée. Réessayez.",
-    "noSearch": "Les histoires vraies ne peuvent être trouvées et vérifiées qu’avec un service de recherche, qui n’est pas configuré. Ajoutez-en un dans les Réglages, ou demandez plutôt une illustration inventée.",
-    "noSearchKey": "Le service de recherche a besoin de sa clé. Ajoutez-la dans les Réglages.",
+    "noSearch": "Les histoires vraies ne peuvent être trouvées et vérifiées qu’avec un service de recherche, qui n’est pas configuré. Ajoutez-en un dans les Paramètres, ou demandez plutôt une illustration inventée.",
+    "noSearchKey": "Le service de recherche a besoin de sa clé. Ajoutez-la dans les Paramètres.",
     "searchFailed": "Le service de recherche n’a pas pu répondre. Rien n’a été trouvé ni vérifié.",
     "imagesFailed": "Aucune image n’a pu être trouvée cette fois. Réessayez.",
-    "noImageSearch": "La recherche d’images est désactivée. Activez-la dans les Réglages.",
+    "noImageSearch": "La recherche d’images est désactivée. Activez-la dans les Paramètres.",
     "noImageGeneration": "La création d’images n’est pas configurée, ou ce service d’IA ne peut pas créer d’images. Vous pouvez choisir un service pour les images dans Paramètres → Assistant IA.",
     "imageFailed": "L’image n’a pas pu être créée cette fois. Réessayez.",
     "keyStore": "La clé n’a pas pu être conservée dans le magasin d’identifiants de cet ordinateur.",
@@ -186,7 +186,7 @@
     "otherTeaching": "Cette partie appartient à un autre enseignement.",
     "tooLong": "Ce texte est trop long pour la diapositive.",
     "tooMany": "Cette présentation contient déjà le nombre maximal de diapositives.",
-    "targetTooLong": "La durée visée est de dix heures au plus.",
+    "targetTooLong": "La durée visée ne peut pas dépasser dix heures.",
     "templateNotPptx": "Ce fichier n’est pas une présentation PowerPoint (.pptx) lisible.",
     "templateTooLarge": "Cette présentation est trop volumineuse pour être lue comme modèle.",
     "templateFileLarge": "Ce fichier est trop volumineux pour être lu comme modèle.",

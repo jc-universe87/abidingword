@@ -108,7 +108,7 @@ describe("making a presentation from a Bible Teaching", () => {
     expect(item.heading).toBe("Joined to him");
     // The teaching keeps its own words.
     expect(api.state.teaching.preparations[0]!.points.find((p) => p.id === pointId)!.title).toBe("Stay connected");
-    await user.click(within(slide).getByRole("button", { name: "Use the teaching's words again" }));
+    await user.click(within(slide).getByRole("button", { name: "Use the teaching’s words again" }));
     await waitFor(() => expect(api.state.presentation.presentations[0]!.items[4]!.heading).toBeNull());
   });
 
@@ -203,7 +203,7 @@ describe("the Presenter View", () => {
     const view = await screen.findByRole("dialog", { name: /Presenter View/ });
     await user.click(within(view).getByRole("button", { name: "View" }));
     await user.click(within(view).getByRole("button", { name: "Larger text" }));
-    expect(within(view).getByText("115 %")).toBeInTheDocument();
+    expect(within(view).getByText("115%")).toBeInTheDocument();
     expect(within(view).getAllByRole("radio").map((r) => r.closest("label")!.textContent)).toEqual(["Slides and notes", "Larger notes", "Larger slides", "Follow app", "Light", "Dark", "Warm"]);
     // jsdom has no wake lock: the limitation is said, not hidden.
     expect(within(view).getByRole("checkbox", { name: "Keep the screen on" })).toBeDisabled();
@@ -960,7 +960,7 @@ describe("in other languages", () => {
     await user.click(await screen.findByRole("button", { name: "Unterlagen" }));
     await user.click(await screen.findByRole("menuitem", { name: /^Präsentation/ }));
     expect(await screen.findByText(/Wähle, was deine Zuhörer sehen/)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Folien aus der Bibellehre machen" }));
+    await user.click(screen.getByRole("button", { name: "Folien aus der Bibellehre erstellen" }));
     expect(await screen.findByRole("button", { name: "Referentenansicht starten" })).toBeInTheDocument();
   });
 });

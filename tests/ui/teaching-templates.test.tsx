@@ -166,7 +166,7 @@ describe("Save as my template, from a teaching", () => {
     const article = await within(studyPane()).findByRole("article", { name: "Sunday kids" });
     const about = await openAbout(user, article);
     await user.click(within(about).getByRole("button", { name: "Save as my template" }));
-    const form = within(about).getByRole("form", { name: "Save this teaching's structure as a template" });
+    const form = within(about).getByRole("form", { name: "Save this teaching’s structure as a template" });
     expect(form).toHaveTextContent("keeps the format and the steps in order, each with its title and kind");
     expect(form).toHaveTextContent("Nothing you wrote comes with it");
     expect(within(form).getByRole("textbox", { name: "Name of the template" })).toHaveValue("Sunday kids");
@@ -235,7 +235,7 @@ describe("review fixes (v0.18.7)", () => {
     const about = await openAbout(user, article);
     const toggle = within(about).getByRole("button", { name: "Save as my template" });
     await user.click(toggle);
-    const form = within(about).getByRole("form", { name: "Save this teaching's structure as a template" });
+    const form = within(about).getByRole("form", { name: "Save this teaching’s structure as a template" });
     expect(form).toHaveTextContent("at most 20 points, questions or steps");
     expect(within(form).getByRole("button", { name: "Save template" })).toBeDisabled();
     await user.click(within(form).getByRole("button", { name: "Cancel" }));

@@ -158,7 +158,7 @@
     "fitPage": "Fit page",
     "loading": "Opening the original…",
     "renderFailed": "The original could not be shown. You can still read the extracted text.",
-    "noNativeText": "Native text unavailable on this page"
+    "noNativeText": "This page has no selectable text"
   },
   "contents": {
     "title": "Contents",

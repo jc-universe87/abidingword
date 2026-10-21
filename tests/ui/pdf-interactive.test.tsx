@@ -106,7 +106,7 @@ describe("the interactive Original PDF", () => {
     const { user } = await renderApp(api, { pdfEngine: engine });
     await openFromLibrary(user);
     await user.click(screen.getByRole("button", { name: "Original" }));
-    expect(await within(pageSheet(2)).findByRole("note")).toHaveTextContent("Native text unavailable on this page");
+    expect(await within(pageSheet(2)).findByRole("note")).toHaveTextContent("This page has no selectable text");
     await waitFor(() => expect(engine.textReads).toContain(3));
     expect(within(pageSheet(1)).queryByRole("note")).toBeNull();
     expect(within(pageSheet(3)).queryByRole("note")).toBeNull();

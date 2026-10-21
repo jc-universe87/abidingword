@@ -80,11 +80,11 @@ describe("church templates", () => {
     await user.click(within(manager).getByRole("button", { name: "Import from PowerPoint…" }));
     const review = await screen.findByRole("dialog", { name: "Check the imported design" });
     // Each level has words and a symbol, not colour alone.
-    expect(within(review).getByRole("heading", { name: "Taken over" })).toBeInTheDocument();
+    expect(within(review).getByRole("heading", { name: "Carried over" })).toBeInTheDocument();
     expect(within(review).getByRole("heading", { name: "Needs a look" })).toBeInTheDocument();
     expect(within(review).getByRole("heading", { name: "Cannot be reproduced (left out)" })).toBeInTheDocument();
     expect(within(review).getByText("SmartArt")).toBeInTheDocument();
-    expect(within(review).getByText("The design only; the file's 3 slides are not imported")).toBeInTheDocument();
+    expect(within(review).getByText("The design only; the file’s 3 slides are not imported")).toBeInTheDocument();
     // Montserrat SemiBold is missing: a suggestion is offered, never applied by itself.
     const replacement = within(review).getByRole("combobox", { name: "Font to use instead of Montserrat SemiBold (Bold)" });
     expect(replacement).toHaveValue("");
@@ -141,8 +141,8 @@ describe("church templates", () => {
     const { user } = await renderApp(api);
     const region = await makeSlides(user);
     await user.selectOptions(within(region).getByRole("combobox", { name: "Design" }), `template:${tpl.id}`);
-    expect(await within(region).findByText(/On 1 slide the text is too long for the template's box/)).toBeInTheDocument();
-    expect(within(region).getByText("Text too long for the template's box")).toBeInTheDocument();
+    expect(await within(region).findByText(/On 1 slide the text is too long for the template’s box/)).toBeInTheDocument();
+    expect(within(region).getByText("Text too long for the template’s box")).toBeInTheDocument();
   });
 
   it("a simple template is designed with the keyboard as well as by dragging", async () => {

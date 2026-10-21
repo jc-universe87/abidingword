@@ -7,7 +7,7 @@
   },
   "nav": {
     "goToLabel": "Zur Bibelstelle",
-    "goToPlaceholder": "z. B. John 15 oder Rom 8:1-17",
+    "goToPlaceholder": "z. B. Joh 15 oder Röm 8,1-17",
     "go": "Los",
     "book": "Buch",
     "oldTestament": "Altes Testament",
@@ -47,7 +47,7 @@
     "editNote": "Notiz bearbeiten",
     "on": "Zu {{passage}}",
     "removeHighlight": "Markierung entfernen",
-    "removeHighlightOn": "Markierung auf {{quote}} entfernen",
+    "removeHighlightOn": "Markierung von {{quote}} entfernen",
     "markedWords": "Markierte Wörter in Vers {{verse}}",
     "notShown": "In dieser Übersetzung nicht angezeigt"
   },
@@ -76,7 +76,7 @@
       "review": "Neue Bibel",
       "done": "Bibel hinzugefügt"
     },
-    "checking": "Jedes Buch, jedes Kapitel und jeder Vers wird gelesen und geprüft. Das kann einige Sekunden dauern.",
+    "checking": "Abiding Word liest und prüft jedes Buch, jedes Kapitel und jeden Vers. Das kann einige Sekunden dauern.",
     "done_one": "<strong>{{name}}</strong> kann jetzt gelesen werden – mit {{count}} Buch und {{verses}} Versen.",
     "done_other": "<strong>{{name}}</strong> kann jetzt gelesen werden – mit {{count}} Büchern und {{verses}} Versen.",
     "readNow": "Jetzt lesen",
@@ -148,8 +148,8 @@
     },
     "contents_one": "{{count}} Buch, {{verses}} Verse",
     "contents_other": "{{count}} Bücher, {{verses}} Verse",
-    "confirmRemove": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht. Deine Studien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
-    "confirmRemoveManaged": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht, zusammen mit der Kopie der Datei, die Abiding Word angelegt hat (deine Originaldatei bleibt unberührt). Deine Studien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
+    "confirmRemove": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht. Deine Bibelstudien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
+    "confirmRemoveManaged": "<strong>{{name}}</strong> entfernen? Der Text wird aus Abiding Word gelöscht, zusammen mit der Kopie, die Abiding Word von der Datei angelegt hat (deine Originaldatei bleibt unberührt). Deine Bibelstudien, Verknüpfungen zu Bibelstellen und Notizen bleiben erhalten.",
     "keep": "Behalten",
     "changeLanguage": "Sprache ändern",
     "saveLanguage": "Sprache speichern",
@@ -169,7 +169,7 @@
     "noteOnWords": "Notiz zu den ausgewählten Wörtern"
   },
   "marks": {
-    "viewLabel": "Ansicht der Schrift",
+    "viewLabel": "Bibelansicht",
     "bible": "Bibel",
     "marks": "Anmerkungen",
     "title": "Anmerkungen",
@@ -193,7 +193,7 @@
     "empty": {
       "none": "Noch keine Anmerkungen.",
       "noneBody": "Markierungen, Notizen und Lesezeichen, die beim Lesen entstehen, erscheinen hier.",
-      "noMatch": "Dazu gibt es nichts. Versuche ein anderes Buch oder eine andere Farbe.",
+      "noMatch": "Hier passt nichts. Versuche ein anderes Buch oder eine andere Farbe.",
       "noSearch": "Keine Notiz passt zur Suche.",
       "noneSources": "In deinen Quellen gibt es noch keine Anmerkungen.",
       "noneSourcesBody": "Wähle beim Lesen einer Quelle Text aus, um ihn zu markieren oder eine Notiz hinzuzufügen.",
@@ -249,6 +249,6 @@
     "choose": "Sprache wählen",
     "other": "Eine andere Sprache…",
     "otherName": "Name der Sprache",
-    "hint": "Abiding Word liest damit Abkürzungen, die du tippst (etwa „Jn 3:5“), so wie diese Bibel sie meint."
+    "hint": "Abiding Word liest damit Abkürzungen, die du tippst (etwa „Joh 3,5“), so wie diese Bibel sie meint."
   }
 }

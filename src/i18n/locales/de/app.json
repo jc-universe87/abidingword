@@ -53,13 +53,13 @@
     "channel": "Update-Kanal",
     "channelTest": "Entwicklung / Test",
     "check": "Nach Updates suchen",
-    "checking": "Es wird gesucht…",
+    "checking": "Suche läuft…",
     "upToDate": "Abiding Word ist auf dem neuesten Stand.",
     "notIncluded": "Diese Version enthält keine automatischen Updates.",
     "help": "Abiding Word sucht nur gelegentlich oder auf Wunsch nach Updates. Zum Arbeiten brauchst du kein Internet, und deine Bibelstudien bleiben unberührt.",
     "errors": {
       "check": "Die Suche nach Updates war nicht möglich. Bitte prüfe deine Verbindung und versuche es erneut.",
-      "install": "Das Update konnte nicht installiert werden. Deine Studien sind nicht betroffen. Du kannst es erneut versuchen."
+      "install": "Das Update konnte nicht installiert werden. Deine Bibelstudien sind nicht betroffen. Du kannst es erneut versuchen."
     }
   }
 }

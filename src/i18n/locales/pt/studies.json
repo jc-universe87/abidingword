@@ -141,7 +141,7 @@
       },
       "teaching-study": {
         "name": "Preparação de ensino / sermão",
-        "description": "Do texto a um sermão ou uma aula preparados para pessoas reais.",
+        "description": "Do texto a um sermão ou uma lição preparados para pessoas reais.",
         "sections": {
           "text": {
             "title": "Texto",
@@ -339,7 +339,7 @@
       "continues": "Continuado por",
       "contrasts": "Contrasta com",
       "supports": "Apoiado por",
-      "custom": "Vinculado a"
+      "custom": "Vinculado por"
     }
   },
   "keepIt": "Manter",
@@ -391,7 +391,7 @@
     "approach": {
       "passage": "Estudo de passagem",
       "word": "Estudo de palavra",
-      "topical": "Tema",
+      "topical": "Estudo temático",
       "teaching": "Preparação de ensino",
       "biblical_theology": "Teologia bíblica",
       "systematic_theology": "Teologia sistemática",
@@ -472,11 +472,11 @@
     "saveAsTemplate": "Salvar como meu modelo",
     "saveAsTemplateGroup": "Salvar a estrutura deste estudo como modelo",
     "templateName": "Nome do modelo",
-    "saveAsTemplateKeeps_one": "O modelo guarda a parte deste estudo: seu título, sua orientação e seu lugar no percurso. Seu texto, anotações, passagens e detalhes ficam neste estudo.",
-    "saveAsTemplateKeeps_other": "O modelo guarda as {{count}} partes deste estudo: seus títulos, orientações e lugares no percurso, nesta ordem. Seu texto, anotações, passagens e detalhes ficam neste estudo.",
+    "saveAsTemplateKeeps_one": "O modelo guarda a parte deste estudo: seu título, sua orientação e seu lugar na estrutura. Seu texto, anotações, passagens e detalhes ficam neste estudo.",
+    "saveAsTemplateKeeps_other": "O modelo guarda as {{count}} partes deste estudo: seus títulos, orientações e lugares na estrutura, nesta ordem. Seu texto, anotações, passagens e detalhes ficam neste estudo.",
     "saveTemplate": "Salvar modelo",
     "savedAsTemplate": "Salvo como seu modelo “{{name}}”. Você pode usá-lo em um novo estudo e alterá-lo em Configurações → Modelos.",
-    "saveAsTemplateKeeps_many": "O modelo guarda as {{count}} partes deste estudo: seus títulos, orientações e lugares no percurso, nesta ordem. Seu texto, anotações, passagens e detalhes ficam neste estudo.",
+    "saveAsTemplateKeeps_many": "O modelo guarda as {{count}} partes deste estudo: seus títulos, orientações e lugares na estrutura, nesta ordem. Seu texto, anotações, passagens e detalhes ficam neste estudo.",
     "saveAsTemplateTooMany": "Um modelo precisa de pelo menos uma parte e pode ter no máximo {{max}}. Altere primeiro as partes deste estudo ou crie o modelo em Configurações → Modelos."
   },
   "editor": {
@@ -670,7 +670,7 @@
     "another": "Preparar outro ensino bíblico",
     "empty": {
       "title": "Preparar um ensino a partir deste estudo",
-      "text": "Um sermão, um estudo em grupo ou uma lição, escritos por você. Você pode usar o que anotou neste estudo: suas anotações e passagens continuam no lugar e aqui são apenas usadas. Nada é preenchido no seu lugar, e cada parte pode ficar vazia."
+      "text": "Um sermão, um estudo bíblico em grupo ou uma lição, escritos por você. Você pode usar o que anotou neste estudo: suas anotações e passagens continuam no lugar e aqui são apenas usadas. Nada é preenchido no seu lugar, e cada parte pode ficar vazia."
     },
     "kindLabel": "Tipo de ensino",
     "kindNone": "Não indicado",
@@ -696,8 +696,8 @@
     "notesHint": "Lembretes durante o ensino; não fazem parte do que você diz.",
     "points": {
       "whole": "o ensino inteiro",
-      "moveUp": "Subir “{{point}}”",
-      "moveDown": "Descer “{{point}}”",
+      "moveUp": "Mover “{{point}}” para cima",
+      "moveDown": "Mover “{{point}}” para baixo",
       "delete": "Excluir “{{point}}”"
     },
     "links": {
@@ -705,7 +705,7 @@
       "wholeScope": "o ensino inteiro",
       "passages": "Passagens em {{scope}}",
       "findings": "Do seu estudo, em {{scope}}",
-      "materials": "Guardado do assistente em {{scope}}",
+      "materials": "Itens do assistente guardados em {{scope}}",
       "useFinding": "Usar uma anotação do seu estudo",
       "chooseFinding": "Do seu estudo",
       "pick": "Escolher…",
@@ -733,8 +733,8 @@
       "suggestion": "Sugestão do assistente"
     },
     "assist": {
-      "menu": "Ajuda IA",
-      "menuLabel": "Ajuda IA com {{part}}",
+      "menu": "Ajuda da IA",
+      "menuLabel": "Ajuda da IA com {{part}}",
       "action": {
         "grammar": "Verificar gramática e ortografia",
         "clarity": "Deixar mais claro",
@@ -749,7 +749,7 @@
         "structure": "Comentar a estrutura",
         "application": "A aplicação decorre da passagem?",
         "theology": "Verificar a teologia e a passagem",
-        "passages": "Sugerir passagens para olhar",
+        "passages": "Sugerir passagens para consultar",
         "phrasing": "Outras formas de dizer",
         "question": "Ajuda com uma pergunta para conversa…",
         "restructure": "Como eu poderia ordenar o que tenho?",
@@ -817,7 +817,7 @@
       "comments": {
         "heading": "Comentários sobre o que você escreveu",
         "none": "Nada a acrescentar.",
-        "suggested": "Para olhar:",
+        "suggested": "Para consultar:",
         "add": "Adicionar",
         "addPassage": "Adicionar {{passage}} a este ensino"
       },
@@ -899,7 +899,7 @@
     "shape": {
       "points": {
         "title": "Pontos principais",
-        "none": "Ainda não há pontos. Acrescente quantos precisar, em qualquer forma: um momento de uma narrativa, uma pergunta, um tema ou alguns versículos.",
+        "none": "Ainda não há pontos. Adicione quantos precisar, em qualquer forma: um momento de uma narrativa, uma pergunta, um tema ou alguns versículos.",
         "add": "Adicionar um ponto",
         "number": "Ponto {{number}}",
         "label": "Ponto {{number}}: {{title}}",
@@ -920,7 +920,7 @@
       },
       "questions": {
         "title": "Perguntas e respostas",
-        "none": "Ainda não há perguntas. Adicione as perguntas que vocês vão conversar, cada uma com o que a passagem mostra.",
+        "none": "Ainda não há perguntas. Adicione as perguntas que você quer discutir, cada uma com o que a passagem mostra.",
         "add": "Adicionar uma pergunta",
         "number": "Pergunta {{number}}",
         "label": "Pergunta {{number}}: {{title}}",
@@ -941,7 +941,7 @@
       },
       "steps": {
         "title": "Roteiro da lição",
-        "none": "Ainda não há etapas. Adicione as partes da lição na ordem em que acontecem: acolhida, história, atividade, oração…",
+        "none": "Ainda não há etapas. Adicione as partes da lição na ordem em que acontecem: boas-vindas, história, atividade, oração…",
         "add": "Adicionar uma etapa",
         "number": "Etapa {{number}}",
         "label": "Etapa {{number}}: {{title}}",
@@ -955,7 +955,7 @@
         "removed": "Etapa removida.",
         "moved": "Etapa movida para a posição {{position}}.",
         "deleteConfirm": "Excluir esta etapa e o que você escreveu nela? As anotações usadas continuam no estudo.",
-        "message": "O que lembrar",
+        "message": "O principal a lembrar",
         "messageHint": "Em poucas palavras que eles possam repetir depois",
         "introduction": "Abertura",
         "conclusion": "Final"
@@ -1001,11 +1001,11 @@
         "explanation": "Como você vai ler ou contar"
       },
       "question": {
-        "explanation": "Respostas a esperar"
+        "explanation": "Respostas esperadas"
       },
       "activity": {
         "explanation": "Como funciona",
-        "illustration": "O que você precisa"
+        "illustration": "Do que você precisa"
       },
       "image": {
         "explanation": "O que ela mostra e quando você a mostra"
@@ -1033,8 +1033,8 @@
       "pointsHint": "Deixe um título vazio para nomeá-lo em cada ensino.",
       "none": "Nada ainda: um ensino criado com este modelo começa vazio.",
       "untitled": "sem título",
-      "loadFailed": "Seus modelos não podem ser mostrados agora. Os incluídos estão aqui.",
-      "startFrom": "Começar de",
+      "loadFailed": "Não é possível mostrar seus modelos agora. Os incluídos estão aqui.",
+      "startFrom": "Começar com",
       "builtinChoice": "{{format}} (incluído)"
     },
     "saveTemplate": {
@@ -1060,7 +1060,7 @@
     "expandAll": "Expandir tudo"
   },
   "journey": {
-    "label": "Percurso do estudo",
+    "label": "Estrutura do estudo",
     "phase": {
       "text": "Texto",
       "understanding": "Compreensão",
@@ -1070,7 +1070,7 @@
       "teaching": "Ensino"
     },
     "next": {
-      "ready": "Quando você estiver pronto, este estudo pode se tornar um ensino bíblico: uma pregação, um estudo bíblico em grupo ou uma aula.",
+      "ready": "Quando você estiver pronto, este estudo pode se tornar um ensino bíblico: um sermão, um estudo bíblico em grupo ou uma lição.",
       "prepare": "Preparar um ensino bíblico",
       "existing": "Preparado a partir deste estudo: {{title}}",
       "existingMany": "{{count}} ensinos bíblicos preparados a partir deste estudo",
@@ -1105,7 +1105,7 @@
         },
         "steps": {
           "name": "Guia do professor",
-          "hint": "A aula passo a passo, com o que você vai dizer e fazer"
+          "hint": "A lição passo a passo, com o que você vai dizer e fazer"
         }
       },
       "questions": {
@@ -1157,7 +1157,7 @@
       "includeFrame": "“{{opening}}” e “{{closing}}”",
       "writingSpace": "Espaço para escrever",
       "includePassage": "Incluir a passagem bíblica ({{bible}})",
-      "includePassageNone": "Incluir a passagem bíblica (escolha primeiro uma Bíblia no painel Bíblia)"
+      "includePassageNone": "Incluir a passagem bíblica (escolha primeiro uma Bíblia no painel da Bíblia)"
     },
     "action": {
       "print": "Imprimir ou salvar como PDF…",
@@ -1192,7 +1192,7 @@
   "phase": {
     "label": "Estrutura",
     "none": "Fora da estrutura",
-    "ofPart": "Lugar de “{{title}}” no percurso do estudo",
-    "ofTemplatePart": "Lugar da parte {{number}} no percurso do estudo"
+    "ofPart": "Lugar de “{{title}}” na estrutura do estudo",
+    "ofTemplatePart": "Lugar da parte {{number}} na estrutura do estudo"
   }
 }

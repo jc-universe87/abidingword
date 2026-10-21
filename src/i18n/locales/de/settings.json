@@ -44,7 +44,7 @@
     "integrationsText": "Verbinde andere Werkzeuge, die du bereits verwendest."
   },
   "assistant": {
-    "intro": "Eine freiwillige Hilfe durch KI (künstliche Intelligenz) für deine Bibellehre. Sie kommentiert und macht Vorschläge; du bleibst der Autor, und an deinem Text ändert sich nichts, wenn du es nicht auswählst. Sie arbeitet nur, wenn du sie fragst.",
+    "intro": "Eine optionale KI-Hilfe (künstliche Intelligenz) für deine Bibellehre. Sie kommentiert und macht Vorschläge; du bleibst der Autor, und an deinem Text ändert sich nur etwas, wenn du es auswählst. Sie arbeitet nur, wenn du sie fragst.",
     "enabled": "KI-Assistent verwenden",
     "provider": "Dienst",
     "providers": {
@@ -68,12 +68,12 @@
     "local": "Läuft auf diesem Computer: Dein Text verlässt ihn nicht.",
     "model": "Modell",
     "modelPlaceholder": "Name des Modells",
-    "modelHint": "Modellnamen ändern sich oft. Das vorgeschlagene Modell ist ein Ausgangspunkt; der Knopf ↗ neben dem Feld öffnet die aktuelle Liste des Dienstes.",
+    "modelHint": "Modellnamen ändern sich oft. Das vorgeschlagene Modell ist ein Ausgangspunkt; die Schaltfläche ↗ neben dem Feld öffnet die aktuelle Liste des Dienstes.",
     "address": "Adresse des Dienstes",
     "addressPlaceholder": "Die übliche Adresse des Dienstes",
     "addressHint": "Leer lassen, um die übliche Adresse des Dienstes zu verwenden. Nur nötig für einen anderen Server oder ein Programm auf einem anderen Computer.",
     "key": "Schlüssel",
-    "keyHint": "Wird im Passwortspeicher dieses Computers aufbewahrt, nie in deinen Bibelstudien, und nicht wieder angezeigt.",
+    "keyHint": "Liegt im Passwortspeicher dieses Computers – nie in deinen Bibelstudien – und wird nicht wieder angezeigt.",
     "keyKeptPlaceholder": "Schlüssel gespeichert (zum Ersetzen eingeben)",
     "keySave": "Schlüssel speichern",
     "keyRemove": "Schlüssel entfernen",
@@ -90,11 +90,11 @@
       "serpapi": "SerpApi"
     },
     "searchAddress": "SearXNG-Adresse",
-    "searchKey": "Such-Schlüssel",
+    "searchKey": "Suchschlüssel",
     "images": "Bilder",
     "findImages": "Frei lizenzierte Bilder auf Wikimedia Commons finden (nur Suchbegriffe werden gesendet)",
     "generateImages": "Bilder erstellen erlauben (immer als vom Assistenten erstellt gekennzeichnet)",
-    "perspective": "Wie soll die KI theologische Fragen einordnen?",
+    "perspective": "Wie soll die KI an theologische Fragen herangehen?",
     "perspectiveHint": "Optional. Hier geht es nicht um deine Lebensgeschichte: Schreib, wenn es hilft, nur eine kurze theologische oder kirchliche Ausrichtung (z. B. „evangelisch-reformiert“). Die KI berücksichtigt sie bei umstrittenen theologischen Fragen und nennt trotzdem andere ernsthafte Auslegungen. Bleibt das Feld leer, wird keine Tradition vorausgesetzt.",
     "save": "Speichern",
     "saved": "Gespeichert.",
@@ -126,15 +126,15 @@
       "step4": "Kopiere ihn sofort: Meist wird er nur einmal angezeigt.",
       "step5": "Kehre zu Abiding Word zurück.",
       "step6": "Füge ihn oben in das Feld „Schlüssel“ ein.",
-      "step7": "Drücke „Schlüssel speichern“.",
-      "step8": "Drücke „Verbindung prüfen“.",
+      "step7": "Klicke auf „Schlüssel speichern“.",
+      "step8": "Klicke auf „Verbindung prüfen“.",
       "prices": "Preisliste von {{service}} öffnen"
     },
     "modelHintEmpty": "Gib den Namen des Modells so ein, wie {{service}} ihn anzeigt.",
     "advanced": "Erweitert",
     "checking": "Die Verbindung wird geprüft… Das kann ein paar Sekunden dauern.",
     "why": {
-      "noKey": "Um die Verbindung zu prüfen, füge zuerst deinen Schlüssel ein und wähle „Schlüssel speichern“.",
+      "noKey": "Um die Verbindung zu prüfen, füge zuerst deinen Schlüssel ein und klicke auf „Schlüssel speichern“.",
       "noModel": "Um die Verbindung zu prüfen, gib zuerst den Namen des Modells ein.",
       "noAddress": "Um die Verbindung zu prüfen, gib zuerst die Adresse des Dienstes ein.",
       "badAddress": "Die Adresse des Dienstes muss mit http:// oder https:// beginnen."
@@ -164,11 +164,11 @@
       "unknown": "Abiding Word kann nicht erkennen, ob {{service}} mit deinem Konto Bilder erstellen kann. Du kannst es versuchen; wenn es nicht klappt, wähle OpenAI für Bilder."
     },
     "imageKey": "OpenAI-Schlüssel für Bilder",
-    "imageKeyMissing": "Noch kein OpenAI-Schlüssel für Bilder gespeichert: Füge ihn unten ein und drücke „Schlüssel speichern“.",
-    "imagesLeave": "Bildbeschreibungen werden über das Internet an OpenAI gesendet, auch wenn dein Schreibdienst das nicht tut.",
+    "imageKeyMissing": "Noch kein OpenAI-Schlüssel für Bilder gespeichert: Füge ihn unten ein und klicke auf „Schlüssel speichern“.",
+    "imagesLeave": "Bildbeschreibungen werden über das Internet an OpenAI gesendet, auch wenn dein Dienst für Texte auf diesem Computer läuft.",
     "searchShort": {
       "brave": "einfache allgemeine Websuche",
-      "tavily": "Suche, die für KI-Assistenten gemacht ist",
+      "tavily": "Suche speziell für KI-Assistenten",
       "exa": "findet passende Quellen und Textstellen",
       "searxng": "selbst betrieben, braucht eine Serveradresse",
       "serpapi": "Google-Ergebnisse über SerpApi"
@@ -184,19 +184,19 @@
     },
     "searchSetup": {
       "title": "Wie richte ich {{service}} ein?",
-      "step1": "Öffne die Seite von {{service}} unten und melde dich an oder erstelle ein Konto.",
+      "step1": "Öffne unten die Seite von {{service}} und melde dich an oder erstelle ein Konto.",
       "step2": "Erstelle dort einen Schlüssel (er heißt vielleicht „API key“) und kopiere ihn.",
       "step3": "Füge ihn in das Feld für den Suchschlüssel ein und klicke auf „Schlüssel speichern“.",
       "step4": "Klicke auf „Suche prüfen“.",
       "open": "Seite von {{service}} öffnen",
-      "cost": "Suchdienste bieten meist ein kleines kostenloses Kontingent pro Monat und berechnen mehr. Das regelst du auf ihrer Website, nicht in Abiding Word."
+      "cost": "Suchdienste bieten meist ein kleines kostenloses Kontingent pro Monat und berechnen alles darüber hinaus. Das regelst du auf ihrer Website, nicht in Abiding Word."
     },
     "searchTest": "Suche prüfen",
     "searchTesting": "Der Suchdienst wird gefragt…",
     "searchTestOk": "Der Suchdienst hat geantwortet und Webseiten gefunden.",
     "searchTestEmpty": "Der Suchdienst hat geantwortet, aber bei einer Testsuche nichts gefunden.",
     "searchWhy": {
-      "noKey": "Um die Suche zu prüfen, füge zuerst ihren Schlüssel ein und wähle „Schlüssel speichern“.",
+      "noKey": "Um die Suche zu prüfen, füge zuerst ihren Schlüssel ein und klicke auf „Schlüssel speichern“.",
       "noAddress": "Um die Suche zu prüfen, gib zuerst die SearXNG-Adresse ein."
     },
     "pricesLink": "Preise von {{service}} ansehen"
@@ -210,7 +210,7 @@
     "updateFailed": "Etwas hat nicht geklappt: siehe unten",
     "updatesOff": "In dieser Version nicht enthalten",
     "bibleTexts": "Übersetzungen hinzufügen oder entfernen",
-    "templates": "Startstrukturen für Bibelstudium und Bibellehre",
+    "templates": "Grundgerüste für Bibelstudien und Bibellehren",
     "assistantOff": "Aus",
     "assistantOn": "An · {{service}}",
     "about": "Version {{version}} · wo deine Daten liegen"

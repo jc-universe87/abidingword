@@ -7,7 +7,7 @@
   },
   "nav": {
     "goToLabel": "Aller au passage",
-    "goToPlaceholder": "p. ex. John 15 ou Rom 8:1-17",
+    "goToPlaceholder": "p. ex. Jean 15 ou Rm 8:1-17",
     "go": "Aller",
     "book": "Livre",
     "oldTestament": "Ancien Testament",
@@ -181,7 +181,7 @@
     "noteOnWords": "Note sur les mots sélectionnés"
   },
   "marks": {
-    "viewLabel": "Affichage des Écritures",
+    "viewLabel": "Affichage du volet Bible",
     "bible": "Bible",
     "marks": "Marques",
     "title": "Marques",
@@ -239,11 +239,11 @@
     "backToStudy": "Revenir à {{passage}}"
   },
   "concordance": {
-    "queryLabel": "Mot ou suite de mots",
+    "queryLabel": "Mot ou expression",
     "modeLabel": "Rechercher",
     "mode": {
       "word": "Mot",
-      "phrase": "Suite de mots"
+      "phrase": "Expression"
     },
     "bible": "Bible",
     "find": "Rechercher",

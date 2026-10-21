@@ -163,8 +163,8 @@ describe("Save as my template", () => {
 
     await user.click(within(study()).getByRole("button", { name: "Study details" }));
     await user.click(within(study()).getByRole("button", { name: "Save as my template" }));
-    const form = within(study()).getByRole("form", { name: "Save this study's structure as a template" });
-    expect(form).toHaveTextContent("keeps this study's 7 parts");
+    const form = within(study()).getByRole("form", { name: "Save this study’s structure as a template" });
+    expect(form).toHaveTextContent("keeps this study’s 7 parts");
     expect(form).toHaveTextContent("Your writing, notes, passages and details stay in this study.");
     const name = within(form).getByLabelText("Name of the template");
     expect(name).toHaveValue("Abiding");

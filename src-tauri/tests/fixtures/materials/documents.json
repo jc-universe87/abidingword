@@ -994,7 +994,7 @@
     },
     {
      "type": "field",
-     "label": "Wohin das Gespräch führen kann",
+     "label": "Möglicher Gesprächsverlauf",
      "text": "LEADER: kann zu Vers 9 führen."
     }
    ],

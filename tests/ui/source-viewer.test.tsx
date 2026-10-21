@@ -192,7 +192,7 @@ describe("Reading and Original", () => {
     });
     await user.click(within(header()).getByRole("button", { name: "Original" }));
     const toolbar = await screen.findByRole("toolbar", { name: "Steuerung des Originaldokuments" });
-    for (const name of ["Vorherige Seite", "Nächste Seite", "Vergrößern", "Verkleinern", "Breite anpassen", "Seite einpassen"]) {
+    for (const name of ["Vorherige Seite", "Nächste Seite", "Vergrößern", "Verkleinern", "Seitenbreite", "Ganze Seite"]) {
       expect(within(toolbar).getByRole("button", { name })).toBeInTheDocument();
     }
     expect(within(toolbar).getByRole("textbox", { name: "Seitenzahl" })).toBeInTheDocument();
@@ -317,7 +317,7 @@ describe("Original inside the Sources pane", () => {
     expect(within(reader).getByRole("group", { name: "Ansicht" })).toBeInTheDocument();
     await user.click(within(reader).getByRole("button", { name: "Original" }));
     const toolbar = await within(reader).findByRole("toolbar", { name: "Steuerung des Originaldokuments" });
-    for (const name of ["Vorherige Seite", "Nächste Seite", "Vergrößern", "Verkleinern", "Breite anpassen", "Seite einpassen"]) {
+    for (const name of ["Vorherige Seite", "Nächste Seite", "Vergrößern", "Verkleinern", "Seitenbreite", "Ganze Seite"]) {
       expect(within(toolbar).getByRole("button", { name })).toBeInTheDocument();
     }
   });

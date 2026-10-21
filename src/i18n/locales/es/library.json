@@ -24,11 +24,11 @@
   "locator": {
     "page": "p. {{page}}"
   },
-  "quoted": "“{{text}}”",
+  "quoted": "«{{text}}»",
   "view": {
     "backToWorkspace": "Volver al espacio de trabajo",
     "title": "Biblioteca",
-    "intro": "Tus propios libros, apuntes y documentos, guardados en este equipo. Cada resultado de búsqueda muestra exactamente de dónde procede.",
+    "intro": "Tus propios libros, apuntes y documentos, guardados en este ordenador. Cada resultado de búsqueda muestra exactamente de dónde procede.",
     "addedOn": "se añadió el {{date}}"
   },
   "search": {
@@ -102,7 +102,7 @@
     "kind": "Tipo",
     "sharing": "Uso compartido",
     "isbn": "ISBN {{isbn}}",
-    "fromFile": "de “{{fileName}}”"
+    "fromFile": "de «{{fileName}}»"
   },
   "reader": {
     "showEarlier": "Mostrar texto anterior",
@@ -114,7 +114,7 @@
   },
   "pane": {
     "libraryHeading": "Tu biblioteca",
-    "empty": "Todavía no hay fuentes. Añade libros, artículos y tus propios apuntes (PDF, EPUB, Word, Markdown o texto); se quedan en este equipo.",
+    "empty": "Todavía no hay fuentes. Añade libros, artículos y tus propios apuntes (PDF, EPUB, Word, Markdown o texto); se quedan en este ordenador.",
     "sourcesFor": "Fuentes para {{passage}}",
     "noSources": "Ninguna fuente de tu biblioteca está vinculada a este pasaje.",
     "moreLocations_one": "{{count}} lugar más en esta fuente",

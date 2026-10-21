@@ -3,7 +3,7 @@
     "opening": "Abriendo tu espacio de trabajo…",
     "couldNotStart": "Abiding Word no pudo iniciarse.",
     "logFiles": "Archivos de registro:",
-    "windowFailed": "Algo inesperado falló en la ventana. Cierra Abiding Word y vuelve a abrirlo. Tu trabajo guardado está a salvo."
+    "windowFailed": "Se produjo un error inesperado en la ventana. Cierra Abiding Word y vuelve a abrirlo. Tu trabajo guardado está a salvo."
   },
   "skipToStudy": "Ir al estudio",
   "search": {

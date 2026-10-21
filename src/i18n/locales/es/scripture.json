@@ -2,7 +2,7 @@
   "translation": "Traducción",
   "empty": {
     "title": "Todavía no se ha añadido ninguna Biblia.",
-    "body": "Añade una de las Biblias libres que vienen con Abiding Word, o un archivo de una Biblia que tengas. Todo se queda en este equipo y funciona sin conexión.",
+    "body": "Añade una de las Biblias libres que vienen con Abiding Word, o un archivo de una Biblia que tengas. Todo se queda en este ordenador y funciona sin conexión.",
     "addBible": "Añadir una Biblia…"
   },
   "nav": {
@@ -91,7 +91,7 @@
     "confirmLanguage": "Idioma: {{language}}",
     "confirmBody": "A continuación, Abiding Word revisa cada libro, capítulo y versículo y te muestra lo que encontró. No se añade nada hasta que confirmes.",
     "confirmContinue": "Continuar",
-    "ownTitle": "Una Biblia que tienes",
+    "ownTitle": "Una Biblia propia",
     "ownBody": "Elige una Biblia en formato USFM: una descarga .zip o sus archivos .usfm. Abiding Word guarda su propia copia y nunca modifica tu archivo.",
     "chooseFiles": "Elegir archivos de la Biblia…",
     "field": {
@@ -210,7 +210,7 @@
       "noSearch": "Ninguna nota coincide con tu búsqueda.",
       "noneSources": "Todavía no hay marcas en tus fuentes.",
       "noneSourcesBody": "Selecciona texto mientras lees una fuente para resaltarlo o añadir una nota.",
-      "noMatchSources": "Nada coincide. Prueba con otra fuente u otro color."
+      "noMatchSources": "No hay coincidencias. Prueba con otra fuente u otro color."
     },
     "result": {
       "note": "Nota",
@@ -239,11 +239,11 @@
     "backToStudy": "Volver a {{passage}}"
   },
   "concordance": {
-    "queryLabel": "Palabra o secuencia de palabras",
+    "queryLabel": "Palabra o frase",
     "modeLabel": "Buscar",
     "mode": {
       "word": "Palabra",
-      "phrase": "Secuencia de palabras"
+      "phrase": "Frase"
     },
     "bible": "Biblia",
     "find": "Buscar",

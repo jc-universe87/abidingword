@@ -342,7 +342,7 @@
       "custom": "Liée à"
     }
   },
-  "keepIt": "La conserver",
+  "keepIt": "Conserver",
   "titleRequired": "Veuillez d’abord saisir un titre.",
   "titleRequiredOnBlur": "Un titre est obligatoire. Si vous quittez le champ, le titre précédent est conservé.",
   "studyCount_one": "{{count}} étude",
@@ -375,7 +375,7 @@
     "noTemplate": "Aucun modèle (une seule partie Notes)",
     "yourTemplate": "{{name}} (le vôtre)",
     "optional": "(facultatif)",
-    "passagePlaceholder": "p. ex. John 15:1-11",
+    "passagePlaceholder": "p. ex. Jean 15:1-11",
     "create": "Créer l’étude",
     "formLabel": "Nouvelle étude",
     "studyAs": "Approche d’étude",
@@ -391,7 +391,7 @@
     "approach": {
       "passage": "Étude de passage",
       "word": "Étude de mot",
-      "topical": "Thème",
+      "topical": "Étude thématique",
       "teaching": "Préparation d’enseignement",
       "biblical_theology": "Théologie biblique",
       "systematic_theology": "Théologie systématique",
@@ -546,7 +546,7 @@
     "confirmDelete": "Supprimer cette note ({{type}}) ?",
     "writePlaceholder": "Écrivez ici…",
     "details": "Détails",
-    "detailsFor": "Détails de {{type}} : {{excerpt}}",
+    "detailsFor": "Détails de la note ({{type}}) : {{excerpt}}",
     "kindGroup": "Type de note",
     "moreTypes": "Autres types",
     "options": "Options",
@@ -564,7 +564,7 @@
     "add": "Ajouter un passage",
     "linkCurrent": "Lier le passage actuel ({{passage}})",
     "inputLabel": "Passage à ajouter",
-    "placeholder": "p. ex. John 15:1-11",
+    "placeholder": "p. ex. Jean 15:1-11",
     "addRelated": "Passage lié",
     "openPrimary": "Ouvrir dans la Bible"
   },
@@ -670,7 +670,7 @@
     "another": "Préparer un autre enseignement biblique",
     "empty": {
       "title": "Préparer un enseignement à partir de cette étude",
-      "text": "Une prédication, une étude en groupe ou une leçon, écrite par vous. Vous pouvez utiliser ce que vous avez noté dans cette étude : vos notes et vos passages restent à leur place et sont simplement repris ici. Rien n’est rempli à votre place, et chaque partie peut rester vide."
+      "text": "Une prédication, une étude biblique en groupe ou une leçon, écrite par vous. Vous pouvez utiliser ce que vous avez noté dans cette étude : vos notes et vos passages restent à leur place et sont simplement repris ici. Rien n’est rempli à votre place, et chaque partie peut rester vide."
     },
     "kindLabel": "Type d’enseignement",
     "kindNone": "Non précisé",
@@ -689,10 +689,10 @@
     "deleteConfirm": "Supprimer cet enseignement ? L’étude, ses notes et ses passages restent tels quels.",
     "about": "À propos de cet enseignement",
     "audience": "Pour qui",
-    "audiencePlaceholder": "p. ex. toute l’Église, un groupe de jeunes",
+    "audiencePlaceholder": "p. ex. toute l’église, un groupe de jeunes",
     "purpose": "But",
     "purposePlaceholder": "Ce que vous espérez de cet enseignement",
-    "notes": "Notes pour vous",
+    "notes": "Notes personnelles",
     "notesHint": "Des rappels pendant l’enseignement, qui ne font pas partie de ce que vous dites.",
     "points": {
       "whole": "l’enseignement entier",
@@ -705,14 +705,14 @@
       "wholeScope": "l’enseignement entier",
       "passages": "Passages dans {{scope}}",
       "findings": "De votre étude, dans {{scope}}",
-      "materials": "Conservé de l’assistant dans {{scope}}",
+      "materials": "Éléments conservés de l’assistant dans {{scope}}",
       "useFinding": "Utiliser une note de votre étude",
       "chooseFinding": "De votre étude",
       "pick": "Choisir…",
       "empty": "(vide)",
-      "findingNote": "Il reste dans votre étude. Si vous le modifiez là-bas, il change aussi ici.",
+      "findingNote": "Elle reste dans votre étude. Si vous la modifiez là-bas, elle change aussi ici.",
       "removeFinding": "Ne plus l’utiliser ici",
-      "removeFindingHint": "Il reste dans votre étude.",
+      "removeFindingHint": "Elle reste dans votre étude.",
       "addPassage": "Ajouter un passage",
       "passageLabel": "Passage pour {{scope}}",
       "removePassage": "Retirer {{passage}} de cet enseignement"
@@ -725,7 +725,7 @@
       "remove": "Retirer de cet enseignement"
     },
     "standing": {
-      "verified": "Sources trouvées : deux sites indépendants des résultats en parlent. La qualité des sources varie : lisez-les avant de l’utiliser.",
+      "verified": "Sources trouvées : deux sites indépendants parmi les résultats de recherche la rapportent. La qualité des sources varie : lisez-les avant de l’utiliser.",
       "unverified": "À vérifier : une seule source a été trouvée. Lisez-la avant de l’utiliser.",
       "hypothetical": "Exemple inventé, pas un fait réel",
       "found": "Image trouvée · {{licence}}",
@@ -793,7 +793,7 @@
         "searches": "Des mots de recherche tirés de votre demande (ils peuvent contenir vos mots) iront aussi à votre service de recherche."
       },
       "ask": "Demander",
-      "askHint": "Ctrl+Entrée pour demander, Échap pour fermer. Rien n’est envoyé avant.",
+      "askHint": "Ctrl+Entrée pour demander, Échap pour fermer. Rien n’est envoyé avant votre demande.",
       "ready": "Suggestion prête.",
       "failed": "L’assistant n’a pas pu aider cette fois.",
       "kept": "Conservé avec cet enseignement.",
@@ -802,7 +802,7 @@
       "done": "Terminé",
       "applied": "Modifié selon votre choix.",
       "undo": "Annuler",
-      "undone": "Votre texte précédent est revenu.",
+      "undone": "Votre texte précédent a été rétabli.",
       "proposal": {
         "heading": "Formulation suggérée",
         "headingStart": "Transition suggérée",
@@ -853,9 +853,9 @@
         "make": "Créer une image",
         "keepIdea": "Garder cette idée",
         "cannotMake": {
-          "off": "La création d’images est désactivée (Paramètres → Assistant IA). Trouver des images sous licence libre fonctionne toujours.",
-          "unsupported": "Ce service d’IA ne peut pas créer d’images. Vous pouvez choisir OpenAI pour les images dans Paramètres → Assistant IA. Trouver des images sous licence libre fonctionne toujours.",
-          "noKey": "La création d’images demande la clé OpenAI pour les images (Paramètres → Assistant IA). Trouver des images sous licence libre fonctionne toujours."
+          "off": "La création d’images est désactivée (Paramètres → Assistant IA). La recherche d’images sous licence libre reste possible.",
+          "unsupported": "Ce service d’IA ne peut pas créer d’images. Vous pouvez choisir OpenAI pour les images dans Paramètres → Assistant IA. La recherche d’images sous licence libre reste possible.",
+          "noKey": "La création d’images demande la clé OpenAI pour les images (Paramètres → Assistant IA). La recherche d’images sous licence libre reste possible."
         }
       },
       "images": {
@@ -868,7 +868,7 @@
         "generatedAlt": "Illustration créée par l’assistant : {{description}}",
         "nothingPlaced": "Rien n’est placé dans votre enseignement si vous ne le gardez pas."
       },
-      "changedMeanwhile": "Votre texte a changé après la demande ; cette suggestion n’a donc pas été utilisée. Redemandez.",
+      "changedMeanwhile": "Votre texte a changé après la demande ; cette suggestion n’a donc pas été utilisée. Veuillez refaire la demande.",
       "menuIntro": "Qu’est-ce qui vous aiderait ?",
       "allHelp": "Toutes les aides",
       "category": {
@@ -884,7 +884,7 @@
       "stop": "Ne plus attendre",
       "stopped": "Attente arrêtée. Rien n’a été modifié. Le service peut quand même terminer la demande, et elle peut compter dans votre utilisation.",
       "pending": {
-        "ask": "L’assistant est interrogé…",
+        "ask": "Interrogation de l’assistant…",
         "story": "Recherche de sources… Cela peut prendre un moment.",
         "findImages": "Recherche d’images adaptées…",
         "makeImage": "Création d’une image… Cela peut prendre un moment."
@@ -894,7 +894,7 @@
       "restore": "Rouvrir l’assistant IA",
       "panelLabel": "Assistant IA : {{label}}",
       "move": "Déplacer le panneau (touches fléchées)",
-      "sendsTo": "Créer une image envoie la description de cette idée à {{service}} par Internet."
+      "sendsTo": "La création d’une image envoie la description de cette idée à {{service}} par Internet."
     },
     "shape": {
       "points": {
@@ -914,7 +914,7 @@
         "moved": "Point déplacé en position {{position}}.",
         "deleteConfirm": "Supprimer ce point et ce que vous y avez écrit ? Les notes utilisées restent dans l’étude.",
         "message": "Message central",
-        "messageHint": "La chose principale que vous voulez transmettre",
+        "messageHint": "Ce que vous voulez avant tout que les gens retiennent",
         "introduction": "Introduction",
         "conclusion": "Conclusion"
       },
@@ -935,7 +935,7 @@
         "moved": "Question déplacée en position {{position}}.",
         "deleteConfirm": "Supprimer cette question et ce que vous y avez écrit ? Les notes utilisées restent dans l’étude.",
         "message": "Ce que le groupe devrait découvrir",
-        "messageHint": "La chose principale à laquelle la discussion devrait mener",
+        "messageHint": "L’essentiel vers quoi la discussion devrait conduire",
         "introduction": "Ouverture",
         "conclusion": "Clôture"
       },
@@ -955,7 +955,7 @@
         "removed": "Étape supprimée.",
         "moved": "Étape déplacée en position {{position}}.",
         "deleteConfirm": "Supprimer cette étape et ce que vous y avez écrit ? Les notes utilisées restent dans l’étude.",
-        "message": "La chose à retenir",
+        "message": "L’essentiel à retenir",
         "messageHint": "En quelques mots qu’ils pourraient répéter ensuite",
         "introduction": "Ouverture",
         "conclusion": "Fin"
@@ -1001,7 +1001,7 @@
         "explanation": "Comment vous le lirez ou le raconterez"
       },
       "question": {
-        "explanation": "Les réponses à guetter"
+        "explanation": "Réponses attendues"
       },
       "activity": {
         "explanation": "Comment cela se déroule",
@@ -1033,7 +1033,7 @@
       "pointsHint": "Laissez un titre vide pour le nommer dans chaque enseignement.",
       "none": "Rien pour l’instant : un enseignement créé avec ce modèle commence vide.",
       "untitled": "sans titre",
-      "loadFailed": "Vos modèles ne peuvent pas être affichés pour l’instant. Les modèles intégrés sont là.",
+      "loadFailed": "Vos modèles ne peuvent pas être affichés pour l’instant. Les modèles intégrés restent disponibles.",
       "startFrom": "Partir de",
       "builtinChoice": "{{format}} (intégré)"
     },
@@ -1046,7 +1046,7 @@
         "questions": "Le modèle reprend la forme et autant de questions que cet enseignement. Les questions commencent vides.",
         "steps": "Le modèle reprend la forme et les étapes dans l’ordre, chacune avec son titre et son type."
       },
-      "notKept": "Rien de ce que vous avez écrit n’est repris : ni le public, le but, le message, l’introduction, la conclusion ou les notes ; rien de ce qui est écrit sous un point, une question ou une étape ; aucun passage, élément gardé ou note de votre étude.",
+      "notKept": "Rien de ce que vous avez écrit n’est repris : ni le public, ni le but, ni le message, ni l’introduction, ni la conclusion, ni les notes ; rien de ce qui est écrit sous un point, une question ou une étape ; aucun passage, aucun élément conservé, aucune note de votre étude.",
       "saved": "Enregistré comme votre modèle « {{name}} ». Vous pouvez le choisir pour votre prochain enseignement, et le modifier dans Paramètres → Modèles.",
       "tooMany": "Un modèle peut commencer avec {{max}} points, questions ou étapes au plus, et cet enseignement en a davantage. Créez plutôt le modèle dans Paramètres → Modèles."
     },
@@ -1070,7 +1070,7 @@
       "teaching": "Enseignement"
     },
     "next": {
-      "ready": "Quand vous serez prêt, cette étude peut devenir un enseignement biblique : une prédication, une étude biblique en groupe ou une leçon.",
+      "ready": "Quand vous serez prêt, cette étude pourra devenir un enseignement biblique : une prédication, une étude biblique en groupe ou une leçon.",
       "prepare": "Préparer un enseignement biblique",
       "existing": "Préparé à partir de cette étude : {{title}}",
       "existingMany": "{{count}} enseignements bibliques préparés à partir de cette étude",
@@ -1146,7 +1146,7 @@
     },
     "view": {
       "back": "Retour à l’enseignement",
-      "from": "Composé à partir de votre enseignement « {{title}} » : modifiez l’enseignement, et ceci suit.",
+      "from": "Composé à partir de votre enseignement « {{title}} » : si vous modifiez l’enseignement, ce support change aussi.",
       "empty": "Rien pour l’instant. Ce que vous écrivez dans l’enseignement apparaît ici.",
       "preview": "Aperçu : {{name}}",
       "options": "Contenu"
@@ -1169,7 +1169,7 @@
     },
     "status": {
       "copied": "Copié. Vous pouvez le coller dans un document ou un e-mail.",
-      "copyFailed": "La copie n’a pas fonctionné. Enregistrez plutôt un fichier.",
+      "copyFailed": "La copie n’a pas fonctionné. Enregistrez-le plutôt dans un fichier.",
       "saved": "Enregistré : {{path}}",
       "printFailed": "L’impression n’est pas possible ici. Enregistrez plutôt un fichier texte."
     },

@@ -18,7 +18,7 @@
     "blockTooLong": "Dieser Block ist zu lang zum Speichern. Bitte teile ihn auf mehrere Blöcke auf."
   },
   "search": {
-    "empty": "Gib ein Wort oder einen Ausdruck ein, nach dem gesucht werden soll."
+    "empty": "Gib ein Wort oder einen Ausdruck für die Suche ein."
   },
   "import": {
     "expired": "Dieser Import ist abgelaufen. Bitte wähle die Dateien erneut aus.",
@@ -26,15 +26,15 @@
     "noFiles": "Wähle mindestens eine Datei aus."
   },
   "reference": {
-    "empty": "Gib eine Bibelstelle ein, zum Beispiel „John 15“ oder „Rom 8:1-17“.",
-    "notRecognised": "„{{text}}“ ist keine Bibelstelle, die Abiding Word erkennt. Versuche eine Form wie „John 15“ oder „Rom 8:1-17“.",
+    "empty": "Gib eine Bibelstelle ein, zum Beispiel „Joh 15“ oder „Röm 8,1-17“.",
+    "notRecognised": "„{{text}}“ ist keine Bibelstelle, die Abiding Word erkennt. Versuche eine Form wie „Joh 15“ oder „Röm 8,1-17“.",
     "unknownBook": "Unbekanntes Buch „{{text}}“.",
     "notABook": "„{{text}}“ ist kein Buch der Bibel.",
     "oneChapter": "{{book}} hat nur ein Kapitel.",
     "chapterCount": "{{book}} hat {{count}} Kapitel.",
     "verseCount": "{{book}} {{chapter}} hat {{count}} Verse.",
     "verseCountBook": "{{book}} hat {{count}} Verse.",
-    "chapterCountPsalms": "Die Psalmen haben {{count}} Psalmen.",
+    "chapterCountPsalms": "Das Buch der Psalmen hat {{count}} Psalmen.",
     "verseCountPsalm": "Psalm {{chapter}} hat {{count}} Verse.",
     "badVerse": "{{verse}} ist keine gültige Versnummer.",
     "endBeforeStart": "Das Ende der Bibelstelle liegt vor ihrem Anfang.",
@@ -65,7 +65,7 @@
     "missingVerses_other": "{{book}} {{chapter}}: Verse {{list}} nicht gefunden. Die erwartete Versaufteilung weicht von diesem Text ab.",
     "listMore_one": "{{numbers}} und {{count}} weiterer",
     "listMore_other": "{{numbers}} und {{count}} weitere",
-    "unknownFormat": "Diese Dateien liegen in keinem Bibelformat vor, das Abiding Word bereits lesen kann. Derzeit werden USFM-Bibeln gelesen (.usfm- oder .sfm-Dateien oder eine .zip-Datei mit solchen Dateien).",
+    "unknownFormat": "Diese Dateien liegen in keinem Bibelformat vor, das Abiding Word bereits lesen kann. Derzeit liest es USFM-Bibeln (.usfm- oder .sfm-Dateien oder eine .zip-Datei mit solchen Dateien).",
     "formatNotYet": "{{format}}-Dateien können noch nicht als gegliederte Bibel importiert werden. Abiding Word liest derzeit USFM-Bibeln (.usfm- oder .sfm-Dateien oder eine .zip-Datei mit solchen Dateien).",
     "noBooks": "In diesen Dateien wurden keine Bücher der Bibel gefunden.",
     "tooLarge": "Diese Dateien sind zu groß für eine einzelne Bibel.",
@@ -80,7 +80,7 @@
     "badDocx": "„{{fileName}}“ konnte nicht als Word-Dokument gelesen werden.",
     "badPdf": "„{{fileName}}“ konnte nicht als PDF gelesen werden.",
     "passwordProtected": "„{{fileName}}“ ist durch ein Passwort geschützt. Entferne den Schutz und importiere die Datei erneut.",
-    "unsupportedFile": "„{{fileName}}“ ist eine Dateiart, die die Bibliothek noch nicht lesen kann. Gelesen werden PDF-, EPUB-, Word- (.docx), Markdown- (.md) und reine Textdateien (.txt).",
+    "unsupportedFile": "„{{fileName}}“ ist eine Dateiart, die die Bibliothek noch nicht lesen kann. Sie liest PDF-, EPUB-, Word- (.docx), Markdown- (.md) und reine Textdateien (.txt).",
     "tooLarge": "„{{fileName}}“ ist zu groß für den Import.",
     "scannedPdf": "Dieses PDF scheint eingescannte Seiten zu enthalten. OCR wird noch nicht unterstützt, daher kann der Text nicht hinzugefügt werden.",
     "noText": "In dieser Datei wurde kein Text gefunden.",
@@ -109,7 +109,7 @@
     "otherStudySection": "Dieser Teil gehört zu einem anderen Bibelstudium.",
     "tooManyTags": "Eine Notiz kann höchstens {{max}} Schlagwörter haben.",
     "tagTooLong": "Das Schlagwort „{{tag}}“ ist zu lang.",
-    "writeFirst": "Schreib zuerst etwas, das hinzugefügt werden soll."
+    "writeFirst": "Schreib zuerst etwas, das du hinzufügen möchtest."
   },
   "annotations": {
     "tooLong": "Diese Notiz ist zu lang zum Speichern.",
@@ -140,9 +140,9 @@
     "noKey": "Der KI-Assistent braucht seinen Schlüssel. Du kannst ihn in den Einstellungen → KI-Assistent hinzufügen.",
     "keyRefused": "Der Dienst hat den Schlüssel nicht angenommen. Prüfe ihn in den Einstellungen.",
     "modelMissing": "Der KI-Dienst kennt dieses Modell nicht. Prüfe den Modellnamen in den Einstellungen → KI-Assistent (↗ neben „Modell“ zeigt die aktuellen Modelle).",
-    "busy": "Der Dienst ist ausgelastet oder das Kontolimit ist erreicht. Bitte später erneut versuchen.",
-    "failed": "Der Dienst konnte diesmal nicht antworten. Bitte erneut versuchen.",
-    "badReply": "Die Antwort des Assistenten war nicht verwendbar. Nichts wurde geändert. Bitte erneut versuchen.",
+    "busy": "Der Dienst ist ausgelastet oder das Kontolimit ist erreicht. Bitte versuche es später erneut.",
+    "failed": "Der Dienst konnte diesmal nicht antworten. Bitte versuche es erneut.",
+    "badReply": "Die Antwort des Assistenten war nicht verwendbar. Nichts wurde geändert. Bitte versuche es erneut.",
     "unreachable": "Der Assistent war nicht erreichbar. Prüfe die Internetverbindung oder die Adresse in den Einstellungen.",
     "writeFirst": "Schreib hier zuerst etwas. Der Assistent hilft bei dem, was du geschrieben hast.",
     "sayWhat": "Sag in wenigen Worten, was du suchst.",
@@ -151,27 +151,27 @@
     "chooseLanguage": "Wähle die Zielsprache.",
     "textTooLong": "Dieser Text ist zu lang, um ihn auf einmal zu senden. Markiere einen Teil und versuche es erneut.",
     "tooMuch": "Der Vorschlag war viel länger als dein Text und wird deshalb nicht gezeigt. Bitte versuche es erneut.",
-    "noSearch": "Wahre Begebenheiten lassen sich nur mit einem Suchdienst finden und prüfen, der nicht eingerichtet ist. Du kannst einen in den Einstellungen hinzufügen oder stattdessen um eine erfundene Veranschaulichung bitten.",
+    "noSearch": "Wahre Begebenheiten lassen sich nur mit einem Suchdienst finden und prüfen – und es ist noch keiner eingerichtet. Du kannst einen in den Einstellungen hinzufügen oder stattdessen um eine erfundene Veranschaulichung bitten.",
     "noSearchKey": "Der Suchdienst braucht seinen Schlüssel. Du kannst ihn in den Einstellungen hinzufügen.",
     "searchFailed": "Der Suchdienst konnte nicht antworten. Nichts wurde gefunden oder geprüft.",
-    "imagesFailed": "Diesmal ließen sich keine Bilder finden. Bitte erneut versuchen.",
+    "imagesFailed": "Diesmal ließen sich keine Bilder finden. Bitte versuche es erneut.",
     "noImageSearch": "Die Bildsuche ist ausgeschaltet. Du kannst sie in den Einstellungen einschalten.",
-    "noImageGeneration": "Bilder erstellen ist nicht eingerichtet, oder dieser KI-Dienst kann keine Bilder erstellen. In den Einstellungen → KI-Assistent kannst du einen Dienst für Bilder wählen.",
-    "imageFailed": "Das Bild konnte diesmal nicht erstellt werden. Bitte erneut versuchen.",
-    "keyStore": "Der Schlüssel konnte nicht im Anmeldespeicher dieses Computers gespeichert werden.",
-    "badKey": "Das sieht nicht wie ein Schlüssel aus. Bitte erneut einfügen.",
-    "badAddress": "Bitte eine Webadresse eingeben, die mit http:// oder https:// beginnt.",
+    "noImageGeneration": "Das Erstellen von Bildern ist nicht eingerichtet, oder dieser KI-Dienst kann keine Bilder erstellen. In den Einstellungen → KI-Assistent kannst du einen Dienst für Bilder wählen.",
+    "imageFailed": "Das Bild konnte diesmal nicht erstellt werden. Bitte versuche es erneut.",
+    "keyStore": "Der Schlüssel konnte nicht im Passwortspeicher dieses Computers gespeichert werden.",
+    "badKey": "Das sieht nicht wie ein Schlüssel aus. Bitte füge ihn erneut ein.",
+    "badAddress": "Bitte gib eine Webadresse ein, die mit http:// oder https:// beginnt.",
     "badModel": "Dieser Modellname ist zu lang.",
-    "noImageKey": "Bilder erstellen braucht den Schlüssel des Bilddienstes. Du kannst ihn in den Einstellungen → KI-Assistent hinzufügen.",
+    "noImageKey": "Zum Erstellen von Bildern brauchst du den Schlüssel des Bilddienstes. Du kannst ihn in den Einstellungen → KI-Assistent hinzufügen.",
     "searchNoKey": "Dieser Suchdienst braucht keinen Schlüssel."
   },
   "teaching": {
-    "tooLong": "Dieser Teil der Vorbereitung ist zu lang zum Speichern.",
-    "otherPoint": "Dieser Punkt gehört zu einer anderen Vorbereitung.",
+    "tooLong": "Dieser Teil der Bibellehre ist zu lang zum Speichern.",
+    "otherPoint": "Dieser Punkt gehört zu einer anderen Bibellehre.",
     "otherStudyFinding": "Diese Notiz gehört zu einem anderen Bibelstudium.",
     "badMaterial": "Dieses Element kann nicht aufbewahrt werden.",
     "notVerified": "Eine Begebenheit gilt nur mit zwei unabhängigen Quellen als geprüft.",
-    "imageGone": "Dieses Bild ist nicht mehr verfügbar. Bitte erneut erstellen."
+    "imageGone": "Dieses Bild ist nicht mehr verfügbar. Bitte erstelle es erneut."
   },
   "presentation": {
     "imageGone": "Dieses Bild ist nicht auf diesem Computer.",
@@ -197,7 +197,7 @@
     "tooManySlides": "Zu viele Folien, um sie auf einmal zu zeigen."
   },
   "material": {
-    "tooLong": "Das ist zu lang, um es als eine Datei zu sichern."
+    "tooLong": "Das ist zu lang, um es als eine Datei zu speichern."
   },
   "teachingTemplates": {
     "noKind": "Wähle, wofür die Vorlage ist.",

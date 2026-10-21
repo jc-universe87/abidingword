@@ -55,7 +55,7 @@
   "remove": {
     "label": "{{title}} 제거",
     "dialogLabel": "{{title}}을(를) 제거할까요?",
-    "message": "자료실에서 <strong>{{title}}</strong>을(를) 제거할까요? 텍스트와 Abiding Word가 보관하던 파일 사본이 삭제되며, 원본 파일은 그대로 남습니다. 이 자료를 인용한 기록에는 출처 기록이 남습니다.",
+    "message": "자료실에서 <strong>{{title}}</strong>을(를) 제거할까요? 텍스트와 Abiding Word가 보관하던 파일 사본이 삭제되며, 원본 파일은 그대로 남습니다. 이 자료를 인용한 성경공부 기록에는 출처 정보가 남습니다.",
     "confirm": "자료실에서 제거",
     "keep": "유지",
     "marks_other": "이 자료에 있는 표시 {{count}}개(강조, 메모, 책갈피)도 함께 제거됩니다."
@@ -149,14 +149,14 @@
     "fitPage": "쪽에 맞춤",
     "loading": "원본을 여는 중…",
     "renderFailed": "원본을 표시할 수 없습니다. 추출된 텍스트는 계속 읽을 수 있습니다.",
-    "noNativeText": "이 페이지에는 원본 텍스트가 없습니다"
+    "noNativeText": "이 쪽에는 원본 텍스트가 없습니다"
   },
   "contents": {
     "title": "목차",
     "show": "목차 보기",
     "close": "목차 닫기",
     "for": "{{title}}의 목차",
-    "none": "사용할 수 있는 목차가 없습니다",
+    "none": "목차가 없습니다",
     "current": "현재 구간",
     "generated": "자동 생성 목차",
     "generatedNote": "이 자료에서 찾은 제목으로 만들었습니다. 원본에 포함된 목차가 아닙니다.",

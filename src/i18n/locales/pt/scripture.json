@@ -164,7 +164,7 @@
     "confirmRemoveManaged": "Remover <strong>{{name}}</strong>? O texto dela será excluído do Abiding Word, junto com a cópia do arquivo feita pelo Abiding Word (seu arquivo original não é alterado). Seus estudos, vínculos com passagens e notas são mantidos.",
     "keep": "Manter",
     "changeLanguage": "Mudar o idioma",
-    "saveLanguage": "Guardar o idioma",
+    "saveLanguage": "Salvar o idioma",
     "languageNotSet": "não indicado"
   },
   "colors": {
@@ -181,7 +181,7 @@
     "noteOnWords": "Nota sobre as palavras selecionadas"
   },
   "marks": {
-    "viewLabel": "Vista das Escrituras",
+    "viewLabel": "Visualização das Escrituras",
     "bible": "Bíblia",
     "marks": "Marcas",
     "title": "Marcas",

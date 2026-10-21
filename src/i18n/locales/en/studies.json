@@ -389,7 +389,7 @@
     "approach": {
       "passage": "Passage study",
       "word": "Word study",
-      "topical": "Topic",
+      "topical": "Topical study",
       "teaching": "Teaching preparation",
       "biblical_theology": "Biblical theology",
       "systematic_theology": "Systematic theology",
@@ -429,7 +429,7 @@
     "duplicatePrompt": "Make a copy of “{{title}}” in this project:",
     "structureOnly": "Structure only",
     "structureAndContent": "Structure and content",
-    "duplicateHelp": "Structure only copies the parts. With content, your writing, notes and passages are copied too. Notes on Scripture are never duplicated; they belong to the verses.",
+    "duplicateHelp": "“Structure only” copies the parts. “Structure and content” also copies your writing, notes and passages. Notes on Scripture are never duplicated; they belong to the verses.",
     "purpose": "Purpose",
     "purposePlaceholder": "What are you trying to understand or prepare?",
     "details": "{{type}} details",
@@ -465,13 +465,13 @@
     "groupCopy": "Copy",
     "findOccurrences": "Find occurrences",
     "saveAsTemplate": "Save as my template",
-    "saveAsTemplateGroup": "Save this study's structure as a template",
+    "saveAsTemplateGroup": "Save this study’s structure as a template",
     "templateName": "Name of the template",
-    "saveAsTemplateKeeps_one": "The template keeps this study's part: its heading, guidance and place in the outline. Your writing, notes, passages and details stay in this study.",
-    "saveAsTemplateKeeps_other": "The template keeps this study's {{count}} parts: their headings, guidance and places in the outline, in this order. Your writing, notes, passages and details stay in this study.",
+    "saveAsTemplateKeeps_one": "The template keeps this study’s part: its heading, guidance and place in the outline. Your writing, notes, passages and details stay in this study.",
+    "saveAsTemplateKeeps_other": "The template keeps this study’s {{count}} parts: their headings, guidance and places in the outline, in this order. Your writing, notes, passages and details stay in this study.",
     "saveTemplate": "Save template",
     "savedAsTemplate": "Saved as your template “{{name}}”. You can use it for a new study, and change it in Settings → Templates.",
-    "saveAsTemplateTooMany": "A template needs at least one part and can have at most {{max}}. Change this study's parts first, or make the template in Settings → Templates."
+    "saveAsTemplateTooMany": "A template needs at least one part and can have at most {{max}}. Change this study’s parts first, or make the template in Settings → Templates."
   },
   "editor": {
     "opening": "Opening study…",
@@ -665,7 +665,7 @@
       "text": "A sermon, a group Bible study or a lesson, written by you. You can use what you noted in this study: your notes and passages stay where they are and are simply used here. Nothing is filled in for you, and every part may stay empty."
     },
     "kindLabel": "Kind of teaching",
-    "kindNone": "Not said",
+    "kindNone": "Not specified",
     "kind": {
       "sermon": "Sermon",
       "bible_study": "Group Bible study",
@@ -974,7 +974,7 @@
     },
     "stepKindLabel": "Kind of step: {{step}}",
     "stepKind": {
-      "none": "Kind not said",
+      "none": "Kind not specified",
       "text": "Teaching",
       "scripture": "Bible reading",
       "question": "Question",
@@ -1022,13 +1022,13 @@
       "pointsHint": "Leave a title empty to name it in each teaching.",
       "none": "Nothing yet: a teaching made with this template starts empty.",
       "untitled": "untitled",
-      "loadFailed": "Your templates can't be shown just now. The built-in ones are here.",
+      "loadFailed": "Your templates can’t be shown just now. The built-in ones are here.",
       "startFrom": "Start from",
       "builtinChoice": "{{format}} (built-in)"
     },
     "saveTemplate": {
       "action": "Save as my template",
-      "group": "Save this teaching's structure as a template",
+      "group": "Save this teaching’s structure as a template",
       "name": "Name of the template",
       "keeps": {
         "points": "The template keeps the format and as many main points as this teaching has, in order. The points start without titles.",

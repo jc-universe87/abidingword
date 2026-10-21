@@ -7,10 +7,10 @@
   "another": "Nouvelle présentation à partir de cet enseignement",
   "startPresenting": "Lancer le mode présentateur",
   "start": {
-    "text": "Créez des diapositives à partir de cet enseignement : titre, passages, message central, points ou étapes, questions et images conservées, dans l’ordre de l’enseignement. Ensuite, vous gardez, omettez, modifiez ou ajoutez des diapositives.",
+    "text": "Créez des diapositives à partir de cet enseignement : titre, passages, message central, points ou étapes, questions et images conservées, dans l’ordre de l’enseignement. Vous pouvez ensuite garder, omettre, modifier ou ajouter des diapositives.",
     "propose": "Créer les diapositives à partir de l’enseignement",
     "empty": "Commencer avec le titre seulement",
-    "noAi": "Créé selon des règles fixes sur cet ordinateur. Aucun assistant n’est utilisé."
+    "noAi": "Les diapositives sont créées sur cet ordinateur selon des règles fixes. Aucun assistant n’est utilisé."
   },
   "kinds": {
     "title": "Titre",
@@ -79,7 +79,7 @@
     "noPassage": "Aucun passage choisi pour l’instant.",
     "ownPassage": "choisi ici",
     "otherPassage": "Autre passage",
-    "passageHint": "p. ex. Jean 15.1–8",
+    "passageHint": "p. ex. Jean 15:1–8",
     "setPassage": "Utiliser ce passage",
     "teachingPassage": "Utiliser le passage de l’enseignement",
     "heading": "Titre sur la diapositive",
@@ -88,7 +88,7 @@
     "quote": "Citation",
     "quoteBy": "Qui l’a dit",
     "teachingEmpty": "(vide dans l’enseignement)",
-    "followsTeaching": "Tiré de votre enseignement ; change quand l’enseignement change.",
+    "followsTeaching": "Tiré de votre enseignement ; se met à jour quand l’enseignement change.",
     "writeOwn": "Écrire votre propre texte pour la diapositive",
     "ownWording": "Votre propre texte pour cette présentation.",
     "useTeaching": "Reprendre le texte de l’enseignement",
@@ -107,7 +107,7 @@
     "minutes_one": "{{count}} min",
     "minutes_other": "{{count}} min",
     "minutes_many": "{{count}} min",
-    "dragHint": "Fais glisser pour déplacer la diapositive (ou utilise les flèches)",
+    "dragHint": "Faites glisser pour déplacer la diapositive (ou utilisez les flèches)",
     "design": "Présentation visuelle",
     "builtIn": "Fonds intégrés",
     "churchTemplates": "Modèles pour l’église",
@@ -201,7 +201,7 @@
     "audience": "Écran de l’auditoire",
     "settings": "Affichage",
     "audienceClosed": "L’écran de l’auditoire a été fermé.",
-    "audienceOn": "L’écran de l’auditoire est allumé.",
+    "audienceOn": "L’écran de l’auditoire est actif.",
     "blankOn": "L’écran de l’auditoire est masqué.",
     "showingScripture": "L’auditoire voit {{reference}}.",
     "backToSlide": "Revenir à la diapositive",
@@ -234,7 +234,7 @@
     "oneScreen": "Un seul écran est branché. Branchez un projecteur ou un deuxième écran, ou affichez les diapositives dans cette fenêtre.",
     "noBible": "Aucune Bible n’est installée pour chercher le passage.",
     "passage": "Passage",
-    "passageHint": "p. ex. Jean 15.5",
+    "passageHint": "p. ex. Jean 15:5",
     "lookUp": "Chercher",
     "passagesHere": "Passages de cette présentation",
     "showToAudience": "Montrer à l’auditoire",
@@ -270,9 +270,9 @@
       "notes": "Notes en grand",
       "slides": "Diapositives en grand"
     },
-    "escAgain": "Appuie encore sur Échap pour arrêter la présentation",
-    "escAgainAudience": "Appuie encore sur Échap pour fermer l’écran de l’auditoire",
-    "elapsedWaiting": "Temps écoulé : {{time}} (démarre quand tu avances)",
+    "escAgain": "Appuyez de nouveau sur Échap pour arrêter la présentation",
+    "escAgainAudience": "Appuyez de nouveau sur Échap pour fermer l’écran de l’auditoire",
+    "elapsedWaiting": "Temps écoulé : {{time}} (démarre quand vous avancez)",
     "timerStart": "Démarrer le minuteur"
   },
   "audience": {
@@ -403,9 +403,9 @@
     "overflowExport_many": "{{count}} zones de texte sont trop petites pour leur texte ; vérifiez-les dans le fichier.",
     "roles": {
       "title": "Titre",
-      "section": "Section",
+      "section": "Changement de partie",
       "heading": "Titre et texte",
-      "scripture": "Écriture",
+      "scripture": "Passage biblique",
       "quote": "Citation",
       "question": "Question",
       "image": "Image",
@@ -415,7 +415,7 @@
     },
     "sample": {
       "title": "Demeurez dans le cep",
-      "reference": "Jean 15.1–8",
+      "reference": "Jean 15:1–8",
       "section": "Porter du fruit",
       "heading": "Le fruit naît de la proximité",
       "text": "Un sarment ne s’épuise pas à porter du fruit ; il reste attaché au cep.",

@@ -140,7 +140,7 @@
         }
       },
       "teaching-study": {
-        "name": "Enseñanza / Preparación de sermón",
+        "name": "Preparación de enseñanza o sermón",
         "description": "Del texto a un sermón o una lección preparados para personas reales.",
         "sections": {
           "text": {
@@ -372,7 +372,7 @@
     "heading": "¿Qué te gustaría estudiar?",
     "title": "Título",
     "template": "Plantilla",
-    "noTemplate": "Sin plantilla (una parte de Notas)",
+    "noTemplate": "Sin plantilla (una sola parte: Notas)",
     "yourTemplate": "{{name}} (tuya)",
     "optional": "(opcional)",
     "passagePlaceholder": "p. ej. John 15:1-11",
@@ -391,7 +391,7 @@
     "approach": {
       "passage": "Estudio de pasaje",
       "word": "Estudio de palabra",
-      "topical": "Tema",
+      "topical": "Estudio temático",
       "teaching": "Preparación de enseñanza",
       "biblical_theology": "Teología bíblica",
       "systematic_theology": "Teología sistemática",
@@ -431,10 +431,10 @@
     "unresolvedCount_many": "{{count}} cuestiones pendientes",
     "unresolvedCount_other": "{{count}} cuestiones pendientes",
     "duplicateGroup": "Duplicar este estudio",
-    "duplicatePrompt": "Hacer una copia de “{{title}}” en este proyecto:",
+    "duplicatePrompt": "Hacer una copia de «{{title}}» en este proyecto:",
     "structureOnly": "Solo la estructura",
     "structureAndContent": "Estructura y contenido",
-    "duplicateHelp": "“Solo la estructura” copia las partes. Con el contenido, también se copian tus textos, apuntes y pasajes. Las notas sobre la Biblia nunca se duplican; pertenecen a los versículos.",
+    "duplicateHelp": "«Solo la estructura» copia las partes. Con el contenido, también se copian tus textos, apuntes y pasajes. Las notas sobre la Biblia nunca se duplican; pertenecen a los versículos.",
     "purpose": "Propósito",
     "purposePlaceholder": "¿Qué quieres entender o preparar?",
     "details": "Detalles: {{type}}",
@@ -472,11 +472,11 @@
     "saveAsTemplate": "Guardar como mi plantilla",
     "saveAsTemplateGroup": "Guardar la estructura de este estudio como plantilla",
     "templateName": "Nombre de la plantilla",
-    "saveAsTemplateKeeps_one": "La plantilla conserva la parte de este estudio: su título, su indicación y su lugar en el recorrido. Tus textos, apuntes, pasajes y detalles se quedan en este estudio.",
-    "saveAsTemplateKeeps_other": "La plantilla conserva las {{count}} partes de este estudio: sus títulos, indicaciones y lugares en el recorrido, en este orden. Tus textos, apuntes, pasajes y detalles se quedan en este estudio.",
+    "saveAsTemplateKeeps_one": "La plantilla conserva la parte de este estudio: su título, su orientación y su lugar en el esquema. Tus textos, apuntes, pasajes y detalles se quedan en este estudio.",
+    "saveAsTemplateKeeps_other": "La plantilla conserva las {{count}} partes de este estudio: sus títulos, orientaciones y lugares en el esquema, en este orden. Tus textos, apuntes, pasajes y detalles se quedan en este estudio.",
     "saveTemplate": "Guardar plantilla",
     "savedAsTemplate": "Guardado como tu plantilla «{{name}}». Puedes usarla para un estudio nuevo y cambiarla en Configuración → Plantillas.",
-    "saveAsTemplateKeeps_many": "La plantilla conserva las {{count}} partes de este estudio: sus títulos, indicaciones y lugares en el recorrido, en este orden. Tus textos, apuntes, pasajes y detalles se quedan en este estudio.",
+    "saveAsTemplateKeeps_many": "La plantilla conserva las {{count}} partes de este estudio: sus títulos, orientaciones y lugares en el esquema, en este orden. Tus textos, apuntes, pasajes y detalles se quedan en este estudio.",
     "saveAsTemplateTooMany": "Una plantilla necesita al menos una parte y puede tener como máximo {{max}}. Cambia primero las partes de este estudio o crea la plantilla en Configuración → Plantillas."
   },
   "editor": {
@@ -494,8 +494,8 @@
     "moveDown": "Bajar la parte {{title}}",
     "delete": "Eliminar la parte {{title}}",
     "confirmLabel": "¿Eliminar la parte {{title}}?",
-    "confirm": "¿Eliminar “{{title}}” y el texto que contiene?",
-    "confirmWithFindings": "¿Eliminar “{{title}}” y el texto que contiene? Sus apuntes se quedan en el estudio, en Otros apuntes.",
+    "confirm": "¿Eliminar «{{title}}» y el texto que contiene?",
+    "confirmWithFindings": "¿Eliminar «{{title}}» y el texto que contiene? Sus apuntes se quedan en el estudio, en Otros apuntes.",
     "deleteSection": "Eliminar parte",
     "titleLabel": "Título de la parte",
     "options": "Opciones de la parte {{title}}",
@@ -581,7 +581,7 @@
     "describe": "Indicar la relación"
   },
   "search": {
-    "heading": "Estudios que coinciden con “{{query}}”",
+    "heading": "Estudios que coinciden con «{{query}}»",
     "searching": "Buscando en tus estudios…",
     "none": "No se encontró nada en tus estudios.",
     "count_one": "{{count}} coincidencia.",
@@ -607,7 +607,7 @@
     "duplicate": "Duplicar {{name}}",
     "delete": "Eliminar {{name}}",
     "confirmLabel": "¿Eliminar {{name}}?",
-    "confirm": "¿Eliminar la plantilla “{{name}}”? Los estudios ya creados a partir de ella no se ven afectados.",
+    "confirm": "¿Eliminar la plantilla «{{name}}»? Los estudios ya creados a partir de ella no se ven afectados.",
     "deleteTemplate": "Eliminar plantilla",
     "new": "Nueva plantilla…",
     "saveAsMine": "Guardar como mi plantilla",
@@ -670,7 +670,7 @@
     "another": "Preparar otra enseñanza bíblica",
     "empty": {
       "title": "Preparar una enseñanza a partir de este estudio",
-      "text": "Un sermón, un estudio en grupo o una lección, escritos por ti. Puedes usar lo que encontraste en este estudio: tus apuntes y pasajes siguen en su sitio y aquí solo se usan. No se rellena nada por ti, y cada parte puede quedar vacía."
+      "text": "Un sermón, un estudio bíblico en grupo o una lección, escritos por ti. Puedes usar lo que encontraste en este estudio: tus apuntes y pasajes siguen en su sitio y aquí solo se usan. No se rellena nada por ti, y cada parte puede quedar vacía."
     },
     "kindLabel": "Tipo de enseñanza",
     "kindNone": "Sin indicar",
@@ -747,9 +747,9 @@
         "transition": "Ayuda con una transición",
         "review": "Revisar lo que escribí",
         "structure": "Comentar la estructura",
-        "application": "¿La aplicación sale del pasaje?",
+        "application": "¿La aplicación se desprende del pasaje?",
         "theology": "Revisar la teología y el pasaje",
-        "passages": "Sugerir pasajes para mirar",
+        "passages": "Sugerir pasajes para consultar",
         "phrasing": "Otras formas de decirlo",
         "question": "Ayuda con una pregunta para conversar…",
         "restructure": "¿Cómo podría ordenar lo que tengo?",
@@ -802,7 +802,7 @@
       "done": "Listo",
       "applied": "Cambiado como elegiste.",
       "undo": "Deshacer",
-      "undone": "Tu texto anterior ha vuelto.",
+      "undone": "Se ha restaurado tu texto anterior.",
       "proposal": {
         "heading": "Redacción sugerida",
         "headingStart": "Transición sugerida",
@@ -817,7 +817,7 @@
       "comments": {
         "heading": "Comentarios sobre lo que escribiste",
         "none": "Nada que añadir.",
-        "suggested": "Para mirar:",
+        "suggested": "Para consultar:",
         "add": "Añadir",
         "addPassage": "Añadir {{passage}} a esta enseñanza"
       },
@@ -882,7 +882,7 @@
       "freeHint": "El asistente ve esta parte y lo que necesita de esta enseñanza y este estudio. Responde con comentarios y preguntas; no escribe tu enseñanza por ti.",
       "slow": "Está tardando más de lo normal. Puedes seguir esperando o parar.",
       "stop": "Dejar de esperar",
-      "stopped": "Has dejado de esperar. No se ha cambiado nada. El servicio puede terminar igualmente la petición, y puede contar en tu uso.",
+      "stopped": "Has dejado de esperar. No se ha cambiado nada. El servicio puede terminar igualmente la petición, y puede contar en tu consumo.",
       "pending": {
         "ask": "Preguntando al asistente…",
         "story": "Buscando fuentes… Puede tardar un poco.",
@@ -920,7 +920,7 @@
       },
       "questions": {
         "title": "Preguntas y respuestas",
-        "none": "Aún no hay preguntas. Añade las preguntas de las que queréis hablar, cada una con lo que muestra el pasaje.",
+        "none": "Aún no hay preguntas. Añade las preguntas que quieres tratar, cada una con lo que muestra el pasaje.",
         "add": "Añadir una pregunta",
         "number": "Pregunta {{number}}",
         "label": "Pregunta {{number}}: {{title}}",
@@ -965,7 +965,7 @@
     "aboutFor": "para {{audience}}",
     "format": {
       "points": "Puntos principales con explicación, aplicación e ilustración, entre una introducción y una conclusión.",
-      "questions": "Preguntas para el grupo, cada una con hacia dónde puede llevar y preguntas de seguimiento.",
+      "questions": "Preguntas para el grupo, cada una con adónde puede llevar y con preguntas de seguimiento.",
       "steps": "Una lección por pasos: enseñanza, lectura bíblica, preguntas, actividades e imágenes, en el orden en que ocurren."
     },
     "startsWith": "Empieza con: {{steps}}.",
@@ -1001,7 +1001,7 @@
         "explanation": "Cómo lo vas a leer o contar"
       },
       "question": {
-        "explanation": "Respuestas que esperar"
+        "explanation": "Respuestas esperadas"
       },
       "activity": {
         "explanation": "Cómo se hace",
@@ -1034,7 +1034,7 @@
       "none": "Nada todavía: una enseñanza creada con esta plantilla empieza vacía.",
       "untitled": "sin título",
       "loadFailed": "Ahora no se pueden mostrar tus plantillas. Las integradas sí están.",
-      "startFrom": "Empezar desde",
+      "startFrom": "Partir de",
       "builtinChoice": "{{format}} (integrada)"
     },
     "saveTemplate": {
@@ -1046,7 +1046,7 @@
         "questions": "La plantilla conserva el formato y tantas preguntas como tiene esta enseñanza. Las preguntas empiezan vacías.",
         "steps": "La plantilla conserva el formato y los pasos en orden, cada uno con su título y su tipo."
       },
-      "notKept": "Nada de lo que escribiste se incluye: ni el público, el propósito, el mensaje, la introducción, la conclusión o las notas; nada de lo escrito bajo un punto, una pregunta o un paso; ningún pasaje, material guardado ni apunte de tu estudio.",
+      "notKept": "Nada de lo que escribiste se incluye: ni el público, el propósito, el mensaje, la introducción, la conclusión ni las notas; nada de lo escrito bajo un punto, una pregunta o un paso; ningún pasaje, material guardado ni apunte de tu estudio.",
       "saved": "Guardada como tu plantilla «{{name}}». Puedes elegirla para tu próxima enseñanza y cambiarla en Configuración → Plantillas.",
       "tooMany": "Una plantilla puede empezar con {{max}} puntos, preguntas o pasos como máximo, y esta enseñanza tiene más. Crea la plantilla en Configuración → Plantillas."
     },
@@ -1060,7 +1060,7 @@
     "expandAll": "Desplegar todo"
   },
   "journey": {
-    "label": "Recorrido del estudio",
+    "label": "Esquema del estudio",
     "phase": {
       "text": "Texto",
       "understanding": "Comprensión",
@@ -1101,7 +1101,7 @@
         },
         "questions": {
           "name": "Guía del líder",
-          "hint": "Las preguntas con hacia dónde puede llevar cada una, para guiar al grupo"
+          "hint": "Las preguntas y adónde puede llevar cada una, para guiar al grupo"
         },
         "steps": {
           "name": "Guía del maestro",
@@ -1157,7 +1157,7 @@
       "includeFrame": "«{{opening}}» y «{{closing}}»",
       "writingSpace": "Espacio para escribir",
       "includePassage": "Incluir el pasaje bíblico ({{bible}})",
-      "includePassageNone": "Incluir el pasaje bíblico (elige primero una Biblia en el panel Biblia)"
+      "includePassageNone": "Incluir el pasaje bíblico (elige primero una Biblia en el panel de la Biblia)"
     },
     "action": {
       "print": "Imprimir o guardar como PDF…",
@@ -1192,7 +1192,7 @@
   "phase": {
     "label": "Esquema",
     "none": "Fuera del esquema",
-    "ofPart": "Lugar de «{{title}}» en el recorrido del estudio",
-    "ofTemplatePart": "Lugar de la parte {{number}} en el recorrido del estudio"
+    "ofPart": "Lugar de «{{title}}» en el esquema del estudio",
+    "ofTemplatePart": "Lugar de la parte {{number}} en el esquema del estudio"
   }
 }

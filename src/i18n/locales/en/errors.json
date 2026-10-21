@@ -94,7 +94,7 @@
     "tooManySections": "A template can have at most {{max}} parts.",
     "builtinReadOnly": "Built-in templates can’t be changed. Use “Save as my template” to make your own version.",
     "duplicateKey": "Two parts of the template are the same part. Remove one of them.",
-    "invalidKey": "This part's key is not valid."
+    "invalidKey": "This part’s key is not valid."
   },
   "sections": {
     "hasContent": "“{{title}}” still has writing or notes in it.",
@@ -126,7 +126,7 @@
   "sourceAnnotations": {
     "noWords": "Select some words of the source first.",
     "textChanged": "The selected words do not match the text of this source.",
-    "tooMuchText": "So much text cannot be marked at once.",
+    "tooMuchText": "That is too much text to mark at once.",
     "placeGone": "This place is no longer in the source.",
     "noPlace": "Choose a place in the source first.",
     "bookmarkPlace": "A bookmark marks a place, not words.",
@@ -158,7 +158,7 @@
     "noImageSearch": "Finding images is turned off. You can turn it on in Settings.",
     "noImageGeneration": "Making images is not set up, or this AI service cannot make images. You can choose a service for images in Settings → AI Assistant.",
     "imageFailed": "The image could not be made this time. Please try again.",
-    "keyStore": "The key could not be kept in this computer’s credential store.",
+    "keyStore": "The key could not be kept in this computer’s password store.",
     "badKey": "That does not look like a key. Please paste it again.",
     "badAddress": "Please enter a web address beginning with http:// or https://.",
     "badModel": "That model name is too long.",
@@ -170,7 +170,7 @@
     "otherPoint": "That point belongs to another teaching.",
     "otherStudyFinding": "That note belongs to another study.",
     "badMaterial": "This item cannot be kept.",
-    "notVerified": "A story is only kept as checked with two independent sources.",
+    "notVerified": "A story can be kept as checked only when two independent sources report it.",
     "imageGone": "This image is no longer available. Please make it again."
   },
   "presentation": {

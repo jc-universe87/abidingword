@@ -7,10 +7,10 @@
   "another": "Neue Präsentation aus dieser Bibellehre",
   "startPresenting": "Referentenansicht starten",
   "start": {
-    "text": "Mach Folien aus dieser Bibellehre: Titel, Bibelstellen, Kernbotschaft, Punkte oder Schritte, Fragen und behaltene Bilder, in der Reihenfolge der Bibellehre. Danach behältst du Folien, lässt sie weg, änderst sie oder fügst neue hinzu.",
-    "propose": "Folien aus der Bibellehre machen",
+    "text": "Erstelle Folien aus dieser Bibellehre: Titel, Bibelstellen, Kernbotschaft, Punkte oder Schritte, Fragen und aufbewahrte Bilder, in der Reihenfolge der Bibellehre. Danach behältst du Folien, lässt sie weg, änderst sie oder fügst neue hinzu.",
+    "propose": "Folien aus der Bibellehre erstellen",
     "empty": "Nur mit dem Titel beginnen",
-    "noAi": "Nach festen Regeln auf diesem Computer erstellt. Es wird kein Assistent verwendet."
+    "noAi": "Nach festen Regeln auf diesem Computer erstellt – ganz ohne Assistenten."
   },
   "kinds": {
     "title": "Titel",
@@ -40,7 +40,7 @@
     "point": "Teil {{number}} der Bibellehre",
     "pointTitled": "Teil {{number}}: {{title}}",
     "passage": "{{reference}}",
-    "material": "Behaltenes Bild: {{title}}",
+    "material": "Aufbewahrtes Bild: {{title}}",
     "finding": "Eine Notiz aus deinem Bibelstudium",
     "missing": "Aus der Bibellehre entfernt"
   },
@@ -78,8 +78,8 @@
     "ownPassage": "hier gewählt",
     "otherPassage": "Andere Bibelstelle",
     "passageHint": "z. B. Johannes 15,1–8",
-    "setPassage": "Diese Bibelstelle nehmen",
-    "teachingPassage": "Bibelstelle der Bibellehre nehmen",
+    "setPassage": "Diese Bibelstelle verwenden",
+    "teachingPassage": "Bibelstelle der Bibellehre verwenden",
     "heading": "Überschrift auf der Folie",
     "body": "Text auf der Folie",
     "question": "Frage auf der Folie",
@@ -89,7 +89,7 @@
     "followsTeaching": "Aus deiner Bibellehre; ändert sich mit, wenn du die Bibellehre änderst.",
     "writeOwn": "Eigenen Text für die Folie schreiben",
     "ownWording": "Dein eigener Text für diese Präsentation.",
-    "useTeaching": "Wieder den Text der Bibellehre nehmen",
+    "useTeaching": "Wieder den Text der Bibellehre verwenden",
     "imageOffline": "Dieses Bild ist noch nicht auf diesem Computer. Speichere eine Kopie, damit du ohne Internet präsentieren kannst.",
     "saveImage": "Kopie speichern",
     "savingImage": "Wird gespeichert…",
@@ -108,7 +108,7 @@
     "design": "Design",
     "builtIn": "Eingebaute Hintergründe",
     "churchTemplates": "Gemeindevorlagen",
-    "designHint": "Eine Vorlage ändert nur, wie die Folien aussehen. Deine Folien und deine Lehre bleiben, wie sie sind, und du kannst jederzeit zurückwechseln."
+    "designHint": "Eine Gemeindevorlage ändert nur, wie die Folien aussehen. Deine Folien und deine Bibellehre bleiben, wie sie sind, und du kannst jederzeit zurückwechseln."
   },
   "warnings": {
     "noBible": "Noch keine Bibel installiert: Bibelstellen-Folien zeigen nur die Stellenangabe. Füge in den Einstellungen eine Bibel hinzu.",
@@ -136,7 +136,7 @@
       },
       "markdown": {
         "name": "Markdown (.md)",
-        "hint": "Einfacher Text mit Überschriften und den Bibelstellen."
+        "hint": "Einfacher Text mit Überschriften und dem Bibeltext."
       },
       "package": {
         "name": "Vortragspaket (.json)",
@@ -145,7 +145,7 @@
     },
     "includeNotes": "Mein Manuskript und meine Notizen beifügen",
     "includeSources": "Quellen beifügen",
-    "private": "Die Datei wird auf diesem Computer erstellt und nur dort gespeichert, wo du es wählst. Nichts wird verschickt, und die Bibellehre wird nicht verändert.",
+    "private": "Die Datei entsteht auf diesem Computer und wird nur dort gespeichert, wo du willst. Es wird nichts verschickt, und die Bibellehre bleibt unverändert.",
     "save": "Speicherort wählen…",
     "saving": "Wird gespeichert…",
     "saved": "Gespeichert: {{path}}",
@@ -218,8 +218,8 @@
     "showClock": "Uhrzeit zeigen",
     "keepAwake": "Bildschirm anlassen",
     "keepAwakeOn": "Der Bildschirm bleibt an, solange du präsentierst.",
-    "keepAwakeUnavailable": "Dieses System lässt die App den Bildschirm nicht anlassen. Wenn er sich beim Präsentieren abschaltet, ändere die Energieeinstellungen.",
-    "keys": "Tasten: →, Bild ab oder Leertaste für die nächste Folie; ← oder Bild auf für zurück; eine Zahl und Enter, um zu dieser Folie zu springen; O für die Übersicht; B, um das Bild für die Zuhörer auszublenden; Esc schließt einen Bereich, zweimal Esc beendet die Präsentation.",
+    "keepAwakeUnavailable": "Auf diesem System kann die App den Bildschirm nicht eingeschaltet lassen. Wenn er sich beim Präsentieren abschaltet, ändere die Energieeinstellungen.",
+    "keys": "Tasten: →, Bild ab oder Leertaste für die nächste Folie; ← oder Bild auf für die vorherige Folie; eine Zahl und Enter, um zu dieser Folie zu springen; O für die Übersicht; B, um das Bild für die Zuhörer auszublenden; Esc schließt einen Bereich, zweimal Esc beendet die Präsentation.",
     "audienceHelp": "Die Zuhörer sehen nur die Folien – nie deine Notizen, dein Manuskript oder deine Quellen.",
     "closeAudience": "Bildschirm der Zuhörer schließen",
     "lookingForScreens": "Bildschirme werden gesucht…",
@@ -228,7 +228,7 @@
     "inThisWindow": "In diesem Fenster zeigen",
     "noSecondWindow": "Ein zweites Fenster lässt sich hier nicht öffnen. Zeig die Folien stattdessen in diesem Fenster (für einen gespiegelten Bildschirm); mit Esc kommst du zurück.",
     "oneScreen": "Nur ein Bildschirm ist angeschlossen. Schließ einen Beamer oder zweiten Bildschirm an, oder zeig die Folien in diesem Fenster.",
-    "noBible": "Keine Bibel installiert, um die Bibelstelle nachzuschlagen.",
+    "noBible": "Zum Nachschlagen der Bibelstelle ist keine Bibel installiert.",
     "passage": "Bibelstelle",
     "passageHint": "z. B. Johannes 15,5",
     "lookUp": "Nachschlagen",
@@ -253,8 +253,8 @@
     "marks": "Zeiger und Textmarker",
     "timeLeft_one": "noch {{count}} Min.",
     "timeLeft_other": "noch {{count}} Min.",
-    "timeOver_one": "{{count}} Min. drüber",
-    "timeOver_other": "{{count}} Min. drüber",
+    "timeOver_one": "{{count}} Min. überzogen",
+    "timeOver_other": "{{count}} Min. überzogen",
     "target_one": "Ziel: {{count}} Min.",
     "target_other": "Ziel: {{count}} Min.",
     "arrangement": "Anordnung",
@@ -339,7 +339,7 @@
       "justified": "Blocksatz wird linksbündig gesetzt",
       "growsWithText": "Ein Feld, das mit dem Text wächst, behält seine Größe (zu langer Text wird gemeldet)",
       "noWrap": "Ein Feld ohne Zeilenumbruch bricht den Text hier um",
-      "svgAsPicture": "Ein SVG-Bild wird aus seiner PNG-Kopie gezeigt",
+      "svgAsPicture": "Ein SVG-Bild wird als seine PNG-Kopie gezeigt",
       "extraTextBox": "Ein weiteres Textfeld wird nicht verwendet",
       "smartArt": "SmartArt",
       "table": "Tabellen",

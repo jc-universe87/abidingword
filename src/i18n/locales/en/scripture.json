@@ -149,7 +149,7 @@
     "contents_one": "{{count}} book, {{verses}} verses",
     "contents_other": "{{count}} books, {{verses}} verses",
     "confirmRemove": "Remove <strong>{{name}}</strong>? Its text will be deleted from Abiding Word. Your studies, passage links and notes are kept.",
-    "confirmRemoveManaged": "Remove <strong>{{name}}</strong>? Its text will be deleted from Abiding Word, together with Abiding Word's copy of the file (your original file is not touched). Your studies, passage links and notes are kept.",
+    "confirmRemoveManaged": "Remove <strong>{{name}}</strong>? Its text will be deleted from Abiding Word, together with Abiding Word’s copy of the file (your original file is not touched). Your studies, passage links and notes are kept.",
     "keep": "Keep it",
     "changeLanguage": "Change language",
     "saveLanguage": "Save language",

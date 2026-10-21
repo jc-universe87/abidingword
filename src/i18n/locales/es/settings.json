@@ -19,11 +19,11 @@
     "legend": "Tema",
     "light": "Claro",
     "dark": "Oscuro",
-    "system": "Igual que mi equipo"
+    "system": "Igual que mi ordenador"
   },
   "layout": {
     "title": "Disposición del espacio de trabajo",
-    "description": "Devuelve los paneles a su orden habitual (Biblia, Estudio, Fuentes) y a su ancho habitual, y los muestra u oculta como en el primer inicio. Solo cambia la disposición en este equipo; tus estudios y tu biblioteca no se ven afectados.",
+    "description": "Devuelve los paneles a su orden habitual (Biblia, Estudio, Fuentes) y a su ancho habitual, y los muestra u oculta como en el primer inicio. Solo cambia la disposición en este ordenador; tus estudios y tu biblioteca no se ven afectados.",
     "reset": "Restablecer disposición",
     "done": "Disposición restablecida."
   },
@@ -35,7 +35,7 @@
     "logFiles": "Archivos de registro",
     "schema": "Esquema de la base de datos",
     "schemaVersion": "Versión {{version}}",
-    "backup": "Todos tus estudios se guardan en la carpeta de datos de este equipo. Para hacer una copia de seguridad, copia esa carpeta completa con Abiding Word cerrado."
+    "backup": "Todos tus estudios se guardan en la carpeta de datos de este ordenador. Para hacer una copia de seguridad, copia esa carpeta completa con Abiding Word cerrado."
   },
   "planned": {
     "sync": "Sincronización",
@@ -177,7 +177,7 @@
     "searchRecommended": "Recomendados",
     "searchWhat": {
       "brave": "Brave Search es un buscador web independiente. Su servicio para programas (la «Search API») devuelve resultados web normales con un breve extracto.",
-      "tavily": "Tavily es un servicio de búsqueda pensado para asistentes de IA. Devuelve páginas web con un extracto legible de cada una, lo que ayuda al Asistente de IA a señalar lo que dice una página.",
+      "tavily": "Tavily es un servicio de búsqueda pensado para asistentes de IA. Devuelve páginas web con un extracto legible de cada una, lo que ayuda al asistente de IA a señalar lo que dice una página.",
       "exa": "Exa busca por significado y no solo por palabras. Devuelve páginas con los pasajes que mejor responden a lo que pediste.",
       "searxng": "SearXNG es un programa de búsqueda abierto que algunas personas ejecutan en su propio servidor. Necesitas la dirección de un servidor SearXNG que permita búsquedas desde programas (resultados «JSON»). Si esto no te dice nada, elige mejor uno de los servicios recomendados.",
       "serpapi": "SerpApi ofrece a los programas los resultados de búsqueda de Google. Es un servicio de pago con una pequeña cuota gratuita, pensado para quien ya lo usa."
@@ -185,7 +185,7 @@
     "searchSetup": {
       "title": "¿Cómo configuro {{service}}?",
       "step1": "Abre la página de {{service}} de abajo e inicia sesión o crea una cuenta.",
-      "step2": "Crea allí una clave (puede llamarse «API key») y cópiala.",
+      "step2": "Crea allí una clave (puede llamarse «clave de API») y cópiala.",
       "step3": "Pégala en el campo de la clave de búsqueda y pulsa «Guardar clave».",
       "step4": "Pulsa «Comprobar búsqueda».",
       "open": "Abrir la página de {{service}}",

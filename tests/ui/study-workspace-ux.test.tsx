@@ -86,7 +86,7 @@ describe("creating a study", () => {
     const { api } = await withProject();
     const { user } = await renderApp(api);
     await openProject(user);
-    await user.click(screen.getByRole("button", { name: "Topic" }));
+    await user.click(screen.getByRole("button", { name: "Topical study" }));
     await user.type(ask(), "Forgiveness");
     await user.click(screen.getByRole("button", { name: "Create study" }));
     expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("Forgiveness");

@@ -177,7 +177,7 @@
     "searchRecommended": "Recomendados",
     "searchWhat": {
       "brave": "O Brave Search é uma busca independente na web. O serviço dele para programas (a “Search API”) traz resultados comuns da web com um pequeno trecho.",
-      "tavily": "O Tavily é um serviço de busca feito para assistentes de IA. Ele traz páginas da web com um trecho fácil de ler de cada uma, o que ajuda o Assistente de IA a mostrar o que uma página diz.",
+      "tavily": "O Tavily é um serviço de busca feito para assistentes de IA. Ele traz páginas da web com um trecho fácil de ler de cada uma, o que ajuda o assistente de IA a mostrar o que uma página diz.",
       "exa": "O Exa busca pelo sentido, e não só pelas palavras. Ele traz páginas com os trechos que mais combinam com o que você pediu.",
       "searxng": "O SearXNG é um programa de busca aberto que algumas pessoas rodam no próprio servidor. Você precisa do endereço de um servidor SearXNG que aceite buscas de programas (resultados “JSON”). Se isso não diz nada para você, escolha um dos serviços recomendados.",
       "serpapi": "O SerpApi entrega aos programas os resultados de busca do Google. É um serviço pago com uma pequena cota gratuita, pensado para quem já o usa."
