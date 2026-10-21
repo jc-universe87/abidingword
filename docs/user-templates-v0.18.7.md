@@ -261,6 +261,14 @@ tested where it can be:
 * the unused `STARTING_STEPS` copy is gone;
 * the new-teaching form says when your templates can't be loaded.
 
+## Since v0.18.8
+
+The built-in baselines are documented as starting points for the owner to
+refine, previews come from each template's own parts, and a new teaching
+chooses its format first and offers only the person's templates made for it
+(see [`baselines-materials-v0.18.8.md`](baselines-materials-v0.18.8.md)).
+`.awstructure` remains deferred.
+
 ## Limitations
 
 * Study template parts can't be duplicated one by one in the editor. Add a

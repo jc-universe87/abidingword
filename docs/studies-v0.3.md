@@ -125,6 +125,11 @@ type, ordered sections with optional guidance. Stored in `study_templates`
   template's id for reference only; later changes to, or deletion of, the
   template never change existing studies (tested).
 
+Since v0.18.8 a built-in template file may say `"offered": false` (kept for
+old studies, never offered), and every place a template is chosen shows what
+it starts with, from its own parts: see
+[`baselines-materials-v0.18.8.md`](baselines-materials-v0.18.8.md).
+
 Since v0.18.7 each section of a template may say its **phase** (where it
 belongs in the study outline), a study copies it with its key, and a study's
 structure can be saved as a template of the person's own: see

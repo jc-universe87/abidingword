@@ -186,6 +186,9 @@ a second group. Custom teaching templates are deferred (§13).
 (`resources/teaching-templates.json`, the same starting steps), the person can
 make their own, and every built-in part of a Bible Study template states its
 phase. See [`user-templates-v0.18.7.md`](user-templates-v0.18.7.md).
+*Since v0.18.8* these baselines are documented as starting points for the
+owner to refine, and a new teaching chooses its format first:
+[`baselines-materials-v0.18.8.md`](baselines-materials-v0.18.8.md).
 
 ## 7. Bible Teaching
 

@@ -34,7 +34,10 @@ sermon, a group study, a lesson) is **Bible Teaching**: see
 4. Click **Create study**.
 
 Each kind starts from a small **template**: a few headed parts, each with a
-short hint until you write in it. Parts you may want later (for a passage
+short hint until you write in it. A line under the choices says what it
+starts with (*Starts with: Text · Observations · …*). The built-in templates
+are only a starting point: **Save as my template** in **Settings →
+Templates** gives you your own copy to change as you like. Parts you may want later (for a passage
 study: *Structure, Key Words, Related Scripture, Open Questions*) are offered
 when you click **Add a part** at the end of the study.
 

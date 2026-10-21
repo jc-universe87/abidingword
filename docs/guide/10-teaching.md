@@ -26,9 +26,10 @@ your notes, passages and sources are at hand without being copied.
 2. Under the study's title, click **Bible Teaching** (click **Bible Study**
    to go back).
 3. Under **What would you like to prepare?**, choose *Sermon*, *Group Bible
-   study*, *Youth*, *Children*, *Lesson*, *Talk* or *Other*, or one of **Your
-   templates** (see below). A line under the choices says what it gives you to
-   work in, and what it starts with.
+   study*, *Youth*, *Children*, *Lesson*, *Talk* or *Other*. If you have
+   templates of your own for that kind, **Start from** lets you pick one of
+   them or the built-in one (see below). A line under the choices says what it
+   gives you to work in, and what it starts with.
 4. Change the title if you like, and click **Start**.
 
 Nothing is written for you. A lesson starts with a few empty steps (for
@@ -127,6 +128,9 @@ teaching; it changes here too. Opening a material never changes your teaching.
 
 - **Print or save as PDF…** opens the print dialog. Only the material is
   printed; choose *Save as PDF* (or *Microsoft Print to PDF*) there to keep a file.
+- **Save as a Word document…** saves it as a .docx file to open and change in
+  Word or LibreOffice: real headings, paragraphs and numbered questions, with
+  lines to write on.
 - **Save as a text file…** saves it as Markdown, a plain text file any editor opens.
 - **Copy the text** puts it on the clipboard for a document or an email.
 
@@ -136,6 +140,12 @@ the group: only the title, the passage and the questions. Your notes on where a
 question may lead, follow-up questions and notes for leading are on it only when
 you tick **Leader’s version**, which then says at the top that it is not for
 handing out. **“Opening” and “Closing”** adds those to the group's sheet.
+
+**Include Bible passage** puts the text of the teaching's passage on the
+material, from the Bible you chose in the Scripture pane (its name is on the
+choice). It never takes words from another Bible. If that Bible has no text
+for a verse, the material says which verse, and keeps the reference. The text
+stays on your computer: it goes only into the material you make.
 
 Once you have made slides, **Save the presentation as a file…** is also in
 Materials: the same PowerPoint, PDF, speaker sheet, Markdown and delivery

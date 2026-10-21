@@ -289,7 +289,13 @@ questions or steps a teaching starts with, each step with its kind), the
 built-in ones one per format; "Save as my template" from a teaching; and
 "Add a step ▸ kind".
 
-**Still open:** audio steps and a step-level media attachment; moving notes
+**Since v0.18.8:** the baselines are reviewed and kept as data
+(`resources/templates/*.json`, `resources/teaching-templates.json`) for the
+owner's later refinement; "Starts with" previews from each template's own
+parts; a new teaching chooses its format first and offers only the person's
+templates for that format.
+
+**Still open:** the owner's refinement of the built-in baselines; audio steps and a step-level media attachment; moving notes
 between parts by dragging; the assistant inside Bible Study; a file to share
 Study and Teaching templates (`.awstructure`, designed and deferred, never
 `.awtemplate`); refining the built-in Teaching baselines
@@ -308,8 +314,13 @@ lesson), a question sheet with a separate leader's version, and a worksheet
 rules, previewed at once, printed or saved as PDF, saved as Markdown or copied;
 the presentation's files are reachable from Materials too.
 
-**Still open:** the passage's text on a sheet (in the chosen translation); a
-Word (.docx) file; editable wording that belongs only to a material (deferred
+**Since v0.18.8** (see [`baselines-materials-v0.18.8.md`](baselines-materials-v0.18.8.md)):
+the passage's text on a material, from the Bible chosen in the Scripture
+pane only, with any verse it lacks named; a Word (.docx) file written by the
+core from the same material model as the preview, print and Markdown.
+
+**Still open:** remembering material choices; paragraphs and Psalm titles in
+passage text; editable wording that belongs only to a material (deferred
 on purpose: one source of truth); assistant help on materials (explicit and
 bounded, as elsewhere); a printable PDF written by the core rather than the
 system's print dialog (needed on macOS, whose web view has no print); more

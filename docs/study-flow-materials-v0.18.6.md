@@ -111,6 +111,12 @@ part by part as before.
 
 ## 2. Materials
 
+> **Since v0.18.8** a material can include the text of the teaching's
+> passages (from the Scripture pane's Bible only, with lacking verses named)
+> and can be saved as a Word document; preview, print, Markdown, copy and
+> Word all draw the same material model. See
+> [`baselines-materials-v0.18.8.md`](baselines-materials-v0.18.8.md).
+
 ### Information architecture
 
 **A material is something to teach with; a file format is only how it is
