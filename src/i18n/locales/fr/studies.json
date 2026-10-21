@@ -1163,7 +1163,9 @@
       "print": "Imprimer ou enregistrer en PDF…",
       "markdown": "Enregistrer en fichier texte…",
       "copy": "Copier le texte",
-      "filterName": "Fichier texte (Markdown)"
+      "filterName": "Fichier texte (Markdown)",
+      "docx": "Enregistrer en document Word…",
+      "docxFilterName": "Document Word (.docx)"
     },
     "status": {
       "copied": "Copié. Vous pouvez le coller dans un document ou un e-mail.",

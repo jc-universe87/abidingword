@@ -369,3 +369,41 @@ describe("Materials on screen", () => {
     expect(api.state.presentation.exports[0]).toMatchObject({ format: "pptx" });
   });
 });
+
+describe("one material, every way out (v0.18.8)", () => {
+  it("saves as a Word document the very material the preview shows, with a .docx name", async () => {
+    const { api, prepId } = await setup("bible_study");
+    const user = await openMaterials(api);
+    await user.click(screen.getByRole("menuitem", { name: "Question sheet" }));
+    await within(studyPane()).findByRole("article", { name: "Preview: Question sheet" });
+    api.state.presentation.nextMaterialPath = "/home/test/Documents/Group";
+    await user.click(within(studyPane()).getByRole("button", { name: "Save as a Word document…" }));
+    await within(studyPane()).findByText("Saved: /home/test/Documents/Group.docx");
+    expect(api.state.presentation.materialDialogs.at(-1)).toBe("Remain in the vine – Question sheet.docx");
+    const sent = api.state.presentation.materialDocx[0]!.document;
+    expect(sent).toEqual(derive(t, "questions", await api.teachingGet(prepId)));
+    // The group's sheet: no leader writing, in the Word file either.
+    expect(JSON.stringify(sent)).not.toMatch(/LEADER|PRIVATE/);
+  });
+
+  it("is the same content in the preview, in Markdown and in the copy, block for block", () => {
+    for (const [kind, p, options] of [
+      ["manuscript", SERMON, {}],
+      ["questions", STUDY, {}],
+      ["questions", STUDY, { leader: true }],
+      ["worksheet", LESSON, {}],
+    ] as const) {
+      const doc = derive(t, kind, p, options);
+      const md = toMarkdown(doc);
+      let from = 0;
+      for (const text of texts(doc.blocks)) {
+        const line = text.split("\n")[0]!.replace(/^(\s*)([#>+*-])/, "$1\\$2");
+        const at = md.indexOf(line, from);
+        expect(at, `${kind}: ${line}`).toBeGreaterThanOrEqual(0);
+        from = at;
+      }
+      // Questions carry the model's numbers in Markdown as well.
+      for (const b of doc.blocks) if (b.type === "question") expect(md).toContain(`${b.number}. ${b.text.split("\n")[0]}`);
+    }
+  });
+});

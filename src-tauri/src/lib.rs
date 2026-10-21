@@ -14,6 +14,7 @@ pub mod error;
 pub mod filesystem;
 pub mod integrations;
 pub mod library;
+pub mod materials;
 pub mod presentation;
 pub mod scripture;
 pub mod state;
@@ -219,6 +220,7 @@ pub fn run() {
             commands::presentations::presentation_export,
             commands::materials::material_save_markdown,
             commands::materials::material_scripture,
+            commands::materials::material_save_docx,
             commands::presentations::presentation_screens,
             commands::presentations::presentation_audience_open,
             commands::presentations::presentation_audience_show,

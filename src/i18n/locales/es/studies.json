@@ -1163,7 +1163,9 @@
       "print": "Imprimir o guardar como PDF…",
       "markdown": "Guardar como archivo de texto…",
       "copy": "Copiar el texto",
-      "filterName": "Archivo de texto (Markdown)"
+      "filterName": "Archivo de texto (Markdown)",
+      "docx": "Guardar como documento de Word…",
+      "docxFilterName": "Documento de Word (.docx)"
     },
     "status": {
       "copied": "Copiado. Puedes pegarlo en un documento o un correo.",

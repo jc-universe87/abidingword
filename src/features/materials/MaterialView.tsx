@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Copy, FileText, Printer } from "lucide-react";
+import { ArrowLeft, Copy, FileText, FileType, Printer } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
@@ -10,7 +10,7 @@ import { fileName } from "@/features/presentation/labels";
 import type { TeachingPreparation } from "@/types/teaching";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 import type { MaterialScripture } from "@/types/scripture";
-import { DEFAULT_OPTIONS, derive, outputName, toMarkdown, verseRun, type Block, type MaterialDocument, type MaterialOptions } from "./derive";
+import { DEFAULT_OPTIONS, derive, outputName, toMarkdown, type Block, type MaterialDocument, type MaterialOptions } from "./derive";
 
 type Kind = MaterialDocument["kind"];
 
@@ -99,6 +99,22 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
       setStatus({ tone: "error", text: toApiError(e).message });
     }
   };
+  // A Word document of the very same material (v0.18.8), written by the core.
+  const saveDocx = async () => {
+    setStatus(null);
+    try {
+      const path = await api.chooseMaterialFile({
+        defaultName: fileName(preparation.title, name, "docx", t("presentation.export.fileFallback")),
+        filterName: t("studies.materials.action.docxFilterName"),
+        extension: "docx",
+      });
+      if (!path) return;
+      const saved = await api.materialSaveDocx({ path, document: doc });
+      setStatus({ tone: "ok", text: t("studies.materials.status.saved", { path: saved }) });
+    } catch (e) {
+      setStatus({ tone: "error", text: toApiError(e).message });
+    }
+  };
   const copy = async () => {
     const ok = await copyText(toMarkdown(doc));
     setStatus(ok ? { tone: "ok", text: t("studies.materials.status.copied") } : { tone: "error", text: t("studies.materials.status.copyFailed") });
@@ -144,6 +160,10 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
         <Button className="min-h-11" onClick={() => void saveMarkdown()} disabled={doc.empty}>
           <FileText className="size-4" aria-hidden="true" />
           {t("studies.materials.action.markdown")}
+        </Button>
+        <Button className="min-h-11" onClick={() => void saveDocx()} disabled={doc.empty}>
+          <FileType className="size-4" aria-hidden="true" />
+          {t("studies.materials.action.docx")}
         </Button>
         <Button variant="quiet" className="min-h-11" onClick={() => void copy()} disabled={doc.empty}>
           <Copy className="size-4" aria-hidden="true" />
@@ -213,7 +233,7 @@ function MaterialBlock({ block }: { block: Block }) {
         <blockquote className="aw-material-scripture">
           <p className="aw-material-label">{block.label}</p>
           <p>
-            {verseRun(block.verses).map((v, i) => (
+            {block.verses.map((v, i) => (
               <span key={i}>
                 <sup className="aw-material-verse">{v.number}</sup>
                 {v.text}{" "}

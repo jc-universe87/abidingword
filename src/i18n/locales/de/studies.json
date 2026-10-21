@@ -1152,7 +1152,9 @@
       "print": "Drucken oder als PDF sichern …",
       "markdown": "Als Textdatei sichern …",
       "copy": "Text kopieren",
-      "filterName": "Textdatei (Markdown)"
+      "filterName": "Textdatei (Markdown)",
+      "docx": "Als Word-Dokument speichern …",
+      "docxFilterName": "Word-Dokument (.docx)"
     },
     "status": {
       "copied": "Kopiert. Du kannst es in ein Dokument oder eine E-Mail einfügen.",

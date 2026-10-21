@@ -1152,7 +1152,9 @@
       "print": "Print or save as PDF…",
       "markdown": "Save as a text file…",
       "copy": "Copy the text",
-      "filterName": "Text file (Markdown)"
+      "filterName": "Text file (Markdown)",
+      "docx": "Save as a Word document…",
+      "docxFilterName": "Word document (.docx)"
     },
     "status": {
       "copied": "Copied. You can paste it into a document or an email.",

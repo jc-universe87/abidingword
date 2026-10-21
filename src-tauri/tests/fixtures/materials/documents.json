@@ -1,0 +1,1001 @@
+[
+ {
+  "name": "group-sheet",
+  "participant": true,
+  "document": {
+   "kind": "questions",
+   "title": "Remain in the vine",
+   "blocks": [
+    {
+     "type": "title",
+     "text": "Remain in the vine"
+    },
+    {
+     "type": "passages",
+     "text": "John 15:1–3"
+    },
+    {
+     "type": "scripture",
+     "label": "John 15:1–3 · BSB",
+     "verses": [
+      {
+       "chapter": 15,
+       "verse": 1,
+       "number": "1",
+       "text": "I am the true vine."
+      },
+      {
+       "chapter": 15,
+       "verse": 2,
+       "number": "2",
+       "text": "Every branch in me…"
+      },
+      {
+       "chapter": 15,
+       "verse": 3,
+       "number": "3",
+       "text": "You are already clean."
+      }
+     ]
+    },
+    {
+     "type": "question",
+     "number": 1,
+     "text": "What does “remain” mean here?"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 2,
+     "text": "Where do you try harder?"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    }
+   ],
+   "empty": false
+  }
+ },
+ {
+  "name": "group-sheet-with-frame",
+  "participant": true,
+  "document": {
+   "kind": "questions",
+   "title": "Remain in the vine",
+   "blocks": [
+    {
+     "type": "title",
+     "text": "Remain in the vine"
+    },
+    {
+     "type": "passages",
+     "text": "John 15:1–3"
+    },
+    {
+     "type": "heading",
+     "text": "Opening"
+    },
+    {
+     "type": "text",
+     "text": "OPENING: let us pray."
+    },
+    {
+     "type": "question",
+     "number": 1,
+     "text": "What does “remain” mean here?"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 2,
+     "text": "Where do you try harder?"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "heading",
+     "text": "Closing"
+    },
+    {
+     "type": "text",
+     "text": "CLOSING: share one thing."
+    }
+   ],
+   "empty": false
+  }
+ },
+ {
+  "name": "leader-version",
+  "participant": false,
+  "document": {
+   "kind": "questions",
+   "title": "Remain in the vine",
+   "blocks": [
+    {
+     "type": "title",
+     "text": "Remain in the vine"
+    },
+    {
+     "type": "notice",
+     "text": "Leader’s version: with notes for leading. Not for handing out."
+    },
+    {
+     "type": "passages",
+     "text": "John 15:1–3"
+    },
+    {
+     "type": "message",
+     "label": "What the group should discover",
+     "text": "LEADER: the group should discover rest."
+    },
+    {
+     "type": "heading",
+     "text": "Opening"
+    },
+    {
+     "type": "text",
+     "text": "OPENING: let us pray."
+    },
+    {
+     "type": "question",
+     "number": 1,
+     "text": "What does “remain” mean here?"
+    },
+    {
+     "type": "field",
+     "label": "Where it may lead",
+     "text": "LEADER: it may lead to verse 9."
+    },
+    {
+     "type": "field",
+     "label": "Follow-up questions",
+     "text": "LEADER: follow up on love."
+    },
+    {
+     "type": "field",
+     "label": "Notes for leading the conversation",
+     "text": "LEADER: let quiet people speak."
+    },
+    {
+     "type": "heading",
+     "text": "Notes for a question not yet worded"
+    },
+    {
+     "type": "field",
+     "label": "Where it may lead",
+     "text": "LEADER: a question still to write."
+    },
+    {
+     "type": "question",
+     "number": 2,
+     "text": "Where do you try harder?"
+    },
+    {
+     "type": "heading",
+     "text": "Closing"
+    },
+    {
+     "type": "text",
+     "text": "CLOSING: share one thing."
+    }
+   ],
+   "empty": false
+  }
+ },
+ {
+  "name": "leader-guide",
+  "participant": false,
+  "document": {
+   "kind": "manuscript",
+   "title": "Remain in the vine",
+   "blocks": [
+    {
+     "type": "title",
+     "text": "Remain in the vine"
+    },
+    {
+     "type": "passages",
+     "text": "John 15:1–3"
+    },
+    {
+     "type": "message",
+     "label": "What the group should discover",
+     "text": "LEADER: the group should discover rest."
+    },
+    {
+     "type": "heading",
+     "text": "Opening"
+    },
+    {
+     "type": "text",
+     "text": "OPENING: let us pray."
+    },
+    {
+     "type": "heading",
+     "text": "Question 1: What does “remain” mean here?"
+    },
+    {
+     "type": "field",
+     "label": "Where it may lead",
+     "text": "LEADER: it may lead to verse 9."
+    },
+    {
+     "type": "field",
+     "label": "Follow-up questions",
+     "text": "LEADER: follow up on love."
+    },
+    {
+     "type": "field",
+     "label": "Notes for leading the conversation",
+     "text": "LEADER: let quiet people speak."
+    },
+    {
+     "type": "heading",
+     "text": "Notes for a question not yet worded"
+    },
+    {
+     "type": "field",
+     "label": "Where it may lead",
+     "text": "LEADER: a question still to write."
+    },
+    {
+     "type": "heading",
+     "text": "Question 2: Where do you try harder?"
+    },
+    {
+     "type": "heading",
+     "text": "Closing"
+    },
+    {
+     "type": "text",
+     "text": "CLOSING: share one thing."
+    }
+   ],
+   "empty": false
+  }
+ },
+ {
+  "name": "sermon-manuscript",
+  "participant": false,
+  "document": {
+   "kind": "manuscript",
+   "title": "Remain in the vine",
+   "blocks": [
+    {
+     "type": "title",
+     "text": "Remain in the vine"
+    },
+    {
+     "type": "passages",
+     "text": "John 15:1–3"
+    },
+    {
+     "type": "scripture",
+     "label": "John 15:1–3 · BSB",
+     "verses": [
+      {
+       "chapter": 15,
+       "verse": 1,
+       "number": "1",
+       "text": "I am the true vine."
+      }
+     ],
+     "note": "The BSB has no text for verses 15:2, 15:3; they are left out, not taken from another Bible."
+    },
+    {
+     "type": "message",
+     "label": "Central message",
+     "text": "Fruit comes from remaining."
+    },
+    {
+     "type": "heading",
+     "text": "Introduction"
+    },
+    {
+     "type": "text",
+     "text": "Have you ever pruned a rose?\nIt looks harsh."
+    },
+    {
+     "type": "heading",
+     "text": "Point 1: Point 1 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 1. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 1."
+    },
+    {
+     "type": "heading",
+     "text": "Point 2: Point 2 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 2. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 2."
+    },
+    {
+     "type": "heading",
+     "text": "Point 3: Point 3 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 3. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 3."
+    },
+    {
+     "type": "heading",
+     "text": "Point 4: Point 4 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 4. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 4."
+    },
+    {
+     "type": "heading",
+     "text": "Point 5: Point 5 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 5. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 5."
+    },
+    {
+     "type": "heading",
+     "text": "Point 6: Point 6 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 6. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 6."
+    },
+    {
+     "type": "heading",
+     "text": "Point 7: Point 7 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 7. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 7."
+    },
+    {
+     "type": "heading",
+     "text": "Point 8: Point 8 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 8. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 8."
+    },
+    {
+     "type": "heading",
+     "text": "Point 9: Point 9 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 9. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 9."
+    },
+    {
+     "type": "heading",
+     "text": "Point 10: Point 10 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 10. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 10."
+    },
+    {
+     "type": "heading",
+     "text": "Point 11: Point 11 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 11. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 11."
+    },
+    {
+     "type": "heading",
+     "text": "Point 12: Point 12 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 12. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 12."
+    },
+    {
+     "type": "heading",
+     "text": "Conclusion"
+    },
+    {
+     "type": "text",
+     "text": "Stay close to him this week."
+    }
+   ],
+   "empty": false
+  }
+ },
+ {
+  "name": "sermon-manuscript-with-notes",
+  "participant": false,
+  "document": {
+   "kind": "manuscript",
+   "title": "Remain in the vine",
+   "blocks": [
+    {
+     "type": "title",
+     "text": "Remain in the vine"
+    },
+    {
+     "type": "passages",
+     "text": "John 15:1–3"
+    },
+    {
+     "type": "message",
+     "label": "Central message",
+     "text": "Fruit comes from remaining."
+    },
+    {
+     "type": "heading",
+     "text": "Introduction"
+    },
+    {
+     "type": "text",
+     "text": "Have you ever pruned a rose?\nIt looks harsh."
+    },
+    {
+     "type": "heading",
+     "text": "Point 1: Point 1 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 1. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 1."
+    },
+    {
+     "type": "heading",
+     "text": "Point 2: Point 2 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 2. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 2."
+    },
+    {
+     "type": "heading",
+     "text": "Point 3: Point 3 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 3. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 3."
+    },
+    {
+     "type": "heading",
+     "text": "Point 4: Point 4 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 4. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 4."
+    },
+    {
+     "type": "heading",
+     "text": "Point 5: Point 5 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 5. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 5."
+    },
+    {
+     "type": "heading",
+     "text": "Point 6: Point 6 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 6. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 6."
+    },
+    {
+     "type": "heading",
+     "text": "Point 7: Point 7 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 7. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 7."
+    },
+    {
+     "type": "heading",
+     "text": "Point 8: Point 8 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 8. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 8."
+    },
+    {
+     "type": "heading",
+     "text": "Point 9: Point 9 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 9. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 9."
+    },
+    {
+     "type": "heading",
+     "text": "Point 10: Point 10 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 10. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 10."
+    },
+    {
+     "type": "heading",
+     "text": "Point 11: Point 11 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 11. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 11."
+    },
+    {
+     "type": "heading",
+     "text": "Point 12: Point 12 <of> the vine & branches"
+    },
+    {
+     "type": "text",
+     "text": "Paragraph 12. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain. The branch lives from the vine; it does not strain."
+    },
+    {
+     "type": "field",
+     "label": "Application",
+     "text": "Living it 12."
+    },
+    {
+     "type": "heading",
+     "text": "Conclusion"
+    },
+    {
+     "type": "text",
+     "text": "Stay close to him this week."
+    },
+    {
+     "type": "heading",
+     "text": "Notes for yourself"
+    },
+    {
+     "type": "text",
+     "text": "PRIVATE: thank the choir."
+    }
+   ],
+   "empty": false
+  }
+ },
+ {
+  "name": "listening-notes",
+  "participant": true,
+  "document": {
+   "kind": "worksheet",
+   "title": "Remain in the vine",
+   "blocks": [
+    {
+     "type": "title",
+     "text": "Remain in the vine"
+    },
+    {
+     "type": "passages",
+     "text": "John 15:1–3"
+    },
+    {
+     "type": "question",
+     "number": 1,
+     "text": "Point 1 <of> the vine & branches"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 2,
+     "text": "Point 2 <of> the vine & branches"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 3,
+     "text": "Point 3 <of> the vine & branches"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 4,
+     "text": "Point 4 <of> the vine & branches"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 5,
+     "text": "Point 5 <of> the vine & branches"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 6,
+     "text": "Point 6 <of> the vine & branches"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 7,
+     "text": "Point 7 <of> the vine & branches"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 8,
+     "text": "Point 8 <of> the vine & branches"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 9,
+     "text": "Point 9 <of> the vine & branches"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 10,
+     "text": "Point 10 <of> the vine & branches"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 11,
+     "text": "Point 11 <of> the vine & branches"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 12,
+     "text": "Point 12 <of> the vine & branches"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "space",
+     "style": "box",
+     "label": "My notes"
+    }
+   ],
+   "empty": false
+  }
+ },
+ {
+  "name": "lesson-worksheet",
+  "participant": true,
+  "document": {
+   "kind": "worksheet",
+   "title": "Remain in the vine",
+   "blocks": [
+    {
+     "type": "title",
+     "text": "Remain in the vine"
+    },
+    {
+     "type": "passages",
+     "text": "John 15:1–3"
+    },
+    {
+     "type": "message",
+     "label": "The one thing to remember",
+     "text": "Jesus keeps us close."
+    },
+    {
+     "type": "question",
+     "number": 1,
+     "text": "What does a branch need?"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "heading",
+     "text": "Draw a vine"
+    },
+    {
+     "type": "space",
+     "style": "box"
+    }
+   ],
+   "empty": false
+  }
+ },
+ {
+  "name": "teacher-guide",
+  "participant": false,
+  "document": {
+   "kind": "manuscript",
+   "title": "Remain in the vine",
+   "blocks": [
+    {
+     "type": "title",
+     "text": "Remain in the vine"
+    },
+    {
+     "type": "passages",
+     "text": "John 15:1–3"
+    },
+    {
+     "type": "message",
+     "label": "The one thing to remember",
+     "text": "Jesus keeps us close."
+    },
+    {
+     "type": "heading",
+     "text": "Step 1: Welcome",
+     "detail": "Teaching"
+    },
+    {
+     "type": "field",
+     "label": "What you will say",
+     "text": "LEADER: say hello."
+    },
+    {
+     "type": "heading",
+     "text": "Step 2: What does a branch need?",
+     "detail": "Question"
+    },
+    {
+     "type": "field",
+     "label": "Answers to listen for",
+     "text": "LEADER: listen for “the vine”."
+    },
+    {
+     "type": "heading",
+     "text": "Step 3: Draw a vine",
+     "detail": "Activity"
+    },
+    {
+     "type": "field",
+     "label": "How it works",
+     "text": "LEADER: hand out crayons."
+    },
+    {
+     "type": "field",
+     "label": "What you need",
+     "text": "LEADER: crayons, paper"
+    }
+   ],
+   "empty": false
+  }
+ },
+ {
+  "name": "korean-sheet",
+  "participant": true,
+  "document": {
+   "kind": "questions",
+   "title": "포도나무에 붙어 있으라",
+   "blocks": [
+    {
+     "type": "title",
+     "text": "포도나무에 붙어 있으라"
+    },
+    {
+     "type": "passages",
+     "text": "John 15:1–3"
+    },
+    {
+     "type": "scripture",
+     "label": "John 15:1–3 · 개역한글",
+     "verses": [
+      {
+       "chapter": 15,
+       "verse": 1,
+       "number": "1",
+       "text": "나는 참포도나무요 내 아버지는 농부라"
+      },
+      {
+       "chapter": 15,
+       "verse": 2,
+       "number": "2",
+       "text": "무릇 내게 붙어 있어 과실을 맺지 아니하는 가지는"
+      },
+      {
+       "chapter": 15,
+       "verse": 3,
+       "number": "3",
+       "text": "너희는 내가 일러준 말로 이미 깨끗하였으니"
+      }
+     ]
+    },
+    {
+     "type": "question",
+     "number": 1,
+     "text": "‘거하라’는 말은 무슨 뜻입니까? 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다. 가지는 포도나무에서 생명을 얻습니다."
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    },
+    {
+     "type": "question",
+     "number": 2,
+     "text": "어디에서 더 애쓰고 있습니까?"
+    },
+    {
+     "type": "space",
+     "style": "lines"
+    }
+   ],
+   "empty": false
+  }
+ },
+ {
+  "name": "german-leader",
+  "participant": false,
+  "document": {
+   "kind": "questions",
+   "title": "Bleibt in mir – Gemeindebibelstundenvorbereitungsunterlagen",
+   "blocks": [
+    {
+     "type": "title",
+     "text": "Bleibt in mir – Gemeindebibelstundenvorbereitungsunterlagen"
+    },
+    {
+     "type": "notice",
+     "text": "Version für die Leitung: mit Hinweisen zum Leiten. Nicht zum Austeilen."
+    },
+    {
+     "type": "question",
+     "number": 1,
+     "text": "Was bedeutet „bleiben“ für Glaubensgeschwisterverhältnisse in unserer Gemeindewirklichkeit?"
+    },
+    {
+     "type": "field",
+     "label": "Wohin das Gespräch führen kann",
+     "text": "LEADER: kann zu Vers 9 führen."
+    }
+   ],
+   "empty": false
+  }
+ }
+]

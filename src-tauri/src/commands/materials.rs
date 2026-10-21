@@ -13,6 +13,7 @@ use super::presentations::write_atomically;
 use super::CommandResult;
 use crate::db::bibles::{self, MaterialScripture};
 use crate::error::{AppError, UserMessage};
+use crate::materials::docx;
 use crate::scripture::reference::ScriptureRef;
 use crate::state::AppState;
 
@@ -60,8 +61,9 @@ pub struct SaveMaterial {
     pub text: String,
 }
 
-/// The chosen file, always ending in .md (or a .markdown the person typed).
-fn markdown_path(raw: &str) -> Result<PathBuf, AppError> {
+/// The chosen file, always ending in one of the format's extensions (the
+/// first is added when it has none of them).
+fn chosen_path(raw: &str, extensions: &[&str]) -> Result<PathBuf, AppError> {
     let mut path = PathBuf::from(raw.trim());
     if path.as_os_str().is_empty() || !path.is_absolute() {
         return Err(AppError::InvalidInput(UserMessage::new(
@@ -72,33 +74,28 @@ fn markdown_path(raw: &str) -> Result<PathBuf, AppError> {
     let has_ext = path
         .extension()
         .and_then(|e| e.to_str())
-        .is_some_and(|e| e.eq_ignore_ascii_case("md") || e.eq_ignore_ascii_case("markdown"));
+        .is_some_and(|e| extensions.iter().any(|x| e.eq_ignore_ascii_case(x)));
     if !has_ext {
         let mut name = path
             .file_name()
             .map(|n| n.to_os_string())
             .unwrap_or_default();
-        name.push(".md");
+        name.push(format!(".{}", extensions[0]));
         path.set_file_name(name);
     }
     Ok(path)
 }
 
-/// Saves a material as Markdown (replacing a file only after the save dialog
-/// asked, and only once the new file is complete). Returns where it went.
-#[tauri::command(async)]
-pub fn material_save_markdown(input: SaveMaterial) -> CommandResult<String> {
-    if input.text.len() > MAX_BYTES {
-        return Err(AppError::InvalidInput(UserMessage::new(
-            "material.tooLong",
-            "This is too long to save as one file.",
-        ))
-        .into());
-    }
-    let path = markdown_path(&input.path)?;
-    // The save dialog asked about replacing the file it named; a file only reached by adding
-    // ".md" to that name was never asked about, so it is not replaced.
-    if path != std::path::Path::new(input.path.trim()) && path.exists() {
+fn markdown_path(raw: &str) -> Result<PathBuf, AppError> {
+    chosen_path(raw, &["md", "markdown"])
+}
+
+/// Writes the file the save dialog named, replacing it only because the
+/// dialog asked; a file reached only by adding the extension to that name
+/// was never asked about, so it is not replaced. The new file is complete
+/// before it takes the old one's place, and nothing is left behind.
+fn save_chosen(raw: &str, path: PathBuf, bytes: &[u8]) -> Result<String, AppError> {
+    if path != std::path::Path::new(raw.trim()) && path.exists() {
         let name = path
             .file_name()
             .map(|n| n.to_string_lossy().into_owned())
@@ -109,11 +106,49 @@ pub fn material_save_markdown(input: SaveMaterial) -> CommandResult<String> {
                 format!("A file named “{name}” already exists. Please choose another name."),
             )
             .with("name", name),
-        )
-        .into());
+        ));
     }
-    write_atomically(&path, input.text.as_bytes())?;
+    write_atomically(&path, bytes)?;
     Ok(path.to_string_lossy().into_owned())
+}
+
+fn too_long() -> AppError {
+    AppError::InvalidInput(UserMessage::new(
+        "material.tooLong",
+        "This is too long to save as one file.",
+    ))
+}
+
+/// Saves a material as Markdown (replacing a file only after the save dialog
+/// asked, and only once the new file is complete). Returns where it went.
+#[tauri::command(async)]
+pub fn material_save_markdown(input: SaveMaterial) -> CommandResult<String> {
+    if input.text.len() > MAX_BYTES {
+        return Err(too_long().into());
+    }
+    let path = markdown_path(&input.path)?;
+    Ok(save_chosen(&input.path, path, input.text.as_bytes())?)
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SaveMaterialDocx {
+    pub path: String,
+    /// The material as the interface put it together (the same one the
+    /// preview, the printed page and the Markdown show).
+    pub document: docx::MaterialDocument,
+}
+
+/// Saves a material as a Word document (.docx), by the same rules as the
+/// Markdown file. Returns where it went.
+#[tauri::command(async)]
+pub fn material_save_docx(input: SaveMaterialDocx) -> CommandResult<String> {
+    let bytes = docx::render(&input.document)?;
+    if bytes.len() > MAX_BYTES {
+        return Err(too_long().into());
+    }
+    let path = chosen_path(&input.path, &["docx"])?;
+    Ok(save_chosen(&input.path, path, &bytes)?)
 }
 
 #[cfg(test)]

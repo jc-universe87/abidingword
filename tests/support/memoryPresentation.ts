@@ -30,6 +30,8 @@ export interface PresentationState {
   saveDialogs: { defaultName: string; format: ExportFormat }[];
   /** Teaching materials saved as Markdown (v0.18.6), and the names offered in the save dialog. */
   materialSaves: { path: string; text: string }[];
+  /** Word documents saved (v0.18.8): the material model as sent to the core. */
+  materialDocx: { path: string; document: import("@/features/materials/derive").MaterialDocument }[];
   materialDialogs: string[];
   nextMaterialPath: string | null;
   /** Displays a test pretends are connected; empty = no second window here. */
@@ -53,6 +55,7 @@ export function newPresentationState(): PresentationState {
     nextSavePath: "/home/test/Documents/Teaching.pptx",
     saveDialogs: [],
     materialSaves: [],
+    materialDocx: [],
     materialDialogs: [],
     nextMaterialPath: "/home/test/Documents/Teaching.md",
     screens: [],
@@ -86,6 +89,7 @@ type PresentationApi = Pick<
   | "presentationExport"
   | "chooseMaterialFile"
   | "materialSaveMarkdown"
+  | "materialSaveDocx"
   | "presentationScreens"
   | "presentationAudienceOpen"
   | "presentationAudienceShow"
@@ -425,6 +429,11 @@ export function presentationApi(state: PresentationState, h: Helpers): Presentat
     chooseMaterialFile: async ({ defaultName }) => {
       state.materialDialogs.push(defaultName);
       return state.nextMaterialPath;
+    },
+    materialSaveDocx: async ({ path, document }) => {
+      const saved = /\.docx$/i.test(path) ? path : `${path}.docx`;
+      state.materialDocx.push({ path: saved, document });
+      return saved;
     },
     materialSaveMarkdown: async ({ path, text }) => {
       const saved = /\.(md|markdown)$/i.test(path) ? path : `${path}.md`;

@@ -28,6 +28,14 @@ export function outputsFor(kind: TeachingKind | null): OutputKind[] {
   return ["presentation", "manuscript", "worksheet"];
 }
 
+/** A verse as every rendering shows it: its number ("16", or "4:1" where a new chapter begins) and its words. */
+export interface ScriptureVerse {
+  chapter: number;
+  verse: number;
+  number: string;
+  text: string;
+}
+
 /** The text a material shows; each kind of block is drawn the same way on screen, on paper and in Markdown. */
 export type Block =
   | { type: "title"; text: string }
@@ -37,7 +45,7 @@ export type Block =
    * Bible's short name, the verses in order with their numbers, and, when
    * that Bible lacks verses, a note saying which (nothing is filled in).
    */
-  | { type: "scripture"; label: string; verses: { chapter: number; verse: number; text: string }[]; note?: string; attribution?: string }
+  | { type: "scripture"; label: string; verses: ScriptureVerse[]; note?: string; attribution?: string }
   /** Said once at the top, e.g. that this is the leader's version. */
   | { type: "notice"; text: string }
   /** The teaching's one message, set apart. */
@@ -90,7 +98,14 @@ function scriptureBlocks(t: TFunction, prep: TeachingPreparation, o: Required<Ma
       : text.missing.length > 0
         ? t("studies.materials.scripture.missing", { bible: scripture.shortName, verses: text.missing.join(", "), count: text.missing.length })
         : undefined;
-    return [{ type: "scripture", label, verses: text.verses.map(({ chapter, verse, text: words }) => ({ chapter, verse, text: words })), ...(note ? { note } : {}) }];
+    // The numbers are worked out once, here: screen, paper, Markdown and Word show the same.
+    const verses = text.verses.map(({ chapter, verse, text: words }, i) => ({
+      chapter,
+      verse,
+      number: i > 0 && chapter !== text.verses[i - 1]!.chapter ? `${chapter}:${verse}` : String(verse),
+      text: words,
+    }));
+    return [{ type: "scripture", label, verses, ...(note ? { note } : {}) }];
   });
   const last = blocks[blocks.length - 1];
   if (last && last.type === "scripture" && scripture.copyrightNotice?.trim()) last.attribution = scripture.copyrightNotice.trim();
@@ -278,10 +293,6 @@ export function derive(t: TFunction, kind: MaterialDocument["kind"], prep: Teach
   return worksheet(t, prep, options, scripture);
 }
 
-/** The verses of a passage as one line of running text: "16 For God… 17 For God did not…"; a new chapter shows its number. */
-export function verseRun(verses: { chapter: number; verse: number; text: string }[]): { number: string; text: string }[] {
-  return verses.map((v, i) => ({ number: i > 0 && v.chapter !== verses[i - 1]!.chapter ? `${v.chapter}:${v.verse}` : String(v.verse), text: v.text }));
-}
 
 /**
  * The material as Markdown, block for block. Room to write becomes a few
@@ -310,7 +321,7 @@ export function toMarkdown(doc: MaterialDocument): string {
         out.push(
           [
             `> **${lines(block.label)}**`,
-            `> ${verseRun(block.verses).map((v) => `**${v.number}** ${escape(v.text)}`).join(" ")}`,
+            `> ${block.verses.map((v) => `**${v.number}** ${escape(v.text)}`).join(" ")}`,
             block.note ? `> *${lines(block.note)}*` : "",
             block.attribution ? `> ${lines(block.attribution)}` : "",
           ]

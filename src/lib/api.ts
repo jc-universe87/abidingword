@@ -1,6 +1,7 @@
 // The frontend's only door to the native core. Components use the `Api`
 // interface through `useApi()`, never `invoke` directly, so tests can supply
 // an in-memory implementation.
+import type { MaterialDocument } from "@/features/materials/derive";
 import i18n from "i18next";
 import { localizeError } from "@/i18n/messages";
 import { invoke } from "@tauri-apps/api/core";
@@ -299,9 +300,11 @@ export interface Api {
   choosePresentationFile(input: { defaultName: string; format: ExportFormat; filterName: string }): Promise<string | null>;
   presentationExport(input: { id: string; format: ExportFormat; path: string; options: ExportOptions }): Promise<ExportResult>;
   /** Teaching materials (v0.18.6): where to save one, chosen in the system's save dialog (null: cancelled). */
-  chooseMaterialFile(input: { defaultName: string; filterName: string }): Promise<string | null>;
+  chooseMaterialFile(input: { defaultName: string; filterName: string; extension?: "md" | "docx" }): Promise<string | null>;
   /** Writes a material, as Markdown, to the chosen file; returns where it went. */
   materialSaveMarkdown(input: { path: string; text: string }): Promise<string>;
+  /** Writes a material, as a Word document (.docx), to the chosen file (v0.18.8); returns where it went. */
+  materialSaveDocx(input: { path: string; document: MaterialDocument }): Promise<string>;
   /** The text of a material's passages from the chosen Bible only (v0.18.8). */
   materialScripture(input: { translationId: string; references: string[] }): Promise<MaterialScripture>;
   /** The displays connected; empty where a second window cannot be opened. */
@@ -582,9 +585,10 @@ export const tauriApi: Api = {
     return save({ defaultPath: defaultName, filters: [{ name: filterName, extensions: [extension] }] });
   },
   presentationExport: (input) => call("presentation_export", { input }),
-  chooseMaterialFile: async ({ defaultName, filterName }) => save({ defaultPath: defaultName, filters: [{ name: filterName, extensions: ["md"] }] }),
+  chooseMaterialFile: async ({ defaultName, filterName, extension = "md" }) => save({ defaultPath: defaultName, filters: [{ name: filterName, extensions: [extension] }] }),
   materialSaveMarkdown: (input) => call("material_save_markdown", { input }),
   materialScripture: (input) => call("material_scripture", { input }),
+  materialSaveDocx: (input) => call("material_save_docx", { input }),
   presentationScreens: () => call("presentation_screens"),
   presentationAudienceOpen: (input) => call("presentation_audience_open", { input }),
   presentationAudienceShow: (state) => call("presentation_audience_show", { input: state }),

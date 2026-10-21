@@ -172,6 +172,7 @@ permissions = [
   "allow-presentation-export",
   "allow-material-save-markdown",
   "allow-material-scripture",
+  "allow-material-save-docx",
   "allow-presentation-screens",
   "allow-presentation-audience-open",
   "allow-presentation-audience-show",
