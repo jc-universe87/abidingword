@@ -224,8 +224,8 @@ usual look; only the audience's slides wear the church design.
 If a text is **too long for a template's box**, it is not made smaller
 quietly. The slide says **Text too long for the template's box**, a note
 above the list counts such slides, and after an export you are told how
-many boxes to check. Shorten the text, or let that box shrink in the
-template.
+many boxes to check. Shorten the text, or turn on **Make long text smaller
+to fit** for that box in the template.
 
 <p align="center">
   <img src="images/presentation-template.png" alt="A presentation in the church template: the slide pictures show the template's background photo on the Scripture slides and its logo and footer on the others" width="640">

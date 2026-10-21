@@ -111,15 +111,28 @@ The review confirmed these as clean:
 They are listed with their strings in section 2 of the
 [priority page](i18n/native-polish-priority-v0.18.10.md):
 
-- German *Bibelstellenstudium* (long);
-- *evangelisch-reformiert* as an example;
-- *let that box shrink*;
-- Korean 보관한 도우미 제안 and product names in Latin script;
-- French *Liée à / Reliée à* and the colon in references;
+- Korean product names in Latin script;
 - Portuguese *lição*;
-- Spanish quotes in search hints;
-- a possible English "your the whole teaching";
-- the two architecture notes.
+- Spanish quotes: the Scripture search hint has « », while the Library
+  search placeholder still has “ ”;
+- the two architecture notes (the shared points canvas and Korean 대지;
+  note-type gender in French, Spanish and Portuguese).
+
+### Settled in the owner's final spot review
+
+- German *Bibeltextstudium* (not *Bibelstellenstudium*) for the passage
+  study, as type, built-in template and button.
+- German example perspective *evangelikal-reformiert*, used consistently.
+- Overflow messages say what to do: shorten the text, or turn on that box's
+  "make long text smaller to fit" option, quoting the option's own label in
+  each language. They no longer say "let that box shrink".
+- Korean 보관한 AI 도우미 제안.
+- French *Liée à* for the generic relation.
+- French reference examples with the comma: *Jean 15,1-11*.
+- English assistant sharing reads "your text in {{part}}". German *Dein
+  Text zu {{part}}*, Korean *{{part}}에 작성한 내용*, French *ce que vous
+  avez écrit pour {{part}}*, Spanish *lo que escribiste para {{part}}* and
+  Portuguese *o que você escreveu para {{part}}* follow it.
 
 None of them blocks the Windows acceptance build.
 
@@ -141,5 +154,5 @@ None of them blocks the Windows acceptance build.
 
 1. The owner's final spot review of the v0.18.10 corpus.
 2. One batched Windows acceptance build: German and Korean at narrow
-   widths, the new German labels (*Bibelstellenstudium*, *Angaben zum
+   widths, the new German labels (*Bibeltextstudium*, *Angaben zum
    Bibelstudium*), and Korean 공부·가르침 틀 in Settings.

@@ -289,7 +289,7 @@ describe("the assistant", () => {
 
     const panel = await helpWith(user, article, "Introduction", "Check grammar and spelling");
     expect(await within(panel).findByText("To help, this will be sent to OpenAI · test-model:")).toBeInTheDocument();
-    expect(within(panel).getByText("your Introduction")).toBeInTheDocument();
+    expect(within(panel).getByText("your text in Introduction")).toBeInTheDocument();
     expect(within(panel).getByText("Scripture: John 15:1–8")).toBeInTheDocument();
     expect(api.state.teaching.assistant.asked).toHaveLength(0);
 
