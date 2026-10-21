@@ -55,7 +55,7 @@
   "search": {
     "title": "Buscar",
     "backToReading": "Volver a la lectura",
-    "queryLabel": "Palabras o “frase exacta”",
+    "queryLabel": "Palabras o «frase exacta»",
     "submit": "Buscar",
     "onlyNamed": "Solo {{name}}",
     "onlyCurrent": "Solo esta traducción",
