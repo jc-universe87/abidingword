@@ -76,7 +76,7 @@ like every tab): the phase of the part being worked in while that part is on
 screen, otherwise the last phase whose start has passed the upper third of
 the pane, and the last phase at the very end. A click scrolls to the phase and
 moves focus to its first part's heading. In a narrow pane the line scrolls
-sideways (a thin scrollbar shows there is more) and keeps the current phase in
+sideways (an edge with more phases beyond it fades out) and keeps the current phase in
 sight rather than wrapping. Position is read on scroll, on resize and when the
 study changes size (a part folded, writing pasted), one animation frame at a
 time; nothing is measured while nothing moves.
@@ -230,7 +230,7 @@ down, one part being worked in), `r-materials`, `r-manuscript`,
 `r-question-sheet`, `r-question-leader`, `r-worksheet`, in Light and Dark at
 980 and 1440 px and German and Korean at 980 px
 (`node tests/screenshots/review.mjs <dir>`). Before/after from `db70242` and
-contact sheets: [`images/study-flow-v0.18.6/`](images/study-flow-v0.18.6/README.md).
+contact sheets and the two printed PDFs: [`images/study-flow-v0.18.6/`](images/study-flow-v0.18.6/README.md).
 
 ## 6. Human-first UX review
 
@@ -282,7 +282,7 @@ and nine smaller points; all were fixed, with regression tests where testable.
 | 6 | Back from preparing a teaching, the study still offered to prepare one. | The list is read again on returning to the study. Test. |
 | 7 | A study without an outline still had phase spacing and unnamed groups. | Nothing of the phases shows unless the outline does. |
 | 8 | The marked phase did not follow folding or pasting. | Also measured when the study changes size (one frame at a time). |
-| 9 | In a narrow pane the outline's hidden scrollbar hid later phases. | A thin scrollbar. |
+| 9 | In a narrow pane the outline's hidden scrollbar hid later phases. | The edge with more phases beyond it fades out. |
 | 10 | A name typed with another extension (`Sermon.txt`) could replace `Sermon.txt.md` without the dialog having asked. | Refused with the existing "a file named … already exists" message. Rust test. |
 | 11 | A line of the person's own starting `#`, `-`, `>` or `1.` became Markdown syntax. | Escaped, so words stay words. Test. |
 | 12 | Unused strings left over. | Removed from all six languages. |

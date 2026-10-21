@@ -26,8 +26,24 @@ export function JourneyOutline({ runs, current, onGo }: { runs: readonly PhaseRu
     .map((run, index) => ({ run, index }))
     .filter(({ run }, i, all) => run.phase && all.findIndex((e) => e.run.phase === run.phase) === i);
   const currentPhase = runs[current]?.phase ?? null;
-  // In a narrow pane the line scrolls sideways; the phase in view is kept in sight on it.
+  // In a narrow pane the line scrolls sideways; the phase in view is kept in sight on it, and
+  // an edge with more phases beyond it fades out rather than cutting a word.
   const line = useRef<HTMLElement>(null);
+  const [more, setMore] = useState({ before: false, after: false });
+  useEffect(() => {
+    const nav = line.current;
+    if (!nav) return;
+    const read = () => setMore({ before: nav.scrollLeft > 1, after: nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 1 });
+    read();
+    nav.addEventListener("scroll", read, { passive: true });
+    const resized = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(read);
+    resized?.observe(nav);
+    return () => {
+      nav.removeEventListener("scroll", read);
+      resized?.disconnect();
+    };
+  }, []);
+  const fade = more.before && more.after ? "aw-fade-both" : more.after ? "aw-fade-end" : more.before ? "aw-fade-start" : "";
   useEffect(() => {
     const nav = line.current;
     const here = nav?.querySelector<HTMLElement>('[aria-current="step"]');
@@ -36,7 +52,7 @@ export function JourneyOutline({ runs, current, onGo }: { runs: readonly PhaseRu
     if (left < nav.scrollLeft || left + here.offsetWidth > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = Math.max(0, left - 16);
   }, [currentPhase]);
   return (
-    <nav ref={line} aria-label={t("studies.journey.label")} className="sticky top-0 z-10 -mx-2 overflow-x-auto bg-pane-work px-2 [scrollbar-width:thin]" data-journey="">
+    <nav ref={line} aria-label={t("studies.journey.label")} className={`sticky top-0 z-10 -mx-2 overflow-x-auto bg-pane-work px-2 [scrollbar-width:none] ${fade}`} data-journey="">
       <ol className="m-0 flex list-none items-center gap-0 whitespace-nowrap p-0 text-[0.875rem]">
         {entries.map(({ run, index }, i) => (
           <li key={run.phase} className="flex items-center">

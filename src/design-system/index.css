@@ -368,6 +368,17 @@
    * The part of a Bible Study being worked in (v0.18.6): the brass line of
    * work in progress beside it, in the gutter, so the text does not move.
    */
+  /* A line that scrolls sideways fades at an edge with more beyond it (the study outline). */
+  .aw-fade-end {
+    mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+  }
+  .aw-fade-start {
+    mask-image: linear-gradient(to left, #000 calc(100% - 2.5rem), transparent);
+  }
+  .aw-fade-both {
+    mask-image: linear-gradient(to right, transparent, #000 2.5rem, #000 calc(100% - 2.5rem), transparent);
+  }
+
   .aw-part-active {
     position: relative;
   }
