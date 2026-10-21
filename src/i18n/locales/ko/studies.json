@@ -371,7 +371,7 @@
     "noTemplate": "빈 성경공부(노트 부분 하나)",
     "yourTemplate": "{{name}} (내 공부 틀)",
     "optional": "(선택 사항)",
-    "passagePlaceholder": "예: John 15:1-11",
+    "passagePlaceholder": "예: 요한복음 15:1-11",
     "create": "성경공부 만들기",
     "formLabel": "새 성경공부",
     "studyAs": "공부 방법",
@@ -552,7 +552,7 @@
     "add": "본문 추가",
     "linkCurrent": "현재 본문 연결({{passage}})",
     "inputLabel": "추가할 본문",
-    "placeholder": "예: John 15:1-11",
+    "placeholder": "예: 요한복음 15:1-11",
     "addRelated": "관련 본문",
     "openPrimary": "성경에서 열기"
   },

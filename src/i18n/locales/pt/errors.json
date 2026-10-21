@@ -26,8 +26,8 @@
     "noFiles": "Escolha pelo menos um arquivo."
   },
   "reference": {
-    "empty": "Digite uma passagem, por exemplo “John 15” ou “Rom 8:1-17”.",
-    "notRecognised": "“{{text}}” não é uma passagem que o Abiding Word reconheça. Tente uma forma como “John 15” ou “Rom 8:1-17”.",
+    "empty": "Digite uma passagem, por exemplo “João 15” ou “Rm 8:1-17”.",
+    "notRecognised": "“{{text}}” não é uma passagem que o Abiding Word reconheça. Tente uma forma como “João 15” ou “Rm 8:1-17”.",
     "unknownBook": "Livro desconhecido: “{{text}}”.",
     "notABook": "“{{text}}” não é um livro da Bíblia.",
     "oneChapter": "{{book}} tem apenas um capítulo.",

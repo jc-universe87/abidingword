@@ -375,7 +375,7 @@
     "noTemplate": "Sin plantilla (una sola parte: Notas)",
     "yourTemplate": "{{name}} (tuya)",
     "optional": "(opcional)",
-    "passagePlaceholder": "p. ej. John 15:1-11",
+    "passagePlaceholder": "p. ej. Juan 15:1-11",
     "create": "Crear estudio",
     "formLabel": "Nuevo estudio",
     "studyAs": "Enfoque del estudio",
@@ -564,7 +564,7 @@
     "add": "Añadir pasaje",
     "linkCurrent": "Vincular el pasaje actual ({{passage}})",
     "inputLabel": "Pasaje que añadir",
-    "placeholder": "p. ej. John 15:1-11",
+    "placeholder": "p. ej. Juan 15:1-11",
     "addRelated": "Pasaje relacionado",
     "openPrimary": "Abrir en la Biblia"
   },

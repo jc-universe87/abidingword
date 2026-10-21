@@ -139,6 +139,15 @@ const noteFor = (key) => NOTES.find(([r]) => r.test(key))?.[1] ?? "";
 /** Linguistic questions still open after the v0.18.10 native polish: for the owner's final spot review, not decided here. */
 export const FLAGS = {
   "studies.teaching.shape.points.title": "Architecture: the \"points\" canvas serves sermon, talk, youth and other teaching alike, so Korean 대지 (a sermon term) also names a talk's or youth evening's parts. A kind-specific label would need its own keys.",
+  "studies.newStudy.approach.passage": "German: one name for the passage study is now used everywhere (Bibelstellenstudium, as the study type and built-in template already were). Long; a shorter name (Textstudium, Abschnittsstudium) would have to change all three together.",
+  "settings.assistant.perspectiveExample.reformed": "German \"evangelisch-reformiert\" names the Reformed church tradition rather than an evangelical with Reformed theology; it is only an example.",
+  "presentation.templates.overflowSummary": "\"Let that box shrink\": does it mean switching on the template's \"shrink long text\" option? If so, German (and others) could name the option.",
+  "studies.teaching.links.materials": "Korean names items kept from the assistant (images, stories) 보관한 도우미 제안, apart from 자료 (the Library). Confirm the name.",
+  "presentation.export.formats.pptx.name": "Korean now writes product names in Latin script (PowerPoint, Markdown, Keynote, LibreOffice), as the template and library screens did; many Korean users write 파워포인트.",
+  "studies.relation.incoming.custom": "French \"Liée à\" / \"Reliée à\" (linked from / linked to) read nearly the same; does the direction need to show?",
+  "studies.teaching.kind.lesson": "Portuguese: \"Lição\" is now used for a lesson throughout (it was sometimes \"aula\").",
+  "scripture.search.queryLabel": "Spanish now uses « » for quotations, except in search hints like this one, which show what to type (“frase exacta”).",
+  "studies.findings.newLabel": "Architecture: French, Spanish and Portuguese assume every note type is feminine (Nouvelle / Nueva / Nova {{type}}); a masculine type would need its own keys.",
 };
 
 // --- the audit ----------------------------------------------------------------

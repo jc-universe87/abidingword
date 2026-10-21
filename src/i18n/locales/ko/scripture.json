@@ -7,7 +7,7 @@
   },
   "nav": {
     "goToLabel": "본문으로 이동",
-    "goToPlaceholder": "예: John 15 또는 Rom 8:1-17",
+    "goToPlaceholder": "예: 요한복음 15 또는 로마서 8:1-17",
     "go": "이동",
     "book": "책",
     "oldTestament": "구약",

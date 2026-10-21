@@ -26,8 +26,8 @@
     "noFiles": "파일을 하나 이상 선택하세요."
   },
   "reference": {
-    "empty": "본문을 입력하세요. 예: “John 15” 또는 “Rom 8:1-17”",
-    "notRecognised": "“{{text}}”은(는) Abiding Word가 인식할 수 있는 본문이 아닙니다. “John 15” 또는 “Rom 8:1-17”과 같은 형식으로 입력해 보세요.",
+    "empty": "본문을 입력하세요. 예: “요한복음 15” 또는 “로마서 8:1-17”",
+    "notRecognised": "“{{text}}”은(는) Abiding Word가 인식할 수 있는 본문이 아닙니다. “요한복음 15” 또는 “로마서 8:1-17”과 같은 형식으로 입력해 보세요.",
     "unknownBook": "알 수 없는 책입니다: “{{text}}”",
     "notABook": "“{{text}}”은(는) 성경의 책이 아닙니다.",
     "oneChapter": "{{book}}은(는) 1장만 있습니다.",
