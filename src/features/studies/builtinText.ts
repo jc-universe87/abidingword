@@ -17,6 +17,8 @@ interface BuiltinDefinition {
   key: string;
   name: string;
   description?: string | null;
+  /** False: kept only for the studies made with it, never offered for a new one (e.g. the old teaching study). */
+  offered?: boolean;
   sections: { key: string; title: string; guidance?: string | null; optional?: boolean; retired?: boolean; phase?: string | null }[];
 }
 
@@ -87,4 +89,21 @@ export function localizedSections(template: Pick<StudyTemplate, "key" | "isBuilt
       phase: s.phase ?? null,
       ...(s.optional ? { optional: true } : {}),
     }));
+}
+
+/** Whether a built-in template is offered for new work (its resource file says so); a user's own always is. */
+export function isOffered(template: Pick<StudyTemplate, "key" | "isBuiltin">): boolean {
+  return !template.isBuiltin || BY_KEY.get(template.key)?.offered !== false;
+}
+
+/**
+ * What a template starts a study with, from its own parts ("Starts with:
+ * Text · Observations · Context."), in the interface language. No template:
+ * the one part a study of its own shape starts with. Shared by every place
+ * a template is chosen, so a preview never says something the template
+ * does not (v0.18.8).
+ */
+export function studyStartSummary(t: (key: "studies.newStudy.startsWith", options: { parts: string }) => string, template: Pick<StudyTemplate, "sections"> | null): string {
+  const parts = template ? template.sections.filter((s) => !s.optional && !s.retired).map(sectionTitle) : [sectionTitle({ key: null, title: DEFAULT_SECTION })];
+  return t("studies.newStudy.startsWith", { parts: parts.join(i18n.t("common.listSeparator")) });
 }

@@ -395,7 +395,8 @@
       "systematic_theology": "Systematic theology",
       "custom": "No template",
       "mine": "My template"
-    }
+    },
+    "startsWith": "Starts with: {{parts}}."
   },
   "list": {
     "filters": "Filter studies",
@@ -1004,7 +1005,6 @@
     },
     "prepareWhat": "What would you like to prepare?",
     "templates": {
-      "mine": "Your templates",
       "listLabel": "Bible Teaching templates",
       "intro": "A Bible Teaching template is what a new teaching starts with: its format, and the points, questions or steps it begins with. A teaching takes a copy when it is made, so changing or deleting a template never changes a teaching.",
       "saveAsMine": "Save as my template",
@@ -1022,7 +1022,9 @@
       "pointsHint": "Leave a title empty to name it in each teaching.",
       "none": "Nothing yet: a teaching made with this template starts empty.",
       "untitled": "untitled",
-      "loadFailed": "Your templates can't be shown just now. The built-in ones are here."
+      "loadFailed": "Your templates can't be shown just now. The built-in ones are here.",
+      "startFrom": "Start from",
+      "builtinChoice": "{{format}} (built-in)"
     },
     "saveTemplate": {
       "action": "Save as my template",

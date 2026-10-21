@@ -395,7 +395,8 @@
       "systematic_theology": "Systematische Theologie",
       "custom": "Keine Vorlage",
       "mine": "Meine Vorlage"
-    }
+    },
+    "startsWith": "Beginnt mit: {{parts}}."
   },
   "list": {
     "filters": "Bibelstudien filtern",
@@ -1004,7 +1005,6 @@
     },
     "prepareWhat": "Was möchtest du vorbereiten?",
     "templates": {
-      "mine": "Deine Vorlagen",
       "listLabel": "Vorlagen für Bibellehren",
       "intro": "Eine Vorlage für eine Bibellehre ist das, womit eine neue Lehre beginnt: ihre Form und die Punkte, Fragen oder Schritte am Anfang. Eine Lehre übernimmt beim Erstellen eine Kopie; Ändern oder Löschen einer Vorlage verändert also nie eine Lehre.",
       "saveAsMine": "Als meine Vorlage speichern",
@@ -1022,7 +1022,9 @@
       "pointsHint": "Lass einen Titel leer, um ihn in jeder Lehre selbst zu benennen.",
       "none": "Noch nichts: Eine Lehre mit dieser Vorlage beginnt leer.",
       "untitled": "ohne Titel",
-      "loadFailed": "Deine Vorlagen können gerade nicht angezeigt werden. Die mitgelieferten sind da."
+      "loadFailed": "Deine Vorlagen können gerade nicht angezeigt werden. Die mitgelieferten sind da.",
+      "startFrom": "Beginnen mit",
+      "builtinChoice": "{{format}} (mitgeliefert)"
     },
     "saveTemplate": {
       "action": "Als meine Vorlage speichern",

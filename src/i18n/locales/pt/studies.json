@@ -397,7 +397,8 @@
       "systematic_theology": "Teologia sistemática",
       "custom": "Sem modelo",
       "mine": "Meu modelo"
-    }
+    },
+    "startsWith": "Começa com: {{parts}}."
   },
   "list": {
     "filters": "Filtrar estudos",
@@ -1015,7 +1016,6 @@
     },
     "prepareWhat": "O que você quer preparar?",
     "templates": {
-      "mine": "Seus modelos",
       "listLabel": "Modelos de ensino bíblico",
       "intro": "Um modelo de ensino bíblico é aquilo com que um novo ensino começa: seu formato e os pontos, perguntas ou etapas iniciais. O ensino recebe uma cópia ao ser criado; por isso, alterar ou excluir um modelo nunca altera um ensino.",
       "saveAsMine": "Salvar como meu modelo",
@@ -1033,7 +1033,9 @@
       "pointsHint": "Deixe um título vazio para nomeá-lo em cada ensino.",
       "none": "Nada ainda: um ensino criado com este modelo começa vazio.",
       "untitled": "sem título",
-      "loadFailed": "Seus modelos não podem ser mostrados agora. Os incluídos estão aqui."
+      "loadFailed": "Seus modelos não podem ser mostrados agora. Os incluídos estão aqui.",
+      "startFrom": "Começar de",
+      "builtinChoice": "{{format}} (incluído)"
     },
     "saveTemplate": {
       "action": "Salvar como meu modelo",

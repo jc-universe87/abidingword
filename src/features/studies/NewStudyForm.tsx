@@ -9,6 +9,7 @@ import { toApiError } from "@/lib/api";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 import { useApi } from "@/lib/ApiContext";
 import type { StudyType } from "@/types/studies";
+import { studyStartSummary } from "./builtinText";
 import { isPassageCentred } from "./labels";
 import { openInTeaching } from "./studyView";
 
@@ -159,11 +160,18 @@ export function NewStudyForm({ projectId, onCreated, onCancel, autoFocus = false
         />
       </div>
 
-      <div role="group" aria-label={t("studies.newStudy.studyAs")} className="flex flex-wrap gap-2">
+      <div role="group" aria-label={t("studies.newStudy.studyAs")} aria-describedby={`${id}-starts`} className="flex flex-wrap gap-2">
         {COMMON.map(choice)}
         {more && MORE.map(choice)}
         {own.length > 0 && choice("mine")}
       </div>
+
+      {/* What this way in starts with, from the template's own parts (v0.18.8). */}
+      {/* Said only once the templates are known, so it never names a part a study will not have. */}
+      <p id={`${id}-starts`} className="type-meta m-0 min-h-5">
+        {templates.data &&
+          studyStartSummary(t, approach === "custom" ? null : approach === "mine" ? (chosenOwn ?? null) : (list.find((template) => template.isBuiltin && template.studyType === type) ?? null))}
+      </p>
 
       {approach === "mine" && own.length > 0 && (
         <label className="flex flex-col gap-1">

@@ -106,7 +106,12 @@ describe("a Bible Teaching template of one's own", () => {
     const user = await openTeaching(api);
     const form = newForm();
     expect(within(form).getByRole("group", { name: "What would you like to prepare?" })).toBeInTheDocument();
-    const own = await within(form).findByRole("group", { name: "Your templates" });
+    // The format comes first; a template of one's own is offered only for the format it is made for.
+    await waitFor(() => expect(api.state.teaching.templates).toHaveLength(1));
+    expect(within(form).queryByRole("radiogroup", { name: "Start from" })).toBeNull();
+    await user.click(within(form).getByRole("radio", { name: "Children" }));
+    const own = await within(form).findByRole("radiogroup", { name: "Start from" });
+    expect(within(own).getByRole("radio", { name: "Children (built-in)" })).toBeChecked();
     await user.click(within(own).getByRole("radio", { name: "Youth evening" }));
     expect(form).toHaveTextContent("Starts with: Game · Bible story · Step 3.");
     expect(within(form).getByRole("textbox", { name: "Title" })).toHaveAttribute("placeholder", "Youth evening · Abiding");

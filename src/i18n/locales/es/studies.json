@@ -397,7 +397,8 @@
       "systematic_theology": "Teología sistemática",
       "custom": "Sin plantilla",
       "mine": "Mi plantilla"
-    }
+    },
+    "startsWith": "Empieza con: {{parts}}."
   },
   "list": {
     "filters": "Filtrar estudios",
@@ -1015,7 +1016,6 @@
     },
     "prepareWhat": "¿Qué quieres preparar?",
     "templates": {
-      "mine": "Tus plantillas",
       "listLabel": "Plantillas de enseñanza bíblica",
       "intro": "Una plantilla de enseñanza bíblica es aquello con lo que empieza una enseñanza nueva: su formato y los puntos, preguntas o pasos con los que comienza. La enseñanza recibe una copia al crearse, así que cambiar o eliminar una plantilla nunca cambia una enseñanza.",
       "saveAsMine": "Guardar como mi plantilla",
@@ -1033,7 +1033,9 @@
       "pointsHint": "Deja un título vacío para ponerlo en cada enseñanza.",
       "none": "Nada todavía: una enseñanza creada con esta plantilla empieza vacía.",
       "untitled": "sin título",
-      "loadFailed": "Ahora no se pueden mostrar tus plantillas. Las integradas sí están."
+      "loadFailed": "Ahora no se pueden mostrar tus plantillas. Las integradas sí están.",
+      "startFrom": "Empezar desde",
+      "builtinChoice": "{{format}} (integrada)"
     },
     "saveTemplate": {
       "action": "Guardar como mi plantilla",

@@ -397,7 +397,8 @@
       "systematic_theology": "Théologie systématique",
       "custom": "Sans modèle",
       "mine": "Mon modèle"
-    }
+    },
+    "startsWith": "Commence par : {{parts}}."
   },
   "list": {
     "filters": "Filtrer les études",
@@ -1015,7 +1016,6 @@
     },
     "prepareWhat": "Que voulez-vous préparer ?",
     "templates": {
-      "mine": "Vos modèles",
       "listLabel": "Modèles d’enseignement biblique",
       "intro": "Un modèle d’enseignement biblique est le point de départ d’un nouvel enseignement : sa forme, et les points, questions ou étapes par lesquels il commence. Un enseignement en reçoit une copie à sa création : modifier ou supprimer un modèle ne change donc jamais un enseignement.",
       "saveAsMine": "Enregistrer comme mon modèle",
@@ -1033,7 +1033,9 @@
       "pointsHint": "Laissez un titre vide pour le nommer dans chaque enseignement.",
       "none": "Rien pour l’instant : un enseignement créé avec ce modèle commence vide.",
       "untitled": "sans titre",
-      "loadFailed": "Vos modèles ne peuvent pas être affichés pour l’instant. Les modèles intégrés sont là."
+      "loadFailed": "Vos modèles ne peuvent pas être affichés pour l’instant. Les modèles intégrés sont là.",
+      "startFrom": "Partir de",
+      "builtinChoice": "{{format}} (intégré)"
     },
     "saveTemplate": {
       "action": "Enregistrer comme mon modèle",

@@ -14,7 +14,7 @@ import { AssistPanel } from "./AssistPanel";
 import { FloatingPanel, AssistDockProvider, useAssistDock } from "./FloatingPanel";
 import { assistLabel, canvasShape, pointFields, showsFrame, stepFieldLabel, teachingKindLabel, type ShapeText } from "./labels";
 import { SaveTeachingTemplate } from "./SaveTeachingTemplate";
-import { BUILTIN_TEACHING_TEMPLATES, startKind, startName, startSummary, startingPoints, type TeachingStart } from "./teachingTemplates";
+import { BUILTIN_TEACHING_TEMPLATES, startSummary, startingPoints, type TeachingStart } from "./teachingTemplates";
 import { TeachingField, type AssistantHooks } from "./TeachingField";
 import { TeachingLinks } from "./TeachingLinks";
 import { PresentationView } from "@/features/presentation/PresentationView";
@@ -187,14 +187,16 @@ function NewTeaching({
     if (!first) heading.current?.focus();
   }, [first]);
   // What to prepare: a built-in template (one per format) or one of the person's own (v0.18.7).
+  // What to prepare (v0.18.8): first the format, then, when the person has templates of their
+  // own for that format, which one to start from. Only templates made for the format are
+  // offered; a template's format is what it says it is for, never guessed from its name.
   const mine = useLoad(useCallback(() => api.teachingTemplateList(), [api]));
-  const starts: { id: string; start: TeachingStart }[] = [
-    ...BUILTIN_TEACHING_TEMPLATES.map((b) => ({ id: `builtin:${b.key}`, start: { builtin: b } })),
-    ...(mine.data ?? []).map((m) => ({ id: `mine:${m.id}`, start: { mine: m } })),
-  ];
-  const [chosen, setChosen] = useState("builtin:sermon");
-  const start = (starts.find((s) => s.id === chosen) ?? starts[0]!).start;
-  const kind = startKind(start);
+  const [kind, setKind] = useState<TeachingKind>("sermon");
+  const [chosen, setChosen] = useState<string | null>(null);
+  const builtin = BUILTIN_TEACHING_TEMPLATES.find((b) => b.kind === kind)!;
+  const ownForKind = (mine.data ?? []).filter((m) => m.kind === kind);
+  const chosenOwn = ownForKind.find((m) => m.id === chosen) ?? null;
+  const start: TeachingStart = chosenOwn ? { mine: chosenOwn } : { builtin };
   const [title, setTitle] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -214,13 +216,6 @@ function NewTeaching({
       setBusy(false);
     }
   };
-  const choice = ({ id: value, start: s }: { id: string; start: TeachingStart }) => (
-    <label key={value} className="aw-choice min-h-11 cursor-pointer gap-2 px-4">
-      <input type="radio" name={`${id}-kind`} value={value} checked={chosen === value} onChange={() => setChosen(value)} className="sr-only" aria-describedby={`${id}-format`} />
-      {startName(t, s)}
-    </label>
-  );
-
   return (
     <form
       onSubmit={submit}
@@ -239,11 +234,34 @@ function NewTeaching({
       {first && <p className="m-0 max-w-prose text-text">{t("studies.teaching.empty.text")}</p>}
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="type-subhead mb-1">{t("studies.teaching.prepareWhat")}</legend>
-        <div className="flex flex-wrap gap-2">{starts.filter((s) => "builtin" in s.start).map(choice)}</div>
-        {starts.some((s) => "mine" in s.start) && (
-          <div role="group" aria-label={t("studies.teaching.templates.mine")} className="flex flex-wrap items-center gap-2">
-            <span aria-hidden="true" className="type-meta">{t("studies.teaching.templates.mine")}</span>
-            {starts.filter((s) => "mine" in s.start).map(choice)}
+        <div className="flex flex-wrap gap-2">
+          {TEACHING_KINDS.map((k) => (
+            <label key={k} className="aw-choice min-h-11 cursor-pointer gap-2 px-4">
+              <input
+                type="radio"
+                name={`${id}-kind`}
+                value={k}
+                checked={kind === k}
+                onChange={() => {
+                  setKind(k);
+                  setChosen(null);
+                }}
+                className="sr-only"
+                aria-describedby={`${id}-format`}
+              />
+              {teachingKindLabel(t, k)}
+            </label>
+          ))}
+        </div>
+        {ownForKind.length > 0 && (
+          <div role="radiogroup" aria-label={t("studies.teaching.templates.startFrom")} className="flex flex-wrap items-center gap-2">
+            <span aria-hidden="true" className="type-meta">{t("studies.teaching.templates.startFrom")}</span>
+            {[{ value: null, label: t("studies.teaching.templates.builtinChoice", { format: teachingKindLabel(t, kind) }) }, ...ownForKind.map((m) => ({ value: m.id, label: m.name }))].map(({ value, label }) => (
+              <label key={value ?? "builtin"} className="aw-choice min-h-11 cursor-pointer gap-2 px-4">
+                <input type="radio" name={`${id}-start`} checked={chosen === value || (value === null && !chosenOwn)} onChange={() => setChosen(value)} className="sr-only" aria-describedby={`${id}-format`} />
+                {label}
+              </label>
+            ))}
           </div>
         )}
         {mine.error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{t("studies.teaching.templates.loadFailed")}</p>}

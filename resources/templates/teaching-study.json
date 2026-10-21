@@ -3,6 +3,7 @@
   "name": "Teaching / Sermon Preparation",
   "description": "From the text to a sermon or lesson prepared for real people.",
   "studyType": "teaching",
+  "offered": false,
   "sections": [
     {
       "key": "text",

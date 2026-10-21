@@ -5,17 +5,10 @@ import { HelpTip } from "@/design-system/HelpTip";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
-import { localizedSections, templateDescription, templateName } from "@/features/studies/builtinText";
+import { isOffered, localizedSections, studyStartSummary, templateDescription, templateName } from "@/features/studies/builtinText";
 import { studyTypeLabel } from "@/features/studies/labels";
-import { startsWith, type StudyTemplate } from "@/types/studies";
+import type { StudyTemplate } from "@/types/studies";
 import { TeachingTemplates } from "./TeachingTemplates";
-
-/**
- * Built-in templates no longer offered: the old "Teaching / Sermon" study is
- * now Bible Teaching. Kept installed so older studies keep their translated
- * headings; not listed.
- */
-export const RETIRED_TEMPLATES = new Set(["teaching-study"]);
 
 /**
  * Settings → Templates: reusable starting structures, for a Bible study
@@ -82,17 +75,13 @@ export function StudyTemplates({
     return (
       <li key={template.id} className="flex flex-col gap-2 border-b border-border-subtle py-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <div>
+          <div className="min-w-0 flex-1 basis-64">
             <p className="type-item m-0">{name}</p>
             <p className="m-0 text-[0.9375rem] text-text-muted">
-              {[
-                studyTypeLabel(t, template.studyType),
-                t("studies.templates.sectionCount", { count: template.sections.filter(startsWith).length }),
-                template.isBuiltin && t("studies.templates.builtIn"),
-              ]
-                .filter(Boolean)
-                .join(t("common.listSeparator"))}
+              {[studyTypeLabel(t, template.studyType), template.isBuiltin && t("studies.templates.builtIn")].filter(Boolean).join(t("common.listSeparator"))}
             </p>
+            {/* What it starts with, from its own parts (v0.18.8). */}
+            <p className="m-0 text-[0.9375rem] text-text-muted">{studyStartSummary(t, template)}</p>
           </div>
           <div className="flex gap-2">
             {template.isBuiltin ? (
@@ -127,7 +116,8 @@ export function StudyTemplates({
     );
   };
 
-  const list = (templates.data ?? []).filter((template) => !(template.isBuiltin && RETIRED_TEMPLATES.has(template.key)));
+  // A built-in template no longer offered (its file says "offered": false) is kept for old studies only.
+  const list = (templates.data ?? []).filter(isOffered);
   const heading = "type-group m-0";
   return (
     <div className="flex flex-col gap-5">

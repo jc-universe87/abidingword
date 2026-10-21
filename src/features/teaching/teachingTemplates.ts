@@ -2,7 +2,7 @@ import i18n, { type TFunction } from "i18next";
 import { LANGUAGES } from "@/i18n/languages";
 import builtin from "../../../resources/teaching-templates.json";
 import type { StepKind, TeachingKind, TeachingPreparation, TeachingTemplate, TeachingTemplatePoint } from "@/types/teaching";
-import { canvasShape, startingStepTitle, teachingKindLabel } from "./labels";
+import { canvasShape, startingStepTitle } from "./labels";
 
 /**
  * Bible Teaching templates (v0.18.7): what a new teaching starts with, its
@@ -40,11 +40,6 @@ export function templatePointTitle(t: TFunction, kind: TeachingKind, point: Teac
     if (unchanged) return startingStepTitle(t, kind, point.key);
   }
   return point.title;
-}
-
-/** A template's name in the person's language (a built-in one is named after its format). */
-export function startName(t: TFunction, start: TeachingStart): string {
-  return "builtin" in start ? teachingKindLabel(t, start.builtin.kind) : start.mine.name;
 }
 
 /** The points a new teaching starts with: titled in the person's language, with their kinds. */
