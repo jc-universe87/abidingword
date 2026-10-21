@@ -689,7 +689,7 @@
       "wholeScope": "가르침 전체",
       "passages": "{{scope}}의 본문",
       "findings": "{{scope}}에 쓴 성경공부 기록",
-      "materials": "{{scope}}에 보관한 도우미 제안",
+      "materials": "{{scope}}에 보관한 AI 도우미 항목",
       "useFinding": "성경공부 기록 가져오기",
       "chooseFinding": "성경공부 기록",
       "pick": "선택…",
@@ -760,7 +760,7 @@
       "shared": {
         "remote": "도움을 드리기 위해 다음 내용을 {{assistant}}에 보냅니다:",
         "local": "이 컴퓨터 안에서만 처리합니다({{assistant}}). 다음 내용을 봅니다:",
-        "text": "쓰신 ‘{{part}}’",
+        "text": "{{part}}에 작성한 내용",
         "selection": "선택한 부분",
         "request": "요청하신 내용",
         "teaching": "가르침 준비의 제목과 종류, 그리고 적어 둔 대상·목적·핵심 메시지",
