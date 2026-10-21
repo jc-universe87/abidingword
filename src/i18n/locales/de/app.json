@@ -1,6 +1,6 @@
 {
   "startup": {
-    "opening": "Dein Arbeitsbereich wird geöffnet …",
+    "opening": "Dein Arbeitsbereich wird geöffnet…",
     "couldNotStart": "Abiding Word konnte nicht starten.",
     "logFiles": "Protokolldateien:",
     "windowFailed": "Im Fenster ist ein unerwarteter Fehler aufgetreten. Bitte schließe Abiding Word und öffne es erneut. Deine gespeicherte Arbeit ist sicher."
@@ -47,13 +47,13 @@
     "available": "Ein Update ist verfügbar: Version {{version}}.",
     "updateNow": "Jetzt aktualisieren",
     "later": "Später",
-    "downloading": "Das Update wird heruntergeladen …",
-    "downloadingPercent": "Das Update wird heruntergeladen … {{percent}} %",
+    "downloading": "Das Update wird heruntergeladen…",
+    "downloadingPercent": "Das Update wird heruntergeladen… {{percent}} %",
     "version": "Installierte Version",
     "channel": "Update-Kanal",
     "channelTest": "Entwicklung / Test",
     "check": "Nach Updates suchen",
-    "checking": "Es wird gesucht …",
+    "checking": "Es wird gesucht…",
     "upToDate": "Abiding Word ist auf dem neuesten Stand.",
     "notIncluded": "Diese Version enthält keine automatischen Updates.",
     "help": "Abiding Word sucht nur gelegentlich oder auf Wunsch nach Updates. Zum Arbeiten brauchst du kein Internet, und deine Bibelstudien bleiben unberührt.",

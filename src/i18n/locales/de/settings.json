@@ -132,7 +132,7 @@
     },
     "modelHintEmpty": "Gib den Namen des Modells so ein, wie {{service}} ihn anzeigt.",
     "advanced": "Erweitert",
-    "checking": "Die Verbindung wird geprüft … Das kann ein paar Sekunden dauern.",
+    "checking": "Die Verbindung wird geprüft… Das kann ein paar Sekunden dauern.",
     "why": {
       "noKey": "Um die Verbindung zu prüfen, füge zuerst deinen Schlüssel ein und wähle „Schlüssel speichern“.",
       "noModel": "Um die Verbindung zu prüfen, gib zuerst den Namen des Modells ein.",
@@ -192,7 +192,7 @@
       "cost": "Suchdienste bieten meist ein kleines kostenloses Kontingent pro Monat und berechnen mehr. Das regelst du auf ihrer Website, nicht in Abiding Word."
     },
     "searchTest": "Suche prüfen",
-    "searchTesting": "Der Suchdienst wird gefragt …",
+    "searchTesting": "Der Suchdienst wird gefragt…",
     "searchTestOk": "Der Suchdienst hat geantwortet und Webseiten gefunden.",
     "searchTestEmpty": "Der Suchdienst hat geantwortet, aber bei einer Testsuche nichts gefunden.",
     "searchWhy": {
@@ -206,7 +206,7 @@
     "version": "Version {{version}}",
     "upToDate": "Auf dem neuesten Stand",
     "updateAvailable": "Version {{version}} ist verfügbar",
-    "updateInstalling": "Das Update wird installiert …",
+    "updateInstalling": "Das Update wird installiert…",
     "updateFailed": "Etwas hat nicht geklappt: siehe unten",
     "updatesOff": "In dieser Version nicht enthalten",
     "bibleTexts": "Übersetzungen hinzufügen oder entfernen",

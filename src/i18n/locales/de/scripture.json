@@ -3,7 +3,7 @@
   "empty": {
     "title": "Es wurde noch keine Bibel hinzugefügt.",
     "body": "Füge eine der freien Bibeln hinzu, die Abiding Word mitbringt, oder eine Bibeldatei, die du besitzt. Alles bleibt auf diesem Computer und funktioniert ohne Internetverbindung.",
-    "addBible": "Bibel hinzufügen …"
+    "addBible": "Bibel hinzufügen…"
   },
   "nav": {
     "goToLabel": "Zur Bibelstelle",
@@ -17,7 +17,7 @@
     "nextChapter": "Nächstes Kapitel"
   },
   "reader": {
-    "opening": "{{passage}} wird geöffnet …",
+    "opening": "{{passage}} wird geöffnet…",
     "showing": "zeigt {{passage}}",
     "noText": "{{name}} enthält keinen Text für {{passage}}.",
     "verseButton": "Vers {{verse}}. Verswerkzeuge anzeigen",
@@ -60,7 +60,7 @@
     "onlyCurrent": "Nur diese Übersetzung",
     "book": "Buch",
     "allBooks": "Alle Bücher",
-    "searching": "Suche läuft …",
+    "searching": "Suche läuft…",
     "noResults": "Keine Verse gefunden.",
     "found_one": "{{count}} Vers gefunden.",
     "found_other": "{{count}} Verse gefunden.",
@@ -72,7 +72,7 @@
   "addBible": {
     "title": {
       "choose": "Bibel hinzufügen",
-      "checking": "Bibel wird geprüft …",
+      "checking": "Bibel wird geprüft…",
       "review": "Neue Bibel",
       "done": "Bibel hinzugefügt"
     },
@@ -82,14 +82,14 @@
     "readNow": "Jetzt lesen",
     "included": "In Abiding Word enthalten",
     "chooseLabel": "Bibel auswählen",
-    "addSelected": "Hinzufügen …",
+    "addSelected": "Hinzufügen…",
     "confirmTitle": "{{name}} hinzufügen?",
     "confirmLanguage": "Sprache: {{language}}",
     "confirmBody": "Als Nächstes prüft Abiding Word jedes Buch, jedes Kapitel und jeden Vers und zeigt dir das Ergebnis. Hinzugefügt wird erst, wenn du bestätigst.",
     "confirmContinue": "Weiter",
     "ownTitle": "Eine eigene Bibel",
     "ownBody": "Wähle eine Bibel im USFM-Format: einen .zip-Download oder ihre .usfm-Dateien. Abiding Word legt eine eigene Kopie an und verändert deine Datei nie.",
-    "chooseFiles": "Bibeldateien auswählen …",
+    "chooseFiles": "Bibeldateien auswählen…",
     "field": {
       "name": "Name",
       "shortName": "Kurzname",
@@ -118,13 +118,13 @@
     "notes_other": "{{count}} Hinweise",
     "skipped_one": "{{count}} Datei wurde ausgelassen, weil sie keines der 66 Bücher enthält (zum Beispiel eine Einleitung oder ein Glossar).",
     "skipped_other": "{{count}} Dateien wurden ausgelassen, weil sie keines der 66 Bücher enthalten (zum Beispiel eine Einleitung oder ein Glossar).",
-    "adding": "Wird hinzugefügt …",
+    "adding": "Wird hinzugefügt…",
     "add": "Diese Bibel hinzufügen"
   },
   "bibles": {
     "empty": "Es wurde noch keine Bibel hinzugefügt.",
     "installed": "Installierte Bibeln",
-    "addBible": "Bibel hinzufügen …",
+    "addBible": "Bibel hinzufügen…",
     "source": {
       "bundled": "In Abiding Word enthalten",
       "imported": "Aus deiner Datei importiert"
@@ -136,7 +136,7 @@
     "details": "Details",
     "hideDetails": "Details ausblenden",
     "removeNamed": "{{name}} entfernen",
-    "removeEllipsis": "Entfernen …",
+    "removeEllipsis": "Entfernen…",
     "field": {
       "contents": "Inhalt",
       "publisher": "Verlag",
@@ -185,10 +185,10 @@
     "color": "Farbe",
     "anyColor": "Jede Farbe",
     "search": "Notizen durchsuchen",
-    "searchPlaceholder": "Notizen durchsuchen …",
+    "searchPlaceholder": "Notizen durchsuchen…",
     "count_one": "{{count}} Anmerkung",
     "count_other": "{{count}} Anmerkungen",
-    "loading": "Anmerkungen werden geladen …",
+    "loading": "Anmerkungen werden geladen…",
     "loadMore": "Mehr laden",
     "empty": {
       "none": "Noch keine Anmerkungen.",
@@ -235,7 +235,7 @@
     "bible": "Bibel",
     "find": "Suchen",
     "hint": "Findet die Wörter so, wie diese Bibel sie schreibt.",
-    "looking": "Wird gesucht …",
+    "looking": "Wird gesucht…",
     "occurrences_one": "{{formatted}} Vorkommen",
     "occurrences_other": "{{formatted}} Vorkommen",
     "verses_one": "in {{formatted}} Vers",
@@ -247,7 +247,7 @@
   },
   "language": {
     "choose": "Sprache wählen",
-    "other": "Eine andere Sprache …",
+    "other": "Eine andere Sprache…",
     "otherName": "Name der Sprache",
     "hint": "Abiding Word liest damit Abkürzungen, die du tippst (etwa „Jn 3:5“), so wie diese Bibel sie meint."
   }

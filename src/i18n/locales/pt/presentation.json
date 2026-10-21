@@ -110,7 +110,7 @@
     "dragHint": "Arraste para mover o slide (ou use as setas)",
     "design": "Design",
     "builtIn": "Fundos incluídos",
-    "churchTemplates": "Modelos da igreja",
+    "churchTemplates": "Modelos para a igreja",
     "designHint": "Um modelo só muda a aparência dos slides. Seus slides e seu ensino continuam como estão, e você pode voltar a qualquer momento."
   },
   "warnings": {
@@ -281,7 +281,7 @@
   },
   "templates": {
     "manage": "Gerenciar modelos…",
-    "title": "Modelos da igreja",
+    "title": "Modelos para a igreja",
     "intro": "Use o design de slides da sua igreja: importe de um arquivo do PowerPoint, traga um arquivo de modelo de outro computador ou crie um simples aqui. Um modelo é só um design; ele nunca guarda conteúdo de sermão.",
     "importPptx": "Importar do PowerPoint…",
     "importPackage": "Adicionar um arquivo de modelo…",
@@ -297,7 +297,7 @@
     "exported": "Salvo como {{path}}.",
     "removed": "“{{name}}” foi removido. As apresentações que o usavam voltam a mostrar o fundo incluído.",
     "yours": "Seus modelos",
-    "none": "Ainda não há modelos da igreja.",
+    "none": "Ainda não há modelos para a igreja.",
     "source": {
       "pptx": "Do PowerPoint",
       "package": "De um arquivo de modelo",
@@ -424,11 +424,11 @@
       "quoteBy": "Um pastor",
       "question": "Onde você tenta dar fruto sozinho?"
     },
-    "newTitle": "Novo modelo da igreja",
+    "newTitle": "Novo modelo para a igreja",
     "editTitle": "Editar {{name}}",
     "description": "Descrição (opcional)",
     "size": "Tamanho do slide",
-    "wide": "Widescreen (16:9)",
+    "wide": "Panorâmico (16:9)",
     "standard": "Padrão (4:3)",
     "colorsTitle": "Cores",
     "colors": {

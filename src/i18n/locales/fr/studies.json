@@ -240,7 +240,7 @@
             "guidance": "Comment chaque emploi important est façonné par sa phrase et son paragraphe."
           },
           "semantic-range": {
-            "title": "Champ sémantique",
+            "title": "Sens possibles",
             "guidance": "L’éventail des sens que porte le mot, et ce qui permet de choisir entre eux."
           },
           "key-passages": {
@@ -1190,7 +1190,7 @@
     }
   },
   "phase": {
-    "label": "Dans le plan",
+    "label": "Plan",
     "none": "Hors du plan",
     "ofPart": "Place de « {{title}} » dans le plan de l’étude",
     "ofTemplatePart": "Place de la partie {{number}} dans le plan de l’étude"

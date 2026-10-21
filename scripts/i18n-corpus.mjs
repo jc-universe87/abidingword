@@ -1,19 +1,19 @@
 #!/usr/bin/env node
-// npm run i18n:corpus — the six-language review corpus (v0.18.9).
+// npm run i18n:corpus — the six-language review corpus (v0.18.10).
 //
 // Reads the locale files (src/i18n/locales/<lang>/*.json) and writes, for a
 // native-speaker review:
 //
-//   docs/i18n/native-polish-review-v0.18.9.md   every user-facing string,
+//   docs/i18n/native-polish-review-v0.18.10.md  every user-facing string,
 //       grouped by where it appears in the product, with its key, all six
 //       languages, plural forms and placeholders shown, context notes on
 //       hard terms, and an automatic terminology audit;
-//   docs/i18n/native-polish-priority-v0.18.9.md the high-value first pass:
-//       the terminology, strings changed since v0.18.4, short labels,
+//   docs/i18n/native-polish-priority-v0.18.10.md what is still open:
+//       the approved terminology, the questions left, the strings this pass changed,
 //       errors, flagged questions and the audit's findings.
 //
 // Deterministic and offline: the same locale files give the same documents
-// (the "changed since v0.18.4" list reads the older locale files from git,
+// (the "changed in v0.18.10" list reads the older locale files from git,
 // and says so when git cannot provide them). Every key must fall into a
 // product context; one that does not stops the generator, so nothing is
 // silently left out. `node scripts/i18n-corpus.mjs --check` fails when the
@@ -27,10 +27,10 @@ const root = join(fileURLToPath(import.meta.url), "..", "..");
 const LOCALES = join(root, "src/i18n/locales");
 export const LANGUAGES = ["en", "de", "ko", "fr", "es", "pt"];
 const NAMES = { en: "English", de: "German", ko: "Korean", fr: "French", es: "Spanish", pt: "Portuguese" };
-export const REVIEW = "docs/i18n/native-polish-review-v0.18.9.md";
-export const PRIORITY = "docs/i18n/native-polish-priority-v0.18.9.md";
-/** The commit before v0.18.4: strings added or changed after it are "recent". */
-const RECENT_BASE = "5e1bfe6";
+export const REVIEW = "docs/i18n/native-polish-review-v0.18.10.md";
+export const PRIORITY = "docs/i18n/native-polish-priority-v0.18.10.md";
+/** The end of v0.18.9: strings changed after it are the v0.18.10 polish. */
+const RECENT_BASE = "fb59441";
 const PLURAL = /^(.*)_(zero|one|two|few|many|other)$/;
 
 // --- reading ----------------------------------------------------------------
@@ -136,28 +136,9 @@ const NOTES = [
 ];
 const noteFor = (key) => NOTES.find(([r]) => r.test(key))?.[1] ?? "";
 
-/** Linguistic questions noticed while preparing the corpus: for the native reviewer, not decided here. */
+/** Linguistic questions still open after the v0.18.10 native polish: for the owner's final spot review, not decided here. */
 export const FLAGS = {
-  "studies.teaching.shape.points.introduction": "Neutral sermon terms: is \"Introduction / main point / Conclusion\" the clearest neutral wording in each language?",
-  "studies.teaching.shape.points.title": "\"Main points\": neutral, not a homiletic prescription?",
-  "studies.teaching.shape.points.conclusion": "Neutral sermon terms (see Introduction).",
-  "studies.teaching.materials.open": "\"Materials\": de Unterlagen, ko 가르침 자료, fr Supports — the umbrella term; confirm in every language.",
-  "studies.materials.scripture.missing": "Joins a list of chapter:verse references; Korean wording around \"{{verses}}\" in particular.",
-  "studies.materials.scripture.none": "Starts with the Bible's short name (no article), e.g. \"LUT1912 hat keinen Text …\".",
-  "studies.phase.label": "Short label before a select (\"Outline: Text\"); German \"Im Aufbau\", Korean \"흐름\".",
-  "studies.phase.none": "\"Not in the outline\": a part that belongs to no phase.",
-  "studies.teaching.templates.builtinChoice": "\"Sermon (built-in)\" — the format's own starting point among the person's templates.",
-  "studies.teaching.templates.startFrom": "Label of a choice row (\"Start from: …\").",
-  "studies.newStudy.startsWith": "Preview line: \"Starts with: Text · Observations · …\".",
-  "studies.templates.saveAsMine": "The one action on a built-in template; Korean distinguishes 공부 틀 and 가르침 틀.",
-  "studies.teaching.templates.saveAsMine": "Same action for a Teaching template (Korean 가르침 틀).",
-  "studies.materials.action.docx": "Narrow button label.",
-  "studies.materials.option.includePassage": "Checkbox label with the Bible's short name in brackets.",
-  "studies.builtin.templates.word-study.sections.semantic-range.title": "English changed to \"Range of Meaning\" (v0.18.9); other languages kept their term — check each is plain, not jargon.",
-  "studies.teaching.starts.lesson.discussion": "Lesson baseline step: \"Discussion\" (a question step) — broad enough for adults and youth?",
-  "studies.teaching.starts.children.story": "Children baseline: \"Bible story\" is a Bible reading step.",
-  "presentation.templates.title": "\"Church templates\": de Gemeindevorlagen, ko 교회 서식 — kept apart from Study/Teaching templates.",
-  "settings.sections.templates": "Settings section holding Study and Teaching templates (not church templates). Korean currently 성경공부 틀.",
+  "studies.teaching.shape.points.title": "Architecture: the \"points\" canvas serves sermon, talk, youth and other teaching alike, so Korean 대지 (a sermon term) also names a talk's or youth evening's parts. A kind-specific label would need its own keys.",
 };
 
 // --- the audit ----------------------------------------------------------------
@@ -172,8 +153,8 @@ const SAME_EVERYWHERE = /^(?:[\d\s.,:;·–—()/%+×#…-]*|PDF|PPTX|DOCX|USFM|
 
 /** Languages whose strings use the typographic apostrophe ’ throughout (English mixes both and is the source text). */
 const CURLY_APOSTROPHE = ["fr", "ko"];
-/** English loanwords a native reviewer may prefer to replace; any other same spelling is a cognate or a name. */
-const LOANWORDS = { de: ["Update", "Updates", "Design"], pt: ["Slide", "Slides", "Design", "Widescreen (16:9)"] };
+/** English loanwords accepted in v0.18.10 as normal software vocabulary; any other same spelling is a cognate or a name. */
+const LOANWORDS = { de: ["Update", "Updates", "Design"], pt: ["Slide", "Slides", "Design"] };
 
 /** Variants per language for the core terms, counted where the English uses the term. */
 const TERM_VARIANTS = {
@@ -197,7 +178,7 @@ export function audit(list) {
         if (lang === "ko") for (const w of KOREAN_BANNED) if (text.includes(w)) add(e.key.startsWith("presentation.") ? "C" : "B", `Korean ${w}`, e.key, lang, text, e.key.startsWith("presentation.") ? "Presentation/PowerPoint context: may be the file format's own term." : "Established project term may exist.");
         const enForm = e.forms.en.find(([f]) => f === null || f === "other")?.[1] ?? "";
         if (text === enForm && /[a-z]{4,}/.test(text) && !SAME_EVERYWHERE.test(text.trim())) {
-          if (LOANWORDS[lang]?.includes(text)) add("B", "English loanword", e.key, lang, text, "Common in this language, or would a native word read better?");
+          if (LOANWORDS[lang]?.includes(text)) add("C", "Accepted loanword", e.key, lang, text, "Normal software vocabulary in this language (decided in v0.18.10).");
           else add("C", "Same spelling as English", e.key, lang, text, "Cognate or name: the same word in this language.");
         }
         if (CURLY_APOSTROPHE.includes(lang) && /\p{L}'\p{L}/u.test(text)) add("A", "Straight apostrophe", e.key, lang, text, "This language uses the typographic apostrophe ’.");
@@ -267,11 +248,11 @@ export const GLOSSARY = [
   ["Bible Teaching", "studies.view.teaching", "What a study leads to: sermon, group Bible study, lesson…"],
   ["Study templates", "studies.templates.listLabel", "Reusable structures for a Bible Study."],
   ["Bible Teaching templates", "studies.teaching.templates.listLabel", "Reusable structures for a Bible Teaching."],
-  ["Templates (Settings section)", "settings.sections.templates", "Holds Study and Teaching templates."],
+  ["Templates (Settings section)", "settings.sections.templates", "Holds Study and Teaching templates; Korean 공부·가르침 틀, while each kind stays 공부 틀 / 가르침 틀."],
   ["Save as my template", "studies.templates.saveAsMine", "Copy a built-in Study template to change it."],
   ["Save as my template (teaching)", "studies.teaching.templates.saveAsMine", "Same for a Teaching template."],
-  ["Church templates", "presentation.templates.title", "The look of slides; not a Study/Teaching template."],
-  ["Materials", "studies.teaching.materials.open", "Everything prepared from a Bible Teaching."],
+  ["Church templates", "presentation.templates.title", "The look of slides (Korean 서식); never a Study/Teaching template (틀)."],
+  ["Materials", "studies.teaching.materials.open", "Everything prepared from a Bible Teaching; not files, not the Library (Korean 자료실)."],
   ["Presentation (a material)", "studies.materials.kinds.presentation.points.name", "The slides; one of the Materials."],
   ["Manuscript", "studies.materials.kinds.manuscript.points.name", "Sermon or talk as one text."],
   ["Leader's guide", "studies.materials.kinds.manuscript.questions.name", "A group study's manuscript."],
@@ -280,6 +261,10 @@ export const GLOSSARY = [
   ["Worksheet", "studies.materials.kinds.worksheet.steps.name", "A lesson's sheet to hand out."],
   ["Listening notes", "studies.materials.kinds.worksheet.points.name", "A sermon's sheet to hand out."],
   ["Study outline", "studies.journey.label", "The phases of a study."],
+  ["Outline (a part's place)", "studies.phase.label", "German Gliederung (not \"Im Aufbau\", which reads \"under construction\")."],
+  ["Not in the outline", "studies.phase.none", "A part that belongs to no phase."],
+  ["Range of Meaning", "studies.builtin.templates.word-study.sections.semantic-range.title", "Word study part: plain Bible-study words, not linguistic jargon."],
+  ["Sermon: main points", "studies.teaching.shape.points.title", "Neutral sermon shape: Introduction · Main points · Conclusion."],
   ["Note (in a study)", "studies.add.note", "Code: finding."],
   ["Sources (pane)", "app.panes.name.sources", "The Library's books and documents."],
   ["Library", "library.view.title", ""],
@@ -297,12 +282,12 @@ function glossaryTable(locales) {
 
 function auditTable(findings, { compactSame = true } = {}) {
   if (findings.length === 0) return "_Nothing found._";
-  const same = compactSame ? findings.filter((f) => f.kind === "Same spelling as English") : [];
+  const same = compactSame ? findings.filter((f) => f.kind === "Same spelling as English" || f.kind === "Accepted loanword") : [];
   const rows = findings.filter((f) => !same.includes(f));
   const table = rows.length === 0 ? "_No class A or B findings._" : `| Class | Finding | Key | Language | Text | Note |\n|---|---|---|---|---|---|\n${rows.map((f) => `| ${f.cls} | ${cell(f.kind)} | \`${f.key}\` | ${f.lang} | ${cell(f.text)} | ${cell(f.note)} |`).join("\n")}`;
   if (same.length === 0) return table;
   const byLang = LANGUAGES.filter((l) => same.some((f) => f.lang === l)).map((l) => `- **${l}** (${same.filter((f) => f.lang === l).length}): ${same.filter((f) => f.lang === l).map((f) => `${cell(f.text)} (\`${f.key}\`)`).join("; ")}`);
-  return `${table}\n\n**C — same spelling as English (${same.length}).** Cognates and names that are the same word in the language; listed so nothing is hidden.\n\n${byLang.join("\n")}`;
+  return `${table}\n\n**C — same spelling as English (${same.length}).** Cognates, names and accepted loanwords that are the same word in the language; listed so nothing is hidden.\n\n${byLang.join("\n")}`;
 }
 
 function termTable(usage) {
@@ -319,27 +304,19 @@ function termTable(usage) {
   return lines.join("\n");
 }
 
-/** Keys whose English is new or changed since RECENT_BASE (null when git cannot tell). */
+/** Keys changed in any language since RECENT_BASE (null when git cannot tell). */
 function recentKeys(current) {
   try {
-    const files = readdirSync(join(LOCALES, "en")).filter((f) => f.endsWith(".json"));
-    const old = new Map();
-    for (const file of files) {
-      try {
-        const text = execFileSync("git", ["show", `${RECENT_BASE}:src/i18n/locales/en/${file}`], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
-        flatten(JSON.parse(text), file.replace(/\.json$/, ""), old);
-      } catch {
-        // New file since then: everything in it is recent.
-      }
-    }
-    if (old.size === 0) return null;
-    return new Set([...current.en].filter(([k, v]) => old.get(k) !== v).map(([k]) => k.replace(PLURAL, "$1")));
+    const old = readLocales((lang, file) => execFileSync("git", ["show", `${RECENT_BASE}:src/i18n/locales/${lang}/${file}`], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }));
+    if (old.en.size === 0) return null;
+    const changed = new Set();
+    for (const lang of LANGUAGES) for (const [k, v] of current[lang]) if (old[lang].get(k) !== v) changed.add(k.replace(PLURAL, "$1"));
+    return changed;
   } catch {
     return null;
   }
 }
 
-/** The priority document without section 3, the one part that depends on git history. */
 export function withoutRecent(doc) {
   return doc.replace(/\n## 3\. [\s\S]*?(?=\n## 4\. )/, "\n## 3. (git history)\n");
 }
@@ -364,7 +341,7 @@ export function build(locales = readLocales(), { withRecent = true } = {}) {
     return n(a) - n(b);
   });
   const review = [
-    "# Six-language review corpus (v0.18.9)",
+    "# Six-language review corpus (v0.18.10)",
     "",
     "> Generated by `npm run i18n:corpus` from `src/i18n/locales/*/*.json`. Do not edit by hand: change the locale files and regenerate. Every key is here; plural forms are shown together (*one:*, *other:* …), and `{{placeholders}}` must stay exactly as they are.",
     "",
@@ -385,7 +362,7 @@ export function build(locales = readLocales(), { withRecent = true } = {}) {
     }),
     "## Automatic terminology audit",
     "",
-    "Classes: **A** clear bug (fixed in v0.18.9 when found); **B** likely wording issue for the native review; **C** intentional context difference.",
+    "Classes: **A** clear bug (fixed when found); **B** wording question still open; **C** intentional, or decided in the v0.18.10 native polish.",
     "",
     auditTable(findings),
     "",
@@ -397,55 +374,31 @@ export function build(locales = readLocales(), { withRecent = true } = {}) {
   // The priority pass.
   const byKey = new Map(list.map((e) => [e.key, e]));
   const recent = withRecent ? recentKeys(locales) : null;
-  const short = list.filter((e) => e.forms.en.every(([, t]) => t.length <= 28) && /(action|menu|button|tab|toggle|open|save|add|delete|edit|choose|start|new|back|copy|print|use|show|hide|close)/i.test(e.key.split(".").slice(-1)[0]) && !e.key.startsWith("errors."));
-  const narrowRisk = list.filter((e) => {
-    const en = e.forms.en[0][1];
-    const de = e.forms.de[0]?.[1] ?? "";
-    return en.length <= 32 && de.length > en.length * 1.5 && de.length > 18;
-  });
   const priority = [
-    "# Six-language review — priority pass (v0.18.9)",
+    "# Six-language review — what is still open (v0.18.10)",
     "",
-    `> Generated by \`npm run i18n:corpus\`. The full corpus is [native-polish-review-v0.18.9.md](native-polish-review-v0.18.9.md). Start here: these are the strings where wording matters most or is least settled.`,
+    `> Generated by \`npm run i18n:corpus\`. The full corpus is [native-polish-review-v0.18.10.md](native-polish-review-v0.18.10.md). The v0.18.10 native polish applied the owner's decisions and a conservative pass over every language; this page holds the approved terms, the questions left, and the strings the pass changed, for the final spot review.`,
     "",
-    "## 1. Terminology decisions",
+    "## 1. Approved terminology",
     "",
-    "The established terms as the product uses them now. Confirm or change them first; the rest follows.",
+    "Decided in v0.18.10. The rest of the corpus follows these.",
     "",
     glossaryTable(locales),
     "",
     termTable(usage),
-    "## 2. Questions flagged while preparing",
+    "## 2. Questions left",
     "",
-    header,
-    ...Object.keys(FLAGS).map((k) => byKey.get(k.replace(PLURAL, "$1"))).filter(Boolean).map((e) => rowFor(e)),
+    Object.keys(FLAGS).length === 0
+      ? "_No open linguistic questions._"
+      : [header, ...Object.keys(FLAGS).map((k) => byKey.get(k)).filter(Boolean).map((e) => rowFor(e))].join("\n"),
     "",
-    "## 3. Strings added or changed since v0.18.4",
+    "## 3. Strings changed in v0.18.10",
     "",
     recent === null
-      ? "_The older locale files could not be read from git; see the full corpus._"
-      : [`${recent.size} strings. Newest product areas (Study journey, Materials, templates, passage text, Word export) are here.`, "", header, ...list.filter((e) => recent.has(e.key)).map((e) => rowFor(e))].join("\n"),
+      ? "_The v0.18.9 locale files could not be read from git; see the full corpus._"
+      : [`${recent.size} strings changed in at least one language since v0.18.9. Spot-check these.`, "", header, ...list.filter((e) => recent.has(e.key)).map((e) => rowFor(e))].join("\n"),
     "",
-    "## 4. Short labels: buttons, menus, tabs",
-    "",
-    "Space is tight; a long translation may wrap or be cut.",
-    "",
-    header,
-    ...short.map((e) => rowFor(e)),
-    "",
-    "## 5. Where German (and often Korean) may not fit",
-    "",
-    "German is at least half again as long as a short English label.",
-    "",
-    header,
-    ...narrowRisk.map((e) => rowFor(e)),
-    "",
-    "## 6. Error messages",
-    "",
-    header,
-    ...list.filter((e) => e.key.startsWith("errors.")).map((e) => rowFor(e)),
-    "",
-    "## 7. Automatic audit findings",
+    "## 4. Automatic audit findings",
     "",
     auditTable(findings),
     "",

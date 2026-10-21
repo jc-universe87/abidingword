@@ -240,7 +240,7 @@
             "guidance": "Wie jede wichtige Verwendung von ihrem Satz und Absatz geprägt ist."
           },
           "semantic-range": {
-            "title": "Bedeutungsspektrum",
+            "title": "Bedeutungen",
             "guidance": "Die Bandbreite der Bedeutungen des Wortes und was zwischen ihnen entscheidet."
           },
           "key-passages": {
@@ -355,14 +355,14 @@
     "newLabel": "Neues Projekt",
     "newPlaceholder": "z. B. Predigtreihe zum Römerbrief",
     "create": "Projekt erstellen",
-    "loading": "Projekte werden geladen …",
+    "loading": "Projekte werden geladen…",
     "empty": "Noch keine Projekte. Erstelle oben dein erstes Projekt.",
     "listLabel": "Projekte",
     "allStudies": "Alle Bibelstudien",
     "project": "Projekt",
     "titleLabel": "Projekttitel",
     "studies": "Bibelstudien",
-    "opening": "Projekt wird geöffnet …",
+    "opening": "Projekt wird geöffnet…",
     "breadcrumb": "Navigationspfad",
     "defaultTitle": "Meine Bibelstudien"
   },
@@ -406,7 +406,7 @@
     "allTypes": "Alle Arten",
     "status": "Status",
     "anyStatus": "Jeder Status",
-    "loading": "Bibelstudien werden geladen …",
+    "loading": "Bibelstudien werden geladen…",
     "noMatch": "Keine Bibelstudien entsprechen diesen Filtern.",
     "empty": "Hier gibt es noch keine Bibelstudien.",
     "listLabel": "Bibelstudien",
@@ -418,7 +418,7 @@
   "header": {
     "status": "Status",
     "changed": "Geändert am {{date}}",
-    "duplicate": "Duplizieren …",
+    "duplicate": "Duplizieren…",
     "overview": "Überblick",
     "noFindings": "Noch keine Notizen",
     "questionCount_one": "{{count}} Frage",
@@ -474,7 +474,7 @@
     "saveAsTemplateTooMany": "Eine Vorlage braucht mindestens einen Teil und kann höchstens {{max}} haben. Ändere zuerst die Teile dieses Bibelstudiums oder erstelle die Vorlage unter Einstellungen → Vorlagen."
   },
   "editor": {
-    "opening": "Bibelstudium wird geöffnet …",
+    "opening": "Bibelstudium wird geöffnet…",
     "titleLabel": "Titel des Bibelstudiums",
     "newSectionTitle": "Neuer Teil",
     "allSaved": "Alle Änderungen gespeichert.",
@@ -504,7 +504,7 @@
     "moveDown": "{{type}} in „{{section}}“ nach unten verschieben",
     "delete": "{{type}} in „{{section}}“ löschen",
     "deleteTooltip": "{{type}} löschen",
-    "placeholder": "Hier schreiben …",
+    "placeholder": "Hier schreiben…",
     "passagesMentioned": "Erwähnte Bibelstellen:",
     "options": "Optionen für {{type}} in „{{section}}“",
     "optionsGroup": "Optionen für {{type}} in „{{section}}“",
@@ -538,7 +538,7 @@
     "tags": "Schlagwörter",
     "tagsPlaceholder": "z. B. Bund, Predigt",
     "confirmDelete": "{{type}} löschen?",
-    "writePlaceholder": "Hier schreiben …",
+    "writePlaceholder": "Hier schreiben…",
     "details": "Details",
     "detailsFor": "Details zu {{type}}: {{excerpt}}",
     "kindGroup": "Art der Notiz",
@@ -569,14 +569,14 @@
     "addGroup": "Verwandtes Bibelstudium verknüpfen",
     "relation": "Beziehung",
     "target": "Verwandtes Bibelstudium",
-    "choose": "Bibelstudium auswählen …",
+    "choose": "Bibelstudium auswählen…",
     "option": "{{title}} ({{project}})",
     "link": "Verknüpfen",
     "describe": "Beziehung beschreiben"
   },
   "search": {
     "heading": "Bibelstudien mit „{{query}}“",
-    "searching": "Deine Bibelstudien werden durchsucht …",
+    "searching": "Deine Bibelstudien werden durchsucht…",
     "none": "In deinen Bibelstudien wurde nichts gefunden.",
     "count_one": "{{count}} Treffer.",
     "count_other": "{{count}} Treffer.",
@@ -601,12 +601,12 @@
     "confirmLabel": "{{name}} löschen?",
     "confirm": "Die Vorlage „{{name}}“ löschen? Bibelstudien, die bereits damit erstellt wurden, bleiben unverändert.",
     "deleteTemplate": "Vorlage löschen",
-    "new": "Neue Vorlage …",
-    "saveAsMine": "Als meine Vorlage speichern",
+    "new": "Neue Vorlage…",
+    "saveAsMine": "Als eigene Vorlage speichern",
     "saveAsMineLabel": "„{{name}}“ als meine Vorlage speichern"
   },
   "templateEditor": {
-    "opening": "Vorlage wird geöffnet …",
+    "opening": "Vorlage wird geöffnet…",
     "back": "Zurück zu den Einstellungen",
     "editTitle": "Vorlage bearbeiten",
     "newTitle": "Neue Vorlage",
@@ -642,14 +642,14 @@
     "label": "Zum Bibelstudium hinzufügen",
     "title": "Zum Bibelstudium hinzufügen: {{study}}",
     "chooseStudy": "Bibelstudium",
-    "otherStudy": "Anderes Bibelstudium …",
+    "otherStudy": "Anderes Bibelstudium…",
     "noStudies": "Es gibt noch kein Bibelstudium. Beginne eines im Bereich „Bibelstudium“ und füge dies dann hinzu.",
     "yourNote": "Deine Notiz (freiwillig)",
     "placeholder": "Was nimmst du daraus mit?",
-    "placeholderRequired": "Schreib, was du von dieser Stelle mitnimmst …",
+    "placeholderRequired": "Schreib, was du von dieser Stelle mitnimmst…",
     "save": "Hinzufügen",
     "added": "Zu {{study}} · {{part}} hinzugefügt.",
-    "loading": "Deine Bibelstudien werden geladen …"
+    "loading": "Deine Bibelstudien werden geladen…"
   },
   "view": {
     "label": "Anzeigen",
@@ -657,7 +657,7 @@
     "teaching": "Bibellehre"
   },
   "teaching": {
-    "loading": "Die Vorbereitung wird geöffnet …",
+    "loading": "Die Vorbereitung wird geöffnet…",
     "which": "Vorbereitung:",
     "another": "Weitere Bibellehre vorbereiten",
     "empty": {
@@ -700,7 +700,7 @@
       "materials": "Vom Assistenten übernommen in {{scope}}",
       "useFinding": "Etwas aus deinem Bibelstudium verwenden",
       "chooseFinding": "Aus deinem Bibelstudium",
-      "pick": "Auswählen …",
+      "pick": "Auswählen…",
       "empty": "(leer)",
       "findingNote": "Es bleibt in deinem Bibelstudium. Änderst du es dort, ändert es sich auch hier.",
       "removeFinding": "Hier nicht mehr verwenden",
@@ -734,8 +734,8 @@
         "natural": "Natürlicher klingen lassen",
         "repetition": "Wiederholungen entfernen",
         "spoken": "Leichter vorzutragen",
-        "audience": "Für eine Zielgruppe anpassen …",
-        "translate": "Übersetzen …",
+        "audience": "Für eine Zielgruppe anpassen…",
+        "translate": "Übersetzen…",
         "transition": "Hilfe bei einem Übergang",
         "review": "Meinen Text durchsehen",
         "structure": "Zum Aufbau Rückmeldung geben",
@@ -743,12 +743,12 @@
         "theology": "Theologie und Bibeltext prüfen",
         "passages": "Bibelstellen zum Nachschlagen vorschlagen",
         "phrasing": "Andere Formulierungen",
-        "question": "Hilfe bei einer Gesprächsfrage …",
+        "question": "Hilfe bei einer Gesprächsfrage…",
         "restructure": "Wie könnte ich ordnen, was ich habe?",
         "illustration": "Ideen zur Veranschaulichung",
-        "story": "Eine wahre Begebenheit finden …",
+        "story": "Eine wahre Begebenheit finden…",
         "visual": "Ein Bild vorschlagen",
-        "free": "Etwas anderes fragen …"
+        "free": "Etwas anderes fragen…"
       },
       "title": "{{action}} · {{part}}",
       "close": "Assistent schließen",
@@ -873,10 +873,10 @@
       "stop": "Nicht mehr warten",
       "stopped": "Warten beendet. Nichts wurde geändert. Der Dienst kann die Anfrage trotzdem zu Ende bearbeiten, und sie kann zu deiner Nutzung zählen.",
       "pending": {
-        "ask": "Der Assistent wird gefragt …",
-        "story": "Quellen werden gesucht … Das kann eine Weile dauern.",
-        "findImages": "Passende Bilder werden gesucht …",
-        "makeImage": "Ein Bild wird erstellt … Das kann eine Weile dauern."
+        "ask": "Der Assistent wird gefragt…",
+        "story": "Quellen werden gesucht… Das kann eine Weile dauern.",
+        "findImages": "Passende Bilder werden gesucht…",
+        "makeImage": "Ein Bild wird erstellt… Das kann eine Weile dauern."
       },
       "menuTitle": "Hilfe vom KI-Assistenten",
       "minimise": "Minimieren",
@@ -930,7 +930,7 @@
       },
       "steps": {
         "title": "Ablauf",
-        "none": "Noch keine Schritte. Füge die Teile der Stunde in ihrer Reihenfolge hinzu: Begrüßung, Geschichte, Aktion, Gebet …",
+        "none": "Noch keine Schritte. Füge die Teile der Stunde in ihrer Reihenfolge hinzu: Begrüßung, Geschichte, Aktion, Gebet…",
         "add": "Schritt hinzufügen",
         "number": "Schritt {{number}}",
         "label": "Schritt {{number}}: {{title}}",
@@ -1007,14 +1007,14 @@
     "templates": {
       "listLabel": "Vorlagen für Bibellehren",
       "intro": "Eine Vorlage für eine Bibellehre ist das, womit eine neue Lehre beginnt: ihre Form und die Punkte, Fragen oder Schritte am Anfang. Eine Lehre übernimmt beim Erstellen eine Kopie; Ändern oder Löschen einer Vorlage verändert also nie eine Lehre.",
-      "saveAsMine": "Als meine Vorlage speichern",
+      "saveAsMine": "Als eigene Vorlage speichern",
       "saveAsMineLabel": "„{{name}}“ als meine Vorlage speichern",
       "edit": "„{{name}}“ bearbeiten",
       "duplicate": "„{{name}}“ duplizieren",
       "delete": "„{{name}}“ löschen",
       "confirmLabel": "„{{name}}“ löschen?",
       "confirm": "Die Vorlage „{{name}}“ löschen? Bibellehren, die bereits damit erstellt wurden, bleiben, wie sie sind.",
-      "new": "Neue Vorlage für eine Bibellehre …",
+      "new": "Neue Vorlage für eine Bibellehre…",
       "newTitle": "Neue Vorlage für eine Bibellehre",
       "editTitle": "Vorlage für eine Bibellehre bearbeiten",
       "format": "Form",
@@ -1149,11 +1149,11 @@
       "includePassageNone": "Bibeltext einfügen (wähle zuerst eine Bibel im Bereich Bibel)"
     },
     "action": {
-      "print": "Drucken oder als PDF sichern …",
-      "markdown": "Als Textdatei sichern …",
+      "print": "Drucken oder als PDF sichern…",
+      "markdown": "Als Textdatei sichern…",
       "copy": "Text kopieren",
       "filterName": "Textdatei (Markdown)",
-      "docx": "Als Word-Dokument speichern …",
+      "docx": "Als Word-Dokument speichern…",
       "docxFilterName": "Word-Dokument (.docx)"
     },
     "status": {
@@ -1164,12 +1164,12 @@
     },
     "menu": {
       "files": "Präsentationsdateien",
-      "exportPresentation": "Präsentation als Datei sichern …",
+      "exportPresentation": "Präsentation als Datei sichern…",
       "exportHint": "PowerPoint, PDF mit Folien, Sprechzettel fürs Handy, Markdown oder Vortragspaket",
       "exportHintNamed": "„{{title}}“: PowerPoint, PDF mit Folien, Sprechzettel fürs Handy, Markdown oder Vortragspaket"
     },
     "scripture": {
-      "reading": "Bibeltext wird gelesen …",
+      "reading": "Bibeltext wird gelesen…",
       "failed": "Der Bibeltext konnte nicht gelesen werden. {{reason}} Die Bibelstelle bleibt in der Unterlage; gedruckt oder gespeichert werden kann sie erst, wenn der Text gelesen ist oder die Auswahl aus ist.",
       "none": "{{bible}} hat keinen Text für diese Stelle. Nur die Bibelstelle wird gezeigt.",
       "missing_one": "{{bible}} hat keinen Text für Vers {{verses}}; er fehlt hier und wird nicht aus einer anderen Bibel genommen.",
@@ -1178,8 +1178,8 @@
     }
   },
   "phase": {
-    "label": "Im Aufbau",
-    "none": "Nicht im Aufbau",
+    "label": "Gliederung",
+    "none": "Nicht in der Gliederung",
     "ofPart": "Wo „{{title}}“ im Aufbau des Bibelstudiums steht",
     "ofTemplatePart": "Wo Teil {{number}} im Aufbau des Bibelstudiums steht"
   }

@@ -1,6 +1,6 @@
 {
   "addToLibrary": "Zur Bibliothek hinzufügen",
-  "addToLibraryEllipsis": "Zur Bibliothek hinzufügen …",
+  "addToLibraryEllipsis": "Zur Bibliothek hinzufügen…",
   "sourceType": {
     "book": "Buch",
     "article": "Artikel",
@@ -65,16 +65,16 @@
   },
   "add": {
     "title": "Zur Bibliothek hinzufügen",
-    "reading": "Die Datei wird gelesen und ihr Text ermittelt …",
+    "reading": "Die Datei wird gelesen und ihr Text ermittelt…",
     "intro": "Wähle eine PDF-, EPUB-, Word- (.docx), Markdown- (.md) oder Textdatei (.txt). Abiding Word legt eine eigene Kopie in deiner Bibliothek an und verändert deine Datei nie. Eingescannte PDFs können noch nicht gelesen werden.",
-    "choose": "Datei auswählen …",
+    "choose": "Datei auswählen…",
     "whatFound": "Gefundener Inhalt",
     "extracted": "Text erfolgreich ausgelesen",
     "references_one": "{{number}} Bibelstellenangabe erkannt",
     "references_other": "{{number}} Bibelstellenangaben erkannt",
     "duplicate": "Diese Datei ist bereits als <strong>{{title}}</strong> in deiner Bibliothek.",
     "addCopy": "Trotzdem eine zweite Kopie hinzufügen",
-    "adding": "Wird hinzugefügt …"
+    "adding": "Wird hinzugefügt…"
   },
   "size": {
     "pages_one": "{{number}} Seite",
@@ -112,7 +112,7 @@
     "moreLocations_one": "{{count}} weitere Stelle in dieser Quelle",
     "moreLocations_other": "{{count}} weitere Stellen in dieser Quelle",
     "showFewerLocations": "Weniger anzeigen",
-    "loadingLocations": "Weitere Stellen werden geladen …",
+    "loadingLocations": "Weitere Stellen werden geladen…",
     "locationsFailed": "Die weiteren Stellen konnten nicht geladen werden. Versuche es erneut.",
     "recent": "Zuletzt hinzugefügt",
     "openLibrary": "Bibliothek öffnen"
@@ -156,7 +156,7 @@
     "zoomValue": "{{percent}} %",
     "fitWidth": "Breite anpassen",
     "fitPage": "Seite einpassen",
-    "loading": "Das Original wird geöffnet …",
+    "loading": "Das Original wird geöffnet…",
     "renderFailed": "Das Original konnte nicht angezeigt werden. Der extrahierte Text bleibt lesbar.",
     "noNativeText": "Auf dieser Seite ist kein eigener Text verfügbar"
   },
@@ -204,7 +204,7 @@
     "open": "In dieser Quelle suchen (Strg+F)",
     "label": "In dieser Quelle suchen",
     "placeholder": "In dieser Quelle suchen",
-    "searching": "Suche läuft …",
+    "searching": "Suche läuft…",
     "failed": "Die Suche konnte nicht abgeschlossen werden. Bitte erneut versuchen.",
     "none": "Keine Treffer",
     "position": "{{current}} von {{total}}",

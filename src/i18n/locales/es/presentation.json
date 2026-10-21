@@ -110,7 +110,7 @@
     "dragHint": "Arrastra para mover la diapositiva (o usa las flechas)",
     "design": "Diseño",
     "builtIn": "Fondos incluidos",
-    "churchTemplates": "Plantillas de la iglesia",
+    "churchTemplates": "Plantillas para la iglesia",
     "designHint": "Una plantilla solo cambia el aspecto de las diapositivas. Tus diapositivas y tu enseñanza siguen igual, y puedes volver atrás cuando quieras."
   },
   "warnings": {
@@ -281,7 +281,7 @@
   },
   "templates": {
     "manage": "Gestionar plantillas…",
-    "title": "Plantillas de la iglesia",
+    "title": "Plantillas para la iglesia",
     "intro": "Usa el diseño de diapositivas de tu iglesia: impórtalo desde un archivo de PowerPoint, trae un archivo de plantilla de otro ordenador o crea uno sencillo aquí. Una plantilla es solo un diseño; nunca contiene el contenido de un sermón.",
     "importPptx": "Importar desde PowerPoint…",
     "importPackage": "Añadir un archivo de plantilla…",
@@ -297,7 +297,7 @@
     "exported": "Guardado como {{path}}.",
     "removed": "Se eliminó «{{name}}». Las presentaciones que la usaban vuelven a mostrar su fondo incluido.",
     "yours": "Tus plantillas",
-    "none": "Todavía no hay plantillas de la iglesia.",
+    "none": "Todavía no hay plantillas para la iglesia.",
     "source": {
       "pptx": "Desde PowerPoint",
       "package": "Desde un archivo de plantilla",
@@ -424,7 +424,7 @@
       "quoteBy": "Un pastor",
       "question": "¿Dónde intentas dar fruto por tu cuenta?"
     },
-    "newTitle": "Nueva plantilla de la iglesia",
+    "newTitle": "Nueva plantilla para la iglesia",
     "editTitle": "Editar {{name}}",
     "description": "Descripción (opcional)",
     "size": "Tamaño de diapositiva",

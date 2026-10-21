@@ -240,7 +240,7 @@
             "guidance": "Como cada uso importante é moldado pela frase e pelo parágrafo."
           },
           "semantic-range": {
-            "title": "Campo semântico",
+            "title": "Sentidos possíveis",
             "guidance": "Os sentidos que a palavra pode ter e o que decide entre eles."
           },
           "key-passages": {
@@ -1190,8 +1190,8 @@
     }
   },
   "phase": {
-    "label": "No percurso",
-    "none": "Fora do percurso",
+    "label": "Estrutura",
+    "none": "Fora da estrutura",
     "ofPart": "Lugar de “{{title}}” no percurso do estudo",
     "ofTemplatePart": "Lugar da parte {{number}} no percurso do estudo"
   }

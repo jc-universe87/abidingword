@@ -240,7 +240,7 @@
             "guidance": "Cómo cada uso importante está determinado por su oración y su párrafo."
           },
           "semantic-range": {
-            "title": "Campo semántico",
+            "title": "Significados",
             "guidance": "La gama de significados que tiene la palabra y qué permite decidir entre ellos."
           },
           "key-passages": {
@@ -1190,8 +1190,8 @@
     }
   },
   "phase": {
-    "label": "En el recorrido",
-    "none": "Fuera del recorrido",
+    "label": "Esquema",
+    "none": "Fuera del esquema",
     "ofPart": "Lugar de «{{title}}» en el recorrido del estudio",
     "ofTemplatePart": "Lugar de la parte {{number}} en el recorrido del estudio"
   }

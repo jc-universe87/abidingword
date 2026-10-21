@@ -154,7 +154,7 @@ describe("refining a baseline (v0.18.9)", () => {
     await i18n.changeLanguage("de");
     try {
       // A word study made in v0.18.8 stored the English it was made with.
-      expect(sectionTitle({ key: "semantic-range", title: "Semantic Range" })).toBe("Bedeutungsspektrum");
+      expect(sectionTitle({ key: "semantic-range", title: "Semantic Range" })).toBe("Bedeutungen");
       expect(sectionGuidance({ key: "occurrences", guidance: "Where the word appears. (Automatic occurrence lists arrive with the concordance.)" })).toBe("Wo das Wort vorkommt; die Konkordanz kann seine Vorkommen auflisten.");
       // The person's own wording stays theirs.
       expect(sectionTitle({ key: "semantic-range", title: "Was das Wort heißt" })).toBe("Was das Wort heißt");
