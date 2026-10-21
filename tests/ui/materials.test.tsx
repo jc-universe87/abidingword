@@ -263,7 +263,7 @@ describe("Materials on screen", () => {
     const user = await openMaterials(api);
     await user.click(screen.getByRole("menuitem", { name: "Manuscript" }));
     await within(studyPane()).findByRole("article", { name: "Preview: Manuscript" });
-    await user.click(within(studyPane()).getByRole("button", { name: "Save as a text file (Markdown)…" }));
+    await user.click(within(studyPane()).getByRole("button", { name: "Save as a text file…" }));
     await within(studyPane()).findByText("Saved: /home/test/Documents/Teaching.md");
     expect(api.state.presentation.materialDialogs).toEqual(["Remain in the vine – Manuscript.md"]);
     expect(api.state.presentation.materialSaves[0]!.text).toContain("# Remain in the vine");
@@ -320,7 +320,7 @@ describe("Materials on screen", () => {
     await user.click(screen.getByRole("menuitem", { name: "Question sheet" }));
     await within(studyPane()).findByText("Nothing here yet. What you write in the teaching appears here.");
     expect(within(studyPane()).getByRole("button", { name: "Print or save as PDF…" })).toBeDisabled();
-    expect(within(studyPane()).getByRole("button", { name: "Save as a text file (Markdown)…" })).toBeDisabled();
+    expect(within(studyPane()).getByRole("button", { name: "Save as a text file…" })).toBeDisabled();
   });
 
   it("offers the presentation's files from Materials once there are slides, through the same export as the editor", async () => {

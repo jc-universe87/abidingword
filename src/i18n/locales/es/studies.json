@@ -1113,7 +1113,7 @@
     },
     "action": {
       "print": "Imprimir o guardar como PDF…",
-      "markdown": "Guardar como archivo de texto (Markdown)…",
+      "markdown": "Guardar como archivo de texto…",
       "copy": "Copiar el texto",
       "filterName": "Archivo de texto (Markdown)"
     },

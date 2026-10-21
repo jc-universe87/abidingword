@@ -509,9 +509,13 @@
   :root:lang(ko) .aw-material {
     font-weight: 400;
   }
-  @media (max-width: 40rem) {
+  /* In a narrow pane (not only a narrow window) the sheet keeps more of its width for the text. */
+  @container (max-width: 32rem) {
     .aw-material {
-      padding: 1.5rem;
+      padding: 1.25rem 1.25rem 1.5rem;
+    }
+    .aw-material-title {
+      font-size: 1.375rem;
     }
   }
 
