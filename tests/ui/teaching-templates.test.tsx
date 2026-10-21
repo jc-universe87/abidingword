@@ -178,9 +178,9 @@ describe("Save as my template, from a teaching", () => {
     const point = (title: string) => ({ id: title, position: 0, kind: null, title, explanation: "x", application: "y", illustration: "z" });
     expect(templateFromTeaching({ kind: "sermon", points: [point("The vine is Christ"), point("We are branches")] })).toEqual({ kind: "sermon", points: [{ title: "" }, { title: "" }] });
     expect(templateFromTeaching({ kind: "bible_study", points: [point("What does remain mean?")] })).toEqual({ kind: "bible_study", points: [{ title: "" }] });
-    // A teaching of no kind is saved as "other"; audio stays behind (not offered yet).
+    // A teaching of no kind is saved as "other"; an audio step keeps its kind (kept for later, as in a teaching).
     expect(templateFromTeaching({ kind: null, points: [] })).toEqual({ kind: "other", points: [] });
-    expect(templateFromTeaching({ kind: "lesson", points: [{ ...point("Song"), kind: "audio" }] })).toEqual({ kind: "lesson", points: [{ title: "Song" }] });
+    expect(templateFromTeaching({ kind: "lesson", points: [{ ...point("Song"), kind: "audio" }] })).toEqual({ kind: "lesson", points: [{ title: "Song", kind: "audio" }] });
   });
 });
 
@@ -216,5 +216,38 @@ describe("Materials from a teaching made with one's own template", () => {
     expect(sheet.blocks.filter((b) => b.type === "question")).toEqual([]);
     const sermon = await api.teachingGet((await api.teachingCreate({ studyId, title: "Sunday", kind: "sermon", points: [{ title: "" }, { title: "" }, { title: "" }] })).id);
     expect(derive(t, "manuscript", sermon).empty).toBe(true);
+  });
+});
+
+describe("review fixes (v0.18.7)", () => {
+  it("says when a teaching has more steps than a template can start with, and keeps focus on its toggle", async () => {
+    const { api, studyId } = await setup();
+    await api.teachingCreate({ studyId, title: "Long", kind: "children", points: Array.from({ length: 20 }, (_, i) => ({ title: `Step ${i}`, kind: "text" as const })) });
+    const prep = api.state.teaching.preparations[0]!;
+    await api.teachingPointCreate({ preparationId: prep.id, title: "One more", kind: "activity" });
+    const user = await openTeaching(api);
+    const article = await within(studyPane()).findByRole("article", { name: "Long" });
+    const about = await openAbout(user, article);
+    const toggle = within(about).getByRole("button", { name: "Save as my template" });
+    await user.click(toggle);
+    const form = within(about).getByRole("form", { name: "Save this teaching's structure as a template" });
+    expect(form).toHaveTextContent("at most 20 points, questions or steps");
+    expect(within(form).getByRole("button", { name: "Save template" })).toBeDisabled();
+    await user.click(within(form).getByRole("button", { name: "Cancel" }));
+    expect(toggle).toHaveFocus();
+    expect(api.state.teaching.templates).toEqual([]);
+  });
+
+  it("gives focus back to Add a step when adding fails", async () => {
+    const { api, studyId } = await setup();
+    await api.teachingCreate({ studyId, title: "Kids", kind: "children", points: [] });
+    const user = await openTeaching(api);
+    const article = await within(studyPane()).findByRole("article", { name: "Kids" });
+    api.teachingPointCreate = async () => {
+      throw new Error("The disk is full.");
+    };
+    await user.click(within(article).getByRole("button", { name: /Add a step/ }));
+    await user.click(within(article).getByRole("menuitem", { name: "Question" }));
+    await waitFor(() => expect(within(article).getByRole("button", { name: /Add a step/ })).toHaveFocus());
   });
 });

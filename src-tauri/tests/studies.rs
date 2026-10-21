@@ -898,6 +898,28 @@ fn a_part_keeps_its_key_and_phase_when_added_and_its_phase_can_change() {
         )?;
         assert_eq!(later.key.as_deref(), Some("key-words"));
         assert_eq!(later.phase, Some(StudyPhase::Text));
+        // A study never has the same part twice, and a key is a plain word.
+        let again = |key: &str| {
+            sections::create(
+                conn,
+                &CreateStudySection {
+                    study_id: s.clone(),
+                    title: "Again".into(),
+                    guidance: None,
+                    key: Some(key.into()),
+                    phase: None,
+                },
+            )
+        };
+        assert!(matches!(again("key-words"), Err(AppError::Conflict(_))));
+        assert!(matches!(
+            again("Key Words!"),
+            Err(AppError::InvalidInput(_))
+        ));
+        assert!(matches!(
+            again(&"a".repeat(65)),
+            Err(AppError::InvalidInput(_))
+        ));
 
         let change = |phase: Option<&str>| UpdateStudySection {
             id: later.id.clone(),

@@ -78,6 +78,14 @@ function Form({ templateId, initial, onClose }: FormProps) {
     (here && !here.disabled ? here : arrow(!moved.up))?.focus();
   }, [moved, id]);
 
+  // Focus goes to the part after (else before) the one removed.
+  const removeAt = (index: number) => {
+    const next = sections.filter((_, i) => i !== index);
+    setSections(next);
+    const target = next[Math.min(index, next.length - 1)];
+    if (target) requestAnimationFrame(() => document.getElementById(`${id}-${target.row}-title`)?.focus());
+  };
+
   const save = async () => {
     setError(null);
     const input = { name, description, studyType, sections: sections.map(({ row: _row, ...section }) => section) };
@@ -145,15 +153,15 @@ function Form({ templateId, initial, onClose }: FormProps) {
                 <div className="flex items-center gap-2">
                   <label className="flex min-w-0 flex-1 flex-col gap-1">
                     <span className="sr-only">{t("studies.templateEditor.sectionTitle", { number })}</span>
-                    <input value={section.title} onChange={(e) => update(index, { title: e.target.value })} className={`${field} w-full`} aria-label={t("studies.templateEditor.sectionTitle", { number })} />
+                    <input id={`${id}-${section.row}-title`} value={section.title} onChange={(e) => update(index, { title: e.target.value })} className={`${field} w-full`} aria-label={t("studies.templateEditor.sectionTitle", { number })} />
                   </label>
-                  <button type="button" id={`${id}-${section.row}-up`} disabled={index === 0} onClick={() => move(index, -1)} aria-label={t("studies.templateEditor.moveUp", { title: sectionName })} className="inline-flex size-10 items-center justify-center rounded-aw text-text-muted hover:bg-hover disabled:opacity-40">
+                  <button type="button" id={`${id}-${section.row}-up`} disabled={index === 0} onClick={() => move(index, -1)} aria-label={t("studies.templateEditor.moveUp", { title: sectionName })} className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-hover disabled:opacity-40">
                     <ArrowUp className="size-4" aria-hidden="true" />
                   </button>
-                  <button type="button" id={`${id}-${section.row}-down`} disabled={index === sections.length - 1} onClick={() => move(index, 1)} aria-label={t("studies.templateEditor.moveDown", { title: sectionName })} className="inline-flex size-10 items-center justify-center rounded-aw text-text-muted hover:bg-hover disabled:opacity-40">
+                  <button type="button" id={`${id}-${section.row}-down`} disabled={index === sections.length - 1} onClick={() => move(index, 1)} aria-label={t("studies.templateEditor.moveDown", { title: sectionName })} className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-hover disabled:opacity-40">
                     <ArrowDown className="size-4" aria-hidden="true" />
                   </button>
-                  <button type="button" disabled={sections.length === 1} onClick={() => setSections(sections.filter((_, i) => i !== index))} aria-label={t("studies.templateEditor.remove", { title: sectionName })} className="inline-flex size-10 items-center justify-center rounded-aw text-text-muted hover:bg-hover hover:text-danger disabled:opacity-40">
+                  <button type="button" disabled={sections.length === 1} onClick={() => removeAt(index)} aria-label={t("studies.templateEditor.remove", { title: sectionName })} className="inline-flex size-11 items-center justify-center rounded-aw text-text-muted hover:bg-hover hover:text-danger disabled:opacity-40">
                     <Trash2 className="size-4" aria-hidden="true" />
                   </button>
                 </div>

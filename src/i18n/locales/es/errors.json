@@ -95,11 +95,13 @@
   "templates": {
     "noSections": "Una plantilla necesita al menos una parte con la que empezar.",
     "tooManySections": "Una plantilla puede tener como máximo {{max}} partes.",
-    "builtinReadOnly": "Las plantillas integradas no se pueden modificar. Duplícala para crear tu propia versión.",
-    "duplicateKey": "Dos partes de la plantilla son la misma parte. Quita una de ellas."
+    "builtinReadOnly": "Las plantillas integradas no se pueden modificar. Usa «Guardar como mi plantilla» para crear tu propia versión.",
+    "duplicateKey": "Dos partes de la plantilla son la misma parte. Quita una de ellas.",
+    "invalidKey": "El identificador de esta parte no es válido."
   },
   "sections": {
-    "hasContent": "“{{title}}” todavía contiene texto o apuntes."
+    "hasContent": "“{{title}}” todavía contiene texto o apuntes.",
+    "duplicateKey": "Este estudio ya tiene esa parte."
   },
   "relations": {
     "self": "Un estudio no se puede vincular consigo mismo.",

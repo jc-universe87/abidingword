@@ -117,17 +117,28 @@ pub fn create(conn: &Connection, input: &CreateStudySection) -> AppResult<StudyS
     )?;
     let now = now();
     let tx = conn.unchecked_transaction()?;
-    // A part the template offers for later keeps its identity and its place in the movement.
-    let key = input
-        .key
-        .as_deref()
-        .map(str::trim)
-        .filter(|k| !k.is_empty());
+    // A part the template offers for later keeps its identity and its place in the movement;
+    // a study never has two live parts with one key.
+    let key = validate::part_key(input.key.as_deref())?;
+    if let Some(key) = key.as_deref() {
+        let taken: bool = tx.query_row(
+            "SELECT EXISTS (SELECT 1 FROM study_sections
+             WHERE study_id = ?1 AND key = ?2 AND deleted_at IS NULL)",
+            params![input.study_id, key],
+            |r| r.get(0),
+        )?;
+        if taken {
+            return Err(AppError::Conflict(UserMessage::new(
+                "sections.duplicateKey",
+                "This study already has that part.",
+            )));
+        }
+    }
     let id = insert(
         &tx,
         &input.study_id,
         NewSection {
-            key,
+            key: key.as_deref(),
             title: &title,
             guidance: guidance.as_deref(),
             phase: input.phase,

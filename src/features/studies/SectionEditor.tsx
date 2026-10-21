@@ -109,14 +109,28 @@ export function SectionEditor(props: SectionEditorProps) {
   };
 
   // Where the part belongs in the study outline: the person's to change, never a lock (v0.18.7).
+  // The choice shows at once; only the answer to the latest choice is applied.
+  const [shownPhase, setPhaseShown] = useState(section.phase);
+  const phaseRequest = useRef(0);
+  // A new phase from the core (another save, a reload) is shown as it is.
+  const [storedPhase, setStoredPhase] = useState(section.phase);
+  if (storedPhase !== section.phase) {
+    setStoredPhase(section.phase);
+    setPhaseShown(section.phase);
+  }
   const setPhase = async (next: StudyPhase | null) => {
+    setPhaseShown(next);
+    const request = ++phaseRequest.current;
     const saving = api.studySectionUpdate({ id: section.id, phase: next ?? "" });
     track(saving);
     try {
       const updated = await saving;
+      if (request !== phaseRequest.current) return;
       onChange({ ...updated, blocks: section.blocks });
       setError(null);
     } catch (e) {
+      if (request !== phaseRequest.current) return;
+      setPhaseShown(section.phase);
       setError(toApiError(e).message);
     }
   };
@@ -216,7 +230,7 @@ export function SectionEditor(props: SectionEditorProps) {
             <Trash2 className="size-4" aria-hidden="true" />
             {t("common.delete")}
           </button>
-          <PhaseSelect value={section.phase} onChange={(next) => void setPhase(next)} label={t("studies.phase.ofPart", { title })} className="ml-1" />
+          <PhaseSelect value={shownPhase} onChange={(next) => void setPhase(next)} label={t("studies.phase.ofPart", { title })} className="ml-1" large />
         </div>
       )}
       {confirmingDelete && (

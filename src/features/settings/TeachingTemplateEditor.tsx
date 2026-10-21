@@ -80,6 +80,14 @@ function Form({ templateId, initial, onClose }: { templateId: string | null; ini
     setMoved({ row: points[index]!.row, up: delta < 0 });
   };
 
+  // Focus goes to the point after (else before) the one removed, or to Add.
+  const removeAt = (index: number) => {
+    const next = points.filter((_, i) => i !== index);
+    setPoints(next);
+    const target = next[Math.min(index, next.length - 1)];
+    requestAnimationFrame(() => (target ? document.getElementById(`${id}-${target.row}-title`) : document.getElementById(`${id}-add`))?.focus());
+  };
+
   const save = async () => {
     setError(null);
     // A step's kind belongs to a lesson in steps; the other formats keep none.
@@ -147,6 +155,7 @@ function Form({ templateId, initial, onClose }: { templateId: string | null; ini
                 return (
                   <li key={point.row} className="flex flex-wrap items-center gap-2 border-l-[3px] border-border pl-3">
                     <input
+                      id={`${id}-${point.row}-title`}
                       value={point.title}
                       onChange={(e) => update(index, { title: e.target.value, key: null })}
                       placeholder={shape("titlePlaceholder")}
@@ -161,7 +170,7 @@ function Form({ templateId, initial, onClose }: { templateId: string | null; ini
                         className="aw-input h-10 px-2 text-[0.9375rem]"
                       >
                         <option value="">{t("studies.teaching.stepKind.none")}</option>
-                        {STEP_KINDS.map((k) => (
+                        {[...STEP_KINDS, ...(point.kind === "audio" ? (["audio"] as const) : [])].map((k) => (
                           <option key={k} value={k}>{t(`studies.teaching.stepKind.${k}`)}</option>
                         ))}
                       </select>
@@ -172,7 +181,7 @@ function Form({ templateId, initial, onClose }: { templateId: string | null; ini
                     <button type="button" id={`${id}-${point.row}-down`} disabled={index === points.length - 1} onClick={() => move(index, 1)} aria-label={t("studies.templateEditor.moveDown", { title: label })} className={tool}>
                       <ArrowDown className="size-4" aria-hidden="true" />
                     </button>
-                    <button type="button" onClick={() => setPoints(points.filter((_, i) => i !== index))} aria-label={t("studies.templateEditor.remove", { title: label })} className={`${tool} hover:text-danger`}>
+                    <button type="button" onClick={() => removeAt(index)} aria-label={t("studies.templateEditor.remove", { title: label })} className={`${tool} hover:text-danger`}>
                       <Trash2 className="size-4" aria-hidden="true" />
                     </button>
                   </li>
@@ -181,7 +190,7 @@ function Form({ templateId, initial, onClose }: { templateId: string | null; ini
             </ol>
           )}
           <div>
-            <Button onClick={() => setPoints([...points, asRow({ title: "", kind: steps ? "text" : null })])}>
+            <Button id={`${id}-add`} onClick={() => setPoints([...points, asRow({ title: "", kind: steps ? "text" : null })])}>
               <Plus className="size-4" aria-hidden="true" /> {shape("add")}
             </Button>
           </div>

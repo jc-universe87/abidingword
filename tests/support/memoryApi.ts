@@ -791,6 +791,9 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       return { ...section, blocks: state.blocks.filter((b) => b.sectionId === section.id) };
     },
     studySectionCreate: async ({ studyId, title, guidance, key, phase }) => {
+      // As the core: a key is a plain word, and a study never has the same part twice.
+      if (key?.trim() && !/^[a-z0-9-]{1,64}$/.test(key.trim())) throw new ApiError("invalidInput", "This part's key is not valid.");
+      if (key?.trim() && sectionsOf(studyId).some((sec) => sec.key === key.trim())) throw new ApiError("conflict", "This study already has that part.");
       const sectionId = addSection(studyId, { title: requireTitle(title, "section"), guidance, key: key?.trim() || null, phase: phase ?? null }, sectionsOf(studyId).length);
       touch(studyId);
       const section = find(state.sections, sectionId, "section");

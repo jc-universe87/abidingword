@@ -469,7 +469,8 @@
     "saveAsTemplateKeeps_one": "Die Vorlage übernimmt den Teil dieses Bibelstudiums: seine Überschrift, seinen Hinweis und seinen Platz im Aufbau. Deine Texte, Notizen, Bibelstellen und Angaben bleiben in diesem Bibelstudium.",
     "saveAsTemplateKeeps_other": "Die Vorlage übernimmt die {{count}} Teile dieses Bibelstudiums: ihre Überschriften, Hinweise und Plätze im Aufbau, in dieser Reihenfolge. Deine Texte, Notizen, Bibelstellen und Angaben bleiben in diesem Bibelstudium.",
     "saveTemplate": "Vorlage speichern",
-    "savedAsTemplate": "Als deine Vorlage „{{name}}“ gespeichert. Du kannst sie für ein neues Bibelstudium verwenden und unter Einstellungen → Vorlagen ändern."
+    "savedAsTemplate": "Als deine Vorlage „{{name}}“ gespeichert. Du kannst sie für ein neues Bibelstudium verwenden und unter Einstellungen → Vorlagen ändern.",
+    "saveAsTemplateTooMany": "Eine Vorlage braucht mindestens einen Teil und kann höchstens {{max}} haben. Ändere zuerst die Teile dieses Bibelstudiums oder erstelle die Vorlage unter Einstellungen → Vorlagen."
   },
   "editor": {
     "opening": "Bibelstudium wird geöffnet …",
@@ -1020,7 +1021,8 @@
       "pointsList": "Womit die Vorlage beginnt",
       "pointsHint": "Lass einen Titel leer, um ihn in jeder Lehre selbst zu benennen.",
       "none": "Noch nichts: Eine Lehre mit dieser Vorlage beginnt leer.",
-      "untitled": "ohne Titel"
+      "untitled": "ohne Titel",
+      "loadFailed": "Deine Vorlagen können gerade nicht angezeigt werden. Die mitgelieferten sind da."
     },
     "saveTemplate": {
       "action": "Als meine Vorlage speichern",
@@ -1031,8 +1033,9 @@
         "questions": "Die Vorlage übernimmt die Form und so viele Fragen, wie diese Lehre hat. Die Fragen beginnen leer.",
         "steps": "Die Vorlage übernimmt die Form und die Schritte in ihrer Reihenfolge, jeden mit Titel und Art."
       },
-      "notKept": "Nichts von dem, was du geschrieben hast, kommt mit: keine Zielgruppe, kein Ziel, keine Botschaft, keine Einleitung, kein Schluss, keine Notizen, Bibelstellen, aufbewahrtes Material oder Notizen aus deinem Bibelstudium.",
-      "saved": "Als deine Vorlage „{{name}}“ gespeichert. Du kannst sie für deine nächste Bibellehre wählen und unter Einstellungen → Vorlagen ändern."
+      "notKept": "Nichts von dem, was du geschrieben hast, kommt mit: nicht Zielgruppe, Ziel, Botschaft, Einleitung, Schluss oder Notizen; nichts, was unter einem Punkt, einer Frage oder einem Schritt steht; keine Bibelstellen, kein aufbewahrtes Material und keine Notizen aus deinem Bibelstudium.",
+      "saved": "Als deine Vorlage „{{name}}“ gespeichert. Du kannst sie für deine nächste Bibellehre wählen und unter Einstellungen → Vorlagen ändern.",
+      "tooMany": "Eine Vorlage kann mit höchstens {{max}} Punkten, Fragen oder Schritten beginnen, und diese Lehre hat mehr. Erstelle die Vorlage stattdessen unter Einstellungen → Vorlagen."
     },
     "addStepMenu": "Art des neuen Schritts"
   },

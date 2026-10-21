@@ -469,7 +469,8 @@
     "saveAsTemplateKeeps_one": "The template keeps this study's part: its heading, guidance and place in the outline. Your writing, notes, passages and details stay in this study.",
     "saveAsTemplateKeeps_other": "The template keeps this study's {{count}} parts: their headings, guidance and places in the outline, in this order. Your writing, notes, passages and details stay in this study.",
     "saveTemplate": "Save template",
-    "savedAsTemplate": "Saved as your template “{{name}}”. You can use it for a new study, and change it in Settings → Templates."
+    "savedAsTemplate": "Saved as your template “{{name}}”. You can use it for a new study, and change it in Settings → Templates.",
+    "saveAsTemplateTooMany": "A template needs at least one part and can have at most {{max}}. Change this study's parts first, or make the template in Settings → Templates."
   },
   "editor": {
     "opening": "Opening study…",
@@ -1020,7 +1021,8 @@
       "pointsList": "What the template starts with",
       "pointsHint": "Leave a title empty to name it in each teaching.",
       "none": "Nothing yet: a teaching made with this template starts empty.",
-      "untitled": "untitled"
+      "untitled": "untitled",
+      "loadFailed": "Your templates can't be shown just now. The built-in ones are here."
     },
     "saveTemplate": {
       "action": "Save as my template",
@@ -1031,8 +1033,9 @@
         "questions": "The template keeps the format and as many questions as this teaching has. The questions start empty.",
         "steps": "The template keeps the format and the steps in order, each with its title and kind."
       },
-      "notKept": "Nothing you wrote comes with it: no audience, purpose, message, introduction, conclusion, notes, passages, kept material or notes from your study.",
-      "saved": "Saved as your template “{{name}}”. You can choose it for your next Bible Teaching, and change it in Settings → Templates."
+      "notKept": "Nothing you wrote comes with it: not the audience, purpose, message, introduction, conclusion or notes; nothing written under a point, question or step; no passages, kept material or notes from your study.",
+      "saved": "Saved as your template “{{name}}”. You can choose it for your next Bible Teaching, and change it in Settings → Templates.",
+      "tooMany": "A template can start with at most {{max}} points, questions or steps, and this teaching has more. Make the template in Settings → Templates instead."
     },
     "addStepMenu": "Kind of step to add"
   },

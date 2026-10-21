@@ -475,7 +475,8 @@
     "saveAsTemplateKeeps_other": "O modelo guarda as {{count}} partes deste estudo: seus títulos, orientações e lugares no percurso, nesta ordem. Seu texto, anotações, passagens e detalhes ficam neste estudo.",
     "saveTemplate": "Salvar modelo",
     "savedAsTemplate": "Salvo como seu modelo “{{name}}”. Você pode usá-lo em um novo estudo e alterá-lo em Configurações → Modelos.",
-    "saveAsTemplateKeeps_many": "O modelo guarda as {{count}} partes deste estudo: seus títulos, orientações e lugares no percurso, nesta ordem. Seu texto, anotações, passagens e detalhes ficam neste estudo."
+    "saveAsTemplateKeeps_many": "O modelo guarda as {{count}} partes deste estudo: seus títulos, orientações e lugares no percurso, nesta ordem. Seu texto, anotações, passagens e detalhes ficam neste estudo.",
+    "saveAsTemplateTooMany": "Um modelo precisa de pelo menos uma parte e pode ter no máximo {{max}}. Altere primeiro as partes deste estudo ou crie o modelo em Configurações → Modelos."
   },
   "editor": {
     "opening": "Abrindo estudo…",
@@ -1031,7 +1032,8 @@
       "pointsList": "Com o que o modelo começa",
       "pointsHint": "Deixe um título vazio para nomeá-lo em cada ensino.",
       "none": "Nada ainda: um ensino criado com este modelo começa vazio.",
-      "untitled": "sem título"
+      "untitled": "sem título",
+      "loadFailed": "Seus modelos não podem ser mostrados agora. Os incluídos estão aqui."
     },
     "saveTemplate": {
       "action": "Salvar como meu modelo",
@@ -1042,8 +1044,9 @@
         "questions": "O modelo guarda o formato e tantas perguntas quanto este ensino tem. As perguntas começam vazias.",
         "steps": "O modelo guarda o formato e as etapas em ordem, cada uma com seu título e tipo."
       },
-      "notKept": "Nada do que você escreveu vem junto: nem público, nem propósito, nem mensagem, nem introdução, nem conclusão, nem notas, passagens, material guardado ou anotações do seu estudo.",
-      "saved": "Salvo como seu modelo “{{name}}”. Você pode escolhê-lo para seu próximo ensino e alterá-lo em Configurações → Modelos."
+      "notKept": "Nada do que você escreveu vem junto: nem o público, o propósito, a mensagem, a introdução, a conclusão ou as notas; nada escrito sob um ponto, uma pergunta ou uma etapa; nenhuma passagem, material guardado ou anotação do seu estudo.",
+      "saved": "Salvo como seu modelo “{{name}}”. Você pode escolhê-lo para seu próximo ensino e alterá-lo em Configurações → Modelos.",
+      "tooMany": "Um modelo pode começar com no máximo {{max}} pontos, perguntas ou etapas, e este ensino tem mais. Crie o modelo em Configurações → Modelos."
     },
     "addStepMenu": "Tipo de etapa a adicionar"
   },

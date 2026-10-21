@@ -75,7 +75,7 @@ export function templateFromTeaching(prep: Pick<TeachingPreparation, "kind" | "p
     kind,
     points: prep.points.map((p) => ({
       title: steps ? p.title.trim() : "",
-      ...(p.kind && p.kind !== "audio" ? { kind: p.kind } : {}),
+      ...(p.kind ? { kind: p.kind } : {}),
     })),
   };
 }

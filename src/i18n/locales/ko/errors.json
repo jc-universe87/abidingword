@@ -89,11 +89,13 @@
   "templates": {
     "noSections": "공부 틀에는 부분이 하나 이상 있어야 합니다.",
     "tooManySections": "공부 틀에는 부분을 최대 {{max}}개까지 둘 수 있습니다.",
-    "builtinReadOnly": "기본 제공 공부 틀은 변경할 수 없습니다. 복제하여 나만의 공부 틀을 만드세요.",
-    "duplicateKey": "공부 틀의 두 부분이 같은 부분입니다. 하나를 지우세요."
+    "builtinReadOnly": "기본 제공 공부 틀은 변경할 수 없습니다. ‘내 공부 틀로 저장’으로 나만의 공부 틀을 만드세요.",
+    "duplicateKey": "공부 틀의 두 부분이 같은 부분입니다. 하나를 지우세요.",
+    "invalidKey": "이 부분의 식별값이 올바르지 않습니다."
   },
   "sections": {
-    "hasContent": "“{{title}}”에 아직 글이나 기록이 남아 있습니다."
+    "hasContent": "“{{title}}”에 아직 글이나 기록이 남아 있습니다.",
+    "duplicateKey": "이 성경공부에는 이미 그 부분이 있습니다."
   },
   "relations": {
     "self": "성경공부를 자기 자신과 연결할 수는 없습니다.",

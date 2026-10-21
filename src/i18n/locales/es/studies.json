@@ -475,7 +475,8 @@
     "saveAsTemplateKeeps_other": "La plantilla conserva las {{count}} partes de este estudio: sus títulos, indicaciones y lugares en el recorrido, en este orden. Tus textos, apuntes, pasajes y detalles se quedan en este estudio.",
     "saveTemplate": "Guardar plantilla",
     "savedAsTemplate": "Guardado como tu plantilla «{{name}}». Puedes usarla para un estudio nuevo y cambiarla en Configuración → Plantillas.",
-    "saveAsTemplateKeeps_many": "La plantilla conserva las {{count}} partes de este estudio: sus títulos, indicaciones y lugares en el recorrido, en este orden. Tus textos, apuntes, pasajes y detalles se quedan en este estudio."
+    "saveAsTemplateKeeps_many": "La plantilla conserva las {{count}} partes de este estudio: sus títulos, indicaciones y lugares en el recorrido, en este orden. Tus textos, apuntes, pasajes y detalles se quedan en este estudio.",
+    "saveAsTemplateTooMany": "Una plantilla necesita al menos una parte y puede tener como máximo {{max}}. Cambia primero las partes de este estudio o crea la plantilla en Configuración → Plantillas."
   },
   "editor": {
     "opening": "Abriendo el estudio…",
@@ -1031,7 +1032,8 @@
       "pointsList": "Con qué empieza la plantilla",
       "pointsHint": "Deja un título vacío para ponerlo en cada enseñanza.",
       "none": "Nada todavía: una enseñanza creada con esta plantilla empieza vacía.",
-      "untitled": "sin título"
+      "untitled": "sin título",
+      "loadFailed": "Ahora no se pueden mostrar tus plantillas. Las integradas sí están."
     },
     "saveTemplate": {
       "action": "Guardar como mi plantilla",
@@ -1042,8 +1044,9 @@
         "questions": "La plantilla conserva el formato y tantas preguntas como tiene esta enseñanza. Las preguntas empiezan vacías.",
         "steps": "La plantilla conserva el formato y los pasos en orden, cada uno con su título y su tipo."
       },
-      "notKept": "Nada de lo que escribiste se incluye: ni público, ni propósito, ni mensaje, ni introducción, ni conclusión, ni notas, pasajes, material guardado o apuntes de tu estudio.",
-      "saved": "Guardada como tu plantilla «{{name}}». Puedes elegirla para tu próxima enseñanza y cambiarla en Configuración → Plantillas."
+      "notKept": "Nada de lo que escribiste se incluye: ni el público, el propósito, el mensaje, la introducción, la conclusión o las notas; nada de lo escrito bajo un punto, una pregunta o un paso; ningún pasaje, material guardado ni apunte de tu estudio.",
+      "saved": "Guardada como tu plantilla «{{name}}». Puedes elegirla para tu próxima enseñanza y cambiarla en Configuración → Plantillas.",
+      "tooMany": "Una plantilla puede empezar con {{max}} puntos, preguntas o pasos como máximo, y esta enseñanza tiene más. Crea la plantilla en Configuración → Plantillas."
     },
     "addStepMenu": "Tipo de paso que añadir"
   },

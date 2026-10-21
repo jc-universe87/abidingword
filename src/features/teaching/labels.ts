@@ -112,19 +112,3 @@ export function stepFieldLabel(t: TFunction, kind: StepKind | null, field: "expl
 export function startingStepTitle(t: TFunction, kind: TeachingKind, key: string): string {
   return dynamic(t, `studies.teaching.starts.${kind}.${key}`);
 }
-
-/** What a new teaching of a kind starts with: the steps of a lesson; nothing for the others. */
-export const STARTING_STEPS: Partial<Record<TeachingKind, { key: string; kind: StepKind }[]>> = {
-  children: [
-    { key: "welcome", kind: "text" },
-    { key: "story", kind: "scripture" },
-    { key: "question", kind: "question" },
-    { key: "activity", kind: "activity" },
-    { key: "prayer", kind: "text" },
-  ],
-  lesson: [
-    { key: "teaching", kind: "text" },
-    { key: "discussion", kind: "question" },
-    { key: "activity", kind: "activity" },
-  ],
-};

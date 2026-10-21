@@ -202,8 +202,11 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
   const { study } = detail.data;
   const current = detail.data;
   // The template whose parts-for-later are offered: the one the study was made with, else the built-in for its kind.
-  const template =
-    (templates.data ?? []).find((tpl) => tpl.id === study.templateId) ?? (templates.data ?? []).find((tpl) => tpl.isBuiltin && tpl.studyType === study.studyType) ?? null;
+  // A study made from a template no longer there is offered nothing in its place (v0.18.7): its
+  // structure is its own, and a built-in template's parts would bring meanings it never had.
+  const template = study.templateId
+    ? ((templates.data ?? []).find((tpl) => tpl.id === study.templateId) ?? null)
+    : ((templates.data ?? []).find((tpl) => tpl.isBuiltin && tpl.studyType === study.studyType) ?? null);
   const expand = unfold;
   const allCollapsed = sections.length > 0 && sections.every((sec) => collapsed.has(sec.id));
   const updateSection = (section: StudySection) =>

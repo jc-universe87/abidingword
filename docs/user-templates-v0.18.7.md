@@ -42,7 +42,13 @@ A study copies each part's phase into **`study_sections.phase`** (migration
   share a key: the core refuses it (`templates.duplicateKey`).
 * A part added to a study from the template's parts for later brings its key
   and phase (`CreateStudySection.key`, `.phase`). A part with the person's own
-  heading brings neither.
+  heading brings neither. A key is at most 64 lowercase letters, digits and
+  hyphens (`validate::part_key`, also for Teaching template points). A study
+  never has two live parts with one key (`sections.duplicateKey`).
+* The parts offered for later come from the study's template as it is now.
+  When a study's own template has been deleted, nothing is offered in its
+  place. It never falls back to a built-in template, whose parts would bring
+  meanings the study never had.
 * A part's phase can be changed in the study (part options → "Outline"), via
   `study_section_update` (`phase: ""` clears it). Renaming keeps it.
 
@@ -57,11 +63,14 @@ definition, created_at, updated_at, deleted_at, revision`. `definition` is
   questions or steps (`canvasShape`).
 * A point's `title` may be empty: a point to be named in each teaching.
 * `kind` on a point is a step kind (`text`, `scripture`, `question`,
-  `activity`, `image`). Audio is accepted by the core but not offered.
+  `activity`, `image`). Audio is accepted by the core and kept when a
+  teaching is saved as a template. It is not offered for new steps.
 * `key` records the built-in starting step a point came from. While its
   title is that step's title in any language, or empty, it is shown in the
   interface language.
-* At most 20 points: the same limit as a teaching's starting points.
+* At most 20 points: the same limit as a teaching's starting points. "Save
+  as my template" says so, and does not save, for a teaching with more. The
+  same goes for a study with no parts or more than 40.
 * Commands: `teaching_template_list`, `_create`, `_update`, `_delete`
   (soft). They are granted to the main window only (`permissions/windows.toml`).
 
@@ -163,7 +172,9 @@ story · Step 3." Start makes a lesson plan with those three steps.
 
 ## Data safety and migrations
 
-* **0013 `study_phases`**: one new column. Existing parts made from a
+* **0013 `study_phases`**: one new column. A damaged own template (not
+  valid JSON, or a section that is not an object) is left exactly as it is,
+  so it can never stop the upgrade. This is tested. Existing parts made from a
   built-in part get the phase v0.18.6 showed for them, by key and kind of
   study, in plain SQL. The person's own templates get the same phases inside
   their JSON, in the same order (`json_each` / `json_group_array`). Unkeyed
@@ -224,6 +235,31 @@ package. The planned name is `.awstructure` (JSON), with
 `{"format": "abiding-word-structure", "version": 1, "studyTemplates": [...],
 "teachingTemplates": [...]}`. On import, every own key would be re-made
 (`own-*`), so nothing could collide.
+
+## Independent review
+
+The review found no high-severity issue. Every finding was fixed and is
+tested where it can be:
+
+* the 0013 upgrade no longer aborts on a damaged own template, and keeps
+  part order explicitly (`json_group_array(... ORDER BY idx)`);
+* "Save as my template" states the limits (20 points or steps; 1–40 parts)
+  rather than failing;
+* focus goes back to the toggle when either save form closes, to *New
+  template…* after a delete, and to *Delete…* when a template is kept; after
+  removing a part in an editor it goes to the next part;
+* Add a step gives focus back to itself when adding fails;
+* a part's phase shows at once, and only the latest answer is applied;
+* the phase select in a study is 44 px, as are the template editors'
+  arrows;
+* "Save as my template" in Study details sits after the Duplicate panel;
+* the core checks keys (format, length, one per study);
+* no built-in parts are offered to a study whose own template was deleted;
+* the read-only refusal says "Save as my template";
+* the "not kept" sentence was reworded;
+* audio step kinds are kept;
+* the unused `STARTING_STEPS` copy is gone;
+* the new-teaching form says when your templates can't be loaded.
 
 ## Limitations
 

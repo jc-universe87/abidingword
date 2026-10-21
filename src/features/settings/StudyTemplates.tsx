@@ -107,7 +107,7 @@ export function StudyTemplates({
                 <Button variant="quiet" onClick={() => act(() => duplicate(template))} aria-label={t("studies.templates.duplicate", { name })}>
                   {t("common.duplicate")}
                 </Button>
-                <Button variant="quiet" onClick={() => setConfirming(template.id)} aria-label={t("studies.templates.delete", { name })}>
+                <Button id={`delete-${template.id}`} variant="quiet" onClick={() => setConfirming(template.id)} aria-label={t("studies.templates.delete", { name })}>
                   {t("common.deleteEllipsis")}
                 </Button>
               </>
@@ -117,10 +117,10 @@ export function StudyTemplates({
         {confirming === template.id && (
           <div role="alertdialog" aria-label={t("studies.templates.confirmLabel", { name })} className="flex flex-wrap items-center gap-2 border-l-[3px] border-danger bg-hover px-4 py-3">
             <span>{t("studies.templates.confirm", { name })}</span>
-            <Button variant="danger" onClick={() => act(async () => { await api.templateDelete(template.id); setConfirming(null); })}>
+            <Button variant="danger" onClick={() => act(async () => { await api.templateDelete(template.id); setConfirming(null); focusSoon("study-template-new"); })}>
               {t("studies.templates.deleteTemplate")}
             </Button>
-            <Button autoFocus onClick={() => setConfirming(null)}>{t("studies.keepIt")}</Button>
+            <Button autoFocus onClick={() => { setConfirming(null); focusSoon(`delete-${template.id}`); }}>{t("studies.keepIt")}</Button>
           </div>
         )}
       </li>
@@ -140,11 +140,16 @@ export function StudyTemplates({
           {list.map(row)}
         </ul>
         <div>
-          <Button onClick={() => onEdit(null)}>{t("studies.templates.new")}</Button>
+          <Button id="study-template-new" onClick={() => onEdit(null)}>{t("studies.templates.new")}</Button>
         </div>
         {error && <p role="alert" className="m-0 text-danger">{error}</p>}
       </section>
       <TeachingTemplates onEdit={onEditTeaching} version={teachingVersion} />
     </div>
   );
+}
+
+/** Moves focus once the row it leaves has gone (a deleted template, a closed confirmation). */
+function focusSoon(id: string) {
+  requestAnimationFrame(() => document.getElementById(id)?.focus());
 }

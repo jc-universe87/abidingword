@@ -92,11 +92,13 @@
   "templates": {
     "noSections": "A template needs at least one part to start with.",
     "tooManySections": "A template can have at most {{max}} parts.",
-    "builtinReadOnly": "Built-in templates can’t be changed. Duplicate it to make your own version.",
-    "duplicateKey": "Two parts of the template are the same part. Remove one of them."
+    "builtinReadOnly": "Built-in templates can’t be changed. Use “Save as my template” to make your own version.",
+    "duplicateKey": "Two parts of the template are the same part. Remove one of them.",
+    "invalidKey": "This part's key is not valid."
   },
   "sections": {
-    "hasContent": "“{{title}}” still has writing or notes in it."
+    "hasContent": "“{{title}}” still has writing or notes in it.",
+    "duplicateKey": "This study already has that part."
   },
   "relations": {
     "self": "A study can’t be linked to itself.",

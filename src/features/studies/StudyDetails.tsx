@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Copy, LayoutTemplate } from "lucide-react";
 import { Button } from "@/design-system/Button";
@@ -121,7 +121,6 @@ export function StudyDetailsPanel({ id, study, sections, findings, templates, pa
             {t("studies.header.duplicate")}
           </Button>
         </div>
-        <SaveAsTemplate id={`${id}-template`} study={study} sections={sections} />
         {duplicating && (
           <div role="group" aria-label={t("studies.header.duplicateGroup")} className="flex flex-col gap-2 border-l-[3px] border-accent bg-bg px-4 py-3">
             <p className="m-0">{t("studies.header.duplicatePrompt", { title: study.title })}</p>
@@ -133,6 +132,7 @@ export function StudyDetailsPanel({ id, study, sections, findings, templates, pa
             <p className="m-0 text-[0.9375rem] text-text-muted">{t("studies.header.duplicateHelp")}</p>
           </div>
         )}
+        <SaveAsTemplate id={`${id}-template`} study={study} sections={sections} />
       </div>
       {error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{error}</p>}
     </section>
@@ -144,16 +144,26 @@ export function StudyDetailsPanel({ id, study, sections, findings, templates, pa
  * becomes a template of the person's own for later studies. The study itself
  * is not changed, and is not linked to the template afterwards.
  */
+/** The most parts a template can have (the core's limit). */
+const MAX_TEMPLATE_PARTS = 40;
+
 function SaveAsTemplate({ id, study, sections }: { id: string; study: Study; sections: StudySection[] }) {
   const { t } = useTranslation();
   const api = useApi();
   const [open, setOpen] = useState(false);
+  const toggle = useRef<HTMLButtonElement>(null);
   const [name, setName] = useState(study.title);
+  // As the core allows (db/templates.rs): at least one part, at most 40.
+  const fits = sections.length > 0 && sections.length <= MAX_TEMPLATE_PARTS;
+  const close = () => {
+    setOpen(false);
+    toggle.current?.focus();
+  };
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const save = async () => {
-    if (busy || !name.trim()) return;
+    if (busy || !name.trim() || !fits) return;
     setBusy(true);
     setError(null);
     try {
@@ -164,7 +174,7 @@ function SaveAsTemplate({ id, study, sections }: { id: string; study: Study; sec
         sections: partsFromStudy(sections),
       });
       setSaved(template.name);
-      setOpen(false);
+      close();
     } catch (e) {
       setError(toApiError(e).message);
     } finally {
@@ -175,6 +185,7 @@ function SaveAsTemplate({ id, study, sections }: { id: string; study: Study; sec
     <>
       <div>
         <Button
+          ref={toggle}
           variant="quiet"
           className="min-h-11"
           aria-expanded={open}
@@ -200,7 +211,7 @@ function SaveAsTemplate({ id, study, sections }: { id: string; study: Study; sec
           onKeyDown={(e) => {
             if (e.key === "Escape") {
               e.stopPropagation();
-              setOpen(false);
+              close();
             }
           }}
         >
@@ -208,10 +219,12 @@ function SaveAsTemplate({ id, study, sections }: { id: string; study: Study; sec
             <span className="text-[0.9375rem] font-medium text-text-muted">{t("studies.header.templateName")}</span>
             <input autoFocus value={name} onChange={(e) => setName(e.target.value)} className="h-11 aw-input px-3 text-text-strong" />
           </label>
-          <p className="m-0 text-[0.9375rem] text-text-muted">{t("studies.header.saveAsTemplateKeeps", { count: sections.length })}</p>
+          <p className="m-0 text-[0.9375rem] text-text-muted">
+            {fits ? t("studies.header.saveAsTemplateKeeps", { count: sections.length }) : t("studies.header.saveAsTemplateTooMany", { max: MAX_TEMPLATE_PARTS })}
+          </p>
           <div className="flex flex-wrap gap-2">
-            <Button type="submit" variant="primary" disabled={busy || !name.trim()}>{t("studies.header.saveTemplate")}</Button>
-            <Button variant="quiet" onClick={() => setOpen(false)}>{t("common.cancel")}</Button>
+            <Button type="submit" variant="primary" disabled={busy || !name.trim() || !fits}>{t("studies.header.saveTemplate")}</Button>
+            <Button variant="quiet" onClick={close}>{t("common.cancel")}</Button>
           </div>
           {error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{error}</p>}
         </form>

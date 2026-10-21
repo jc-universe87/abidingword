@@ -95,12 +95,7 @@ fn validated(input: &TeachingTemplateInput) -> AppResult<(String, Option<String>
         .iter()
         .map(|p| {
             Ok(TeachingTemplatePoint {
-                key: p
-                    .key
-                    .as_deref()
-                    .map(str::trim)
-                    .filter(|k| !k.is_empty())
-                    .map(str::to_owned),
+                key: validate::part_key(p.key.as_deref())?,
                 title: point_title(&p.title)?,
                 kind: check_step_kind(p.kind.as_deref())?,
             })

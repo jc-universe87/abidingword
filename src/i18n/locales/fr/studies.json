@@ -475,7 +475,8 @@
     "saveAsTemplateKeeps_other": "Le modèle reprend les {{count}} parties de cette étude : leurs titres, leurs indications et leurs places dans le plan, dans cet ordre. Votre texte, vos notes, vos passages et vos détails restent dans cette étude.",
     "saveTemplate": "Enregistrer le modèle",
     "savedAsTemplate": "Enregistré comme votre modèle « {{name}} ». Vous pouvez l’utiliser pour une nouvelle étude, et le modifier dans Paramètres → Modèles.",
-    "saveAsTemplateKeeps_many": "Le modèle reprend les {{count}} parties de cette étude : leurs titres, leurs indications et leurs places dans le plan, dans cet ordre. Votre texte, vos notes, vos passages et vos détails restent dans cette étude."
+    "saveAsTemplateKeeps_many": "Le modèle reprend les {{count}} parties de cette étude : leurs titres, leurs indications et leurs places dans le plan, dans cet ordre. Votre texte, vos notes, vos passages et vos détails restent dans cette étude.",
+    "saveAsTemplateTooMany": "Un modèle a besoin d’au moins une partie et peut en avoir au plus {{max}}. Modifiez d’abord les parties de cette étude, ou créez le modèle dans Paramètres → Modèles."
   },
   "editor": {
     "opening": "Ouverture de l’étude…",
@@ -1031,7 +1032,8 @@
       "pointsList": "Ce par quoi le modèle commence",
       "pointsHint": "Laissez un titre vide pour le nommer dans chaque enseignement.",
       "none": "Rien pour l’instant : un enseignement créé avec ce modèle commence vide.",
-      "untitled": "sans titre"
+      "untitled": "sans titre",
+      "loadFailed": "Vos modèles ne peuvent pas être affichés pour l’instant. Les modèles intégrés sont là."
     },
     "saveTemplate": {
       "action": "Enregistrer comme mon modèle",
@@ -1042,8 +1044,9 @@
         "questions": "Le modèle reprend la forme et autant de questions que cet enseignement. Les questions commencent vides.",
         "steps": "Le modèle reprend la forme et les étapes dans l’ordre, chacune avec son titre et son type."
       },
-      "notKept": "Rien de ce que vous avez écrit n’est repris : ni public, ni but, ni message, ni introduction, ni conclusion, ni notes, passages, éléments gardés ou notes de votre étude.",
-      "saved": "Enregistré comme votre modèle « {{name}} ». Vous pouvez le choisir pour votre prochain enseignement, et le modifier dans Paramètres → Modèles."
+      "notKept": "Rien de ce que vous avez écrit n’est repris : ni le public, le but, le message, l’introduction, la conclusion ou les notes ; rien de ce qui est écrit sous un point, une question ou une étape ; aucun passage, élément gardé ou note de votre étude.",
+      "saved": "Enregistré comme votre modèle « {{name}} ». Vous pouvez le choisir pour votre prochain enseignement, et le modifier dans Paramètres → Modèles.",
+      "tooMany": "Un modèle peut commencer avec {{max}} points, questions ou étapes au plus, et cet enseignement en a davantage. Créez plutôt le modèle dans Paramètres → Modèles."
     },
     "addStepMenu": "Type d’étape à ajouter"
   },

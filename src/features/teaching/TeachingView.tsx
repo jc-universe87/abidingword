@@ -246,6 +246,7 @@ function NewTeaching({
             {starts.filter((s) => "mine" in s.start).map(choice)}
           </div>
         )}
+        {mine.error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{t("studies.teaching.templates.loadFailed")}</p>}
         {/* What the chosen template gives to work in: its format and what it starts with. */}
         <p id={`${id}-format`} className="m-0 text-[0.9375rem] text-text">
           {startSummary(t, start)}
@@ -407,7 +408,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
       const fresh = next.points.find((p) => !ids.has(p.id));
       if (fresh) setNewPoint(fresh.id);
       setNotice(shape("added"));
-    }
+    } else requestAnimationFrame(() => document.getElementById(`add-point-${prep.id}`)?.focus());
   };
   const movePoint = async (index: number, delta: -1 | 1) => {
     const ids = prep.points.map((p) => p.id);

@@ -206,12 +206,7 @@ fn validated(input: &TemplateInput) -> AppResult<(String, Option<String>, Vec<Te
         .iter()
         .map(|s| {
             Ok(TemplateSection {
-                key: s
-                    .key
-                    .as_deref()
-                    .map(str::trim)
-                    .filter(|k| !k.is_empty())
-                    .map(str::to_owned),
+                key: validate::part_key(s.key.as_deref())?,
                 title: validate::title(&s.title, "section")?,
                 guidance: validate::optional_text(
                     s.guidance.as_deref(),
@@ -253,7 +248,7 @@ fn require_user_template(conn: &Connection, id: &str) -> AppResult<StudyTemplate
     if template.is_builtin {
         return Err(AppError::Conflict(UserMessage::new(
             "templates.builtinReadOnly",
-            "Built-in templates can’t be changed. Duplicate it to make your own version.",
+            "Built-in templates can’t be changed. Use “Save as my template” to make your own version.",
         )));
     }
     Ok(template)

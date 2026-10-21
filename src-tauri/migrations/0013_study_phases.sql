@@ -51,28 +51,56 @@ WHERE phase IS NULL AND key IS NOT NULL;
 -- built-in one (their key), in the same order; a part of their own stays
 -- without one. Built-in templates are reinstalled with their phases at
 -- startup (resources/templates/*.json).
+-- Defensive: a definition that is not valid JSON is left as it is, and a
+-- section that is not an object is kept unchanged, so one bad row can never
+-- stop the upgrade. Parts keep their order (json_each's index), and each part
+-- is put back as JSON (json(...) directly in the aggregate).
 UPDATE study_templates SET definition = json_set(definition, '$.sections', (
-    SELECT json_group_array(CASE WHEN part.phase IS NULL THEN json(part.value)
-                                 ELSE json_set(part.value, '$.phase', part.phase) END)
-    FROM (SELECT value, CASE
-              WHEN json_extract(value, '$.key') = 'conclusions' AND study_templates.study_type = 'systematic_theology' THEN 'theology'
-              WHEN json_extract(value, '$.key') IN ('purpose', 'audience', 'structure', 'application') AND study_templates.study_type = 'teaching' THEN 'teaching'
-              WHEN json_extract(value, '$.key') IN ('text', 'observations', 'context', 'structure', 'key-words', 'word',
+    SELECT json_group_array(
+               CASE WHEN part.kind = 'object' AND (CASE
+              WHEN part.k = 'conclusions' AND part.study_type = 'systematic_theology' THEN 'theology'
+              WHEN part.k IN ('purpose', 'audience', 'structure', 'application') AND part.study_type = 'teaching' THEN 'teaching'
+              WHEN part.k IN ('text', 'observations', 'context', 'structure', 'key-words', 'word',
                            'occurrences', 'topic', 'key-passages', 'key-texts', 'doctrine', 'theme')
                   THEN 'text'
-              WHEN json_extract(value, '$.key') IN ('meaning', 'exegesis', 'main-idea', 'related-scripture', 'open-questions',
+              WHEN part.k IN ('meaning', 'exegesis', 'main-idea', 'related-scripture', 'open-questions',
                            'semantic-range', 'immediate-contexts', 'main-themes', 'biblical-context',
                            'difficult-passages', 'old-testament', 'new-testament', 'gospels', 'epistles',
                            'canonical-development', 'conclusions')
                   THEN 'understanding'
-              WHEN json_extract(value, '$.key') IN ('theology', 'fulfilment', 'synthesis', 'biblical-synthesis',
+              WHEN part.k IN ('theology', 'fulfilment', 'synthesis', 'biblical-synthesis',
                            'historical-theology', 'confessional-witness', 'alternative-positions',
                            'theological-significance')
                   THEN 'theology'
-              WHEN json_extract(value, '$.key') = 'application' THEN 'application'
-              WHEN json_extract(value, '$.key') = 'audience' THEN 'audience'
-              WHEN json_extract(value, '$.key') IN ('teaching', 'teaching-outline', 'illustrations', 'purpose') THEN 'teaching'
-          END AS phase
-          FROM json_each(study_templates.definition, '$.sections')
-          ORDER BY CAST(key AS INTEGER)) AS part))
-WHERE is_builtin = 0 AND json_type(definition, '$.sections') = 'array';
+              WHEN part.k = 'application' THEN 'application'
+              WHEN part.k = 'audience' THEN 'audience'
+              WHEN part.k IN ('teaching', 'teaching-outline', 'illustrations', 'purpose') THEN 'teaching'
+          END) IS NOT NULL
+                    THEN json_set(part.json, '$.phase', CASE
+              WHEN part.k = 'conclusions' AND part.study_type = 'systematic_theology' THEN 'theology'
+              WHEN part.k IN ('purpose', 'audience', 'structure', 'application') AND part.study_type = 'teaching' THEN 'teaching'
+              WHEN part.k IN ('text', 'observations', 'context', 'structure', 'key-words', 'word',
+                           'occurrences', 'topic', 'key-passages', 'key-texts', 'doctrine', 'theme')
+                  THEN 'text'
+              WHEN part.k IN ('meaning', 'exegesis', 'main-idea', 'related-scripture', 'open-questions',
+                           'semantic-range', 'immediate-contexts', 'main-themes', 'biblical-context',
+                           'difficult-passages', 'old-testament', 'new-testament', 'gospels', 'epistles',
+                           'canonical-development', 'conclusions')
+                  THEN 'understanding'
+              WHEN part.k IN ('theology', 'fulfilment', 'synthesis', 'biblical-synthesis',
+                           'historical-theology', 'confessional-witness', 'alternative-positions',
+                           'theological-significance')
+                  THEN 'theology'
+              WHEN part.k = 'application' THEN 'application'
+              WHEN part.k = 'audience' THEN 'audience'
+              WHEN part.k IN ('teaching', 'teaching-outline', 'illustrations', 'purpose') THEN 'teaching'
+          END)
+                    ELSE json(part.json) END
+               ORDER BY part.idx)
+    FROM (SELECT CAST(key AS INTEGER) AS idx,
+                 type AS kind,
+                 CASE WHEN type IN ('object', 'array') THEN value ELSE json_quote(value) END AS json,
+                 CASE WHEN type = 'object' THEN json_extract(value, '$.key') END AS k,
+                 study_templates.study_type AS study_type
+          FROM json_each(study_templates.definition, '$.sections')) AS part))
+WHERE is_builtin = 0 AND json_valid(definition) AND json_type(definition, '$.sections') = 'array';

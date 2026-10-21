@@ -288,7 +288,11 @@ fn migration_13_gives_existing_parts_and_own_templates_their_phases() {
          INSERT INTO study_templates (id, key, name, is_builtin, study_type, definition, created_at, updated_at) VALUES
              ('mine', 'user-mine', 'Mine', 0, 'teaching',
               '{\"sections\":[{\"key\":\"text\",\"title\":\"Text\"},{\"title\":\"Hymns\",\"guidance\":\"g\"},{\"key\":\"audience\",\"title\":\"Who\",\"optional\":true}]}',
-              't', 't');",
+              't', 't'),
+             -- Damaged rows never stop the upgrade, and are left as they are.
+             ('broken', 'user-broken', 'Broken', 0, 'custom', 'not json', 't', 't'),
+             ('odd', 'user-odd', 'Odd', 0, 'custom', '{\"sections\":[\"loose\",3,{\"key\":\"theology\",\"title\":\"T\"}]}', 't', 't'),
+             ('empty', 'user-empty', 'Empty', 0, 'custom', '{\"sections\":[]}', 't', 't');",
     )
     .unwrap();
 
@@ -335,5 +339,22 @@ fn migration_13_gives_existing_parts_and_own_templates_their_phases() {
             {"title": "Hymns", "guidance": "g"},
             {"key": "audience", "title": "Who", "optional": true, "phase": "teaching"},
         ]})
+    );
+    let stored = |id: &str| -> String {
+        conn.query_row(
+            "SELECT definition FROM study_templates WHERE id = ?1",
+            [id],
+            |r| r.get(0),
+        )
+        .unwrap()
+    };
+    assert_eq!(stored("broken"), "not json");
+    assert_eq!(
+        serde_json::from_str::<serde_json::Value>(&stored("odd")).unwrap(),
+        serde_json::json!({"sections": ["loose", 3, {"key": "theology", "title": "T", "phase": "theology"}]})
+    );
+    assert_eq!(
+        serde_json::from_str::<serde_json::Value>(&stored("empty")).unwrap(),
+        serde_json::json!({"sections": []})
     );
 }

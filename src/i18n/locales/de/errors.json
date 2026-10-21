@@ -92,11 +92,13 @@
   "templates": {
     "noSections": "Eine Vorlage braucht mindestens einen Teil, mit dem sie beginnt.",
     "tooManySections": "Eine Vorlage kann höchstens {{max}} Teile haben.",
-    "builtinReadOnly": "Mitgelieferte Vorlagen können nicht geändert werden. Dupliziere die Vorlage, um eine eigene Fassung zu erstellen.",
-    "duplicateKey": "Zwei Teile der Vorlage sind derselbe Teil. Entferne einen davon."
+    "builtinReadOnly": "Mitgelieferte Vorlagen können nicht geändert werden. Nutze „Als meine Vorlage speichern“, um eine eigene Fassung zu erstellen.",
+    "duplicateKey": "Zwei Teile der Vorlage sind derselbe Teil. Entferne einen davon.",
+    "invalidKey": "Die Kennung dieses Teils ist ungültig."
   },
   "sections": {
-    "hasContent": "„{{title}}“ enthält noch Text oder Notizen."
+    "hasContent": "„{{title}}“ enthält noch Text oder Notizen.",
+    "duplicateKey": "Dieses Bibelstudium hat diesen Teil schon."
   },
   "relations": {
     "self": "Ein Bibelstudium kann nicht mit sich selbst verknüpft werden.",

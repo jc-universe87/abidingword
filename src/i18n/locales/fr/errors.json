@@ -95,11 +95,13 @@
   "templates": {
     "noSections": "Un modèle doit comporter au moins une partie de départ.",
     "tooManySections": "Un modèle peut comporter au plus {{max}} parties.",
-    "builtinReadOnly": "Les modèles intégrés ne peuvent pas être modifiés. Dupliquez-le pour créer votre propre version.",
-    "duplicateKey": "Deux parties du modèle sont la même partie. Retirez-en une."
+    "builtinReadOnly": "Les modèles intégrés ne peuvent pas être modifiés. Utilisez « Enregistrer comme mon modèle » pour créer votre propre version.",
+    "duplicateKey": "Deux parties du modèle sont la même partie. Retirez-en une.",
+    "invalidKey": "L’identifiant de cette partie n’est pas valide."
   },
   "sections": {
-    "hasContent": "« {{title}} » contient encore du texte ou des notes."
+    "hasContent": "« {{title}} » contient encore du texte ou des notes.",
+    "duplicateKey": "Cette étude a déjà cette partie."
   },
   "relations": {
     "self": "Une étude ne peut pas être liée à elle-même.",

@@ -211,3 +211,63 @@ describe("Save as my template", () => {
     expect(new Set(parts.map((p) => p.key)).size).toBe(3);
   });
 });
+
+describe("review fixes (v0.18.7)", () => {
+  it("gives focus back to Save as my template when its form closes, and says when a study cannot be a template", async () => {
+    const { api, project } = await setup();
+    await api.studyCreate({ projectId: project.id, title: "Abiding", studyType: "passage" });
+    const user = await openStudy(api, "Abiding");
+    await user.click(within(study()).getByRole("button", { name: "Study details" }));
+    const toggle = within(study()).getByRole("button", { name: "Save as my template" });
+    await user.click(toggle);
+    await user.keyboard("{Escape}");
+    expect(toggle).toHaveFocus();
+    await user.click(toggle);
+    await user.click(within(study()).getByRole("button", { name: "Save template" }));
+    await waitFor(() => expect(toggle).toHaveFocus());
+    expect(within(study()).getByText(/Saved as your template “Abiding”/)).toHaveAttribute("role", "status");
+  });
+
+  it("offers no built-in parts for later to a study whose own template was deleted", async () => {
+    const { api, project } = await setup();
+    const mine = await api.templateCreate({ name: "Mine", studyType: "passage", sections: [{ key: "own-a", title: "Read" }, { key: "own-b", title: "Later one", optional: true }] });
+    await api.studyCreate({ projectId: project.id, title: "Abiding", templateId: mine.id });
+    await api.templateDelete(mine.id);
+    const user = await openStudy(api, "Abiding");
+    await user.click(within(study()).getByRole("button", { name: "Add a part" }));
+    expect(within(study()).queryByRole("group", { name: "Parts you might add" })).toBeNull();
+  });
+
+  it("refuses the same part twice in one study, and a key that is not a plain word", async () => {
+    const { api, project } = await setup();
+    const detail = await api.studyCreate({ projectId: project.id, title: "Abiding", studyType: "passage" });
+    await expect(api.studySectionCreate({ studyId: detail.study.id, title: "Text again", key: "text" })).rejects.toThrow(/already has that part/);
+    await expect(api.studySectionCreate({ studyId: detail.study.id, title: "Odd", key: "Not a key!" })).rejects.toThrow(/not valid/);
+  });
+
+  it("shows a part's new phase at once, as a 44 px control", async () => {
+    const { api, project } = await setup();
+    await api.studyCreate({ projectId: project.id, title: "Abiding", studyType: "passage" });
+    const user = await openStudy(api, "Abiding");
+    const meaning = within(study()).getByRole("region", { name: "Meaning" });
+    await user.click(within(meaning).getByRole("button", { name: "Options for part Meaning" }));
+    const select = within(meaning).getByLabelText("Where Meaning belongs in the study outline");
+    expect(select).toHaveClass("h-11");
+    await user.selectOptions(select, "theology");
+    expect(select).toHaveValue("theology");
+  });
+
+  it("moves focus to New template… after a template is deleted, and back to Delete when it is kept", async () => {
+    const { api } = await setup();
+    await api.templateCreate({ name: "Mine", studyType: "custom", sections: [{ title: "One" }] });
+    const { user } = await renderApp(api);
+    const templates = await openSettingsSection(user, "Templates");
+    const del = within(templates).getByRole("button", { name: "Delete Mine" });
+    await user.click(del);
+    await user.click(within(templates).getByRole("button", { name: "Keep it" }));
+    await waitFor(() => expect(within(templates).getByRole("button", { name: "Delete Mine" })).toHaveFocus());
+    await user.click(within(templates).getByRole("button", { name: "Delete Mine" }));
+    await user.click(within(templates).getByRole("button", { name: "Delete template" }));
+    await waitFor(() => expect(within(templates).getByRole("button", { name: "New template…" })).toHaveFocus());
+  });
+});
