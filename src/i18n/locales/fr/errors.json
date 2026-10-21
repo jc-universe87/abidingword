@@ -161,7 +161,7 @@
     "noImageSearch": "La recherche d’images est désactivée. Activez-la dans les Paramètres.",
     "noImageGeneration": "La création d’images n’est pas configurée, ou ce service d’IA ne peut pas créer d’images. Vous pouvez choisir un service pour les images dans Paramètres → Assistant IA.",
     "imageFailed": "L’image n’a pas pu être créée cette fois. Réessayez.",
-    "keyStore": "La clé n’a pas pu être conservée dans le magasin d’identifiants de cet ordinateur.",
+    "keyStore": "La clé n’a pas pu être conservée dans le coffre à mots de passe de cet ordinateur.",
     "badKey": "Cela ne ressemble pas à une clé. Collez-la à nouveau.",
     "badAddress": "Saisissez une adresse web commençant par http:// ou https://.",
     "badModel": "Ce nom de modèle est trop long.",

@@ -161,7 +161,7 @@
     "noImageSearch": "A busca de imagens está desligada. Você pode ligá-la em Configurações.",
     "noImageGeneration": "Criar imagens não está configurado, ou este serviço de IA não pode criar imagens. Você pode escolher um serviço para imagens em Configurações → Assistente de IA.",
     "imageFailed": "Desta vez não foi possível criar a imagem. Tente de novo.",
-    "keyStore": "Não foi possível guardar a chave no cofre de credenciais deste computador.",
+    "keyStore": "Não foi possível guardar a chave no cofre de senhas deste computador.",
     "badKey": "Isso não parece uma chave. Cole de novo.",
     "badAddress": "Digite um endereço que comece com http:// ou https://.",
     "badModel": "Esse nome de modelo é longo demais.",

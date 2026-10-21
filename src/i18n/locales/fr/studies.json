@@ -434,7 +434,7 @@
     "duplicatePrompt": "Faire une copie de « {{title}} » dans ce projet :",
     "structureOnly": "Structure seule",
     "structureAndContent": "Structure et contenu",
-    "duplicateHelp": "« Structure seule » copie les parties. Avec le contenu, votre texte, vos notes et vos passages sont aussi copiés. Les notes sur la Bible ne sont jamais dupliquées ; elles appartiennent aux versets.",
+    "duplicateHelp": "« Structure seule » copie les parties. « Structure et contenu » copie aussi votre texte, vos notes et vos passages. Les notes sur la Bible ne sont jamais dupliquées ; elles appartiennent aux versets.",
     "purpose": "Objectif",
     "purposePlaceholder": "Que cherchez-vous à comprendre ou à préparer ?",
     "details": "Détails : {{type}}",
@@ -935,7 +935,7 @@
         "moved": "Question déplacée en position {{position}}.",
         "deleteConfirm": "Supprimer cette question et ce que vous y avez écrit ? Les notes utilisées restent dans l’étude.",
         "message": "Ce que le groupe devrait découvrir",
-        "messageHint": "L’essentiel vers quoi la discussion devrait conduire",
+        "messageHint": "L’essentiel auquel la discussion devrait conduire",
         "introduction": "Ouverture",
         "conclusion": "Clôture"
       },

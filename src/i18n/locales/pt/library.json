@@ -167,7 +167,7 @@
     "fitPage": "Ajustar à página",
     "loading": "Abrindo o original…",
     "renderFailed": "Não foi possível mostrar o original. Você ainda pode ler o texto extraído.",
-    "noNativeText": "Texto nativo indisponível nesta página"
+    "noNativeText": "Esta página não tem texto selecionável"
   },
   "contents": {
     "title": "Conteúdo",

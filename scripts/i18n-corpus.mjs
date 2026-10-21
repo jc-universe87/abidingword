@@ -147,6 +147,8 @@ export const FLAGS = {
   "studies.relation.incoming.custom": "French \"Liée à\" / \"Reliée à\" (linked from / linked to) read nearly the same; does the direction need to show?",
   "studies.teaching.kind.lesson": "Portuguese: \"Lição\" is now used for a lesson throughout (it was sometimes \"aula\").",
   "scripture.search.queryLabel": "Spanish now uses « » for quotations, except in search hints like this one, which show what to type (“frase exacta”).",
+  "studies.passages.placeholder": "French reference examples use a colon (Jean 15:1-11), which the parser accepts; French convention is a comma (Jean 15,1-11). Style choice.",
+  "studies.teaching.assist.shared.text": "If the assistant ever shares the whole teaching's text, English reads \"your the whole teaching\" ({{part}} = \"the whole teaching\"). German now reads \"Dein Text: …\". Check whether this case can show.",
   "studies.findings.newLabel": "Architecture: French, Spanish and Portuguese assume every note type is feminine (Nouvelle / Nueva / Nova {{type}}); a masculine type would need its own keys.",
 };
 

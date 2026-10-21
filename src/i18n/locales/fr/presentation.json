@@ -297,7 +297,7 @@
     "exported": "Enregistré sous {{path}}.",
     "removed": "« {{name}} » a été supprimé. Les présentations qui l’utilisaient retrouvent leur fond intégré.",
     "yours": "Vos modèles",
-    "none": "Aucun modèle pour l’église pour l’instant.",
+    "none": "Pas encore de modèle pour l’église.",
     "source": {
       "pptx": "Depuis PowerPoint",
       "package": "Depuis un fichier de modèle",

@@ -301,8 +301,12 @@ that no longer promises what the app doesn't do, descriptions that don't
 presume an outcome), with former wording kept so old studies stay
 translated; Teaching baselines reviewed and kept.
 
-**Still open:** the native-language polish of all six languages, prepared in
-v0.18.9 ([`i18n/native-polish-priority-v0.18.9.md`](i18n/native-polish-priority-v0.18.9.md));
+**Since v0.18.10** (see [`native-polish-v0.18.10.md`](native-polish-v0.18.10.md)):
+the six-language native polish; a few questions remain in
+[`i18n/native-polish-priority-v0.18.10.md`](i18n/native-polish-priority-v0.18.10.md),
+among them kind-specific labels for the shared points canvas (Korean 대지).
+
+**Still open:** the owner's final spot review of the polished languages;
 further refinement of the built-in baselines by the owner; audio steps and a step-level media attachment; moving notes
 between parts by dragging; the assistant inside Bible Study; a file to share
 Study and Teaching templates (`.awstructure`, designed and deferred, never

@@ -167,7 +167,7 @@
     "fitPage": "Ajuster à la page",
     "loading": "Ouverture de l’original…",
     "renderFailed": "L’original n’a pas pu être affiché. Vous pouvez toujours lire le texte extrait.",
-    "noNativeText": "Texte natif indisponible sur cette page"
+    "noNativeText": "Cette page ne contient pas de texte sélectionnable"
   },
   "contents": {
     "title": "Sommaire",

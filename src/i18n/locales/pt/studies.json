@@ -434,7 +434,7 @@
     "duplicatePrompt": "Fazer uma cópia de “{{title}}” neste projeto:",
     "structureOnly": "Somente a estrutura",
     "structureAndContent": "Estrutura e conteúdo",
-    "duplicateHelp": "“Somente a estrutura” copia as partes. Com o conteúdo, seu texto, anotações e passagens também são copiados. Notas na Bíblia nunca são duplicadas; elas pertencem aos versículos.",
+    "duplicateHelp": "“Somente a estrutura” copia as partes. “Estrutura e conteúdo” também copia seu texto, anotações e passagens. Notas na Bíblia nunca são duplicadas; elas pertencem aos versículos.",
     "purpose": "Propósito",
     "purposePlaceholder": "O que você está procurando entender ou preparar?",
     "details": "Detalhes: {{type}}",
