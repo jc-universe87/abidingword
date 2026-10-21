@@ -65,10 +65,10 @@ export function TeachingTemplates({ onEdit, version = 0 }: { onEdit: (templateId
             <li key={template.key} className="flex flex-wrap items-start justify-between gap-2 border-b border-border-subtle py-3">
               <div className="min-w-0 flex-1 basis-64">
                 <p className="type-item m-0">{name}</p>
-                <p className={`${meta} line-clamp-2`} title={startSummary(t, { builtin: template })}>
-                  {startSummary(t, { builtin: template })}
-                  {t("common.listSeparator")}
+                <p className={`${meta} line-clamp-2`} title={`${t("studies.templates.builtIn")}${t("common.listSeparator")}${startSummary(t, { builtin: template })}`}>
                   {t("studies.templates.builtIn")}
+                  {t("common.listSeparator")}
+                  {startSummary(t, { builtin: template })}
                 </p>
               </div>
               <Button variant="quiet" onClick={() => act(() => saveAsMine(template))} aria-label={t("studies.teaching.templates.saveAsMineLabel", { name })}>

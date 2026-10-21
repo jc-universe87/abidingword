@@ -51,11 +51,13 @@ export function readLocales(read = (lang, file) => readFileSync(join(LOCALES, la
   for (const lang of LANGUAGES) {
     all[lang] = new Map();
     for (const file of files) {
+      let text;
       try {
-        flatten(JSON.parse(read(lang, file)), file.replace(/\.json$/, ""), all[lang]);
+        text = read(lang, file);
       } catch {
-        // A file missing in an older version: nothing from it.
+        continue; // A file missing: nothing from it (i18n:check reports it).
       }
+      flatten(JSON.parse(text), file.replace(/\.json$/, ""), all[lang]);
     }
   }
   return all;
@@ -77,7 +79,7 @@ export function entries(locales) {
   const order = ["zero", "one", "two", "few", "many", "other"];
   for (const e of byBase.values()) for (const lang of LANGUAGES) e.forms[lang].sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]));
   // Only what English has: a key only another language has is a bug i18n:check reports.
-  return [...byBase.values()].filter((e) => e.forms.en.length > 0).sort((a, b) => a.key.localeCompare(b.key));
+  return [...byBase.values()].filter((e) => e.forms.en.length > 0).sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0)); // by code point: the same on every machine
 }
 
 // --- product contexts -------------------------------------------------------
@@ -140,7 +142,7 @@ export const FLAGS = {
   "studies.teaching.shape.points.title": "\"Main points\": neutral, not a homiletic prescription?",
   "studies.teaching.shape.points.conclusion": "Neutral sermon terms (see Introduction).",
   "studies.teaching.materials.open": "\"Materials\": de Unterlagen, ko 가르침 자료, fr Supports — the umbrella term; confirm in every language.",
-  "studies.materials.scripture.missing_other": "Joins a list of chapter:verse references; Korean wording around \"{{verses}}\" in particular.",
+  "studies.materials.scripture.missing": "Joins a list of chapter:verse references; Korean wording around \"{{verses}}\" in particular.",
   "studies.materials.scripture.none": "Starts with the Bible's short name (no article), e.g. \"LUT1912 hat keinen Text …\".",
   "studies.phase.label": "Short label before a select (\"Outline: Text\"); German \"Im Aufbau\", Korean \"흐름\".",
   "studies.phase.none": "\"Not in the outline\": a part that belongs to no phase.",
@@ -163,6 +165,8 @@ export const FLAGS = {
 const KOREAN_BANNED = ["프로젝트", "템플릿", "섹션", "블록"];
 /** Formal German address: capitalised Sie/Ihr/Ihnen/Ihre… not at the start of a sentence. */
 const GERMAN_FORMAL = /(?<![.!?:]\s|^|„|")\b(Sie|Ihnen|Ihr|Ihre|Ihren|Ihrem|Ihrer|Ihres)\b/;
+/** At a sentence start "Sie" is ambiguous; followed by a verb of address it is formal. */
+const GERMAN_FORMAL_START = /(^|[.!?]\s)(Sie|Ihnen)\s+(können|möchten|haben|müssen|sollten|werden|finden|sehen|wählen|klicken)\b/;
 /** Words that may stay as they are in every language. */
 const SAME_EVERYWHERE = /^(?:[\d\s.,:;·–—()/%+×#…-]*|PDF|PPTX|DOCX|USFM|USX|OSIS|EPUB|DOCX?|Markdown|PowerPoint|Keynote|Google Slides|LibreOffice|OpenAI|Anthropic|Ollama|LM Studio|Brave|Tavily|Exa|SearXNG|SerpAPI|Wikimedia Commons|Abiding Word|[A-Z0-9]{2,6}|.*\{\{.*\}\}.*)$/;
 
@@ -189,7 +193,7 @@ export function audit(list) {
     const en = e.forms.en.map(([, t]) => t).join(" / ");
     for (const lang of LANGUAGES.filter((l) => l !== "en")) {
       for (const [, text] of e.forms[lang]) {
-        if (lang === "de" && GERMAN_FORMAL.test(text)) add("B", "German capitalised Sie/Ihr (check: formal address, or 'they/it')", e.key, lang, text, "Policy: informal du.");
+        if (lang === "de" && (GERMAN_FORMAL.test(text) || GERMAN_FORMAL_START.test(text))) add("B", "German capitalised Sie/Ihr (check: formal address, or 'they/it')", e.key, lang, text, "Policy: informal du.");
         if (lang === "ko") for (const w of KOREAN_BANNED) if (text.includes(w)) add(e.key.startsWith("presentation.") ? "C" : "B", `Korean ${w}`, e.key, lang, text, e.key.startsWith("presentation.") ? "Presentation/PowerPoint context: may be the file format's own term." : "Established project term may exist.");
         const enForm = e.forms.en.find(([f]) => f === null || f === "other")?.[1] ?? "";
         if (text === enForm && /[a-z]{4,}/.test(text) && !SAME_EVERYWHERE.test(text.trim())) {
@@ -244,7 +248,7 @@ export function cell(text) {
 const formsCell = (forms) => forms.map(([form, text]) => (form ? `*${form}:* ${cell(text)}` : cell(text))).join("<br>");
 const placeholdersOf = (forms) => [...new Set(forms.flatMap(([, t]) => [...t.matchAll(/\{\{\s*([\w.]+)[^}]*\}\}/g)].map((m) => m[1])))];
 
-function rowFor(e, short = false) {
+function rowFor(e) {
   const flags = [];
   if (e.plural) flags.push("plural");
   const ph = placeholdersOf(e.forms.en);
@@ -252,8 +256,7 @@ function rowFor(e, short = false) {
   if (/(Label|label|aria|Tooltip|tooltip)$/.test(e.key) || /\.(label|aria)\./.test(e.key)) flags.push("screen-reader/label");
   const note = [noteFor(e.key), FLAGS[e.key] ? `⚑ ${FLAGS[e.key]}` : ""].filter(Boolean).join(" ");
   const context = [flags.join(", "), note].filter(Boolean).join(" — ");
-  const langs = short ? LANGUAGES : LANGUAGES;
-  return `| ${cell(context)} | \`${e.key}\` | ${langs.map((l) => formsCell(e.forms[l])).join(" | ")} |`;
+  return `| ${cell(context)} | \`${e.key}\` | ${LANGUAGES.map((l) => formsCell(e.forms[l])).join(" | ")} |`;
 }
 
 const header = `| Context | Key | ${LANGUAGES.map((l) => NAMES[l]).join(" | ")} |\n|---|---|${LANGUAGES.map(() => "---").join("|")}|`;
@@ -334,6 +337,11 @@ function recentKeys(current) {
   } catch {
     return null;
   }
+}
+
+/** The priority document without section 3, the one part that depends on git history. */
+export function withoutRecent(doc) {
+  return doc.replace(/\n## 3\. [\s\S]*?(?=\n## 4\. )/, "\n## 3. (git history)\n");
 }
 
 export function build(locales = readLocales(), { withRecent = true } = {}) {
@@ -449,8 +457,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const { review, priority, list, total, findings } = build();
   if (process.argv.includes("--check")) {
     const now = readFileSync(join(root, REVIEW), "utf8");
-    if (now !== `${review}\n`) {
-      console.error(`${REVIEW} is out of date: run npm run i18n:corpus`);
+    const nowPriority = readFileSync(join(root, PRIORITY), "utf8");
+    if (now !== `${review}\n` || withoutRecent(nowPriority) !== withoutRecent(`${priority}\n`)) {
+      console.error(`${REVIEW} or ${PRIORITY} is out of date: run npm run i18n:corpus`);
       process.exit(1);
     }
     console.log(`i18n corpus: ${list.length} strings (${total} keys) — up to date.`);

@@ -163,7 +163,7 @@ describe("refining a baseline (v0.18.9)", () => {
     }
   });
 
-  it("records former wording only as history: never the current wording, and only beside a part that changed", () => {
+  it("records former wording only as history, never the current wording", () => {
     for (const template of studyTemplates) {
       for (const s of template.sections as { key: string; title: string; guidance?: string; formerTitles?: string[]; formerGuidance?: string[] }[]) {
         expect(s.formerTitles ?? [], `${template.key}/${s.key}`).not.toContain(s.title);
@@ -183,7 +183,7 @@ describe("refining a baseline (v0.18.9)", () => {
     const i18n = (await import("@/i18n")).default;
     await i18n.changeLanguage("ko");
     try {
-      expect(sectionTitle(detail.sections[1]!)).not.toBe("Main Idea");
+      expect(sectionTitle(detail.sections[1]!)).toBe("중심 생각");
     } finally {
       await i18n.changeLanguage("en");
     }

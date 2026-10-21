@@ -80,7 +80,9 @@ whether it reads as neutral in every language, not as a homiletic method.
 - The *Starts with: …* preview is built from each template's own data. In
   the template lists (Settings → Templates, Study and Teaching) and on the
   new-study form, it is clamped to two lines (`line-clamp-2`). The full text
-  stays available as the `title` and to screen readers.
+  stays in the page for screen readers and is shown as a tooltip (`title`).
+  A built-in Teaching template says *Built-in* first, so the clamp never
+  hides it.
 
 ## 5. Safety and regressions
 
@@ -211,6 +213,14 @@ German informal address and the Korean terms (성경공부, 공부 틀, 부분, 
 
 ## 8. Limitations
 
+- Former wording is recognised by its text. If a person renames a part back
+  to the exact former English (*Semantic Range*), or kept it in a template of
+  their own saved before v0.18.9, it is shown as the current built-in wording
+  (*Range of Meaning*, or its translation). A deliberate choice can't be told
+  apart from the old built-in text without a stored marker. That is accepted
+  for these few, rarely typed headings.
+- In English, a study made before v0.18.9 shows the new English wording too,
+  since it is shown from the same translated text.
 - The audit is mechanical. It can't judge register, tone or whether a
   phrase is natural, which is the native review's job.
 - Same-as-English detection lists cognates. It doesn't decide whether a

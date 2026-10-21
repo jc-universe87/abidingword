@@ -1,4 +1,6 @@
 import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error -- a plain Node script without type declarations
 import * as corpus from "../../scripts/i18n-corpus.mjs";
@@ -19,11 +21,28 @@ const built = corpus.build(locales, { withRecent: false }) as {
   findings: Finding[];
   groups: Map<string, Entry[]>;
 };
-const reviewDoc = readFileSync(corpus.REVIEW, "utf8");
+const root = join(fileURLToPath(import.meta.url), "..", "..", "..");
+const reviewDoc = readFileSync(join(root, corpus.REVIEW), "utf8");
+const priorityDoc = readFileSync(join(root, corpus.PRIORITY), "utf8");
 
 describe("i18n review corpus", () => {
   it("is current: the committed review document is what the locale files make now", () => {
     expect(reviewDoc).toBe(`${built.review}\n`);
+  });
+
+  it("is current: the priority document too, apart from its git-history section", () => {
+    expect(corpus.withoutRecent(priorityDoc)).toBe(corpus.withoutRecent(`${built.priority}\n`));
+    expect(corpus.withoutRecent(priorityDoc)).toContain("## 4. ");
+  });
+
+  it("orders keys by code point, whatever the machine's locale", () => {
+    const keys = built.list.map((e) => e.key);
+    expect(keys).toEqual([...keys].sort());
+  });
+
+  it("shows a flagged question on its row, plural strings included", () => {
+    const row = reviewDoc.split("\n").find((l) => l.includes("`studies.materials.scripture.missing`"))!;
+    expect(row).toContain("⚑");
   });
 
   it("exports every English key, plural forms included, from every namespace", () => {
@@ -32,7 +51,7 @@ describe("i18n review corpus", () => {
     const forms = built.list.reduce((n, e) => n + e.forms.en.length, 0);
     expect(forms).toBe(keys.length);
     for (const e of built.list) expect(reviewDoc, e.key).toContain(`| \`${e.key}\` |`);
-    const namespaces = readdirSync("src/i18n/locales/en").filter((f) => f.endsWith(".json")).map((f) => f.replace(".json", ""));
+    const namespaces = readdirSync(join(root, "src/i18n/locales/en")).filter((f) => f.endsWith(".json")).map((f) => f.replace(".json", ""));
     for (const ns of namespaces) expect(built.list.some((e) => e.key.startsWith(`${ns}.`)), ns).toBe(true);
   });
 
@@ -69,9 +88,12 @@ describe("i18n review corpus", () => {
     const fake = { ...locales, fr: new Map(locales.fr) };
     fake.fr.set("presentation.templates.title", "Modèles de l'église");
     fake.fr.set("studies.view.teaching", "Bible Teaching");
+    fake.de = new Map(locales.de);
+    fake.de.set("studies.view.study", "Sie können hier beginnen.");
     const findings = corpus.build(fake, { withRecent: false }).findings as Finding[];
     expect(findings).toContainEqual(expect.objectContaining({ cls: "A", kind: "Straight apostrophe", key: "presentation.templates.title", lang: "fr" }));
     expect(findings).toContainEqual(expect.objectContaining({ kind: "Same spelling as English", key: "studies.view.teaching", lang: "fr" }));
+    expect(findings).toContainEqual(expect.objectContaining({ key: "studies.view.study", lang: "de", cls: "B" }));
   });
 });
 
