@@ -375,7 +375,7 @@
     "noTemplate": "Aucun modèle (une seule partie Notes)",
     "yourTemplate": "{{name}} (le vôtre)",
     "optional": "(facultatif)",
-    "passagePlaceholder": "p. ex. Jean 15:1-11",
+    "passagePlaceholder": "p. ex. Jean 15,1-11",
     "create": "Créer l’étude",
     "formLabel": "Nouvelle étude",
     "studyAs": "Approche d’étude",
@@ -564,7 +564,7 @@
     "add": "Ajouter un passage",
     "linkCurrent": "Lier le passage actuel ({{passage}})",
     "inputLabel": "Passage à ajouter",
-    "placeholder": "p. ex. Jean 15:1-11",
+    "placeholder": "p. ex. Jean 15,1-11",
     "addRelated": "Passage lié",
     "openPrimary": "Ouvrir dans la Bible"
   },
@@ -776,7 +776,7 @@
       "shared": {
         "remote": "Pour vous aider, ceci sera envoyé à {{assistant}} :",
         "local": "Cela reste sur cet ordinateur ({{assistant}}). Il verra :",
-        "text": "votre partie « {{part}} »",
+        "text": "ce que vous avez écrit pour {{part}}",
         "selection": "les mots sélectionnés",
         "request": "ce que vous avez demandé",
         "teaching": "le titre et le type de l’enseignement, et son public, son but et son message central s’ils sont écrits",
