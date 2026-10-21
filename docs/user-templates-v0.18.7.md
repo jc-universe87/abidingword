@@ -269,6 +269,13 @@ chooses its format first and offers only the person's templates made for it
 (see [`baselines-materials-v0.18.8.md`](baselines-materials-v0.18.8.md)).
 `.awstructure` remains deferred.
 
+## Since v0.18.9
+
+A built-in section may carry `formerTitles` / `formerGuidance`: its earlier
+English. A stored part that still matches any of them is shown in the
+current translation, so refining a baseline's wording never leaves old
+studies in English (see [`baseline-language-prep-v0.18.9.md`](baseline-language-prep-v0.18.9.md)).
+
 ## Limitations
 
 * Study template parts can't be duplicated one by one in the editor. Add a

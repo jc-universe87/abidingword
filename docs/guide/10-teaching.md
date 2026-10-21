@@ -36,6 +36,11 @@ Nothing is written for you. A lesson starts with a few empty steps (for
 children: *Welcome, Bible story, Question, Activity, Prayer*); the other kinds
 start empty.
 
+These starting shapes are only a beginning, not a method you must follow. A
+sermon or talk has an introduction and a conclusion with as many main points
+between them as you add; a group study starts with no questions rather than
+an empty one to delete; the children's *Bible story* is a Bible-reading step.
+
 ### Your own templates
 
 If you often prepare the same shape of teaching (a youth evening that always

@@ -295,7 +295,15 @@ owner's later refinement; "Starts with" previews from each template's own
 parts; a new teaching chooses its format first and offers only the person's
 templates for that format.
 
-**Still open:** the owner's refinement of the built-in baselines; audio steps and a step-level media attachment; moving notes
+**Since v0.18.9** (see [`baseline-language-prep-v0.18.9.md`](baseline-language-prep-v0.18.9.md)):
+the baselines refined lightly (Word study's *Range of Meaning*, guidance
+that no longer promises what the app doesn't do, descriptions that don't
+presume an outcome), with former wording kept so old studies stay
+translated; Teaching baselines reviewed and kept.
+
+**Still open:** the native-language polish of all six languages, prepared in
+v0.18.9 ([`i18n/native-polish-priority-v0.18.9.md`](i18n/native-polish-priority-v0.18.9.md));
+further refinement of the built-in baselines by the owner; audio steps and a step-level media attachment; moving notes
 between parts by dragging; the assistant inside Bible Study; a file to share
 Study and Teaching templates (`.awstructure`, designed and deferred, never
 `.awtemplate`); refining the built-in Teaching baselines

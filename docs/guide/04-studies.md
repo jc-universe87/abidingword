@@ -41,6 +41,11 @@ Templates** gives you your own copy to change as you like. Parts you may want la
 study: *Structure, Key Words, Related Scripture, Open Questions*) are offered
 when you click **Add a part** at the end of the study.
 
+When a later version words a built-in template more plainly (Word study's
+*Semantic Range* became *Range of Meaning* in v0.18.9), studies you already
+made keep their parts as they are, still shown in your language. Only new
+studies start with the new wording.
+
 Each part can say where it belongs in the study's **outline** (*Text,
 Understanding, Theology, Application, Audience, Teaching*). The template says
 so to start with. You can change it in the part's options (**⋯ → Outline**),

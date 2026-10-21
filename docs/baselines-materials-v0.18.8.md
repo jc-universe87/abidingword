@@ -290,6 +290,15 @@ notes, citations or material choices, and no exported files. Material
 choices (leader's version, include passage, notes) are view choices, never
 stored with the teaching, so they cannot become structure.
 
+## 5b. Since v0.18.9
+
+The first refinement of these baselines is recorded in
+[`baseline-language-prep-v0.18.9.md`](baseline-language-prep-v0.18.9.md):
+Word study's *Semantic Range* is now *Range of Meaning*, three guidance
+lines and two descriptions are plainer, and earlier English is kept in
+`formerTitles` / `formerGuidance` so old studies stay translated. The
+Teaching baselines were reviewed and kept.
+
 ## 6. Deferred
 
 * `.awstructure`, a file to share Study and Teaching templates, is designed
