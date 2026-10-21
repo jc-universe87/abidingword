@@ -1155,7 +1155,9 @@
       "includeNotes": "Minhas anotações pessoais",
       "leader": "Versão do líder, com notas para conduzir",
       "includeFrame": "“{{opening}}” e “{{closing}}”",
-      "writingSpace": "Espaço para escrever"
+      "writingSpace": "Espaço para escrever",
+      "includePassage": "Incluir a passagem bíblica ({{bible}})",
+      "includePassageNone": "Incluir a passagem bíblica (escolha primeiro uma Bíblia no painel Bíblia)"
     },
     "action": {
       "print": "Imprimir ou salvar como PDF…",
@@ -1174,6 +1176,14 @@
       "exportPresentation": "Salvar a apresentação como arquivo…",
       "exportHint": "PowerPoint, PDF dos slides, folha do orador para celular, Markdown ou pacote de apresentação",
       "exportHintNamed": "“{{title}}”: PowerPoint, PDF dos slides, folha do orador para celular, Markdown ou pacote de apresentação"
+    },
+    "scripture": {
+      "reading": "Lendo a passagem…",
+      "failed": "Não foi possível ler a passagem: {{reason}} A referência continua no material.",
+      "none": "A {{bible}} não tem texto para esta passagem. Só a referência é mostrada.",
+      "missing_one": "A {{bible}} não tem texto para o versículo {{verses}}; ele fica de fora e não é tirado de outra Bíblia.",
+      "missing_other": "A {{bible}} não tem texto para os versículos {{verses}}; eles ficam de fora e não são tirados de outra Bíblia.",
+      "missing_many": "A {{bible}} não tem texto para os versículos {{verses}}; eles ficam de fora e não são tirados de outra Bíblia."
     }
   },
   "phase": {

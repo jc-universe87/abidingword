@@ -7,6 +7,7 @@
 //! the removed wording keep their passage and lose only the translation link.
 
 use rusqlite::{params, Connection, OptionalExtension, Row};
+use serde::Serialize;
 
 use crate::db::{new_id, now};
 use crate::domain::validate;
@@ -432,4 +433,83 @@ pub fn search(conn: &Connection, input: &SearchScripture) -> AppResult<SearchRes
 
 pub fn new_translation_id() -> String {
     new_id()
+}
+
+/// One passage of a material, as the chosen Bible has it (v0.18.8).
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct MaterialPassage {
+    /// The reference as the teaching names it (canonical form).
+    pub canonical: String,
+    pub verses: Vec<VerseText>,
+    /// Verses the passage covers that this Bible has no text for, as
+    /// "chapter:verse", in order; the material says so and keeps the
+    /// reference, and never takes them from another Bible.
+    pub missing: Vec<String>,
+}
+
+/// The passages of a material, all from one Bible, with what the person may
+/// want to say about where the text comes from.
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct MaterialScripture {
+    pub translation_id: String,
+    pub name: String,
+    pub short_name: String,
+    pub copyright_notice: Option<String>,
+    pub passages: Vec<MaterialPassage>,
+}
+
+/// The text of each passage from the one Bible chosen, checked against the
+/// canon's verse counts so that a verse the Bible lacks is named instead of
+/// silently left out. Nothing is fetched, filled in, or taken from another
+/// Bible; the text stays on this computer.
+pub fn material_passages(
+    conn: &Connection,
+    translation_id: &str,
+    references: &[ScriptureRef],
+) -> AppResult<MaterialScripture> {
+    let bible = get(conn, translation_id)?;
+    let mut passages = Vec::with_capacity(references.len());
+    for reference in references {
+        let verses = verses_between(
+            conn,
+            translation_id,
+            reference.start_key(),
+            reference.end_key(),
+        )?;
+        let have: std::collections::HashSet<(u16, u16)> =
+            verses.iter().map(|v| (v.chapter, v.verse)).collect();
+        let mut missing = Vec::new();
+        for chapter in reference.start.chapter..=reference.end.chapter {
+            let last = canon::verse_count(reference.book, chapter).unwrap_or(0);
+            let first = if chapter == reference.start.chapter {
+                reference.start.verse.unwrap_or(1)
+            } else {
+                1
+            };
+            let end = if chapter == reference.end.chapter {
+                reference.end.verse.unwrap_or(last).min(last)
+            } else {
+                last
+            };
+            for verse in first..=end {
+                if !have.contains(&(chapter, verse)) {
+                    missing.push(format!("{chapter}:{verse}"));
+                }
+            }
+        }
+        passages.push(MaterialPassage {
+            canonical: reference.canonical(),
+            verses,
+            missing,
+        });
+    }
+    Ok(MaterialScripture {
+        translation_id: bible.id,
+        name: bible.name,
+        short_name: bible.short_name,
+        copyright_notice: bible.copyright_notice,
+        passages,
+    })
 }

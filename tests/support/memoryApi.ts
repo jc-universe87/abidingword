@@ -987,6 +987,22 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         verses: text.get(`${book}|${chapter}`) ?? [],
       };
     },
+    // As the core (db::bibles::material_passages): only the chosen Bible; a verse it lacks is named.
+    materialScripture: async ({ translationId, references }) => {
+      const bible = state.bibles.find((b) => b.id === translationId);
+      if (!bible) throw new ApiError("notFound", "This Bible is no longer installed.");
+      const passages = await Promise.all(
+        references.map(async (canonical) => {
+          const { reference, verses } = await api.scriptureGetPassage({ translationId, reference: canonical });
+          const missing: string[] = [];
+          if (reference.startVerse !== null && reference.endVerse !== null && reference.startChapter === reference.endChapter) {
+            for (let v = reference.startVerse; v <= reference.endVerse; v++) if (!verses.some((x) => x.chapter === reference.startChapter && x.verse === v)) missing.push(`${reference.startChapter}:${v}`);
+          }
+          return { canonical, verses, missing };
+        }),
+      );
+      return { translationId, name: bible.name, shortName: bible.shortName, copyrightNotice: bible.copyrightNotice ?? null, passages };
+    },
     scriptureGetPassage: async ({ translationId, reference }) => {
       const ref = refFromCanonical(reference, bookByCode);
       if (!ref) throw new ApiError("invalidReference", "Invalid reference.");

@@ -1,6 +1,7 @@
 import type { TFunction } from "i18next";
 import { referenceLabel } from "@/i18n/scripture";
 import { canvasShape, pointFields, showsFrame, stepFieldLabel, type CanvasShape } from "@/features/teaching/labels";
+import type { MaterialScripture } from "@/types/scripture";
 import type { TeachingKind, TeachingPoint, TeachingPreparation } from "@/types/teaching";
 
 /**
@@ -31,6 +32,12 @@ export function outputsFor(kind: TeachingKind | null): OutputKind[] {
 export type Block =
   | { type: "title"; text: string }
   | { type: "passages"; text: string }
+  /**
+   * A passage's text from the one Bible chosen (v0.18.8): its label with the
+   * Bible's short name, the verses in order with their numbers, and, when
+   * that Bible lacks verses, a note saying which (nothing is filled in).
+   */
+  | { type: "scripture"; label: string; verses: { chapter: number; verse: number; text: string }[]; note?: string; attribution?: string }
   /** Said once at the top, e.g. that this is the leader's version. */
   | { type: "notice"; text: string }
   /** The teaching's one message, set apart. */
@@ -60,9 +67,35 @@ export interface MaterialOptions {
   includeFrame?: boolean;
   /** Question sheet and worksheet: room to write under each question. */
   writingSpace?: boolean;
+  /** The text of the teaching's passages from the chosen Bible (v0.18.8; shown only when it has been read). */
+  includePassage?: boolean;
 }
 
-export const DEFAULT_OPTIONS: Required<MaterialOptions> = { includeNotes: false, leader: false, includeFrame: false, writingSpace: true };
+export const DEFAULT_OPTIONS: Required<MaterialOptions> = { includeNotes: false, leader: false, includeFrame: false, writingSpace: true, includePassage: false };
+
+/**
+ * The passages' text as blocks, when asked for and read from the chosen
+ * Bible: one block per passage the whole teaching names, in its order. Only
+ * the data given is used; a verse the Bible lacks is named, never supplied.
+ */
+function scriptureBlocks(t: TFunction, prep: TeachingPreparation, o: Required<MaterialOptions>, scripture: MaterialScripture | null | undefined): Block[] {
+  if (!o.includePassage || !scripture) return [];
+  const own = prep.passages.filter((p) => p.pointId === null);
+  const blocks: Block[] = own.flatMap((p): Block[] => {
+    const text = scripture.passages.find((x) => x.canonical === p.reference.canonical);
+    if (!text) return [];
+    const label = `${referenceLabel(p.reference)} · ${scripture.shortName}`;
+    const note = text.verses.length === 0
+      ? t("studies.materials.scripture.none", { bible: scripture.shortName })
+      : text.missing.length > 0
+        ? t("studies.materials.scripture.missing", { bible: scripture.shortName, verses: text.missing.join(", "), count: text.missing.length })
+        : undefined;
+    return [{ type: "scripture", label, verses: text.verses.map(({ chapter, verse, text: words }) => ({ chapter, verse, text: words })), ...(note ? { note } : {}) }];
+  });
+  const last = blocks[blocks.length - 1];
+  if (last && last.type === "scripture" && scripture.copyrightNotice?.trim()) last.attribution = scripture.copyrightNotice.trim();
+  return blocks;
+}
 
 const has = (text: string | null | undefined): text is string => !!text && text.trim().length > 0;
 const trim = (text: string) => text.trim();
@@ -100,13 +133,15 @@ export function outputHint(t: TFunction, kind: OutputKind, teaching: TeachingKin
  * illustration and application are named; for a group study (a leader's
  * guide) and a lesson (a teacher's guide) every part keeps its name.
  */
-export function manuscript(t: TFunction, prep: TeachingPreparation, options: MaterialOptions = {}): MaterialDocument {
+export function manuscript(t: TFunction, prep: TeachingPreparation, options: MaterialOptions = {}, scripture?: MaterialScripture | null): MaterialDocument {
   const o = { ...DEFAULT_OPTIONS, ...options };
   const shape = canvasShape(prep.kind);
   const s = shapeText(t, shape);
   const blocks: Block[] = [];
   const passages = passagesLine(prep);
   if (passages) blocks.push({ type: "passages", text: passages });
+  const text = scriptureBlocks(t, prep, o, scripture);
+  blocks.push(...text);
   if (has(prep.centralMessage)) blocks.push({ type: "message", label: s("message"), text: trim(prep.centralMessage) });
   if (has(prep.introduction) && showsFrame(shape, "introduction", prep.introduction)) {
     blocks.push({ type: "heading", text: s("introduction") }, { type: "text", text: trim(prep.introduction) });
@@ -134,7 +169,7 @@ export function manuscript(t: TFunction, prep: TeachingPreparation, options: Mat
     blocks.push({ type: "heading", text: s("conclusion") }, { type: "text", text: trim(prep.conclusion) });
   }
   if (o.includeNotes && has(prep.notes)) blocks.push({ type: "heading", text: t("studies.teaching.notes") }, { type: "text", text: trim(prep.notes) });
-  return finish("manuscript", prep, blocks, passages ? 1 : 0);
+  return finish("manuscript", prep, blocks, (passages ? 1 : 0) + text.length);
 }
 
 /**
@@ -145,7 +180,7 @@ export function manuscript(t: TFunction, prep: TeachingPreparation, options: Mat
  * version, which says so at the top. The opening and closing are the
  * leader's words too, and are on the group's sheet only when chosen.
  */
-export function questionSheet(t: TFunction, prep: TeachingPreparation, options: MaterialOptions = {}): MaterialDocument {
+export function questionSheet(t: TFunction, prep: TeachingPreparation, options: MaterialOptions = {}, scripture?: MaterialScripture | null): MaterialDocument {
   const o = { ...DEFAULT_OPTIONS, ...options };
   const s = shapeText(t, "questions");
   const blocks: Block[] = [];
@@ -159,6 +194,9 @@ export function questionSheet(t: TFunction, prep: TeachingPreparation, options: 
     blocks.push({ type: "passages", text: passages });
     frame += 1;
   }
+  const text = scriptureBlocks(t, prep, o, scripture);
+  blocks.push(...text);
+  frame += text.length;
   if (o.leader && has(prep.centralMessage)) blocks.push({ type: "message", label: s("message"), text: trim(prep.centralMessage) });
   if ((o.leader || o.includeFrame) && has(prep.introduction)) blocks.push({ type: "heading", text: s("introduction") }, { type: "text", text: trim(prep.introduction) });
   let number = 0;
@@ -189,13 +227,14 @@ export function questionSheet(t: TFunction, prep: TeachingPreparation, options: 
  * or talk: listening notes, the points in order with room under each, and
  * room for the listener's own notes. Only what the teaching holds is shown.
  */
-export function worksheet(t: TFunction, prep: TeachingPreparation, options: MaterialOptions = {}): MaterialDocument {
+export function worksheet(t: TFunction, prep: TeachingPreparation, options: MaterialOptions = {}, scripture?: MaterialScripture | null): MaterialDocument {
   const o = { ...DEFAULT_OPTIONS, ...options };
   const shape = canvasShape(prep.kind);
   const s = shapeText(t, shape);
   const blocks: Block[] = [];
   const passages = passagesLine(prep);
   if (passages) blocks.push({ type: "passages", text: passages });
+  blocks.push(...scriptureBlocks(t, prep, o, scripture));
   const before = blocks.length;
   if (shape === "steps") {
     if (has(prep.centralMessage)) blocks.push({ type: "message", label: s("message"), text: trim(prep.centralMessage) });
@@ -233,10 +272,15 @@ function finish(kind: MaterialDocument["kind"], prep: TeachingPreparation, block
   return { kind, title, blocks: [{ type: "title", text: title }, ...blocks], empty: blocks.length <= frame };
 }
 
-export function derive(t: TFunction, kind: MaterialDocument["kind"], prep: TeachingPreparation, options: MaterialOptions = {}): MaterialDocument {
-  if (kind === "manuscript") return manuscript(t, prep, options);
-  if (kind === "questions") return questionSheet(t, prep, options);
-  return worksheet(t, prep, options);
+export function derive(t: TFunction, kind: MaterialDocument["kind"], prep: TeachingPreparation, options: MaterialOptions = {}, scripture?: MaterialScripture | null): MaterialDocument {
+  if (kind === "manuscript") return manuscript(t, prep, options, scripture);
+  if (kind === "questions") return questionSheet(t, prep, options, scripture);
+  return worksheet(t, prep, options, scripture);
+}
+
+/** The verses of a passage as one line of running text: "16 For God… 17 For God did not…"; a new chapter shows its number. */
+export function verseRun(verses: { chapter: number; verse: number; text: string }[]): { number: string; text: string }[] {
+  return verses.map((v, i) => ({ number: i > 0 && v.chapter !== verses[i - 1]!.chapter ? `${v.chapter}:${v.verse}` : String(v.verse), text: v.text }));
 }
 
 /**
@@ -260,6 +304,19 @@ export function toMarkdown(doc: MaterialDocument): string {
         break;
       case "notice":
         out.push(`> ${block.text}`);
+        break;
+      case "scripture":
+        // The passage as a quotation: its label, the verses with their numbers, what is lacking, its notice.
+        out.push(
+          [
+            `> **${lines(block.label)}**`,
+            `> ${verseRun(block.verses).map((v) => `**${v.number}** ${escape(v.text)}`).join(" ")}`,
+            block.note ? `> *${lines(block.note)}*` : "",
+            block.attribution ? `> ${lines(block.attribution)}` : "",
+          ]
+            .filter((line) => line && line !== "> ")
+            .join("\n>\n"),
+        );
         break;
       case "message":
         out.push(`> **${block.label}:** ${lines(block.text)}`);

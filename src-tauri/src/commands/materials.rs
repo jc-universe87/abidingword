@@ -7,10 +7,48 @@
 use std::path::PathBuf;
 
 use serde::Deserialize;
+use tauri::State;
 
 use super::presentations::write_atomically;
 use super::CommandResult;
+use crate::db::bibles::{self, MaterialScripture};
 use crate::error::{AppError, UserMessage};
+use crate::scripture::reference::ScriptureRef;
+use crate::state::AppState;
+
+/// At most this many passages in one material: a teaching names a few.
+const MAX_PASSAGES: usize = 20;
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MaterialScriptureInput {
+    pub translation_id: String,
+    /// Canonical references, in the order the material shows them.
+    pub references: Vec<String>,
+}
+
+/// The text of a material's passages from the Bible the person chose
+/// (v0.18.8), with any verse that Bible lacks named. Only that Bible is
+/// read; nothing is fetched and the text never leaves this computer.
+#[tauri::command(async)]
+pub fn material_scripture(
+    state: State<'_, AppState>,
+    input: MaterialScriptureInput,
+) -> CommandResult<MaterialScripture> {
+    if input.references.len() > MAX_PASSAGES {
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "material.tooManyPassages",
+            "This material names too many passages to include their text.",
+        ))
+        .into());
+    }
+    let references = input
+        .references
+        .iter()
+        .map(|r| ScriptureRef::from_canonical(r))
+        .collect::<Result<Vec<_>, _>>()?;
+    state.db(|conn| bibles::material_passages(conn, &input.translation_id, &references))
+}
 
 /// Far beyond any teaching; a guard against a runaway call, not a limit anyone meets.
 const MAX_BYTES: usize = 4 * 1024 * 1024;

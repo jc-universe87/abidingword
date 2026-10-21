@@ -1144,7 +1144,9 @@
       "includeNotes": "Meine Notizen für mich",
       "leader": "Version für die Leitung, mit Hinweisen zum Leiten",
       "includeFrame": "„{{opening}}“ und „{{closing}}“",
-      "writingSpace": "Platz zum Schreiben"
+      "writingSpace": "Platz zum Schreiben",
+      "includePassage": "Bibeltext einfügen ({{bible}})",
+      "includePassageNone": "Bibeltext einfügen (wähle zuerst eine Bibel im Bereich Bibel)"
     },
     "action": {
       "print": "Drucken oder als PDF sichern …",
@@ -1163,6 +1165,13 @@
       "exportPresentation": "Präsentation als Datei sichern …",
       "exportHint": "PowerPoint, PDF mit Folien, Sprechzettel fürs Handy, Markdown oder Vortragspaket",
       "exportHintNamed": "„{{title}}“: PowerPoint, PDF mit Folien, Sprechzettel fürs Handy, Markdown oder Vortragspaket"
+    },
+    "scripture": {
+      "reading": "Bibeltext wird gelesen …",
+      "failed": "Der Bibeltext konnte nicht gelesen werden: {{reason}} Die Bibelstelle bleibt in der Unterlage.",
+      "none": "Die {{bible}} hat keinen Text für diese Stelle. Nur die Bibelstelle wird gezeigt.",
+      "missing_one": "Die {{bible}} hat keinen Text für Vers {{verses}}; er fehlt hier und wird nicht aus einer anderen Bibel genommen.",
+      "missing_other": "Die {{bible}} hat keinen Text für die Verse {{verses}}; sie fehlen hier und werden nicht aus einer anderen Bibel genommen."
     }
   },
   "phase": {

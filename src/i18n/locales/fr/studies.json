@@ -1155,7 +1155,9 @@
       "includeNotes": "Mes notes personnelles",
       "leader": "Version de l’animateur, avec les notes pour animer",
       "includeFrame": "« {{opening}} » et « {{closing}} »",
-      "writingSpace": "Place pour écrire"
+      "writingSpace": "Place pour écrire",
+      "includePassage": "Inclure le passage biblique ({{bible}})",
+      "includePassageNone": "Inclure le passage biblique (choisissez d’abord une Bible dans le volet Bible)"
     },
     "action": {
       "print": "Imprimer ou enregistrer en PDF…",
@@ -1174,6 +1176,14 @@
       "exportPresentation": "Enregistrer la présentation dans un fichier…",
       "exportHint": "PowerPoint, PDF des diapositives, feuillet de l’orateur pour téléphone, Markdown ou paquet de présentation",
       "exportHintNamed": "« {{title}} » : PowerPoint, PDF des diapositives, feuillet de l’orateur pour téléphone, Markdown ou paquet de présentation"
+    },
+    "scripture": {
+      "reading": "Lecture du passage…",
+      "failed": "Le passage n’a pas pu être lu : {{reason}} La référence reste sur le support.",
+      "none": "La {{bible}} n’a pas de texte pour ce passage. Seule la référence est indiquée.",
+      "missing_one": "La {{bible}} n’a pas de texte pour le verset {{verses}} ; il manque ici et n’est pas pris dans une autre Bible.",
+      "missing_other": "La {{bible}} n’a pas de texte pour les versets {{verses}} ; ils manquent ici et ne sont pas pris dans une autre Bible.",
+      "missing_many": "La {{bible}} n’a pas de texte pour les versets {{verses}} ; ils manquent ici et ne sont pas pris dans une autre Bible."
     }
   },
   "phase": {

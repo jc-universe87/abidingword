@@ -1133,7 +1133,9 @@
       "includeNotes": "나만 보는 메모",
       "leader": "인도 메모가 들어간 인도자용",
       "includeFrame": "‘{{opening}}’과 ‘{{closing}}’",
-      "writingSpace": "쓸 공간"
+      "writingSpace": "쓸 공간",
+      "includePassage": "성경 본문 넣기 ({{bible}})",
+      "includePassageNone": "성경 본문 넣기 (먼저 성경 창에서 성경을 고르세요)"
     },
     "action": {
       "print": "인쇄 또는 PDF로 저장…",
@@ -1152,6 +1154,12 @@
       "exportPresentation": "프레젠테이션을 파일로 저장…",
       "exportHint": "파워포인트, PDF 슬라이드, 휴대폰용 발표자 원고, 마크다운, 발표 꾸러미",
       "exportHintNamed": "“{{title}}”: 파워포인트, PDF 슬라이드, 휴대폰용 발표자 원고, 마크다운, 발표 꾸러미"
+    },
+    "scripture": {
+      "reading": "본문을 읽는 중…",
+      "failed": "본문을 읽지 못했습니다: {{reason}} 본문 위치는 자료에 그대로 남습니다.",
+      "none": "{{bible}}에는 이 본문의 글이 없습니다. 본문 위치만 보여 줍니다.",
+      "missing_other": "{{bible}}에는 {{verses}}절의 글이 없어 빠졌습니다. 다른 성경에서 가져오지 않습니다."
     }
   },
   "phase": {

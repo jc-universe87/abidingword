@@ -53,8 +53,7 @@ import type {
   SearchResults,
   SearchScripture,
   StudyPassage,
-  UpdateAnnotation,
-} from "@/types/scripture";
+  UpdateAnnotation, MaterialScripture } from "@/types/scripture";
 import type {
   CreateFinding,
   Finding,
@@ -303,6 +302,8 @@ export interface Api {
   chooseMaterialFile(input: { defaultName: string; filterName: string }): Promise<string | null>;
   /** Writes a material, as Markdown, to the chosen file; returns where it went. */
   materialSaveMarkdown(input: { path: string; text: string }): Promise<string>;
+  /** The text of a material's passages from the chosen Bible only (v0.18.8). */
+  materialScripture(input: { translationId: string; references: string[] }): Promise<MaterialScripture>;
   /** The displays connected; empty where a second window cannot be opened. */
   presentationScreens(): Promise<Screen[]>;
   presentationAudienceOpen(input: { presentationId: string; screen: number | null; title: string; state: AudienceState }): Promise<void>;
@@ -583,6 +584,7 @@ export const tauriApi: Api = {
   presentationExport: (input) => call("presentation_export", { input }),
   chooseMaterialFile: async ({ defaultName, filterName }) => save({ defaultPath: defaultName, filters: [{ name: filterName, extensions: ["md"] }] }),
   materialSaveMarkdown: (input) => call("material_save_markdown", { input }),
+  materialScripture: (input) => call("material_scripture", { input }),
   presentationScreens: () => call("presentation_screens"),
   presentationAudienceOpen: (input) => call("presentation_audience_open", { input }),
   presentationAudienceShow: (state) => call("presentation_audience_show", { input: state }),

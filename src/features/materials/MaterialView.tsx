@@ -8,15 +8,17 @@ import { useApi } from "@/lib/ApiContext";
 import { copyText } from "@/lib/clipboard";
 import { fileName } from "@/features/presentation/labels";
 import type { TeachingPreparation } from "@/types/teaching";
-import { DEFAULT_OPTIONS, derive, outputName, toMarkdown, type Block, type MaterialDocument, type MaterialOptions } from "./derive";
+import { useScripture } from "@/features/scripture/ScriptureContext";
+import type { MaterialScripture } from "@/types/scripture";
+import { DEFAULT_OPTIONS, derive, outputName, toMarkdown, verseRun, type Block, type MaterialDocument, type MaterialOptions } from "./derive";
 
 type Kind = MaterialDocument["kind"];
 
 /** The choices a material offers, each small and in plain words (no layout settings). */
 const OPTIONS: Record<Kind, (keyof MaterialOptions)[]> = {
-  manuscript: ["includeNotes"],
-  questions: ["leader", "includeFrame", "writingSpace"],
-  worksheet: ["writingSpace"],
+  manuscript: ["includePassage", "includeNotes"],
+  questions: ["includePassage", "leader", "includeFrame", "writingSpace"],
+  worksheet: ["includePassage", "writingSpace"],
 };
 
 /**
@@ -37,7 +39,25 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
   // Each request to print, counted: a web view that never says printing has finished can still print again.
   const [printing, setPrinting] = useState(0);
   const name = outputName(t, kind, preparation.kind);
-  const doc = useMemo(() => derive(t, kind, preparation, options), [t, kind, preparation, options]);
+  // The passage's text (v0.18.8), when asked for: read from the Bible chosen in the Scripture
+  // pane, and only from it. While it is read, or if it cannot be, the material keeps the reference.
+  const { translation } = useScripture();
+  const references = useMemo(() => preparation.passages.filter((p) => p.pointId === null).map((p) => p.reference.canonical), [preparation.passages]);
+  const [scripture, setScripture] = useState<{ key: string; text: MaterialScripture | null; error: string | null } | null>(null);
+  const wanted = options.includePassage && translation && references.length > 0 ? `${translation.id}|${references.join(",")}` : null;
+  useEffect(() => {
+    if (!wanted || !translation) return;
+    let live = true;
+    api.materialScripture({ translationId: translation.id, references }).then(
+      (text) => live && setScripture({ key: wanted, text, error: null }),
+      (e: unknown) => live && setScripture({ key: wanted, text: null, error: toApiError(e).message }),
+    );
+    return () => {
+      live = false;
+    };
+  }, [api, wanted, translation, references]);
+  const read = scripture && scripture.key === wanted ? scripture : null;
+  const doc = useMemo(() => derive(t, kind, preparation, options, read?.text ?? null), [t, kind, preparation, options, read]);
 
   useEffect(() => {
     heading.current?.focus();
@@ -86,14 +106,20 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
 
   const shape = kind === "questions" ? "questions" : null;
   const optionLabel = (option: keyof MaterialOptions) =>
-    option === "includeFrame"
+    option === "includePassage"
+      ? translation
+        ? t("studies.materials.option.includePassage", { bible: translation.shortName })
+        : t("studies.materials.option.includePassageNone")
+      : option === "includeFrame"
       ? t("studies.materials.option.includeFrame", {
           opening: t(`studies.teaching.shape.${shape ?? "questions"}.introduction`),
           closing: t(`studies.teaching.shape.${shape ?? "questions"}.conclusion`),
         })
       : t(`studies.materials.option.${option}`);
   // The leader's version holds the opening and closing already, and its notes take the place of room to write.
-  const offered = OPTIONS[kind].filter((option) => !(options.leader && (option === "includeFrame" || option === "writingSpace")));
+  const offered = OPTIONS[kind].filter(
+    (option) => !(options.leader && (option === "includeFrame" || option === "writingSpace")) && !(option === "includePassage" && references.length === 0),
+  );
 
   return (
     <section aria-labelledby={`${id}-title`} className="@container flex flex-col gap-3">
@@ -131,6 +157,7 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
                 <input
                   type="checkbox"
                   className="size-4"
+                  disabled={option === "includePassage" && !translation}
                   checked={!!options[option]}
                   onChange={(e) => setOptions((o) => ({ ...o, [option]: e.target.checked }))}
                 />
@@ -140,6 +167,8 @@ export function MaterialView({ kind, preparation, onBack }: { kind: Kind; prepar
           </fieldset>
         )}
       </div>
+      {wanted && !read && <p role="status" className="type-meta m-0">{t("studies.materials.scripture.reading")}</p>}
+      {read?.error && <p role="alert" className="m-0 text-[0.9375rem] text-danger">{t("studies.materials.scripture.failed", { reason: read.error })}</p>}
       {status && (
         <p role={status.tone === "error" ? "alert" : "status"} className={`m-0 break-words text-[0.9375rem] ${status.tone === "error" ? "text-danger" : ""}`}>
           {status.text}
@@ -178,6 +207,23 @@ function MaterialBlock({ block }: { block: Block }) {
       return <p className="aw-material-passages">{block.text}</p>;
     case "notice":
       return <p className="aw-material-notice">{block.text}</p>;
+    case "scripture":
+      // Scripture set apart from the teaching's own words: its label, the verses with their numbers.
+      return (
+        <blockquote className="aw-material-scripture">
+          <p className="aw-material-label">{block.label}</p>
+          <p>
+            {verseRun(block.verses).map((v, i) => (
+              <span key={i}>
+                <sup className="aw-material-verse">{v.number}</sup>
+                {v.text}{" "}
+              </span>
+            ))}
+          </p>
+          {block.note && <p className="aw-material-note">{block.note}</p>}
+          {block.attribution && <p className="aw-material-attribution">{block.attribution}</p>}
+        </blockquote>
+      );
     case "message":
       return (
         <div className="aw-material-message">

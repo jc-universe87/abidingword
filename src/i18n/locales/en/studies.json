@@ -1144,7 +1144,9 @@
       "includeNotes": "My notes for myself",
       "leader": "Leader’s version, with notes for leading",
       "includeFrame": "“{{opening}}” and “{{closing}}”",
-      "writingSpace": "Room to write"
+      "writingSpace": "Room to write",
+      "includePassage": "Include Bible passage ({{bible}})",
+      "includePassageNone": "Include Bible passage (choose a Bible in the Scripture pane first)"
     },
     "action": {
       "print": "Print or save as PDF…",
@@ -1163,6 +1165,13 @@
       "exportPresentation": "Save the presentation as a file…",
       "exportHint": "PowerPoint, PDF slides, a speaker sheet for a phone, Markdown or a delivery package",
       "exportHintNamed": "“{{title}}”: PowerPoint, PDF slides, a speaker sheet for a phone, Markdown or a delivery package"
+    },
+    "scripture": {
+      "reading": "Reading the passage…",
+      "failed": "The passage could not be read: {{reason}} The reference stays on the material.",
+      "none": "The {{bible}} has no text for this passage. Only the reference is shown.",
+      "missing_one": "The {{bible}} has no text for verse {{verses}}; it is left out, not taken from another Bible.",
+      "missing_other": "The {{bible}} has no text for verses {{verses}}; they are left out, not taken from another Bible."
     }
   },
   "phase": {

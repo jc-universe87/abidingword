@@ -299,3 +299,19 @@ export interface MarksPage {
   offset: number;
   hasMore: boolean;
 }
+
+/** The text of a material's passages from one Bible (v0.18.8): only that Bible, with what it lacks named. */
+export interface MaterialPassage {
+  canonical: string;
+  verses: VerseText[];
+  /** "chapter:verse" of each verse the Bible has no text for. */
+  missing: string[];
+}
+
+export interface MaterialScripture {
+  translationId: string;
+  name: string;
+  shortName: string;
+  copyrightNotice: string | null;
+  passages: MaterialPassage[];
+}
