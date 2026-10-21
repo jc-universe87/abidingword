@@ -768,7 +768,7 @@
       "shared": {
         "remote": "To help, this will be sent to {{assistant}}:",
         "local": "This stays on this computer ({{assistant}}). It will see:",
-        "text": "your {{part}}",
+        "text": "what you wrote for {{part}}",
         "selection": "the words you selected",
         "request": "what you asked for",
         "teaching": "the teaching’s title and kind, and its audience, purpose and central message where written",
