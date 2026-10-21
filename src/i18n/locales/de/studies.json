@@ -44,7 +44,7 @@
         }
       },
       "passage-study": {
-        "name": "Bibelstellenstudium",
+        "name": "Bibeltextstudium",
         "description": "Ein sorgfältiges Studium einer Bibelstelle – vom Text selbst bis zu dem, was er für Glauben und Leben bedeutet.",
         "sections": {
           "text": {
@@ -262,7 +262,7 @@
     "copyTitle": "{{title}} (Kopie)"
   },
   "studyType": {
-    "passage": "Bibelstellenstudium",
+    "passage": "Bibeltextstudium",
     "word": "Wortstudium",
     "topical": "Themenstudium",
     "biblical_theology": "Biblisch-theologisches Studium",
@@ -387,7 +387,7 @@
       "custom": "Was studierst du?"
     },
     "approach": {
-      "passage": "Bibelstellenstudium",
+      "passage": "Bibeltextstudium",
       "word": "Wortstudium",
       "topical": "Themenstudium",
       "teaching": "Lehrvorbereitung",
@@ -768,7 +768,7 @@
       "shared": {
         "remote": "Damit {{assistant}} helfen kann, wird Folgendes gesendet:",
         "local": "Dies bleibt auf diesem Computer ({{assistant}}). Der Assistent sieht Folgendes:",
-        "text": "Dein Text: {{part}}",
+        "text": "Dein Text zu {{part}}",
         "selection": "Die markierten Wörter",
         "request": "Deine Bitte",
         "teaching": "Titel und Art der Bibellehre sowie Zielgruppe, Ziel und Kernbotschaft, soweit vorhanden",
