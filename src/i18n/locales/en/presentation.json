@@ -386,8 +386,8 @@
     "saving": "Saving…",
     "tooLong": "Text too long",
     "overflowSlide": "Text too long for the template’s box",
-    "overflowSummary_one": "On {{count}} slide the text is too long for the template’s box. It is not made smaller automatically: shorten it, or let that box shrink in the template.",
-    "overflowSummary_other": "On {{count}} slides the text is too long for the template’s box. It is not made smaller automatically: shorten it, or let that box shrink in the template.",
+    "overflowSummary_one": "On {{count}} slide the text is too long for the template’s box. It is not made smaller automatically: shorten it, or turn on “Make long text smaller to fit” for that box in the template.",
+    "overflowSummary_other": "On {{count}} slides the text is too long for the template’s box. It is not made smaller automatically: shorten it, or turn on “Make long text smaller to fit” for that box in the template.",
     "overflowExport_one": "{{count}} text box is too small for its text; check it in the file.",
     "overflowExport_other": "{{count}} text boxes are too small for their text; check them in the file.",
     "roles": {
