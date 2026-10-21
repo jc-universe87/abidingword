@@ -907,6 +907,20 @@
         "introduction": "Einleitung",
         "conclusion": "Schluss"
       },
+      "generalPoints": {
+        "title": "Hauptpunkte",
+        "none": "Noch keine Punkte. Füge so viele hinzu, wie du brauchst, in jeder Form: ein Abschnitt einer Geschichte, eine Frage, ein Thema oder einige Verse.",
+        "add": "Punkt hinzufügen",
+        "number": "Punkt {{number}}",
+        "label": "Punkt {{number}}: {{title}}",
+        "untitled": "Punkt {{number}}",
+        "titleLabel": "Titel von Punkt {{number}}",
+        "titlePlaceholder": "Was dieser Punkt sagt",
+        "added": "Punkt hinzugefügt.",
+        "removed": "Punkt entfernt.",
+        "moved": "Punkt an Stelle {{position}} verschoben.",
+        "deleteConfirm": "Diesen Punkt mit deinem Text löschen? Verwendete Notizen bleiben im Bibelstudium."
+      },
       "questions": {
         "title": "Fragen und Antworten",
         "none": "Noch keine Fragen. Füge die Fragen hinzu, über die ihr sprechen wollt, jeweils mit dem, was der Bibeltext zeigt.",
@@ -954,6 +968,7 @@
     "aboutFor": "für {{audience}}",
     "format": {
       "points": "Hauptpunkte mit Erklärung, Anwendung und Beispiel, zwischen Einleitung und Schluss.",
+      "generalPoints": "Hauptpunkte mit Erklärung, Anwendung und Beispiel, zwischen Einleitung und Schluss.",
       "questions": "Fragen für die Gruppe, jeweils mit möglichem Gesprächsverlauf und weiterführenden Fragen.",
       "steps": "Eine Einheit in Schritten: Erzählen, Bibellesen, Fragen, Aktionen und Bilder, in der Reihenfolge des Ablaufs."
     },
@@ -1032,6 +1047,7 @@
       "name": "Name der Vorlage",
       "keeps": {
         "points": "Die Vorlage übernimmt die Form und so viele Hauptpunkte, wie diese Bibellehre hat, in ihrer Reihenfolge. Die Punkte beginnen ohne Titel.",
+        "generalPoints": "Die Vorlage übernimmt die Form und so viele Hauptpunkte, wie diese Bibellehre hat, in ihrer Reihenfolge. Die Punkte beginnen ohne Titel.",
         "questions": "Die Vorlage übernimmt die Form und so viele Fragen, wie diese Bibellehre hat. Die Fragen beginnen leer.",
         "steps": "Die Vorlage übernimmt die Form und die Schritte in ihrer Reihenfolge, jeden mit Titel und Art."
       },

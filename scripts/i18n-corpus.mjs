@@ -136,14 +136,8 @@ const NOTES = [
 ];
 const noteFor = (key) => NOTES.find(([r]) => r.test(key))?.[1] ?? "";
 
-/** Linguistic questions still open after the v0.18.10 native polish: for the owner's final spot review, not decided here. */
-export const FLAGS = {
-  "studies.teaching.shape.points.title": "Architecture: the \"points\" canvas serves sermon, talk, youth and other teaching alike, so Korean 대지 (a sermon term) also names a talk's or youth evening's parts. A kind-specific label would need its own keys.",
-  "presentation.export.formats.pptx.name": "Korean now writes product names in Latin script (PowerPoint, Markdown, Keynote, LibreOffice), as the template and library screens did; many Korean users write 파워포인트.",
-  "studies.teaching.kind.lesson": "Portuguese: \"Lição\" is now used for a lesson throughout (it was sometimes \"aula\").",
-  "scripture.search.queryLabel": "Spanish: this search hint now quotes «frase exacta», while the Library search placeholder (library.search.placeholder) still shows “frase exacta”. One style for both?",
-  "studies.findings.newLabel": "Architecture: French, Spanish and Portuguese assume every note type is feminine (Nouvelle / Nueva / Nova {{type}}); a masculine type would need its own keys.",
-};
+/** Linguistic questions still open, keyed by the string they concern (none since the v0.18.10 closure; add one here when a question arises). */
+export const FLAGS = {};
 
 // --- the audit ----------------------------------------------------------------
 

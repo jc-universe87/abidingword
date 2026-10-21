@@ -34,7 +34,7 @@
   "search": {
     "heading": "Bibliothek durchsuchen",
     "label": "Bibliothek durchsuchen",
-    "placeholder": "Wörter oder „genauer Wortlaut“",
+    "placeholder": "Wörter oder \"genauer Wortlaut\"",
     "nothingFound": "In deiner Bibliothek wurde nichts gefunden.",
     "resultCount_one": "{{number}} Fundstelle gefunden.",
     "resultCount_other": "{{number}} Fundstellen gefunden.",

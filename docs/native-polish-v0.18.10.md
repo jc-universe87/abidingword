@@ -96,11 +96,12 @@ The review confirmed these as clean:
 ## 4. Architecture notes (reported, not forced)
 
 - The **points canvas** serves sermon, talk, youth and other teaching with
-  one set of keys. Korean 대지 is a sermon word, so a talk's parts are also
-  called 대지. A kind-specific label needs kind-specific keys. German,
-  French, Spanish and Portuguese read naturally for all four kinds.
-- `studies.findings.newLabel` and similar labels assume a feminine note type
-  in French, Spanish and Portuguese, which is true for every type today.
+  one set of keys. Korean 대지 is a sermon word, so a talk's parts were also
+  called 대지. German, French, Spanish and Portuguese read naturally for all
+  four kinds. *Closed in §5a.*
+- `studies.findings.newLabel` and `confirmDelete` assumed a feminine note
+  type in Spanish and Portuguese, which is true for every type today.
+  *Closed in §5a.*
 - `studies.keepIt` is shared by masculine and feminine items, so French uses
   the neutral *Conserver*.
 - German `studies.teaching.links.wholeScope` and `assist.shared.*` were
@@ -135,6 +136,48 @@ They are listed with their strings in section 2 of the
   Portuguese *o que você escreveu para {{part}}* follow it.
 
 None of them blocks the Windows acceptance build.
+
+### 5a. Closed in the final language pass
+
+All five questions above, and the French reference examples, are closed.
+The priority page has no open questions left.
+
+1. **Korean product names.** Official names and format labels stay in Latin
+   script, in natural Korean sentences. An audit found no phonetic forms
+   and no inconsistency, so nothing changed.
+2. **Portuguese *Lição* / *aula*.** *Lição* is a lesson as a structured,
+   prepared unit, *aula* an actual class or session. Every current string
+   means the former, so *Lição* stays and nothing changed.
+3. **Exact-phrase search hints.** The search reads only straight double
+   quotes as a phrase (`src-tauri/src/db/fts.rs`). Typographic quotes only
+   separate words. The Scripture and Library search hints showed « », “ ” or
+   „ “ in every language, which the search ignores. They now show the real
+   syntax in all six languages (*Palabras o "frase exacta"*). The search
+   itself is unchanged, and Rust tests pin both behaviours.
+4. **Korean 대지 / 주요 내용.** Kind-aware wording at one boundary
+   (`shapeText` / `shapeWords` in `src/features/teaching/labels.ts`):
+   - a sermon keeps 대지;
+   - talk, youth, other and kind-less teaching show 주요 내용;
+   - the canvas, the template editor and preview, *Save as my template* and
+     the materials (manuscript, Word export) all follow;
+   - text about every kind uses 주요 내용.
+   Stored points and kinds are untouched, and the other five languages read
+   exactly as before.
+5. **Note-type agreement.** Spanish *Nueva {{type}}* / *¿Eliminar esta
+   {{type}}?* and Portuguese *Nova {{type}}* / *Excluir esta {{type}}?* now
+   agree with the generic noun: *Nuevo apunte: {{type}}*, *¿Eliminar este
+   apunte ({{type}})?*, *Nova anotação: {{type}}*, *Excluir esta anotação
+   ({{type}})?*. This matches the French pattern. A test keeps every
+   language free of agreeing words before `{{type}}`.
+6. **French reference examples.** Every French example now uses the comma:
+   - *Rm 8,1-17*;
+   - *Jean 15,1–8*;
+   - *Jean 15,5*;
+   - *Jn 3,5*;
+   - the sample slide's *Jean 15,1–8*.
+   The parser still reads the colon. *Jn 3,5* is read as John in a French
+   Bible; in Portuguese "Jn" is Jonah, which the hint's own wording ("as
+   this Bible reads them") already says.
 
 ## 6. Checks
 

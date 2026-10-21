@@ -5,7 +5,7 @@ import { Button } from "@/design-system/Button";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
-import { canvasShape, teachingKindLabel, type ShapeText } from "@/features/teaching/labels";
+import { canvasShape, shapeText, shapeWords, teachingKindLabel, type ShapeText } from "@/features/teaching/labels";
 import { templatePointTitle } from "@/features/teaching/teachingTemplates";
 import { STEP_KINDS, TEACHING_KINDS, type StepKind, type TeachingKind, type TeachingTemplate, type TeachingTemplatePoint } from "@/types/teaching";
 
@@ -68,7 +68,7 @@ function Form({ templateId, initial, onClose }: { templateId: string | null; ini
   }, [moved, id]);
 
   const shapeName = canvasShape(kind);
-  const shape = (key: ShapeText, options?: Record<string, unknown>) => t(`studies.teaching.shape.${shapeName}.${key}`, options ?? {});
+  const shape = (key: ShapeText, options?: Record<string, unknown>) => shapeText(t, kind, key, options);
   const steps = shapeName === "steps";
   const update = (index: number, changes: Partial<TeachingTemplatePoint>) => setPoints(points.map((p, i) => (i === index ? { ...p, ...changes } : p)));
   const move = (index: number, delta: -1 | 1) => {
@@ -141,7 +141,7 @@ function Form({ templateId, initial, onClose }: { templateId: string | null; ini
               ))}
             </select>
           </label>
-          <p id={`${id}-format`} className="m-0 text-[0.9375rem] text-text-muted">{t(`studies.teaching.format.${shapeName}`)}</p>
+          <p id={`${id}-format`} className="m-0 text-[0.9375rem] text-text-muted">{t(`studies.teaching.format.${shapeWords(kind)}`)}</p>
         </div>
 
         <section aria-labelledby={`${id}-points`} className="flex flex-col gap-3">

@@ -5,7 +5,7 @@ import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import type { TeachingPreparation } from "@/types/teaching";
-import { canvasShape } from "./labels";
+import { shapeWords } from "./labels";
 import { templateFromTeaching } from "./teachingTemplates";
 
 /**
@@ -33,7 +33,7 @@ export function SaveTeachingTemplate({ preparation }: { preparation: TeachingPre
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const shape = canvasShape(preparation.kind);
+  const shape = shapeWords(preparation.kind);
 
   const save = async () => {
     if (busy || !name.trim() || !fits) return;

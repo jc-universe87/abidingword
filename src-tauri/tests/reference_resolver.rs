@@ -718,3 +718,45 @@ fn verses_are_validated_and_impossible_readings_do_not_compete() {
         "JHN.3.16"
     );
 }
+
+#[test]
+fn the_interface_examples_read_as_written_and_french_takes_comma_or_colon() {
+    // The example references the interface shows as hints (placeholders and
+    // error messages, src/i18n/locales/*): each must be accepted as typed,
+    // in any interface language. French examples use the comma (v0.18.10);
+    // the colon stays accepted.
+    let cases = [
+        ("Jean 15", "JHN.15"),
+        ("Jean 15,1-11", "JHN.15.1-JHN.15.11"),
+        ("Jean 15,1–8", "JHN.15.1-JHN.15.8"),
+        ("Jean 15,5", "JHN.15.5"),
+        ("Rm 8,1-17", "ROM.8.1-ROM.8.17"),
+        ("Jean 15:1-11", "JHN.15.1-JHN.15.11"),
+        ("Rm 8:1-17", "ROM.8.1-ROM.8.17"),
+        ("Joh 15", "JHN.15"),
+        ("Johannes 15,1-11", "JHN.15.1-JHN.15.11"),
+        ("Röm 8,1-17", "ROM.8.1-ROM.8.17"),
+        ("요한복음 15:1-11", "JHN.15.1-JHN.15.11"),
+        ("로마서 8:1-17", "ROM.8.1-ROM.8.17"),
+        ("Juan 15:1-11", "JHN.15.1-JHN.15.11"),
+        ("Romanos 8:1-17", "ROM.8.1-ROM.8.17"),
+        ("João 15:1-11", "JHN.15.1-JHN.15.11"),
+        ("John 15:1-11", "JHN.15.1-JHN.15.11"),
+        ("Rom 8:1-17", "ROM.8.1-ROM.8.17"),
+    ];
+    for (input, expected) in cases {
+        for preference in EVERY_PREFERENCE {
+            assert_eq!(
+                canonical(input, preference),
+                expected,
+                "{input:?} {preference:?}"
+            );
+        }
+    }
+    // The Bible-language hint's abbreviation ("Jn 3,5") is read as a French
+    // Bible reads it: "Jn" is Jonah in Portuguese, so it is not universal.
+    for typed in ["Jn 3,5", "Jn 3:5"] {
+        assert_eq!(read_in(typed, Some(Fr), Some(Fr)), "JHN.3.5", "{typed}");
+        assert_eq!(read_in(typed, Some(Fr), Some(En)), "JHN.3.5", "{typed}");
+    }
+}

@@ -53,7 +53,7 @@
   "search": {
     "title": "검색",
     "backToReading": "읽던 곳으로 돌아가기",
-    "queryLabel": "단어 또는 “정확한 구절”",
+    "queryLabel": "단어 또는 \"정확한 구절\"",
     "submit": "검색",
     "onlyNamed": "{{name}}에서만",
     "onlyCurrent": "이 번역본에서만",

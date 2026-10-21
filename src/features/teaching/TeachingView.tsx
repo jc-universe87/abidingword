@@ -12,7 +12,7 @@ import { STEP_KINDS, TEACHING_KINDS, type ImageCapability, type ProviderKind, ty
 import { AssistMenu } from "./AssistMenu";
 import { AssistPanel } from "./AssistPanel";
 import { FloatingPanel, AssistDockProvider, useAssistDock } from "./FloatingPanel";
-import { assistLabel, canvasShape, pointFields, showsFrame, stepFieldLabel, teachingKindLabel, type ShapeText } from "./labels";
+import { assistLabel, canvasShape, pointFields, shapeText, showsFrame, stepFieldLabel, teachingKindLabel, type ShapeText } from "./labels";
 import { SaveTeachingTemplate } from "./SaveTeachingTemplate";
 import { BUILTIN_TEACHING_TEMPLATES, startSummary, startingPoints, type TeachingStart } from "./teachingTemplates";
 import { TeachingField, type AssistantHooks } from "./TeachingField";
@@ -394,7 +394,7 @@ function TeachingEditor({ preparationId, findings, assistant, onRenamed, onDelet
 
   // The main canvas follows the kind: points for a sermon, questions for a Bible study, steps for a lesson.
   const shapeName = canvasShape(prep.kind);
-  const shape = (key: ShapeText, options?: Record<string, unknown>) => t(`studies.teaching.shape.${shapeName}.${key}`, options ?? {});
+  const shape = (key: ShapeText, options?: Record<string, unknown>) => shapeText(t, prep.kind, key, options);
 
   // Each save returns the preparation as stored: kept, so names (a point's title in its labels) stay current.
   // Fields keep their own text, so this never overwrites what is being typed.

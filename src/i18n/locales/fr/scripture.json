@@ -7,7 +7,7 @@
   },
   "nav": {
     "goToLabel": "Aller au passage",
-    "goToPlaceholder": "p. ex. Jean 15 ou Rm 8:1-17",
+    "goToPlaceholder": "p. ex. Jean 15 ou Rm 8,1-17",
     "go": "Aller",
     "book": "Livre",
     "oldTestament": "Ancien Testament",
@@ -55,7 +55,7 @@
   "search": {
     "title": "Recherche",
     "backToReading": "Retour à la lecture",
-    "queryLabel": "Mots ou « expression exacte »",
+    "queryLabel": "Mots ou \"expression exacte\"",
     "submit": "Rechercher",
     "onlyNamed": "Uniquement {{name}}",
     "onlyCurrent": "Uniquement cette traduction",
@@ -264,6 +264,6 @@
     "choose": "Choisir une langue",
     "other": "Une autre langue…",
     "otherName": "Nom de la langue",
-    "hint": "Abiding Word s’en sert pour lire les abréviations que vous tapez (par exemple « Jn 3:5 ») comme cette Bible les entend."
+    "hint": "Abiding Word s’en sert pour lire les abréviations que vous tapez (par exemple « Jn 3,5 ») comme cette Bible les entend."
   }
 }

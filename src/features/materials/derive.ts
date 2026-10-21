@@ -1,6 +1,6 @@
 import type { TFunction } from "i18next";
 import { referenceLabel } from "@/i18n/scripture";
-import { canvasShape, pointFields, showsFrame, stepFieldLabel, type CanvasShape } from "@/features/teaching/labels";
+import { canvasShape, pointFields, shapeText, showsFrame, stepFieldLabel, type ShapeText } from "@/features/teaching/labels";
 import type { MaterialScripture } from "@/types/scripture";
 import type { TeachingKind, TeachingPoint, TeachingPreparation } from "@/types/teaching";
 
@@ -130,12 +130,11 @@ function passagesLine(prep: TeachingPreparation, pointId: string | null = null):
     .join(" · ");
 }
 
-type ShapeKey = "message" | "introduction" | "conclusion" | "label" | "untitled" | "explanation" | "application" | "illustration";
-const shapeText = (t: TFunction, shape: CanvasShape) => (key: ShapeKey, options?: Record<string, unknown>) =>
-  t(`studies.teaching.shape.${shape}.${key}`, options ?? {});
+/** The canvas's texts as the teaching's kind words them (a sermon's points and a talk's are named apart in Korean). */
+const kindText = (t: TFunction, kind: TeachingKind | null) => (key: ShapeText, options?: Record<string, unknown>) => shapeText(t, kind, key, options);
 
-const pointHeading = (t: TFunction, shape: CanvasShape, point: TeachingPoint, number: number) => {
-  const s = shapeText(t, shape);
+const pointHeading = (t: TFunction, kind: TeachingKind | null, point: TeachingPoint, number: number) => {
+  const s = kindText(t, kind);
   return has(point.title) ? s("label", { number, title: trim(point.title) }) : s("untitled", { number });
 };
 
@@ -158,7 +157,7 @@ export function outputHint(t: TFunction, kind: OutputKind, teaching: TeachingKin
 export function manuscript(t: TFunction, prep: TeachingPreparation, options: MaterialOptions = {}, scripture?: MaterialScripture | null): MaterialDocument {
   const o = { ...DEFAULT_OPTIONS, ...options };
   const shape = canvasShape(prep.kind);
-  const s = shapeText(t, shape);
+  const s = kindText(t, prep.kind);
   const blocks: Block[] = [];
   const passages = passagesLine(prep);
   if (passages) blocks.push({ type: "passages", text: passages });
@@ -176,7 +175,7 @@ export function manuscript(t: TFunction, prep: TeachingPreparation, options: Mat
     if (shape === "questions") {
       if (has(point.title)) asked += 1;
       blocks.push({ type: "heading", text: has(point.title) ? s("label", { number: asked, title: trim(point.title) }) : t("studies.materials.questions.unworded"), detail });
-    } else blocks.push({ type: "heading", text: pointHeading(t, shape, point, index + 1), detail });
+    } else blocks.push({ type: "heading", text: pointHeading(t, prep.kind, point, index + 1), detail });
     const own = passagesLine(prep, point.id);
     if (own) blocks.push({ type: "passages", text: own });
     for (const field of pointFields(shape, point)) {
@@ -204,7 +203,7 @@ export function manuscript(t: TFunction, prep: TeachingPreparation, options: Mat
  */
 export function questionSheet(t: TFunction, prep: TeachingPreparation, options: MaterialOptions = {}, scripture?: MaterialScripture | null): MaterialDocument {
   const o = { ...DEFAULT_OPTIONS, ...options };
-  const s = shapeText(t, "questions");
+  const s = kindText(t, "bible_study");
   const blocks: Block[] = [];
   const passages = passagesLine(prep);
   let frame = 0;
@@ -252,7 +251,7 @@ export function questionSheet(t: TFunction, prep: TeachingPreparation, options: 
 export function worksheet(t: TFunction, prep: TeachingPreparation, options: MaterialOptions = {}, scripture?: MaterialScripture | null): MaterialDocument {
   const o = { ...DEFAULT_OPTIONS, ...options };
   const shape = canvasShape(prep.kind);
-  const s = shapeText(t, shape);
+  const s = kindText(t, prep.kind);
   const blocks: Block[] = [];
   const passages = passagesLine(prep);
   if (passages) blocks.push({ type: "passages", text: passages });

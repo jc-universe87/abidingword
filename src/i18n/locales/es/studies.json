@@ -528,7 +528,7 @@
     "in": "En",
     "inLower": "en",
     "wholeStudy": "Otros apuntes",
-    "newLabel": "Nueva {{type}}",
+    "newLabel": "Nuevo apunte: {{type}}",
     "linkCurrent": "Vincular el pasaje actual ({{passage}})",
     "save": "Guardar",
     "saveHint": "Ctrl+Intro guarda",
@@ -543,7 +543,7 @@
     "link": "+ Vincular {{passage}}",
     "tags": "Etiquetas",
     "tagsPlaceholder": "p. ej. pacto, sermón",
-    "confirmDelete": "¿Eliminar esta {{type}}?",
+    "confirmDelete": "¿Eliminar este apunte ({{type}})?",
     "writePlaceholder": "Escribe aquí…",
     "details": "Detalles",
     "detailsFor": "Detalles de {{type}}: {{excerpt}}",
@@ -918,6 +918,20 @@
         "introduction": "Introducción",
         "conclusion": "Conclusión"
       },
+      "generalPoints": {
+        "title": "Puntos principales",
+        "none": "Aún no hay puntos. Añade los que necesites, de cualquier forma: un momento de un relato, una pregunta, un tema o unos versículos.",
+        "add": "Añadir un punto",
+        "number": "Punto {{number}}",
+        "label": "Punto {{number}}: {{title}}",
+        "untitled": "Punto {{number}}",
+        "titleLabel": "Título del punto {{number}}",
+        "titlePlaceholder": "Lo que dice este punto",
+        "added": "Punto añadido.",
+        "removed": "Punto eliminado.",
+        "moved": "Punto movido al lugar {{position}}.",
+        "deleteConfirm": "¿Eliminar este punto y lo que escribiste en él? Los apuntes usados aquí siguen en el estudio."
+      },
       "questions": {
         "title": "Preguntas y respuestas",
         "none": "Aún no hay preguntas. Añade las preguntas que quieres tratar, cada una con lo que muestra el pasaje.",
@@ -965,6 +979,7 @@
     "aboutFor": "para {{audience}}",
     "format": {
       "points": "Puntos principales con explicación, aplicación e ilustración, entre una introducción y una conclusión.",
+      "generalPoints": "Puntos principales con explicación, aplicación e ilustración, entre una introducción y una conclusión.",
       "questions": "Preguntas para el grupo, cada una con adónde puede llevar y con preguntas de seguimiento.",
       "steps": "Una lección por pasos: enseñanza, lectura bíblica, preguntas, actividades e imágenes, en el orden en que ocurren."
     },
@@ -1043,6 +1058,7 @@
       "name": "Nombre de la plantilla",
       "keeps": {
         "points": "La plantilla conserva el formato y tantos puntos principales como tiene esta enseñanza, en orden. Los puntos empiezan sin título.",
+        "generalPoints": "La plantilla conserva el formato y tantos puntos principales como tiene esta enseñanza, en orden. Los puntos empiezan sin título.",
         "questions": "La plantilla conserva el formato y tantas preguntas como tiene esta enseñanza. Las preguntas empiezan vacías.",
         "steps": "La plantilla conserva el formato y los pasos en orden, cada uno con su título y su tipo."
       },

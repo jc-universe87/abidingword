@@ -34,7 +34,7 @@
   "search": {
     "heading": "자료실 검색",
     "label": "자료실 검색",
-    "placeholder": "단어 또는 “정확한 구절”",
+    "placeholder": "단어 또는 \"정확한 구절\"",
     "nothingFound": "자료실에서 찾은 내용이 없습니다.",
     "resultCount_other": "{{number}}개 구절을 찾았습니다.",
     "resultCountMore_other": "{{number}}개 이상의 구절을 찾았습니다.",

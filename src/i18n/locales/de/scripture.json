@@ -54,7 +54,7 @@
   "search": {
     "title": "Suche",
     "backToReading": "Zurück zum Lesen",
-    "queryLabel": "Wörter oder „genauer Wortlaut“",
+    "queryLabel": "Wörter oder \"genauer Wortlaut\"",
     "submit": "Suchen",
     "onlyNamed": "Nur {{name}}",
     "onlyCurrent": "Nur diese Übersetzung",

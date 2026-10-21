@@ -75,6 +75,31 @@ export type ShapeText =
   | "moved"
   | "deleteConfirm";
 
+/**
+ * The words a kind of teaching uses for its canvas (v0.18.10). They follow
+ * the shape, except that a sermon's points and the points of a talk, youth
+ * teaching, other teaching or an older teaching with no kind are named
+ * apart: Korean calls a sermon's points 대지 (a sermon word) and other points
+ * 주요 내용. The other languages use the same words for both. Only the
+ * wording differs; the stored points and kinds do not.
+ */
+export type ShapeWords = CanvasShape | "generalPoints";
+
+export function shapeWords(kind: TeachingKind | null): ShapeWords {
+  const shape = canvasShape(kind);
+  return shape === "points" && kind !== "sermon" ? "generalPoints" : shape;
+}
+
+/** The texts that name the points themselves; the general points share every other text with a sermon's. */
+const GENERAL_POINT_TEXT: ReadonlySet<ShapeText> = new Set<ShapeText>(["title", "none", "add", "number", "label", "untitled", "titleLabel", "titlePlaceholder", "added", "removed", "moved", "deleteConfirm"]);
+
+/** One of the canvas's texts, as a kind of teaching words it. */
+export function shapeText(t: TFunction, kind: TeachingKind | null, key: ShapeText, options?: Record<string, unknown>): string {
+  const words = shapeWords(kind);
+  const group = words === "generalPoints" && !GENERAL_POINT_TEXT.has(key) ? "points" : words;
+  return (t as unknown as (key: string, options: Record<string, unknown>) => string)(`studies.teaching.shape.${group}.${key}`, options ?? {});
+}
+
 /** A teaching's own parts around the main canvas, as its shape names them. */
 export type FramePart = "message" | "introduction" | "conclusion";
 

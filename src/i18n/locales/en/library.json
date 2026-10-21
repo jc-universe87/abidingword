@@ -34,7 +34,7 @@
   "search": {
     "heading": "Search the library",
     "label": "Search the library",
-    "placeholder": "Words or “exact phrase”",
+    "placeholder": "Words or \"exact phrase\"",
     "nothingFound": "Nothing found in your library.",
     "resultCount_one": "{{number}} passage found.",
     "resultCount_other": "{{number}} passages found.",

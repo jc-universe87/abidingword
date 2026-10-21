@@ -2,7 +2,7 @@ import i18n, { type TFunction } from "i18next";
 import { LANGUAGES } from "@/i18n/languages";
 import builtin from "../../../resources/teaching-templates.json";
 import type { StepKind, TeachingKind, TeachingPreparation, TeachingTemplate, TeachingTemplatePoint } from "@/types/teaching";
-import { canvasShape, startingStepTitle } from "./labels";
+import { canvasShape, shapeText, shapeWords, startingStepTitle } from "./labels";
 
 /**
  * Bible Teaching templates (v0.18.7): what a new teaching starts with, its
@@ -78,10 +78,9 @@ export function templateFromTeaching(prep: Pick<TeachingPreparation, "kind" | "p
 /** What a template gives to work in: its format, and what it starts with ("Starts with: Welcome · Game · Step 3."). */
 export function startSummary(t: TFunction, start: TeachingStart): string {
   const kind = startKind(start);
-  const shape = canvasShape(kind);
-  const format = t(`studies.teaching.format.${shape}`);
+  const format = t(`studies.teaching.format.${shapeWords(kind)}`);
   const points = startingPoints(t, start);
   if (points.length === 0) return format;
-  const names = points.map((p, i) => p.title || (t as unknown as (key: string, o: object) => string)(`studies.teaching.shape.${shape}.untitled`, { number: i + 1 }));
+  const names = points.map((p, i) => p.title || shapeText(t, kind, "untitled", { number: i + 1 }));
   return `${format} ${t("studies.teaching.startsWith", { steps: names.join(t("common.listSeparator")) })}`;
 }

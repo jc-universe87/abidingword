@@ -528,7 +528,7 @@
     "in": "Em",
     "inLower": "em",
     "wholeStudy": "Outras anotações",
-    "newLabel": "Nova {{type}}",
+    "newLabel": "Nova anotação: {{type}}",
     "linkCurrent": "Vincular a passagem atual ({{passage}})",
     "save": "Salvar",
     "saveHint": "Ctrl+Enter salva",
@@ -543,7 +543,7 @@
     "link": "+ Vincular {{passage}}",
     "tags": "Etiquetas",
     "tagsPlaceholder": "ex.: aliança, sermão",
-    "confirmDelete": "Excluir esta {{type}}?",
+    "confirmDelete": "Excluir esta anotação ({{type}})?",
     "writePlaceholder": "Escreva aqui…",
     "details": "Detalhes",
     "detailsFor": "Detalhes de {{type}}: {{excerpt}}",
@@ -918,6 +918,20 @@
         "introduction": "Introdução",
         "conclusion": "Conclusão"
       },
+      "generalPoints": {
+        "title": "Pontos principais",
+        "none": "Ainda não há pontos. Adicione quantos precisar, em qualquer forma: um momento de uma narrativa, uma pergunta, um tema ou alguns versículos.",
+        "add": "Adicionar um ponto",
+        "number": "Ponto {{number}}",
+        "label": "Ponto {{number}}: {{title}}",
+        "untitled": "Ponto {{number}}",
+        "titleLabel": "Título do ponto {{number}}",
+        "titlePlaceholder": "O que este ponto diz",
+        "added": "Ponto adicionado.",
+        "removed": "Ponto removido.",
+        "moved": "Ponto movido para a posição {{position}}.",
+        "deleteConfirm": "Excluir este ponto e o que você escreveu nele? As anotações usadas continuam no estudo."
+      },
       "questions": {
         "title": "Perguntas e respostas",
         "none": "Ainda não há perguntas. Adicione as perguntas que você quer discutir, cada uma com o que a passagem mostra.",
@@ -965,6 +979,7 @@
     "aboutFor": "para {{audience}}",
     "format": {
       "points": "Pontos principais com explicação, aplicação e ilustração, entre uma introdução e uma conclusão.",
+      "generalPoints": "Pontos principais com explicação, aplicação e ilustração, entre uma introdução e uma conclusão.",
       "questions": "Perguntas para o grupo, cada uma com aonde a conversa pode levar e perguntas de continuação.",
       "steps": "Uma lição em etapas: ensino, leitura bíblica, perguntas, atividades e imagens, na ordem em que acontecem."
     },
@@ -1043,6 +1058,7 @@
       "name": "Nome do modelo",
       "keeps": {
         "points": "O modelo guarda o formato e tantos pontos principais quanto este ensino tem, em ordem. Os pontos começam sem título.",
+        "generalPoints": "O modelo guarda o formato e tantos pontos principais quanto este ensino tem, em ordem. Os pontos começam sem título.",
         "questions": "O modelo guarda o formato e tantas perguntas quanto este ensino tem. As perguntas começam vazias.",
         "steps": "O modelo guarda o formato e as etapas em ordem, cada uma com seu título e tipo."
       },

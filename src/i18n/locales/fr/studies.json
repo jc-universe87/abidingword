@@ -918,6 +918,20 @@
         "introduction": "Introduction",
         "conclusion": "Conclusion"
       },
+      "generalPoints": {
+        "title": "Points principaux",
+        "none": "Pas encore de points. Ajoutez-en autant qu’il vous faut, sous toute forme : un moment d’un récit, une question, un thème ou quelques versets.",
+        "add": "Ajouter un point",
+        "number": "Point {{number}}",
+        "label": "Point {{number}} : {{title}}",
+        "untitled": "Point {{number}}",
+        "titleLabel": "Titre du point {{number}}",
+        "titlePlaceholder": "Ce que dit ce point",
+        "added": "Point ajouté.",
+        "removed": "Point supprimé.",
+        "moved": "Point déplacé en position {{position}}.",
+        "deleteConfirm": "Supprimer ce point et ce que vous y avez écrit ? Les notes utilisées restent dans l’étude."
+      },
       "questions": {
         "title": "Questions et réponses",
         "none": "Pas encore de questions. Ajoutez les questions dont vous voulez parler, chacune avec ce que le passage montre.",
@@ -965,6 +979,7 @@
     "aboutFor": "pour {{audience}}",
     "format": {
       "points": "Des points principaux avec explication, application et illustration, entre une introduction et une conclusion.",
+      "generalPoints": "Des points principaux avec explication, application et illustration, entre une introduction et une conclusion.",
       "questions": "Des questions pour le groupe, chacune avec la direction que peut prendre la discussion et des questions de relance.",
       "steps": "Une leçon par étapes : enseignement, lecture biblique, questions, activités et images, dans l’ordre où elles se déroulent."
     },
@@ -1043,6 +1058,7 @@
       "name": "Nom du modèle",
       "keeps": {
         "points": "Le modèle reprend la forme et autant de points principaux que cet enseignement, dans l’ordre. Les points commencent sans titre.",
+        "generalPoints": "Le modèle reprend la forme et autant de points principaux que cet enseignement, dans l’ordre. Les points commencent sans titre.",
         "questions": "Le modèle reprend la forme et autant de questions que cet enseignement. Les questions commencent vides.",
         "steps": "Le modèle reprend la forme et les étapes dans l’ordre, chacune avec son titre et son type."
       },

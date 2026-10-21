@@ -907,6 +907,20 @@
         "introduction": "Introduction",
         "conclusion": "Conclusion"
       },
+      "generalPoints": {
+        "title": "Main points",
+        "none": "No points yet. Add as many as you need, in any shape: a movement of a story, a question, a theme or a few verses.",
+        "add": "Add a point",
+        "number": "Point {{number}}",
+        "label": "Point {{number}}: {{title}}",
+        "untitled": "Point {{number}}",
+        "titleLabel": "Title of point {{number}}",
+        "titlePlaceholder": "What this point says",
+        "added": "Point added.",
+        "removed": "Point removed.",
+        "moved": "Point moved to place {{position}}.",
+        "deleteConfirm": "Delete this point and what you wrote in it? Anything from your study used here stays in the study."
+      },
       "questions": {
         "title": "Questions and answers",
         "none": "No questions yet. Add the questions you want to talk about, each with what the passage shows.",
@@ -954,6 +968,7 @@
     "aboutFor": "for {{audience}}",
     "format": {
       "points": "Main points with explanation, application and illustration, between an introduction and a conclusion.",
+      "generalPoints": "Main points with explanation, application and illustration, between an introduction and a conclusion.",
       "questions": "Questions for the group, each with where it may lead and follow-up questions.",
       "steps": "A lesson in steps: teaching, Bible reading, questions, activities and pictures, in the order they happen."
     },
@@ -1032,6 +1047,7 @@
       "name": "Name of the template",
       "keeps": {
         "points": "The template keeps the format and as many main points as this teaching has, in order. The points start without titles.",
+        "generalPoints": "The template keeps the format and as many main points as this teaching has, in order. The points start without titles.",
         "questions": "The template keeps the format and as many questions as this teaching has. The questions start empty.",
         "steps": "The template keeps the format and the steps in order, each with its title and kind."
       },

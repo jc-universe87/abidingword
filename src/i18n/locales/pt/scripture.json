@@ -55,7 +55,7 @@
   "search": {
     "title": "Pesquisa",
     "backToReading": "Voltar à leitura",
-    "queryLabel": "Palavras ou “frase exata”",
+    "queryLabel": "Palavras ou \"frase exata\"",
     "submit": "Pesquisar",
     "onlyNamed": "Somente {{name}}",
     "onlyCurrent": "Somente esta tradução",

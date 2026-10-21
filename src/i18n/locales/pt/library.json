@@ -34,7 +34,7 @@
   "search": {
     "heading": "Pesquisar na biblioteca",
     "label": "Pesquisar na biblioteca",
-    "placeholder": "Palavras ou “frase exata”",
+    "placeholder": "Palavras ou \"frase exata\"",
     "nothingFound": "Nada encontrado na sua biblioteca.",
     "resultCount_one": "{{number}} trecho encontrado.",
     "resultCount_many": "{{number}} trechos encontrados.",
