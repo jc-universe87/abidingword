@@ -202,7 +202,11 @@ const JN_BY_LANGUAGE: Record<string, string> = { pt: "JON", en: "JHN", fr: "JHN"
 
 /** A deliberately small stand-in for the native resolver. `languages`: the Bible's, then the interface's. */
 function parseForTests(text: string, languages: (string | null | undefined)[] = []): ScriptureRef {
-  const match = /^\s*([1-3]?\s?[\p{L}]+)\s*(\d+)(?:[:,](\d+)(?:-(\d+))?)?\s*$/iu.exec(text.replace(/(\d+)장\s*(\d+)절/, "$1:$2"));
+  // Ranges with any ordinary dash, spaced or not, as the core reads them
+  // (src-tauri/src/scripture/parser.rs; tests/reference_dashes.rs).
+  const match = /^\s*([1-3]?\s?[\p{L}]+)\s*(\d+)(?:[:,](\d+)(?:\s*[-\u2010-\u2014]\s*(\d+)(?::(\d+))?)?)?\s*$/iu.exec(
+    text.replace(/(\d+)장\s*(\d+)절/, "$1:$2"),
+  );
   const written = (match?.[1] ?? "").toLowerCase();
   const decider = languages.map((l) => l?.split(/[-_]/)[0]).find((l) => l && JN_BY_LANGUAGE[l]);
   // Neither language decides: the common reading (John in three of the four).
@@ -215,10 +219,13 @@ function parseForTests(text: string, languages: (string | null | undefined)[] = 
       `“${text.trim()}” is not a passage I recognise. Try a form like “John 15” or “Rom 8:1-17”.`,
     );
   }
-  const [v1, v2] = [match[3], match[4]];
+  const [v1, n2, v2] = [match[3], match[4], match[5]];
+  // "15:1-11" ends at verse 11; "15:1-16:4" at chapter 16, verse 4.
   const canonical = v1
-    ? v2
-      ? `${book}.${chapter}.${v1}-${book}.${chapter}.${v2}`
+    ? n2
+      ? v2
+        ? `${book}.${chapter}.${v1}-${book}.${n2}.${v2}`
+        : `${book}.${chapter}.${v1}-${book}.${chapter}.${n2}`
       : `${book}.${chapter}.${v1}`
     : `${book}.${chapter}`;
   const ref = refFromCanonical(canonical, bookByCode);
@@ -1086,7 +1093,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       parseForTests(text, [state.bibles.find((b) => b.id === translationId)?.languageCode, i18n.language]),
     referenceDetect: async (text) => {
       const found = [];
-      for (const match of text.matchAll(/\b(?:John|Romans|Rom|Psalm|Ps) \d+(?::\d+(?:-\d+)?)?/g)) {
+      for (const match of text.matchAll(/\b(?:John|Romans|Rom|Psalm|Ps) \d+(?::\d+(?:\s*[-\u2010-\u2014]\s*\d+(?::\d+)?)?)?/g)) {
         try {
           found.push({ text: match[0], start: match.index, end: match.index + match[0].length, reference: parseForTests(match[0]) });
         } catch {
