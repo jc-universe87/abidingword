@@ -11,7 +11,7 @@ close at hand, and, only if you want, an **assistant** can give you a second
 pair of eyes.
 
 <p align="center">
-  <img src="images/teaching.png" alt="Bible Teaching for a study: the title, a folded 'About this teaching' line, the central message, the introduction and the main points" width="900">
+  <img src="images/teaching.png" alt="Bible Teaching for a study: the title, the line with Info, the teaching switcher and + New Bible Teaching, the central message, the introduction and the main points" width="900">
 </p>
 
 A **Bible study** asks *what does this text mean?* A **Bible teaching** asks
@@ -25,12 +25,20 @@ your notes, passages and sources are at hand without being copied.
    Teaching side.)
 2. Under the study's title, click **Bible Teaching** (click **Bible Study**
    to go back).
-3. Under **What would you like to prepare?**, choose *Sermon*, *Group Bible
-   study*, *Youth*, *Children*, *Lesson*, *Talk* or *Other*. If you have
-   templates of your own for that kind, **Start from** lets you pick one of
-   them or the built-in one (see below). A line under the choices says what it
-   gives you to work in, and what it starts with.
+3. Choose one of three formats:
+   - **Message** (a sermon or a talk: choose which);
+   - **Group Bible study** (in German *Hauskreis*, in Korean 소그룹 성경공부),
+     led by questions;
+   - **Interactive lesson** (*Bibelunterricht*), in steps, for a class, a
+     youth group or children.
+
+   If you have templates of your own for that format, **Start from** lets you
+   pick one of them or the built-in one (see below). A line under the choices
+   says what it gives you to work in, and what it starts with.
 4. Change the title if you like, and click **Start**.
+
+Teachings made before v0.19 keep their kind (*Youth*, *Children*, *Other*…):
+each belongs to one of the three formats and opens exactly as before.
 
 Nothing is written for you. A lesson starts with a few empty steps (for
 children: *Welcome, Bible story, Question, Activity, Prayer*); the other kinds
@@ -44,7 +52,7 @@ an empty one to delete; the children's *Bible story* is a Bible-reading step.
 ### Your own templates
 
 If you often prepare the same shape of teaching (a youth evening that always
-starts with a game, say), make it a **template**: in **About this teaching**,
+starts with a game, say), make it a **template**: in the teaching's **Info**,
 click **Save as my template**, give it a name and save. The template keeps
 the kind of teaching and its points, questions or steps in order. A lesson's
 steps keep their titles and kinds. A sermon's points and a group study's
@@ -58,18 +66,19 @@ template never changes a teaching.
 
 One study can lead to **several teachings**, for example a Sunday sermon, a
 group Bible study and a children's lesson. On the quiet line under the
-teaching's title, click **+ Prepare another Bible Teaching**, choose its kind
+teaching's title, click **+ New Bible Teaching**, choose its format
 and click **Start**. Each teaching is its own: nothing in the study or in your
 other teachings changes. Once there is more than one, switch between them with
 **Teaching:** on the same line.
 
 ## A canvas for each kind of teaching
 
-Your writing comes first. The details sit on one quiet line under the title,
-**About this teaching** (for example *Sermon · for families · Luke 19:1–10*):
-open right after you start, folded when you come back. It holds the *kind*,
-**who it is for**, the **purpose**, what the whole teaching uses from your
-study, and **Delete this teaching**.
+Your writing comes first. Under the title, one quiet line holds **Info**,
+**Teaching:** (to switch between teachings), **+ New Bible Teaching** and the
+Bible text it is about. **Info** opens *Bible Teaching information* over the
+teaching: the *kind*, **who it is for** and the **purpose** (a draft, written
+only with **Save**), what the whole teaching uses from your study, **Save as
+my template** and **Delete this teaching**.
 
 The main canvas follows the kind of teaching:
 
@@ -80,7 +89,7 @@ The main canvas follows the kind of teaching:
 | **Children**, Lesson | The one thing to remember | **Lesson plan**: steps in order | a kind of step and what that kind needs (see below) |
 
 <p align="center">
-  <img src="images/teaching-lesson.png" alt="A children's lesson just started: About this teaching open, 'The one thing to remember', and the lesson plan with Step 1 'Welcome' (Teaching) and Step 2 'Bible story' (Bible reading)" width="700">
+  <img src="images/teaching-lesson.png" alt="A children's lesson just started: 'The one thing to remember', and the lesson plan with Step 1 'Welcome' (Teaching) and Step 2 'Bible story' (Bible reading)" width="700">
 </p>
 
 In a lesson, each **step** says what kind of step it is, and shows the fields
@@ -94,8 +103,9 @@ that kind needs:
 | **Activity** | how it works, and what you need |
 | **Picture** | what it shows and when you show it (find or make the picture with the assistant) |
 
-**Notes for yourself** (reminders while you teach) are at the end of every
-kind. Changing the kind of a teaching, or of a step, never loses anything:
+**Notes for yourself** (reminders while you teach) are folded away at the end
+of every kind; the line says when it holds something. They are never part of
+the Materials. Changing the kind of a teaching, or of a step, never loses anything:
 a field with writing in it is always shown.
 
 In a lesson, **Add a step** asks which kind of step to add: *Teaching*,

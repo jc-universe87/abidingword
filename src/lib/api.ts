@@ -9,7 +9,7 @@ import { listen } from "@tauri-apps/api/event";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { safeExternalUrl } from "./externalLink";
-import type { BackupPreview, BackupReport, ProjectExportReport, ProjectImportReport, ProjectPackagePreview, RestoreReport } from "@/types/portability";
+import type { BackupPreview, BackupReport, ProjectExportReport, ProjectImportReport, ProjectPackagePreview, RestoreReport, SampleReport } from "@/types/portability";
 import type {
   AppInfo,
   AppSettings,
@@ -166,6 +166,8 @@ export interface Api {
   backupInspect(path: string): Promise<BackupPreview>;
   /** Replaces everything with a backup, after a safety copy. */
   backupRestore(path: string): Promise<RestoreReport>;
+  /** Adds the example project when asked; finds it instead when it is already there. */
+  sampleProjectInstall(): Promise<SampleReport>;
   /** The system's open dialog for a project package or a backup; null when cancelled. */
   choosePortableFile(input: { kind: "project" | "backup"; title: string; filterName: string }): Promise<string | null>;
   /** The system's save dialog for a project package or a backup; null when cancelled. */
@@ -488,6 +490,7 @@ export const tauriApi: Api = {
   backupCreate: (path) => call("backup_create", { path }),
   backupInspect: (path) => call("backup_inspect", { path }),
   backupRestore: (path) => call("backup_restore", { path }),
+  sampleProjectInstall: () => call("sample_project_install"),
   choosePortableFile: async ({ kind, title, filterName }) => {
     const chosen = await open({ multiple: false, directory: false, title, filters: [{ name: filterName, extensions: [PORTABLE_EXTENSION[kind]] }] });
     return typeof chosen === "string" ? chosen : null;

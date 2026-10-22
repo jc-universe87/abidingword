@@ -4,6 +4,9 @@
 import { ApiError, type Api } from "@/lib/api";
 import type { Project } from "@/types/domain";
 import type { BackupPreview, ProjectPackagePreview } from "@/types/portability";
+import type { FindingType } from "@/types/studies";
+import type { TeachingKind } from "@/types/teaching";
+import sample from "../../resources/sample/abiding-in-christ.json";
 
 export interface PortabilityState {
   /** What the next open and save dialogs return (null = cancelled). */
@@ -15,6 +18,8 @@ export interface PortabilityState {
   exported: { projectId: string; path: string }[];
   backups: string[];
   restored: string[];
+  /** The example project once added (as the settings table remembers it). */
+  sampleProjectId: string | null;
 }
 
 export function newPortabilityState(): PortabilityState {
@@ -38,6 +43,7 @@ export function newPortabilityState(): PortabilityState {
     exported: [],
     backups: [],
     restored: [],
+    sampleProjectId: null,
   };
 }
 
@@ -51,6 +57,7 @@ type PortabilityApi = Pick<
   | "backupRestore"
   | "choosePortableFile"
   | "choosePortableSaveFile"
+  | "sampleProjectInstall"
 >;
 
 export function portabilityApi(
@@ -59,6 +66,7 @@ export function portabilityApi(
     projects: () => Project[];
     createProject: (title: string, description: string | null) => Promise<Project>;
     counts: (projectId: string) => { studies: number; teachings: number; notes: number };
+    api: () => Api;
   },
 ): PortabilityApi {
   const freeTitle = (title: string) => {
@@ -115,6 +123,35 @@ export function portabilityApi(
         filesAdded: state.backup.counts.files,
         filesSetAside: 0,
       };
+    },
+    // As src-tauri/src/sample.rs: the same content, through the same calls.
+    sampleProjectInstall: async () => {
+      const known = h.projects().find((p) => p.id === state.sampleProjectId);
+      if (known) return { projectId: known.id, title: known.title, added: false };
+      const api = h.api();
+      const project = await h.createProject(sample.project.title, sample.project.description);
+      const s = sample.study;
+      const { study } = await api.studyCreate({ projectId: project.id, title: s.title, templateKey: s.templateKey, primaryPassage: s.passage, description: s.description });
+      const detail = await api.studyGet(study.id);
+      const section = (key: string) => {
+        const found = detail.sections.find((sec) => sec.key === key);
+        if (!found) throw new Error(`example project: no part ${key}`);
+        return found;
+      };
+      for (const [key, text] of Object.entries(s.parts)) await api.studyBlockUpdate({ id: section(key).blocks[0]!.id, content: text });
+      for (const note of s.notes)
+        await api.findingCreate({ studyId: study.id, findingType: note.type as FindingType, content: note.text, sectionId: section(note.section).id, passage: "passage" in note ? note.passage : undefined });
+      for (const t of sample.teachings) {
+        const prep = await api.teachingCreate({ studyId: study.id, title: t.title, kind: t.kind as TeachingKind, points: t.points.map((p) => ({ title: p.title, kind: ("kind" in p ? p.kind : null) as never })) });
+        await api.teachingUpdate({ id: prep.id, audience: t.audience, purpose: t.purpose, centralMessage: t.centralMessage, introduction: t.introduction, conclusion: t.conclusion });
+        for (const [i, p] of t.points.entries()) {
+          const point = prep.points[i]!;
+          await api.teachingPointUpdate({ id: point.id, explanation: p.explanation, application: p.application, illustration: p.illustration });
+          if ("passage" in p && p.passage) await api.teachingPassageAdd({ preparationId: prep.id, pointId: point.id, reference: p.passage as string });
+        }
+      }
+      state.sampleProjectId = project.id;
+      return { projectId: project.id, title: project.title, added: true };
     },
     choosePortableFile: async () => state.nextOpen,
     choosePortableSaveFile: async () => state.nextSave,

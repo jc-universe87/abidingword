@@ -83,3 +83,11 @@ export interface RestoreReport {
   filesAdded: number;
   filesSetAside: number;
 }
+
+/** The example project (v0.19). */
+export interface SampleReport {
+  projectId: string;
+  title: string;
+  /** False when it was already there and nothing was added. */
+  added: boolean;
+}

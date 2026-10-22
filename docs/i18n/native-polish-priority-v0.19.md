@@ -35,15 +35,15 @@ Decided in v0.18.10. The rest of the corpus follows these.
 | Marks | `scripture.marks.title` | Marks | Anmerkungen | 표시 | Marques | Marcas | Marcas | Notes, highlights and bookmarks on verses. |
 | Passage | `presentation.editor.passage` | Passage | Bibelstelle | 본문 | Passage | Pasaje | Passagem | A Bible reference. |
 
-**Bible Study** — 12 strings use it in English.
+**Bible Study** — 13 strings use it in English.
 
 | Language | Renderings (strings) |
 |---|---|
-| German | Bibelstudium (6), Bibelstudien (4), (none of these) (2) |
-| Korean | 성경공부 (12) |
-| French | Étude biblique (3), étude biblique (4), étude (4), Étude (1) |
-| Spanish | Estudio bíblico (3), estudio bíblico (5), estudio (3), Estudio (1) |
-| Portuguese | Estudo bíblico (3), estudo bíblico (4), estudo (4), Estudo (1) |
+| German | Bibelstudium (7), Bibelstudien (4), (none of these) (2) |
+| Korean | 성경공부 (13) |
+| French | Étude biblique (3), étude biblique (5), étude (4), Étude (1) |
+| Spanish | Estudio bíblico (3), estudio bíblico (6), estudio (3), Estudio (1) |
+| Portuguese | Estudo bíblico (3), estudo bíblico (5), estudo (4), Estudo (1) |
 
 **Bible Teaching** — 17 strings use it in English.
 
@@ -111,7 +111,7 @@ _No open linguistic questions._
 
 ## 3. Strings changed in v0.19
 
-79 strings changed in at least one language since v0.18.10. Spot-check these.
+84 strings changed in at least one language since v0.18.10. Spot-check these.
 
 | Context | Key | English | German | Korean | French | Spanish | Portuguese |
 |---|---|---|---|---|---|---|---|
@@ -169,6 +169,11 @@ _No open linguistic questions._
 |  | `settings.data.restored` | The backup was restored. | Die Sicherung wurde wiederhergestellt. | 백업을 복원했습니다. | La sauvegarde a été restaurée. | La copia de seguridad se restauró. | A cópia de segurança foi restaurada. |
 |  | `settings.data.restoredContinue` | Continue | Weiter | 계속 | Continuer | Continuar | Continuar |
 | {{path}} | `settings.data.safetyCopy` | A copy of what was here before is kept at {{path}}. | Eine Kopie des vorherigen Stands liegt unter {{path}}. | 이전 상태의 사본은 {{path}}에 보관되어 있습니다. | Une copie de l’état précédent est conservée dans {{path}}. | Una copia de lo que había antes se guarda en {{path}}. | Uma cópia do que havia antes está guardada em {{path}}. |
+|  | `settings.data.sample` | Example project | Beispielprojekt | 예시 성경공부 모음 | Projet d’exemple | Proyecto de ejemplo | Projeto de exemplo |
+|  | `settings.data.sampleAdd` | Add the example project | Beispielprojekt hinzufügen | 예시 성경공부 모음 추가 | Ajouter le projet d’exemple | Añadir el proyecto de ejemplo | Adicionar o projeto de exemplo |
+| {{title}} | `settings.data.sampleAdded` | “{{title}}” was added. You’ll find it under Projects. | „{{title}}“ wurde hinzugefügt. Du findest es unter Projekte. | ‘{{title}}’을(를) 추가했습니다. 성경공부 모음 목록에서 볼 수 있습니다. | « {{title}} » a été ajouté. Vous le trouverez dans Projets. | Se añadió «{{title}}». Lo encontrarás en Proyectos. | “{{title}}” foi adicionado. Você o encontra em Projetos. |
+|  | `settings.data.sampleHint` | “Example: Abiding in Christ — John 15:1–11” shows a Bible Study and how it becomes a message, a group Bible study and an interactive lesson. Its content is in English. It is added only when you ask, works without internet, and is yours to change or delete. | „Example: Abiding in Christ — John 15:1–11“ zeigt ein Bibelstudium und wie daraus eine Predigt, ein Hauskreis und ein Bibelunterricht werden. Der Inhalt ist auf Englisch. Es wird nur auf deinen Wunsch hinzugefügt, funktioniert ohne Internet und gehört dir: Du kannst es ändern oder löschen. | ‘Example: Abiding in Christ — John 15:1–11’은 성경공부 하나와, 그것이 설교, 소그룹 성경공부, 참여형 공과로 이어지는 과정을 보여 줍니다. 내용은 영어로 되어 있습니다. 요청할 때만 추가되고 인터넷 없이도 사용할 수 있으며, 자유롭게 고치거나 삭제할 수 있습니다. | « Example: Abiding in Christ — John 15:1–11 » montre une étude biblique et comment elle devient une prédication, une étude biblique en groupe et une leçon interactive. Son contenu est en anglais. Il n’est ajouté que si vous le demandez, fonctionne sans Internet et vous appartient : vous pouvez le modifier ou le supprimer. | «Example: Abiding in Christ — John 15:1–11» muestra un estudio bíblico y cómo se convierte en un mensaje, un estudio bíblico en grupo y una lección interactiva. Su contenido está en inglés. Solo se añade si lo pides, funciona sin internet y es tuyo: puedes cambiarlo o eliminarlo. | “Example: Abiding in Christ — John 15:1–11” mostra um estudo bíblico e como ele se torna uma mensagem, um estudo bíblico em grupo e uma lição interativa. O conteúdo está em inglês. Só é adicionado se você pedir, funciona sem internet e é seu: você pode alterá-lo ou excluí-lo. |
+| {{title}} | `settings.data.sampleThere` | “{{title}}” is already here, so nothing was added. | „{{title}}“ ist schon da, daher wurde nichts hinzugefügt. | ‘{{title}}’이(가) 이미 있어 아무것도 추가하지 않았습니다. | « {{title}} » est déjà là : rien n’a été ajouté. | «{{title}}» ya está aquí, así que no se añadió nada. | “{{title}}” já está aqui, então nada foi adicionado. |
 | {{date}}, {{version}} | `settings.data.savedOn` | Saved on {{date}} with Abiding Word {{version}} | Gespeichert am {{date}} mit Abiding Word {{version}} | {{date}}에 Abiding Word {{version}}(으)로 저장됨 | Enregistré le {{date}} avec Abiding Word {{version}} | Guardado el {{date}} con Abiding Word {{version}} | Salvo em {{date}} com o Abiding Word {{version}} |
 | {{n}} | `settings.data.setAside` | Library files set aside next to that copy: {{n}} | Neben dieser Kopie beiseitegelegte Dateien der Bibliothek: {{n}} | 그 사본 옆에 따로 보관한 자료실 파일: {{n}} | Fichiers de la bibliothèque mis de côté à côté de cette copie : {{n}} | Archivos de la biblioteca apartados junto a esa copia: {{n}} | Arquivos da biblioteca guardados à parte junto a essa cópia: {{n}} |
 | {{size}} | `settings.data.size` | {{size}} MB | {{size}} MB | {{size}}MB | {{size}} Mo | {{size}} MB | {{size}} MB |

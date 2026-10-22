@@ -91,7 +91,9 @@ Bibles too.
 No account, no cloud and no internet needed. Nothing is guessed: every link
 points to something that is really there. An optional assistant (off until you
 turn it on) comments on and polishes what *you* write; it never writes your
-teaching, and it shows where everything comes from.
+teaching, and it shows where everything comes from. Take a project to another
+computer as one file, or back up everything and restore it, from **Settings →
+Data and backup**.
 
 <img src="docs/guide/images/workspace-dark.png" alt="The workspace in the dark theme" width="360">
 
@@ -139,7 +141,7 @@ step by step, with pictures.
 |---|---|
 | ✅ **Ready** | Bible reading, with nine free Bibles included (English, German, Korean, French, Spanish, Portuguese) · highlights, notes and bookmarks · studies with templates, sections and study notes · projects · your own library (PDF, EPUB, Word, Markdown, text) · books matched to the passage you read · clickable Bible references in six languages, in the text and on PDF pages · find a word inside a book · contents made from a book's headings · marking your own books (highlights, notes, bookmarks) · concordance · search across Bible, studies and library · light and dark themes · six interface languages · automatic test updates |
 | ✅ **Also ready** | Bringing what you read into your study: add selected words, highlights and notes to a study with their source, open the book again at those words, and copy a quotation with its citation |
-| 🛠️ **Next** (being tested) | Preparing to teach: sermons, group studies and lessons written by you from your study, each with its own shape (main points, questions for a group, lesson steps such as a Bible reading, a question or an activity), using your notes and passages · an optional assistant that checks and polishes your wording, comments on your structure and theology, finds real stories with their sources and freely licensed images, and never writes for you · a simpler study: a few parts, each with its own Add for writing or an observation, a question… |
+| 🛠️ **Next** (being tested) | Preparing to teach: sermons, group studies and lessons written by you from your study, each with its own shape (main points, questions for a group, lesson steps such as a Bible reading, a question or an activity), using your notes and passages · an optional assistant that checks and polishes your wording, comments on your structure and theology, finds real stories with their sources and freely licensed images, and never writes for you · a simpler study: a few parts, each with its own Add for writing or an observation, a question… · three formats (a message, a group Bible study, an interactive lesson) and information panels that stay out of the way · project files and full backups · an optional example project on John 15 |
 | 🌱 **Later** | Handouts and exports · dictionary forms and grammar for Greek and Hebrew words · reading scanned books and recordings · drawing on books with a pen · sharing and syncing between your own devices |
 
 ## Documentation

@@ -1,13 +1,13 @@
 import { useCallback, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArchiveRestore, HardDriveDownload, Upload } from "lucide-react";
+import { ArchiveRestore, HardDriveDownload, Sprout, Upload } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Notice } from "@/design-system/Notice";
 import { useLoad } from "@/hooks/useLoad";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { formatDate } from "@/i18n/format";
-import type { BackupPreview, ProjectImportReport, ProjectPackagePreview, RestoreReport } from "@/types/portability";
+import type { BackupPreview, ProjectImportReport, ProjectPackagePreview, RestoreReport, SampleReport } from "@/types/portability";
 import { ProjectExport } from "./ProjectExport";
 import { backupCountsLine, countsLine, megabytes } from "./format";
 
@@ -34,6 +34,11 @@ export function DataSettings() {
         <p className="m-0 max-w-prose text-[0.9375rem] text-text-muted">{t("settings.data.backupHint")}</p>
         <BackupCreate />
         <BackupRestore />
+      </div>
+      <div className="flex flex-col gap-4 border-t border-border-subtle pt-6">
+        <h3 className="type-group m-0">{t("settings.data.sample")}</h3>
+        <p className="m-0 max-w-prose text-[0.9375rem] text-text-muted">{t("settings.data.sampleHint")}</p>
+        <SampleInstall />
       </div>
     </div>
   );
@@ -281,6 +286,38 @@ function BackupRestore() {
           </div>
         </Notice>
       )}
+      {error && <Notice tone="error">{error}</Notice>}
+    </div>
+  );
+}
+
+/** The example project, added only on this explicit request; never twice. */
+function SampleInstall() {
+  const { t } = useTranslation();
+  const api = useApi();
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState<SampleReport | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const run = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      setDone(await api.sampleProjectInstall());
+    } catch (e) {
+      setError(toApiError(e).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="flex flex-col gap-3">
+      <div>
+        <Button disabled={busy} onClick={() => void run()}>
+          <Sprout className="size-4" aria-hidden="true" />
+          {busy ? t("settings.data.working") : t("settings.data.sampleAdd")}
+        </Button>
+      </div>
+      {done && <Notice tone="success">{t(done.added ? "settings.data.sampleAdded" : "settings.data.sampleThere", { title: done.title })}</Notice>}
       {error && <Notice tone="error">{error}</Notice>}
     </div>
   );

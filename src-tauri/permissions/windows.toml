@@ -36,6 +36,7 @@ permissions = [
   "allow-backup-create",
   "allow-backup-inspect",
   "allow-backup-restore",
+  "allow-sample-project-install",
   "allow-study-list",
   "allow-study-get",
   "allow-study-create",

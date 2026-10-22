@@ -685,6 +685,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
           notes: state.findings.filter((f) => ids.has(f.studyId)).length,
         };
       },
+      api: () => api,
     }),
     ...teachingApi(state.teaching, {
       id,

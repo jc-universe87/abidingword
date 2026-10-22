@@ -52,7 +52,7 @@ so to start with. You can change it in the part's options (**⋯ → Outline**),
 or choose *Not in the outline*. A part you add with your own heading belongs
 to no phase. It simply sits after the part before it.
 
-To use a study's shape again, open **Study details** and click **Save as my
+To use a study's shape again, open the study's **Info** and click **Save as my
 template**. The template keeps the parts, their headings and hints, their
 order and their places in the outline. Your writing, notes and passages stay
 in the study. Your template is then offered under *More options* when you
@@ -83,7 +83,7 @@ From top to bottom:
 | **←** beside the title | Back to the project or the list of studies |
 | **Title** | Click it to rename the study |
 | **Bible Study / Bible Teaching** | The study itself, or the teachings you prepare from it. A study opens again on the side you last used. |
-| **Study details** | The study's purpose, its status (*active, paused, completed, archived*), a short overview, which passage is the main one, related studies, and **Duplicate…** |
+| **Info** | *Bible Study information* opens over the study: its status (*active, paused, completed, archived*), its purpose and overview, its passages and related studies, **Duplicate…** and **Save as my template**. Status, purpose and overview are a draft: **Save** writes them; **Cancel**, **Esc**, ✕ or a click outside closes the panel and nothing is written. The study itself stays exactly as it was underneath. |
 | **Passage buttons** | The main passage and related passages. Click one to open it on the left. **+ Related passage** adds another. |
 | **The study outline** | One quiet line: *Text · Understanding · Theology · Application · Audience · Teaching* (the steps your kind of study has). It stays at the top while you scroll, marks where you are, and takes you to a step with one click. It is only a way to find your place: you can work on any part at any time. |
 | **Fold all / Unfold all** | Folds every part to its heading, so the study reads as an outline, and opens them again |

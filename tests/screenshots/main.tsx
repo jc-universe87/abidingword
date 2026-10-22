@@ -336,6 +336,8 @@ async function start() {
     logDirectory: "C:\\Users\\You\\AppData\\Roaming\\Abiding Word\\logs",
   });
   if (params.get("empty") !== "1") await seed(api);
+  // The example project (v0.19), added as the person would from Settings.
+  if (params.get("sample") === "1") await api.sampleProjectInstall();
   await i18n.changeLanguage(params.get("lang") ?? "en");
   // All three panes even in a narrow window, as the owner works (review scenes, v0.18.5).
   if (params.get("sourcesOpen") === "1") localStorage.setItem("abiding-word.layout.sourcesOpen", "true");

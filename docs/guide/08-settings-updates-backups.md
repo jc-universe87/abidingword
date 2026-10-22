@@ -18,7 +18,7 @@ the others stay as they are. The row of names at the top jumps straight to a
 section and opens it. Abiding Word remembers which sections you left open.
 
 The sections, in order: **Updates**, **Appearance**, **Bible texts**,
-**Templates**, **Language**, **AI Assistant**, **About this installation**
+**Templates**, **Language**, **AI Assistant**, **Data and backup**, **About this installation**
 and **Coming in later versions**.
 
 > [!TIP]
@@ -225,12 +225,53 @@ server, or for Ollama or LM Studio running on another computer.
 Click **Save** for the extras. (Turning the assistant on or off, choosing a
 service, keeping a key and checking the connection save by themselves.)
 
+## Data and backup
+
+Four separate actions, each with its own button.
+
+**Export project…** saves one project as a file (`.awproject`): its Bible
+Studies and Bible Teachings, with their notes, Materials and presentations.
+Choose the project in the list, or use **Export project…** in a project's
+**Info**. Library books, Bible texts and church templates stay on this
+computer: the file only names the ones it uses.
+
+**Import project…** reads such a file and first shows what it holds, and
+what it uses that this computer does not have. **Import** then adds it as a
+**new project**: nothing here is ever replaced. If you already have a project
+with the same name, the new one is called, for example, *John (2)*. A note's
+citation of a library book that is not here is left out; the note keeps its
+text.
+
+**Back up everything…** saves one file (`.awbackup`) with all your work: all
+projects, your library files, the Bibles you added, templates and settings.
+It is a **private copy for you**, not for sharing: it can hold books and
+Bibles you may not pass on. **API keys are never included**; enter them
+again after restoring on another computer.
+
+**Restore from backup…** shows what the backup holds and asks before it does
+anything. **Replace everything with this backup** then:
+
+1. checks the whole backup first (a damaged or changed file is refused and
+   nothing happens);
+2. keeps a copy of your current work in the data folder's
+   **backups/pre-restore** subfolder;
+3. replaces your work with the backup's. If anything goes wrong, your work
+   is put back as it was.
+
+Library files that differ from the backup's are set aside next to that copy,
+never deleted. Click **Continue** afterwards: Abiding Word reloads.
+
+**Add the example project** adds *Example: Abiding in Christ — John
+15:1–11*: a Bible Study and how it becomes a message, a group Bible study and
+an interactive lesson (in English). It is added only when you ask, works
+without internet, and is yours to change or delete. Asking again while it is
+there adds nothing.
+
 ## About this installation
 
-This shows the version and the **folder where your work is kept**. You need
-it for backups.
+This shows the version and the **folder where your work is kept**.
 
-## Backups
+## Backups by hand
 
 Your studies, notes, library and Bibles all live in **one folder**:
 
@@ -238,14 +279,10 @@ Your studies, notes, library and Bibles all live in **one folder**:
 C:\Users\<your name>\AppData\Roaming\Abiding Word
 ```
 
-**To make a backup:**
-
-1. **Close Abiding Word.**
-2. Copy the whole **Abiding Word** folder to a USB stick, an external drive
-   or a cloud folder of your choice.
-
-**To restore it**, close Abiding Word and copy the folder back to the same
-place.
+**Back up everything…** (above) is the easiest way to keep a copy. You can
+also copy the folder yourself: **close Abiding Word first**, then copy the
+whole **Abiding Word** folder to a USB stick, an external drive or a cloud
+folder. To restore it, close Abiding Word and copy the folder back.
 
 > [!TIP]
 > Abiding Word also protects you automatically. Before an update changes how

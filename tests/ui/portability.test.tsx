@@ -166,3 +166,22 @@ describe("Project information", () => {
     expect(within(panel).getByText(/“Romans” was saved to/)).toBeInTheDocument();
   });
 });
+
+describe("the example project", () => {
+  it("is added only when asked, with its four pieces of work, and never twice", async () => {
+    const api = createMemoryApi();
+    const { user } = await renderApp(api);
+    expect(api.state.projects).toHaveLength(0);
+    const section = await data(user);
+    await user.click(within(section).getByRole("button", { name: /Add the example project/ }));
+    expect(await within(section).findByText("“Example: Abiding in Christ — John 15:1–11” was added. You’ll find it under Projects.")).toBeInTheDocument();
+    expect(api.state.projects.map((p) => p.title)).toEqual(["Example: Abiding in Christ — John 15:1–11"]);
+    expect(api.state.studies.map((s) => s.title)).toEqual(["Abiding in the True Vine"]);
+    expect(api.state.teaching.preparations.map((p) => p.kind)).toEqual(["sermon", "bible_study", "lesson"]);
+
+    await user.click(within(section).getByRole("button", { name: /Add the example project/ }));
+    expect(await within(section).findByText("“Example: Abiding in Christ — John 15:1–11” is already here, so nothing was added.")).toBeInTheDocument();
+    expect(api.state.projects).toHaveLength(1);
+    expect(api.state.studies).toHaveLength(1);
+  });
+});

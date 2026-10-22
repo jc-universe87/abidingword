@@ -364,3 +364,12 @@ colours tested on every pane in all 12 palettes.
 **Still open:** the owner's visual pass on Windows (see the screenshot
 package); regenerating the guide's screenshots under the new system; the
 remaining exceptions listed in §12 of the v0.18.5 record.
+
+### Moving work between computers — project files and backups built in v0.19
+
+Project files (`.awproject`) and full backups (`.awbackup`) with restore are
+in Settings › Data and backup ([portability.md](portability.md)). Open:
+choosing what a project file carries (library books whose licence allows
+it), a partial restore (one project from a backup), and sync between a
+person's own devices.
+

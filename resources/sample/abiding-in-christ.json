@@ -1,0 +1,76 @@
+{
+  "key": "abiding-in-christ",
+  "version": 1,
+  "project": {
+    "title": "Example: Abiding in Christ — John 15:1–11",
+    "description": "An example project from Abiding Word, to show how a Bible Study becomes a message, a group Bible study and an interactive lesson. Change it, keep it or delete it: it is yours. Short quotations are from the World English Bible (public domain)."
+  },
+  "study": {
+    "title": "Abiding in the True Vine",
+    "templateKey": "passage-study",
+    "passage": "JHN.15.1-JHN.15.11",
+    "description": "To understand what Jesus means by “remain in me”, and what kind of fruit he promises to those who do.",
+    "parts": {
+      "text": "John 15:1–11 comes in the Upper Room, on the night Jesus was betrayed (John 13–17). He has just said, “Arise, let’s go from here” (14:31), so the words may have been spoken on the way to the Kidron valley, perhaps past vines or the golden vine on the temple gate.\n\n“I am the true vine, and my Father is the farmer” (15:1, WEB).",
+      "observations": "The passage turns on one word: “remain” (or “abide”), used again and again in eleven verses. The image has three persons: the vine (Jesus), the farmer (the Father) and the branches (the disciples). The branches do nothing to make fruit appear except remain; the farmer does the cutting and the cleansing.",
+      "context": "In the Old Testament Israel is God’s vine (Psalm 80:8–16; Isaiah 5:1–7; Jeremiah 2:21), often a vine that failed to bear good fruit. When Jesus calls himself the true vine he claims to be what Israel was meant to be, and to be the one in whom God’s people now live. The words also stand between the promise of the Spirit (14:15–26) and the warning of the world’s hatred (15:18–25).",
+      "meaning": "To remain in Christ is to go on trusting him, keeping his words and staying in his love (vv. 7, 9–10). It is not a state reached once, but a relationship continued. The fruit is the life of Christ showing in his people: love for one another (v. 12), answered prayer (v. 7), obedience (v. 10) and joy (v. 11), and, as the chapter goes on, witness to the world (vv. 16, 27).\n\nVerses 2 and 6 are read in different ways: as branches that only seem to belong (like Judas), or as a warning that true disciples heed. Both readings agree that fruitlessness is serious and that the remedy is to remain in Christ.",
+      "theology": "Union with Christ: the Christian life flows from Christ, not from our own resources. “Apart from me you can do nothing” (v. 5, WEB). The Father’s pruning is an act of care, not rejection: he cuts so that the branch bears more. Obedience is not the root of the relationship but its fruit and the way we stay in his love, as Jesus stayed in the Father’s love (v. 10).",
+      "application": "Where am I trying to bear fruit without remaining? What does it look like this week to stay in his words: reading, remembering, praying them? How do I read a painful season: as the Father’s pruning, meant for more fruit? Jesus speaks so that his joy may be in us (v. 11): do I expect obedience to lead to joy?"
+    },
+    "notes": [
+      {"section": "observations", "type": "observation", "text": "“Remain” appears again and again in verses 4–10: the passage is less about producing fruit than about staying connected.", "passage": "JHN.15.4-JHN.15.10"},
+      {"section": "observations", "type": "observation", "text": "The farmer acts on every branch: fruitless branches are taken away, fruitful ones are pruned. No branch is left alone.", "passage": "JHN.15.2"},
+      {"section": "observations", "type": "question", "text": "What does “you are already pruned clean because of the word” (v. 3) say about how the Father prunes?", "passage": "JHN.15.3"},
+      {"section": "meaning", "type": "interpretation", "text": "To remain is defined by the passage itself: his words remaining in us (v. 7), and our remaining in his love by keeping his commandments (vv. 9–10).", "passage": "JHN.15.7-JHN.15.10"},
+      {"section": "theology", "type": "doctrine", "text": "Union with Christ: every good thing in the Christian life comes from him, as sap comes from the vine.", "passage": "JHN.15.5"},
+      {"section": "application", "type": "application", "text": "Plan one daily, unhurried moment with a short passage of Jesus’ words, to remember through the day.", "passage": "JHN.15.7"},
+      {"section": "application", "type": "illustration", "text": "A cut branch can stay green in a vase for a few days; it looks alive, but it can never bear fruit."}
+    ]
+  },
+  "teachings": [
+    {
+      "title": "Remain in Me",
+      "kind": "sermon",
+      "audience": "Sunday morning congregation",
+      "purpose": "That listeners stop trying to bear fruit by effort alone and learn to remain in Christ.",
+      "centralMessage": "The fruitful life is not achieved but received: remain in Christ, and he will bear his fruit in you.",
+      "introduction": "Most of us know what it is to try hard to be better Christians: more patient, more prayerful, more generous. And most of us know how quickly it runs dry. On the night before he died, Jesus gave his friends a picture of another way.",
+      "conclusion": "Jesus does not say “produce” but “remain”. Come back to him this week through his words, stay in his love, and trust the Father who prunes. Then the fruit will be his, and the joy will be yours.",
+      "points": [
+        {"title": "The vine gives the life", "passage": "JHN.15.1-JHN.15.5", "explanation": "Jesus is the true vine, the source of every good thing in the branches. “Apart from me you can do nothing.”", "application": "Name one area where you are trying to bear fruit in your own strength.", "illustration": "A cut branch in a vase stays green for a while, but it never bears fruit."},
+        {"title": "The Father prunes in love", "passage": "JHN.15.2-JHN.15.3", "explanation": "The farmer cuts the fruitful branch so that it bears more. His word is his first pruning knife.", "application": "Ask what the Father may be cutting back in you, and what fruit he wants in its place.", "illustration": "A vinedresser’s hardest work is in winter, long before the harvest."},
+        {"title": "Remaining means his words and his love", "passage": "JHN.15.7-JHN.15.11", "explanation": "We remain as his words remain in us and as we keep his commandments, staying in his love. The result is answered prayer, the Father glorified, and full joy.", "application": "Choose one of Jesus’ sayings to carry with you through the week.", "illustration": ""}
+      ]
+    },
+    {
+      "title": "Branches of the True Vine",
+      "kind": "bible_study",
+      "audience": "Home group",
+      "purpose": "That the group discovers together what it means to remain in Christ, and encourages one another in it.",
+      "centralMessage": "We bear fruit only by remaining in Jesus, and we remain in him through his words and his love.",
+      "introduction": "Read John 15:1–11 aloud, slowly. Then ask: what word or phrase stays with you?",
+      "conclusion": "Pray for one another, each naming one way to remain in Jesus this week.",
+      "points": [
+        {"title": "Who does what in this picture: the vine, the farmer, the branches?", "explanation": "The vine gives the life, the farmer cares and cuts, the branches remain and bear fruit.", "application": "Which of these surprises you? What do the branches not have to do?", "illustration": "Let everyone answer before moving on; draw the picture if it helps."},
+        {"title": "What does it mean to “remain” in Jesus, according to verses 7–10?", "explanation": "His words remaining in us, and remaining in his love by keeping his commandments.", "application": "What helps you to remain in his words? What makes it hard?", "illustration": "Share honestly; there is no need to sound spiritual."},
+        {"title": "What fruit does Jesus promise, and why does he tell us (v. 11)?", "explanation": "Answered prayer, glory to the Father, love, and his joy made full in us.", "application": "Where have you seen this fruit in someone else in the group?", "illustration": "End by thanking God for the fruit you see in one another."}
+      ]
+    },
+    {
+      "title": "Stay Connected to Jesus",
+      "kind": "lesson",
+      "audience": "Youth group, ages 12–15",
+      "purpose": "That young people see that a life with Jesus grows from staying connected to him, not from trying harder.",
+      "centralMessage": "Stay connected to Jesus, and he will grow good fruit in you.",
+      "introduction": "Welcome everyone and pass round a fresh grape vine branch, or a picture of one.",
+      "conclusion": "Each one writes on a paper leaf one way to stay connected to Jesus this week, and fixes it to a drawn vine on the wall.",
+      "points": [
+        {"title": "Welcome and question", "kind": "question", "explanation": "Ask: what happens to a phone that is never charged? Collect a few answers.", "application": "Everything that lives or works needs a source.", "illustration": "A phone with a flat battery."},
+        {"title": "Read the passage", "kind": "scripture", "passage": "JHN.15.1-JHN.15.11", "explanation": "Read John 15:1–11 together, each reading one verse.", "application": "Jesus is the vine; we are the branches.", "illustration": ""},
+        {"title": "The cut branch", "kind": "activity", "explanation": "Show a branch cut a week ago next to a fresh one, and talk about the difference.", "application": "Without Jesus we can look alive for a while, but we cannot bear fruit.", "illustration": "Two branches: one fresh, one cut a week ago."},
+        {"title": "How do we stay connected?", "kind": "text", "explanation": "Look at verses 7 and 10 together: his words in us, and staying in his love by doing what he says.", "application": "Name one practical way to stay connected this week.", "illustration": "Paper leaves and a drawn vine on the wall."}
+      ]
+    }
+  ]
+}

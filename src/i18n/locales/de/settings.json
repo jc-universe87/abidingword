@@ -278,6 +278,11 @@
       "projects": "Projekte: {{n}}",
       "sources": "Bibliothek: {{n}}",
       "bibles": "Hinzugefügte Bibelübersetzungen: {{n}}"
-    }
+    },
+    "sample": "Beispielprojekt",
+    "sampleHint": "„Example: Abiding in Christ — John 15:1–11“ zeigt ein Bibelstudium und wie daraus eine Predigt, ein Hauskreis und ein Bibelunterricht werden. Der Inhalt ist auf Englisch. Es wird nur auf deinen Wunsch hinzugefügt, funktioniert ohne Internet und gehört dir: Du kannst es ändern oder löschen.",
+    "sampleAdd": "Beispielprojekt hinzufügen",
+    "sampleAdded": "„{{title}}“ wurde hinzugefügt. Du findest es unter Projekte.",
+    "sampleThere": "„{{title}}“ ist schon da, daher wurde nichts hinzugefügt."
   }
 }

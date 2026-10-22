@@ -90,3 +90,11 @@ pub fn backup_restore(
     let core = state.core()?;
     Ok(backup::restore(&core.db, &core.dirs, &path)?)
 }
+
+/// Adds the example project, only when asked; never twice.
+#[tauri::command(async)]
+pub fn sample_project_install(
+    state: State<'_, AppState>,
+) -> CommandResult<crate::sample::SampleReport> {
+    state.db(crate::sample::install)
+}
