@@ -149,8 +149,10 @@ An import is one transaction: either all of it is there, or nothing is.
   `sources/teaching-images/` under new names. They are moved into place
   just before the transaction commits, and removed again if it fails.
 - **Checks.** Column names must be columns of this app's tables, so the
-  package's names never become SQL. The database's own checks and
-  `PRAGMA foreign_key_check` must pass.
+  package's names never become SQL. The database's own checks apply to every
+  insert, and `PRAGMA foreign_key_check` must find no broken reference the
+  import made. References that were already broken on this computer (rows
+  left from long ago) are not the import's and do not refuse it (v0.19.1).
 
 ## Backup (`.awbackup`)
 

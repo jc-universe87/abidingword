@@ -182,10 +182,108 @@ from the baseline `f19abbb`.
 - **What a project file carries.** It names library books, Bible texts and
   church templates but does not carry them. A citation of a library book
   that is not there is left out; the note keeps its text. Offline copies of
-  found images are not carried.
+  found images are not carried. *Resolved in v0.19.1 (below): such
+  citations are kept.*
 - **The example project's content** is English only.
 - **A detection detail.** In the example's group study opening, the inline
   reference detector reads *John 15:1–11* (with an en dash) as John 15:1.
-  This is existing behaviour of the detector, not of v0.19.
+  This is existing behaviour of the detector, not of v0.19. *Corrected in
+  v0.19.1 (below): it was the interface's test double, not the app.*
 - **The restore button.** *Restore from backup* replaces everything: there
   is no partial restore.
+
+## v0.19.1: correctness and data-integrity hardening
+
+The two limits above, investigated and closed, and the related defects
+found while doing so.
+
+### Citations without their library source
+
+**Root cause.** `finding_sources.source_id` was `NOT NULL` with a foreign
+key, so a citation could not exist without a source row. Import therefore
+returned "leave this row out" for every citation whose source was not on
+the target computer: the note's text survived, its attribution did not.
+
+**Migration 0016** (`unresolved_citations`) rebuilds `finding_sources`:
+
+- `source_id` may now be empty;
+- `cited_source_id` and `cited_content_hash` record what was cited;
+- a CHECK keeps a source-less citation from naming nothing.
+
+Consistent rows are copied unchanged. Rows left dangling long ago would
+otherwise stop the upgrade:
+
+- a vanished source becomes "not on this computer", keeping its snapshot;
+- a vanished paragraph becomes empty;
+- the row of a note that no longer exists is not copied (it could never be
+  shown).
+
+The verified pre-migration backup keeps everything as it was. The rules for
+export, import and reconnection are in
+[portability.md](portability.md#import). In the Study such a citation
+reads *(not on this computer)*. No placeholder source is ever made, and
+nothing is ever matched by title.
+
+### Scripture ranges with an en dash
+
+**Root cause.** The interface's in-memory test double
+(`tests/support/memoryApi.ts`), used by the interface tests and the
+screenshot harness, detected only an ASCII hyphen. The app itself was never
+affected:
+
+- its shared grammar has accepted hyphen, non-breaking hyphen, figure, en
+  and em dashes, spaced or not, in every language since v0.2;
+- typed input, Study and Teaching detection and library indexing were
+  right;
+- no imported source was indexed with a shortened range, so no reindex is
+  needed.
+
+The double now reads ranges as the core does. `src-tauri/tests/reference_dashes.rs`
+pins the core's behaviour; see
+[reference-language-packs.md](reference-language-packs.md#normalising). The
+Hauskreis and example screenshots were made again and show *John 15:1–11*.
+
+### Related defects fixed
+
+- **An import blocked by unrelated rows.** Project import checked the whole
+  database for broken references after inserting, so one old dangling row
+  anywhere refused every import with "cannot read this file". Each insert is
+  already checked; the final check now counts only references the import
+  itself broke.
+- **A restore test that no longer tested anything.** The test that makes a
+  restore fail half-way replayed the last migration, which is now repeatable
+  (0016). It now replays 0015 and 0016, so the failure and the rollback are
+  still exercised.
+
+### Reviewed, unchanged
+
+- **Running-text verse counts.** Running text checks chapters but
+  deliberately not verse counts, so sources in other versifications keep
+  their references (v0.18.3). Typed input is checked against the canon.
+- **Missing church templates and Bibles** become empty on import, and are
+  named in the preview.
+- **Missing images** are counted.
+- **Backups made before this version** restore and are upgraded (tested).
+- **The example project** names only real passages within John 15. Its
+  quotations are the World English Bible's exact words. It needs no
+  citation of a library book, because none is distributed with the app.
+
+### Tests added
+
+- **`src-tauri/tests/citations.rs`** (12 tests):
+  - a three-computer round trip, and back to the first;
+  - reconnection only for exactly the same file;
+  - removed sources;
+  - pre-fix packages with partial or missing titles, and corrupt values;
+  - duplicate-import isolation;
+  - the CHECK;
+  - an upgrade from schema 15, including dangling rows;
+  - a real library import that reconnects;
+  - an unrelated dangling row;
+  - restoring a schema-15 backup.
+- **`src-tauri/tests/reference_dashes.rs`** (9 tests).
+- **Interface:**
+  - `tests/ui/reference-dashes.test.ts`;
+  - a citation-chip test in `tests/ui/sources-to-study.test.tsx`;
+  - the import report in `tests/ui/portability.test.tsx`.
+

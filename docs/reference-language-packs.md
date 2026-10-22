@@ -148,6 +148,20 @@ right):
 - Greek final sigma is σ; the danda, Ethiopic full stop, maqaf and middle dot
   separate words.
 
+**Range dashes.** Every grammar's range dash is the same character class,
+`[-‐‑‒–—]`: hyphen-minus, hyphen, non-breaking hyphen, figure dash, en dash and
+em dash (Korean and the generated packs also accept `~`). Spaces may stand on
+either side. This holds for typed input and running text alike, so
+`John 15:1–11`, `John 15:1 – 11`, `Johannes 15,1–11`, `요한복음 15장 1–11절`
+and `John 15:1–16:4` all read as their whole range. The class is part of the
+pattern, not a text replacement, so offsets and the text as written (`John
+15:1–11`) are kept exactly. A dash never starts a reference on its own: a
+book name and a chapter must come first, so years (`1990–2000`), pages
+(`pp. 1–11`) and an em dash after a book name in prose (`John—as in Luke`)
+are not references. One reading is ambiguous by nature: a number right after
+a spaced dash ends the range (`John 15:5 — 11 of us came` reads as 15:5–11).
+`src-tauri/tests/reference_dashes.rs` pins all of this.
+
 Lexicon keys are NFC and lower case; in cased scripts the accent-free form of
 a name is accepted too (`Κατα Ιωαννην` for `Κατά Ιωάννην`), unless it would
 be another book's spelling.

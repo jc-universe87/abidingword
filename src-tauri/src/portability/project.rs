@@ -874,6 +874,9 @@ pub fn import(
 
     let workspace = workspaces::get_default(conn)?;
     let tx = conn.unchecked_transaction()?;
+    // References already broken here (rows left over from long ago) are not
+    // this import's: only new ones count below.
+    let broken_before = broken_references(&tx)?;
     let mut job = Import {
         conn: &tx,
         ids: HashMap::new(),
@@ -965,15 +968,12 @@ pub fn import(
     }
     let left_out = job.left_out;
     let (citations_kept, citations_reconnected) = (job.citations_kept, job.citations_reconnected);
-    // Nothing points anywhere it should not.
-    let broken: Option<String> = tx
-        .query_row(
-            "SELECT \"table\" FROM pragma_foreign_key_check LIMIT 1",
-            [],
-            |r| r.get(0),
-        )
-        .optional()?;
-    if let Some(table) = broken {
+    // Nothing the import wrote points anywhere it should not. (Each insert
+    // is already checked as it is made; this guards the whole.)
+    if let Some((table, _)) = broken_references(&tx)?
+        .into_iter()
+        .find(|r| !broken_before.contains(r))
+    {
         log::warn!("project import: broken reference in {table}");
         return Err(not_a_package());
     }
@@ -1030,6 +1030,26 @@ pub fn import(
         citations_kept,
         citations_reconnected,
     })
+}
+
+/// Every broken reference in the tables an import writes, as (table, row).
+/// (The library's and the Bibles' large tables are never written by an
+/// import, so they are not scanned.)
+fn broken_references(conn: &Connection) -> AppResult<HashSet<(String, i64)>> {
+    let mut out = HashSet::new();
+    let mut stmt = conn.prepare("SELECT \"table\", rowid FROM pragma_foreign_key_check(?1)")?;
+    for table in package_tables() {
+        let rows = stmt.query_map([table], |r| {
+            Ok((
+                r.get::<_, String>(0)?,
+                r.get::<_, Option<i64>>(1)?.unwrap_or(-1),
+            ))
+        })?;
+        for row in rows {
+            out.insert(row?);
+        }
+    }
+    Ok(out)
 }
 
 fn job_count(conn: &Connection, sql: &str, id: &str) -> AppResult<u32> {

@@ -12,7 +12,7 @@
 -- A source added later with exactly that file is reconnected; nothing is
 -- matched by title. Details: docs/portability.md.
 --
--- Existing rows are copied unchanged, with their source's hash recorded.
+-- Consistent rows are copied unchanged, with their source's hash recorded.
 -- SQLite cannot drop NOT NULL in place, so the table is rebuilt; nothing
 -- refers to finding_sources, so no other table changes.
 
@@ -38,15 +38,27 @@ CREATE TABLE finding_sources_v16 (
     CHECK (source_id IS NOT NULL OR (cited_title IS NOT NULL AND trim(cited_title) <> ''))
 );
 
+-- Rows are copied as they are. Rows left inconsistent long ago (written
+-- while foreign keys were off) would stop the upgrade, so: a source that no
+-- longer exists becomes "not on this computer" (its snapshot kept, its
+-- title from the snapshot, else as the app already showed it); a paragraph
+-- that no longer exists becomes empty; the row of a note that no longer
+-- exists, which could never be shown, is not copied. The verified backup
+-- made before this migration keeps everything exactly as it was.
 INSERT INTO finding_sources_v16
     (id, finding_id, source_id, source_segment_id, locator, created_at, updated_at,
      deleted_at, revision, cited_title, cited_author, quote, cited_section, anchor,
      annotation_id, cited_source_id, cited_content_hash)
-SELECT c.id, c.finding_id, c.source_id, c.source_segment_id, c.locator, c.created_at,
-       c.updated_at, c.deleted_at, c.revision, c.cited_title, c.cited_author, c.quote,
-       c.cited_section, c.anchor, c.annotation_id, c.source_id,
+SELECT c.id, c.finding_id,
+       (SELECT s.id FROM sources s WHERE s.id = c.source_id),
+       (SELECT g.id FROM source_segments g WHERE g.id = c.source_segment_id),
+       c.locator, c.created_at, c.updated_at, c.deleted_at, c.revision,
+       CASE WHEN EXISTS (SELECT 1 FROM sources s WHERE s.id = c.source_id) THEN c.cited_title
+            ELSE COALESCE(NULLIF(trim(c.cited_title), ''), 'Removed source') END,
+       c.cited_author, c.quote, c.cited_section, c.anchor, c.annotation_id, c.source_id,
        (SELECT s.content_hash FROM sources s WHERE s.id = c.source_id)
-FROM finding_sources c;
+FROM finding_sources c
+WHERE c.finding_id IN (SELECT id FROM findings);
 
 DROP TABLE finding_sources;
 ALTER TABLE finding_sources_v16 RENAME TO finding_sources;
