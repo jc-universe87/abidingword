@@ -348,15 +348,21 @@ pub struct CommitSourceImport {
 pub struct FindingCitation {
     pub id: String,
     pub finding_id: String,
-    pub source_id: String,
+    /// None when the cited source is not on this computer (a project
+    /// imported from elsewhere, v0.19): the citation stands on its snapshot.
+    pub source_id: Option<String>,
     /// None once the source has been removed from the library.
     pub segment_id: Option<String>,
     pub title: String,
     pub author: Option<String>,
     /// e.g. "p. 152", "Chapter 3 › Grace".
     pub locator: Option<String>,
-    /// The source was removed; the citation remains as a record.
+    /// The source cannot be opened (removed, or not on this computer); the
+    /// citation remains as a record.
     pub removed: bool,
+    /// The source is not on this computer at all (v0.19): it was cited where
+    /// the project was made. Title, author, words and place are kept.
+    pub unavailable: bool,
     /// What the source said: the cited words, as they were (v0.15).
     pub quote: Option<String>,
     /// The section path at the time, e.g. "Chapter 3 › Grace" (v0.15).

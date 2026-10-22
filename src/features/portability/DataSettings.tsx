@@ -165,6 +165,8 @@ function ProjectImport() {
         <Notice tone="success">
           <p className="m-0">{t("settings.data.imported", { title: done.title })}</p>
           <p className="m-0 mt-1 type-meta">{countsLine(t, done.counts)}</p>
+          {done.citationsKept > 0 && <p className="m-0 mt-1">{t("settings.data.citationsKept", { n: done.citationsKept })}</p>}
+          {done.citationsReconnected > 0 && <p className="m-0 mt-1">{t("settings.data.citationsReconnected", { n: done.citationsReconnected })}</p>}
           {done.leftOut > 0 && <p className="m-0 mt-1">{t("settings.data.leftOut", { n: done.leftOut })}</p>}
         </Notice>
       )}

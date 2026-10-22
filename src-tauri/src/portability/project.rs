@@ -54,6 +54,10 @@ pub struct Counts {
 pub struct External {
     pub id: String,
     pub name: String,
+    /// A library source's file hash (v0.19.1): an import reconnects a
+    /// citation to exactly this file when this computer has it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content_hash: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -142,9 +146,15 @@ pub struct ImportReport {
     pub title: String,
     pub counts: Counts,
     pub missing: Missing,
-    /// Rows left out because what they belonged to is not here (a note's
-    /// citation of a library source this computer does not have).
+    /// Rows left out because what they belonged to is not in the package,
+    /// or because they could not be read (a citation that names nothing).
     pub left_out: u32,
+    /// Citations kept whose library source is not on this computer: their
+    /// title, author, words and place are kept, and they say so.
+    pub citations_kept: u32,
+    /// Citations whose source has another id here but is exactly the same
+    /// file (the same SHA-256), and so point at it.
+    pub citations_reconnected: u32,
 }
 
 // ---------------------------------------------------------------------------
@@ -436,6 +446,35 @@ pub fn export(
         .and_then(|r| r.first())
         .cloned()
         .ok_or_else(|| AppError::not_found("project", project_id))?;
+    // Every citation carries what it cited, so it can stand on its own where
+    // the source is not: its title, author, the source's id and file hash.
+    if let Some(rows) = data.tables.get_mut("finding_sources") {
+        for row in rows {
+            let Some(source_id) = text(row, "source_id").map(String::from) else {
+                continue;
+            };
+            let source: Option<(String, Option<String>, Option<String>)> = tx
+                .query_row(
+                    "SELECT title, author, content_hash FROM sources WHERE id = ?1",
+                    [&source_id],
+                    |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+                )
+                .optional()?;
+            let mut fill = |column: &str, value: Option<String>| {
+                if text(row, column).is_none_or(|v| v.trim().is_empty()) {
+                    if let Some(value) = value {
+                        row.insert(column.into(), Json::String(value));
+                    }
+                }
+            };
+            fill("cited_source_id", Some(source_id.clone()));
+            if let Some((title, author, hash)) = source {
+                fill("cited_title", Some(title));
+                fill("cited_author", author);
+                fill("cited_content_hash", hash);
+            }
+        }
+    }
     let external = externals(&tx, project_id)?;
     let schema_version = migrations::current_version(&tx)?;
     drop(tx);
@@ -492,14 +531,26 @@ fn externals(conn: &Connection, project_id: &str) -> AppResult<Externals> {
             Ok(External {
                 id: r.get(0)?,
                 name: r.get(1)?,
+                content_hash: if r.as_ref().column_count() > 2 {
+                    r.get(2)?
+                } else {
+                    None
+                },
             })
         })?;
         Ok(rows.collect::<Result<_, _>>()?)
     };
     Ok(Externals {
         sources: list(format!(
-            "SELECT DISTINCT s.id, s.title FROM finding_sources fs JOIN sources s ON s.id = fs.source_id
-             WHERE fs.finding_id IN ({}) AND fs.deleted_at IS NULL ORDER BY s.title",
+            // Cited sources, here or (kept without their source) from where the project was made.
+            "SELECT COALESCE(fs.source_id, fs.cited_source_id) AS ref,
+                    MAX(COALESCE(s.title, fs.cited_title)) AS name,
+                    MAX(COALESCE(s.content_hash, fs.cited_content_hash))
+             FROM finding_sources fs LEFT JOIN sources s ON s.id = fs.source_id
+             WHERE fs.finding_id IN ({}) AND fs.deleted_at IS NULL
+               AND COALESCE(fs.source_id, fs.cited_source_id) IS NOT NULL
+               AND COALESCE(s.title, fs.cited_title) IS NOT NULL
+             GROUP BY ref ORDER BY name",
             findings()
         ))?,
         presentation_templates: list(format!(
@@ -563,6 +614,25 @@ fn open(conn: &Connection, path: &Path) -> AppResult<Opened> {
     })
 }
 
+/// The one live library source here with exactly this file, if there is one.
+fn local_by_hash(conn: &Connection, hash: Option<&str>) -> AppResult<Option<String>> {
+    let Some(hash) = hash.filter(|h| h.len() == 64 && h.bytes().all(|b| b.is_ascii_hexdigit()))
+    else {
+        return Ok(None);
+    };
+    let mut stmt = conn
+        .prepare("SELECT id FROM sources WHERE content_hash = ?1 AND deleted_at IS NULL LIMIT 2")?;
+    let ids: Vec<String> = stmt
+        .query_map([hash], |r| r.get(0))?
+        .collect::<Result<_, _>>()?;
+    // Two copies of one file: which one was meant cannot be told.
+    Ok(if ids.len() == 1 {
+        ids.into_iter().next()
+    } else {
+        None
+    })
+}
+
 fn exists(conn: &Connection, sql: &str, id: &str) -> AppResult<bool> {
     Ok(conn.query_row(sql, [id], |_| Ok(())).optional()?.is_some())
 }
@@ -578,6 +648,17 @@ fn missing(conn: &Connection, opened: &Opened) -> AppResult<Missing> {
         Ok(out)
     };
     let external = &opened.manifest.external;
+    let mut sources = Vec::new();
+    for item in &external.sources {
+        if !exists(
+            conn,
+            "SELECT 1 FROM sources WHERE id = ?1 AND deleted_at IS NULL",
+            &item.id,
+        )? && local_by_hash(conn, item.content_hash.as_deref())?.is_none()
+        {
+            sources.push(item.name.clone());
+        }
+    }
     let images = opened
         .data
         .tables
@@ -596,10 +677,7 @@ fn missing(conn: &Connection, opened: &Opened) -> AppResult<Missing> {
         })
         .count() as u32;
     Ok(Missing {
-        sources: absent(
-            &external.sources,
-            "SELECT 1 FROM sources WHERE id = ?1 AND deleted_at IS NULL",
-        )?,
+        sources,
         presentation_templates: absent(
             &external.presentation_templates,
             "SELECT 1 FROM presentation_templates WHERE id = ?1 AND deleted_at IS NULL",
@@ -670,6 +748,10 @@ struct Import<'c> {
     ids: HashMap<&'static str, HashMap<String, String>>,
     columns: HashMap<&'static str, HashSet<String>>,
     left_out: u32,
+    /// What the package's manifest says each cited source was called.
+    source_names: HashMap<String, String>,
+    citations_kept: u32,
+    citations_reconnected: u32,
 }
 
 impl<'c> Import<'c> {
@@ -797,6 +879,15 @@ pub fn import(
         ids: HashMap::new(),
         columns: HashMap::new(),
         left_out: 0,
+        source_names: opened
+            .manifest
+            .external
+            .sources
+            .iter()
+            .map(|e| (e.id.clone(), e.name.clone()))
+            .collect(),
+        citations_kept: 0,
+        citations_reconnected: 0,
     };
     let data = &mut opened.data;
     let stamp = now();
@@ -873,6 +964,7 @@ pub fn import(
         }
     }
     let left_out = job.left_out;
+    let (citations_kept, citations_reconnected) = (job.citations_kept, job.citations_reconnected);
     // Nothing points anywhere it should not.
     let broken: Option<String> = tx
         .query_row(
@@ -935,6 +1027,8 @@ pub fn import(
         counts,
         missing,
         left_out,
+        citations_kept,
+        citations_reconnected,
     })
 }
 
@@ -976,6 +1070,135 @@ fn study_template(job: &mut Import<'_>, mut row: Map<String, Json>) -> AppResult
     Ok(Some(id))
 }
 
+/// A citation's text columns hold text or nothing.
+const CITATION_TEXT: &[&str] = &[
+    "source_id",
+    "source_segment_id",
+    "locator",
+    "cited_title",
+    "cited_author",
+    "quote",
+    "cited_section",
+    "anchor",
+    "annotation_id",
+    "cited_source_id",
+    "cited_content_hash",
+];
+
+/// Where a citation points here (v0.19.1). Three outcomes, never a guess:
+///
+/// - the same source is here (the same id, even if it was removed from the
+///   library since: the citation then says so, as one made here would);
+/// - exactly the same file is here under another id (the same SHA-256): the
+///   citation points at it; places inside it are found again by its words;
+/// - otherwise the citation is kept without a source: its title, author,
+///   words, page, section and anchor stay, with the source's original id
+///   and file hash, so that adding that file later reconnects it.
+///
+/// A citation that names nothing at all (no source here and no title) is
+/// left out (false): there is nothing truthful to show.
+fn resolve_citation(job: &mut Import<'_>, row: &mut Map<String, Json>) -> AppResult<bool> {
+    for column in CITATION_TEXT {
+        if !matches!(
+            row.get(*column),
+            None | Some(Json::Null) | Some(Json::String(_))
+        ) {
+            return Err(not_a_package());
+        }
+    }
+    json_column_or_text(row, "anchor");
+    let origin = text(row, "source_id")
+        .or_else(|| text(row, "cited_source_id"))
+        .map(String::from);
+    let hash = text(row, "cited_content_hash").map(String::from);
+    let here = match origin.as_deref() {
+        Some(id) if exists(job.conn, "SELECT 1 FROM sources WHERE id = ?1", id)? => {
+            Some(id.to_string())
+        }
+        _ => None,
+    };
+    let (source, reconnected) = match here {
+        Some(id) => (Some(id), false),
+        None => match local_by_hash(job.conn, hash.as_deref())? {
+            Some(id) => (Some(id), true),
+            None => (None, false),
+        },
+    };
+    if let Some(origin) = &origin {
+        row.insert("cited_source_id".into(), Json::String(origin.clone()));
+    }
+    match &source {
+        Some(id) => {
+            row.insert("source_id".into(), Json::String(id.clone()));
+            // A paragraph or mark of that source, only if it is one here.
+            let segment = text(row, "source_segment_id").map(String::from);
+            if !segment.as_deref().is_some_and(|seg| {
+                exists_pair(
+                    job.conn,
+                    "SELECT 1 FROM source_segments WHERE id = ?1 AND source_id = ?2",
+                    seg,
+                    id,
+                )
+                .unwrap_or(false)
+            }) {
+                row.insert("source_segment_id".into(), Json::Null);
+            }
+            let annotation = text(row, "annotation_id").map(String::from);
+            if !annotation.as_deref().is_some_and(|a| {
+                exists_pair(
+                    job.conn,
+                    "SELECT 1 FROM source_annotations WHERE id = ?1 AND source_id = ?2 AND deleted_at IS NULL",
+                    a,
+                    id,
+                )
+                .unwrap_or(false)
+            }) {
+                row.insert("annotation_id".into(), Json::Null);
+            }
+            if reconnected {
+                job.citations_reconnected += 1;
+            }
+        }
+        None => {
+            // What it cited must be said; the manifest names the source too.
+            if text(row, "cited_title").is_none_or(|t| t.trim().is_empty()) {
+                let named = origin
+                    .as_deref()
+                    .and_then(|o| job.source_names.get(o))
+                    .cloned();
+                match named.filter(|n| !n.trim().is_empty()) {
+                    Some(name) => {
+                        row.insert("cited_title".into(), Json::String(name));
+                    }
+                    None => return Ok(false),
+                }
+            }
+            row.insert("source_id".into(), Json::Null);
+            row.insert("source_segment_id".into(), Json::Null);
+            row.insert("annotation_id".into(), Json::Null);
+            job.citations_kept += 1;
+        }
+    }
+    Ok(true)
+}
+
+fn exists_pair(conn: &Connection, sql: &str, a: &str, b: &str) -> AppResult<bool> {
+    Ok(conn
+        .query_row(sql, params![a, b], |_| Ok(()))
+        .optional()?
+        .is_some())
+}
+
+/// An anchor is stored JSON; one that cannot be read is dropped, never
+/// trusted (the citation keeps its words and place without it).
+fn json_column_or_text(row: &mut Map<String, Json>, column: &str) {
+    if let Some(value) = text(row, column) {
+        if serde_json::from_str::<Json>(value).is_err() {
+            row.insert(column.into(), Json::Null);
+        }
+    }
+}
+
 /// A column that holds JSON must hold readable JSON.
 fn json_column(row: &Map<String, Json>, column: &str) -> AppResult<()> {
     match row.get(column) {
@@ -1015,32 +1238,8 @@ fn external_refs(
         }
         "study_blocks" | "findings" => json_column(row, "data")?,
         "finding_sources" => {
-            // The citation of a library source this computer does not have
-            // cannot be kept: it is listed as missing instead.
-            if !here(
-                job,
-                "SELECT 1 FROM sources WHERE id = ?1 AND deleted_at IS NULL",
-                row,
-                "source_id",
-            )? || text(row, "source_id").is_none()
-            {
+            if !resolve_citation(job, row)? {
                 return Ok(false);
-            }
-            if !here(
-                job,
-                "SELECT 1 FROM source_segments WHERE id = ?1",
-                row,
-                "source_segment_id",
-            )? {
-                row.insert("source_segment_id".into(), Json::Null);
-            }
-            if !here(
-                job,
-                "SELECT 1 FROM source_annotations WHERE id = ?1 AND deleted_at IS NULL",
-                row,
-                "annotation_id",
-            )? {
-                row.insert("annotation_id".into(), Json::Null);
             }
         }
         "teaching_materials" => {

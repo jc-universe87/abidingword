@@ -1,5 +1,5 @@
 import { act, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import i18n from "@/i18n";
 import { createMemoryApi, type MemoryApi, type SourceFixture } from "../support/memoryApi";
 import { renderApp } from "../support/render";
@@ -396,6 +396,25 @@ describe("a source-backed finding in the Study", () => {
     await openStudy(user, "Abiding");
     expect(within(studyPane()).getByDisplayValue("bear fruit by itself")).toBeInTheDocument();
     expect(within(studyPane()).queryByLabelText("Quoted from the source")).toBeNull();
+  });
+
+  it("shows a citation whose source is not on this computer as kept, with its words, and nothing to open (v0.19.1)", async () => {
+    const { api } = await withFinding("Fruit needs the vine.");
+    // As a project imported from another computer: the citation stands on what it said.
+    const finding = api.state.findings.find((f) => f.sources.length > 0)!;
+    finding.sources[0] = { ...finding.sources[0]!, sourceId: null, segmentId: null, annotationId: null, removed: true, unavailable: true };
+    const locate = vi.spyOn(api, "findingSourceLocate");
+    const { user } = await renderApp(api);
+    await openStudy(user, "Abiding");
+    const study = studyPane();
+    expect(within(study).getByLabelText("Quoted from the source")).toHaveTextContent("bear fruit by itself");
+    expect(within(study).getByText("(not on this computer)")).toBeInTheDocument();
+    expect(within(study).getByText("Source not available on this computer. The citation has been kept.")).toHaveClass("sr-only");
+    expect(within(study).queryByText("(removed from library)")).toBeNull();
+    expect(within(study).queryByRole("button", { name: "J. Example, The True Vine, The Vine" })).toBeNull();
+    expect(locate).not.toHaveBeenCalled();
+    await user.click(within(study).getByRole("button", { name: "Copy quotation with citation" }));
+    await waitFor(async () => expect(await navigator.clipboard.readText()).toBe("“bear fruit by itself”\n— J. Example, The True Vine, The Vine"));
   });
 
   it("keeps the finding, its quote and citation when the source is removed, and offers no way to open it", async () => {

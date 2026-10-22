@@ -128,7 +128,9 @@
     "cite": "{{citation}} 인용",
     "open": "자료 열기",
     "quoteLabel": "자료에서 인용",
-    "openFailed": "이 자료를 열 수 없습니다."
+    "openFailed": "이 자료를 열 수 없습니다.",
+    "unavailable": "(이 컴퓨터에 없음)",
+    "unavailableTitle": "이 컴퓨터에는 이 자료가 없습니다. 출처 정보는 그대로 남아 있습니다."
   },
   "original": {
     "modesLabel": "보기",

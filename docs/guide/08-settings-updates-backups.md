@@ -238,9 +238,11 @@ computer: the file only names the ones it uses.
 **Import project…** reads such a file and first shows what it holds, and
 what it uses that this computer does not have. **Import** then adds it as a
 **new project**: nothing here is ever replaced. If you already have a project
-with the same name, the new one is called, for example, *John (2)*. A note's
-citation of a library book that is not here is left out; the note keeps its
-text.
+with the same name, the new one is called, for example, *John (2)*. A note
+that cites a library book this computer does not have keeps its citation
+(title, author, the quoted words and the page), marked *(not on this
+computer)*. When you add exactly that book file to your library, the
+citation can be opened again.
 
 **Back up everything…** saves one file (`.awbackup`) with all your work: all
 projects, your library files, the Bibles you added, templates and settings.

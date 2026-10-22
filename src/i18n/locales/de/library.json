@@ -137,7 +137,9 @@
     "cite": "{{citation}} zitieren",
     "open": "Quelle öffnen",
     "quoteLabel": "Aus der Quelle zitiert",
-    "openFailed": "Diese Quelle konnte nicht geöffnet werden."
+    "openFailed": "Diese Quelle konnte nicht geöffnet werden.",
+    "unavailable": "(nicht auf diesem Computer)",
+    "unavailableTitle": "Die Quelle ist auf diesem Computer nicht vorhanden. Die Quellenangabe ist erhalten geblieben."
   },
   "original": {
     "modesLabel": "Ansicht",

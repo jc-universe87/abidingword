@@ -104,9 +104,44 @@ An import is one transaction: either all of it is there, or nothing is.
 - **Study templates.** A built-in template becomes this computer's own,
   matched by key. A person's own template is reused when an identical one is
   here; otherwise it is added under a new id.
-- **Library citations.** A citation of a library source that is here is kept.
-  One whose source is not here is left out and counted. A missing source
-  passage or mark becomes empty.
+- **Library citations** (v0.19.1). No citation is lost because its book is
+  not on this computer. Each one ends in exactly one of three states, never
+  by a guess:
+  1. **Linked.** The same source is here, by id. If it has since been removed
+     from this library, the citation says *removed from library*, just like
+     a citation made here.
+  2. **Reconnected.** Exactly the same file is here under another id (the
+     same SHA-256 as `sources.content_hash`, from one live source only). The
+     citation points at it. The other computer's paragraph and mark ids are
+     dropped; the citation's words find their place again when it is opened.
+  3. **Kept, not on this computer.** `source_id` is empty, and the
+     citation's snapshot stays:
+     - title and author;
+     - the quoted words, page or location, section and anchor;
+     - `cited_source_id` (the source's id where it was made);
+     - `cited_content_hash` (that file's hash).
+
+     The Study shows it as *(not on this computer)*, with "Source not
+     available on this computer. The citation has been kept." for screen
+     readers and as a tooltip. Nothing can be opened, and no placeholder
+     source is ever made.
+
+  **Invalid citations.** A citation row whose values are not text makes the
+  package invalid. A row that names nothing at all (no source here, no title
+  in the row and none in the manifest) is left out and counted as
+  unreadable. An anchor that is not readable JSON is dropped; the rest of the
+  citation stays.
+
+  **On export,** every citation is completed from its source when that is
+  here: title, author, `cited_source_id` and `cited_content_hash`. So a
+  citation survives any number of moves unchanged.
+
+  **The manifest** lists every cited source, including ones already kept
+  without their source, with its file hash.
+
+  **Later reconnection.** Adding exactly that file to the library later
+  (`db::library::reconnect_citations`, run inside the library import)
+  points kept citations at it again. Nothing is ever matched by title.
 - **Presentations.** A church template or Bible that is not here becomes
   empty: the standard design, no Bible text.
 - **Slides.** A slide made from a step or note follows it to the new id.
@@ -192,8 +227,10 @@ again.
 
 - A project file does not carry library books, Bible texts or church
   templates, by design: they are named, and the person is told which are
-  missing. Notes that cite a missing library book keep their text but lose
-  the citation.
+  missing. Citations of a missing book are kept with what they said (see
+  above), but cannot be opened until that exact file is added. There is no
+  manual "link to another book" yet: a different edition or file is never
+  joined to a citation.
 - Offline copies of found images are not in a project file. Presenting
   fetches them again, or shows the image's address.
 - Restoring holds the database for its duration. On a large library this

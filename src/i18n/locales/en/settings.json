@@ -247,13 +247,13 @@
     "missingBibles": "Bibles",
     "missingImages": "Images not in the file: {{n}}",
     "missingHeading": "Not on this computer",
-    "missingHint": "The project uses these, but this computer does not have them. Notes keep their own text; a citation of a library book that is not here is left out, and a presentation uses the standard design and no Bible text instead.",
+    "missingHint": "The project uses these, but this computer does not have them. Notes keep their citations: title, author, quoted words and page stay, marked as not on this computer. A presentation uses the standard design and no Bible text instead.",
     "importPreview": "Project to import",
     "savedOn": "Saved on {{date}} with Abiding Word {{version}}",
     "importAs": "It will be added as a new project, “{{title}}”. Nothing on this computer is replaced.",
     "importConfirm": "Import",
     "imported": "“{{title}}” was added. You’ll find it under Projects.",
-    "leftOut": "Citations left out because their library book is not here: {{n}}",
+    "leftOut": "Parts of the file that could not be read and were left out: {{n}}",
     "backup": "Backup",
     "backupHint": "A backup holds everything: all projects, your library files, the Bibles you added, templates and settings. It is a private copy for you, not for sharing: it can hold books and Bibles whose licences do not allow passing them on. API keys are never included; after restoring on another computer, enter them again.",
     "backupCreate": "Back up everything…",
@@ -283,6 +283,8 @@
     "sampleHint": "“Example: Abiding in Christ — John 15:1–11” shows a Bible Study and how it becomes a message, a group Bible study and an interactive lesson. Its content is in English. It is added only when you ask, works without internet, and is yours to change or delete.",
     "sampleAdd": "Add the example project",
     "sampleAdded": "“{{title}}” was added. You’ll find it under Projects.",
-    "sampleThere": "“{{title}}” is already here, so nothing was added."
+    "sampleThere": "“{{title}}” is already here, so nothing was added.",
+    "citationsKept": "Citations kept whose library book is not on this computer: {{n}}",
+    "citationsReconnected": "Citations linked to the same book in your library: {{n}}"
   }
 }

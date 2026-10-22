@@ -146,7 +146,9 @@
     "cite": "Citar {{citation}}",
     "open": "Abrir a fonte",
     "quoteLabel": "Citado da fonte",
-    "openFailed": "Não foi possível abrir esta fonte."
+    "openFailed": "Não foi possível abrir esta fonte.",
+    "unavailable": "(não está neste computador)",
+    "unavailableTitle": "Esta fonte não está disponível neste computador. A referência foi mantida."
   },
   "original": {
     "modesLabel": "Visualização",

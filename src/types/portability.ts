@@ -12,6 +12,7 @@ export interface ProjectCounts {
 export interface PackageExternal {
   id: string;
   name: string;
+  contentHash?: string;
 }
 
 export interface PackageExternals {
@@ -51,8 +52,12 @@ export interface ProjectImportReport {
   title: string;
   counts: ProjectCounts;
   missing: PackageMissing;
-  /** Rows left out because what they belonged to is not here. */
+  /** Rows left out because what they belonged to is not in the file, or they could not be read. */
   leftOut: number;
+  /** Citations kept whose library source is not on this computer. */
+  citationsKept: number;
+  /** Citations that point at exactly the same file here, under another id. */
+  citationsReconnected: number;
 }
 
 export interface BackupCounts {

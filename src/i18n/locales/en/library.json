@@ -137,7 +137,9 @@
     "cite": "Cite {{citation}}",
     "open": "Open source",
     "quoteLabel": "Quoted from the source",
-    "openFailed": "This source could not be opened."
+    "openFailed": "This source could not be opened.",
+    "unavailable": "(not on this computer)",
+    "unavailableTitle": "Source not available on this computer. The citation has been kept."
   },
   "original": {
     "modesLabel": "View",

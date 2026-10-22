@@ -146,7 +146,9 @@
     "cite": "Citer {{citation}}",
     "open": "Ouvrir la source",
     "quoteLabel": "Cité de la source",
-    "openFailed": "Cette source n’a pas pu être ouverte."
+    "openFailed": "Cette source n’a pas pu être ouverte.",
+    "unavailable": "(absente de cet ordinateur)",
+    "unavailableTitle": "Cette source n’est pas disponible sur cet ordinateur. La référence a été conservée."
   },
   "original": {
     "modesLabel": "Affichage",

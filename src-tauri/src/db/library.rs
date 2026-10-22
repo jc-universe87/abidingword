@@ -316,7 +316,11 @@ pub fn commit_import(
         "UPDATE sources SET passage_index_version = ?2 WHERE id = ?1",
         params![source_id, sections::INDEX_VERSION],
     )?;
+    let reconnected = reconnect_citations(&tx, source_id, &staged.hash, &now)?;
     tx.commit()?;
+    if reconnected > 0 {
+        log::info!("{reconnected} citation(s) kept without their source now point at it again");
+    }
     log::info!(
         "source added to library: {} segments, {} Scripture references, read as {}",
         doc.segments.len(),
@@ -324,6 +328,24 @@ pub fn commit_import(
         index.language.code()
     );
     get(conn, source_id)
+}
+
+/// Citations kept without their library source (a project made on another
+/// computer, v0.19) point at a source again when exactly the file they cited
+/// is added: the same SHA-256, never a similar title. Their words, place and
+/// section stay as they were; the reader finds the words again when the
+/// citation is opened.
+pub fn reconnect_citations(
+    conn: &Connection,
+    source_id: &str,
+    content_hash: &str,
+    now: &str,
+) -> AppResult<usize> {
+    Ok(conn.execute(
+        "UPDATE finding_sources SET source_id = ?1, updated_at = ?3, revision = revision + 1
+         WHERE source_id IS NULL AND deleted_at IS NULL AND cited_content_hash = ?2",
+        params![source_id, content_hash, now],
+    )?)
 }
 
 fn media_type(format: &str) -> &'static str {

@@ -247,13 +247,13 @@
     "missingBibles": "Traductions de la Bible",
     "missingImages": "Images absentes du fichier : {{n}}",
     "missingHeading": "Absents de cet ordinateur",
-    "missingHint": "Le projet les utilise, mais cet ordinateur ne les a pas. Les notes gardent leur texte ; une citation d’un livre absent de la bibliothèque n’est pas reprise, et une présentation utilise à la place la présentation visuelle standard, sans texte biblique.",
+    "missingHint": "Le projet les utilise, mais cet ordinateur ne les a pas. Les notes gardent leurs références : titre, auteur, mots cités et page sont conservés, avec la mention « absente de cet ordinateur ». Une présentation utilise à la place la présentation visuelle standard, sans texte biblique.",
     "importPreview": "Projet à importer",
     "savedOn": "Enregistré le {{date}} avec Abiding Word {{version}}",
     "importAs": "Il sera ajouté comme nouveau projet, « {{title}} ». Rien n’est remplacé sur cet ordinateur.",
     "importConfirm": "Importer",
     "imported": "« {{title}} » a été ajouté. Vous le trouverez dans Projets.",
-    "leftOut": "Citations non reprises, car leur livre n’est pas dans la bibliothèque : {{n}}",
+    "leftOut": "Parties du fichier illisibles, non reprises : {{n}}",
     "backup": "Sauvegarde",
     "backupHint": "Une sauvegarde contient tout : tous les projets, les fichiers de votre bibliothèque, les traductions de la Bible que vous avez ajoutées, les modèles et les paramètres. C’est une copie privée pour vous, pas pour la partager : elle peut contenir des livres et des Bibles dont la licence n’autorise pas la diffusion. Les clés API ne sont jamais incluses ; après une restauration sur un autre ordinateur, saisissez-les à nouveau.",
     "backupCreate": "Tout sauvegarder…",
@@ -283,6 +283,8 @@
     "sampleHint": "« Example: Abiding in Christ — John 15:1–11 » montre une étude biblique et comment elle devient une prédication, une étude biblique en groupe et une leçon interactive. Son contenu est en anglais. Il n’est ajouté que si vous le demandez, fonctionne sans Internet et vous appartient : vous pouvez le modifier ou le supprimer.",
     "sampleAdd": "Ajouter le projet d’exemple",
     "sampleAdded": "« {{title}} » a été ajouté. Vous le trouverez dans Projets.",
-    "sampleThere": "« {{title}} » est déjà là : rien n’a été ajouté."
+    "sampleThere": "« {{title}} » est déjà là : rien n’a été ajouté.",
+    "citationsKept": "Références conservées dont le livre n’est pas sur cet ordinateur : {{n}}",
+    "citationsReconnected": "Références reliées au même livre de votre bibliothèque : {{n}}"
   }
 }

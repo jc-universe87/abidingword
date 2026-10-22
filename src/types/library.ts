@@ -183,12 +183,16 @@ export interface CommitSourceImport {
 export interface FindingCitation {
   id: string;
   findingId: string;
-  sourceId: string;
+  /** Null when the cited source is not on this computer (a project made elsewhere, v0.19.1). */
+  sourceId: string | null;
   segmentId: string | null;
   title: string;
   author: string | null;
   locator: string | null;
+  /** The source cannot be opened: removed from the library, or not on this computer. */
   removed: boolean;
+  /** The source is not on this computer at all; title, author, words and place are kept (v0.19.1). */
+  unavailable: boolean;
   /** What the source said: the cited words, as they were (v0.15). */
   quote: string | null;
   /** The section path at the time, e.g. "Chapter 3 › Grace" (v0.15). */

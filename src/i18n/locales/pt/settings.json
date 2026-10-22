@@ -247,13 +247,13 @@
     "missingBibles": "Traduções da Bíblia",
     "missingImages": "Imagens que não estão no arquivo: {{n}}",
     "missingHeading": "Não estão neste computador",
-    "missingHint": "O projeto os usa, mas este computador não os tem. As anotações mantêm o próprio texto; uma citação de um livro que não está na biblioteca fica de fora, e uma apresentação usa o design padrão e nenhum texto bíblico.",
+    "missingHint": "O projeto os usa, mas este computador não os tem. As anotações mantêm suas referências: título, autor, palavras citadas e página ficam guardados, marcados como “não está neste computador”. Uma apresentação usa o design padrão e nenhum texto bíblico.",
     "importPreview": "Projeto a importar",
     "savedOn": "Salvo em {{date}} com o Abiding Word {{version}}",
     "importAs": "Ele será adicionado como um novo projeto, “{{title}}”. Nada neste computador é substituído.",
     "importConfirm": "Importar",
     "imported": "“{{title}}” foi adicionado. Você o encontra em Projetos.",
-    "leftOut": "Citações deixadas de fora porque o livro não está na biblioteca: {{n}}",
+    "leftOut": "Partes do arquivo que não puderam ser lidas e ficaram de fora: {{n}}",
     "backup": "Cópia de segurança",
     "backupHint": "Uma cópia de segurança contém tudo: todos os projetos, os arquivos da sua biblioteca, as traduções da Bíblia que você adicionou, os modelos e as configurações. É uma cópia particular para você, não para compartilhar: pode conter livros e Bíblias cuja licença não permite repassá-los. As chaves de API nunca são incluídas; depois de restaurar em outro computador, digite-as de novo.",
     "backupCreate": "Fazer cópia de segurança de tudo…",
@@ -283,6 +283,8 @@
     "sampleHint": "“Example: Abiding in Christ — John 15:1–11” mostra um estudo bíblico e como ele se torna uma mensagem, um estudo bíblico em grupo e uma lição interativa. O conteúdo está em inglês. Só é adicionado se você pedir, funciona sem internet e é seu: você pode alterá-lo ou excluí-lo.",
     "sampleAdd": "Adicionar o projeto de exemplo",
     "sampleAdded": "“{{title}}” foi adicionado. Você o encontra em Projetos.",
-    "sampleThere": "“{{title}}” já está aqui, então nada foi adicionado."
+    "sampleThere": "“{{title}}” já está aqui, então nada foi adicionado.",
+    "citationsKept": "Referências mantidas cujo livro não está neste computador: {{n}}",
+    "citationsReconnected": "Referências ligadas ao mesmo livro da sua biblioteca: {{n}}"
   }
 }

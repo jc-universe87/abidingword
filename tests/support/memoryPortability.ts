@@ -103,7 +103,7 @@ export function portabilityApi(
     projectImport: async () => {
       const p = opened();
       const project = await h.createProject(freeTitle(p.title), p.description);
-      return { projectId: project.id, title: project.title, counts: p.counts, missing: p.missing, leftOut: p.missing.sources.length };
+      return { projectId: project.id, title: project.title, counts: p.counts, missing: p.missing, leftOut: 0, citationsKept: p.missing.sources.length, citationsReconnected: 0 };
     },
     backupCreate: async (path) => {
       const target = withExtension(path, "awbackup");

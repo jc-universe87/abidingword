@@ -92,7 +92,7 @@ fn citations_for(conn: &Connection, finding_id: &str) -> AppResult<Vec<FindingCi
         "SELECT c.id, c.finding_id, c.source_id, c.source_segment_id,
                 COALESCE(s.title, c.cited_title, 'Removed source'), COALESCE(s.author, c.cited_author),
                 c.locator, s.id IS NULL OR s.deleted_at IS NOT NULL,
-                c.quote, c.cited_section, c.annotation_id
+                c.quote, c.cited_section, c.annotation_id, c.source_id IS NULL
          FROM finding_sources c LEFT JOIN sources s ON s.id = c.source_id
          WHERE c.finding_id = ?1 AND c.deleted_at IS NULL
          ORDER BY c.created_at, c.rowid",
@@ -110,6 +110,7 @@ fn citations_for(conn: &Connection, finding_id: &str) -> AppResult<Vec<FindingCi
             quote: r.get(8)?,
             section: r.get(9)?,
             annotation_id: r.get(10)?,
+            unavailable: r.get(11)?,
         })
     })?;
     Ok(rows.collect::<Result<_, _>>()?)
@@ -179,8 +180,9 @@ fn insert_citation(
     conn.execute(
         "INSERT INTO finding_sources (id, finding_id, source_id, source_segment_id, locator,
              cited_title, cited_author, quote, cited_section, anchor, annotation_id,
-             created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?12)",
+             created_at, updated_at, cited_source_id, cited_content_hash)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?12, ?3,
+                 (SELECT content_hash FROM sources WHERE id = ?3))",
         params![
             new_id(),
             finding_id,
@@ -328,7 +330,7 @@ pub fn locate_source(conn: &Connection, citation_id: &str) -> AppResult<Option<C
             [citation_id],
             |r| {
                 Ok((
-                    r.get::<_, String>(0)?,
+                    r.get::<_, Option<String>>(0)?,
                     r.get::<_, Option<String>>(1)?,
                     r.get::<_, Option<String>>(2)?,
                     r.get::<_, Option<String>>(3)?,
@@ -339,6 +341,10 @@ pub fn locate_source(conn: &Connection, citation_id: &str) -> AppResult<Option<C
         .optional()?
         .ok_or_else(|| AppError::not_found("citation", citation_id))?;
     let (source_id, segment_id, quote, section, anchor) = row;
+    // Not on this computer: there is nothing to open.
+    let Some(source_id) = source_id else {
+        return Ok(None);
+    };
     let anchor = CitationAnchor::read(anchor.as_deref());
     source_annotations::locate_citation(
         conn,
@@ -694,9 +700,10 @@ pub(crate) fn copy_all(
             conn.execute(
                 "INSERT INTO finding_sources (id, finding_id, source_id, source_segment_id, locator,
                      cited_title, cited_author, quote, cited_section, anchor, annotation_id,
-                     created_at, updated_at)
+                     created_at, updated_at, cited_source_id, cited_content_hash)
                  SELECT ?1, ?2, source_id, source_segment_id, locator, cited_title, cited_author,
-                        quote, cited_section, anchor, annotation_id, ?3, ?3
+                        quote, cited_section, anchor, annotation_id, ?3, ?3, cited_source_id,
+                        cited_content_hash
                  FROM finding_sources WHERE id = ?4",
                 params![new_id(), id, now, citation],
             )?;

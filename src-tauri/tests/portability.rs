@@ -304,8 +304,9 @@ fn a_project_moves_to_another_computer_whole_with_new_ids() {
         report.missing.sources,
         vec!["Commentary on John".to_string()]
     );
-    // The citation of the missing source is the one row left out.
-    assert_eq!(report.left_out, 1);
+    // The citation of the missing source is kept, marked as such (v0.19.1).
+    assert_eq!(report.left_out, 0);
+    assert_eq!(report.citations_kept, 1);
     let after = there
         .db
         .with_conn(|c| Ok(shape(c, &report.project_id)))
@@ -1055,7 +1056,8 @@ fn a_restore_that_fails_part_way_puts_the_safety_copy_back() {
     let out = tempfile::tempdir().unwrap();
     let here = folder();
     let good = backup_to(&here, out.path());
-    // A backup whose database claims to be one version older than it is:
+    // A backup whose database claims to be two versions older than it is
+    // (0015 adds a column, which cannot be added twice):
     // it passes every check, and then its upgrade fails half-way.
     let staged = out.path().join("staged.db");
     {
@@ -1065,7 +1067,7 @@ fn a_restore_that_fails_part_way_puts_the_safety_copy_back() {
     }
     {
         let c = Connection::open(&staged).unwrap();
-        c.execute("DELETE FROM schema_versions WHERE version = (SELECT MAX(version) FROM schema_versions)", [])
+        c.execute("DELETE FROM schema_versions WHERE version >= 15", [])
             .unwrap();
         c.execute_batch("PRAGMA journal_mode = DELETE; VACUUM;")
             .unwrap();

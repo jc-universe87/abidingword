@@ -82,7 +82,8 @@ describe("Data and backup", () => {
 
     await user.click(within(preview).getByRole("button", { name: "Import" }));
     expect(await within(section).findByText("“John (2)” was added. You’ll find it under Projects.")).toBeInTheDocument();
-    expect(within(section).getByText("Citations left out because their library book is not here: 1")).toBeInTheDocument();
+    expect(within(section).getByText("Citations kept whose library book is not on this computer: 1")).toBeInTheDocument();
+    expect(within(section).queryByText(/could not be read/)).toBeNull();
     expect(api.state.projects.map((p) => p.title)).toEqual(["John", "Romans", "John (2)"]);
   });
 

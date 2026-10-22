@@ -598,7 +598,8 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
   const citationFor = (findingId: string, segmentId: string): FindingCitation => {
     const segment = find(library.segments, segmentId, "passage");
     const source = liveSource(segment.sourceId);
-    return { id: id(), findingId, sourceId: source.id, segmentId, title: source.title, author: source.author, locator: segment.locator, removed: false, quote: null, section: segment.sectionPath, annotationId: null };
+    return { id: id(), findingId, sourceId: source.id, segmentId, title: source.title, author: source.author, locator: segment.locator, removed: false,
+        unavailable: false, quote: null, section: segment.sectionPath, annotationId: null };
   };
   // Where each v0.15 citation was (the core keeps this as its anchor), for opening it again.
   const citationPlaces = new Map<string, { words: CitationPlace["words"]; segmentId: string | null; page: number | null; fraction: number | null }>();
@@ -1701,7 +1702,8 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       };
       const citation: FindingCitation = {
         id: id(), findingId: finding.id, sourceId: source.id, segmentId: placeOut.segmentId, title: source.title, author: source.author,
-        locator: locator || null, removed: false, quote, section: section || null, annotationId: input.annotationId ?? null,
+        locator: locator || null, removed: false,
+        unavailable: false, quote, section: section || null, annotationId: input.annotationId ?? null,
       };
       citationPlaces.set(citation.id, placeOut);
       finding.sources.push(citation);
@@ -1713,11 +1715,12 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const finding = state.findings.find((f) => f.sources.some((c) => c.id === citationId));
       const citation = finding?.sources.find((c) => c.id === citationId);
       if (!citation) throw new ApiError("notFound", "This citation could not be found.");
-      if (citation.removed || library.sources.find((x) => x.id === citation.sourceId)?.deleted) return null;
+      if (citation.removed || citation.sourceId === null || library.sources.find((x) => x.id === citation.sourceId)?.deleted) return null;
+      const sourceId = citation.sourceId;
       const known = citationPlaces.get(citationId);
       const live = (segmentId: string | null) => (segmentId && library.segments.some((x) => x.id === segmentId) ? segmentId : null);
-      if (!known) return { sourceId: citation.sourceId, segmentId: live(citation.segmentId), words: null, page: null, fraction: null };
-      return { sourceId: citation.sourceId, segmentId: live(known.segmentId), words: live(known.segmentId) ? known.words : null, page: known.page, fraction: known.fraction };
+      if (!known) return { sourceId, segmentId: live(citation.segmentId), words: null, page: null, fraction: null };
+      return { sourceId, segmentId: live(known.segmentId), words: live(known.segmentId) ? known.words : null, page: known.page, fraction: known.fraction };
     },
     findingSourceRemove: async (citationId) => {
       const finding = state.findings.find((f) => f.sources.some((c) => c.id === citationId));

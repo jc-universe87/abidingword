@@ -86,9 +86,11 @@ export function FindingSources({ finding, canAdd = true, onChanged, onQuote }: F
         {finding.sources.map((c) => (
           <span key={c.id} className="inline-flex max-w-full items-center rounded-aw border border-border">
             {c.removed ? (
-              <span className="px-2 py-1 text-text-muted">
+              // Kept as a record: removed from the library, or (a project made elsewhere) never here.
+              <span className="px-2 py-1 text-text-muted" title={c.unavailable ? t("library.citations.unavailableTitle") : undefined}>
                 <BookOpen className="mr-1 inline size-3.5" aria-hidden="true" />
-                {citationText(t, c)} <em>{t("library.citations.removed")}</em>
+                {citationText(t, c)} <em>{c.unavailable ? t("library.citations.unavailable") : t("library.citations.removed")}</em>
+                {c.unavailable && <span className="sr-only"> {t("library.citations.unavailableTitle")}</span>}
               </span>
             ) : (
               <button

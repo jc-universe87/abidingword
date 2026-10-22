@@ -247,13 +247,13 @@
     "missingBibles": "Bibelübersetzungen",
     "missingImages": "Bilder, die nicht in der Datei sind: {{n}}",
     "missingHeading": "Nicht auf diesem Computer",
-    "missingHint": "Das Projekt verwendet diese, aber dieser Computer hat sie nicht. Notizen behalten ihren Text; ein Verweis auf ein Buch, das nicht in der Bibliothek ist, entfällt, und eine Präsentation verwendet stattdessen das Standarddesign und keinen Bibeltext.",
+    "missingHint": "Das Projekt verwendet diese, aber dieser Computer hat sie nicht. Notizen behalten ihre Quellenangaben: Titel, Autor, zitierte Worte und Seite bleiben erhalten und sind als „nicht auf diesem Computer“ gekennzeichnet. Eine Präsentation verwendet stattdessen das Standarddesign und keinen Bibeltext.",
     "importPreview": "Zu importierendes Projekt",
     "savedOn": "Gespeichert am {{date}} mit Abiding Word {{version}}",
     "importAs": "Es wird als neues Projekt „{{title}}“ hinzugefügt. Auf diesem Computer wird nichts ersetzt.",
     "importConfirm": "Importieren",
     "imported": "„{{title}}“ wurde hinzugefügt. Du findest es unter Projekte.",
-    "leftOut": "Weggelassene Verweise, weil das Buch nicht in der Bibliothek ist: {{n}}",
+    "leftOut": "Teile der Datei, die nicht gelesen werden konnten und weggelassen wurden: {{n}}",
     "backup": "Sicherung",
     "backupHint": "Eine Sicherung enthält alles: alle Projekte, die Dateien deiner Bibliothek, die Bibelübersetzungen, die du hinzugefügt hast, Vorlagen und Einstellungen. Sie ist eine private Kopie für dich, nicht zum Weitergeben: Sie kann Bücher und Bibeln enthalten, deren Lizenzen keine Weitergabe erlauben. API-Schlüssel sind nie enthalten; gib sie nach dem Wiederherstellen auf einem anderen Computer erneut ein.",
     "backupCreate": "Alles sichern…",
@@ -283,6 +283,8 @@
     "sampleHint": "„Example: Abiding in Christ — John 15:1–11“ zeigt ein Bibelstudium und wie daraus eine Predigt, ein Hauskreis und ein Bibelunterricht werden. Der Inhalt ist auf Englisch. Es wird nur auf deinen Wunsch hinzugefügt, funktioniert ohne Internet und gehört dir: Du kannst es ändern oder löschen.",
     "sampleAdd": "Beispielprojekt hinzufügen",
     "sampleAdded": "„{{title}}“ wurde hinzugefügt. Du findest es unter Projekte.",
-    "sampleThere": "„{{title}}“ ist schon da, daher wurde nichts hinzugefügt."
+    "sampleThere": "„{{title}}“ ist schon da, daher wurde nichts hinzugefügt.",
+    "citationsKept": "Erhaltene Quellenangaben, deren Buch nicht auf diesem Computer ist: {{n}}",
+    "citationsReconnected": "Quellenangaben, die mit demselben Buch deiner Bibliothek verknüpft wurden: {{n}}"
   }
 }
