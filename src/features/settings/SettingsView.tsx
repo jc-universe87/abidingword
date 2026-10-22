@@ -10,6 +10,7 @@ import type { AppInfo, Theme } from "@/types/domain";
 import type { AssistantSettings as AssistantStatus } from "@/types/teaching";
 import { AssistantSettings } from "./AssistantSettings";
 import { BibleTexts } from "./BibleTexts";
+import { DataSettings } from "@/features/portability/DataSettings";
 import { StudyTemplates } from "./StudyTemplates";
 import { UpdateSettings } from "@/features/updates/UpdateSettings";
 import { useUpdates, type UpdateState } from "@/features/updates/UpdatesContext";
@@ -29,6 +30,7 @@ export const SETTINGS_SECTIONS = [
   "study-templates",
   "language",
   "assistant",
+  "data",
   "about-this-installation",
   "coming-in-later-versions",
 ] as const;
@@ -41,6 +43,7 @@ const TITLE_KEY = {
   "study-templates": "settings.sections.templates",
   language: "settings.sections.language",
   assistant: "settings.sections.assistant",
+  data: "settings.sections.data",
   "about-this-installation": "settings.sections.about",
   "coming-in-later-versions": "settings.sections.planned",
 } as const satisfies Record<SectionName, string>;
@@ -125,6 +128,8 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
         return assistant.config.enabled
           ? t("settings.summary.assistantOn", { service: t(`settings.assistant.providers.${assistant.config.provider}`) })
           : t("settings.summary.assistantOff");
+      case "data":
+        return t("settings.summary.data");
       case "about-this-installation":
         return t("settings.summary.about", { version: info.version });
       case "coming-in-later-versions":
@@ -151,6 +156,8 @@ export function SettingsView({ info, onClose, onResetLayout, onAddBible, onEditT
         return <LanguageChoice />;
       case "assistant":
         return <AssistantSettings onStatus={setAssistant} />;
+      case "data":
+        return <DataSettings />;
       case "about-this-installation":
         return <About info={info} />;
       case "coming-in-later-versions":
@@ -277,7 +284,14 @@ function Section({ name, title, summary, open, onToggle, toggleRef, children }: 
   const id = `settings-${name}`;
   const summaryId = `${id}-summary`;
   return (
-    <section id={`settings-section-${name}`} aria-labelledby={id} className="scroll-mt-32 border-b border-border-subtle">
+    // An open section sits on a quiet shaded ground (v0.19), so where it
+    // ends is clear without another line; closed ones stay a plain list.
+    <section
+      id={`settings-section-${name}`}
+      aria-labelledby={id}
+      data-open={open || undefined}
+      className={`-mx-3 scroll-mt-32 border-b px-3 ${open ? "my-1 rounded-[var(--aw-radius-lg)] border-transparent bg-bg-secondary" : "border-border-subtle"}`}
+    >
       <h2 aria-labelledby={id} className="m-0">
         <button
           ref={toggleRef}

@@ -9,7 +9,8 @@
     "about": "Acerca de esta instalación",
     "planned": "En próximas versiones",
     "assistant": "Asistente de IA",
-    "updates": "Actualizaciones"
+    "updates": "Actualizaciones",
+    "data": "Datos y copia de seguridad"
   },
   "language": {
     "label": "Idioma de la interfaz",
@@ -35,7 +36,7 @@
     "logFiles": "Archivos de registro",
     "schema": "Esquema de la base de datos",
     "schemaVersion": "Versión {{version}}",
-    "backup": "Todos tus estudios se guardan en la carpeta de datos de este ordenador. Para hacer una copia de seguridad, copia esa carpeta completa con Abiding Word cerrado."
+    "backup": "Todo tu trabajo se guarda en la carpeta de datos de este ordenador. Para tener una copia, usa «Hacer copia de seguridad de todo…» en Datos y copia de seguridad."
   },
   "planned": {
     "sync": "Sincronización",
@@ -213,7 +214,8 @@
     "templates": "Estructuras de partida para el estudio y la enseñanza",
     "assistantOff": "Desactivado",
     "assistantOn": "Activado · {{service}}",
-    "about": "Versión {{version}} · dónde están tus datos"
+    "about": "Versión {{version}} · dónde están tus datos",
+    "data": "Exportar, importar y hacer copia de seguridad de tu trabajo"
   },
   "help": {
     "about": "Más información: {{topic}}"
@@ -227,5 +229,55 @@
     "stone": "Piedra",
     "mist": "Niebla",
     "clear": "Neutro"
+  },
+  "data": {
+    "projects": "Proyectos",
+    "projectsHint": "Un archivo de proyecto contiene los estudios bíblicos y las enseñanzas bíblicas de un proyecto, con sus apuntes, materiales y presentaciones. Los libros de la biblioteca, los textos bíblicos y las plantillas para la iglesia se quedan en este ordenador: el archivo solo nombra los que usa.",
+    "exportLabel": "Proyecto que exportar",
+    "export": "Exportar proyecto…",
+    "import": "Importar proyecto…",
+    "projectFilter": "Proyecto de Abiding Word",
+    "backupFilter": "Copia de seguridad de Abiding Word",
+    "openProject": "Elige el archivo de proyecto que importar",
+    "openBackup": "Elige la copia de seguridad que restaurar",
+    "exported": "«{{title}}» se guardó en {{path}}.",
+    "namedOnly": "Nombrados en el archivo pero no incluidos, porque se quedan en este ordenador:",
+    "missingSources": "Biblioteca",
+    "missingTemplates": "Plantillas para la iglesia",
+    "missingBibles": "Traducciones de la Biblia",
+    "missingImages": "Imágenes que no están en el archivo: {{n}}",
+    "missingHeading": "No están en este ordenador",
+    "missingHint": "El proyecto los usa, pero este ordenador no los tiene. Los apuntes conservan su texto; una cita de un libro que no está en la biblioteca se omite, y una presentación usa en su lugar el diseño estándar y ningún texto bíblico.",
+    "importPreview": "Proyecto que importar",
+    "savedOn": "Guardado el {{date}} con Abiding Word {{version}}",
+    "importAs": "Se añadirá como un proyecto nuevo, «{{title}}». No se reemplaza nada de este ordenador.",
+    "importConfirm": "Importar",
+    "imported": "Se añadió «{{title}}». Lo encontrarás en Proyectos.",
+    "leftOut": "Citas omitidas porque su libro no está en la biblioteca: {{n}}",
+    "backup": "Copia de seguridad",
+    "backupHint": "Una copia de seguridad contiene todo: todos los proyectos, los archivos de tu biblioteca, las traducciones de la Biblia que añadiste, las plantillas y la configuración. Es una copia privada para ti, no para compartir: puede contener libros y Biblias cuya licencia no permite pasarlos a otros. Las claves de API nunca se incluyen; después de restaurar en otro ordenador, vuelve a introducirlas.",
+    "backupCreate": "Hacer copia de seguridad de todo…",
+    "backedUp": "La copia de seguridad se guardó en {{path}} ({{size}} MB).",
+    "restore": "Restaurar desde una copia de seguridad…",
+    "restorePreview": "Copia de seguridad que restaurar",
+    "restoreWarning": "Al restaurar, todo el trabajo de este ordenador se reemplaza por el de la copia de seguridad. Antes se hace una copia de la base de datos actual, para que no se pierda nada; los archivos de la biblioteca que sean distintos se apartan, nunca se eliminan. Después Abiding Word se vuelve a cargar.",
+    "restoreConfirm": "Reemplazar todo con esta copia de seguridad",
+    "restored": "La copia de seguridad se restauró.",
+    "safetyCopy": "Una copia de lo que había antes se guarda en {{path}}.",
+    "setAside": "Archivos de la biblioteca apartados junto a esa copia: {{n}}",
+    "restoredContinue": "Continuar",
+    "working": "En curso…",
+    "workingLong": "Con una biblioteca grande, puede tardar un rato.",
+    "size": "{{size}} MB",
+    "count": {
+      "studies": "Estudios bíblicos: {{n}}",
+      "teachings": "Enseñanzas bíblicas: {{n}}",
+      "presentations": "Presentaciones: {{n}}",
+      "notes": "Apuntes: {{n}}",
+      "images": "Imágenes: {{n}}",
+      "projects": "Proyectos: {{n}}",
+      "sources": "Biblioteca: {{n}}",
+      "bibles": "Traducciones añadidas: {{n}}"
+    }
   }
 }

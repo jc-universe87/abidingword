@@ -9,7 +9,8 @@
     "about": "About this installation",
     "planned": "Coming in later versions",
     "assistant": "AI Assistant",
-    "updates": "Updates"
+    "updates": "Updates",
+    "data": "Data and backup"
   },
   "language": {
     "label": "Interface language",
@@ -35,7 +36,7 @@
     "logFiles": "Log files",
     "schema": "Database schema",
     "schemaVersion": "Version {{version}}",
-    "backup": "All your studies are stored in the data folder on this computer. To back them up, copy that whole folder while Abiding Word is closed."
+    "backup": "All your work is stored in the data folder on this computer. To keep a copy, use “Back up everything…” under Data and backup."
   },
   "planned": {
     "sync": "Sync",
@@ -213,7 +214,8 @@
     "templates": "Starting structures for Bible Study and Bible Teaching",
     "assistantOff": "Off",
     "assistantOn": "On · {{service}}",
-    "about": "Version {{version}} · where your data is kept"
+    "about": "Version {{version}} · where your data is kept",
+    "data": "Export, import and back up your work"
   },
   "help": {
     "about": "More about: {{topic}}"
@@ -227,5 +229,55 @@
     "stone": "Stone",
     "mist": "Mist",
     "clear": "Neutral"
+  },
+  "data": {
+    "projects": "Projects",
+    "projectsHint": "A project file holds one project’s Bible Studies and Bible Teachings, with their notes, Materials and presentations. Library books, Bible texts and church templates stay on this computer: the file only names the ones it uses.",
+    "exportLabel": "Project to export",
+    "export": "Export project…",
+    "import": "Import project…",
+    "projectFilter": "Abiding Word project",
+    "backupFilter": "Abiding Word backup",
+    "openProject": "Choose a project file to import",
+    "openBackup": "Choose a backup to restore",
+    "exported": "“{{title}}” was saved to {{path}}.",
+    "namedOnly": "Named in the file but not included, because they stay on this computer:",
+    "missingSources": "Library",
+    "missingTemplates": "Church templates",
+    "missingBibles": "Bibles",
+    "missingImages": "Images not in the file: {{n}}",
+    "missingHeading": "Not on this computer",
+    "missingHint": "The project uses these, but this computer does not have them. Notes keep their own text; a citation of a library book that is not here is left out, and a presentation uses the standard design and no Bible text instead.",
+    "importPreview": "Project to import",
+    "savedOn": "Saved on {{date}} with Abiding Word {{version}}",
+    "importAs": "It will be added as a new project, “{{title}}”. Nothing on this computer is replaced.",
+    "importConfirm": "Import",
+    "imported": "“{{title}}” was added. You’ll find it under Projects.",
+    "leftOut": "Citations left out because their library book is not here: {{n}}",
+    "backup": "Backup",
+    "backupHint": "A backup holds everything: all projects, your library files, the Bibles you added, templates and settings. It is a private copy for you, not for sharing: it can hold books and Bibles whose licences do not allow passing them on. API keys are never included; after restoring on another computer, enter them again.",
+    "backupCreate": "Back up everything…",
+    "backedUp": "The backup was saved to {{path}} ({{size}} MB).",
+    "restore": "Restore from backup…",
+    "restorePreview": "Backup to restore",
+    "restoreWarning": "Restoring replaces all the work on this computer with the backup’s. A copy of the current database is made first, so nothing is lost; library files that differ are set aside, never deleted. Abiding Word reloads afterwards.",
+    "restoreConfirm": "Replace everything with this backup",
+    "restored": "The backup was restored.",
+    "safetyCopy": "A copy of what was here before is kept at {{path}}.",
+    "setAside": "Library files set aside next to that copy: {{n}}",
+    "restoredContinue": "Continue",
+    "working": "Working…",
+    "workingLong": "This can take a while with a large library.",
+    "size": "{{size}} MB",
+    "count": {
+      "studies": "Bible Studies: {{n}}",
+      "teachings": "Bible Teachings: {{n}}",
+      "presentations": "Presentations: {{n}}",
+      "notes": "Notes: {{n}}",
+      "images": "Images: {{n}}",
+      "projects": "Projects: {{n}}",
+      "sources": "Library: {{n}}",
+      "bibles": "Bibles added: {{n}}"
+    }
   }
 }

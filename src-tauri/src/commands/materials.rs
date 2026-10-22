@@ -63,7 +63,7 @@ pub struct SaveMaterial {
 
 /// The chosen file, always ending in one of the format's extensions (the
 /// first is added when it has none of them).
-fn chosen_path(raw: &str, extensions: &[&str]) -> Result<PathBuf, AppError> {
+pub(crate) fn chosen_path(raw: &str, extensions: &[&str]) -> Result<PathBuf, AppError> {
     let mut path = PathBuf::from(raw.trim());
     if path.as_os_str().is_empty() || !path.is_absolute() {
         return Err(AppError::InvalidInput(UserMessage::new(
@@ -95,6 +95,14 @@ fn markdown_path(raw: &str) -> Result<PathBuf, AppError> {
 /// was never asked about, so it is not replaced. The new file is complete
 /// before it takes the old one's place, and nothing is left behind.
 fn save_chosen(raw: &str, path: PathBuf, bytes: &[u8]) -> Result<String, AppError> {
+    refuse_unasked(raw, &path)?;
+    write_atomically(&path, bytes)?;
+    Ok(path.to_string_lossy().into_owned())
+}
+
+/// A file the save dialog did not name (its name plus the extension) is
+/// never replaced.
+pub(crate) fn refuse_unasked(raw: &str, path: &std::path::Path) -> Result<(), AppError> {
     if path != std::path::Path::new(raw.trim()) && path.exists() {
         let name = path
             .file_name()
@@ -108,8 +116,7 @@ fn save_chosen(raw: &str, path: PathBuf, bytes: &[u8]) -> Result<String, AppErro
             .with("name", name),
         ));
     }
-    write_atomically(&path, bytes)?;
-    Ok(path.to_string_lossy().into_owned())
+    Ok(())
 }
 
 fn too_long() -> AppError {

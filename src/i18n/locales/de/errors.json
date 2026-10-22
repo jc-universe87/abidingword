@@ -202,5 +202,15 @@
   "teachingTemplates": {
     "noKind": "Wähle, wofür die Vorlage ist.",
     "tooManyPoints": "Eine Vorlage kann mit höchstens {{max}} Punkten oder Schritten beginnen."
+  },
+  "portability": {
+    "notPackage": "Diese Datei kann Abiding Word nicht lesen, oder sie ist beschädigt.",
+    "tooLarge": "Diese Datei enthält mehr, als Abiding Word aus einer Datei liest.",
+    "damaged": "Ein Teil dieser Datei passt nicht zu ihrem Inhaltsverzeichnis: Sie ist beschädigt oder wurde verändert. Hier wurde nichts geändert.",
+    "newer": "Diese Datei wurde mit einer neueren Version von Abiding Word gespeichert ({{version}}). Bitte aktualisiere Abiding Word zuerst.",
+    "notBackupDatabase": "Die Datenbank in dieser Sicherung ist beschädigt oder keine Datenbank von Abiding Word. Es wurde nichts geändert.",
+    "restoreFailed": "Die Sicherung konnte nicht wiederhergestellt werden. Deine Arbeit wurde wieder so hergestellt, wie sie war.",
+    "noFile": "Bitte wähle eine Datei aus.",
+    "rollbackFailed": "Die Sicherung konnte nicht wiederhergestellt werden, und deine vorherige Arbeit konnte nicht automatisch zurückgeholt werden. Eine Kopie davon liegt unter {{path}}."
   }
 }

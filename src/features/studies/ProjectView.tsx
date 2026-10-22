@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { InfoControl } from "@/design-system/InfoControl";
+import { ProjectExport } from "@/features/portability/ProjectExport";
 import type { Project } from "@/types/domain";
 import type { StudySummary } from "@/types/studies";
 import { useApi } from "@/lib/ApiContext";
@@ -116,6 +117,7 @@ function ProjectInfo({ project, onChanged }: { project: Project; onChanged: (pro
           />
         </label>
       )}
+      actions={() => <ProjectExport projectId={project.id} title={project.title} quiet />}
     />
   );
 }

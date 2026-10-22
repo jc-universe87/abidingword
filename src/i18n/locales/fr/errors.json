@@ -205,5 +205,15 @@
   "teachingTemplates": {
     "noKind": "Choisissez à quoi sert le modèle.",
     "tooManyPoints": "Un modèle peut commencer avec {{max}} points ou étapes au plus."
+  },
+  "portability": {
+    "notPackage": "Abiding Word ne peut pas lire ce fichier, ou il est endommagé.",
+    "tooLarge": "Ce fichier contient plus qu’Abiding Word ne lit dans un seul fichier.",
+    "damaged": "Une partie de ce fichier ne correspond pas à sa liste de contenu : il est endommagé ou a été modifié. Rien n’a été changé ici.",
+    "newer": "Ce fichier a été enregistré avec une version plus récente d’Abiding Word ({{version}}). Veuillez d’abord mettre à jour Abiding Word.",
+    "notBackupDatabase": "La base de données de cette sauvegarde est endommagée ou n’est pas une base de données Abiding Word. Rien n’a été changé.",
+    "restoreFailed": "La sauvegarde n’a pas pu être restaurée. Votre travail a été remis tel qu’il était.",
+    "noFile": "Veuillez choisir un fichier.",
+    "rollbackFailed": "La sauvegarde n’a pas pu être restaurée, et votre travail précédent n’a pas pu être remis automatiquement. Une copie en est conservée dans {{path}}."
   }
 }

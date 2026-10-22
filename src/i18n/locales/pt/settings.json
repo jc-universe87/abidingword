@@ -9,7 +9,8 @@
     "about": "Sobre esta instalação",
     "planned": "Nas próximas versões",
     "assistant": "Assistente de IA",
-    "updates": "Atualizações"
+    "updates": "Atualizações",
+    "data": "Dados e cópia de segurança"
   },
   "language": {
     "label": "Idioma da interface",
@@ -35,7 +36,7 @@
     "logFiles": "Arquivos de registro",
     "schema": "Esquema do banco de dados",
     "schemaVersion": "Versão {{version}}",
-    "backup": "Todos os seus estudos ficam na pasta de dados deste computador. Para fazer uma cópia de segurança, copie a pasta inteira com o Abiding Word fechado."
+    "backup": "Todo o seu trabalho fica na pasta de dados deste computador. Para ter uma cópia, use “Fazer cópia de segurança de tudo…” em Dados e cópia de segurança."
   },
   "planned": {
     "sync": "Sincronização",
@@ -213,7 +214,8 @@
     "templates": "Estruturas iniciais para estudo e ensino",
     "assistantOff": "Desligado",
     "assistantOn": "Ligado · {{service}}",
-    "about": "Versão {{version}} · onde ficam seus dados"
+    "about": "Versão {{version}} · onde ficam seus dados",
+    "data": "Exportar, importar e fazer cópia de segurança do seu trabalho"
   },
   "help": {
     "about": "Saiba mais: {{topic}}"
@@ -227,5 +229,55 @@
     "stone": "Pedra",
     "mist": "Névoa",
     "clear": "Neutro"
+  },
+  "data": {
+    "projects": "Projetos",
+    "projectsHint": "Um arquivo de projeto contém os estudos bíblicos e os ensinos bíblicos de um projeto, com suas anotações, materiais e apresentações. Os livros da biblioteca, os textos bíblicos e os modelos para a igreja ficam neste computador: o arquivo só indica os que usa.",
+    "exportLabel": "Projeto a exportar",
+    "export": "Exportar projeto…",
+    "import": "Importar projeto…",
+    "projectFilter": "Projeto do Abiding Word",
+    "backupFilter": "Cópia de segurança do Abiding Word",
+    "openProject": "Escolha o arquivo de projeto a importar",
+    "openBackup": "Escolha a cópia de segurança a restaurar",
+    "exported": "“{{title}}” foi salvo em {{path}}.",
+    "namedOnly": "Indicados no arquivo, mas não incluídos, porque ficam neste computador:",
+    "missingSources": "Biblioteca",
+    "missingTemplates": "Modelos para a igreja",
+    "missingBibles": "Traduções da Bíblia",
+    "missingImages": "Imagens que não estão no arquivo: {{n}}",
+    "missingHeading": "Não estão neste computador",
+    "missingHint": "O projeto os usa, mas este computador não os tem. As anotações mantêm o próprio texto; uma citação de um livro que não está na biblioteca fica de fora, e uma apresentação usa o design padrão e nenhum texto bíblico.",
+    "importPreview": "Projeto a importar",
+    "savedOn": "Salvo em {{date}} com o Abiding Word {{version}}",
+    "importAs": "Ele será adicionado como um novo projeto, “{{title}}”. Nada neste computador é substituído.",
+    "importConfirm": "Importar",
+    "imported": "“{{title}}” foi adicionado. Você o encontra em Projetos.",
+    "leftOut": "Citações deixadas de fora porque o livro não está na biblioteca: {{n}}",
+    "backup": "Cópia de segurança",
+    "backupHint": "Uma cópia de segurança contém tudo: todos os projetos, os arquivos da sua biblioteca, as traduções da Bíblia que você adicionou, os modelos e as configurações. É uma cópia particular para você, não para compartilhar: pode conter livros e Bíblias cuja licença não permite repassá-los. As chaves de API nunca são incluídas; depois de restaurar em outro computador, digite-as de novo.",
+    "backupCreate": "Fazer cópia de segurança de tudo…",
+    "backedUp": "A cópia de segurança foi salva em {{path}} ({{size}} MB).",
+    "restore": "Restaurar de uma cópia de segurança…",
+    "restorePreview": "Cópia de segurança a restaurar",
+    "restoreWarning": "Ao restaurar, todo o trabalho deste computador é substituído pelo da cópia de segurança. Antes é feita uma cópia do banco de dados atual, para que nada se perca; os arquivos da biblioteca que forem diferentes são guardados à parte, nunca excluídos. Depois o Abiding Word é recarregado.",
+    "restoreConfirm": "Substituir tudo por esta cópia de segurança",
+    "restored": "A cópia de segurança foi restaurada.",
+    "safetyCopy": "Uma cópia do que havia antes está guardada em {{path}}.",
+    "setAside": "Arquivos da biblioteca guardados à parte junto a essa cópia: {{n}}",
+    "restoredContinue": "Continuar",
+    "working": "Em andamento…",
+    "workingLong": "Com uma biblioteca grande, isso pode levar algum tempo.",
+    "size": "{{size}} MB",
+    "count": {
+      "studies": "Estudos bíblicos: {{n}}",
+      "teachings": "Ensinos bíblicos: {{n}}",
+      "presentations": "Apresentações: {{n}}",
+      "notes": "Anotações: {{n}}",
+      "images": "Imagens: {{n}}",
+      "projects": "Projetos: {{n}}",
+      "sources": "Biblioteca: {{n}}",
+      "bibles": "Traduções adicionadas: {{n}}"
+    }
   }
 }

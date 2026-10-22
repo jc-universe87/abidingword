@@ -9,7 +9,8 @@
     "about": "À propos de cette installation",
     "planned": "Dans les prochaines versions",
     "assistant": "Assistant IA",
-    "updates": "Mises à jour"
+    "updates": "Mises à jour",
+    "data": "Données et sauvegarde"
   },
   "language": {
     "label": "Langue de l’interface",
@@ -35,7 +36,7 @@
     "logFiles": "Fichiers journaux",
     "schema": "Schéma de la base de données",
     "schemaVersion": "Version {{version}}",
-    "backup": "Toutes vos études sont enregistrées dans le dossier de données de cet ordinateur. Pour les sauvegarder, copiez ce dossier entier pendant qu’Abiding Word est fermé."
+    "backup": "Tout votre travail est enregistré dans le dossier de données de cet ordinateur. Pour en garder une copie, utilisez « Tout sauvegarder… » dans Données et sauvegarde."
   },
   "planned": {
     "sync": "Synchronisation",
@@ -213,7 +214,8 @@
     "templates": "Structures de départ pour l’étude et l’enseignement",
     "assistantOff": "Désactivé",
     "assistantOn": "Activé · {{service}}",
-    "about": "Version {{version}} · où sont vos données"
+    "about": "Version {{version}} · où sont vos données",
+    "data": "Exporter, importer et sauvegarder votre travail"
   },
   "help": {
     "about": "En savoir plus : {{topic}}"
@@ -227,5 +229,55 @@
     "stone": "Pierre",
     "mist": "Brume",
     "clear": "Neutre"
+  },
+  "data": {
+    "projects": "Projets",
+    "projectsHint": "Un fichier de projet contient les études bibliques et les enseignements bibliques d’un projet, avec leurs notes, leurs supports et leurs présentations. Les livres de la bibliothèque, les textes bibliques et les modèles pour l’église restent sur cet ordinateur : le fichier indique seulement ceux qu’il utilise.",
+    "exportLabel": "Projet à exporter",
+    "export": "Exporter le projet…",
+    "import": "Importer un projet…",
+    "projectFilter": "Projet Abiding Word",
+    "backupFilter": "Sauvegarde Abiding Word",
+    "openProject": "Choisir le fichier de projet à importer",
+    "openBackup": "Choisir la sauvegarde à restaurer",
+    "exported": "« {{title}} » a été enregistré dans {{path}}.",
+    "namedOnly": "Indiqués dans le fichier mais non inclus, car ils restent sur cet ordinateur :",
+    "missingSources": "Bibliothèque",
+    "missingTemplates": "Modèles pour l’église",
+    "missingBibles": "Traductions de la Bible",
+    "missingImages": "Images absentes du fichier : {{n}}",
+    "missingHeading": "Absents de cet ordinateur",
+    "missingHint": "Le projet les utilise, mais cet ordinateur ne les a pas. Les notes gardent leur texte ; une citation d’un livre absent de la bibliothèque n’est pas reprise, et une présentation utilise à la place la présentation visuelle standard, sans texte biblique.",
+    "importPreview": "Projet à importer",
+    "savedOn": "Enregistré le {{date}} avec Abiding Word {{version}}",
+    "importAs": "Il sera ajouté comme nouveau projet, « {{title}} ». Rien n’est remplacé sur cet ordinateur.",
+    "importConfirm": "Importer",
+    "imported": "« {{title}} » a été ajouté. Vous le trouverez dans Projets.",
+    "leftOut": "Citations non reprises, car leur livre n’est pas dans la bibliothèque : {{n}}",
+    "backup": "Sauvegarde",
+    "backupHint": "Une sauvegarde contient tout : tous les projets, les fichiers de votre bibliothèque, les traductions de la Bible que vous avez ajoutées, les modèles et les paramètres. C’est une copie privée pour vous, pas pour la partager : elle peut contenir des livres et des Bibles dont la licence n’autorise pas la diffusion. Les clés API ne sont jamais incluses ; après une restauration sur un autre ordinateur, saisissez-les à nouveau.",
+    "backupCreate": "Tout sauvegarder…",
+    "backedUp": "La sauvegarde a été enregistrée dans {{path}} ({{size}} Mo).",
+    "restore": "Restaurer une sauvegarde…",
+    "restorePreview": "Sauvegarde à restaurer",
+    "restoreWarning": "La restauration remplace tout le travail de cet ordinateur par celui de la sauvegarde. Une copie de la base de données actuelle est faite d’abord, afin que rien ne soit perdu ; les fichiers de la bibliothèque qui diffèrent sont mis de côté, jamais supprimés. Abiding Word se recharge ensuite.",
+    "restoreConfirm": "Tout remplacer par cette sauvegarde",
+    "restored": "La sauvegarde a été restaurée.",
+    "safetyCopy": "Une copie de l’état précédent est conservée dans {{path}}.",
+    "setAside": "Fichiers de la bibliothèque mis de côté à côté de cette copie : {{n}}",
+    "restoredContinue": "Continuer",
+    "working": "En cours…",
+    "workingLong": "Avec une grande bibliothèque, cela peut prendre un moment.",
+    "size": "{{size}} Mo",
+    "count": {
+      "studies": "Études bibliques : {{n}}",
+      "teachings": "Enseignements bibliques : {{n}}",
+      "presentations": "Présentations : {{n}}",
+      "notes": "Notes : {{n}}",
+      "images": "Images : {{n}}",
+      "projects": "Projets : {{n}}",
+      "sources": "Bibliothèque : {{n}}",
+      "bibles": "Traductions ajoutées : {{n}}"
+    }
   }
 }

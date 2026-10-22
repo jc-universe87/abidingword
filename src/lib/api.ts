@@ -9,6 +9,7 @@ import { listen } from "@tauri-apps/api/event";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { safeExternalUrl } from "./externalLink";
+import type { BackupPreview, BackupReport, ProjectExportReport, ProjectImportReport, ProjectPackagePreview, RestoreReport } from "@/types/portability";
 import type {
   AppInfo,
   AppSettings,
@@ -153,6 +154,22 @@ export interface Api {
   projectGet(id: string): Promise<Project>;
   projectCreate(input: CreateProject): Promise<Project>;
   projectUpdate(input: UpdateProject): Promise<Project>;
+  /** Saves one project as a package (.awproject) where the save dialog said; where it went. */
+  projectExport(input: { projectId: string; path: string }): Promise<[string, ProjectExportReport]>;
+  /** What a project package holds and what it refers to that is not here; nothing changes. */
+  projectPackageInspect(path: string): Promise<ProjectPackagePreview>;
+  /** Adds a package's project as a new project; never replaces one. */
+  projectImport(path: string): Promise<ProjectImportReport>;
+  /** Saves everything as one backup (.awbackup); where it went. */
+  backupCreate(path: string): Promise<[string, BackupReport]>;
+  /** What a backup holds; nothing changes. */
+  backupInspect(path: string): Promise<BackupPreview>;
+  /** Replaces everything with a backup, after a safety copy. */
+  backupRestore(path: string): Promise<RestoreReport>;
+  /** The system's open dialog for a project package or a backup; null when cancelled. */
+  choosePortableFile(input: { kind: "project" | "backup"; title: string; filterName: string }): Promise<string | null>;
+  /** The system's save dialog for a project package or a backup; null when cancelled. */
+  choosePortableSaveFile(input: { kind: "project" | "backup"; defaultName: string; filterName: string }): Promise<string | null>;
   studyList(filter: ListStudies): Promise<StudySummary[]>;
   studyDuplicate(input: { studyId: string; includeContent: boolean }): Promise<StudyDetail>;
   studySearch(query: string): Promise<StudySearchHit[]>;
@@ -454,6 +471,9 @@ async function call<T>(command: string, args?: Record<string, unknown>): Promise
   }
 }
 
+/** The file kinds of a project package and a backup. */
+export const PORTABLE_EXTENSION = { project: "awproject", backup: "awbackup" } as const;
+
 export const tauriApi: Api = {
   appInfo: () => call("app_info"),
   logError: (message) => call("app_log_error", { message }),
@@ -462,6 +482,17 @@ export const tauriApi: Api = {
   projectGet: (id) => call("project_get", { id }),
   projectCreate: (input) => call("project_create", { input }),
   projectUpdate: (input) => call("project_update", { input }),
+  projectExport: ({ projectId, path }) => call("project_export", { projectId, path }),
+  projectPackageInspect: (path) => call("project_package_inspect", { path }),
+  projectImport: (path) => call("project_import", { path }),
+  backupCreate: (path) => call("backup_create", { path }),
+  backupInspect: (path) => call("backup_inspect", { path }),
+  backupRestore: (path) => call("backup_restore", { path }),
+  choosePortableFile: async ({ kind, title, filterName }) => {
+    const chosen = await open({ multiple: false, directory: false, title, filters: [{ name: filterName, extensions: [PORTABLE_EXTENSION[kind]] }] });
+    return typeof chosen === "string" ? chosen : null;
+  },
+  choosePortableSaveFile: async ({ kind, defaultName, filterName }) => save({ defaultPath: defaultName, filters: [{ name: filterName, extensions: [PORTABLE_EXTENSION[kind]] }] }),
   studyList: (input) => call("study_list", { input }),
   studyDuplicate: (input) => call("study_duplicate", { input }),
   studySearch: (query) => call("study_search", { query }),

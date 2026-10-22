@@ -4,7 +4,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { openSettingsSection, renderApp } from "../support/render";
 
-const ORDER = ["Updates", "Appearance", "Bible texts", "Templates", "Language", "AI Assistant", "About this installation", "Coming in later versions"];
+const ORDER = ["Updates", "Appearance", "Bible texts", "Templates", "Language", "AI Assistant", "Data and backup", "About this installation", "Coming in later versions"];
 
 describe("settings", () => {
   it("lists the sections in order, each one line with where it stands, all closed", async () => {

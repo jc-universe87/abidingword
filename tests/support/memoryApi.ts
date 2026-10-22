@@ -60,6 +60,7 @@ import type {
 
 import { newTeachingState, teachingApi, type TeachingState } from "./memoryTeaching";
 import { newPresentationState, presentationApi, type PresentationState } from "./memoryPresentation";
+import { newPortabilityState, portabilityApi, type PortabilityState } from "./memoryPortability";
 
 const BUILTIN_TEMPLATES = [passageStudy, wordStudy, topicalStudy, biblicalTheology, systematicTheology, teachingStudy];
 import { BOOKS, FIXTURE_VERSE_COUNT, fixtureChapters } from "./scriptureFixture";
@@ -120,6 +121,8 @@ export interface MemoryApi extends Api {
     teaching: TeachingState;
     /** Presentations, exports and the audience screen (v0.18). */
     presentation: PresentationState;
+    /** Project packages and backups (v0.19). */
+    portability: PortabilityState;
   };
   /** Installs a fixture Bible directly (test setup). */
   installFixtureBible(shortName: string, wording: string): BibleTranslation;
@@ -342,6 +345,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     relations: [],
     teaching: newTeachingState(),
     presentation: newPresentationState(),
+    portability: newPortabilityState(),
     templates: BUILTIN_TEMPLATES.map((t) => ({
       id: `tpl-${t.key}`,
       key: t.key,
@@ -666,6 +670,22 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
   };
   const api: MemoryApi = {
     ...presentationApi(state.presentation, { id, now, api: () => api }),
+    ...portabilityApi(state.portability, {
+      projects: () => state.projects,
+      createProject: async (title, description) => {
+        const project = await api.projectCreate({ workspaceId: state.workspace.id, title, description: description ?? undefined });
+        return project;
+      },
+      counts: (projectId) => {
+        const studies = state.studies.filter((s) => s.projectId === projectId);
+        const ids = new Set(studies.map((s) => s.id));
+        return {
+          studies: studies.length,
+          teachings: state.teaching.preparations.filter((p) => ids.has(p.studyId)).length,
+          notes: state.findings.filter((f) => ids.has(f.studyId)).length,
+        };
+      },
+    }),
     ...teachingApi(state.teaching, {
       id,
       now,

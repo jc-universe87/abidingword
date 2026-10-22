@@ -11,7 +11,8 @@
 //! ├── cache/      disposable, can be deleted at any time
 //! ├── sync/       sync state (later phase)
 //! ├── backups/
-//! │   └── pre-migration/  automatic copies made before a schema upgrade
+//! │   ├── pre-migration/  automatic copies made before a schema upgrade
+//! │   └── pre-restore/    copies made before a backup was restored
 //! ├── exports/
 //! └── logs/       diagnostic log files
 //! ```
@@ -75,6 +76,16 @@ impl DataDirs {
 
     pub fn pre_migration_backups(&self) -> PathBuf {
         self.root.join("backups").join("pre-migration")
+    }
+
+    /// Copies of the database made just before a backup was restored (v0.19).
+    pub fn pre_restore_backups(&self) -> PathBuf {
+        self.root.join("backups").join("pre-restore")
+    }
+
+    /// Disposable working space (unpacking a package, for one).
+    pub fn cache(&self) -> PathBuf {
+        self.root.join("cache")
     }
 
     pub fn logs(&self) -> PathBuf {

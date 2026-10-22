@@ -205,5 +205,15 @@
   "teachingTemplates": {
     "noKind": "Elige para qué es la plantilla.",
     "tooManyPoints": "Una plantilla puede empezar con {{max}} puntos o pasos como máximo."
+  },
+  "portability": {
+    "notPackage": "Abiding Word no puede leer este archivo, o está dañado.",
+    "tooLarge": "Este archivo contiene más de lo que Abiding Word lee de un solo archivo.",
+    "damaged": "Una parte de este archivo no coincide con su lista de contenido: está dañado o se modificó. Aquí no se cambió nada.",
+    "newer": "Este archivo se guardó con una versión más reciente de Abiding Word ({{version}}). Actualiza primero Abiding Word.",
+    "notBackupDatabase": "La base de datos de esta copia de seguridad está dañada o no es de Abiding Word. No se cambió nada.",
+    "restoreFailed": "No se pudo restaurar la copia de seguridad. Tu trabajo volvió a quedar como estaba.",
+    "noFile": "Elige un archivo.",
+    "rollbackFailed": "No se pudo restaurar la copia de seguridad, y tu trabajo anterior no se pudo recuperar automáticamente. Hay una copia en {{path}}."
   }
 }

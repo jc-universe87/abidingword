@@ -15,6 +15,7 @@ pub mod filesystem;
 pub mod integrations;
 pub mod library;
 pub mod materials;
+pub mod portability;
 pub mod presentation;
 pub mod scripture;
 pub mod state;
@@ -74,6 +75,12 @@ pub fn run() {
             commands::projects::project_get,
             commands::projects::project_create,
             commands::projects::project_update,
+            commands::portability::project_export,
+            commands::portability::project_package_inspect,
+            commands::portability::project_import,
+            commands::portability::backup_create,
+            commands::portability::backup_inspect,
+            commands::portability::backup_restore,
             commands::studies::study_list,
             commands::studies::study_get,
             commands::studies::study_create,

@@ -97,6 +97,33 @@ impl Database {
             .map_err(|_| AppError::Unexpected("database connection lock poisoned".into()))?;
         f(&conn)
     }
+
+    /// Runs `f` with exclusive, mutable access to the connection (restoring
+    /// a backup into it, migrating it).
+    pub fn with_conn_mut<T>(
+        &self,
+        f: impl FnOnce(&mut Connection) -> AppResult<T>,
+    ) -> AppResult<T> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| AppError::Unexpected("database connection lock poisoned".into()))?;
+        f(&mut conn)
+    }
+}
+
+/// After the whole database was replaced (a restored backup): the same
+/// checks and steps as when the app starts.
+pub(crate) fn reinitialise(conn: &mut Connection, backup_dir: Option<&Path>) -> AppResult<()> {
+    integrity::check(conn)?;
+    configure(conn)?;
+    migrations::upgrade(conn, migrations::MIGRATIONS, backup_dir)?;
+    workspaces::ensure_default(conn)?;
+    templates::ensure_builtin(conn)?;
+    if let Err(error) = library::ensure_passage_index(conn) {
+        log::warn!("passage links could not be brought up to date: {error}");
+    }
+    Ok(())
 }
 
 fn configure(conn: &Connection) -> AppResult<()> {

@@ -9,7 +9,8 @@
     "about": "설치 정보",
     "planned": "향후 버전에서 제공 예정",
     "assistant": "AI 도우미",
-    "updates": "업데이트"
+    "updates": "업데이트",
+    "data": "데이터와 백업"
   },
   "language": {
     "label": "화면 언어",
@@ -35,7 +36,7 @@
     "logFiles": "로그 파일",
     "schema": "데이터베이스 스키마",
     "schemaVersion": "버전 {{version}}",
-    "backup": "모든 성경공부는 이 컴퓨터의 데이터 폴더에 저장됩니다. 백업하려면 Abiding Word를 닫은 상태에서 폴더 전체를 복사하세요."
+    "backup": "모든 작업은 이 컴퓨터의 데이터 폴더에 저장됩니다. 사본을 만들려면 데이터와 백업에서 ‘모두 백업…’을 사용하세요."
   },
   "planned": {
     "sync": "동기화",
@@ -213,7 +214,8 @@
     "templates": "성경공부와 가르침의 시작 구성",
     "assistantOff": "꺼짐",
     "assistantOn": "켜짐 · {{service}}",
-    "about": "버전 {{version}} · 데이터 저장 위치"
+    "about": "버전 {{version}} · 데이터 저장 위치",
+    "data": "작업 내보내기, 가져오기, 백업"
   },
   "help": {
     "about": "자세히: {{topic}}"
@@ -227,5 +229,55 @@
     "stone": "돌빛",
     "mist": "안개",
     "clear": "무채색"
+  },
+  "data": {
+    "projects": "성경공부 모음",
+    "projectsHint": "성경공부 모음 파일에는 한 모음의 성경공부와 성경 가르침이 기록, 가르침 자료, 프레젠테이션과 함께 담깁니다. 자료실의 책, 성경 본문, 교회 서식은 이 컴퓨터에 그대로 있고, 파일에는 사용한 항목의 이름만 들어갑니다.",
+    "exportLabel": "내보낼 성경공부 모음",
+    "export": "성경공부 모음 내보내기…",
+    "import": "성경공부 모음 가져오기…",
+    "projectFilter": "Abiding Word 성경공부 모음",
+    "backupFilter": "Abiding Word 백업",
+    "openProject": "가져올 성경공부 모음 파일 선택",
+    "openBackup": "복원할 백업 선택",
+    "exported": "‘{{title}}’을(를) {{path}}에 저장했습니다.",
+    "namedOnly": "이 컴퓨터에 남아 있으므로 파일에 이름만 있고 포함되지 않은 항목:",
+    "missingSources": "자료실",
+    "missingTemplates": "교회 서식",
+    "missingBibles": "성경 번역본",
+    "missingImages": "파일에 없는 이미지: {{n}}",
+    "missingHeading": "이 컴퓨터에 없는 항목",
+    "missingHint": "이 성경공부 모음은 아래 항목을 사용하지만 이 컴퓨터에는 없습니다. 기록의 내용은 그대로 남습니다. 자료실에 없는 책을 인용한 출처는 빠지고, 프레젠테이션은 기본 디자인을 사용하며 성경 본문을 표시하지 않습니다.",
+    "importPreview": "가져올 성경공부 모음",
+    "savedOn": "{{date}}에 Abiding Word {{version}}(으)로 저장됨",
+    "importAs": "새 성경공부 모음 ‘{{title}}’(으)로 추가됩니다. 이 컴퓨터에 있는 것은 아무것도 바뀌지 않습니다.",
+    "importConfirm": "가져오기",
+    "imported": "‘{{title}}’을(를) 추가했습니다. 성경공부 모음 목록에서 볼 수 있습니다.",
+    "leftOut": "자료실에 책이 없어 빠진 출처: {{n}}",
+    "backup": "백업",
+    "backupHint": "백업에는 모든 것이 담깁니다. 모든 성경공부 모음, 자료실 파일, 추가한 성경 번역본, 틀, 설정이 포함됩니다. 다른 사람과 나누기 위한 것이 아니라 본인만을 위한 사본입니다. 저작권상 다른 사람에게 줄 수 없는 책과 성경이 들어 있을 수 있습니다. API 키는 포함되지 않으므로 다른 컴퓨터에서 복원한 뒤 다시 입력하세요.",
+    "backupCreate": "모두 백업…",
+    "backedUp": "백업을 {{path}}에 저장했습니다({{size}}MB).",
+    "restore": "백업에서 복원…",
+    "restorePreview": "복원할 백업",
+    "restoreWarning": "복원하면 이 컴퓨터의 모든 작업이 백업의 내용으로 바뀝니다. 먼저 현재 데이터베이스의 사본을 만들므로 잃는 것은 없습니다. 내용이 다른 자료실 파일은 삭제하지 않고 따로 보관합니다. 복원이 끝나면 Abiding Word를 다시 불러옵니다.",
+    "restoreConfirm": "모두 이 백업으로 바꾸기",
+    "restored": "백업을 복원했습니다.",
+    "safetyCopy": "이전 상태의 사본은 {{path}}에 보관되어 있습니다.",
+    "setAside": "그 사본 옆에 따로 보관한 자료실 파일: {{n}}",
+    "restoredContinue": "계속",
+    "working": "진행 중…",
+    "workingLong": "자료실이 크면 시간이 걸릴 수 있습니다.",
+    "size": "{{size}}MB",
+    "count": {
+      "studies": "성경공부: {{n}}",
+      "teachings": "성경 가르침: {{n}}",
+      "presentations": "프레젠테이션: {{n}}",
+      "notes": "기록: {{n}}",
+      "images": "이미지: {{n}}",
+      "projects": "성경공부 모음: {{n}}",
+      "sources": "자료실: {{n}}",
+      "bibles": "추가한 성경 번역본: {{n}}"
+    }
   }
 }

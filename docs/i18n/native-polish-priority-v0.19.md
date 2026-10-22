@@ -35,55 +35,55 @@ Decided in v0.18.10. The rest of the corpus follows these.
 | Marks | `scripture.marks.title` | Marks | Anmerkungen | 표시 | Marques | Marcas | Marcas | Notes, highlights and bookmarks on verses. |
 | Passage | `presentation.editor.passage` | Passage | Bibelstelle | 본문 | Passage | Pasaje | Passagem | A Bible reference. |
 
-**Bible Study** — 10 strings use it in English.
+**Bible Study** — 12 strings use it in English.
 
 | Language | Renderings (strings) |
 |---|---|
-| German | Bibelstudium (6), Bibelstudien (2), (none of these) (2) |
-| Korean | 성경공부 (10) |
-| French | Étude biblique (3), étude biblique (4), étude (3) |
-| Spanish | Estudio bíblico (3), estudio bíblico (5), estudio (2) |
-| Portuguese | Estudo bíblico (3), estudo bíblico (4), estudo (3) |
+| German | Bibelstudium (6), Bibelstudien (4), (none of these) (2) |
+| Korean | 성경공부 (12) |
+| French | Étude biblique (3), étude biblique (4), étude (4), Étude (1) |
+| Spanish | Estudio bíblico (3), estudio bíblico (5), estudio (3), Estudio (1) |
+| Portuguese | Estudo bíblico (3), estudo bíblico (4), estudo (4), Estudo (1) |
 
-**Bible Teaching** — 15 strings use it in English.
-
-| Language | Renderings (strings) |
-|---|---|
-| German | Bibellehre (15) |
-| Korean | 성경 가르침 (11), 가르침 (4) |
-| French | Enseignement biblique (1), enseignement (14) |
-| Spanish | Enseñanza bíblica (1), enseñanza (14) |
-| Portuguese | Ensino bíblico (1), ensino (14) |
-
-**template** — 83 strings use it in English.
+**Bible Teaching** — 17 strings use it in English.
 
 | Language | Renderings (strings) |
 |---|---|
-| German | Vorlage (78), Gemeindevorlage (5) |
-| Korean | 틀 (49), 서식 (32), (none of these) (2) |
-| French | modèle (76), Modèle (7) |
-| Spanish | plantilla (76), Plantilla (7) |
-| Portuguese | modelo (76), Modelo (7) |
+| German | Bibellehre (17) |
+| Korean | 성경 가르침 (13), 가르침 (4) |
+| French | Enseignement biblique (1), enseignement (15), (none of these) (1) |
+| Spanish | Enseñanza bíblica (1), enseñanza (15), (none of these) (1) |
+| Portuguese | Ensino bíblico (1), ensino (15), (none of these) (1) |
 
-**Materials** — 2 strings use it in English.
-
-| Language | Renderings (strings) |
-|---|---|
-| German | Unterlage (2) |
-| Korean | 자료 (2) |
-| French | Support (1), support (1) |
-| Spanish | Material (1), material (1) |
-| Portuguese | (none of these) (2) |
-
-**presentation** — 25 strings use it in English.
+**template** — 86 strings use it in English.
 
 | Language | Renderings (strings) |
 |---|---|
-| German | Präsentation (25) |
-| Korean | 프레젠테이션 (25) |
-| French | présentation (18), Présentation (7) |
-| Spanish | presentación (16), Presentación (7), (none of these) (2) |
-| Portuguese | apresentação (16), Apresentação (7), (none of these) (2) |
+| German | Vorlage (79), Gemeindevorlage (7) |
+| Korean | 틀 (50), 서식 (34), (none of these) (2) |
+| French | modèle (78), Modèle (8) |
+| Spanish | plantilla (78), Plantilla (8) |
+| Portuguese | modelo (78), Modelo (8) |
+
+**Materials** — 3 strings use it in English.
+
+| Language | Renderings (strings) |
+|---|---|
+| German | Unterlage (3) |
+| Korean | 자료 (3) |
+| French | Support (1), support (2) |
+| Spanish | Material (1), material (2) |
+| Portuguese | (none of these) (3) |
+
+**presentation** — 28 strings use it in English.
+
+| Language | Renderings (strings) |
+|---|---|
+| German | Präsentation (28) |
+| Korean | 프레젠테이션 (28) |
+| French | présentation (20), Présentation (8) |
+| Spanish | presentación (17), Presentación (7), (none of these) (4) |
+| Portuguese | apresentação (17), Apresentação (7), (none of these) (4) |
 
 **passage** — 98 strings use it in English.
 
@@ -111,7 +111,7 @@ _No open linguistic questions._
 
 ## 3. Strings changed in v0.19
 
-22 strings changed in at least one language since v0.18.10. Spot-check these.
+79 strings changed in at least one language since v0.18.10. Spot-check these.
 
 | Context | Key | English | German | Korean | French | Spanish | Portuguese |
 |---|---|---|---|---|---|---|---|
@@ -119,6 +119,63 @@ _No open linguistic questions._
 |  | `common.info.changedElsewhere` | This was changed somewhere else while you were editing. Cancel and open it again to see the current version. | Das wurde inzwischen an anderer Stelle geändert. Brich ab und öffne es erneut, um den aktuellen Stand zu sehen. | 편집하는 동안 다른 곳에서 바뀌었습니다. 취소한 뒤 다시 열어 현재 내용을 확인하세요. | Cela a été modifié ailleurs pendant votre saisie. Annulez et rouvrez pour voir la version actuelle. | Esto se cambió en otro lugar mientras lo editabas. Cancela y vuelve a abrirlo para ver la versión actual. | Isto foi alterado em outro lugar enquanto você editava. Cancele e abra de novo para ver a versão atual. |
 |  | `common.info.discarded` | Unsaved changes were discarded. | Nicht gespeicherte Änderungen wurden verworfen. | 저장하지 않은 변경 내용을 버렸습니다. | Les modifications non enregistrées ont été abandonnées. | Se descartaron los cambios sin guardar. | As alterações não salvas foram descartadas. |
 |  | `common.info.unsaved` | Not saved yet | Noch nicht gespeichert | 아직 저장하지 않음 | Pas encore enregistré | Sin guardar | Ainda não salvo |
+|  | `errors.portability.damaged` | Part of this file does not match its list of contents: it is damaged or was changed. Nothing was changed here. | Ein Teil dieser Datei passt nicht zu ihrem Inhaltsverzeichnis: Sie ist beschädigt oder wurde verändert. Hier wurde nichts geändert. | 이 파일의 일부가 내용 목록과 맞지 않습니다. 손상되었거나 변경된 파일입니다. 이 컴퓨터에서는 아무것도 바뀌지 않았습니다. | Une partie de ce fichier ne correspond pas à sa liste de contenu : il est endommagé ou a été modifié. Rien n’a été changé ici. | Una parte de este archivo no coincide con su lista de contenido: está dañado o se modificó. Aquí no se cambió nada. | Uma parte deste arquivo não corresponde à sua lista de conteúdo: ele está danificado ou foi alterado. Nada foi alterado aqui. |
+| {{version}} | `errors.portability.newer` | This file was saved by a newer version of Abiding Word ({{version}}). Please update Abiding Word first. | Diese Datei wurde mit einer neueren Version von Abiding Word gespeichert ({{version}}). Bitte aktualisiere Abiding Word zuerst. | 이 파일은 더 새로운 버전의 Abiding Word({{version}})로 저장되었습니다. 먼저 Abiding Word를 업데이트하세요. | Ce fichier a été enregistré avec une version plus récente d’Abiding Word ({{version}}). Veuillez d’abord mettre à jour Abiding Word. | Este archivo se guardó con una versión más reciente de Abiding Word ({{version}}). Actualiza primero Abiding Word. | Este arquivo foi salvo com uma versão mais recente do Abiding Word ({{version}}). Atualize o Abiding Word primeiro. |
+|  | `errors.portability.noFile` | Please choose a file. | Bitte wähle eine Datei aus. | 파일을 선택하세요. | Veuillez choisir un fichier. | Elige un archivo. | Escolha um arquivo. |
+|  | `errors.portability.notBackupDatabase` | The database in this backup is damaged or is not an Abiding Word database. Nothing was changed. | Die Datenbank in dieser Sicherung ist beschädigt oder keine Datenbank von Abiding Word. Es wurde nichts geändert. | 이 백업의 데이터베이스가 손상되었거나 Abiding Word 데이터베이스가 아닙니다. 아무것도 바뀌지 않았습니다. | La base de données de cette sauvegarde est endommagée ou n’est pas une base de données Abiding Word. Rien n’a été changé. | La base de datos de esta copia de seguridad está dañada o no es de Abiding Word. No se cambió nada. | O banco de dados desta cópia de segurança está danificado ou não é do Abiding Word. Nada foi alterado. |
+|  | `errors.portability.notPackage` | Abiding Word cannot read this file, or it is damaged. | Diese Datei kann Abiding Word nicht lesen, oder sie ist beschädigt. | Abiding Word에서 읽을 수 없는 파일이거나 손상된 파일입니다. | Abiding Word ne peut pas lire ce fichier, ou il est endommagé. | Abiding Word no puede leer este archivo, o está dañado. | O Abiding Word não consegue ler este arquivo, ou ele está danificado. |
+|  | `errors.portability.restoreFailed` | The backup could not be restored. Your work was put back as it was. | Die Sicherung konnte nicht wiederhergestellt werden. Deine Arbeit wurde wieder so hergestellt, wie sie war. | 백업을 복원하지 못했습니다. 작업은 원래 상태로 되돌려 두었습니다. | La sauvegarde n’a pas pu être restaurée. Votre travail a été remis tel qu’il était. | No se pudo restaurar la copia de seguridad. Tu trabajo volvió a quedar como estaba. | Não foi possível restaurar a cópia de segurança. O seu trabalho voltou a ficar como estava. |
+| {{path}} | `errors.portability.rollbackFailed` | The backup could not be restored, and your earlier work could not be put back automatically. A copy of it is kept at {{path}}. | Die Sicherung konnte nicht wiederhergestellt werden, und deine vorherige Arbeit konnte nicht automatisch zurückgeholt werden. Eine Kopie davon liegt unter {{path}}. | 백업을 복원하지 못했고, 이전 작업도 자동으로 되돌리지 못했습니다. 이전 작업의 사본은 {{path}}에 보관되어 있습니다. | La sauvegarde n’a pas pu être restaurée, et votre travail précédent n’a pas pu être remis automatiquement. Une copie en est conservée dans {{path}}. | No se pudo restaurar la copia de seguridad, y tu trabajo anterior no se pudo recuperar automáticamente. Hay una copia en {{path}}. | Não foi possível restaurar a cópia de segurança, e o seu trabalho anterior não pôde ser recuperado automaticamente. Há uma cópia dele em {{path}}. |
+|  | `errors.portability.tooLarge` | This file holds more than Abiding Word reads from one file. | Diese Datei enthält mehr, als Abiding Word aus einer Datei liest. | 이 파일에는 Abiding Word가 한 파일에서 읽을 수 있는 것보다 많은 내용이 있습니다. | Ce fichier contient plus qu’Abiding Word ne lit dans un seul fichier. | Este archivo contiene más de lo que Abiding Word lee de un solo archivo. | Este arquivo contém mais do que o Abiding Word lê de um só arquivo. |
+|  | `settings.about.backup` | All your work is stored in the data folder on this computer. To keep a copy, use “Back up everything…” under Data and backup. | Deine ganze Arbeit wird im Datenordner auf diesem Computer gespeichert. Für eine Kopie verwende „Alles sichern…“ unter Daten und Sicherung. | 모든 작업은 이 컴퓨터의 데이터 폴더에 저장됩니다. 사본을 만들려면 데이터와 백업에서 ‘모두 백업…’을 사용하세요. | Tout votre travail est enregistré dans le dossier de données de cet ordinateur. Pour en garder une copie, utilisez « Tout sauvegarder… » dans Données et sauvegarde. | Todo tu trabajo se guarda en la carpeta de datos de este ordenador. Para tener una copia, usa «Hacer copia de seguridad de todo…» en Datos y copia de seguridad. | Todo o seu trabalho fica na pasta de dados deste computador. Para ter uma cópia, use “Fazer cópia de segurança de tudo…” em Dados e cópia de segurança. |
+| {{path}}, {{size}} | `settings.data.backedUp` | The backup was saved to {{path}} ({{size}} MB). | Die Sicherung wurde unter {{path}} gespeichert ({{size}} MB). | 백업을 {{path}}에 저장했습니다({{size}}MB). | La sauvegarde a été enregistrée dans {{path}} ({{size}} Mo). | La copia de seguridad se guardó en {{path}} ({{size}} MB). | A cópia de segurança foi salva em {{path}} ({{size}} MB). |
+|  | `settings.data.backup` | Backup | Sicherung | 백업 | Sauvegarde | Copia de seguridad | Cópia de segurança |
+|  | `settings.data.backupCreate` | Back up everything… | Alles sichern… | 모두 백업… | Tout sauvegarder… | Hacer copia de seguridad de todo… | Fazer cópia de segurança de tudo… |
+|  | `settings.data.backupFilter` | Abiding Word backup | Abiding-Word-Sicherung | Abiding Word 백업 | Sauvegarde Abiding Word | Copia de seguridad de Abiding Word | Cópia de segurança do Abiding Word |
+|  | `settings.data.backupHint` | A backup holds everything: all projects, your library files, the Bibles you added, templates and settings. It is a private copy for you, not for sharing: it can hold books and Bibles whose licences do not allow passing them on. API keys are never included; after restoring on another computer, enter them again. | Eine Sicherung enthält alles: alle Projekte, die Dateien deiner Bibliothek, die Bibelübersetzungen, die du hinzugefügt hast, Vorlagen und Einstellungen. Sie ist eine private Kopie für dich, nicht zum Weitergeben: Sie kann Bücher und Bibeln enthalten, deren Lizenzen keine Weitergabe erlauben. API-Schlüssel sind nie enthalten; gib sie nach dem Wiederherstellen auf einem anderen Computer erneut ein. | 백업에는 모든 것이 담깁니다. 모든 성경공부 모음, 자료실 파일, 추가한 성경 번역본, 틀, 설정이 포함됩니다. 다른 사람과 나누기 위한 것이 아니라 본인만을 위한 사본입니다. 저작권상 다른 사람에게 줄 수 없는 책과 성경이 들어 있을 수 있습니다. API 키는 포함되지 않으므로 다른 컴퓨터에서 복원한 뒤 다시 입력하세요. | Une sauvegarde contient tout : tous les projets, les fichiers de votre bibliothèque, les traductions de la Bible que vous avez ajoutées, les modèles et les paramètres. C’est une copie privée pour vous, pas pour la partager : elle peut contenir des livres et des Bibles dont la licence n’autorise pas la diffusion. Les clés API ne sont jamais incluses ; après une restauration sur un autre ordinateur, saisissez-les à nouveau. | Una copia de seguridad contiene todo: todos los proyectos, los archivos de tu biblioteca, las traducciones de la Biblia que añadiste, las plantillas y la configuración. Es una copia privada para ti, no para compartir: puede contener libros y Biblias cuya licencia no permite pasarlos a otros. Las claves de API nunca se incluyen; después de restaurar en otro ordenador, vuelve a introducirlas. | Uma cópia de segurança contém tudo: todos os projetos, os arquivos da sua biblioteca, as traduções da Bíblia que você adicionou, os modelos e as configurações. É uma cópia particular para você, não para compartilhar: pode conter livros e Bíblias cuja licença não permite repassá-los. As chaves de API nunca são incluídas; depois de restaurar em outro computador, digite-as de novo. |
+| {{n}} | `settings.data.count.bibles` | Bibles added: {{n}} | Hinzugefügte Bibelübersetzungen: {{n}} | 추가한 성경 번역본: {{n}} | Traductions ajoutées : {{n}} | Traducciones añadidas: {{n}} | Traduções adicionadas: {{n}} |
+| {{n}} | `settings.data.count.images` | Images: {{n}} | Bilder: {{n}} | 이미지: {{n}} | Images : {{n}} | Imágenes: {{n}} | Imagens: {{n}} |
+| {{n}} | `settings.data.count.notes` | Notes: {{n}} | Notizen: {{n}} | 기록: {{n}} | Notes : {{n}} | Apuntes: {{n}} | Anotações: {{n}} |
+| {{n}} | `settings.data.count.presentations` | Presentations: {{n}} | Präsentationen: {{n}} | 프레젠테이션: {{n}} | Présentations : {{n}} | Presentaciones: {{n}} | Apresentações: {{n}} |
+| {{n}} | `settings.data.count.projects` | Projects: {{n}} | Projekte: {{n}} | 성경공부 모음: {{n}} | Projets : {{n}} | Proyectos: {{n}} | Projetos: {{n}} |
+| {{n}} | `settings.data.count.sources` | Library: {{n}} | Bibliothek: {{n}} | 자료실: {{n}} | Bibliothèque : {{n}} | Biblioteca: {{n}} | Biblioteca: {{n}} |
+| {{n}} | `settings.data.count.studies` | Bible Studies: {{n}} | Bibelstudien: {{n}} | 성경공부: {{n}} | Études bibliques : {{n}} | Estudios bíblicos: {{n}} | Estudos bíblicos: {{n}} |
+| {{n}} | `settings.data.count.teachings` | Bible Teachings: {{n}} | Bibellehren: {{n}} | 성경 가르침: {{n}} | Enseignements bibliques : {{n}} | Enseñanzas bíblicas: {{n}} | Ensinos bíblicos: {{n}} |
+|  | `settings.data.export` | Export project… | Projekt exportieren… | 성경공부 모음 내보내기… | Exporter le projet… | Exportar proyecto… | Exportar projeto… |
+| screen-reader/label | `settings.data.exportLabel` | Project to export | Zu exportierendes Projekt | 내보낼 성경공부 모음 | Projet à exporter | Proyecto que exportar | Projeto a exportar |
+| {{title}}, {{path}} | `settings.data.exported` | “{{title}}” was saved to {{path}}. | „{{title}}“ wurde unter {{path}} gespeichert. | ‘{{title}}’을(를) {{path}}에 저장했습니다. | « {{title}} » a été enregistré dans {{path}}. | «{{title}}» se guardó en {{path}}. | “{{title}}” foi salvo em {{path}}. |
+|  | `settings.data.import` | Import project… | Projekt importieren… | 성경공부 모음 가져오기… | Importer un projet… | Importar proyecto… | Importar projeto… |
+| {{title}} | `settings.data.importAs` | It will be added as a new project, “{{title}}”. Nothing on this computer is replaced. | Es wird als neues Projekt „{{title}}“ hinzugefügt. Auf diesem Computer wird nichts ersetzt. | 새 성경공부 모음 ‘{{title}}’(으)로 추가됩니다. 이 컴퓨터에 있는 것은 아무것도 바뀌지 않습니다. | Il sera ajouté comme nouveau projet, « {{title}} ». Rien n’est remplacé sur cet ordinateur. | Se añadirá como un proyecto nuevo, «{{title}}». No se reemplaza nada de este ordenador. | Ele será adicionado como um novo projeto, “{{title}}”. Nada neste computador é substituído. |
+|  | `settings.data.importConfirm` | Import | Importieren | 가져오기 | Importer | Importar | Importar |
+|  | `settings.data.importPreview` | Project to import | Zu importierendes Projekt | 가져올 성경공부 모음 | Projet à importer | Proyecto que importar | Projeto a importar |
+| {{title}} | `settings.data.imported` | “{{title}}” was added. You’ll find it under Projects. | „{{title}}“ wurde hinzugefügt. Du findest es unter Projekte. | ‘{{title}}’을(를) 추가했습니다. 성경공부 모음 목록에서 볼 수 있습니다. | « {{title}} » a été ajouté. Vous le trouverez dans Projets. | Se añadió «{{title}}». Lo encontrarás en Proyectos. | “{{title}}” foi adicionado. Você o encontra em Projetos. |
+| {{n}} | `settings.data.leftOut` | Citations left out because their library book is not here: {{n}} | Weggelassene Verweise, weil das Buch nicht in der Bibliothek ist: {{n}} | 자료실에 책이 없어 빠진 출처: {{n}} | Citations non reprises, car leur livre n’est pas dans la bibliothèque : {{n}} | Citas omitidas porque su libro no está en la biblioteca: {{n}} | Citações deixadas de fora porque o livro não está na biblioteca: {{n}} |
+|  | `settings.data.missingBibles` | Bibles | Bibelübersetzungen | 성경 번역본 | Traductions de la Bible | Traducciones de la Biblia | Traduções da Bíblia |
+|  | `settings.data.missingHeading` | Not on this computer | Nicht auf diesem Computer | 이 컴퓨터에 없는 항목 | Absents de cet ordinateur | No están en este ordenador | Não estão neste computador |
+|  | `settings.data.missingHint` | The project uses these, but this computer does not have them. Notes keep their own text; a citation of a library book that is not here is left out, and a presentation uses the standard design and no Bible text instead. | Das Projekt verwendet diese, aber dieser Computer hat sie nicht. Notizen behalten ihren Text; ein Verweis auf ein Buch, das nicht in der Bibliothek ist, entfällt, und eine Präsentation verwendet stattdessen das Standarddesign und keinen Bibeltext. | 이 성경공부 모음은 아래 항목을 사용하지만 이 컴퓨터에는 없습니다. 기록의 내용은 그대로 남습니다. 자료실에 없는 책을 인용한 출처는 빠지고, 프레젠테이션은 기본 디자인을 사용하며 성경 본문을 표시하지 않습니다. | Le projet les utilise, mais cet ordinateur ne les a pas. Les notes gardent leur texte ; une citation d’un livre absent de la bibliothèque n’est pas reprise, et une présentation utilise à la place la présentation visuelle standard, sans texte biblique. | El proyecto los usa, pero este ordenador no los tiene. Los apuntes conservan su texto; una cita de un libro que no está en la biblioteca se omite, y una presentación usa en su lugar el diseño estándar y ningún texto bíblico. | O projeto os usa, mas este computador não os tem. As anotações mantêm o próprio texto; uma citação de um livro que não está na biblioteca fica de fora, e uma apresentação usa o design padrão e nenhum texto bíblico. |
+| {{n}} | `settings.data.missingImages` | Images not in the file: {{n}} | Bilder, die nicht in der Datei sind: {{n}} | 파일에 없는 이미지: {{n}} | Images absentes du fichier : {{n}} | Imágenes que no están en el archivo: {{n}} | Imagens que não estão no arquivo: {{n}} |
+|  | `settings.data.missingSources` | Library | Bibliothek | 자료실 | Bibliothèque | Biblioteca | Biblioteca |
+|  | `settings.data.missingTemplates` | Church templates | Gemeindevorlagen | 교회 서식 | Modèles pour l’église | Plantillas para la iglesia | Modelos para a igreja |
+|  | `settings.data.namedOnly` | Named in the file but not included, because they stay on this computer: | In der Datei genannt, aber nicht enthalten, weil sie auf diesem Computer bleiben: | 이 컴퓨터에 남아 있으므로 파일에 이름만 있고 포함되지 않은 항목: | Indiqués dans le fichier mais non inclus, car ils restent sur cet ordinateur : | Nombrados en el archivo pero no incluidos, porque se quedan en este ordenador: | Indicados no arquivo, mas não incluídos, porque ficam neste computador: |
+|  | `settings.data.openBackup` | Choose a backup to restore | Sicherung zum Wiederherstellen auswählen | 복원할 백업 선택 | Choisir la sauvegarde à restaurer | Elige la copia de seguridad que restaurar | Escolha a cópia de segurança a restaurar |
+|  | `settings.data.openProject` | Choose a project file to import | Projektdatei zum Importieren auswählen | 가져올 성경공부 모음 파일 선택 | Choisir le fichier de projet à importer | Elige el archivo de proyecto que importar | Escolha o arquivo de projeto a importar |
+|  | `settings.data.projectFilter` | Abiding Word project | Abiding-Word-Projekt | Abiding Word 성경공부 모음 | Projet Abiding Word | Proyecto de Abiding Word | Projeto do Abiding Word |
+|  | `settings.data.projects` | Projects | Projekte | 성경공부 모음 | Projets | Proyectos | Projetos |
+|  | `settings.data.projectsHint` | A project file holds one project’s Bible Studies and Bible Teachings, with their notes, Materials and presentations. Library books, Bible texts and church templates stay on this computer: the file only names the ones it uses. | Eine Projektdatei enthält die Bibelstudien und Bibellehren eines Projekts mit ihren Notizen, Unterlagen und Präsentationen. Bücher der Bibliothek, Bibeltexte und Gemeindevorlagen bleiben auf diesem Computer: Die Datei nennt nur, welche sie verwendet. | 성경공부 모음 파일에는 한 모음의 성경공부와 성경 가르침이 기록, 가르침 자료, 프레젠테이션과 함께 담깁니다. 자료실의 책, 성경 본문, 교회 서식은 이 컴퓨터에 그대로 있고, 파일에는 사용한 항목의 이름만 들어갑니다. | Un fichier de projet contient les études bibliques et les enseignements bibliques d’un projet, avec leurs notes, leurs supports et leurs présentations. Les livres de la bibliothèque, les textes bibliques et les modèles pour l’église restent sur cet ordinateur : le fichier indique seulement ceux qu’il utilise. | Un archivo de proyecto contiene los estudios bíblicos y las enseñanzas bíblicas de un proyecto, con sus apuntes, materiales y presentaciones. Los libros de la biblioteca, los textos bíblicos y las plantillas para la iglesia se quedan en este ordenador: el archivo solo nombra los que usa. | Um arquivo de projeto contém os estudos bíblicos e os ensinos bíblicos de um projeto, com suas anotações, materiais e apresentações. Os livros da biblioteca, os textos bíblicos e os modelos para a igreja ficam neste computador: o arquivo só indica os que usa. |
+|  | `settings.data.restore` | Restore from backup… | Aus Sicherung wiederherstellen… | 백업에서 복원… | Restaurer une sauvegarde… | Restaurar desde una copia de seguridad… | Restaurar de uma cópia de segurança… |
+|  | `settings.data.restoreConfirm` | Replace everything with this backup | Alles durch diese Sicherung ersetzen | 모두 이 백업으로 바꾸기 | Tout remplacer par cette sauvegarde | Reemplazar todo con esta copia de seguridad | Substituir tudo por esta cópia de segurança |
+|  | `settings.data.restorePreview` | Backup to restore | Wiederherzustellende Sicherung | 복원할 백업 | Sauvegarde à restaurer | Copia de seguridad que restaurar | Cópia de segurança a restaurar |
+|  | `settings.data.restoreWarning` | Restoring replaces all the work on this computer with the backup’s. A copy of the current database is made first, so nothing is lost; library files that differ are set aside, never deleted. Abiding Word reloads afterwards. | Beim Wiederherstellen wird die ganze Arbeit auf diesem Computer durch die der Sicherung ersetzt. Vorher wird eine Kopie der aktuellen Datenbank angelegt, damit nichts verloren geht; abweichende Dateien der Bibliothek werden beiseitegelegt, nie gelöscht. Danach lädt Abiding Word neu. | 복원하면 이 컴퓨터의 모든 작업이 백업의 내용으로 바뀝니다. 먼저 현재 데이터베이스의 사본을 만들므로 잃는 것은 없습니다. 내용이 다른 자료실 파일은 삭제하지 않고 따로 보관합니다. 복원이 끝나면 Abiding Word를 다시 불러옵니다. | La restauration remplace tout le travail de cet ordinateur par celui de la sauvegarde. Une copie de la base de données actuelle est faite d’abord, afin que rien ne soit perdu ; les fichiers de la bibliothèque qui diffèrent sont mis de côté, jamais supprimés. Abiding Word se recharge ensuite. | Al restaurar, todo el trabajo de este ordenador se reemplaza por el de la copia de seguridad. Antes se hace una copia de la base de datos actual, para que no se pierda nada; los archivos de la biblioteca que sean distintos se apartan, nunca se eliminan. Después Abiding Word se vuelve a cargar. | Ao restaurar, todo o trabalho deste computador é substituído pelo da cópia de segurança. Antes é feita uma cópia do banco de dados atual, para que nada se perca; os arquivos da biblioteca que forem diferentes são guardados à parte, nunca excluídos. Depois o Abiding Word é recarregado. |
+|  | `settings.data.restored` | The backup was restored. | Die Sicherung wurde wiederhergestellt. | 백업을 복원했습니다. | La sauvegarde a été restaurée. | La copia de seguridad se restauró. | A cópia de segurança foi restaurada. |
+|  | `settings.data.restoredContinue` | Continue | Weiter | 계속 | Continuer | Continuar | Continuar |
+| {{path}} | `settings.data.safetyCopy` | A copy of what was here before is kept at {{path}}. | Eine Kopie des vorherigen Stands liegt unter {{path}}. | 이전 상태의 사본은 {{path}}에 보관되어 있습니다. | Une copie de l’état précédent est conservée dans {{path}}. | Una copia de lo que había antes se guarda en {{path}}. | Uma cópia do que havia antes está guardada em {{path}}. |
+| {{date}}, {{version}} | `settings.data.savedOn` | Saved on {{date}} with Abiding Word {{version}} | Gespeichert am {{date}} mit Abiding Word {{version}} | {{date}}에 Abiding Word {{version}}(으)로 저장됨 | Enregistré le {{date}} avec Abiding Word {{version}} | Guardado el {{date}} con Abiding Word {{version}} | Salvo em {{date}} com o Abiding Word {{version}} |
+| {{n}} | `settings.data.setAside` | Library files set aside next to that copy: {{n}} | Neben dieser Kopie beiseitegelegte Dateien der Bibliothek: {{n}} | 그 사본 옆에 따로 보관한 자료실 파일: {{n}} | Fichiers de la bibliothèque mis de côté à côté de cette copie : {{n}} | Archivos de la biblioteca apartados junto a esa copia: {{n}} | Arquivos da biblioteca guardados à parte junto a essa cópia: {{n}} |
+| {{size}} | `settings.data.size` | {{size}} MB | {{size}} MB | {{size}}MB | {{size}} Mo | {{size}} MB | {{size}} MB |
+|  | `settings.data.working` | Working… | Wird ausgeführt… | 진행 중… | En cours… | En curso… | Em andamento… |
+|  | `settings.data.workingLong` | This can take a while with a large library. | Bei einer großen Bibliothek kann das eine Weile dauern. | 자료실이 크면 시간이 걸릴 수 있습니다. | Avec une grande bibliothèque, cela peut prendre un moment. | Con una biblioteca grande, puede tardar un rato. | Com uma biblioteca grande, isso pode levar algum tempo. |
+|  | `settings.sections.data` | Data and backup | Daten und Sicherung | 데이터와 백업 | Données et sauvegarde | Datos y copia de seguridad | Dados e cópia de segurança |
+|  | `settings.summary.data` | Export, import and back up your work | Arbeit exportieren, importieren und sichern | 작업 내보내기, 가져오기, 백업 | Exporter, importer et sauvegarder votre travail | Exportar, importar y hacer copia de seguridad de tu trabajo | Exportar, importar e fazer cópia de segurança do seu trabalho |
 |  | `studies.info.project` | Project information | Projektinformationen | 성경공부 모음 정보 | Informations sur le projet | Información del proyecto | Informações do projeto |
 |  | `studies.info.projectDescription` | Description | Beschreibung | 설명 | Description | Descripción | Descrição |
 |  | `studies.info.projectDescriptionHint` | What this project is for, in a sentence or two | Wofür dieses Projekt da ist, in ein, zwei Sätzen | 이 성경공부 모음이 무엇을 위한 것인지 한두 문장으로 | À quoi sert ce projet, en une ou deux phrases | Para qué es este proyecto, en una o dos frases | Para que serve este projeto, em uma ou duas frases |

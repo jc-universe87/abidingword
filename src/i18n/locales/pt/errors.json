@@ -205,5 +205,15 @@
   "teachingTemplates": {
     "noKind": "Escolha para que serve o modelo.",
     "tooManyPoints": "Um modelo pode começar com no máximo {{max}} pontos ou etapas."
+  },
+  "portability": {
+    "notPackage": "O Abiding Word não consegue ler este arquivo, ou ele está danificado.",
+    "tooLarge": "Este arquivo contém mais do que o Abiding Word lê de um só arquivo.",
+    "damaged": "Uma parte deste arquivo não corresponde à sua lista de conteúdo: ele está danificado ou foi alterado. Nada foi alterado aqui.",
+    "newer": "Este arquivo foi salvo com uma versão mais recente do Abiding Word ({{version}}). Atualize o Abiding Word primeiro.",
+    "notBackupDatabase": "O banco de dados desta cópia de segurança está danificado ou não é do Abiding Word. Nada foi alterado.",
+    "restoreFailed": "Não foi possível restaurar a cópia de segurança. O seu trabalho voltou a ficar como estava.",
+    "noFile": "Escolha um arquivo.",
+    "rollbackFailed": "Não foi possível restaurar a cópia de segurança, e o seu trabalho anterior não pôde ser recuperado automaticamente. Há uma cópia dele em {{path}}."
   }
 }

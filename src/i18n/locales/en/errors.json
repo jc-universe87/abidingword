@@ -202,5 +202,15 @@
   "teachingTemplates": {
     "noKind": "Choose what the template is for.",
     "tooManyPoints": "A template can start with at most {{max}} points or steps."
+  },
+  "portability": {
+    "notPackage": "Abiding Word cannot read this file, or it is damaged.",
+    "tooLarge": "This file holds more than Abiding Word reads from one file.",
+    "damaged": "Part of this file does not match its list of contents: it is damaged or was changed. Nothing was changed here.",
+    "newer": "This file was saved by a newer version of Abiding Word ({{version}}). Please update Abiding Word first.",
+    "notBackupDatabase": "The database in this backup is damaged or is not an Abiding Word database. Nothing was changed.",
+    "restoreFailed": "The backup could not be restored. Your work was put back as it was.",
+    "noFile": "Please choose a file.",
+    "rollbackFailed": "The backup could not be restored, and your earlier work could not be put back automatically. A copy of it is kept at {{path}}."
   }
 }
