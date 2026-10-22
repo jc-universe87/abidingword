@@ -458,7 +458,6 @@
         "label": "Bible"
       }
     },
-    "detailsToggle": "Study details",
     "typeLine": "Type: {{type}}",
     "fromTemplate": "From your template: {{name}}",
     "groupAbout": "About this study",
@@ -659,7 +658,6 @@
   "teaching": {
     "loading": "Opening the teaching…",
     "which": "Teaching:",
-    "another": "Prepare another Bible Teaching",
     "empty": {
       "title": "Prepare a teaching from this study",
       "text": "A sermon, a group Bible study or a lesson, written by you. You can use what you noted in this study: your notes and passages stay where they are and are simply used here. Nothing is filled in for you, and every part may stay empty."
@@ -679,7 +677,6 @@
     "start": "Start",
     "delete": "Delete this teaching",
     "deleteConfirm": "Delete this teaching? Your study, with its notes and passages, stays as it is.",
-    "about": "About this teaching",
     "audience": "Who it is for",
     "audiencePlaceholder": "e.g. the whole church, a youth group",
     "purpose": "Purpose",
@@ -964,8 +961,6 @@
         "conclusion": "Ending"
       }
     },
-    "aboutEmpty": "Kind, who it is for, purpose, passages",
-    "aboutFor": "for {{audience}}",
     "format": {
       "points": "Main points with explanation, application and illustration, between an introduction and a conclusion.",
       "generalPoints": "Main points with explanation, application and illustration, between an introduction and a conclusion.",
@@ -1018,7 +1013,6 @@
     "materials": {
       "open": "Materials"
     },
-    "prepareWhat": "What would you like to prepare?",
     "templates": {
       "listLabel": "Bible Teaching templates",
       "intro": "A Bible Teaching template is what a new teaching starts with: its format, and the points, questions or steps it begins with. A teaching takes a copy when it is made, so changing or deleting a template never changes a teaching.",
@@ -1055,7 +1049,27 @@
       "saved": "Saved as your template “{{name}}”. You can choose it for your next Bible Teaching, and change it in Settings → Templates.",
       "tooMany": "A template can start with at most {{max}} points, questions or steps, and this teaching has more. Make the template in Settings → Templates instead."
     },
-    "addStepMenu": "Kind of step to add"
+    "addStepMenu": "Kind of step to add",
+    "newTeaching": "New Bible Teaching",
+    "formatLegend": "What would you like to prepare?",
+    "formats": {
+      "message": {
+        "name": "Message",
+        "hint": "A sermon, talk or devotion: a central message, an introduction, main points and a conclusion."
+      },
+      "group": {
+        "name": "Group Bible study",
+        "hint": "Led by discussion: an opening, the Bible text, questions and answers, and a closing."
+      },
+      "lesson": {
+        "name": "Interactive lesson",
+        "hint": "For children, youth or adults: steps such as Bible reading, explanation, questions, an activity or a picture."
+      }
+    },
+    "messageKind": "Kind of message",
+    "passagesLine": "Bible text",
+    "notesHasText": "has notes",
+    "notesPrivate": "Only for you: never part of the Materials for your listeners or group."
   },
   "parts": {
     "add": "Add a part",
@@ -1198,5 +1212,12 @@
     "none": "Not in the outline",
     "ofPart": "Where {{title}} belongs in the study outline",
     "ofTemplatePart": "Where part {{number}} belongs in the study outline"
+  },
+  "info": {
+    "study": "Bible Study information",
+    "teaching": "Bible Teaching information",
+    "project": "Project information",
+    "projectDescription": "Description",
+    "projectDescriptionHint": "What this project is for, in a sentence or two"
   }
 }

@@ -25,6 +25,39 @@ export type TeachingStart = { builtin: BuiltinTeachingTemplate } | { mine: Teach
 
 export const startKind = (start: TeachingStart): TeachingKind => ("builtin" in start ? start.builtin.kind : start.mine.kind);
 
+/**
+ * The three formats a new teaching is offered in (v0.19), each a way of
+ * teaching rather than an audience: a message (a sermon or a talk), a group
+ * Bible study led by discussion, and an interactive lesson in steps for
+ * children, youth or adults. Age and audience belong to the teaching's
+ * information. The kinds stay those stored since v0.16: every one belongs to
+ * exactly one format, so older teachings and templates keep their place.
+ */
+export const TEACHING_FORMATS = ["message", "group", "lesson"] as const;
+export type TeachingFormat = (typeof TEACHING_FORMATS)[number];
+
+export const FORMAT_KINDS: Record<TeachingFormat, readonly TeachingKind[]> = {
+  message: ["sermon", "talk", "youth", "other"],
+  group: ["bible_study"],
+  lesson: ["lesson", "children"],
+};
+
+export const formatOf = (kind: TeachingKind): TeachingFormat => (TEACHING_FORMATS.find((f) => FORMAT_KINDS[f].includes(kind)) ?? "message");
+
+/**
+ * Where a new teaching of a format can start: the format's built-in starting
+ * points first (a message: the sermon's or the talk's, as chosen; a lesson:
+ * the lesson's and the children's), then the person's own templates of any
+ * kind in that format. The kind of the teaching is the start's own.
+ */
+export function formatStarts(format: TeachingFormat, messageKind: "sermon" | "talk", mine: readonly TeachingTemplate[]): { id: string; start: TeachingStart }[] {
+  const builtins = format === "message" ? [messageKind] : format === "group" ? (["bible_study"] as const) : (["lesson", "children"] as const);
+  return [
+    ...builtins.map((kind) => ({ id: `builtin:${kind}`, start: { builtin: BUILTIN_TEACHING_TEMPLATES.find((b) => b.kind === kind)! } as TeachingStart })),
+    ...mine.filter((m) => FORMAT_KINDS[format].includes(m.kind)).map((m) => ({ id: m.id, start: { mine: m } as TeachingStart })),
+  ];
+}
+
 /** The built-in starting steps a kind of teaching knows, by key. */
 const builtinStep = (kind: TeachingKind, key: string | null | undefined) =>
   key ? BUILTIN_TEACHING_TEMPLATES.find((b) => b.kind === kind)?.points.find((p) => p.key === key) : undefined;

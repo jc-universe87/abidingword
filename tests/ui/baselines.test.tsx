@@ -129,15 +129,16 @@ describe("from a study to a teaching", () => {
     const end = await within(pane).findByRole("complementary", { name: "Bible Teaching" });
     await user.click(within(end).getByRole("button", { name: "Prepare a Bible Teaching" }));
     const form = await within(pane).findByRole("form", { name: "Prepare a teaching from this study" });
-    // Sermon is chosen: only the sermon template is offered beside the built-in one.
+    // A message (a sermon) is chosen: its built-in start, then the person's own templates for a
+    // message of any kind (v0.19: a youth evening is a message too), never another format's.
     const startFrom = await within(form).findByRole("radiogroup", { name: "Start from" });
-    expect(within(startFrom).getAllByRole("radio").map((r) => r.parentElement!.textContent)).toEqual(["Sermon (built-in)", "Sunday sermon"]);
+    expect(within(startFrom).getAllByRole("radio").map((r) => r.parentElement!.textContent)).toEqual(["Sermon (built-in)", "Sunday sermon", "Youth night"]);
     await user.click(within(startFrom).getByRole("radio", { name: "Sunday sermon" }));
     expect(form).toHaveTextContent("Starts with: Point 1 · Point 2.");
     // A format without templates of one's own asks nothing more.
     await user.click(within(form).getByRole("radio", { name: "Group Bible study" }));
     expect(within(form).queryByRole("radiogroup", { name: "Start from" })).toBeNull();
-    await user.click(within(form).getByRole("radio", { name: "Sermon" }));
+    await user.click(within(form).getByRole("radio", { name: "Message" }));
     await user.click(within(await within(form).findByRole("radiogroup", { name: "Start from" })).getByRole("radio", { name: "Sunday sermon" }));
     await user.click(within(form).getByRole("button", { name: "Start" }));
     await waitFor(() => expect(api.state.teaching.preparations).toHaveLength(1));

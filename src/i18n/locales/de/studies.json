@@ -458,7 +458,6 @@
         "label": "Bibel"
       }
     },
-    "detailsToggle": "Angaben zum Bibelstudium",
     "typeLine": "Art: {{type}}",
     "fromTemplate": "Aus deiner Vorlage: {{name}}",
     "groupAbout": "Über dieses Bibelstudium",
@@ -659,7 +658,6 @@
   "teaching": {
     "loading": "Bibellehre wird geöffnet…",
     "which": "Bibellehre:",
-    "another": "Weitere Bibellehre vorbereiten",
     "empty": {
       "title": "Aus diesem Bibelstudium eine Bibellehre vorbereiten",
       "text": "Eine Predigt, ein Bibelgespräch in der Gruppe oder eine Lektion, von dir geschrieben. Du kannst verwenden, was du in diesem Bibelstudium notiert hast: deine Notizen und Bibelstellen bleiben, wo sie sind, und werden hier nur verwendet. Nichts wird für dich ausgefüllt, und jeder Teil darf leer bleiben."
@@ -668,7 +666,7 @@
     "kindNone": "Keine Angabe",
     "kind": {
       "sermon": "Predigt",
-      "bible_study": "Bibelgesprächskreis",
+      "bible_study": "Hauskreis",
       "youth": "Jugend",
       "children": "Kinder",
       "lesson": "Lektion",
@@ -679,7 +677,6 @@
     "start": "Beginnen",
     "delete": "Diese Bibellehre löschen",
     "deleteConfirm": "Diese Bibellehre löschen? Das Bibelstudium mit seinen Notizen und Bibelstellen bleibt unverändert.",
-    "about": "Über diese Bibellehre",
     "audience": "Für wen",
     "audiencePlaceholder": "z. B. die ganze Gemeinde, eine Jugendgruppe",
     "purpose": "Ziel",
@@ -964,8 +961,6 @@
         "conclusion": "Abschluss"
       }
     },
-    "aboutEmpty": "Art, für wen, Ziel, Bibelstellen",
-    "aboutFor": "für {{audience}}",
     "format": {
       "points": "Hauptpunkte mit Erklärung, Anwendung und Beispiel, zwischen Einleitung und Schluss.",
       "generalPoints": "Hauptpunkte mit Erklärung, Anwendung und Beispiel, zwischen Einleitung und Schluss.",
@@ -1018,7 +1013,6 @@
     "materials": {
       "open": "Unterlagen"
     },
-    "prepareWhat": "Was möchtest du vorbereiten?",
     "templates": {
       "listLabel": "Vorlagen für Bibellehren",
       "intro": "Eine Vorlage für Bibellehren legt fest, womit eine neue Bibellehre beginnt: ihre Form und die ersten Punkte, Fragen oder Schritte. Jede Bibellehre bekommt beim Erstellen eine eigene Kopie. Wenn du eine Vorlage änderst oder löschst, bleiben bestehende Bibellehren deshalb unverändert.",
@@ -1055,7 +1049,27 @@
       "saved": "Als deine Vorlage „{{name}}“ gespeichert. Du kannst sie für deine nächste Bibellehre wählen und unter Einstellungen → Vorlagen ändern.",
       "tooMany": "Eine Vorlage kann mit höchstens {{max}} Punkten, Fragen oder Schritten beginnen, und diese Bibellehre hat mehr. Erstelle die Vorlage stattdessen unter Einstellungen → Vorlagen."
     },
-    "addStepMenu": "Art des neuen Schritts"
+    "addStepMenu": "Art des neuen Schritts",
+    "newTeaching": "Neue Bibellehre",
+    "formatLegend": "Was möchtest du vorbereiten?",
+    "formats": {
+      "message": {
+        "name": "Predigt / Vortrag",
+        "hint": "Eine Predigt, ein Vortrag oder eine Andacht: Kernbotschaft, Einleitung, Hauptpunkte und Schluss."
+      },
+      "group": {
+        "name": "Hauskreis",
+        "hint": "Vom Gespräch getragen: Einstieg, Bibeltext, Fragen und Antworten und ein Abschluss."
+      },
+      "lesson": {
+        "name": "Bibelunterricht",
+        "hint": "Für Kinder, Jugendliche oder Erwachsene: Schritte wie Bibellesen, Erklärung, Fragen, eine Aktion oder ein Bild."
+      }
+    },
+    "messageKind": "Art der Botschaft",
+    "passagesLine": "Bibeltext",
+    "notesHasText": "enthält Notizen",
+    "notesPrivate": "Nur für dich: nie Teil der Unterlagen für Zuhörer oder Gruppe."
   },
   "parts": {
     "add": "Teil hinzufügen",
@@ -1198,5 +1212,12 @@
     "none": "Nicht in der Gliederung",
     "ofPart": "Wo „{{title}}“ in der Gliederung des Bibelstudiums steht",
     "ofTemplatePart": "Wo Teil {{number}} in der Gliederung des Bibelstudiums steht"
+  },
+  "info": {
+    "study": "Angaben zum Bibelstudium",
+    "teaching": "Angaben zur Bibellehre",
+    "project": "Projektinformationen",
+    "projectDescription": "Beschreibung",
+    "projectDescriptionHint": "Wofür dieses Projekt da ist, in ein, zwei Sätzen"
   }
 }

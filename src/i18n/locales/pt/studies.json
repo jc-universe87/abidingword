@@ -463,7 +463,6 @@
         "label": "Bíblia"
       }
     },
-    "detailsToggle": "Detalhes do estudo",
     "typeLine": "Tipo: {{type}}",
     "fromTemplate": "A partir do seu modelo: {{name}}",
     "groupAbout": "Sobre este estudo",
@@ -667,7 +666,6 @@
   "teaching": {
     "loading": "Abrindo o ensino…",
     "which": "Ensino:",
-    "another": "Preparar outro ensino bíblico",
     "empty": {
       "title": "Preparar um ensino a partir deste estudo",
       "text": "Um sermão, um estudo bíblico em grupo ou uma lição, escritos por você. Você pode usar o que anotou neste estudo: suas anotações e passagens continuam no lugar e aqui são apenas usadas. Nada é preenchido no seu lugar, e cada parte pode ficar vazia."
@@ -687,7 +685,6 @@
     "start": "Começar",
     "delete": "Excluir este ensino",
     "deleteConfirm": "Excluir este ensino? O estudo, suas anotações e passagens continuam como estão.",
-    "about": "Sobre este ensino",
     "audience": "Para quem",
     "audiencePlaceholder": "ex.: toda a igreja, um grupo de jovens",
     "purpose": "Propósito",
@@ -975,8 +972,6 @@
         "conclusion": "Final"
       }
     },
-    "aboutEmpty": "Tipo, para quem, propósito, passagens",
-    "aboutFor": "para {{audience}}",
     "format": {
       "points": "Pontos principais com explicação, aplicação e ilustração, entre uma introdução e uma conclusão.",
       "generalPoints": "Pontos principais com explicação, aplicação e ilustração, entre uma introdução e uma conclusão.",
@@ -1029,7 +1024,6 @@
     "materials": {
       "open": "Materiais"
     },
-    "prepareWhat": "O que você quer preparar?",
     "templates": {
       "listLabel": "Modelos de ensino bíblico",
       "intro": "Um modelo de ensino bíblico é aquilo com que um novo ensino começa: seu formato e os pontos, perguntas ou etapas iniciais. O ensino recebe uma cópia ao ser criado; por isso, alterar ou excluir um modelo nunca altera um ensino.",
@@ -1066,7 +1060,27 @@
       "saved": "Salvo como seu modelo “{{name}}”. Você pode escolhê-lo para seu próximo ensino e alterá-lo em Configurações → Modelos.",
       "tooMany": "Um modelo pode começar com no máximo {{max}} pontos, perguntas ou etapas, e este ensino tem mais. Crie o modelo em Configurações → Modelos."
     },
-    "addStepMenu": "Tipo de etapa a adicionar"
+    "addStepMenu": "Tipo de etapa a adicionar",
+    "newTeaching": "Novo ensino bíblico",
+    "formatLegend": "O que você quer preparar?",
+    "formats": {
+      "message": {
+        "name": "Mensagem",
+        "hint": "Um sermão, uma palestra ou uma devocional: mensagem central, introdução, pontos principais e conclusão."
+      },
+      "group": {
+        "name": "Estudo bíblico em grupo",
+        "hint": "Guiado pela conversa: uma abertura, o texto bíblico, perguntas e respostas e um encerramento."
+      },
+      "lesson": {
+        "name": "Lição interativa",
+        "hint": "Para crianças, jovens ou adultos: etapas como leitura bíblica, explicação, perguntas, uma atividade ou uma imagem."
+      }
+    },
+    "messageKind": "Tipo de mensagem",
+    "passagesLine": "Texto bíblico",
+    "notesHasText": "tem anotações",
+    "notesPrivate": "Só para você: nunca faz parte dos materiais para os ouvintes ou o grupo."
   },
   "parts": {
     "add": "Adicionar uma parte",
@@ -1210,5 +1224,12 @@
     "none": "Fora da estrutura",
     "ofPart": "Lugar de “{{title}}” na estrutura do estudo",
     "ofTemplatePart": "Lugar da parte {{number}} na estrutura do estudo"
+  },
+  "info": {
+    "study": "Informações do estudo bíblico",
+    "teaching": "Informações do ensino bíblico",
+    "project": "Informações do projeto",
+    "projectDescription": "Descrição",
+    "projectDescriptionHint": "Para que serve este projeto, em uma ou duas frases"
   }
 }

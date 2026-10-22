@@ -110,7 +110,7 @@ describe("creating a study", () => {
 });
 
 describe("the study page", () => {
-  it("keeps metadata out of the way until Study details is opened", async () => {
+  it("keeps metadata out of the way until Bible Study information is opened", async () => {
     const { api } = await withProject([{ title: "The True Vine", primaryPassage: "JHN.15.1-JHN.15.11" }]);
     const { user } = await renderApp(api);
     await openStudy(user, /The True Vine/);
@@ -123,21 +123,21 @@ describe("the study page", () => {
     expect(screen.getByRole("button", { name: "John 15:1–11" })).toBeInTheDocument();
     expect(screen.queryByText("Primary")).not.toBeInTheDocument();
 
-    const toggle = screen.getByRole("button", { name: "Study details" });
+    const toggle = screen.getByRole("button", { name: "Bible Study information" });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     await user.click(toggle);
     expect(toggle).toHaveAttribute("aria-expanded", "true");
-    const details = screen.getByRole("region", { name: "Study details" });
+    const details = screen.getByRole("dialog", { name: "Bible Study information" });
     expect(within(details).getByRole("combobox", { name: "Status" })).toBeInTheDocument();
     expect(within(details).getByRole("button", { name: /Duplicate/ })).toBeInTheDocument();
     expect(within(details).getByRole("textbox", { name: /Purpose/ })).toBeInTheDocument();
 
     await user.keyboard("{Escape}");
-    expect(screen.queryByRole("region", { name: "Study details" })).not.toBeInTheDocument();
-    expect(toggle).toHaveFocus();
+    expect(screen.queryByRole("dialog", { name: "Bible Study information" })).not.toBeInTheDocument();
+    await waitFor(() => expect(toggle).toHaveFocus());
   });
 
-  it("changes the primary passage from Study details, not from the page", async () => {
+  it("changes the primary passage from Bible Study information, not from the page", async () => {
     const { api } = await withProject([{ title: "The True Vine", primaryPassage: "JHN.15.1-JHN.15.11" }]);
     const studyId = api.state.studies[0]!.id;
     await api.studyPassageAdd({ studyId, reference: "ROM.8.1-ROM.8.4" });
@@ -145,18 +145,22 @@ describe("the study page", () => {
     await openStudy(user, /The True Vine/);
 
     expect(screen.queryByRole("button", { name: /Make .* the primary passage/ })).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Study details" }));
-    await user.click(screen.getByRole("button", { name: /Make Romans 8:1–4 the primary passage/ }));
+    await user.click(screen.getByRole("button", { name: "Bible Study information" }));
+    await user.click(await screen.findByRole("button", { name: /Make Romans 8:1–4 the primary passage/ }));
     await waitFor(() => expect(api.state.passages.find((p) => p.reference.canonical === "ROM.8.1-ROM.8.4")?.role).toBe("primary"));
   });
 
-  it("shows related studies compactly only when there are some", async () => {
+  it("keeps related studies in Bible Study information, where one can be opened", async () => {
     const { api } = await withProject([{ title: "Romans 8" }, { title: "Galatians 4" }]);
     await api.studyRelationCreate({ fromStudyId: api.state.studies[0]!.id, toStudyId: api.state.studies[1]!.id, relationType: "related" });
     const { user } = await renderApp(api);
     await openStudy(user, /Romans 8/);
-    const related = await screen.findByRole("region", { name: "Related studies" });
-    expect(within(related).getByRole("button", { name: "Galatians 4" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Galatians 4" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Bible Study information" }));
+    const info = await screen.findByRole("dialog", { name: "Bible Study information" });
+    await user.click(within(info).getByRole("button", { name: "Galatians 4" }));
+    expect(await screen.findByRole("textbox", { name: "Study title" })).toHaveValue("Galatians 4");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("shows nothing about saving when idle, and a brief Saved after a change", async () => {

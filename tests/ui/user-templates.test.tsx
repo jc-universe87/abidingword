@@ -161,9 +161,9 @@ describe("Save as my template", () => {
     await api.studySectionCreate({ studyId: detail.study.id, title: "Hymns" });
     const user = await openStudy(api, "Abiding");
 
-    await user.click(within(study()).getByRole("button", { name: "Study details" }));
-    await user.click(within(study()).getByRole("button", { name: "Save as my template" }));
-    const form = within(study()).getByRole("form", { name: "Save this study’s structure as a template" });
+    await user.click(within(study()).getByRole("button", { name: "Bible Study information" }));
+    await user.click(await screen.findByRole("button", { name: "Save as my template" }));
+    const form = screen.getByRole("form", { name: "Save this study’s structure as a template" });
     expect(form).toHaveTextContent("keeps this study’s 7 parts");
     expect(form).toHaveTextContent("Your writing, notes, passages and details stay in this study.");
     const name = within(form).getByLabelText("Name of the template");
@@ -171,7 +171,7 @@ describe("Save as my template", () => {
     await user.clear(name);
     await user.type(name, "My passage study");
     await user.click(within(form).getByRole("button", { name: "Save template" }));
-    await waitFor(() => expect(within(study()).getByText(/Saved as your template “My passage study”/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/Saved as your template “My passage study”/)).toBeInTheDocument());
 
     const mine = api.state.templates.find((t) => t.name === "My passage study")!;
     expect(mine.isBuiltin).toBe(false);
@@ -217,15 +217,15 @@ describe("review fixes (v0.18.7)", () => {
     const { api, project } = await setup();
     await api.studyCreate({ projectId: project.id, title: "Abiding", studyType: "passage" });
     const user = await openStudy(api, "Abiding");
-    await user.click(within(study()).getByRole("button", { name: "Study details" }));
-    const toggle = within(study()).getByRole("button", { name: "Save as my template" });
+    await user.click(within(study()).getByRole("button", { name: "Bible Study information" }));
+    const toggle = await screen.findByRole("button", { name: "Save as my template" });
     await user.click(toggle);
     await user.keyboard("{Escape}");
     expect(toggle).toHaveFocus();
     await user.click(toggle);
-    await user.click(within(study()).getByRole("button", { name: "Save template" }));
+    await user.click(screen.getByRole("button", { name: "Save template" }));
     await waitFor(() => expect(toggle).toHaveFocus());
-    expect(within(study()).getByText(/Saved as your template “Abiding”/)).toHaveAttribute("role", "status");
+    expect(screen.getByText(/Saved as your template “Abiding”/)).toHaveAttribute("role", "status");
   });
 
   it("offers no built-in parts for later to a study whose own template was deleted", async () => {

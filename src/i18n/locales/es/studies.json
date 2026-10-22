@@ -463,7 +463,6 @@
         "label": "Biblia"
       }
     },
-    "detailsToggle": "Detalles del estudio",
     "typeLine": "Tipo: {{type}}",
     "fromTemplate": "Desde tu plantilla: {{name}}",
     "groupAbout": "Acerca de este estudio",
@@ -667,7 +666,6 @@
   "teaching": {
     "loading": "Abriendo la enseñanza…",
     "which": "Enseñanza:",
-    "another": "Preparar otra enseñanza bíblica",
     "empty": {
       "title": "Preparar una enseñanza a partir de este estudio",
       "text": "Un sermón, un estudio bíblico en grupo o una lección, escritos por ti. Puedes usar lo que encontraste en este estudio: tus apuntes y pasajes siguen en su sitio y aquí solo se usan. No se rellena nada por ti, y cada parte puede quedar vacía."
@@ -687,7 +685,6 @@
     "start": "Empezar",
     "delete": "Eliminar esta enseñanza",
     "deleteConfirm": "¿Eliminar esta enseñanza? El estudio, sus apuntes y sus pasajes quedan como están.",
-    "about": "Sobre esta enseñanza",
     "audience": "Para quién",
     "audiencePlaceholder": "p. ej. toda la iglesia, un grupo de jóvenes",
     "purpose": "Propósito",
@@ -975,8 +972,6 @@
         "conclusion": "Final"
       }
     },
-    "aboutEmpty": "Tipo, para quién, propósito, pasajes",
-    "aboutFor": "para {{audience}}",
     "format": {
       "points": "Puntos principales con explicación, aplicación e ilustración, entre una introducción y una conclusión.",
       "generalPoints": "Puntos principales con explicación, aplicación e ilustración, entre una introducción y una conclusión.",
@@ -1029,7 +1024,6 @@
     "materials": {
       "open": "Materiales"
     },
-    "prepareWhat": "¿Qué quieres preparar?",
     "templates": {
       "listLabel": "Plantillas de enseñanza bíblica",
       "intro": "Una plantilla de enseñanza bíblica es aquello con lo que empieza una enseñanza nueva: su formato y los puntos, preguntas o pasos con los que comienza. La enseñanza recibe una copia al crearse, así que cambiar o eliminar una plantilla nunca cambia una enseñanza.",
@@ -1066,7 +1060,27 @@
       "saved": "Guardada como tu plantilla «{{name}}». Puedes elegirla para tu próxima enseñanza y cambiarla en Configuración → Plantillas.",
       "tooMany": "Una plantilla puede empezar con {{max}} puntos, preguntas o pasos como máximo, y esta enseñanza tiene más. Crea la plantilla en Configuración → Plantillas."
     },
-    "addStepMenu": "Tipo de paso que añadir"
+    "addStepMenu": "Tipo de paso que añadir",
+    "newTeaching": "Nueva enseñanza bíblica",
+    "formatLegend": "¿Qué quieres preparar?",
+    "formats": {
+      "message": {
+        "name": "Mensaje",
+        "hint": "Un sermón, una charla o un devocional: un mensaje central, una introducción, puntos principales y una conclusión."
+      },
+      "group": {
+        "name": "Estudio bíblico en grupo",
+        "hint": "Guiado por la conversación: una apertura, el texto bíblico, preguntas y respuestas, y un cierre."
+      },
+      "lesson": {
+        "name": "Lección interactiva",
+        "hint": "Para niños, jóvenes o adultos: pasos como la lectura bíblica, una explicación, preguntas, una actividad o una imagen."
+      }
+    },
+    "messageKind": "Tipo de mensaje",
+    "passagesLine": "Texto bíblico",
+    "notesHasText": "tiene notas",
+    "notesPrivate": "Solo para ti: nunca forma parte de los materiales para tus oyentes o tu grupo."
   },
   "parts": {
     "add": "Añadir una parte",
@@ -1210,5 +1224,12 @@
     "none": "Fuera del esquema",
     "ofPart": "Lugar de «{{title}}» en el esquema del estudio",
     "ofTemplatePart": "Lugar de la parte {{number}} en el esquema del estudio"
+  },
+  "info": {
+    "study": "Información del estudio bíblico",
+    "teaching": "Información de la enseñanza bíblica",
+    "project": "Información del proyecto",
+    "projectDescription": "Descripción",
+    "projectDescriptionHint": "Para qué es este proyecto, en una o dos frases"
   }
 }

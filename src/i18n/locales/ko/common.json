@@ -27,5 +27,11 @@
   "keep": "유지",
   "tryAgain": "다시 시도",
   "listSeparator": " · ",
-  "labelSeparator": ": "
+  "labelSeparator": ": ",
+  "info": {
+    "button": "정보",
+    "discarded": "저장하지 않은 변경 내용을 버렸습니다.",
+    "unsaved": "아직 저장하지 않음",
+    "changedElsewhere": "편집하는 동안 다른 곳에서 바뀌었습니다. 취소한 뒤 다시 열어 현재 내용을 확인하세요."
+  }
 }

@@ -27,5 +27,11 @@
   "keep": "Conserver",
   "tryAgain": "Réessayer",
   "listSeparator": " · ",
-  "labelSeparator": " : "
+  "labelSeparator": " : ",
+  "info": {
+    "button": "Infos",
+    "discarded": "Les modifications non enregistrées ont été abandonnées.",
+    "unsaved": "Pas encore enregistré",
+    "changedElsewhere": "Cela a été modifié ailleurs pendant votre saisie. Annulez et rouvrez pour voir la version actuelle."
+  }
 }

@@ -51,6 +51,8 @@ interface TeachingFieldProps {
   level?: "section" | "field";
   /** A stable id for the field, so focus can be moved to it. */
   fieldId?: string;
+  /** The label is said by a heading next to the field (v0.19: notes for oneself): read out only. */
+  labelHidden?: boolean;
 }
 
 /**
@@ -60,7 +62,7 @@ interface TeachingFieldProps {
  * person chooses "Use this", and they can undo that straight away.
  */
 export function TeachingField(props: TeachingFieldProps) {
-  const { label, value, save, part, pointId = null, multiline = true, rows = 3, placeholder, hint, assistant, onRevealScripture, autoFocus, emphasis, level = "section", fieldId } = props;
+  const { label, value, save, part, pointId = null, multiline = true, rows = 3, placeholder, hint, assistant, onRevealScripture, autoFocus, emphasis, level = "section", fieldId, labelHidden = false } = props;
   const { t } = useTranslation();
   const generated = useId();
   const id = generated;
@@ -200,7 +202,7 @@ export function TeachingField(props: TeachingFieldProps) {
         </label>
       ) : (
         <div className="flex flex-wrap items-end justify-between gap-x-2">
-          <label htmlFor={fid} className={level === "section" ? "type-section" : "type-subhead"}>
+          <label htmlFor={fid} className={labelHidden ? "sr-only" : level === "section" ? "type-section" : "type-subhead"}>
             {label}
           </label>
           {assistant && <AssistMenu part={part} partLabel={label} onChoose={choose} imagesNote={assistant.imagesNote} />}

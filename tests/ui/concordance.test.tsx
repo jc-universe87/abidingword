@@ -139,7 +139,7 @@ describe("A word study's occurrences", () => {
     const findingsBefore = api.state.findings.length;
     const { user } = await renderApp(api);
     await user.click(await screen.findByRole("button", { name: /Grace/ }));
-    await user.click(await screen.findByRole("button", { name: "Study details" }));
+    await user.click(await screen.findByRole("button", { name: "Bible Study information" }));
     expect(screen.getByRole("textbox", { name: "Word" })).toHaveAttribute("dir", "auto");
     await user.click(screen.getByRole("button", { name: "Find occurrences" }));
     await waitFor(() => expect(within(pane()).getByRole("status")).toHaveTextContent("4 occurrences"));

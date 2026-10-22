@@ -1,4 +1,5 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
+import { expect } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { App } from "@/app/App";
 import i18n from "@/i18n";
@@ -35,4 +36,20 @@ export async function openSettingsSection(user: ReturnType<typeof userEvent.setu
   const toggle = within(region).getByRole("button", { name: title });
   if (toggle.getAttribute("aria-expanded") !== "true") await user.click(toggle);
   return region;
+}
+
+/**
+ * Opens an information panel (v0.19: Project, Bible Study or Bible Teaching
+ * information) from its compact control, named by the panel's title, and
+ * returns the panel.
+ */
+export async function openInfo(user: ReturnType<typeof userEvent.setup>, title: string | RegExp) {
+  await user.click(await screen.findByRole("button", { name: title }));
+  return screen.findByRole("dialog", { name: title });
+}
+
+/** Saves an information panel's draft and waits for the panel to close. */
+export async function saveInfo(user: ReturnType<typeof userEvent.setup>, panel: HTMLElement) {
+  await user.click(within(panel).getByRole("button", { name: "Save" }));
+  await waitFor(() => expect(panel).not.toBeInTheDocument());
 }

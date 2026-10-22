@@ -39,7 +39,7 @@ export function RelatedStudies({ relations, onOpen }: Props) {
 }
 
 /** Link this study to another, and take links away: for Study details. */
-export function RelationManager({ studyId, relations, reload }: { studyId: string; relations: StudyRelation[]; reload: () => void }) {
+export function RelationManager({ studyId, relations, reload, onOpen }: { studyId: string; relations: StudyRelation[]; reload: () => void; onOpen?: (study: StudyRelation["other"]) => void }) {
   const { t } = useTranslation();
   const api = useApi();
   const [adding, setAdding] = useState(false);
@@ -65,7 +65,13 @@ export function RelationManager({ studyId, relations, reload }: { studyId: strin
           {relations.map((r) => (
             <li key={r.id} className="flex flex-wrap items-center gap-2">
               <span className="text-text-muted">{relationLabel(t, r.relationType, r.direction)}</span>
-              <span className="font-medium text-text-strong">{r.other.title}</span>
+              {onOpen ? (
+                <button type="button" onClick={() => onOpen(r.other)} className="min-h-11 font-medium text-link underline-offset-2 hover:underline">
+                  {r.other.title}
+                </button>
+              ) : (
+                <span className="font-medium text-text-strong">{r.other.title}</span>
+              )}
               <button
                 type="button"
                 onClick={() => void act(() => api.studyRelationDelete(r.id))}

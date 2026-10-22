@@ -463,7 +463,6 @@
         "label": "Bible"
       }
     },
-    "detailsToggle": "Détails de l’étude",
     "typeLine": "Type : {{type}}",
     "fromTemplate": "À partir de votre modèle : {{name}}",
     "groupAbout": "À propos de cette étude",
@@ -667,7 +666,6 @@
   "teaching": {
     "loading": "Ouverture de l’enseignement…",
     "which": "Enseignement :",
-    "another": "Préparer un autre enseignement biblique",
     "empty": {
       "title": "Préparer un enseignement à partir de cette étude",
       "text": "Une prédication, une étude biblique en groupe ou une leçon, écrite par vous. Vous pouvez utiliser ce que vous avez noté dans cette étude : vos notes et vos passages restent à leur place et sont simplement repris ici. Rien n’est rempli à votre place, et chaque partie peut rester vide."
@@ -687,7 +685,6 @@
     "start": "Commencer",
     "delete": "Supprimer cet enseignement",
     "deleteConfirm": "Supprimer cet enseignement ? L’étude, ses notes et ses passages restent tels quels.",
-    "about": "À propos de cet enseignement",
     "audience": "Pour qui",
     "audiencePlaceholder": "p. ex. toute l’église, un groupe de jeunes",
     "purpose": "But",
@@ -975,8 +972,6 @@
         "conclusion": "Fin"
       }
     },
-    "aboutEmpty": "Type, pour qui, but, passages",
-    "aboutFor": "pour {{audience}}",
     "format": {
       "points": "Des points principaux avec explication, application et illustration, entre une introduction et une conclusion.",
       "generalPoints": "Des points principaux avec explication, application et illustration, entre une introduction et une conclusion.",
@@ -1029,7 +1024,6 @@
     "materials": {
       "open": "Supports"
     },
-    "prepareWhat": "Que voulez-vous préparer ?",
     "templates": {
       "listLabel": "Modèles d’enseignement biblique",
       "intro": "Un modèle d’enseignement biblique est le point de départ d’un nouvel enseignement : sa forme, et les points, questions ou étapes par lesquels il commence. Un enseignement en reçoit une copie à sa création : modifier ou supprimer un modèle ne change donc jamais un enseignement.",
@@ -1066,7 +1060,27 @@
       "saved": "Enregistré comme votre modèle « {{name}} ». Vous pouvez le choisir pour votre prochain enseignement, et le modifier dans Paramètres → Modèles.",
       "tooMany": "Un modèle peut commencer avec {{max}} points, questions ou étapes au plus, et cet enseignement en a davantage. Créez plutôt le modèle dans Paramètres → Modèles."
     },
-    "addStepMenu": "Type d’étape à ajouter"
+    "addStepMenu": "Type d’étape à ajouter",
+    "newTeaching": "Nouvel enseignement biblique",
+    "formatLegend": "Que voulez-vous préparer ?",
+    "formats": {
+      "message": {
+        "name": "Message",
+        "hint": "Une prédication, un exposé ou une méditation : un message central, une introduction, des points principaux et une conclusion."
+      },
+      "group": {
+        "name": "Étude biblique en groupe",
+        "hint": "Guidée par l’échange : une ouverture, le texte biblique, des questions et des réponses, une conclusion."
+      },
+      "lesson": {
+        "name": "Leçon interactive",
+        "hint": "Pour enfants, jeunes ou adultes : des étapes comme la lecture biblique, une explication, des questions, une activité ou une image."
+      }
+    },
+    "messageKind": "Type de message",
+    "passagesLine": "Texte biblique",
+    "notesHasText": "contient des notes",
+    "notesPrivate": "Pour vous seul : jamais dans les supports destinés à l’auditoire ou au groupe."
   },
   "parts": {
     "add": "Ajouter une partie",
@@ -1210,5 +1224,12 @@
     "none": "Hors du plan",
     "ofPart": "Place de « {{title}} » dans le plan de l’étude",
     "ofTemplatePart": "Place de la partie {{number}} dans le plan de l’étude"
+  },
+  "info": {
+    "study": "Informations sur l’étude biblique",
+    "teaching": "Informations sur l’enseignement biblique",
+    "project": "Informations sur le projet",
+    "projectDescription": "Description",
+    "projectDescriptionHint": "À quoi sert ce projet, en une ou deux phrases"
   }
 }

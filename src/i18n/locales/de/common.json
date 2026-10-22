@@ -27,5 +27,11 @@
   "keep": "Behalten",
   "tryAgain": "Erneut versuchen",
   "listSeparator": " · ",
-  "labelSeparator": ": "
+  "labelSeparator": ": ",
+  "info": {
+    "button": "Angaben",
+    "discarded": "Nicht gespeicherte Änderungen wurden verworfen.",
+    "unsaved": "Noch nicht gespeichert",
+    "changedElsewhere": "Das wurde inzwischen an anderer Stelle geändert. Brich ab und öffne es erneut, um den aktuellen Stand zu sehen."
+  }
 }

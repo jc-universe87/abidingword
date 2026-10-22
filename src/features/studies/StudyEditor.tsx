@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown, Plus } from "lucide-react";
+import { ArrowLeft, ChevronsDownUp, ChevronsUpDown, Plus } from "lucide-react";
 import { Notice } from "@/design-system/Notice";
 import { useScripture } from "@/features/scripture/ScriptureContext";
 import { useSaveTracker } from "@/hooks/SaveTracker";
@@ -14,11 +14,10 @@ import { Button } from "@/design-system/Button";
 import { EditableTitle } from "./EditableTitle";
 import { AddPart, type NewPart } from "./AddPart";
 import { FindingList, FindingsPanel, KindFilter, QuickCapture } from "./FindingsPanel";
-import { RelatedStudies } from "./RelatedStudies";
 import { SectionEditor } from "./SectionEditor";
 import { sectionTitle } from "./builtinText";
 import { useStudyFocus } from "./StudyFocus";
-import { StudyDetailsPanel } from "./StudyDetails";
+import { StudyInfo } from "./StudyDetails";
 import { StudyPassages } from "./StudyPassages";
 import { hasJourney, namesRun, phaseRuns } from "./journey";
 import { JourneyOutline, NextStep, useCurrentRun, usePhaseName } from "./StudyJourney";
@@ -47,8 +46,6 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
   const relations = useLoad(useCallback(() => api.studyRelationList(studyId), [api, studyId]));
   // The Bible Teachings prepared from this study, for the way on at its end (v0.18.6).
   const teachings = useLoad(useCallback(() => api.teachingList(studyId), [api, studyId]));
-  const detailsId = useId();
-  const [showDetails, setShowDetails] = useState(false);
   // Notes being written, one per place: a part's id, or "" for the study's other notes, with the kind chosen.
   // Opening Add again where a note is already being written keeps that draft.
   const [capturing, setCapturingState] = useState<Readonly<Record<string, FindingType>>>({});
@@ -107,7 +104,6 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
   useEffect(() => {
     if (view === "study") reloadTeachings();
   }, [view, reloadTeachings]);
-  const toggle = useRef<HTMLButtonElement>(null);
   const article = useRef<HTMLElement>(null);
   const openedId = detail.data?.study.id;
 
@@ -284,17 +280,7 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
 
   return (
     <article ref={article} className="flex flex-col gap-3">
-      <header
-        id="study-overview"
-        className="scroll-mt-4 flex flex-col gap-1"
-        onKeyDown={(e) => {
-          if (e.key === "Escape" && showDetails) {
-            e.stopPropagation();
-            setShowDetails(false);
-            toggle.current?.focus();
-          }
-        }}
-      >
+      <header id="study-overview" className="scroll-mt-4 flex flex-col gap-1">
         <div className="flex items-start gap-1">
           {back && (
             <nav aria-label={t("studies.projects.breadcrumb")} className="-ml-3 shrink-0">
@@ -313,7 +299,8 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
             <EditableTitle key={study.id} label={t("studies.editor.titleLabel")} value={study.title} onSave={rename} />
           </div>
         </div>
-        {/* One quiet line under the title: the two ways of working, the passages, the details. */}
+        {/* One quiet line under the title (v0.19): the two ways of working, the study's information on
+            request, its passages and the tools for its parts. A teaching has its own line. */}
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.9375rem] text-text-muted">
           <div role="group" aria-label={t("studies.view.label")} className="-ml-2 flex">
             {(["study", "teaching"] as const).map((v) => (
@@ -328,18 +315,23 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
               </button>
             ))}
           </div>
-          <button
-            ref={toggle}
-            type="button"
-            aria-expanded={showDetails}
-            aria-controls={detailsId}
-            onClick={() => setShowDetails(!showDetails)}
-            className="inline-flex min-h-11 items-center gap-1 rounded-aw px-1 hover:text-text-strong"
-          >
-            {showDetails ? <ChevronDown className="size-4" aria-hidden="true" /> : <ChevronRight className="size-4" aria-hidden="true" />}
-            {t("studies.header.detailsToggle")}
-          </button>
-          <StudyPassages studyId={study.id} title={study.title} passages={passages.data ?? []} reload={passages.reload} onReveal={onRevealScripture} />
+          {view === "study" && (
+            <StudyInfo
+              study={study}
+              sections={sections}
+              findings={findings.data ?? []}
+              templates={templates.data ?? []}
+              passages={passages.data ?? []}
+              relations={relations.data ?? []}
+              reloadPassages={passages.reload}
+              reloadRelations={relations.reload}
+              onChanged={(s) => detail.setData({ ...current, study: s })}
+              onDuplicated={(id) => onOpenStudy({ id, projectId: study.projectId })}
+              onOpenStudy={onOpenStudy}
+              onRevealScripture={onRevealScripture}
+            />
+          )}
+          {view === "study" && <StudyPassages studyId={study.id} title={study.title} passages={passages.data ?? []} reload={passages.reload} onReveal={onRevealScripture} />}
           {view === "study" && <KindFilter findings={findings.data ?? []} filter={kindFilter} onFilter={setKindFilter} />}
           {view === "study" && sections.length > 1 && (
             <button
@@ -353,23 +345,6 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
           )}
           <SaveIndicator />
         </div>
-        <RelatedStudies relations={relations.data ?? []} onOpen={onOpenStudy} />
-        {showDetails && (
-          <StudyDetailsPanel
-            id={detailsId}
-            study={study}
-            sections={sections}
-            findings={findings.data ?? []}
-            templates={templates.data ?? []}
-            passages={passages.data ?? []}
-            relations={relations.data ?? []}
-            reloadPassages={passages.reload}
-            reloadRelations={relations.reload}
-            onChanged={(s) => detail.setData({ ...current, study: s })}
-            onDuplicated={(id) => onOpenStudy({ id, projectId: study.projectId })}
-            onRevealScripture={onRevealScripture}
-          />
-        )}
       </header>
 
       {view === "teaching" ? (

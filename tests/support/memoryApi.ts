@@ -705,6 +705,8 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     projectUpdate: async (input) => {
       const project = find(state.projects, input.id, "project");
       if (input.title !== undefined) project.title = requireTitle(input.title, "project");
+      // As the core does: an empty description clears it.
+      if (input.description !== undefined) project.description = input.description.trim() ? input.description : null;
       project.revision += 1;
       return withCount(project);
     },

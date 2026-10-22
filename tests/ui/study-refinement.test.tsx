@@ -1,7 +1,7 @@
 import { cleanup, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createMemoryApi } from "../support/memoryApi";
-import { renderApp } from "../support/render";
+import { openInfo, renderApp } from "../support/render";
 
 // Study workspace refinement (v0.10). All text is invented.
 
@@ -34,7 +34,8 @@ describe("the study header", () => {
     const passages = within(header()).getByRole("region", { name: "Passages" });
     expect(within(passages).queryByRole("button", { name: "John 15:1–11" })).not.toBeInTheDocument();
     expect(within(passages).getByRole("button", { name: "Open in Scripture" })).toBeInTheDocument();
-    expect(within(passages).getByRole("button", { name: "Related passage" })).toBeInTheDocument();
+    // Adding another passage is in Bible Study information (v0.19), not on the page.
+    expect(within(passages).queryByRole("button", { name: "Related passage" })).not.toBeInTheDocument();
   });
 
   it("treats a dash, spacing or case difference as the same", async () => {
@@ -74,28 +75,26 @@ describe("the study header", () => {
     expect(await within(header()).findByRole("button", { name: "John 15:1–11" })).toBeInTheDocument();
   });
 
-  it("does not show the kind of study in the header, only in Study details", async () => {
+  it("does not show the kind of study in the header, only in Bible Study information", async () => {
     const { api } = await withStudy({ title: "Righteousness", studyType: "word" });
     const { user } = await renderApp(api);
     await open(user, /Righteousness/);
     expect(within(header()).queryByText("Word Study")).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Study details" }));
-    expect(within(screen.getByRole("region", { name: "Study details" })).getByText(/Type: Word Study/)).toBeInTheDocument();
+    const info = await openInfo(user, "Bible Study information");
+    expect(within(info).getByText(/Type: Word Study/)).toBeInTheDocument();
   });
 });
 
-describe("Study details", () => {
-  it("is grouped: about, passages, related studies and copy", async () => {
+describe("Bible Study information", () => {
+  it("holds the draft fields first, then passages, related studies and copy", async () => {
     const { api } = await withStudy({ title: "The True Vine", primaryPassage: "JHN.15.1-JHN.15.11" });
     const { user } = await renderApp(api);
     await open(user, /The True Vine/);
-    await user.click(screen.getByRole("button", { name: "Study details" }));
-    const details = screen.getByRole("region", { name: "Study details" });
+    const details = await openInfo(user, "Bible Study information");
     const groups = within(details).getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
-    expect(groups).toEqual(["About this study", "Passages", "Related studies", "Copy"]);
-    const about = within(details).getByRole("group", { name: "About this study" });
-    expect(within(about).getByRole("combobox", { name: "Status" })).toBeInTheDocument();
-    expect(within(about).getByRole("textbox", { name: /Purpose/ })).toBeInTheDocument();
+    expect(groups).toEqual(["Passages", "Related studies", "Copy"]);
+    expect(within(details).getByRole("combobox", { name: "Status" })).toBeInTheDocument();
+    expect(within(details).getByRole("textbox", { name: /Purpose/ })).toBeInTheDocument();
     expect(within(details).getByRole("group", { name: "Copy" })).toContainElement(within(details).getByRole("button", { name: /Duplicate/ }));
   });
 
@@ -103,8 +102,7 @@ describe("Study details", () => {
     const { api } = await withStudy({ title: "The True Vine", primaryPassage: "JHN.15.1-JHN.15.11" });
     const { user } = await renderApp(api);
     await open(user, /The True Vine/);
-    await user.click(screen.getByRole("button", { name: "Study details" }));
-    const details = screen.getByRole("region", { name: "Study details" });
+    const details = await openInfo(user, "Bible Study information");
     expect(details).not.toHaveTextContent(/Passage Study Template|From your template/i);
     // The one mention of templates is the way to make one of the person's own (v0.18.7).
     expect(details.textContent!.match(/template/gi)).toEqual(["template"]);
@@ -121,18 +119,19 @@ describe("Study details", () => {
     await api.studyCreate({ projectId: project.id, title: "Mine", templateId: own.id });
     const { user } = await renderApp(api);
     await open(user, /Mine/);
-    await user.click(screen.getByRole("button", { name: "Study details" }));
-    expect(screen.getByRole("region", { name: "Study details" })).toHaveTextContent("From your template: Wednesday Bible Study");
+    expect(await openInfo(user, "Bible Study information")).toHaveTextContent("From your template: Wednesday Bible Study");
   });
 
   it("closes with Escape and returns focus to its toggle", async () => {
     const { api } = await withStudy({ title: "The True Vine" });
     const { user } = await renderApp(api);
     await open(user, /The True Vine/);
-    const toggle = screen.getByRole("button", { name: "Study details" });
+    const toggle = screen.getByRole("button", { name: "Bible Study information" });
     await user.click(toggle);
+    expect(await screen.findByRole("dialog", { name: "Bible Study information" })).toBeInTheDocument();
     await user.keyboard("{Escape}");
     await waitFor(() => expect(toggle).toHaveFocus());
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
 
@@ -610,7 +609,7 @@ describe("related studies", () => {
     const { api, other } = await two();
     const { user } = await renderApp(api);
     await open(user, /Romans 8/);
-    await user.click(screen.getByRole("button", { name: "Study details" }));
+    await openInfo(user, "Bible Study information");
     await user.click(screen.getByRole("button", { name: "+ Link a related study" }));
     const form = screen.getByRole("group", { name: "Link a related study" });
     expect(within(form).getByLabelText("Related study")).toBeInTheDocument();
@@ -624,7 +623,7 @@ describe("related studies", () => {
     const { api } = await two();
     const { user } = await renderApp(api);
     await open(user, /Romans 8/);
-    await user.click(screen.getByRole("button", { name: "Study details" }));
+    await openInfo(user, "Bible Study information");
     await user.click(screen.getByRole("button", { name: "+ Link a related study" }));
     const form = screen.getByRole("group", { name: "Link a related study" });
     await user.click(within(form).getByRole("button", { name: "Describe the relationship" }));

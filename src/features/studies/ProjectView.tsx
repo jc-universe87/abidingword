@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { Button } from "@/design-system/Button";
+import { InfoControl } from "@/design-system/InfoControl";
 import type { Project } from "@/types/domain";
 import type { StudySummary } from "@/types/studies";
 import { useApi } from "@/lib/ApiContext";
@@ -45,9 +46,10 @@ export function ProjectView({ project, plain = false, onProjects, onProjectChang
         <div>
           <p className="caps-label m-0 mb-2">{t("studies.projects.project")}</p>
           <EditableTitle key={project.id} label={t("studies.projects.titleLabel")} value={project.title} onSave={rename} />
-          <p className="m-0 mt-1 text-[0.9375rem] text-text-muted">
-            {studyCountLabel(t, project.studyCount)}
-          </p>
+          <div className="-ml-2 mt-1 flex flex-wrap items-center gap-x-2 text-[0.9375rem] text-text-muted">
+            <ProjectInfo project={project} onChanged={onProjectChanged} />
+            <span className="px-2">{studyCountLabel(t, project.studyCount)}</span>
+          </div>
         </div>
       )}
 
@@ -84,5 +86,36 @@ export function ProjectView({ project, plain = false, onProjects, onProjectChang
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * Project information (v0.19): the project's description as a draft saved
+ * only with Save. Its studies are the page itself; the title is edited where
+ * it stands.
+ */
+function ProjectInfo({ project, onChanged }: { project: Project; onChanged: (project: Project) => void }) {
+  const { t } = useTranslation();
+  const api = useApi();
+  return (
+    <InfoControl<{ description: string }>
+      title={t("studies.info.project")}
+      buttonLabel={t("common.info.button")}
+      initial={() => ({ description: project.description ?? "" })}
+      current={async () => ({ description: (await api.projectGet(project.id)).description ?? "" })}
+      save={async (draft) => onChanged(await api.projectUpdate({ id: project.id, description: draft.description }))}
+      fields={(draft, setDraft) => (
+        <label className="flex flex-col gap-1">
+          <span className="text-[0.9375rem] font-medium text-text-muted">{t("studies.info.projectDescription")}</span>
+          <textarea
+            rows={3}
+            value={draft.description}
+            onChange={(e) => setDraft({ description: e.target.value })}
+            placeholder={t("studies.info.projectDescriptionHint")}
+            className="reading resize-y rounded-aw border border-border-subtle bg-transparent px-3 py-1.5 text-[1rem] placeholder:text-text-muted focus:border-border"
+          />
+        </label>
+      )}
+    />
   );
 }

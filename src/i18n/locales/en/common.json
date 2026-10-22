@@ -27,5 +27,11 @@
   "keep": "Keep",
   "tryAgain": "Try again",
   "listSeparator": " · ",
-  "labelSeparator": ": "
+  "labelSeparator": ": ",
+  "info": {
+    "button": "Info",
+    "discarded": "Unsaved changes were discarded.",
+    "unsaved": "Not saved yet",
+    "changedElsewhere": "This was changed somewhere else while you were editing. Cancel and open it again to see the current version."
+  }
 }

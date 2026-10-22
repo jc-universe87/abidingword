@@ -34,10 +34,11 @@ async function openTeaching(api: MemoryApi) {
 }
 const newForm = () => within(studyPane()).getByRole("form", { name: "Prepare a teaching from this study" });
 
+/** Opens Bible Teaching information (v0.19) and returns the panel. */
 async function openAbout(user: User, article: HTMLElement) {
-  const toggle = within(article).getByRole("button", { name: /^About this teaching/ });
+  const toggle = within(article).getByRole("button", { name: "Bible Teaching information" });
   if (toggle.getAttribute("aria-expanded") !== "true") await user.click(toggle);
-  return within(article).getByRole("region", { name: "About this teaching" });
+  return screen.findByRole("dialog", { name: "Bible Teaching information" });
 }
 
 describe("the built-in Bible Teaching templates", () => {
@@ -106,12 +107,14 @@ describe("a Bible Teaching template of one's own", () => {
     const user = await openTeaching(api);
     const form = newForm();
     expect(within(form).getByRole("group", { name: "What would you like to prepare?" })).toBeInTheDocument();
-    // The format comes first; a template of one's own is offered only for the format it is made for.
+    // The format comes first (v0.19: a message, a group study or an interactive lesson); a template of
+    // one's own is offered only for the format it is made for, with the format's built-in starts.
     await waitFor(() => expect(api.state.teaching.templates).toHaveLength(1));
     expect(within(form).queryByRole("radiogroup", { name: "Start from" })).toBeNull();
-    await user.click(within(form).getByRole("radio", { name: "Children" }));
+    await user.click(within(form).getByRole("radio", { name: "Interactive lesson" }));
     const own = await within(form).findByRole("radiogroup", { name: "Start from" });
-    expect(within(own).getByRole("radio", { name: "Children (built-in)" })).toBeChecked();
+    expect(within(own).getAllByRole("radio").map((r) => r.getAttribute("aria-describedby") && (r.parentElement?.textContent ?? ""))).toEqual(["Lesson (built-in)", "Children (built-in)", "Youth evening"]);
+    expect(within(own).getByRole("radio", { name: "Lesson (built-in)" })).toBeChecked();
     await user.click(within(own).getByRole("radio", { name: "Youth evening" }));
     expect(form).toHaveTextContent("Starts with: Game · Bible story · Step 3.");
     expect(within(form).getByRole("textbox", { name: "Title" })).toHaveAttribute("placeholder", "Youth evening · Abiding");
@@ -132,7 +135,7 @@ describe("a Bible Teaching template of one's own", () => {
   it("starts as before from a built-in one: a lesson with its steps in the person's language", async () => {
     const { api } = await setup();
     const user = await openTeaching(api);
-    await user.click(within(newForm()).getByRole("radio", { name: "Lesson" }));
+    await user.click(within(newForm()).getByRole("radio", { name: "Interactive lesson" }));
     expect(newForm()).toHaveTextContent("Starts with: Teaching · Discussion · Activity.");
     await user.click(within(newForm()).getByRole("button", { name: "Start" }));
     await within(studyPane()).findByRole("article", { name: "Lesson · Abiding" });

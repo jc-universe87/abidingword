@@ -27,5 +27,11 @@
   "keep": "Manter",
   "tryAgain": "Tentar novamente",
   "listSeparator": " · ",
-  "labelSeparator": ": "
+  "labelSeparator": ": ",
+  "info": {
+    "button": "Info",
+    "discarded": "As alterações não salvas foram descartadas.",
+    "unsaved": "Ainda não salvo",
+    "changedElsewhere": "Isto foi alterado em outro lugar enquanto você editava. Cancele e abra de novo para ver a versão atual."
+  }
 }

@@ -57,19 +57,17 @@ describe("the three panes", () => {
 });
 
 describe("the open Bible Teaching", () => {
-  it("starts with two lines: its title with Materials, then its details and the way to another", async () => {
+  it("starts with two lines: its title with Materials, then its information and the way to another", async () => {
     const api = await setup();
     const { article } = await openTeaching(api);
     const header = article.querySelector("header")!;
     const head = within(header);
     expect(head.getByRole("textbox", { name: "Title" })).toHaveValue("Remain in the vine");
     expect(head.getByRole("button", { name: "Materials" })).toHaveAttribute("aria-haspopup", "menu");
-    expect(head.getByRole("button", { name: /^About this teaching/ })).toHaveAttribute("aria-expanded", "false");
-    expect(head.getByRole("button", { name: "Prepare another Bible Teaching" })).toBeInTheDocument();
-    // Nothing else stands between the header and the work: the folded details, then the central message.
-    const details = header.nextElementSibling as HTMLElement;
-    expect(details).not.toBeVisible();
-    expect(within(details.nextElementSibling as HTMLElement).getByRole("textbox", { name: "Central message" })).toHaveValue("Fruit comes from remaining.");
+    expect(head.getByRole("button", { name: "Bible Teaching information" })).toHaveAttribute("aria-expanded", "false");
+    expect(head.getByRole("button", { name: "New Bible Teaching" })).toBeInTheDocument();
+    // Nothing stands between the header and the work (v0.19): the central message comes next.
+    expect(within(header.nextElementSibling as HTMLElement).getByRole("textbox", { name: "Central message" })).toHaveValue("Fruit comes from remaining.");
     // The title wraps in a narrow pane but stays one line of text.
     const title = head.getByRole("textbox", { name: "Title" });
     expect(title.tagName).toBe("TEXTAREA");

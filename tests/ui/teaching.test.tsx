@@ -41,11 +41,11 @@ async function startSermon(user: User) {
 
 const field = (scope: HTMLElement, name: string | RegExp) => within(scope).getByRole("textbox", { name });
 
-/** Opens "About this teaching" (kind, audience, purpose, what the whole teaching uses). */
+/** Opens Bible Teaching information (v0.19: kind, audience, purpose, what the whole teaching uses) and returns the panel. */
 async function openAbout(user: User, article: HTMLElement) {
-  const toggle = within(article).getByRole("button", { name: /^About this teaching/ });
+  const toggle = within(article).getByRole("button", { name: "Bible Teaching information" });
   if (toggle.getAttribute("aria-expanded") !== "true") await user.click(toggle);
-  return within(article).getByRole("region", { name: "About this teaching" });
+  return screen.findByRole("dialog", { name: "Bible Teaching information" });
 }
 
 /** Waits for the debounced save of every field. */
@@ -108,10 +108,12 @@ describe("teaching preparation", () => {
     expect(field(article, "Central message")).toHaveValue("");
     expect(within(article).getByText(/No points yet/)).toBeInTheDocument();
 
-    // Just created: the details are open once, to be filled in.
-    expect(within(article).getByRole("button", { name: /^About this teaching/ })).toHaveAttribute("aria-expanded", "true");
-    await openAbout(user, article);
-    await user.type(field(article, "Who it is for"), "Families");
+    // Its information is out of the way (v0.19), opened only when asked for, and saved with Save.
+    expect(screen.queryByRole("dialog")).toBeNull();
+    const info = await openAbout(user, article);
+    await user.type(within(info).getByRole("textbox", { name: "Who it is for" }), "Families");
+    await user.click(within(info).getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     await user.type(field(article, "Central message"), "Fruit comes from abiding.");
     await user.type(field(article, "Introduction"), "Have you ever pruned a rose?");
     await settle();
@@ -162,11 +164,10 @@ describe("teaching preparation", () => {
     await api.findingUpdate({ id: findingId, content: "Branches stay." });
     await user.click(within(studyPane()).getByRole("button", { name: "Bible Study" }));
     await user.click(within(studyPane()).getByRole("button", { name: "Bible Teaching" }));
-    expect(await within(studyPane()).findByText("Branches stay.")).toBeInTheDocument();
-
-    await openAbout(user, within(studyPane()).getByRole("article", { name: "Sermon · Abiding" }));
-    await user.click(within(studyPane()).getByRole("button", { name: "Stop using this here" }));
-    await waitFor(() => expect(within(studyPane()).queryByText("Branches stay.")).toBeNull());
+    const again = await openAbout(user, await within(studyPane()).findByRole("article", { name: "Sermon · Abiding" }));
+    expect(await within(again).findByText("Branches stay.")).toBeInTheDocument();
+    await user.click(within(again).getByRole("button", { name: "Stop using this here" }));
+    await waitFor(() => expect(within(again).queryByText("Branches stay.")).toBeNull());
     expect(api.state.findings.map((f) => f.content)).toEqual(["Branches stay."]);
   });
 
@@ -190,18 +191,16 @@ describe("teaching preparation", () => {
     const sermon = await startSermon(user);
     await user.type(field(sermon, "Introduction"), "Have you pruned a rose?");
     await settle();
-    // "About this teaching" folded away: the way to another teaching is still in sight, with no picker yet.
-    const about = within(sermon).getByRole("button", { name: /^About this teaching/ });
-    if (about.getAttribute("aria-expanded") === "true") await user.click(about);
+    // The way to another teaching is in sight next to the open one, with no picker yet.
     expect(within(studyPane()).queryByRole("combobox", { name: "Teaching:" })).toBeNull();
-    const another = within(studyPane()).getByRole("button", { name: "Prepare another Bible Teaching" });
+    const another = within(studyPane()).getByRole("button", { name: "New Bible Teaching" });
     expect(another).toBeVisible();
 
     // By keyboard: the form opens with the focus on it, the kind is chosen as for the first teaching.
     another.focus();
     await user.keyboard("{Enter}");
-    const form = await within(studyPane()).findByRole("form", { name: "Prepare another Bible Teaching" });
-    expect(within(form).getByRole("heading", { name: "Prepare another Bible Teaching" })).toHaveFocus();
+    const form = await within(studyPane()).findByRole("form", { name: "New Bible Teaching" });
+    expect(within(form).getByRole("heading", { name: "New Bible Teaching" })).toHaveFocus();
     await user.click(within(form).getByRole("radio", { name: "Group Bible study" }));
     await user.click(within(form).getByRole("button", { name: "Start" }));
     await within(studyPane()).findByRole("article", { name: "Group Bible study · Abiding" });
@@ -213,7 +212,7 @@ describe("teaching preparation", () => {
     expect(preps[1]!.introduction).toBe("");
     const which = within(studyPane()).getByRole("combobox", { name: "Teaching:" });
     expect(within(which).getAllByRole("option").map((o) => o.textContent)).toEqual(["Sermon · Abiding · Sermon", "Group Bible study · Abiding · Group Bible study"]);
-    expect(within(studyPane()).getByRole("button", { name: "Prepare another Bible Teaching" })).toBeVisible();
+    expect(within(studyPane()).getByRole("button", { name: "New Bible Teaching" })).toBeVisible();
 
     // Switch both ways. The picker sits in the open teaching's details line (v0.18.4), so it is drawn
     // anew with each teaching; the keyboard stays on it.
@@ -225,10 +224,10 @@ describe("teaching preparation", () => {
     await within(studyPane()).findByRole("article", { name: "Group Bible study · Abiding" });
 
     // Cancelling another new teaching changes nothing and returns to the button.
-    await user.click(within(studyPane()).getByRole("button", { name: "Prepare another Bible Teaching" }));
+    await user.click(within(studyPane()).getByRole("button", { name: "New Bible Teaching" }));
     await user.click(within(studyPane()).getByRole("button", { name: "Cancel" }));
     expect(api.state.teaching.preparations).toHaveLength(2);
-    await waitFor(() => expect(within(studyPane()).getByRole("button", { name: "Prepare another Bible Teaching" })).toHaveFocus());
+    await waitFor(() => expect(within(studyPane()).getByRole("button", { name: "New Bible Teaching" })).toHaveFocus());
 
     // Deleting one leaves the other, and the study as it was.
     const group = await within(studyPane()).findByRole("article", { name: "Group Bible study · Abiding" });
@@ -238,7 +237,7 @@ describe("teaching preparation", () => {
     await waitFor(() => expect(api.state.teaching.preparations.map((p) => p.kind)).toEqual(["sermon"]));
     expect(await within(studyPane()).findByRole("article", { name: "Sermon · Abiding" })).toBeInTheDocument();
     expect(within(studyPane()).queryByRole("combobox", { name: "Teaching:" })).toBeNull();
-    await waitFor(() => expect(within(studyPane()).getByRole("button", { name: "Prepare another Bible Teaching" })).toHaveFocus());
+    await waitFor(() => expect(within(studyPane()).getByRole("button", { name: "New Bible Teaching" })).toHaveFocus());
     expect(JSON.stringify({ study: api.state.studies, findings: api.state.findings, passages: await api.studyPassageList(studyId) })).toBe(studyBefore);
   });
 
@@ -252,7 +251,7 @@ describe("teaching preparation", () => {
     const form = await within(studyPane()).findByRole("form", { name: "Prepare a teaching from this study" });
     await user.click(within(form).getByRole("button", { name: "Start" }));
     await within(studyPane()).findByRole("article", { name: "Sermon · Abiding" });
-    expect(within(studyPane()).getByRole("button", { name: "Prepare another Bible Teaching" })).not.toHaveFocus();
+    expect(within(studyPane()).getByRole("button", { name: "New Bible Teaching" })).not.toHaveFocus();
   });
 
   it("shows the teaching in Korean with natural teaching words", async () => {
@@ -903,22 +902,24 @@ describe("review fixes: applying a suggestion safely", () => {
     const { api } = await setup({ assistant: true });
     const { user } = await renderApp(api);
     const article = await startSermon(user);
-    await openAbout(user, article);
-    await user.type(field(article, "Purpose"), "To abide");
+    // A point's title is a one-line part (the audience and purpose are information, v0.19).
+    await user.click(within(article).getByRole("button", { name: "Add a point" }));
+    await waitFor(() => expect(field(article, "Title of point 1")).toHaveFocus());
+    await user.keyboard("To abide");
     await settle();
     api.state.teaching.assistant.replies.push({
       result: { type: "options", standing: "suggestion", options: [{ text: "That we\nremain in Christ", note: "" }] },
       assistant: "OpenAI · test-model",
       remote: true,
     });
-    const panel = await helpWith(user, article, "Purpose", "Other ways to say this");
+    const panel = await helpWith(user, article, "Title of point 1", "Other ways to say this");
     await ask(user, panel);
     expect(await within(panel).findByRole("button", { name: "Use this" })).toBeInTheDocument();
     expect(within(panel).queryByRole("button", { name: "Add below my text" })).toBeNull();
     await user.click(within(panel).getByRole("button", { name: "Use this" }));
-    await waitFor(() => expect(field(article, "Purpose")).toHaveValue("That we remain in Christ"));
+    await waitFor(() => expect(field(article, "Title of point 1")).toHaveValue("That we remain in Christ"));
     await settle();
-    expect(prep(api).purpose).toBe("That we remain in Christ");
+    expect(prep(api).points[0]!.title).toBe("That we remain in Christ");
   });
 
   it("offers nothing to add for the whole teaching's order, only to read", async () => {
@@ -1152,19 +1153,29 @@ describe("the teaching canvas", () => {
     await user.click(within(studyPane()).getByRole("button", { name: "Bible Study" }));
     await user.click(within(studyPane()).getByRole("button", { name: "Bible Teaching" }));
     const article = await within(studyPane()).findByRole("article", { name: "Sermon · Abiding" });
-    const about = within(article).getByRole("button", { name: /^About this teaching/ });
+    const about = within(article).getByRole("button", { name: "Bible Teaching information" });
     expect(about).toHaveAttribute("aria-expanded", "false");
-    expect(within(article).queryByRole("textbox", { name: "Who it is for" })).toBeNull();
-    expect(within(article).queryByRole("button", { name: "Delete this teaching" })).toBeNull();
-    // The main parts are there at once, in order.
+    expect(screen.queryByRole("textbox", { name: "Who it is for" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Delete this teaching" })).toBeNull();
+    // The main parts are there at once, in order; notes for oneself are folded away after them.
     const boxes = within(article).getAllByRole("textbox").map((b) => (b as HTMLInputElement).labels?.[0]?.textContent ?? "");
-    expect(boxes).toEqual(["Title", "Central message", "Introduction", "Conclusion", "Notes for yourself"]);
+    expect(boxes).toEqual(["Title", "Central message", "Introduction", "Conclusion"]);
+    expect(within(article).getByRole("button", { name: "Notes for yourself" })).toHaveAttribute("aria-expanded", "false");
+    // The information is a draft: closing it without Save keeps nothing.
     await user.click(about);
-    expect(await within(article).findByRole("textbox", { name: "Who it is for" })).toBeVisible();
-    // The summary says what is set.
-    await user.type(field(article, "Who it is for"), "families");
-    await settle();
-    expect(within(article).getByRole("button", { name: /^About this teaching/ })).toHaveTextContent("Sermon · for families");
+    const info = await screen.findByRole("dialog", { name: "Bible Teaching information" });
+    await user.type(within(info).getByRole("textbox", { name: "Who it is for" }), "families");
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(prep(api).audience).toBeNull();
+    expect(within(studyPane()).getByText("Unsaved changes were discarded.")).toBeInTheDocument();
+    // With Save it is kept.
+    const again = await openAbout(user, article);
+    expect(within(again).getByRole("textbox", { name: "Who it is for" })).toHaveValue("");
+    await user.type(within(again).getByRole("textbox", { name: "Who it is for" }), "families");
+    await user.click(within(again).getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(prep(api).audience).toBe("families"));
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   it("names the main parts after the kind: questions for a Bible study, steps for a lesson", async () => {
@@ -1172,13 +1183,18 @@ describe("the teaching canvas", () => {
     const { user } = await renderApp(api);
     const article = await startSermon(user);
     expect(within(article).getByRole("heading", { name: "Main points" })).toBeInTheDocument();
-    await openAbout(user, article);
-    await user.selectOptions(within(article).getByRole("combobox", { name: "Kind of teaching" }), "bible_study");
+    const setKind = async (kind: string) => {
+      const info = await openAbout(user, article);
+      await user.selectOptions(within(info).getByRole("combobox", { name: "Kind of teaching" }), kind);
+      await user.click(within(info).getByRole("button", { name: "Save" }));
+      await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    };
+    await setKind("bible_study");
     expect(await within(article).findByRole("heading", { name: "Questions and answers" })).toBeInTheDocument();
     await user.click(within(article).getByRole("button", { name: "Add a question" }));
     expect(await within(article).findByRole("textbox", { name: "Where it may lead" })).toBeInTheDocument();
     expect(within(article).getByRole("textbox", { name: "Follow-up questions" })).toBeInTheDocument();
-    await user.selectOptions(within(article).getByRole("combobox", { name: "Kind of teaching" }), "lesson");
+    await setKind("lesson");
     expect(await within(article).findByRole("heading", { name: "Lesson plan" })).toBeInTheDocument();
     expect(within(article).getByRole("textbox", { name: "What you will say or do" })).toBeInTheDocument();
     // The same point, only named differently: nothing was lost.
@@ -1190,8 +1206,10 @@ describe("the teaching canvas", () => {
     const { user } = await renderApp(api);
     await openTeaching(user);
     const form = await within(studyPane()).findByRole("form", { name: "Prepare a teaching from this study" });
-    await user.click(within(form).getByRole("radio", { name: "Children" }));
-    // The kind says what it gives to work in, and what it starts with.
+    // An interactive lesson (v0.19), started from the children's built-in steps.
+    await user.click(within(form).getByRole("radio", { name: "Interactive lesson" }));
+    await user.click(within(form).getByRole("radio", { name: "Children (built-in)" }));
+    // The start says what it gives to work in, and what it starts with.
     expect(within(form).getByText(/A lesson in steps: teaching, Bible reading, questions, activities and pictures/)).toBeInTheDocument();
     expect(form).toHaveTextContent("Starts with: Welcome · Bible story · Question · Activity · Prayer.");
     await user.click(within(form).getByRole("button", { name: "Start" }));
@@ -1237,8 +1255,9 @@ describe("the teaching canvas", () => {
     const article = await startSermon(user);
     await user.type(field(article, "Introduction"), "Have you pruned a rose?");
     await settle();
-    await openAbout(user, article);
-    await user.selectOptions(within(article).getByRole("combobox", { name: "Kind of teaching" }), "children");
+    const info = await openAbout(user, article);
+    await user.selectOptions(within(info).getByRole("combobox", { name: "Kind of teaching" }), "children");
+    await user.click(within(info).getByRole("button", { name: "Save" }));
     // A lesson has no separate introduction, but what was written there is never hidden.
     expect(await within(article).findByRole("textbox", { name: "Opening" })).toHaveValue("Have you pruned a rose?");
     expect(within(article).queryByRole("textbox", { name: "Ending" })).toBeNull();
