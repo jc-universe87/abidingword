@@ -87,7 +87,9 @@ function OneWord({ word, translationId, onDone }: { word: VerseWord; translation
         <span dir="auto" className="reading text-[1.0625rem] font-semibold text-text-strong">{word.surface}</span>
         {(word.lemma || word.strong) && (
           <span className="text-text-muted">
-            {t("scripture.words.lemma")} <EntryName lemma={word.lemma} strong={word.strong} />
+            {/* A number alone is named as a number, never as a lemma (v0.22). */}
+            {word.lemma && <>{t("scripture.words.lemma")} </>}
+            <EntryName lemma={word.lemma} strong={word.strong} />
           </span>
         )}
       </p>
@@ -103,7 +105,7 @@ function OneWord({ word, translationId, onDone }: { word: VerseWord; translation
       <div className="flex flex-wrap gap-2">
         {(word.lemma || word.strong) && (
           <button type="button" className={button} onClick={findLemma}>
-            {t("scripture.words.findLemma")}
+            {t(word.lemma ? "scripture.words.findLemma" : "scripture.words.findNumber")}
           </button>
         )}
         {(word.lemma || word.strong) && (

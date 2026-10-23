@@ -68,14 +68,22 @@
     "listMore_one": "{{numbers}} et {{count}} autre",
     "listMore_many": "{{numbers}} et {{count}} autres",
     "listMore_other": "{{numbers}} et {{count}} autres",
-    "unknownFormat": "Ces fichiers ne sont pas dans un format de Bible qu’Abiding Word sait encore lire. Il lit actuellement les Bibles USFM (fichiers .usfm ou .sfm, ou une archive .zip qui les contient).",
-    "formatNotYet": "Les fichiers {{format}} ne peuvent pas encore être importés comme Bible structurée. Abiding Word lit actuellement les Bibles USFM (fichiers .usfm ou .sfm, ou une archive .zip qui les contient).",
+    "unknownFormat": "Ces fichiers ne sont pas dans un format de Bible qu’Abiding Word sait encore lire. Il lit les Bibles USFM (fichiers .usfm ou .sfm, ou une archive .zip qui les contient), les fichiers OSIS de l’Open Scriptures Hebrew Bible et les fichiers MorphGNT.",
+    "formatNotYet": "Les fichiers {{format}} ne peuvent pas encore être importés comme Bible structurée. Abiding Word lit les Bibles USFM (fichiers .usfm ou .sfm, ou une archive .zip qui les contient), les fichiers OSIS de l’Open Scriptures Hebrew Bible et les fichiers MorphGNT.",
     "noBooks": "Aucun livre de la Bible n’a été trouvé dans ces fichiers.",
     "tooLarge": "Ces fichiers sont trop volumineux pour constituer une seule Bible.",
     "badZip": "Le fichier « {{fileName}} » n’est pas une archive .zip lisible.",
     "badZipPart": "Une partie de « {{fileName}} » n’a pas pu être lue.",
     "zipTooLarge": "Cette archive est trop volumineuse pour constituer une seule Bible.",
-    "badZipEntry": "« {{fileName}} » n’a pas pu être lu dans l’archive."
+    "badZipEntry": "« {{fileName}} » n’a pas pu être lu dans l’archive.",
+    "badOsis": "Le fichier « {{fileName}} » n’a pas pu être lu entièrement.",
+    "badLines_one": "{{book}} : {{count}} ligne de « {{fileName}} » n’a pas pu être lue.",
+    "badLines_many": "{{book}} : {{count}} lignes de « {{fileName}} » n’ont pas pu être lues.",
+    "badLines_other": "{{book}} : {{count}} lignes de « {{fileName}} » n’ont pas pu être lues.",
+    "verseMapApplied": "Ce texte utilise la numérotation des versets de la Bible hébraïque. Elle a été convertie en numérotation anglaise grâce à la table de correspondance des versets fournie ({{moved}} versets renumérotés, {{joined}} fusionnés, {{titles}} titres de psaumes conservés comme titres).",
+    "verseMapUnused": "La table de correspondance des versets fournie n’a pas été utilisée : ces fichiers suivent déjà la numérotation anglaise des versets.",
+    "verseMapRefused": "La table de correspondance des versets « {{fileName}} » n’a pas pu être lue entièrement ; elle n’a donc pas été utilisée.",
+    "hebrewNumbering": "Ce texte semble utiliser la numérotation des versets de la Bible hébraïque (Joël y a quatre chapitres). Ajoutez aux fichiers choisis la table de correspondance des versets qui l’accompagne (pour l’Open Scriptures Hebrew Bible : wlc/VerseMap.xml), et ils seront renumérotés."
   },
   "library": {
     "notUtf8": "« {{fileName}} » n’est pas enregistré en texte UTF-8 ; il n’a donc pas pu être lu.",
@@ -235,6 +243,10 @@
   },
   "words": {
     "unavailable": "Cette Bible n’a pas d’annotations de mots (lemmes ou grammaire) : cette recherche n’est donc pas disponible. La concordance ordinaire fonctionne toujours.",
-    "empty": "Saisissez un lemme ou un numéro lexical à chercher."
+    "empty": "Saisissez un lemme ou un numéro lexical à chercher.",
+    "grammarNotFit": "Ces codes grammaticaux ne correspondent pas à ce système : ils sont donc affichés tels qu’écrits.",
+    "textDiffers": "Les fichiers conservés ne donnent plus exactement le texte de cette Bible : ses mots ne peuvent donc pas être ajoutés. Retirez la Bible et ajoutez-la de nouveau pour les obtenir.",
+    "noSource": "Les fichiers à partir desquels cette Bible a été ajoutée ne sont plus conservés : ses mots ne peuvent donc pas être relus. Retirez la Bible et ajoutez-la de nouveau pour les obtenir.",
+    "nothingToIndex": "Ces fichiers ne contiennent aucune information sur les mots qui puisse être indexée."
   }
 }

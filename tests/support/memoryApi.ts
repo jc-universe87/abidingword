@@ -31,6 +31,7 @@ import type {
   VerseWord,
   StudyPassage,
   VerseText,
+  WordChoice,
   WordReport,
 } from "@/types/scripture";
 import { contains, refFromCanonical } from "@/lib/scripture";
@@ -107,6 +108,11 @@ export interface MemoryApi extends Api {
     nextChosenFiles: string[] | null;
     /** The word annotations the next Bible import preview reports (v0.21). */
     nextPreviewWords: WordReport | null;
+    /** What the person chose for the words of the last Bible added (v0.22). */
+    lastCommitWords: WordChoice | null;
+    /** What reading an installed Bible's files again finds next (v0.22; null: they are not kept). */
+    nextWordsPreview: WordReport | null;
+    pendingWords: { id: string; bibleId: string; report: WordReport } | null;
     findings: Finding[];
     relations: { id: string; from: string; to: string; relationType: StudyRelation["relationType"]; createdAt: string }[];
     templates: StudyTemplate[];
@@ -352,6 +358,21 @@ function classOf(origin: "explicit" | "section" | "manual", context: Context, fi
   return fit === "exact" || fit === "narrow" ? 2 : 4;
 }
 
+/** Whether a Bible's codes are described: a documented scheme (v0.22). */
+function described(scheme: string | undefined): boolean {
+  return scheme === "oshb" || scheme === "robinson" || scheme === "morphgnt";
+}
+
+/** As the core's `number_variants`: case, leading zeros, a missing H/G prefix, the space before a homograph letter. */
+function sameNumber(stored: string, typed: string): boolean {
+  const parse = (value: string) => /^([HG])?0*(\d{1,5})([A-Z]?)$/.exec(value.replace(/\s+/g, "").toUpperCase());
+  if (stored.toLowerCase() === typed.trim().toLowerCase()) return true;
+  const a = parse(stored);
+  const b = parse(typed.trim());
+  if (!a || !b) return false;
+  return a[2] === b[2] && a[3] === b[3] && (b[1] === undefined || a[1] === b[1]);
+}
+
 export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
   const stamp = now();
   const state: MemoryApi["state"] = {
@@ -379,6 +400,9 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     passages: [],
     nextChosenFiles: null,
     nextPreviewWords: null,
+    lastCommitWords: null,
+    nextWordsPreview: null,
+    pendingWords: null,
     pendingPreview: null,
     library: { sources: [], segments: [], mentions: [], links: [], nextChosenFile: null, openedLinks: [], openLinkFails: false, pending: null, annotations: [] },
     findings: [],
@@ -1152,18 +1176,21 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const typed = text.trim();
       if (!typed) throw new ApiError("invalidInput", "Type a lemma or a lexical number to look for.");
       const fold = lemmaFold(typed);
-      const found = all.filter((w) => w.lemma === typed || (w.lemma && lemmaFold(w.lemma) === fold) || w.lexicalIds.some((id) => id.toLowerCase() === typed.toLowerCase()));
-      const entries = new Map<string, { lemma: string | null; strong: string | null; forms: Map<string, number>; occurrences: number }>();
+      const byLemma = (w: VerseWord) => w.lemma === typed || (w.lemma && lemmaFold(w.lemma) === fold);
+      // As the core: a lexical number in any spelling of the same number (v0.22).
+      const matched = (w: VerseWord) => (byLemma(w) ? null : w.lexicalIds.find((id) => sameNumber(id, typed)) ?? null);
+      const found = all.filter((w) => byLemma(w) || matched(w) !== null);
+      const entries = new Map<string, { lemma: string | null; strong: string | null; forms: Map<string, number>; occurrences: number; matchedId: string | null }>();
       for (const w of found) {
         const key = `${w.lemma}|${w.strong}`;
-        const e = entries.get(key) ?? { lemma: w.lemma, strong: w.strong, forms: new Map(), occurrences: 0 };
+        const e = entries.get(key) ?? { lemma: w.lemma, strong: w.strong, forms: new Map(), occurrences: 0, matchedId: matched(w) };
         e.occurrences += 1;
         e.forms.set(w.surface, (e.forms.get(w.surface) ?? 0) + 1);
         entries.set(key, e);
       }
       return [...entries.values()]
         .sort((a, b) => b.occurrences - a.occurrences || String(a.lemma).localeCompare(String(b.lemma)) || String(a.strong).localeCompare(String(b.strong)))
-        .map((e) => ({ lemma: e.lemma, strong: e.strong, occurrences: e.occurrences, forms: [...e.forms.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([f]) => f) }));
+        .map((e) => ({ lemma: e.lemma, strong: e.strong, occurrences: e.occurrences, matchedId: e.matchedId, forms: [...e.forms.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([f]) => f) }));
     },
     scriptureLemmaSearch: async ({ translationId, selection, morph = [], book }) => {
       const bible = state.bibles.find((b) => b.id === translationId);
@@ -1213,7 +1240,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         hits,
         hitsComplete: Boolean(book) || kept.length <= 200,
         forms: [...forms.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([form, count]) => ({ form, count })),
-        morphology: [...codes.entries()].sort((a, b) => b[1].count - a[1].count || a[0].localeCompare(b[0])).map(([code, c]) => ({ code, count: c.count, described: bible?.words?.morphScheme === "oshb" ? c.described : null })),
+        morphology: [...codes.entries()].sort((a, b) => b[1].count - a[1].count || a[0].localeCompare(b[0])).map(([code, c]) => ({ code, count: c.count, described: described(bible?.words?.morphScheme) ? c.described : null })),
         withoutMorphology,
         morphScheme: bible?.words?.morphScheme ?? "none",
         morphAttribute: bible?.words?.morphAttribute ?? null,
@@ -1225,7 +1252,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const scheme = state.bibles.find((b) => b.id === translationId)?.words?.morphScheme;
       return (state.words.get(translationId)?.get(verse) ?? []).map((w) => ({
         ...w,
-        described: scheme === "oshb" ? w.described : null,
+        described: described(scheme) ? w.described : null,
         entryOccurrences: all.filter((o) => o.lemma === w.lemma && o.strong === w.strong).length,
       }));
     },
@@ -1287,6 +1314,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         bundled ? "included" : "imported",
       );
       state.pendingPreview = null;
+      state.lastCommitWords = input.words ?? null;
       return bible;
     },
     bibleImportCancel: async () => {
@@ -1309,6 +1337,44 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       }
       bible.language = language.trim();
       bible.languageCode = languageCode?.trim() || null;
+      return { ...bible };
+    },
+    bibleWordsPreview: async (bibleId) => {
+      const bible = state.bibles.find((b) => b.id === bibleId);
+      if (!bible) throw new ApiError("notFound", "Bible not found");
+      const report = state.nextWordsPreview;
+      if (!report) throw new ApiError("invalidInput", "The files this Bible was added from are no longer kept, so its words cannot be read again. Remove the Bible and add it again to get them.");
+      state.pendingWords = { id: `words-${bibleId}`, bibleId, report };
+      return { previewId: state.pendingWords.id, translationId: bibleId, format: "usfm", words: report, current: bible.words ?? null };
+    },
+    bibleWordsApply: async (previewId, choice) => {
+      const pending = state.pendingWords;
+      const bible = state.bibles.find((b) => b.id === pending?.bibleId);
+      if (!pending || pending.id !== previewId || !bible) throw new ApiError("invalidInput", "This import has expired. Please choose the files again.");
+      const r = pending.report;
+      const stated = r.grammar.scheme && r.grammar.stated ? r.grammar.scheme : null;
+      if (choice.grammar && choice.grammar !== r.grammar.scheme) throw new ApiError("invalidInput", "These grammar codes do not fit that scheme, so they are shown as written.");
+      const scheme = stated ?? (choice.grammar ? r.grammar.scheme : null);
+      bible.words = {
+        wordCount: r.words,
+        verseCount: r.verses,
+        lemmas: r.withLemma > 0,
+        lexicalIds: r.withLexicalId > 0,
+        morphology: r.withMorphology > 0,
+        morphScheme: scheme ?? (r.withMorphology > 0 ? "raw" : "none"),
+        morphAttribute: r.morphAttribute,
+        sourceFormat: "usfm",
+        grammarBasis: stated ? "edition" : scheme ? "person" : null,
+        grammarEvidence: stated ? r.grammar.stated : null,
+      };
+      state.pendingWords = null;
+      return { ...bible };
+    },
+    bibleWordsRemove: async (bibleId) => {
+      const bible = state.bibles.find((b) => b.id === bibleId);
+      if (!bible) throw new ApiError("notFound", "Bible not found");
+      bible.words = null;
+      state.words.delete(bibleId);
       return { ...bible };
     },
     bibleRemove: async (bibleId) => {

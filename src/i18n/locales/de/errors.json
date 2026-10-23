@@ -65,14 +65,21 @@
     "missingVerses_other": "{{book}} {{chapter}}: Verse {{list}} nicht gefunden. Die erwartete Versaufteilung weicht von diesem Text ab.",
     "listMore_one": "{{numbers}} und {{count}} weiterer",
     "listMore_other": "{{numbers}} und {{count}} weitere",
-    "unknownFormat": "Diese Dateien liegen in keinem Bibelformat vor, das Abiding Word bereits lesen kann. Derzeit liest es USFM-Bibeln (.usfm- oder .sfm-Dateien oder eine .zip-Datei mit solchen Dateien).",
-    "formatNotYet": "{{format}}-Dateien können noch nicht als gegliederte Bibel importiert werden. Abiding Word liest derzeit USFM-Bibeln (.usfm- oder .sfm-Dateien oder eine .zip-Datei mit solchen Dateien).",
+    "unknownFormat": "Diese Dateien liegen in keinem Bibelformat vor, das Abiding Word bereits lesen kann. Es liest USFM-Bibeln (.usfm- oder .sfm-Dateien oder eine .zip-Datei mit solchen Dateien), die OSIS-Dateien der Open Scriptures Hebrew Bible und MorphGNT-Dateien.",
+    "formatNotYet": "{{format}}-Dateien können noch nicht als gegliederte Bibel importiert werden. Abiding Word liest USFM-Bibeln (.usfm- oder .sfm-Dateien oder eine .zip-Datei mit solchen Dateien), die OSIS-Dateien der Open Scriptures Hebrew Bible und MorphGNT-Dateien.",
     "noBooks": "In diesen Dateien wurden keine Bücher der Bibel gefunden.",
     "tooLarge": "Diese Dateien sind zu groß für eine einzelne Bibel.",
     "badZip": "Die Datei „{{fileName}}“ ist kein lesbares .zip-Archiv.",
     "badZipPart": "Ein Teil von „{{fileName}}“ konnte nicht gelesen werden.",
     "zipTooLarge": "Dieses Archiv ist zu groß für eine einzelne Bibel.",
-    "badZipEntry": "„{{fileName}}“ im Archiv konnte nicht gelesen werden."
+    "badZipEntry": "„{{fileName}}“ im Archiv konnte nicht gelesen werden.",
+    "badOsis": "Die Datei „{{fileName}}“ konnte nicht vollständig gelesen werden.",
+    "badLines_one": "{{book}}: {{count}} Zeile von „{{fileName}}“ konnte nicht gelesen werden.",
+    "badLines_other": "{{book}}: {{count}} Zeilen von „{{fileName}}“ konnten nicht gelesen werden.",
+    "verseMapApplied": "Dieser Text verwendet die Verszählung der Hebräischen Bibel. Mit der beigefügten Verszuordnung wurde sie auf die englische Zählung umgestellt ({{moved}} Verse umnummeriert, {{joined}} zusammengeführt, {{titles}} Psalmüberschriften als Überschriften beibehalten).",
+    "verseMapUnused": "Die beigefügte Verszuordnung wurde nicht verwendet: Diese Dateien folgen bereits der englischen Verszählung.",
+    "verseMapRefused": "Die Verszuordnung „{{fileName}}“ konnte nicht vollständig gelesen werden und wurde daher nicht verwendet.",
+    "hebrewNumbering": "Dieser Text scheint die Verszählung der Hebräischen Bibel zu verwenden (Joel hat vier Kapitel). Füge den ausgewählten Dateien die dazugehörige Verszuordnung hinzu (bei der Open Scriptures Hebrew Bible: wlc/VerseMap.xml), dann werden sie umnummeriert."
   },
   "library": {
     "notUtf8": "„{{fileName}}“ ist nicht als UTF-8-Text gespeichert und konnte daher nicht gelesen werden.",
@@ -232,6 +239,10 @@
   },
   "words": {
     "unavailable": "Diese Bibel hat keine Wortangaben (Lemmata oder Grammatik), daher ist diese Suche für sie nicht verfügbar. Die normale Konkordanz funktioniert weiterhin.",
-    "empty": "Gib ein Lemma oder eine lexikalische Nummer ein."
+    "empty": "Gib ein Lemma oder eine lexikalische Nummer ein.",
+    "grammarNotFit": "Diese Grammatikcodes passen nicht zu diesem Schema und werden daher so angezeigt, wie sie geschrieben sind.",
+    "textDiffers": "Die aufbewahrten Dateien ergeben nicht mehr genau den Text dieser Bibel, daher können ihre Wörter nicht hinzugefügt werden. Entferne die Bibel und füge sie erneut hinzu, um sie zu erhalten.",
+    "noSource": "Die Dateien, aus denen diese Bibel hinzugefügt wurde, werden nicht mehr aufbewahrt, daher können ihre Wörter nicht erneut gelesen werden. Entferne die Bibel und füge sie erneut hinzu, um sie zu erhalten.",
+    "nothingToIndex": "Diese Dateien enthalten keine Wortangaben, die indexiert werden können."
   }
 }

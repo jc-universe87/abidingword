@@ -68,14 +68,22 @@
     "listMore_one": "{{numbers}} y {{count}} más",
     "listMore_many": "{{numbers}} y {{count}} más",
     "listMore_other": "{{numbers}} y {{count}} más",
-    "unknownFormat": "Estos archivos no están en un formato de Biblia que Abiding Word pueda leer todavía. Por ahora lee Biblias en USFM (archivos .usfm o .sfm, o un .zip que los contenga).",
-    "formatNotYet": "Los archivos {{format}} todavía no se pueden importar como una Biblia estructurada. Por ahora Abiding Word lee Biblias en USFM (archivos .usfm o .sfm, o un .zip que los contenga).",
+    "unknownFormat": "Estos archivos no están en un formato de Biblia que Abiding Word pueda leer todavía. Lee Biblias en USFM (archivos .usfm o .sfm, o un .zip que los contenga), los archivos OSIS de la Open Scriptures Hebrew Bible y archivos MorphGNT.",
+    "formatNotYet": "Los archivos {{format}} todavía no se pueden importar como una Biblia estructurada. Abiding Word lee Biblias en USFM (archivos .usfm o .sfm, o un .zip que los contenga), los archivos OSIS de la Open Scriptures Hebrew Bible y archivos MorphGNT.",
     "noBooks": "No se encontró ningún libro de la Biblia en estos archivos.",
     "tooLarge": "Estos archivos son demasiado grandes para ser una sola Biblia.",
     "badZip": "El archivo «{{fileName}}» no es un archivo .zip legible.",
     "badZipPart": "No se pudo leer una parte de «{{fileName}}».",
     "zipTooLarge": "Este archivo comprimido es demasiado grande para ser una sola Biblia.",
-    "badZipEntry": "No se pudo leer «{{fileName}}» dentro del archivo comprimido."
+    "badZipEntry": "No se pudo leer «{{fileName}}» dentro del archivo comprimido.",
+    "badOsis": "No se pudo leer por completo el archivo «{{fileName}}».",
+    "badLines_one": "{{book}}: no se pudo leer {{count}} línea de «{{fileName}}».",
+    "badLines_many": "{{book}}: no se pudieron leer {{count}} líneas de «{{fileName}}».",
+    "badLines_other": "{{book}}: no se pudieron leer {{count}} líneas de «{{fileName}}».",
+    "verseMapApplied": "Este texto usa la numeración de versículos de la Biblia hebrea. Se cambió a la numeración inglesa con la tabla de correspondencia de versículos proporcionada ({{moved}} versículos renumerados, {{joined}} unidos, {{titles}} títulos de salmos conservados como títulos).",
+    "verseMapUnused": "No se usó la tabla de correspondencia de versículos proporcionada: estos archivos ya siguen la numeración inglesa de versículos.",
+    "verseMapRefused": "No se pudo leer por completo la tabla de correspondencia de versículos «{{fileName}}», así que no se usó.",
+    "hebrewNumbering": "Este texto parece usar la numeración de versículos de la Biblia hebrea (Joel tiene cuatro capítulos). Añade a los archivos elegidos la tabla de correspondencia de versículos que lo acompaña (para la Open Scriptures Hebrew Bible: wlc/VerseMap.xml) y se renumerarán."
   },
   "library": {
     "notUtf8": "«{{fileName}}» no está guardado como texto UTF-8, así que no se pudo leer.",
@@ -235,6 +243,10 @@
   },
   "words": {
     "unavailable": "Esta Biblia no tiene anotaciones de palabras (lemas o gramática), así que esta búsqueda no está disponible. La concordancia normal sigue funcionando.",
-    "empty": "Escribe un lema o un número léxico para buscar."
+    "empty": "Escribe un lema o un número léxico para buscar.",
+    "grammarNotFit": "Estos códigos gramaticales no encajan en ese sistema, así que se muestran tal como están escritos.",
+    "textDiffers": "Los archivos guardados ya no dan exactamente el texto de esta Biblia, así que no se pueden añadir sus palabras. Quita la Biblia y vuelve a añadirla para obtenerlas.",
+    "noSource": "Los archivos desde los que se añadió esta Biblia ya no se guardan, así que sus palabras no se pueden volver a leer. Quita la Biblia y vuelve a añadirla para obtenerlas.",
+    "nothingToIndex": "Estos archivos no tienen información de palabras que se pueda indexar."
   }
 }

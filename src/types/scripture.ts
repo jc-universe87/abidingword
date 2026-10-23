@@ -62,13 +62,41 @@ export interface WordAnnotations {
   lemmas: boolean;
   lexicalIds: boolean;
   morphology: boolean;
-  /** "oshb" (described), "raw" (shown as written) or "none". */
+  /** A documented scheme (described), "raw" (shown as written) or "none". */
   morphScheme: MorphScheme;
   morphAttribute: string | null;
   sourceFormat: string;
+  /** Why the codes are described (v0.22): the edition names the scheme, or the person chose it. */
+  grammarBasis?: "edition" | "person" | null;
+  /** Where the edition names it. */
+  grammarEvidence?: GrammarStatement | null;
 }
 
-export type MorphScheme = "oshb" | "raw" | "none";
+/** The documented grammar-code schemes Abiding Word can describe (v0.22). */
+export type GrammarScheme = "oshb" | "robinson" | "morphgnt";
+export type MorphScheme = GrammarScheme | "raw" | "none";
+
+/** Where an edition names its grammar scheme: the file and the words found. */
+export interface GrammarStatement {
+  file: string;
+  words: string;
+}
+
+/** Which scheme a Bible's codes fit, and whether the edition says so (v0.22). */
+export interface GrammarFinding {
+  scheme: GrammarScheme | null;
+  coded: number;
+  described: number;
+  stated: GrammarStatement | null;
+}
+
+/** What the person chose for a Bible's words when adding it (v0.22). */
+export interface WordChoice {
+  /** Index words that carry only lexical numbers. */
+  numbers?: boolean;
+  /** Describe the codes with this scheme, which they fit. */
+  grammar?: GrammarScheme | null;
+}
 
 export interface BundledBibleInfo {
   id: string;
@@ -165,6 +193,8 @@ export interface LemmaEntry {
   strong: string | null;
   occurrences: number;
   forms: string[];
+  /** The lexical number the typed text matched, as stored ("H0430" for "H430"; v0.22). */
+  matchedId?: string | null;
 }
 
 export interface LemmaLookup {
@@ -299,7 +329,8 @@ export interface WordReport {
   phrases: number;
   parts: number;
   morphAttribute: string | null;
-  morphScheme: MorphScheme;
+  /** Which documented scheme the codes fit, and whether the edition says so (v0.22). */
+  grammar: GrammarFinding;
   otherAttributes: string[];
   leftOut: {
     syntax: number;
@@ -313,6 +344,17 @@ export interface WordReport {
   };
   indexed: boolean;
   notIndexed: "strongOnly" | "unreliable" | "unreadable" | "tooLarge" | null;
+  /** About how much the word index takes on disk (bytes). */
+  estimatedBytes: number;
+}
+
+/** Reading an installed Bible's kept files again for its words (v0.22). */
+export interface WordsPreview {
+  previewId: string;
+  translationId: string;
+  format: string;
+  words: WordReport;
+  current: WordAnnotations | null;
 }
 
 export interface ImportRequest {
@@ -329,6 +371,8 @@ export interface CommitImport {
   publisher?: string;
   copyrightNotice?: string;
   licenseType?: string;
+  /** What to do with the Bible's words (v0.22). */
+  words?: WordChoice;
 }
 
 export type AnnotationKind = "note" | "highlight" | "bookmark";

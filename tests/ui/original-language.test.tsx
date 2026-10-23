@@ -1,10 +1,11 @@
 import { act, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import i18n from "@/i18n";
 import { describeMorph } from "@/features/scripture/morphology";
 import type { MorphDescribed, WordReport } from "@/types/scripture";
 import { createMemoryApi } from "../support/memoryApi";
-import { renderApp } from "../support/render";
+import { openSettingsSection, renderApp } from "../support/render";
 
 // Original-language research (v0.21): lemma search, word details and the Word
 // Study, from a Bible's own word annotations. CONSTRUCTED TEST TEXT, not Bible
@@ -257,13 +258,22 @@ describe("A Word Study's lemma", () => {
 
 const report = (over: Partial<WordReport>): WordReport => ({
   marked: 0, words: 0, verses: 0, withLemma: 0, withLexicalId: 0, withMorphology: 0, distinctLemmas: 0, phrases: 0, parts: 0,
-  morphAttribute: null, morphScheme: "none", otherAttributes: [],
+  morphAttribute: null, grammar: { scheme: null, coded: 0, described: 0, stated: null }, estimatedBytes: 0, otherAttributes: [],
   leftOut: { syntax: 0, conflict: 0, tooLong: 0, unbalanced: 0, overlapping: 0, outsideVerse: 0, empty: 0, tooMany: 0 },
   indexed: false, notIndexed: null, ...over,
 });
 
 describe("The import preview", () => {
   async function previewWith(words: WordReport | null) {
+    return previewWithApi(words);
+  }
+  async function fillAndAdd() {
+    await userEvent.type(screen.getByLabelText(/Short name/), "FX");
+    await userEvent.selectOptions(screen.getByRole("combobox", { name: "Language" }), "en");
+    await userEvent.click(screen.getByRole("button", { name: "Add this Bible" }));
+    await screen.findByRole("button", { name: "Read it now" });
+  }
+  async function previewWithApi(words: WordReport | null) {
     const api = createMemoryApi();
     api.state.nextChosenFiles = ["/home/me/tagged.zip"];
     api.state.nextPreviewWords = words;
@@ -271,22 +281,44 @@ describe("The import preview", () => {
     await user.click(screen.getByRole("button", { name: "Add a Bible…" }));
     await user.click(await screen.findByRole("button", { name: "Choose Bible files…" }));
     await screen.findByRole("heading", { level: 1, name: "New Bible" });
+    return api;
   }
 
-  it("summarises the word annotations it will add", async () => {
+  it("summarises the word annotations in plain terms and describes grammar on the edition's word", async () => {
     await previewWith(report({
       marked: 1203, words: 1200, verses: 300, withLemma: 1200, withLexicalId: 1180, withMorphology: 1190, distinctLemmas: 410,
-      morphScheme: "oshb", indexed: true, leftOut: { syntax: 2, conflict: 1, tooLong: 0, unbalanced: 0, overlapping: 0, outsideVerse: 5, empty: 0, tooMany: 0 },
+      grammar: { scheme: "oshb", coded: 8, described: 8, stated: { file: "copr.htm", words: "Open Scriptures Hebrew Bible" } }, estimatedBytes: 0, indexed: true, leftOut: { syntax: 2, conflict: 1, tooLong: 0, unbalanced: 0, overlapping: 0, outsideVerse: 5, empty: 0, tooMany: 0 },
     }));
-    expect(screen.getByText("Word annotations: 1,200 words in 300 verses.")).toBeInTheDocument();
-    expect(screen.getByText("With a lemma: 1,200 · with lexical numbers: 1,180 · with a grammar code: 1,190 · different lemmas: 410")).toBeInTheDocument();
-    expect(screen.getByText(/Open Scriptures Hebrew Bible scheme/)).toBeInTheDocument();
+    const research = screen.getByRole("region", { name: "Original-language research" });
+    expect(within(research).getByText("1,200 words in 300 verses")).toBeInTheDocument();
+    expect(within(research).getByText("1,200 words · 410 different forms")).toBeInTheDocument();
+    expect(within(research).getByText(/the edition says it uses the Open Scriptures Hebrew Bible’s morphology/)).toBeInTheDocument();
+    // Stated by the edition: nothing to choose.
+    expect(within(research).queryByRole("checkbox")).toBeNull();
     expect(screen.getByText("3 annotated words could not be read and are left out.")).toBeInTheDocument();
   });
 
-  it("says why annotations are not added, and is silent for an untagged Bible", async () => {
-    await previewWith(report({ marked: 500, words: 500, withLexicalId: 500, notIndexed: "strongOnly" }));
-    expect(screen.getByText(/500 words carry lexical numbers only/)).toBeInTheDocument();
+  it("offers a fitting scheme only as the person's choice, unticked", async () => {
+    const api = await previewWithApi(report({
+      marked: 40, words: 40, verses: 10, withLexicalId: 40, withMorphology: 40,
+      grammar: { scheme: "robinson", coded: 40, described: 40, stated: null }, indexed: true,
+    }));
+    const choice = screen.getByRole("checkbox", { name: "Describe the grammar codes as Robinson’s Greek parsing codes" });
+    expect(choice).not.toBeChecked();
+    expect(screen.getByText(/40 of 40 codes fit this scheme, but the edition does not say it uses it/)).toBeInTheDocument();
+    await userEvent.click(choice);
+    await fillAndAdd();
+    expect(api.state.lastCommitWords).toEqual({ numbers: false, grammar: "robinson" });
+  });
+
+  it("offers a lexical-number search for a Strong's-only edition, with its size, unticked", async () => {
+    const api = await previewWithApi(report({ marked: 500, words: 500, verses: 100, withLexicalId: 500, notIndexed: "strongOnly", estimatedBytes: 7 * 1024 * 1024 }));
+    const choice = screen.getByRole("checkbox", { name: "Add a search by lexical number" });
+    expect(choice).not.toBeChecked();
+    expect(screen.getByText(/it is not a definition\. Takes about 7 MB/)).toBeInTheDocument();
+    expect(screen.getAllByText("not included")).toHaveLength(2);
+    await fillAndAdd();
+    expect(api.state.lastCommitWords).toEqual({ numbers: false, grammar: null });
   });
 
   it("is silent for a Bible without word markup", async () => {
@@ -303,5 +335,110 @@ describe("Grammar in each language", () => {
     expect(words("de")).toBe("Verb · qal · Perfekt · 3. Person · maskulin · Singular");
     expect(words("ko")).toBe("동사 · qal · 완료 · 3인칭 · 남성 · 단수");
     expect(words("fr")).toBe("verbe · qal · parfait · 3e personne · masculin · singulier");
+  });
+});
+
+// ---------------------------------------------------------------- v0.22
+
+describe("Lexical-number search (v0.22)", () => {
+  function numbersOnlyBible() {
+    const api = createMemoryApi();
+    const bible = api.installFixtureBible("NUM", "numbers");
+    api.state.settings.scriptureTranslationId = bible.id;
+    api.state.settings.scripturePassage = "GEN.1";
+    api.setVerseText(bible.id, "GEN.1.1", V1);
+    api.setVerseText(bible.id, "GEN.1.2", V2);
+    // Prefixed and plain occurrences of the same number, as OSHB writes them.
+    api.installFixtureWords(bible.id, "GEN.1.1", [{ surface: "אֱלֹהִים", strong: "H0430" }]);
+    api.installFixtureWords(bible.id, "GEN.1.2", [{ surface: "וַיִּבְרָא", strong: "c:H1254a" }, { surface: "אֱלֹהִים", strong: "H0430" }]);
+    return api;
+  }
+
+  it("is named for what it searches, finds a number in any spelling, and never shows it as a lemma", async () => {
+    const { user } = await renderApp(numbersOnlyBible());
+    const view = await concordance(user);
+    await user.click(view.getByRole("radio", { name: "Lexical number" }));
+    expect(view.getByText(/it is not a definition/)).toBeInTheDocument();
+    await user.type(view.getByRole("textbox", { name: "Lexical number" }), "h430");
+    await user.click(view.getByRole("button", { name: "Find" }));
+    await waitFor(() => expect(view.getAllByRole("status").at(-1)).toHaveTextContent("2 occurrences · in 2 verses"));
+    expect(view.getByRole("heading", { name: "Lexical number H0430" })).toBeInTheDocument();
+    expect(view.queryByText("(no lemma)")).toBeNull();
+  });
+
+  it("finds a homograph number written without its prefix", async () => {
+    const { user } = await renderApp(numbersOnlyBible());
+    const view = await concordance(user);
+    await user.click(view.getByRole("radio", { name: "Lexical number" }));
+    await user.type(view.getByRole("textbox", { name: "Lexical number" }), "1254a");
+    await user.click(view.getByRole("button", { name: "Find" }));
+    await waitFor(() => expect(view.getAllByRole("status").at(-1)).toHaveTextContent("1 occurrence"));
+  });
+});
+
+describe("Word information in Settings → Bibles (v0.22)", () => {
+  async function bibleDetails(api: ReturnType<typeof createMemoryApi>) {
+    const { user } = await renderApp(api);
+    const section = await openSettingsSection(user, "Bible texts");
+    await user.click(within(section).getByRole("button", { name: "Details" }));
+    return { user, section };
+  }
+
+  it("reads the kept files again, offers the choice, and saves only on confirmation", async () => {
+    const api = createMemoryApi();
+    const bible = api.installFixtureBible("SBL", "plain");
+    api.state.nextWordsPreview = report({ marked: 800, words: 800, verses: 200, withLexicalId: 800, notIndexed: "strongOnly", estimatedBytes: 1024 * 1024 });
+    const { user, section } = await bibleDetails(api);
+    expect(within(section).getByText("No word index.")).toBeInTheDocument();
+    await user.click(within(section).getByRole("button", { name: "Look for word information…" }));
+    const save = await within(section).findByRole("button", { name: "Save word index" });
+    // Nothing indexable until the person asks for the number search.
+    expect(save).toBeDisabled();
+    await user.click(within(section).getByRole("checkbox", { name: "Add a search by lexical number" }));
+    await user.click(save);
+    await within(section).findByText("Word index: 800 words.");
+    expect(api.state.bibles.find((b) => b.id === bible.id)?.words?.lexicalIds).toBe(true);
+
+    // Removing keeps the Bible and its text.
+    await user.click(within(section).getByRole("button", { name: "Remove word index…" }));
+    await user.click(within(section).getByRole("button", { name: "Remove word index" }));
+    await within(section).findByText("No word index.");
+    expect(api.state.bibles.some((b) => b.id === bible.id)).toBe(true);
+  });
+
+  it("says plainly when the files are no longer kept", async () => {
+    const api = createMemoryApi();
+    api.installFixtureBible("OLD", "plain");
+    const { user, section } = await bibleDetails(api);
+    await user.click(within(section).getByRole("button", { name: "Look for word information…" }));
+    expect(await within(section).findByRole("alert")).toHaveTextContent(/no longer kept/);
+  });
+});
+
+describe("Add a Bible guidance (v0.22)", () => {
+  it("links to the editions' own pages and downloads nothing itself", async () => {
+    const api = createMemoryApi();
+    const { user } = await renderApp(api);
+    await user.click(screen.getByRole("button", { name: "Add a Bible…" }));
+    await user.click(await screen.findByText("Hebrew and Greek editions for original-language research"));
+    expect(screen.getByText(/Abiding Word downloads nothing itself and includes none of them/)).toBeInTheDocument();
+    await user.click(screen.getAllByRole("button", { name: "Open github.com" })[0]!);
+    expect(api.state.library.openedLinks).toEqual(["https://github.com/openscriptures/morphhb"]);
+  });
+});
+
+describe("Greek grammar in each language (v0.22)", () => {
+  const AORIST: MorphDescribed = {
+    scheme: "robinson",
+    language: "greek",
+    segments: [{ partOfSpeech: "verb", features: [{ field: "tense", value: "aorist" }, { field: "form", value: "second" }, { field: "voice", value: "active" }, { field: "mood", value: "indicative" }, { field: "person", value: "third" }, { field: "number", value: "singular" }] }],
+  };
+  it("has a term for every part in all six languages", () => {
+    for (const lang of ["en", "de", "ko", "fr", "es", "pt"]) {
+      const text = describeMorph(i18n.getFixedT(lang), AORIST);
+      if (lang !== "en") expect(text, lang).not.toMatch(/\b(second|indicative|active)\b/);
+      expect(text.split(" · ")).toHaveLength(7);
+    }
+    expect(describeMorph(i18n.getFixedT("en"), AORIST)).toBe("verb · aorist · second form · active · indicative · 3rd person · singular");
   });
 });

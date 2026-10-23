@@ -450,6 +450,31 @@ function seedAnnotated(api: MemoryApi) {
   return sample;
 }
 
+/** A constructed Greek sample (v0.22): lexical numbers and Robinson codes, or numbers only. */
+function seedGreek(api: MemoryApi, numbersOnly: boolean) {
+  const sample = api.installFixtureBible(numbersOnly ? "GRNUM" : "GRSAMPLE", "greek");
+  Object.assign(sample, { name: numbersOnly ? "Constructed numbers sample (not Bible text)" : "Constructed Greek sample (not Bible text)", language: "Greek", languageCode: "grc" });
+  const noun = (c: string): MorphDescribed => ({ scheme: "robinson", language: "greek", segments: [{ partOfSpeech: "noun", features: [{ field: "case", value: c }, { field: "number", value: "singular" }, { field: "gender", value: "masculine" }] }] });
+  const verb: MorphDescribed = { scheme: "robinson", language: "greek", segments: [{ partOfSpeech: "verb", features: [{ field: "tense", value: "imperfect" }, { field: "voice", value: "active" }, { field: "mood", value: "indicative" }, { field: "person", value: "third" }, { field: "number", value: "singular" }] }] };
+  const lines: [string, string, FixtureWord[]][] = [
+    ["JHN.1.1", "ὁ λόγος ἦν ἐν ἀρχῇ", [
+      { surface: "λόγος", strong: "G3056", morph: "N-NSM", described: noun("nominative") },
+      { surface: "ἦν", strong: "G1510", morph: "V-IAI-3S", described: verb },
+    ]],
+    ["JHN.1.2", "λόγον ἤκουσεν", [{ surface: "λόγον", strong: "G3056", morph: "N-ASM", described: noun("accusative") }]],
+    ["JHN.1.3", "περὶ τοῦ λόγου", [{ surface: "λόγου", strong: "G3056", morph: "N-GSM", described: noun("genitive") }]],
+  ];
+  for (const [verse, text, words] of lines) {
+    api.setVerseText(sample.id, verse, text);
+    api.installFixtureWords(sample.id, verse, numbersOnly ? words.map((w) => ({ surface: w.surface, strong: w.strong })) : words, numbersOnly ? "none" : "robinson");
+  }
+  api.state.settings.scriptureTranslationId = sample.id;
+  api.state.settings.scripturePassage = "JHN.1";
+  return sample;
+}
+
+const EMPTY_LEFT = { syntax: 0, conflict: 0, tooLong: 0, unbalanced: 0, overlapping: 0, outsideVerse: 0, empty: 0, tooMany: 0 };
+
 async function start() {
   const api = createMemoryApi({
     version: "0.5.0-dev.26",
@@ -482,9 +507,35 @@ async function start() {
     api.state.nextChosenFiles = ["/home/you/Downloads/annotated_usfm.zip"];
     api.state.nextPreviewWords = {
       marked: 124, words: 121, verses: 15, withLemma: 121, withLexicalId: 119, withMorphology: 121, distinctLemmas: 63,
-      phrases: 0, parts: 6, morphAttribute: "x-morph", morphScheme: "oshb", otherAttributes: ["srcloc"],
+      phrases: 0, parts: 6, morphAttribute: "x-morph", grammar: { scheme: "oshb", coded: 8, described: 8, stated: { file: "copr.htm", words: "Open Scriptures Hebrew Bible" } }, estimatedBytes: 0, otherAttributes: ["srcloc"],
       leftOut: { syntax: 2, conflict: 1, tooLong: 0, unbalanced: 0, overlapping: 0, outsideVerse: 0, empty: 0, tooMany: 0 },
       indexed: true, notIndexed: null,
+    };
+  }
+  // v0.22 scenes.
+  const greek = params.get("greek");
+  if (greek) seedGreek(api, greek === "numbers");
+  if (params.get("preview") === "robinson") {
+    api.state.nextChosenFiles = ["/home/you/Downloads/grcmt_usfm.zip"];
+    api.state.nextPreviewWords = {
+      marked: 140121, words: 140121, verses: 7957, withLemma: 0, withLexicalId: 140121, withMorphology: 140121, distinctLemmas: 0,
+      phrases: 0, parts: 0, morphAttribute: "x-morph", grammar: { scheme: "robinson", coded: 140121, described: 139870, stated: null }, estimatedBytes: 140121 * 51, otherAttributes: [],
+      leftOut: EMPTY_LEFT, indexed: true, notIndexed: null,
+    };
+  }
+  if (params.get("preview") === "strongs") {
+    api.state.nextChosenFiles = ["/home/you/Downloads/grcsbl_usfm.zip"];
+    api.state.nextPreviewWords = {
+      marked: 137554, words: 137554, verses: 7939, withLemma: 0, withLexicalId: 137554, withMorphology: 0, distinctLemmas: 0,
+      phrases: 0, parts: 0, morphAttribute: null, grammar: { scheme: null, coded: 0, described: 0, stated: null }, estimatedBytes: 137554 * 51, otherAttributes: [],
+      leftOut: EMPTY_LEFT, indexed: false, notIndexed: "strongOnly",
+    };
+  }
+  if (params.get("wordsPreview") === "strongs") {
+    api.state.nextWordsPreview = {
+      marked: 31102, words: 31102, verses: 31102, withLemma: 0, withLexicalId: 31102, withMorphology: 0, distinctLemmas: 0,
+      phrases: 0, parts: 0, morphAttribute: null, grammar: { scheme: null, coded: 0, described: 0, stated: null }, estimatedBytes: 31102 * 51, otherAttributes: [],
+      leftOut: EMPTY_LEFT, indexed: false, notIndexed: "strongOnly",
     };
   }
   await i18n.changeLanguage(params.get("lang") ?? "en");

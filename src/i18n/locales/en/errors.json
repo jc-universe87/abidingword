@@ -65,14 +65,21 @@
     "missingVerses_other": "{{book}} {{chapter}}: verses {{list}} not found. The expected verse structure differs from this text.",
     "listMore_one": "{{numbers}} and {{count}} more",
     "listMore_other": "{{numbers}} and {{count}} more",
-    "unknownFormat": "These files are not in a Bible format Abiding Word can read yet. It currently reads USFM Bibles (.usfm or .sfm files, or a .zip of them).",
-    "formatNotYet": "{{format}} files can’t be imported as a structured Bible yet. Abiding Word currently reads USFM Bibles (.usfm or .sfm files, or a .zip of them).",
+    "unknownFormat": "These files are not in a Bible format Abiding Word can read yet. It reads USFM Bibles (.usfm or .sfm files, or a .zip of them), the Open Scriptures Hebrew Bible’s OSIS files and MorphGNT files.",
+    "formatNotYet": "{{format}} files can’t be imported as a structured Bible yet. Abiding Word reads USFM Bibles (.usfm or .sfm files, or a .zip of them), the Open Scriptures Hebrew Bible’s OSIS files and MorphGNT files.",
     "noBooks": "No books of the Bible were found in these files.",
     "tooLarge": "These files are too large to be a single Bible.",
     "badZip": "The file “{{fileName}}” is not a readable .zip archive.",
     "badZipPart": "Part of “{{fileName}}” could not be read.",
     "zipTooLarge": "This archive is too large to be a single Bible.",
-    "badZipEntry": "“{{fileName}}” inside the archive could not be read."
+    "badZipEntry": "“{{fileName}}” inside the archive could not be read.",
+    "badOsis": "The file “{{fileName}}” could not be read completely.",
+    "badLines_one": "{{book}}: {{count}} line of “{{fileName}}” could not be read.",
+    "badLines_other": "{{book}}: {{count}} lines of “{{fileName}}” could not be read.",
+    "verseMapApplied": "This text uses the Hebrew Bible’s verse numbers. They were changed to the English numbering with the verse map supplied ({{moved}} verses renumbered, {{joined}} joined, {{titles}} Psalm titles kept as titles).",
+    "verseMapUnused": "The verse map supplied was not used: these files already follow the English verse numbers.",
+    "verseMapRefused": "The verse map “{{fileName}}” could not be read completely, so it was not used.",
+    "hebrewNumbering": "This text seems to use the Hebrew Bible’s verse numbers (Joel has four chapters). Add the verse map that comes with it (for the Open Scriptures Hebrew Bible: wlc/VerseMap.xml) to the files chosen, and they will be renumbered."
   },
   "library": {
     "notUtf8": "“{{fileName}}” is not saved as UTF-8 text, so it could not be read.",
@@ -232,6 +239,10 @@
   },
   "words": {
     "unavailable": "This Bible has no word annotations (lemmas or grammar), so this search is not available for it. The ordinary concordance still works.",
-    "empty": "Type a lemma or a lexical number to look for."
+    "empty": "Type a lemma or a lexical number to look for.",
+    "grammarNotFit": "These grammar codes do not fit that scheme, so they are shown as written.",
+    "textDiffers": "The kept files no longer give exactly this Bible’s text, so its words cannot be added. Remove the Bible and add it again to get them.",
+    "noSource": "The files this Bible was added from are no longer kept, so its words cannot be read again. Remove the Bible and add it again to get them.",
+    "nothingToIndex": "These files have no word information that can be indexed."
   }
 }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { AlertTriangle, ArrowLeft, Check, CircleX } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Check, CircleX, ExternalLink } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { Dialog } from "@/design-system/Dialog";
 import { Notice } from "@/design-system/Notice";
@@ -10,7 +10,8 @@ import { useApi } from "@/lib/ApiContext";
 import { formatNumber } from "@/i18n/format";
 import { localizeMessage } from "@/i18n/messages";
 import { bookName } from "@/i18n/scripture";
-import type { BibleTranslation, BundledBibleInfo, ImportIssue, ImportPreview, WordReport } from "@/types/scripture";
+import type { BibleTranslation, BundledBibleInfo, ImportIssue, ImportPreview, WordChoice } from "@/types/scripture";
+import { NO_CHOICE, WordResearch, hasWordResearch } from "./WordResearch";
 import { useScripture } from "./ScriptureContext";
 import { LanguageChoice, type LanguageValue } from "./LanguageChoice";
 
@@ -223,8 +224,51 @@ function ChooseStep({ onBundled, onFiles }: { onBundled: (id: string) => void; o
           {t("scripture.addBible.ownBody")}
         </p>
         <Button onClick={onFiles}>{t("scripture.addBible.chooseFiles")}</Button>
+        <OriginalLanguageGuide />
       </section>
     </div>
+  );
+}
+
+/**
+ * Where Hebrew and Greek editions with word information can be found (v0.22):
+ * links only, opened in the browser. Abiding Word downloads nothing itself
+ * and ships none of these editions; the person chooses the files afterwards.
+ */
+const EDITIONS = [
+  { key: "oshb", url: "https://github.com/openscriptures/morphhb" },
+  { key: "wlc", url: "https://ebible.org/Scriptures/details.php?id=hboWLC" },
+  { key: "morphgnt", url: "https://github.com/morphgnt/sblgnt" },
+  { key: "rp", url: "https://ebible.org/Scriptures/details.php?id=grcmt" },
+  { key: "sbl", url: "https://ebible.org/Scriptures/details.php?id=grcsbl" },
+] as const;
+
+function OriginalLanguageGuide() {
+  const { t } = useTranslation();
+  const api = useApi();
+  return (
+    <details className="w-full text-[0.9375rem]">
+      <summary className="cursor-pointer text-text-strong">{t("scripture.addBible.guide.title")}</summary>
+      <div className="mt-3 flex flex-col gap-3">
+        <p className="m-0 text-text-muted">{t("scripture.addBible.guide.intro")}</p>
+        <ul className="m-0 flex list-none flex-col gap-3 p-0">
+          {EDITIONS.map((edition) => (
+            <li key={edition.key} className="flex flex-col gap-0.5">
+              <span className="font-medium text-text-strong">{t(`scripture.addBible.guide.${edition.key}.name`)}</span>
+              <span>{t(`scripture.addBible.guide.${edition.key}.gives`)}</span>
+              <span className="text-text-muted">{t(`scripture.addBible.guide.${edition.key}.how`)}</span>
+              <span>
+                <Button variant="quiet" onClick={() => void api.openExternalLink(edition.url)}>
+                  <ExternalLink className="size-3.5" aria-hidden="true" />
+                  {t("scripture.addBible.guide.open", { host: new URL(edition.url).host })}
+                </Button>
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="m-0 text-text-muted">{t("scripture.addBible.guide.note")}</p>
+      </div>
+    </details>
   );
 }
 
@@ -236,6 +280,7 @@ interface Details {
   publisher?: string;
   copyrightNotice?: string;
   licenseType?: string;
+  words?: WordChoice;
 }
 
 function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCancel: () => void; onAdd: (d: Details) => Promise<void> }) {
@@ -248,6 +293,7 @@ function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCa
   // left for the person. A tag without a name is named by LanguageChoice.
   const [language, setLanguage] = useState<LanguageValue | null>(() => (s.languageCode ? { code: s.languageCode, name: s.language } : null));
   const [busy, setBusy] = useState(false);
+  const [words, setWords] = useState<WordChoice>(NO_CHOICE);
   const errors = preview.issues.filter((i) => i.severity === "error");
   const warnings = preview.issues.filter((i) => i.severity === "warning");
   const notes = preview.issues.filter((i) => i.severity === "note");
@@ -263,6 +309,7 @@ function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCa
       publisher: s.publisher ?? undefined,
       copyrightNotice: s.copyrightNotice ?? undefined,
       licenseType: s.licenseType ?? undefined,
+      words,
     });
     setBusy(false);
   };
@@ -282,8 +329,9 @@ function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCa
         <p className="reading m-0">{t("scripture.addBible.chaptersDetected", { count: preview.chapterCount, number: formatNumber(preview.chapterCount) })}</p>
         <p className="reading m-0">{t("scripture.addBible.versesDetected", { count: preview.verseCount, number: formatNumber(preview.verseCount) })}</p>
         {s.licenseType && <p className="m-0 mt-2 text-[0.9375rem] text-text-muted">{t("scripture.addBible.licence", { licence: s.licenseType })}</p>}
-        {preview.words && (preview.words.indexed || preview.words.notIndexed) && <WordSummary report={preview.words} />}
       </section>
+
+      {hasWordResearch(preview.words) && <WordResearch report={preview.words} choice={words} onChoice={setWords} atImport />}
 
       <ul aria-label={t("scripture.addBible.books")} className="m-0 grid list-none grid-cols-1 gap-x-6 p-0 sm:grid-cols-2">
         {preview.books.map((book) => (
@@ -311,33 +359,6 @@ function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCa
         </Button>
         <Button onClick={onCancel}>{t("common.cancel")}</Button>
       </div>
-    </div>
-  );
-}
-
-/** What the Bible's word markup gives (v0.21); said only when it has any. */
-function WordSummary({ report }: { report: WordReport }) {
-  const { t } = useTranslation();
-  const n = (value: number) => formatNumber(value);
-  const left = Object.entries(report.leftOut).reduce((sum, [key, value]) => (key === "outsideVerse" ? sum : sum + value), 0);
-  if (!report.indexed) {
-    // Nothing to add and nothing wrong (e.g. markup that annotates nothing): say nothing.
-    const reason = report.notIndexed;
-    if (!reason) return null;
-    return (
-      <p className="m-0 mt-2 text-[0.9375rem] text-text-muted">
-        {t(`scripture.addBible.words.not.${reason}`, { count: report.marked, formatted: n(report.marked), left: n(left) })}
-      </p>
-    );
-  }
-  return (
-    <div className="mt-2 flex flex-col gap-0.5 text-[0.9375rem] text-text-muted">
-      <p className="m-0 text-text">{t("scripture.addBible.words.found", { count: report.words, formatted: n(report.words), verses: n(report.verses) })}</p>
-      <p className="m-0">
-        {t("scripture.addBible.words.parts", { lemmas: n(report.withLemma), ids: n(report.withLexicalId), morph: n(report.withMorphology), distinct: n(report.distinctLemmas) })}
-      </p>
-      {report.withMorphology > 0 && <p className="m-0">{t(report.morphScheme === "oshb" ? "scripture.addBible.words.schemeOshb" : "scripture.addBible.words.schemeRaw")}</p>}
-      {left > 0 && <p className="m-0">{t("scripture.addBible.words.leftOut", { count: left, formatted: n(left) })}</p>}
     </div>
   );
 }

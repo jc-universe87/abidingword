@@ -84,7 +84,7 @@
     "confirmBody": "다음 단계에서 Abiding Word가 모든 책과 장과 절을 확인하고 결과를 보여 드립니다. 확인하시기 전에는 아무것도 추가되지 않습니다.",
     "confirmContinue": "계속",
     "ownTitle": "가지고 계신 성경",
-    "ownBody": "USFM 형식의 성경을 선택하세요. 내려받은 .zip 파일이나 .usfm 파일을 사용할 수 있습니다. Abiding Word는 자체 사본을 보관하며 원본 파일은 변경하지 않습니다.",
+    "ownBody": "USFM 형식의 성경(내려받은 .zip 파일이나 .usfm 파일), Open Scriptures Hebrew Bible의 OSIS 파일, 또는 MorphGNT 파일을 선택하세요. Abiding Word는 자체 사본을 보관하며 원본 파일은 변경하지 않습니다.",
     "chooseFiles": "성경 파일 선택…",
     "field": {
       "name": "이름",
@@ -110,16 +110,42 @@
     "adding": "추가하는 중…",
     "add": "이 성경 추가",
     "words": {
-      "found_other": "단어 주석: {{verses}}개 절에 단어 {{formatted}}개.",
-      "parts": "원형 있음: {{lemmas}} · 사전 번호 있음: {{ids}} · 문법 코드 있음: {{morph}} · 서로 다른 원형: {{distinct}}",
-      "schemeOshb": "문법 코드는 Open Scriptures Hebrew Bible 체계를 따르며 말로 풀어 보여 줍니다.",
-      "schemeRaw": "문법 코드는 쓰인 그대로 보관하며, 그 체계를 말로 풀어 쓰지 않습니다.",
       "leftOut_other": "주석이 붙은 단어 {{formatted}}개를 읽을 수 없어 제외합니다.",
       "not": {
-        "strongOnly_other": "단어 {{formatted}}개에 사전 번호만 있습니다(원형·문법 코드 없음). 원형 찾기에는 쓰지 않으며 본문은 그대로입니다.",
         "unreliable_other": "단어 주석을 제대로 읽을 수 없어({{formatted}}개 중 {{left}}개 읽지 못함) 하나도 넣지 않습니다. 본문은 그대로입니다.",
         "unreadable_other": "단어 주석을 읽을 수 없어 하나도 넣지 않습니다. 본문은 그대로입니다.",
         "tooLarge_other": "어떤 성경보다도 단어 주석이 많아 하나도 넣지 않습니다. 본문은 그대로입니다."
+      }
+    },
+    "guide": {
+      "title": "원어 연구를 위한 히브리어·그리스어 판본",
+      "intro": "어떤 판본은 각 단어에 원형, 문법, 사전 번호를 붙여 둡니다. 아래의 무료 판본은 각 발행처에서 내려받은 뒤 여기에서 선택할 수 있습니다. Abiding Word는 직접 아무것도 내려받지 않으며 이 판본들을 포함하지 않습니다.",
+      "open": "{{host}} 열기",
+      "note": "판본으로 만든 것을 공유하기 전에 각 판본의 페이지에서 라이선스를 확인하세요. 판본이 히브리어 성경의 절 번호를 사용한다면 파일과 함께 절 대응표도 선택하세요(Open Scriptures Hebrew Bible의 경우 wlc/VerseMap.xml).",
+      "oshb": {
+        "name": "Open Scriptures Hebrew Bible (히브리어 구약)",
+        "gives": "모든 단어에 쓰인 형태, 사전 번호, 문법이 있습니다. 원형은 없습니다.",
+        "how": "저장소를 .zip으로 내려받은 다음 wlc 폴더의 .xml 파일을 VerseMap.xml까지 포함해 선택하세요. 본문: 퍼블릭 도메인, 사전 번호와 문법: CC BY 4.0."
+      },
+      "wlc": {
+        "name": "Westminster Leningrad Codex (히브리어 구약, eBible.org)",
+        "gives": "쓰인 형태와 사전 번호가 있습니다. 문법은 일부 단어에만 있습니다.",
+        "how": "USFM .zip 파일을 내려받아 Open Scriptures Hebrew Bible의 VerseMap.xml과 함께 선택하세요. 본문: 퍼블릭 도메인, 사전 번호와 문법: CC BY-SA 3.0."
+      },
+      "morphgnt": {
+        "name": "MorphGNT: SBL Greek New Testament",
+        "gives": "모든 단어에 쓰인 형태, 원형, 문법이 있습니다. 사전 번호는 없습니다.",
+        "how": "저장소를 .zip으로 내려받아 .txt 파일(책마다 하나)을 선택하세요. 원형과 문법: CC BY-SA 3.0. SBLGNT 본문에는 별도의 라이선스가 있으며 페이지에 나와 있습니다."
+      },
+      "rp": {
+        "name": "Robinson–Pierpont 비잔틴 그리스어 신약 (eBible.org)",
+        "gives": "모든 단어에 쓰인 형태, 사전 번호, 문법이 있습니다. 원형은 없습니다.",
+        "how": "USFM .zip 파일을 내려받아 선택하세요. 퍼블릭 도메인."
+      },
+      "sbl": {
+        "name": "SBL Greek New Testament (eBible.org)",
+        "gives": "쓰인 형태와 사전 번호만 있습니다.",
+        "how": "USFM .zip 파일을 내려받아 선택하세요. CC BY 4.0."
       }
     }
   },
@@ -146,7 +172,8 @@
       "notice": "고지 사항",
       "from": "출처",
       "added": "추가한 날짜",
-      "language": "언어"
+      "language": "언어",
+      "words": "단어 정보"
     },
     "contents_other": "책 {{count}}권, {{verses}}절",
     "confirmRemove": "<strong>{{name}}</strong>을(를) 제거할까요? 이 성경의 본문이 Abiding Word에서 삭제됩니다. 성경공부, 본문 연결, 메모는 그대로 유지됩니다.",
@@ -154,7 +181,24 @@
     "keep": "유지",
     "changeLanguage": "언어 바꾸기",
     "saveLanguage": "언어 저장",
-    "languageNotSet": "지정되지 않음"
+    "languageNotSet": "지정되지 않음",
+    "words": {
+      "indexed_other": "단어 색인: 단어 {{formatted}}개.",
+      "none": "단어 색인 없음.",
+      "grammarRaw": "문법 코드를 쓰인 그대로 보여 줍니다.",
+      "grammarStated": "판본에 명시된 대로 문법을 {{scheme}}에 따라 풀어 씁니다.",
+      "grammarChosen": "선택한 대로 문법을 {{scheme}}에 따라 풀어 씁니다.",
+      "evidence": "{{file}}에 명시됨: “{{words}}”.",
+      "check": "단어 정보 찾기…",
+      "recheck": "단어 정보 다시 읽기…",
+      "checking": "파일을 읽는 중…",
+      "nothing": "이 파일들에는 색인할 수 있는 단어 정보가 없습니다.",
+      "replaces": "저장하면 현재 단어 색인을 대체합니다. 성경 본문은 그대로 유지됩니다.",
+      "save": "단어 색인 저장",
+      "removeEllipsis": "단어 색인 제거…",
+      "remove": "단어 색인 제거",
+      "confirmRemove": "{{name}}의 단어 색인을 제거할까요? 본문, 메모, 일반 용례 찾기는 그대로 유지됩니다. 단어 정보는 나중에 다시 읽을 수 있습니다."
+    }
   },
   "colors": {
     "label": "강조 색",
@@ -231,7 +275,8 @@
     "mode": {
       "word": "단어",
       "phrase": "어구",
-      "lemma": "원형"
+      "lemma": "원형",
+      "number": "사전 번호"
     },
     "bible": "성경",
     "find": "찾기",
@@ -260,7 +305,10 @@
     "withoutGrammar_other": "문법 코드 없음 {{formatted}}개",
     "allGrammar": "모든 형태 보기",
     "noneLemma": "이 성경에는 용례가 없습니다.",
-    "noneWithGrammar": "선택한 문법에 해당하는 용례가 없습니다."
+    "noneWithGrammar": "선택한 문법에 해당하는 용례가 없습니다.",
+    "numberLabel": "사전 번호",
+    "numberHint": "이 성경의 판본이 각 단어에 붙인 사전 번호를 사용합니다(예: Strong 번호 H430, G3056). 사전 번호는 번호가 매겨진 사전의 한 항목을 가리킬 뿐 뜻풀이가 아니며, 같은 단어라도 성경마다 번호가 다를 수 있습니다.",
+    "allWithNumber": "사전 번호가 {{id}}인 모든 단어"
   },
   "language": {
     "choose": "언어 선택",
@@ -280,6 +328,7 @@
     },
     "entryCount_other": "이 항목은 이 성경에 {{formatted}}회 나옵니다.",
     "findLemma": "이 원형 찾기",
+    "findNumber": "이 사전 번호 찾기",
     "studyWord": "이 단어 공부하기",
     "openWordStudy": "이 단어를 쓰려면 단어 성경공부를 여세요.",
     "usedInStudy": "“{{title}}”에 넣었습니다.",
@@ -297,7 +346,22 @@
       "preposition": "전치사",
       "suffix": "접미사",
       "particle": "불변화사",
-      "verb": "동사"
+      "verb": "동사",
+      "interjection": "감탄사",
+      "article": "관사",
+      "relativePronoun": "관계대명사",
+      "reciprocalPronoun": "상호대명사",
+      "demonstrativePronoun": "지시대명사",
+      "correlativePronoun": "상관대명사",
+      "interrogativePronoun": "의문대명사",
+      "indefinitePronoun": "부정대명사",
+      "correlativeOrInterrogativePronoun": "상관대명사 또는 의문대명사",
+      "reflexivePronoun": "재귀대명사",
+      "possessivePronoun": "소유대명사",
+      "personalPronoun": "인칭대명사",
+      "interrogativeOrIndefinitePronoun": "의문대명사 또는 부정대명사",
+      "conditional": "조건 불변화사",
+      "transliterated": "음역어"
     },
     "person": {
       "first": "1인칭",
@@ -308,7 +372,8 @@
       "both": "남성 또는 여성",
       "common": "통성",
       "feminine": "여성",
-      "masculine": "남성"
+      "masculine": "남성",
+      "neuter": "중성"
     },
     "number": {
       "dual": "쌍수",
@@ -324,12 +389,14 @@
       "adjective": "형용사",
       "cardinal": "기수",
       "gentilic": "민족 형용사",
-      "ordinal": "서수"
+      "ordinal": "서수",
+      "numeral": "수사"
     },
     "nounType": {
       "common": "보통명사",
       "gentilic": "민족명",
-      "properName": "고유명사"
+      "properName": "고유명사",
+      "letter": "문자"
     },
     "pronounType": {
       "demonstrative": "지시",
@@ -373,7 +440,88 @@
     },
     "language": {
       "hebrew": "히브리어",
-      "aramaic": "아람어"
+      "aramaic": "아람어",
+      "greek": "그리스어"
+    },
+    "case": {
+      "nominative": "주격",
+      "vocative": "호격",
+      "genitive": "속격",
+      "dative": "여격",
+      "accusative": "대격"
+    },
+    "tense": {
+      "present": "현재",
+      "imperfect": "미완료",
+      "future": "미래",
+      "aorist": "부정과거",
+      "perfect": "완료",
+      "pluperfect": "과거완료"
+    },
+    "form": {
+      "second": "제2형"
+    },
+    "voice": {
+      "active": "능동태",
+      "middle": "중간태",
+      "passive": "수동태",
+      "middleOrPassive": "중간태 또는 수동태",
+      "middleDeponent": "중간태 이태동사",
+      "passiveDeponent": "수동태 이태동사",
+      "middleOrPassiveDeponent": "중간태 또는 수동태 이태동사"
+    },
+    "mood": {
+      "indicative": "직설법",
+      "subjunctive": "가정법",
+      "optative": "희구법",
+      "imperative": "명령법",
+      "infinitive": "부정사",
+      "participle": "분사"
+    },
+    "degree": {
+      "comparative": "비교급",
+      "superlative": "최상급"
+    },
+    "suffix": {
+      "abbreviated": "축약형",
+      "interrogative": "의문",
+      "negative": "부정",
+      "crasis": "모음 융합(크라시스)",
+      "attic": "앗티카형"
+    },
+    "transliteration": {
+      "aramaic": "아람어에서 음역",
+      "hebrew": "히브리어에서 음역"
+    },
+    "declension": {
+      "indeclinable": "격변화 없음"
+    }
+  },
+  "research": {
+    "title": "원어 연구",
+    "intro": "이 판본의 파일에 적힌 대로, 판본이 각 단어에 붙인 정보입니다. 다른 곳에서 찾아오지 않습니다.",
+    "written": "쓰인 형태",
+    "writtenValue_other": "{{verses}}개 절에 단어 {{formatted}}개",
+    "dictionary": "원형",
+    "dictionaryValue": "단어 {{words}}개 · 서로 다른 원형 {{distinct}}개",
+    "grammar": "문법",
+    "grammarValue": "문법 코드가 있는 단어 {{words}}개",
+    "number": "사전 번호",
+    "numberValue": "단어 {{words}}개",
+    "notIncluded": "포함되지 않음",
+    "grammarStated": "문법 코드를 말로 풀어 보여 줍니다. 판본에 {{scheme}}을(를) 사용한다고 명시되어 있습니다({{file}}의 “{{words}}”).",
+    "grammarChoose": "문법 코드를 {{scheme}}에 따라 풀어 쓰기",
+    "grammarFit": "코드 {{coded}}개 중 {{described}}개가 이 체계에 맞지만, 판본에는 이 체계를 사용한다는 말이 없습니다. 코드를 쓰인 그대로 보려면 선택하지 않은 채로 두세요.",
+    "grammarRaw": "문법 코드를 쓰인 그대로 보여 줍니다. Abiding Word가 풀어 쓸 수 있는 체계가 아닙니다.",
+    "numbersChoose": "사전 번호로 찾기 추가",
+    "numbersHelp": "이 판본에는 사전 번호(Strong 번호 등)는 있지만 원형은 없습니다. 사전 번호는 번호가 매겨진 사전의 한 항목을 가리킬 뿐 뜻풀이가 아닙니다. 약 {{size}}MB를 차지합니다.",
+    "numbersLater": "나중에 설정 → 성경 번역본에서 추가하거나 제거할 수 있습니다."
+  },
+  "grammar": {
+    "scheme": {
+      "oshb": "Open Scriptures Hebrew Bible 형태 분석 체계",
+      "robinson": "Robinson 그리스어 분석 코드",
+      "morphgnt": "MorphGNT 분석 코드"
     }
   }
 }

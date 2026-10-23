@@ -62,14 +62,20 @@
     "noVerses": "{{book}} {{chapter}}장: 절을 찾지 못했습니다.",
     "missingVerses_other": "{{book}} {{chapter}}장: {{list}}절을 찾지 못했습니다. 이 본문의 절 구분이 표준 절 구분과 다릅니다.",
     "listMore_other": "{{numbers}} 외 {{count}}개",
-    "unknownFormat": "이 파일들은 Abiding Word가 아직 읽을 수 없는 성경 형식입니다. 현재는 USFM 성경(.usfm 또는 .sfm 파일, 또는 이를 묶은 .zip 파일)을 읽을 수 있습니다.",
-    "formatNotYet": "{{format}} 파일은 아직 구조화된 성경으로 가져올 수 없습니다. 현재는 USFM 성경(.usfm 또는 .sfm 파일, 또는 이를 묶은 .zip 파일)을 읽을 수 있습니다.",
+    "unknownFormat": "이 파일들은 Abiding Word가 아직 읽을 수 없는 성경 형식입니다. USFM 성경(.usfm 또는 .sfm 파일, 또는 이를 묶은 .zip 파일), Open Scriptures Hebrew Bible의 OSIS 파일, MorphGNT 파일을 읽을 수 있습니다.",
+    "formatNotYet": "{{format}} 파일은 아직 구조화된 성경으로 가져올 수 없습니다. Abiding Word는 USFM 성경(.usfm 또는 .sfm 파일, 또는 이를 묶은 .zip 파일), Open Scriptures Hebrew Bible의 OSIS 파일, MorphGNT 파일을 읽을 수 있습니다.",
     "noBooks": "이 파일들에서 성경의 책을 찾지 못했습니다.",
     "tooLarge": "이 파일들은 성경 한 권으로 보기에는 너무 큽니다.",
     "badZip": "“{{fileName}}” 파일은 읽을 수 있는 .zip 압축 파일이 아닙니다.",
     "badZipPart": "“{{fileName}}”의 일부를 읽을 수 없습니다.",
     "zipTooLarge": "이 압축 파일은 성경 한 권으로 보기에는 너무 큽니다.",
-    "badZipEntry": "압축 파일 안의 “{{fileName}}”을(를) 읽을 수 없습니다."
+    "badZipEntry": "압축 파일 안의 “{{fileName}}”을(를) 읽을 수 없습니다.",
+    "badOsis": "“{{fileName}}” 파일을 온전히 읽을 수 없습니다.",
+    "badLines_other": "{{book}}: “{{fileName}}”의 {{count}}개 줄을 읽을 수 없습니다.",
+    "verseMapApplied": "이 본문은 히브리어 성경의 절 번호를 사용합니다. 함께 제공된 절 대응표로 영어 성경의 절 번호로 바꾸었습니다(절 {{moved}}개 번호 변경, {{joined}}개 합침, 시편 표제 {{titles}}개는 표제로 유지).",
+    "verseMapUnused": "제공된 절 대응표는 사용하지 않았습니다. 이 파일들은 이미 영어 성경의 절 번호를 따릅니다.",
+    "verseMapRefused": "절 대응표 “{{fileName}}”을(를) 온전히 읽을 수 없어 사용하지 않았습니다.",
+    "hebrewNumbering": "이 본문은 히브리어 성경의 절 번호를 사용하는 것으로 보입니다(요엘이 4장으로 되어 있습니다). 함께 제공되는 절 대응표(Open Scriptures Hebrew Bible의 경우 wlc/VerseMap.xml)를 선택한 파일에 추가하면 번호가 바뀝니다."
   },
   "library": {
     "notUtf8": "“{{fileName}}”은(는) UTF-8 텍스트로 저장되어 있지 않아 읽을 수 없습니다.",
@@ -229,6 +235,10 @@
   },
   "words": {
     "unavailable": "이 성경에는 단어 주석(원형이나 문법)이 없어 이 찾기를 쓸 수 없습니다. 단어·어구 용례 찾기는 그대로 쓸 수 있습니다.",
-    "empty": "찾을 원형이나 사전 번호를 입력하세요."
+    "empty": "찾을 원형이나 사전 번호를 입력하세요.",
+    "grammarNotFit": "이 문법 코드들은 해당 체계에 맞지 않아 쓰인 그대로 보여 줍니다.",
+    "textDiffers": "보관된 파일이 더 이상 이 성경의 본문과 정확히 일치하지 않아 단어 정보를 추가할 수 없습니다. 단어 정보를 얻으려면 이 성경을 제거한 뒤 다시 추가하세요.",
+    "noSource": "이 성경을 추가할 때 쓴 파일이 더 이상 보관되어 있지 않아 단어 정보를 다시 읽을 수 없습니다. 단어 정보를 얻으려면 이 성경을 제거한 뒤 다시 추가하세요.",
+    "nothingToIndex": "이 파일들에는 색인할 수 있는 단어 정보가 없습니다."
   }
 }

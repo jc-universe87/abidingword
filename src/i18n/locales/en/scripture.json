@@ -88,7 +88,7 @@
     "confirmBody": "Next, Abiding Word checks every book, chapter and verse and shows you what it found. Nothing is added until you confirm.",
     "confirmContinue": "Continue",
     "ownTitle": "A Bible you own",
-    "ownBody": "Choose a Bible in USFM format: a .zip download, or its .usfm files. Abiding Word keeps its own copy and never changes your file.",
+    "ownBody": "Choose a Bible in USFM format (a .zip download, or its .usfm files), the Open Scriptures Hebrew Bible’s OSIS files, or MorphGNT files. Abiding Word keeps its own copy and never changes your files.",
     "chooseFiles": "Choose Bible files…",
     "field": {
       "name": "Name",
@@ -121,22 +121,46 @@
     "adding": "Adding…",
     "add": "Add this Bible",
     "words": {
-      "found_one": "Word annotations: {{formatted}} word in {{verses}} verses.",
-      "found_other": "Word annotations: {{formatted}} words in {{verses}} verses.",
-      "parts": "With a lemma: {{lemmas}} · with lexical numbers: {{ids}} · with a grammar code: {{morph}} · different lemmas: {{distinct}}",
-      "schemeOshb": "Grammar codes follow the Open Scriptures Hebrew Bible scheme and are described in words.",
-      "schemeRaw": "Grammar codes are kept as written; their scheme is not described in words.",
       "leftOut_one": "{{formatted}} annotated word could not be read and is left out.",
       "leftOut_other": "{{formatted}} annotated words could not be read and are left out.",
       "not": {
-        "strongOnly_one": "{{formatted}} word carries lexical numbers only (no lemma or grammar code). It is not used for lemma search; the text is not affected.",
-        "strongOnly_other": "{{formatted}} words carry lexical numbers only (no lemmas or grammar codes). They are not used for lemma search; the text is not affected.",
         "unreliable_one": "The word annotations could not be read reliably ({{left}} of {{formatted}} could not be read), so none are added. The text is not affected.",
         "unreliable_other": "The word annotations could not be read reliably ({{left}} of {{formatted}} could not be read), so none are added. The text is not affected.",
         "unreadable_one": "The word annotations could not be read, so none are added. The text is not affected.",
         "unreadable_other": "The word annotations could not be read, so none are added. The text is not affected.",
         "tooLarge_one": "There are more word annotations than any Bible has, so none are added. The text is not affected.",
         "tooLarge_other": "There are more word annotations than any Bible has, so none are added. The text is not affected."
+      }
+    },
+    "guide": {
+      "title": "Hebrew and Greek editions for original-language research",
+      "intro": "Some editions give each word its dictionary form, its grammar or a lexical number. These free editions can be downloaded from their publishers and then chosen here. Abiding Word downloads nothing itself and includes none of them.",
+      "open": "Open {{host}}",
+      "note": "Check each edition’s licence on its page before sharing anything made from it. If an edition uses the Hebrew Bible’s verse numbers, choose its verse map together with its files (for the Open Scriptures Hebrew Bible: wlc/VerseMap.xml).",
+      "oshb": {
+        "name": "Open Scriptures Hebrew Bible (Hebrew Old Testament)",
+        "gives": "Written word, lexical number and grammar for every word. No dictionary forms.",
+        "how": "Download the repository as a .zip, then choose the .xml files in its wlc folder, including VerseMap.xml. Text: public domain; lexical numbers and grammar: CC BY 4.0."
+      },
+      "wlc": {
+        "name": "Westminster Leningrad Codex (Hebrew Old Testament, eBible.org)",
+        "gives": "Written word and lexical numbers. Grammar only on a few words.",
+        "how": "Download the USFM .zip and choose it together with VerseMap.xml from the Open Scriptures Hebrew Bible. Text: public domain; lexical numbers and grammar: CC BY-SA 3.0."
+      },
+      "morphgnt": {
+        "name": "MorphGNT: SBL Greek New Testament",
+        "gives": "Written word, dictionary form and grammar for every word. No lexical numbers.",
+        "how": "Download the repository as a .zip and choose the .txt files (one per book). Dictionary forms and grammar: CC BY-SA 3.0; the SBLGNT text has its own licence, shown on the page."
+      },
+      "rp": {
+        "name": "Robinson–Pierpont Byzantine Greek New Testament (eBible.org)",
+        "gives": "Written word, lexical number and grammar for every word. No dictionary forms.",
+        "how": "Download the USFM .zip and choose it. Public domain."
+      },
+      "sbl": {
+        "name": "SBL Greek New Testament (eBible.org)",
+        "gives": "Written word and lexical numbers only.",
+        "how": "Download the USFM .zip and choose it. CC BY 4.0."
       }
     }
   },
@@ -163,7 +187,8 @@
       "notice": "Notice",
       "from": "From",
       "added": "Added",
-      "language": "Language"
+      "language": "Language",
+      "words": "Word information"
     },
     "contents_one": "{{count}} book, {{verses}} verses",
     "contents_other": "{{count}} books, {{verses}} verses",
@@ -172,7 +197,25 @@
     "keep": "Keep it",
     "changeLanguage": "Change language",
     "saveLanguage": "Save language",
-    "languageNotSet": "not set"
+    "languageNotSet": "not set",
+    "words": {
+      "indexed_one": "Word index: {{formatted}} word.",
+      "indexed_other": "Word index: {{formatted}} words.",
+      "none": "No word index.",
+      "grammarRaw": "Grammar codes shown as written.",
+      "grammarStated": "Grammar described as {{scheme}}, as the edition says.",
+      "grammarChosen": "Grammar described as {{scheme}}, as you chose.",
+      "evidence": "Stated in {{file}}: “{{words}}”.",
+      "check": "Look for word information…",
+      "recheck": "Read word information again…",
+      "checking": "Reading the files…",
+      "nothing": "These files have no word information that can be indexed.",
+      "replaces": "Saving replaces the current word index. The Bible’s text stays exactly as it is.",
+      "save": "Save word index",
+      "removeEllipsis": "Remove word index…",
+      "remove": "Remove word index",
+      "confirmRemove": "Remove the word index of {{name}}? Its text, your notes and the ordinary concordance stay. You can read the word information again later."
+    }
   },
   "colors": {
     "label": "Highlight colour",
@@ -250,7 +293,8 @@
     "mode": {
       "word": "Word",
       "phrase": "Phrase",
-      "lemma": "Lemma"
+      "lemma": "Lemma",
+      "number": "Lexical number"
     },
     "bible": "Bible",
     "find": "Find",
@@ -284,7 +328,10 @@
     "withoutGrammar_other": "{{formatted}} without a grammar code",
     "allGrammar": "Show all forms",
     "noneLemma": "No occurrences in this Bible.",
-    "noneWithGrammar": "No occurrences with the chosen grammar."
+    "noneWithGrammar": "No occurrences with the chosen grammar.",
+    "numberLabel": "Lexical number",
+    "numberHint": "Uses the lexical numbers this Bible’s edition gives each word (for example Strong’s numbers: H430, G3056). A lexical number points to an entry in a numbered lexicon; it is not a definition, and two Bibles may number the same word differently.",
+    "allWithNumber": "All words with lexical number {{id}}"
   },
   "language": {
     "choose": "Choose a language",
@@ -305,6 +352,7 @@
     "entryCount_one": "This entry occurs {{formatted}} time in this Bible.",
     "entryCount_other": "This entry occurs {{formatted}} times in this Bible.",
     "findLemma": "Find this lemma",
+    "findNumber": "Find this lexical number",
     "studyWord": "Study this word",
     "openWordStudy": "Open a Word Study to use this word in it.",
     "usedInStudy": "Added to “{{title}}”.",
@@ -323,7 +371,22 @@
       "preposition": "preposition",
       "suffix": "suffix",
       "particle": "particle",
-      "verb": "verb"
+      "verb": "verb",
+      "interjection": "interjection",
+      "article": "article",
+      "relativePronoun": "relative pronoun",
+      "reciprocalPronoun": "reciprocal pronoun",
+      "demonstrativePronoun": "demonstrative pronoun",
+      "correlativePronoun": "correlative pronoun",
+      "interrogativePronoun": "interrogative pronoun",
+      "indefinitePronoun": "indefinite pronoun",
+      "correlativeOrInterrogativePronoun": "correlative or interrogative pronoun",
+      "reflexivePronoun": "reflexive pronoun",
+      "possessivePronoun": "possessive pronoun",
+      "personalPronoun": "personal pronoun",
+      "interrogativeOrIndefinitePronoun": "interrogative or indefinite pronoun",
+      "conditional": "conditional",
+      "transliterated": "transliterated word"
     },
     "person": {
       "first": "1st person",
@@ -334,7 +397,8 @@
       "both": "masculine or feminine",
       "common": "common gender",
       "feminine": "feminine",
-      "masculine": "masculine"
+      "masculine": "masculine",
+      "neuter": "neuter"
     },
     "number": {
       "dual": "dual",
@@ -350,12 +414,14 @@
       "adjective": "adjective",
       "cardinal": "cardinal number",
       "gentilic": "gentilic",
-      "ordinal": "ordinal number"
+      "ordinal": "ordinal number",
+      "numeral": "numeral"
     },
     "nounType": {
       "common": "common noun",
       "gentilic": "gentilic",
-      "properName": "proper name"
+      "properName": "proper name",
+      "letter": "letter"
     },
     "pronounType": {
       "demonstrative": "demonstrative",
@@ -399,7 +465,89 @@
     },
     "language": {
       "hebrew": "Hebrew",
-      "aramaic": "Aramaic"
+      "aramaic": "Aramaic",
+      "greek": "Greek"
+    },
+    "case": {
+      "nominative": "nominative",
+      "vocative": "vocative",
+      "genitive": "genitive",
+      "dative": "dative",
+      "accusative": "accusative"
+    },
+    "tense": {
+      "present": "present",
+      "imperfect": "imperfect",
+      "future": "future",
+      "aorist": "aorist",
+      "perfect": "perfect",
+      "pluperfect": "pluperfect"
+    },
+    "form": {
+      "second": "second form"
+    },
+    "voice": {
+      "active": "active",
+      "middle": "middle",
+      "passive": "passive",
+      "middleOrPassive": "middle or passive",
+      "middleDeponent": "middle deponent",
+      "passiveDeponent": "passive deponent",
+      "middleOrPassiveDeponent": "middle or passive deponent"
+    },
+    "mood": {
+      "indicative": "indicative",
+      "subjunctive": "subjunctive",
+      "optative": "optative",
+      "imperative": "imperative",
+      "infinitive": "infinitive",
+      "participle": "participle"
+    },
+    "degree": {
+      "comparative": "comparative",
+      "superlative": "superlative"
+    },
+    "suffix": {
+      "abbreviated": "abbreviated",
+      "interrogative": "interrogative",
+      "negative": "negative",
+      "crasis": "crasis",
+      "attic": "Attic form"
+    },
+    "transliteration": {
+      "aramaic": "from Aramaic",
+      "hebrew": "from Hebrew"
+    },
+    "declension": {
+      "indeclinable": "indeclinable"
+    }
+  },
+  "research": {
+    "title": "Original-language research",
+    "intro": "What this edition gives each word, as its own files say. Nothing is looked up elsewhere.",
+    "written": "Written word",
+    "writtenValue_one": "{{formatted}} word in {{verses}} verses",
+    "writtenValue_other": "{{formatted}} words in {{verses}} verses",
+    "dictionary": "Dictionary form",
+    "dictionaryValue": "{{words}} words · {{distinct}} different forms",
+    "grammar": "Grammar",
+    "grammarValue": "{{words}} words with a grammar code",
+    "number": "Lexical number",
+    "numberValue": "{{words}} words",
+    "notIncluded": "not included",
+    "grammarStated": "Grammar codes are described in words: the edition says it uses {{scheme}} (“{{words}}”, in {{file}}).",
+    "grammarChoose": "Describe the grammar codes as {{scheme}}",
+    "grammarFit": "{{described}} of {{coded}} codes fit this scheme, but the edition does not say it uses it. Leave this unticked to see the codes as written.",
+    "grammarRaw": "Grammar codes are shown as written: their scheme is not one Abiding Word can describe.",
+    "numbersChoose": "Add a search by lexical number",
+    "numbersHelp": "This edition gives lexical numbers (such as Strong’s numbers) but no dictionary forms. A lexical number points to an entry in a numbered lexicon; it is not a definition. Takes about {{size}} MB.",
+    "numbersLater": "You can add or remove it later in Settings → Bible texts."
+  },
+  "grammar": {
+    "scheme": {
+      "oshb": "the Open Scriptures Hebrew Bible’s morphology",
+      "robinson": "Robinson’s Greek parsing codes",
+      "morphgnt": "MorphGNT’s parsing codes"
     }
   }
 }

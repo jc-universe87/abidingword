@@ -92,7 +92,7 @@
     "confirmBody": "Em seguida, o Abiding Word verifica cada livro, capítulo e versículo e mostra o que encontrou. Nada é adicionado até você confirmar.",
     "confirmContinue": "Continuar",
     "ownTitle": "Uma Bíblia que é sua",
-    "ownBody": "Escolha uma Bíblia no formato USFM: um arquivo .zip baixado ou os arquivos .usfm. O Abiding Word guarda a própria cópia e nunca altera o seu arquivo.",
+    "ownBody": "Escolha uma Bíblia no formato USFM (um arquivo .zip baixado ou os arquivos .usfm), os arquivos OSIS da Open Scriptures Hebrew Bible ou arquivos MorphGNT. O Abiding Word guarda a própria cópia e nunca altera os seus arquivos.",
     "chooseFiles": "Escolher arquivos da Bíblia…",
     "field": {
       "name": "Nome",
@@ -132,19 +132,10 @@
     "adding": "Adicionando…",
     "add": "Adicionar esta Bíblia",
     "words": {
-      "found_one": "Anotações de palavras: {{formatted}} palavra em {{verses}} versículos.",
-      "found_many": "Anotações de palavras: {{formatted}} palavras em {{verses}} versículos.",
-      "found_other": "Anotações de palavras: {{formatted}} palavras em {{verses}} versículos.",
-      "parts": "Com lema: {{lemmas}} · com números léxicos: {{ids}} · com código gramatical: {{morph}} · lemas diferentes: {{distinct}}",
-      "schemeOshb": "Os códigos gramaticais seguem o sistema da Open Scriptures Hebrew Bible e são descritos em palavras.",
-      "schemeRaw": "Os códigos gramaticais são guardados como estão escritos; o seu sistema não é descrito em palavras.",
       "leftOut_one": "{{formatted}} palavra anotada não pôde ser lida e fica de fora.",
       "leftOut_many": "{{formatted}} palavras anotadas não puderam ser lidas e ficam de fora.",
       "leftOut_other": "{{formatted}} palavras anotadas não puderam ser lidas e ficam de fora.",
       "not": {
-        "strongOnly_one": "{{formatted}} palavra só traz números léxicos (sem lema nem código gramatical). Não é usada na busca por lema; o texto não muda.",
-        "strongOnly_many": "{{formatted}} palavras só trazem números léxicos (sem lemas nem códigos gramaticais). Não são usadas na busca por lema; o texto não muda.",
-        "strongOnly_other": "{{formatted}} palavras só trazem números léxicos (sem lemas nem códigos gramaticais). Não são usadas na busca por lema; o texto não muda.",
         "unreliable_one": "As anotações de palavras não puderam ser lidas de forma confiável ({{left}} de {{formatted}} ilegíveis), por isso nenhuma é adicionada. O texto não muda.",
         "unreliable_many": "As anotações de palavras não puderam ser lidas de forma confiável ({{left}} de {{formatted}} ilegíveis), por isso nenhuma é adicionada. O texto não muda.",
         "unreliable_other": "As anotações de palavras não puderam ser lidas de forma confiável ({{left}} de {{formatted}} ilegíveis), por isso nenhuma é adicionada. O texto não muda.",
@@ -154,6 +145,37 @@
         "tooLarge_one": "Há mais anotações de palavras do que qualquer Bíblia tem, por isso nenhuma é adicionada. O texto não muda.",
         "tooLarge_many": "Há mais anotações de palavras do que qualquer Bíblia tem, por isso nenhuma é adicionada. O texto não muda.",
         "tooLarge_other": "Há mais anotações de palavras do que qualquer Bíblia tem, por isso nenhuma é adicionada. O texto não muda."
+      }
+    },
+    "guide": {
+      "title": "Edições hebraicas e gregas para o estudo das línguas originais",
+      "intro": "Algumas edições dão a cada palavra a sua forma de dicionário, a sua gramática ou um número léxico. Estas edições gratuitas podem ser baixadas dos seus editores e depois escolhidas aqui. O Abiding Word não baixa nada por conta própria e não inclui nenhuma delas.",
+      "open": "Abrir {{host}}",
+      "note": "Verifique a licença de cada edição na página dela antes de compartilhar qualquer coisa feita a partir dela. Se uma edição usar a numeração de versículos da Bíblia hebraica, escolha a tabela de correspondência de versículos dela junto com os arquivos (para a Open Scriptures Hebrew Bible: wlc/VerseMap.xml).",
+      "oshb": {
+        "name": "Open Scriptures Hebrew Bible (Antigo Testamento hebraico)",
+        "gives": "Palavra escrita, número léxico e gramática para cada palavra. Sem formas de dicionário.",
+        "how": "Baixe o repositório como .zip e depois escolha os arquivos .xml da pasta wlc, incluindo VerseMap.xml. Texto: domínio público; números léxicos e gramática: CC BY 4.0."
+      },
+      "wlc": {
+        "name": "Westminster Leningrad Codex (Antigo Testamento hebraico, eBible.org)",
+        "gives": "Palavra escrita e números léxicos. Gramática só em poucas palavras.",
+        "how": "Baixe o .zip USFM e escolha-o junto com o VerseMap.xml da Open Scriptures Hebrew Bible. Texto: domínio público; números léxicos e gramática: CC BY-SA 3.0."
+      },
+      "morphgnt": {
+        "name": "MorphGNT: SBL Greek New Testament",
+        "gives": "Palavra escrita, forma de dicionário e gramática para cada palavra. Sem números léxicos.",
+        "how": "Baixe o repositório como .zip e escolha os arquivos .txt (um por livro). Formas de dicionário e gramática: CC BY-SA 3.0; o texto do SBLGNT tem licença própria, indicada na página."
+      },
+      "rp": {
+        "name": "Novo Testamento grego bizantino Robinson–Pierpont (eBible.org)",
+        "gives": "Palavra escrita, número léxico e gramática para cada palavra. Sem formas de dicionário.",
+        "how": "Baixe o .zip USFM e escolha-o. Domínio público."
+      },
+      "sbl": {
+        "name": "SBL Greek New Testament (eBible.org)",
+        "gives": "Só palavra escrita e números léxicos.",
+        "how": "Baixe o .zip USFM e escolha-o. CC BY 4.0."
       }
     }
   },
@@ -180,7 +202,8 @@
       "notice": "Aviso",
       "from": "Origem",
       "added": "Adicionada em",
-      "language": "Idioma"
+      "language": "Idioma",
+      "words": "Informações de palavras"
     },
     "contents_one": "{{count}} livro, {{verses}} versículos",
     "contents_many": "{{count}} livros, {{verses}} versículos",
@@ -190,7 +213,26 @@
     "keep": "Manter",
     "changeLanguage": "Mudar o idioma",
     "saveLanguage": "Salvar o idioma",
-    "languageNotSet": "não indicado"
+    "languageNotSet": "não indicado",
+    "words": {
+      "indexed_one": "Índice de palavras: {{formatted}} palavra.",
+      "indexed_many": "Índice de palavras: {{formatted}} palavras.",
+      "indexed_other": "Índice de palavras: {{formatted}} palavras.",
+      "none": "Sem índice de palavras.",
+      "grammarRaw": "Códigos gramaticais mostrados como estão escritos.",
+      "grammarStated": "Gramática descrita segundo {{scheme}}, como a edição indica.",
+      "grammarChosen": "Gramática descrita segundo {{scheme}}, como você escolheu.",
+      "evidence": "Indicado em {{file}}: “{{words}}”.",
+      "check": "Procurar informações de palavras…",
+      "recheck": "Ler novamente as informações de palavras…",
+      "checking": "Lendo os arquivos…",
+      "nothing": "Estes arquivos não têm informações de palavras que possam ser indexadas.",
+      "replaces": "Salvar substitui o índice de palavras atual. O texto da Bíblia continua exatamente como está.",
+      "save": "Salvar índice de palavras",
+      "removeEllipsis": "Remover índice de palavras…",
+      "remove": "Remover índice de palavras",
+      "confirmRemove": "Remover o índice de palavras de {{name}}? O texto, as suas notas e a concordância normal são mantidos. Você pode ler as informações de palavras novamente mais tarde."
+    }
   },
   "colors": {
     "label": "Cor do destaque",
@@ -269,7 +311,8 @@
     "mode": {
       "word": "Palavra",
       "phrase": "Sequência de palavras",
-      "lemma": "Lema"
+      "lemma": "Lema",
+      "number": "Número léxico"
     },
     "bible": "Bíblia",
     "find": "Procurar",
@@ -308,7 +351,10 @@
     "withoutGrammar_other": "{{formatted}} sem código gramatical",
     "allGrammar": "Mostrar todas as formas",
     "noneLemma": "Nenhuma ocorrência nesta Bíblia.",
-    "noneWithGrammar": "Nenhuma ocorrência com a gramática escolhida."
+    "noneWithGrammar": "Nenhuma ocorrência com a gramática escolhida.",
+    "numberLabel": "Número léxico",
+    "numberHint": "Usa os números léxicos que a edição desta Bíblia dá a cada palavra (por exemplo, os números de Strong: H430, G3056). Um número léxico aponta para uma entrada de um léxico numerado; não é uma definição, e duas Bíblias podem numerar a mesma palavra de forma diferente.",
+    "allWithNumber": "Todas as palavras com o número léxico {{id}}"
   },
   "language": {
     "choose": "Escolha um idioma",
@@ -330,6 +376,7 @@
     "entryCount_many": "Esta entrada aparece {{formatted}} vezes nesta Bíblia.",
     "entryCount_other": "Esta entrada aparece {{formatted}} vezes nesta Bíblia.",
     "findLemma": "Encontrar este lema",
+    "findNumber": "Encontrar este número léxico",
     "studyWord": "Estudar esta palavra",
     "openWordStudy": "Abra um estudo de palavra para usar esta palavra nele.",
     "usedInStudy": "Adicionado a “{{title}}”.",
@@ -349,7 +396,22 @@
       "preposition": "preposição",
       "suffix": "sufixo",
       "particle": "partícula",
-      "verb": "verbo"
+      "verb": "verbo",
+      "interjection": "interjeição",
+      "article": "artigo",
+      "relativePronoun": "pronome relativo",
+      "reciprocalPronoun": "pronome recíproco",
+      "demonstrativePronoun": "pronome demonstrativo",
+      "correlativePronoun": "pronome correlativo",
+      "interrogativePronoun": "pronome interrogativo",
+      "indefinitePronoun": "pronome indefinido",
+      "correlativeOrInterrogativePronoun": "pronome correlativo ou interrogativo",
+      "reflexivePronoun": "pronome reflexivo",
+      "possessivePronoun": "pronome possessivo",
+      "personalPronoun": "pronome pessoal",
+      "interrogativeOrIndefinitePronoun": "pronome interrogativo ou indefinido",
+      "conditional": "partícula condicional",
+      "transliterated": "palavra transliterada"
     },
     "person": {
       "first": "1ª pessoa",
@@ -360,7 +422,8 @@
       "both": "masculino ou feminino",
       "common": "gênero comum",
       "feminine": "feminino",
-      "masculine": "masculino"
+      "masculine": "masculino",
+      "neuter": "neutro"
     },
     "number": {
       "dual": "dual",
@@ -376,12 +439,14 @@
       "adjective": "adjetivo",
       "cardinal": "número cardinal",
       "gentilic": "gentílico",
-      "ordinal": "número ordinal"
+      "ordinal": "número ordinal",
+      "numeral": "numeral"
     },
     "nounType": {
       "common": "substantivo comum",
       "gentilic": "gentílico",
-      "properName": "nome próprio"
+      "properName": "nome próprio",
+      "letter": "letra"
     },
     "pronounType": {
       "demonstrative": "demonstrativo",
@@ -425,7 +490,90 @@
     },
     "language": {
       "hebrew": "hebraico",
-      "aramaic": "aramaico"
+      "aramaic": "aramaico",
+      "greek": "grego"
+    },
+    "case": {
+      "nominative": "nominativo",
+      "vocative": "vocativo",
+      "genitive": "genitivo",
+      "dative": "dativo",
+      "accusative": "acusativo"
+    },
+    "tense": {
+      "present": "presente",
+      "imperfect": "imperfeito",
+      "future": "futuro",
+      "aorist": "aoristo",
+      "perfect": "perfeito",
+      "pluperfect": "mais-que-perfeito"
+    },
+    "form": {
+      "second": "segunda forma"
+    },
+    "voice": {
+      "active": "voz ativa",
+      "middle": "voz média",
+      "passive": "voz passiva",
+      "middleOrPassive": "voz média ou passiva",
+      "middleDeponent": "depoente médio",
+      "passiveDeponent": "depoente passivo",
+      "middleOrPassiveDeponent": "depoente médio ou passivo"
+    },
+    "mood": {
+      "indicative": "indicativo",
+      "subjunctive": "subjuntivo",
+      "optative": "optativo",
+      "imperative": "imperativo",
+      "infinitive": "infinitivo",
+      "participle": "particípio"
+    },
+    "degree": {
+      "comparative": "comparativo",
+      "superlative": "superlativo"
+    },
+    "suffix": {
+      "abbreviated": "abreviado",
+      "interrogative": "interrogativo",
+      "negative": "negativo",
+      "crasis": "crase",
+      "attic": "forma ática"
+    },
+    "transliteration": {
+      "aramaic": "do aramaico",
+      "hebrew": "do hebraico"
+    },
+    "declension": {
+      "indeclinable": "indeclinável"
+    }
+  },
+  "research": {
+    "title": "Estudo das línguas originais",
+    "intro": "O que esta edição dá a cada palavra, segundo os próprios arquivos dela. Nada é procurado em outro lugar.",
+    "written": "Palavra escrita",
+    "writtenValue_one": "{{formatted}} palavra em {{verses}} versículos",
+    "writtenValue_many": "{{formatted}} palavras em {{verses}} versículos",
+    "writtenValue_other": "{{formatted}} palavras em {{verses}} versículos",
+    "dictionary": "Forma de dicionário",
+    "dictionaryValue": "{{words}} palavras · {{distinct}} formas diferentes",
+    "grammar": "Gramática",
+    "grammarValue": "{{words}} palavras com código gramatical",
+    "number": "Número léxico",
+    "numberValue": "{{words}} palavras",
+    "notIncluded": "não incluído",
+    "grammarStated": "Os códigos gramaticais são descritos em palavras: a edição indica que usa {{scheme}} (“{{words}}”, em {{file}}).",
+    "grammarChoose": "Descrever os códigos gramaticais segundo {{scheme}}",
+    "grammarFit": "{{described}} de {{coded}} códigos se encaixam neste sistema, mas a edição não indica que o usa. Deixe esta opção desmarcada para ver os códigos como estão escritos.",
+    "grammarRaw": "Os códigos gramaticais aparecem como estão escritos: o Abiding Word não consegue descrever o sistema deles.",
+    "numbersChoose": "Adicionar uma busca por número léxico",
+    "numbersHelp": "Esta edição dá números léxicos (como os números de Strong), mas não formas de dicionário. Um número léxico aponta para uma entrada de um léxico numerado; não é uma definição. Ocupa cerca de {{size}} MB.",
+    "numbersLater": "Você pode adicioná-la ou removê-la mais tarde em Configurações → Traduções da Bíblia."
+  },
+  "grammar": {
+    "scheme": {
+      "oshb": "a morfologia da Open Scriptures Hebrew Bible",
+      "robinson": "os códigos de análise grega de Robinson",
+      "morphgnt": "os códigos de análise do MorphGNT"
     }
   }
 }

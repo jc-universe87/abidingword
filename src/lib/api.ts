@@ -55,6 +55,8 @@ import type {
   HighlightColor,
   DetectedReference,
   ImportPreview,
+  WordChoice,
+  WordsPreview,
   ImportRequest,
   PassageText,
   ScriptureRef,
@@ -432,6 +434,12 @@ export interface Api {
   bibleImportCommit(input: CommitImport): Promise<BibleTranslation>;
   bibleImportCancel(previewId: string): Promise<void>;
   bibleRemove(id: string): Promise<void>;
+  /** Reads an installed Bible's kept files again for its words; nothing is saved (v0.22). */
+  bibleWordsPreview(id: string): Promise<WordsPreview>;
+  /** Saves that word index, replacing the old one. */
+  bibleWordsApply(previewId: string, words: WordChoice): Promise<BibleTranslation>;
+  /** Removes a Bible's word index; its text stays. */
+  bibleWordsRemove(id: string): Promise<BibleTranslation>;
   /** The languages a Bible can be marked as. */
   bibleLanguageOptions(): Promise<BibleLanguageOption[]>;
   /** Corrects a Bible's language: its name as shown, and its tag (null: none). */
@@ -728,6 +736,9 @@ export const tauriApi: Api = {
   bibleImportCommit: (input) => call("bible_import_commit", { input }),
   bibleImportCancel: (previewId) => call("bible_import_cancel", { previewId }),
   bibleRemove: (id) => call("bible_remove", { id }),
+  bibleWordsPreview: (id) => call("bible_words_preview", { id }),
+  bibleWordsApply: (previewId, words) => call("bible_words_apply", { previewId, words }),
+  bibleWordsRemove: (id) => call("bible_words_remove", { id }),
   bibleLanguageOptions: () => call("bible_language_options"),
   bibleSetLanguage: ({ id, language, languageCode }) => call("bible_set_language", { id, language, languageCode }),
 

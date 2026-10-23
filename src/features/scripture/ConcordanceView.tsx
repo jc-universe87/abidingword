@@ -23,6 +23,11 @@ export function hasLemmas(bible: BibleTranslation | undefined | null): boolean {
   return Boolean(bible?.words && (bible.words.lemmas || bible.words.lexicalIds));
 }
 
+/** Whether a Bible gives lexical numbers but no dictionary forms (Strong's-only, v0.22). */
+export function numbersOnly(bible: BibleTranslation | undefined | null): boolean {
+  return Boolean(bible?.words && !bible.words.lemmas && bible.words.lexicalIds);
+}
+
 type Mode = ConcordanceMode | "lemma";
 
 interface Submitted {
@@ -106,13 +111,16 @@ export function ConcordanceView() {
   const busy = submitted !== null && current === null;
   const data = current?.data;
   const lemmaUnavailable = mode === "lemma" && !lemmas;
+  // A Bible with lexical numbers only is searched by number, and says so (v0.22).
+  const byNumber = numbersOnly(bible);
+  const modeName = (m: Mode) => t(m === "lemma" && byNumber ? "scripture.concordance.mode.number" : `scripture.concordance.mode.${m}`);
   const modes: Mode[] = lemmas || mode === "lemma" ? ["word", "phrase", "lemma"] : ["word", "phrase"];
 
   return (
     <div className="flex flex-col gap-4">
       <form onSubmit={submit} className="flex flex-col gap-3" noValidate>
         <label className="flex flex-col gap-1">
-          <span className="type-subhead">{t(mode === "lemma" ? "scripture.concordance.lemmaLabel" : "scripture.concordance.queryLabel")}</span>
+          <span className="type-subhead">{t(mode === "lemma" ? (byNumber ? "scripture.concordance.numberLabel" : "scripture.concordance.lemmaLabel") : "scripture.concordance.queryLabel")}</span>
           <input value={query} onChange={(e) => setQuery(e.target.value)} dir="auto" className={`${field} px-3`} />
         </label>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -121,7 +129,7 @@ export function ConcordanceView() {
             {modes.map((m) => (
               <label key={m} className="flex min-h-10 items-center gap-1.5 text-[0.9375rem] text-text-strong">
                 <input type="radio" name={`${id}-mode`} value={m} checked={mode === m} onChange={() => setMode(m)} />
-                {t(`scripture.concordance.mode.${m}`)}
+                {modeName(m)}
               </label>
             ))}
           </fieldset>
@@ -139,7 +147,7 @@ export function ConcordanceView() {
             {t("scripture.concordance.find")}
           </button>
         </div>
-        <p className="m-0 type-meta">{t(mode === "lemma" ? "scripture.concordance.lemmaHint" : "scripture.concordance.hint")}</p>
+        <p className="m-0 type-meta">{t(mode === "lemma" ? (byNumber ? "scripture.concordance.numberHint" : "scripture.concordance.lemmaHint") : "scripture.concordance.hint")}</p>
         {lemmaUnavailable && <p role="status" className="m-0 text-[0.9375rem] text-text-muted">{t("scripture.concordance.lemmaUnavailable")}</p>}
       </form>
 
@@ -221,6 +229,11 @@ function LemmaSearch({ asked }: { asked: LemmaAsked }) {
   const result = found?.key === key ? found : null;
   const data = result?.data;
   const choosing = !asked.selection && (entries?.list?.length ?? 0) > 1;
+  // A typed lexical number found in several entries (with different prefixes
+  // or companions): all its words can be searched at once (v0.22).
+  const numbers = [...new Set((entries?.list ?? []).map((e) => e.matchedId).filter((m): m is string => !!m))].filter(
+    (m) => (entries?.list ?? []).filter((e) => e.matchedId === m).length > 1,
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -232,6 +245,23 @@ function LemmaSearch({ asked }: { asked: LemmaAsked }) {
         <section aria-labelledby={`${id}-entries`} className="flex flex-col gap-1">
           <h3 id={`${id}-entries`} className="type-group m-0">{t("scripture.concordance.entries", { text: asked.text.trim() })}</h3>
           <p className="m-0 type-meta">{t("scripture.concordance.entriesHint")}</p>
+          {numbers.map((number) => {
+            const picked = selection?.kind === "lexicalId" && selection.id === number;
+            return (
+              <button
+                key={number}
+                type="button"
+                aria-pressed={picked}
+                onClick={() => {
+                  setMorph([]);
+                  setSelection({ kind: "lexicalId", id: number });
+                }}
+                className={`self-start rounded-sm px-1 py-2 text-left text-[0.9375rem] text-text-strong underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary ${picked ? "bg-selected" : ""}`}
+              >
+                {t("scripture.concordance.allWithNumber", { id: number })}
+              </button>
+            );
+          })}
           <ul className="m-0 flex list-none flex-col p-0">
             {entries?.list?.map((e) => {
               const picked = selection?.kind === "entry" && selection.lemma === e.lemma && selection.strong === e.strong;
@@ -312,8 +342,8 @@ export function EntryName({ lemma, strong }: { lemma: string | null; strong: str
   const { t } = useTranslation();
   return (
     <span className="text-[0.9375rem] font-semibold text-text-strong">
-      {lemma ? <span dir="auto">{lemma}</span> : t("scripture.concordance.noLemma")}
-      {strong && <span className="font-normal text-text-muted"> · {strong}</span>}
+      {lemma ? <span dir="auto">{lemma}</span> : strong ? t("scripture.concordance.lexicalNumber", { id: strong }) : t("scripture.concordance.noLemma")}
+      {lemma && strong && <span className="font-normal text-text-muted"> · {strong}</span>}
     </span>
   );
 }

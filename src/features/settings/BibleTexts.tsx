@@ -1,10 +1,12 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { Button } from "@/design-system/Button";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { useScripture } from "@/features/scripture/ScriptureContext";
-import type { BibleTranslation } from "@/types/scripture";
+import type { BibleTranslation, WordChoice, WordsPreview } from "@/types/scripture";
+import { NO_CHOICE, WordResearch, hasWordResearch, willIndex } from "@/features/scripture/WordResearch";
 import { formatDate, formatNumber } from "@/i18n/format";
 import { LanguageChoice, type LanguageValue } from "@/features/scripture/LanguageChoice";
 
@@ -86,6 +88,10 @@ function BibleRow({ bible }: { bible: BibleTranslation }) {
           {bible.originalFileName && (<><dt className="font-medium text-text-strong">{t("scripture.bibles.field.from")}</dt><dd className="m-0 break-all">{bible.originalFileName}</dd></>)}
           <dt className="font-medium text-text-strong">{t("scripture.bibles.field.added")}</dt>
           <dd className="m-0">{formatDate(bible.createdAt)}</dd>
+          <dt className="font-medium text-text-strong">{t("scripture.bibles.field.words")}</dt>
+          <dd className="m-0">
+            <BibleWords bible={bible} />
+          </dd>
         </dl>
       )}
 
@@ -176,6 +182,128 @@ function BibleLanguage({ bible }: { bible: BibleTranslation }) {
         </Button>
         <Button onClick={finish}>{t("common.cancel")}</Button>
       </div>
+      {error && <p role="alert" className="m-0 text-danger">{error}</p>}
+    </div>
+  );
+}
+
+/** A documented scheme's name, or what is shown instead. */
+function grammarState(bible: BibleTranslation, t: TFunction): string | null {
+  const words = bible.words;
+  if (!words || !words.morphology) return null;
+  if (words.morphScheme === "raw" || words.morphScheme === "none") return t("scripture.bibles.words.grammarRaw");
+  const scheme = t(`scripture.grammar.scheme.${words.morphScheme}`);
+  return words.grammarBasis === "person" ? t("scripture.bibles.words.grammarChosen", { scheme }) : t("scripture.bibles.words.grammarStated", { scheme });
+}
+
+/**
+ * A Bible's word information (v0.22): what its index holds, and reading its
+ * kept files again to add or renew the index — the text stays exactly as it
+ * is, and nothing is saved until the person confirms. Removing the index
+ * leaves the text and the ordinary concordance as they are.
+ */
+function BibleWords({ bible }: { bible: BibleTranslation }) {
+  const { t } = useTranslation();
+  const api = useApi();
+  const { reloadTranslations } = useScripture();
+  const [preview, setPreview] = useState<WordsPreview | null>(null);
+  const [choice, setChoice] = useState<WordChoice>(NO_CHOICE);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const words = bible.words;
+
+  const run = async (work: () => Promise<void>) => {
+    setBusy(true);
+    setError(null);
+    try {
+      await work();
+    } catch (e) {
+      setError(toApiError(e).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const check = () =>
+    run(async () => {
+      setChoice(NO_CHOICE);
+      setPreview(await api.bibleWordsPreview(bible.id));
+    });
+  const cancel = () => {
+    if (preview) void api.bibleImportCancel(preview.previewId).catch(() => undefined);
+    setPreview(null);
+  };
+  const apply = () =>
+    run(async () => {
+      if (!preview) return;
+      await api.bibleWordsApply(preview.previewId, choice);
+      setPreview(null);
+      await reloadTranslations();
+    });
+  const remove = () =>
+    run(async () => {
+      await api.bibleWordsRemove(bible.id);
+      setConfirmRemove(false);
+      await reloadTranslations();
+    });
+
+  const grammar = grammarState(bible, t);
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="m-0">
+        {words
+          ? t("scripture.bibles.words.indexed", { count: words.wordCount, formatted: formatNumber(words.wordCount) })
+          : t("scripture.bibles.words.none")}
+      </p>
+      {words && (
+        <p className="m-0 text-text-muted">
+          {[
+            words.lemmas && t("scripture.research.dictionary"),
+            words.morphology && t("scripture.research.grammar"),
+            words.lexicalIds && t("scripture.research.number"),
+          ]
+            .filter(Boolean)
+            .join(t("common.listSeparator"))}
+          {grammar && <><br />{grammar}</>}
+          {words.grammarEvidence && <><br />{t("scripture.bibles.words.evidence", { file: words.grammarEvidence.file, words: words.grammarEvidence.words })}</>}
+        </p>
+      )}
+
+      {preview ? (
+        <div className="flex flex-col gap-3 border-l-[3px] border-border bg-hover px-4 py-3">
+          {hasWordResearch(preview.words) ? (
+            <WordResearch report={preview.words} choice={choice} onChoice={setChoice} />
+          ) : (
+            <p className="m-0">{t("scripture.bibles.words.nothing")}</p>
+          )}
+          {words && willIndex(preview.words, choice) && <p className="m-0 text-text-muted">{t("scripture.bibles.words.replaces")}</p>}
+          <div className="flex flex-wrap gap-2">
+            <Button variant="primary" onClick={apply} disabled={busy || !willIndex(preview.words, choice)}>
+              {t("scripture.bibles.words.save")}
+            </Button>
+            <Button onClick={cancel} disabled={busy}>{t("common.cancel")}</Button>
+          </div>
+        </div>
+      ) : confirmRemove ? (
+        <div role="alertdialog" aria-labelledby={`words-remove-${bible.id}`} className="flex flex-col gap-3 border-l-[3px] border-danger bg-hover px-4 py-3">
+          <p id={`words-remove-${bible.id}`} className="m-0">{t("scripture.bibles.words.confirmRemove", { name: bible.name })}</p>
+          <div className="flex gap-2">
+            <Button variant="danger" onClick={remove} disabled={busy}>{t("scripture.bibles.words.remove")}</Button>
+            <Button autoFocus onClick={() => setConfirmRemove(false)}>{t("scripture.bibles.keep")}</Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-x-3">
+          <Button variant="quiet" onClick={check} disabled={busy}>
+            {busy ? t("scripture.bibles.words.checking") : words ? t("scripture.bibles.words.recheck") : t("scripture.bibles.words.check")}
+          </Button>
+          {words && (
+            <Button variant="quiet" onClick={() => setConfirmRemove(true)} disabled={busy}>
+              {t("scripture.bibles.words.removeEllipsis")}
+            </Button>
+          )}
+        </div>
+      )}
       {error && <p role="alert" className="m-0 text-danger">{error}</p>}
     </div>
   );
