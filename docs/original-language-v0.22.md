@@ -94,18 +94,41 @@ with a verse map the person chooses with the files — OSHB's `VerseMap.xml`
 (1,979 entries, CC BY 4.0). None is bundled. Rules, validated on the real map
 and text:
 
-- entries whose WLC side is a whole verse are applied; the seven whose WLC
-  side is part of a verse (`!a`/`!b`) are not, because the text cannot be
-  divided at a place the map does not give;
+- entries whose WLC side is a whole verse are applied;
+- a Hebrew verse holding parts of two English verses is divided **only where
+  the text itself marks it**: OSHB's OSIS writes `<note>KJV:Isa.64.1</note>`
+  at the word where an English verse begins (v0.22.1). Each part goes where
+  its mark says, or where the map's partial entry for it says
+  (`1Kgs.18.34!a → 1Kgs.18.33!b`: the first part ends English 18:33); a
+  Psalm's words before a mark for verse 1 are its title. In the WLC this
+  covers 1 Kgs 18:34, 20:3, 22:21, Isa 63:19, Ps 13:6 and 53 Psalms whose
+  title the Hebrew writes inside verse 1 (116 parts). A mark and a map entry
+  that disagree are reported (`bibleImport.verseMapConflict`); the mark is
+  followed;
+- where the files have no such marks (eBible's USFM), such a verse is kept
+  whole at its Hebrew place and **named** in the review
+  (`bibleImport.verseMapUnsplit`: 1 Kgs 18:34, 20:3, 22:21, Ps 13:6,
+  Isa 63:19), and a note says that Psalm titles inside verse 1 stay in verse
+  1 (`bibleImport.psalmTitlesInVerse`). No boundary is ever guessed;
 - verses not in the map keep their numbers;
 - a mapped verse arriving where an unmapped one already is: in Psalms the
-  unmapped one is the title (English Bibles do not number it) and becomes the
-  chapter's title, its words left out of the index; elsewhere the two are one
-  English verse and are joined in order (exactly four places in the WLC: 1 Sam
-  20:42, Num 26:1, 1 Kgs 22:43, 1 Chr 12:4).
+  unmapped one is the title and becomes the chapter's title; elsewhere the
+  two are one English verse and are joined, in order (7 places with OSHB,
+  4 with eBible's USFM);
+- in Psalms, several Hebrew verses mapped to English verse 1 (Ps 51, 52, 54,
+  60): the last is verse 1, the earlier ones the title.
 
-A map naming an unknown book, a malformed reference, a different book on each
-side or the same source twice is refused whole (`bibleImport.verseMapRefused`,
+**Corpus check** (`real_editions::oshb_corpus_reference_correctness`, run on
+the real 39 OSHB books and VerseMap.xml): every book's text, stripped of
+spaces, is exactly the files' text in order (titles included); all 305,507
+words are kept (305,029 in verses, 478 in titles); each of the 2,027 `KJV:`
+marks and 1,972 whole-verse map entries lands in the English verse it
+names; every English Old Testament verse is present except **Nehemiah
+7:68**, which the Leningrad Codex does not contain (the review names it).
+
+A map naming an unknown book, a malformed reference or part, a different
+book on each side, the same source twice or an unknown type, or holding any
+`<verse>` element not in the documented shape, is refused whole (`bibleImport.verseMapRefused`,
 a warning) — a partly wrong map would move verses silently. The text counts as
 Hebrew-numbered when it is OSHB (always the WLC's numbering, whichever books
 were chosen) or when any verse is at a chapter or verse number only the
@@ -348,8 +371,12 @@ against the verse text: no mismatch, no overlap. Findings, all fixed:
 - No lexicon, gloss, interlinear or cross-edition alignment; numbers are
   searched within one Bible.
 - Only OSHB's OSIS is read; other OSIS, USX, Zefania and similar are refused.
-- Verse-map entries that split a Hebrew verse are not applied; the English
-  verse they would begin may be missing (the review's verse checks say so).
+- Without the text's own marks (eBible's USFM WLC), the five Hebrew verses
+  that hold parts of two English verses are kept whole and named in the
+  review, and Psalm titles inside verse 1 stay in verse 1. With OSHB's OSIS
+  every boundary is the edition's own.
+- Nehemiah 7:68 is not in the Leningrad Codex and so not in a WLC-based
+  Bible; the review names it.
 - Robinson possessive pronouns and MorphGNT vocatives stay as written.
 - Re-reading word information needs the kept files; Bibles whose copy is gone
   must be added again.
