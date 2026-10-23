@@ -82,12 +82,66 @@ have these annotations.
 
 > [!IMPORTANT]
 > Everything here comes from **the Bible's own annotations**. Abiding Word
-> looks nothing up elsewhere and invents nothing. Grammar codes of the Open
-> Scriptures Hebrew Bible scheme are described in words ("verb · qal · perfect
-> · 3rd person…"); codes of any other scheme are shown **as written**, because
-> a wrong description would be worse than none. Bibles that only carry
-> Strong's numbers (such as the included English, French, German and Spanish
-> ones) are not used for lemma search.
+> looks nothing up elsewhere and invents nothing. Grammar codes are described
+> in words ("verb · qal · perfect · 3rd person…") only when the **edition
+> itself says** which scheme it uses, or when **you chose** that scheme when
+> adding the Bible (Abiding Word checks that the codes fit it). Otherwise they
+> are shown **as written**, because a wrong description would be worse than
+> none. Abiding Word can describe three documented schemes: the Open
+> Scriptures Hebrew Bible's Hebrew and Aramaic codes, Robinson's Greek parsing
+> codes, and MorphGNT's.
+
+## Searching by lexical number (Strong's-only Bibles)
+
+Some Bibles give each word only a **lexical number**, such as Strong's
+*G3056* or *H430*, and no dictionary form. These include several of the
+Bibles that come with Abiding Word. Such a Bible gets a number search only if
+you ask for it — when adding the Bible (tick **Add a search by lexical
+number**), or later in **Settings → Bible texts → Details → Word
+information**. It takes some space (the review screen says about how much).
+
+Then the third choice in the concordance is called **Lexical number**. Type
+a number in any usual spelling — *G3056*, *g3056* and *3056* find the same
+number, as do *H430* and *H0430*, or *1254a* and *1254 a* — and click
+**Find**. If one number belongs to several entries (the Open Scriptures
+Hebrew Bible writes prefixes such as *c/430*), you can also choose **All
+words with lexical number …**.
+
+<p align="center">
+  <img src="../images/original-language-v0.22/v022-number-search-en-light-1280.png" alt="Lexical number search: g3056 typed, the heading Lexical number G3056, three occurrences in three verses with their written forms, each occurrence highlighted" width="760">
+</p>
+
+> [!NOTE]
+> A lexical number points to an entry in a numbered lexicon. It is **not a
+> definition**, and two words with the same number are not proven to mean the
+> same thing. Two Bibles may also number the same word differently, so
+> numbers are always searched within one Bible.
+
+## Hebrew and Greek editions you can add
+
+Abiding Word includes no Hebrew or Greek edition with word information, and
+downloads nothing by itself. **Add a Bible → Hebrew and Greek editions for
+original-language research** lists free editions with links to their
+publishers' pages:
+
+| Edition | Written word | Dictionary form | Grammar | Lexical number | How to add |
+|---|---|---|---|---|---|
+| Open Scriptures Hebrew Bible (Hebrew OT) | ✓ | — | ✓ described | ✓ | the `.xml` files of its `wlc` folder, with `VerseMap.xml` |
+| Westminster Leningrad Codex, eBible.org (Hebrew OT) | ✓ | — | few words | ✓ | the USFM `.zip`, with OSHB's `VerseMap.xml` |
+| MorphGNT: SBL Greek NT | ✓ | ✓ | ✓ described | — | the `.txt` files (one per book) |
+| Robinson–Pierpont Byzantine NT, eBible.org | ✓ | — | ✓ (Robinson; your choice) | ✓ | the USFM `.zip` |
+| SBL Greek NT, eBible.org | ✓ | — | — | ✓ | the USFM `.zip` |
+
+<p align="center">
+  <img src="../images/original-language-v0.22/v022-import-grammar-choice-en-light-1280.png" alt="The review of a new Bible: under Original-language research, the written word, dictionary form, grammar and lexical number counts, and an unticked choice to describe the grammar codes as Robinson's Greek parsing codes" width="760">
+</p>
+
+Hebrew Bibles number some verses differently (Joel has four chapters, many
+Psalm titles are verse 1). Choose the edition's **verse map** together with
+its files and the verses are renumbered to the usual English numbering; the
+review screen tells you how many. Without it, Abiding Word explains what to
+add instead of guessing. Check each edition's licence on its page before
+sharing anything made from it.
 
 ## Word details in the Bible
 

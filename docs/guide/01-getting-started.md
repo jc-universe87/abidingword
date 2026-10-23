@@ -81,7 +81,9 @@ You can add as many as you like and switch between them at any time.
 
 > [!TIP]
 > **Have another Bible?** If you have a Bible file of your own (in the common
-> "USFM" format, often a `.zip` download), click **Choose Bible files…**.
+> "USFM" format, often a `.zip` download — or, for Hebrew and Greek study, the
+> Open Scriptures Hebrew Bible's files or MorphGNT's), click **Choose Bible
+> files…**.
 > Abiding Word checks every book, chapter and verse, explains anything unusual
 > in plain words, and only then adds it. Your original file is never changed.
 >
@@ -92,12 +94,18 @@ You can add as many as you like and switch between them at any time.
 > language helps it read abbreviations you type, such as *Jn 3:5*, the way
 > this Bible means them; you can change it later in Settings.
 >
-> If the Bible's edition marks its words with **lemmas, lexical numbers or
-> grammar codes** (common in Hebrew and Greek study editions), the review says
-> how many, and whether any could not be read. They are then used for
-> [lemma search](07-concordance.md#searching-by-lemma-annotated-bibles). If the
-> markup cannot be read reliably, nothing of it is added, and the text of the
-> Bible is never affected.
+> If the Bible's edition marks its words with **dictionary forms, lexical
+> numbers or grammar** (common in Hebrew and Greek study editions), the review
+> shows it under **Original-language research**: what each word has, how many
+> could not be read, and the two choices that are yours — a search by lexical
+> number when that is all the edition gives, and describing grammar codes with
+> a scheme they fit when the edition does not name it. Both are unticked until
+> you tick them. They are then used for
+> [lemma and number search](07-concordance.md#searching-by-lemma-annotated-bibles).
+> If the markup cannot be read reliably, nothing of it is added, and the text
+> of the Bible is never affected. A Bible added earlier can gain its word
+> information later, without being added again: **Settings → Bible texts →
+> Details → Word information**.
 
 ## A tour of the screen
 
