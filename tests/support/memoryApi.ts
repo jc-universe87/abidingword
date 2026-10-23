@@ -1294,6 +1294,8 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const tagged = paths?.map((p) => /with-metadata-([a-z-]+)\./i.exec(p)?.[1]).find(Boolean);
       if (tagged) result.suggested = { ...result.suggested, languageCode: tagged };
       if (state.nextPreviewWords) result.words = state.nextPreviewWords;
+      // As the core: another publisher's XML beside the Bible's files is set aside and named (v0.22.1).
+      result.skippedFiles = (paths ?? []).filter((p) => p.endsWith(".xml") && !/versemap\.xml$/i.test(p)).map((p) => p.split("/").pop() ?? p);
       state.pendingPreview = { id: result.previewId, bundled: !!bundled };
       return result;
     },

@@ -442,3 +442,17 @@ describe("Greek grammar in each language (v0.22)", () => {
     expect(describeMorph(i18n.getFixedT("en"), AORIST)).toBe("verb · aorist · second form · active · indicative · 3rd person · singular");
   });
 });
+
+describe("Files left out (v0.22.1)", () => {
+  it("are counted without being called non-biblical, and named when opened", async () => {
+    const api = createMemoryApi();
+    api.state.nextChosenFiles = ["/home/me/tagged.zip", "/home/me/other-publisher.xml"];
+    const { user } = await renderApp(api);
+    await user.click(screen.getByRole("button", { name: "Add a Bible…" }));
+    await user.click(await screen.findByRole("button", { name: "Choose Bible files…" }));
+    const summary = await screen.findByText(/1 file was left out: Abiding Word found no book of the Bible in it that it can read/);
+    expect(summary.textContent).not.toMatch(/66 books/);
+    await user.click(summary);
+    expect(screen.getByText("other-publisher.xml")).toBeVisible();
+  });
+});
