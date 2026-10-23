@@ -17,11 +17,12 @@ use crate::error::{AppError, AppResult, UserMessage};
 use crate::scripture::concordance::{
     self, ConcordanceBook, ConcordanceHit, BOOK_VERSES_LIMIT, INLINE_VERSES,
 };
-use crate::scripture::import::StagedContent;
+use crate::scripture::grammar::{GrammarFinding, Statement};
+use crate::scripture::import::{StagedContent, WordReport};
 use crate::scripture::morphology::{self, Described};
 use crate::scripture::reference::{split_key, verse_key, ScriptureRef};
 use crate::scripture::usfm::WordShape;
-use crate::scripture::{canon, WordAnnotations};
+use crate::scripture::{canon, WordAnnotations, WordChoice};
 
 /// The longest text looked up.
 pub const LOOKUP_MAX_CHARS: usize = 120;
@@ -66,6 +67,38 @@ fn shape_name(code: &str) -> &'static str {
     }
 }
 
+/// Whether the words are written: always when the import indexes them;
+/// lexical numbers alone only when the person asked (v0.22).
+pub fn will_index(report: &WordReport, choice: &WordChoice) -> bool {
+    report.indexed
+        || (report.not_indexed == Some("strongOnly") && choice.numbers && report.words > 0)
+}
+
+/// How the grammar codes are described (v0.22, `scripture::grammar`): with
+/// the scheme the edition names, or the one the person chose — which the
+/// codes must fit. Otherwise not at all (shown as written).
+pub fn grammar_choice(
+    finding: &GrammarFinding,
+    choice: &WordChoice,
+) -> AppResult<Option<(&'static str, &'static str, Option<Statement>)>> {
+    let chosen = choice
+        .grammar
+        .as_deref()
+        .map(str::trim)
+        .filter(|g| !g.is_empty());
+    match (finding.scheme, chosen) {
+        (Some(scheme), _) if finding.stated.is_some() => {
+            Ok(Some((scheme, "edition", finding.stated.clone())))
+        }
+        (Some(scheme), Some(chosen)) if chosen == scheme => Ok(Some((scheme, "person", None))),
+        (_, Some(_)) => Err(invalid(
+            "words.grammarNotFit",
+            "These grammar codes do not fit that scheme, so they are shown as written.",
+        )),
+        (_, None) => Ok(None),
+    }
+}
+
 /// Writes the staged words of an import, inside its transaction: the
 /// annotations' record, one entry per distinct (lemma, `strong`) with its
 /// lexical identifiers, then the words.
@@ -73,28 +106,46 @@ pub fn insert(
     tx: &Transaction,
     translation_id: &str,
     content: &StagedContent,
+    format: &str,
+    choice: &WordChoice,
     now: &str,
 ) -> AppResult<()> {
     let report = &content.words.report;
-    if !report.indexed {
+    if !will_index(report, choice) {
         return Ok(());
     }
+    let grammar = grammar_choice(&report.grammar, choice)?;
+    let mut details = report.clone();
+    details.indexed = true;
+    let evidence = grammar
+        .as_ref()
+        .and_then(|(_, _, s)| s.as_ref())
+        .and_then(|s| serde_json::to_string(s).ok());
     tx.execute(
         "INSERT INTO bible_word_annotations
              (translation_id, source_format, word_count, verse_count, lemma_count, strong_count,
-              morph_count, morph_attribute, morph_scheme, details, created_at)
-         VALUES (?1, 'usfm', ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+              morph_count, morph_attribute, morph_scheme, details, created_at,
+              grammar_scheme, grammar_basis, grammar_evidence)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)",
         params![
             translation_id,
+            format,
             report.words as i64,
             report.verses as i64,
             report.with_lemma as i64,
             report.with_lexical_id as i64,
             report.with_morphology as i64,
             report.morph_attribute,
-            report.morph_scheme,
-            serde_json::to_string(report).unwrap_or_else(|_| "{}".into()),
-            now
+            if report.with_morphology > 0 {
+                "raw"
+            } else {
+                "none"
+            },
+            serde_json::to_string(&details).unwrap_or_else(|_| "{}".into()),
+            now,
+            grammar.as_ref().map(|g| g.0),
+            grammar.as_ref().map(|g| g.1),
+            evidence
         ],
     )?;
     let annotation = tx.last_insert_rowid();
@@ -175,6 +226,71 @@ pub fn insert(
     Ok(())
 }
 
+/// Why the staged text cannot gain a word index for this Bible: its verses
+/// must be exactly the stored ones, since the words' offsets point into them.
+pub fn check_same_text(
+    conn: &Connection,
+    translation_id: &str,
+    content: &StagedContent,
+) -> AppResult<()> {
+    let mut stmt =
+        conn.prepare("SELECT verse_id, text FROM bible_verse_texts WHERE translation_id = ?1")?;
+    let stored: HashMap<i64, String> = stmt
+        .query_map([translation_id], |r| Ok((r.get(0)?, r.get(1)?)))?
+        .collect::<Result<_, _>>()?;
+    let mut staged = 0usize;
+    let mut same = true;
+    'books: for (ordinal, book) in &content.books {
+        for (chapter, text) in &book.chapters {
+            for (verse, words) in &text.verses {
+                staged += 1;
+                if stored.get(&verse_key(*ordinal, *chapter, *verse)) != Some(words) {
+                    same = false;
+                    break 'books;
+                }
+            }
+        }
+    }
+    if !same || staged != stored.len() {
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "words.textDiffers",
+            "The kept files no longer give exactly this Bible's text, so its words cannot be added. Remove the Bible and add it again to get them.",
+        )));
+    }
+    Ok(())
+}
+
+/// Gives an installed Bible the word index read again from its own kept
+/// files (v0.22): the old index, if any, is replaced in one transaction. The
+/// Bible's text, notes and everything else stay as they are.
+pub fn replace(
+    conn: &Connection,
+    translation_id: &str,
+    content: &StagedContent,
+    format: &str,
+    choice: &WordChoice,
+) -> AppResult<()> {
+    check_same_text(conn, translation_id, content)?;
+    if !will_index(&content.words.report, choice) {
+        return Err(invalid(
+            "words.nothingToIndex",
+            "These files have no word information that can be indexed.",
+        ));
+    }
+    let tx = conn.unchecked_transaction()?;
+    remove(&tx, translation_id)?;
+    insert(
+        &tx,
+        translation_id,
+        content,
+        format,
+        choice,
+        &crate::db::now(),
+    )?;
+    tx.commit()?;
+    Ok(())
+}
+
 /// Removes a translation's word index (words, then entries and their
 /// identifiers, then the record), inside the caller's transaction.
 pub fn remove(tx: &Transaction, translation_id: &str) -> AppResult<()> {
@@ -233,6 +349,51 @@ pub struct LemmaEntry {
     pub occurrences: i64,
     /// The most frequent written forms (exact spelling), most frequent first.
     pub forms: Vec<String>,
+    /// The entry's lexical number the typed text matched, as stored (v0.22):
+    /// "H0430" for "H430". Absent when the text matched the lemma.
+    #[serde(default)]
+    pub matched_id: Option<String>,
+}
+
+/// The spellings of a lexical number that are the same number (v0.22): letter
+/// case, leading zeros, a missing H/G prefix and a space before a homograph
+/// letter aside ("h430", "H0430" and "430" all name "H0430"; "1254a" and
+/// "1254 a"). Only these: no other number is ever treated as the same.
+pub fn number_variants(text: &str) -> Vec<String> {
+    let mut out = vec![text.to_string()];
+    let compact: String = text.chars().filter(|c| !c.is_whitespace()).collect();
+    let (prefix, rest) = match compact.chars().next() {
+        Some(c @ ('H' | 'h' | 'G' | 'g')) => (Some(c.to_ascii_uppercase()), &compact[1..]),
+        _ => (None, compact.as_str()),
+    };
+    let digits: String = rest.chars().take_while(|c| c.is_ascii_digit()).collect();
+    let suffix = &rest[digits.len()..];
+    let number = digits.trim_start_matches('0');
+    if number.is_empty()
+        || number.len() > 5
+        || suffix.chars().count() > 1
+        || !suffix.chars().all(|c| c.is_ascii_alphabetic())
+    {
+        return out;
+    }
+    let prefixes: Vec<String> = match prefix {
+        Some(p) => vec![p.to_string()],
+        None => vec![String::new(), "H".into(), "G".into()],
+    };
+    for p in &prefixes {
+        for width in number.len()..=4.max(number.len()) {
+            let padded = format!("{p}{number:0>width$}");
+            if suffix.is_empty() {
+                out.push(padded);
+            } else {
+                out.push(format!("{padded}{suffix}"));
+                out.push(format!("{padded} {suffix}"));
+            }
+        }
+    }
+    out.sort();
+    out.dedup();
+    out
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -258,35 +419,50 @@ pub fn entries(conn: &Connection, input: &LemmaLookup) -> AppResult<Vec<LemmaEnt
         return Err(empty());
     }
     let folded = fold(&text);
-    let mut stmt = conn.prepare(
+    let mut by_lemma = conn.prepare(
         "SELECT id, lemma, strong, occurrences FROM bible_lemma_entries
-         WHERE annotation_id = ?1 AND (lemma = ?2 OR lemma_fold = ?3
-               OR EXISTS (SELECT 1 FROM bible_entry_ids i
-                          WHERE i.entry_id = bible_lemma_entries.id AND i.value = ?2 COLLATE NOCASE))
-         ORDER BY occurrences DESC, lemma, strong
-         LIMIT ?4",
+         WHERE annotation_id = ?1 AND (lemma = ?2 OR lemma_fold = ?3)",
     )?;
-    let found = stmt
-        .query_map(params![key, text, folded, ENTRIES_MAX as i64], |r| {
-            Ok((
-                r.get::<_, i64>(0)?,
-                r.get::<_, Option<String>>(1)?,
-                r.get::<_, Option<String>>(2)?,
-                r.get::<_, i64>(3)?,
-            ))
+    let mut found: Vec<(i64, Option<String>, Option<String>, i64, Option<String>)> = by_lemma
+        .query_map(params![key, text, folded], |r| {
+            Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?, None))
         })?
         .collect::<Result<Vec<_>, _>>()?;
+    // Lexical numbers, in each spelling that is the same number.
+    let mut by_number = conn.prepare_cached(
+        "SELECT e.id, e.lemma, e.strong, e.occurrences, i.value
+         FROM bible_entry_ids i JOIN bible_lemma_entries e ON e.id = i.entry_id
+         WHERE i.value = ?2 COLLATE NOCASE AND e.annotation_id = ?1",
+    )?;
+    for variant in number_variants(&text) {
+        let rows = by_number.query_map(params![key, variant], |r| {
+            Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?, Some(r.get(4)?)))
+        })?;
+        for row in rows {
+            let row = row?;
+            if !found.iter().any(|f| f.0 == row.0) {
+                found.push(row);
+            }
+        }
+    }
+    found.sort_by(|a, b| {
+        b.3.cmp(&a.3)
+            .then_with(|| a.1.cmp(&b.1))
+            .then_with(|| a.2.cmp(&b.2))
+    });
+    found.truncate(ENTRIES_MAX);
     let mut forms = conn.prepare_cached(
         "SELECT surface FROM bible_words WHERE entry_id = ?1
          GROUP BY surface ORDER BY COUNT(*) DESC, surface LIMIT 5",
     )?;
     found
         .into_iter()
-        .map(|(id, lemma, strong, occurrences)| {
+        .map(|(id, lemma, strong, occurrences, matched_id)| {
             Ok(LemmaEntry {
                 lemma,
                 strong,
                 occurrences,
+                matched_id,
                 forms: forms
                     .query_map([id], |r| r.get(0))?
                     .collect::<Result<Vec<String>, _>>()?,
