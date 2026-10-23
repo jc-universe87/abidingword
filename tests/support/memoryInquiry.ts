@@ -101,8 +101,12 @@ export function inquiryApi(state: InquiryState, h: Helpers): InquiryApi {
       const focus = scope.findingId ? notes.find((f) => f.id === scope.findingId) : undefined;
       if (scope.findingId && !focus) throw new ApiError("notFound", "This note could not be found.");
       if (focus) push("note", `Your note (${focus.findingType.replace("_", " ")})${part}`, focus.content);
+      if (selected && !scope.blockId) throw fail("inquiry.selectionChanged", "The selected words are no longer in the text. Select them again.");
       if (!scope.blockId && !focus && section)
-        for (const b of h.blocks().filter((b) => b.sectionId === section.id && b.content.trim())) push("writing", `Your writing${part}`, b.content.trim());
+        for (const b of h.blocks().filter((b) => b.sectionId === section.id)) {
+          const shown = scope.writing?.find((w) => w.blockId === b.id)?.text ?? b.content;
+          if (shown.trim()) push("writing", `Your writing${part}`, shown.trim());
+        }
       if (section)
         for (const f of notes.filter((f) => f.sectionId === section.id && f.id !== focus?.id && f.content.trim()).slice(0, 8 - (focus ? 1 : 0)))
           push("note", `Another of your notes in this part (${f.findingType.replace("_", " ")})`, f.content);

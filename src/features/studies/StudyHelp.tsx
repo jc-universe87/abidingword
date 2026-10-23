@@ -54,8 +54,9 @@ export function StudyHelp({ studyId, studyTitle, section, notes, handles, lastBl
     if (kind === "block") return { ...base, blockId: id, text: snapshot.texts.get(id) ?? "" };
     if (kind === "selection") return { ...base, blockId: id, text: snapshot.texts.get(id) ?? "", selected: snapshot.selected };
     if (kind === "note") return { ...base, findingId: id };
-    return base;
-  }, [kind, id, studyId, section.id, snapshot]);
+    // The whole part, as it was on screen (typing may not be saved yet).
+    return { ...base, writing: section.blocks.filter((b) => snapshot.texts.has(b.id)).map((b) => ({ blockId: b.id, text: snapshot.texts.get(b.id)! })) };
+  }, [kind, id, studyId, section.id, section.blocks, snapshot]);
   const note = kind === "note" ? notes.find((n) => n.id === id) : undefined;
   const initial: Inquiry =
     kind === "selection" ? "expression" : note && (note.findingType === "question" || note.findingType === "unresolved_issue") ? "unresolved" : "understand";

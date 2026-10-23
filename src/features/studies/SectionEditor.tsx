@@ -203,6 +203,7 @@ export function SectionEditor(props: SectionEditorProps) {
             <button
               ref={helpButton}
               type="button"
+              data-testid="part-help"
               aria-expanded={helping}
               aria-label={t("studies.inquiry.study.open", { part: title })}
               title={t("studies.inquiry.study.tooltip")}

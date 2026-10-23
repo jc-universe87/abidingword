@@ -14,6 +14,7 @@ import i18n from "@/i18n";
 import { App } from "@/app/App";
 import type { VerseText } from "@/types/scripture";
 import { createMemoryApi, type MemoryApi } from "../support/memoryApi";
+import { ApiError } from "@/lib/api";
 import { createMemoryUpdater } from "../support/memoryUpdater";
 import { minimalPdf } from "../support/minimalPdf";
 import { IMPORTED } from "../support/memoryTemplates";
@@ -327,6 +328,82 @@ async function seed(api: MemoryApi) {
   api.libraryOriginalRead = async (_id, offset, length) => handbook.slice(offset, offset + length);
 }
 
+/** One prepared answer for the v0.20 pictures (no network in the harness). */
+function prepareInquiry(api: MemoryApi, which: string) {
+  const assistant = "OpenAI · gpt-6.1-sol";
+  if (which === "error") {
+    api.state.inquiry.replies.push(new ApiError("assistant", i18n.t("errors.assistant.failed")));
+    return;
+  }
+  const segment = api.state.library.segments.find((x) => x.text.startsWith("Remaining is not anxious striving"));
+  const quote = "Remaining is not anxious striving";
+  const link = segment && {
+    sourceId: segment.sourceId,
+    title: "Notes on Abiding",
+    author: "Study group notes",
+    location: "The True Vine · paragraph 3",
+    start: { segmentId: segment.id, offset: 0 },
+    end: { segmentId: segment.id, offset: quote.length },
+    quote,
+  };
+  const label = "“Notes on Abiding” by Study group notes — The True Vine · paragraph 3";
+  if (which === "study") {
+    api.state.inquiry.replies.push({
+      result: {
+        type: "insight",
+        summary: "Your observation follows the passage closely; one link in the text could make it firmer.",
+        points: [
+          { kind: "text", text: "The passage itself ties fruit to remaining, not to effort.", about: null, aboutLabel: null, evidence: [{ block: "P1", kind: "scripture", label: "John 15:1–11 (WEB)", quote: "he who remains in me, and I in him, bears much fruit", source: null }], references: [], downgraded: false },
+          { kind: "writing", text: "Your note says “not from trying harder”; the text says what does produce fruit, but does not mention effort directly.", about: null, aboutLabel: null, evidence: [{ block: "N1", kind: "note", label: "Your note (observation)", quote: "not from trying harder", source: null }], references: [], downgraded: false },
+          { kind: "question", text: "How does verse 7 (“my words remain in you”) shape what remaining means?", about: null, aboutLabel: null, evidence: [], references: [], downgraded: false },
+          { kind: "knowledge", text: "Israel is pictured as a vine in the Old Testament; Jesus calls himself the true vine.", about: null, aboutLabel: null, evidence: [], references: [{ canonical: "ISA.5.1-ISA.5.7", display: "Isaiah 5:1–7", book: "ISA", startChapter: 5, startVerse: 1, endChapter: 5, endVerse: 7 }, { canonical: "PSA.80.8-PSA.80.16", display: "Psalm 80:8–16", book: "PSA", startChapter: 80, startVerse: 8, endChapter: 80, endVerse: 16 }], downgraded: false },
+        ],
+        verdict: null,
+        unverified: 0,
+        downgraded: 0,
+      },
+      assistant,
+      remote: true,
+    });
+  }
+  if (which === "source" && link) {
+    api.state.inquiry.replies.push({
+      result: {
+        type: "insight",
+        summary: "The author contrasts remaining with striving and grounds it in Romans 8:1.",
+        points: [
+          { kind: "source", text: "Remaining is described as the opposite of anxious effort.", about: null, aboutLabel: null, evidence: [{ block: "S1", kind: "source", label, quote, source: link }], references: [], downgraded: false },
+          { kind: "source", text: "The author appeals to Romans 8:1 for the absence of condemnation.", about: null, aboutLabel: null, evidence: [{ block: "S1", kind: "source", label, quote: "there is no condemnation for those who are in Christ", source: { ...link, start: { segmentId: link.start.segmentId, offset: segment!.text.indexOf("there is no") }, end: { segmentId: link.start.segmentId, offset: segment!.text.indexOf("there is no") + "there is no condemnation for those who are in Christ".length }, quote: "there is no condemnation for those who are in Christ" } }], references: [{ canonical: "ROM.8.1", display: "Romans 8:1", book: "ROM", startChapter: 8, startVerse: 1, endChapter: 8, endVerse: 1 }], downgraded: false },
+          { kind: "inference", text: "The author seems to assume that striving and anxiety go together; the passage does not argue this.", about: null, aboutLabel: null, evidence: [], references: [], downgraded: false },
+        ],
+        verdict: null,
+        unverified: 0,
+        downgraded: 0,
+      },
+      assistant,
+      remote: true,
+    });
+  }
+  if (which === "compare" && link) {
+    api.state.inquiry.replies.push({
+      result: {
+        type: "insight",
+        summary: "Both connect fruit with staying close to Jesus; only one speaks about effort.",
+        points: [
+          { kind: "position", text: "Remaining is not anxious striving.", about: "S1", aboutLabel: label, evidence: [{ block: "S1", kind: "source", label, quote, source: link }], references: [{ canonical: "ROM.8.1", display: "Romans 8:1", book: "ROM", startChapter: 8, startVerse: 1, endChapter: 8, endVerse: 1 }], downgraded: false },
+          { kind: "position", text: "We live by staying joined to him.", about: "S2", aboutLabel: "“Sermon outline: The True Vine” by Sample sermon — paragraph 3", evidence: [{ block: "S2", kind: "source", label: "“Sermon outline: The True Vine” by Sample sermon — paragraph 3", quote: "we live by staying joined to him", source: null }], references: [{ canonical: "JHN.15.5", display: "John 15:5", book: "JHN", startChapter: 15, startVerse: 5, endChapter: 15, endVerse: 5 }], downgraded: false },
+          { kind: "unsupported", text: "That effort plays no part at all is not said in either passage.", about: null, aboutLabel: null, evidence: [], references: [], downgraded: true },
+        ],
+        verdict: "partly",
+        unverified: 0,
+        downgraded: 1,
+      },
+      assistant,
+      remote: true,
+    });
+  }
+}
+
 async function start() {
   const api = createMemoryApi({
     version: "0.5.0-dev.26",
@@ -338,6 +415,10 @@ async function start() {
   if (params.get("empty") !== "1") await seed(api);
   // The example project (v0.19), added as the person would from Settings.
   if (params.get("sample") === "1") await api.sampleProjectInstall();
+  // Study and research help (v0.20): the assistant off (the plain study), or prepared answers.
+  if (params.get("assistant") === "off") api.state.teaching.assistant.config = { ...api.state.teaching.assistant.config, enabled: false };
+  const inquiry = params.get("inquiry");
+  if (inquiry) prepareInquiry(api, inquiry);
   await i18n.changeLanguage(params.get("lang") ?? "en");
   // All three panes even in a narrow window, as the owner works (review scenes, v0.18.5).
   if (params.get("sourcesOpen") === "1") localStorage.setItem("abiding-word.layout.sourcesOpen", "true");

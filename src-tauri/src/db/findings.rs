@@ -26,7 +26,9 @@ const TAG_MAX_CHARS: usize = 40;
 const MAX_TAGS: usize = 20;
 
 const COLUMNS: &str = "id, study_id, section_id, kind, content, sort_order, parent_id, \
-                       created_at, updated_at, revision, json_extract(data, '$.assistedBy')";
+                       created_at, updated_at, revision, \
+                       CASE WHEN json_valid(data) THEN CASE WHEN json_type(data, '$.assistedBy') = 'text' \
+                       THEN substr(json_extract(data, '$.assistedBy'), 1, 200) END END";
 
 fn from_row(row: &Row) -> rusqlite::Result<Finding> {
     let kind: String = row.get(3)?;

@@ -42,6 +42,8 @@ export type InquiryScope =
       /** Words selected in it, exactly. */
       selected?: string;
       findingId?: string | null;
+      /** For the whole part: its writing as it is on screen, block by block. */
+      writing?: { blockId: string; text: string }[];
     }
   | { kind: "source"; excerpt: ExcerptInput; studyId?: string | null }
   | { kind: "compare"; excerpts: ExcerptInput[]; studyId?: string | null };

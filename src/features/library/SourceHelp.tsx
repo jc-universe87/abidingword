@@ -24,7 +24,8 @@ function useOpenStudy(): KeepTarget | null {
       active = false;
     };
   }, [api, focus.openStudyId, focus.activeSectionId]);
-  return focus.openStudyId ? study : null;
+  // Only the study open now: while another loads, there is none (never the one open before).
+  return study && study.studyId === focus.openStudyId ? study : null;
 }
 
 /** Opens quoted words in their source, exactly where they are. */

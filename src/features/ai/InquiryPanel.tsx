@@ -146,7 +146,12 @@ export function InquiryPanel(props: InquiryPanelProps) {
       // What would be sent changed: look again, so the person sees the new version first.
       if (error.code === "inquiry.changed") {
         setPreview(null);
-        api.inquiryPreview(input).then(setPreview, () => undefined);
+        api.inquiryPreview(asked).then(
+          (p) => {
+            if (latest.current === asked) setPreview(p);
+          },
+          () => undefined,
+        );
       }
     } finally {
       if (n === asking.current) setBusy(false);

@@ -167,6 +167,14 @@ pub struct ExcerptInput {
     pub quote: String,
 }
 
+/// One block's writing as it is on screen.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BlockText {
+    pub block_id: String,
+    pub text: String,
+}
+
 /// What the help is about.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
@@ -188,6 +196,10 @@ pub enum Scope {
         /// Or a note in focus.
         #[serde(default)]
         finding_id: Option<String>,
+        /// For the whole part: its writing as it is on screen, block by block
+        /// (blocks not given are read as saved).
+        #[serde(default)]
+        writing: Vec<BlockText>,
     },
     /// Words selected in a library source.
     #[serde(rename_all = "camelCase")]
@@ -306,7 +318,8 @@ impl Material {
     pub fn new(action: Inquiry, setting: String, ui_language: &str) -> Self {
         Self {
             action,
-            setting,
+            // Titles in it are the person's (or an imported project's): one line, never a fence.
+            setting: defuse(&setting.split_whitespace().collect::<Vec<_>>().join(" ")),
             blocks: Vec::new(),
             ui_language: cut(ui_language, 20),
             original: None,
@@ -741,7 +754,10 @@ fn find_in(hay: &str, needle: &str, window: (usize, usize)) -> Option<(usize, us
 /// Looks for an answer's quotation in the block it names.
 fn verify(material: &Material, block: &str, quote: &str) -> Option<Evidence> {
     let block = material.block(block)?;
-    if block.kind == BlockKind::Request {
+    // The question is not material; a reference without its Bible text has no words to quote.
+    if block.kind == BlockKind::Request
+        || (block.kind == BlockKind::Scripture && block.translation.is_none())
+    {
         return None;
     }
     let quote = quote.trim();
@@ -823,13 +839,28 @@ pub fn interpret(material: &Material, answer: &Value) -> AppResult<InquiryResult
     let mut unverified = 0;
     let mut downgraded = 0;
     let mut points = Vec::new();
+    let mut books: Vec<&str> = Vec::new();
+    for b in &material.blocks {
+        if let Some(place) = &b.source {
+            if !books.contains(&place.source_id.as_str()) {
+                books.push(&place.source_id);
+            }
+        }
+    }
+    let books = books.len();
     for raw in list.iter().take(most) {
         let text = text_of(raw, "text", POINT_MAX);
         if text.is_empty() {
             continue;
         }
         let mut evidence: Vec<Evidence> = Vec::new();
-        for e in raw["evidence"].as_array().into_iter().flatten() {
+        // A few quotations are checked; an answer padded with many is not worth searching.
+        for e in raw["evidence"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .take(EVIDENCE_MAX * 2)
+        {
             let block = e["block"].as_str().unwrap_or("").trim();
             let quote: String = e["quote"]
                 .as_str()
@@ -858,11 +889,16 @@ pub fn interpret(material: &Material, answer: &Value) -> AppResult<InquiryResult
             .filter(|b| b.kind != BlockKind::Request);
         let claimed = PointKind::parse(raw["kind"].as_str().unwrap_or(""));
         let from = |kinds: &[BlockKind]| evidence.iter().any(|e| kinds.contains(&e.kind));
-        // Distinct source passages quoted (two passages of one book count).
+        // Distinct sources quoted: books, when the passages come from more than
+        // one; passages, when the person compares passages of one book.
         let mut sources: Vec<&str> = Vec::new();
         for e in evidence.iter().filter(|e| e.kind == BlockKind::Source) {
-            if !sources.contains(&e.block.as_str()) {
-                sources.push(&e.block);
+            let key = match (&e.source, books > 1) {
+                (Some(link), true) => link.source_id.as_str(),
+                _ => e.block.as_str(),
+            };
+            if !sources.contains(&key) {
+                sources.push(key);
             }
         }
         // A claim stands as made only on the words it needs.
@@ -918,12 +954,18 @@ pub fn interpret(material: &Material, answer: &Value) -> AppResult<InquiryResult
     }
     let verdict = comparing.then(|| {
         let shown = |k: PointKind| points.iter().any(|p| p.kind == k && !p.downgraded);
-        match answer["verdict"].as_str().unwrap_or("").trim() {
-            "agree" if shown(PointKind::Agreement) => Verdict::Agree,
-            "disagree" if shown(PointKind::Disagreement) => Verdict::Disagree,
-            "partly" if shown(PointKind::Agreement) && shown(PointKind::Disagreement) => {
-                Verdict::Partly
-            }
+        let (agree, disagree) = (shown(PointKind::Agreement), shown(PointKind::Disagreement));
+        // The verdict follows the checked points, whatever the answer claims.
+        match (
+            answer["verdict"].as_str().unwrap_or("").trim(),
+            agree,
+            disagree,
+        ) {
+            // Agreement and disagreement both shown: never more than partly.
+            ("agree" | "disagree" | "partly", true, true) => Verdict::Partly,
+            ("agree", true, false) => Verdict::Agree,
+            ("disagree", false, true) => Verdict::Disagree,
+            // Anything else the passages, as checked, do not settle.
             _ => Verdict::Insufficient,
         }
     });

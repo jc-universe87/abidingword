@@ -120,6 +120,7 @@ pub fn assemble(conn: &Connection, input: &InquiryInput, request: &str) -> AppRe
         text,
         selected,
         finding_id,
+        writing,
     } = &input.scope
     else {
         return Err(super::not_for_this());
@@ -154,6 +155,13 @@ pub fn assemble(conn: &Connection, input: &InquiryInput, request: &str) -> AppRe
     // The writing in focus, as it is on screen.
     let text = text.trim();
     let selected = selected.trim();
+    // Selected words are words of one piece of writing, named.
+    if !selected.is_empty() && block_id.as_deref().is_none_or(str::is_empty) {
+        return Err(ask_for(
+            "inquiry.selectionChanged",
+            "The selected words are no longer in the text. Select them again.",
+        ));
+    }
     if let Some(id) = block_id.as_deref().filter(|b| !b.is_empty()) {
         let block = blocks::get(conn, id)?;
         if section.as_ref().is_none_or(|s| s.id != block.section_id) {
@@ -217,8 +225,19 @@ pub fn assemble(conn: &Connection, input: &InquiryInput, request: &str) -> AppRe
     if block_id.is_none() && focus_note.is_none() {
         if let Some(section) = &section {
             let mut used = 0;
-            for block in blocks::list_for_section(conn, &section.id)? {
-                let piece = block.content.trim();
+            let parts = blocks::list_for_section(conn, &section.id)?;
+            if let Some(stray) = writing
+                .iter()
+                .find(|w| !parts.iter().any(|b| b.id == w.block_id))
+            {
+                return Err(AppError::not_found("study block", &stray.block_id));
+            }
+            for block in parts {
+                // What is on screen, when given; else what is saved.
+                let shown = writing.iter().find(|w| w.block_id == block.id);
+                let piece = shown
+                    .map_or(block.content.as_str(), |w| w.text.as_str())
+                    .trim();
                 if piece.is_empty() || used >= super::WRITING_MAX {
                     continue;
                 }
@@ -293,16 +312,17 @@ pub fn assemble(conn: &Connection, input: &InquiryInput, request: &str) -> AppRe
             if !has(BlockKind::Scripture) {
                 return Err(no_passage());
             }
+            // Checked against the words of the text, not only its reference.
+            if !has_text {
+                return Err(no_bible_text());
+            }
         }
         Inquiry::Understand | Inquiry::Context | Inquiry::Readings | Inquiry::Related => {
             if !has(BlockKind::Scripture) {
                 return Err(no_passage());
             }
             if action == Inquiry::Understand && !has_text {
-                return Err(ask_for(
-                    "inquiry.noBibleText",
-                    "The text of this passage is not installed. Add a Bible in Settings, or choose one for this study.",
-                ));
+                return Err(no_bible_text());
             }
         }
         _ => {
@@ -312,6 +332,13 @@ pub fn assemble(conn: &Connection, input: &InquiryInput, request: &str) -> AppRe
         }
     }
     Ok(material)
+}
+
+fn no_bible_text() -> AppError {
+    ask_for(
+        "inquiry.noBibleText",
+        "The text of this passage is not installed. Add a Bible in Settings, or choose one for this study.",
+    )
 }
 
 fn no_passage() -> AppError {

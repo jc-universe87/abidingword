@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import type { ExcerptInput } from "@/types/inquiry";
 
 /** The most passages compared at once (as the core allows). */
@@ -32,17 +32,24 @@ const ComparisonContext = createContext<Comparison | null>(null);
  * the person asks for a comparison.
  */
 export function ComparisonProvider({ children }: { children: ReactNode }) {
-  const [passages, setPassages] = useState<ComparedPassage[]>([]);
+  const [passages, setShown] = useState<ComparedPassage[]>([]);
+  // The tray as it is now, even between renders: two quick adds both count.
+  const current = useRef<ComparedPassage[]>([]);
+  const set = useCallback((next: ComparedPassage[]) => {
+    current.current = next;
+    setShown(next);
+  }, []);
   const add = useCallback(
     (passage: ComparedPassage) => {
-      if (passages.length >= COMPARE_MAX || passages.some((p) => same(p.excerpt, passage.excerpt))) return false;
-      setPassages([...passages, passage]);
+      const now = current.current;
+      if (now.length >= COMPARE_MAX || now.some((p) => same(p.excerpt, passage.excerpt))) return false;
+      set([...now, passage]);
       return true;
     },
-    [passages],
+    [set],
   );
-  const remove = useCallback((index: number) => setPassages((all) => all.filter((_, i) => i !== index)), []);
-  const clear = useCallback(() => setPassages([]), []);
+  const remove = useCallback((index: number) => set(current.current.filter((_, i) => i !== index)), [set]);
+  const clear = useCallback(() => set([]), [set]);
   const value = useMemo(() => ({ passages, add, remove, clear }), [passages, add, remove, clear]);
   return <ComparisonContext.Provider value={value}>{children}</ComparisonContext.Provider>;
 }

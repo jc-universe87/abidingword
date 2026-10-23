@@ -189,6 +189,17 @@ describe("Help in a Bible Study", () => {
     expect(screen.getByDisplayValue("I rewrote this myself.")).toBeInTheDocument();
   });
 
+  it("sends the whole part as it is on screen, typing not yet saved included", async () => {
+    const { api } = await setup();
+    const { user } = await renderApp(api);
+    const part = await openStudy(user);
+    fireEvent.change(screen.getByDisplayValue(WRITING), { target: { value: "Typed a moment ago." } });
+    const panel = await openHelp(user, part);
+    await user.selectOptions(within(panel).getByRole("combobox", { name: "Look at" }), "part");
+    await waitFor(() => expect(api.state.inquiry.previews.at(-1)!.scope).toMatchObject({ writing: [{ text: "Typed a moment ago." }] }));
+    expect(await within(screen.getByTestId("inquiry-panel")).findByTestId("inquiry-preview")).toBeInTheDocument();
+  });
+
   it("looks at the selected words when some are selected", async () => {
     const { api } = await setup();
     const { user } = await renderApp(api);
