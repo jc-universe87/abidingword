@@ -91,6 +91,13 @@ You can add as many as you like and switch between them at any time.
 > and type its name. Abiding Word never guesses it from the file's name. The
 > language helps it read abbreviations you type, such as *Jn 3:5*, the way
 > this Bible means them; you can change it later in Settings.
+>
+> If the Bible's edition marks its words with **lemmas, lexical numbers or
+> grammar codes** (common in Hebrew and Greek study editions), the review says
+> how many, and whether any could not be read. They are then used for
+> [lemma search](07-concordance.md#searching-by-lemma-annotated-bibles). If the
+> markup cannot be read reliably, nothing of it is added, and the text of the
+> Bible is never affected.
 
 ## A tour of the screen
 

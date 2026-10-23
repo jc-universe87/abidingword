@@ -12,8 +12,8 @@ import "@fontsource/noto-serif/600.css";
 import "@/design-system/index.css";
 import i18n from "@/i18n";
 import { App } from "@/app/App";
-import type { VerseText } from "@/types/scripture";
-import { createMemoryApi, type MemoryApi } from "../support/memoryApi";
+import type { MorphDescribed, VerseText } from "@/types/scripture";
+import { createMemoryApi, type FixtureWord, type MemoryApi } from "../support/memoryApi";
 import { ApiError } from "@/lib/api";
 import { createMemoryUpdater } from "../support/memoryUpdater";
 import { minimalPdf } from "../support/minimalPdf";
@@ -404,6 +404,52 @@ function prepareInquiry(api: MemoryApi, which: string) {
   }
 }
 
+/**
+ * Original-language research (v0.21): a CONSTRUCTED annotated sample, named
+ * as such — invented lines of real Hebrew words, not Bible text — with word
+ * annotations written for the screenshots. Codes follow the OSHB
+ * documentation's examples; nothing is an analysis of a real verse.
+ */
+function seedAnnotated(api: MemoryApi) {
+  const sample = api.installFixtureBible("SAMPLE", "sample");
+  Object.assign(sample, { name: "Constructed sample (not Bible text)", language: "Hebrew", languageCode: "hbo" });
+  const verb = (conjugation: string): MorphDescribed => ({
+    scheme: "oshb",
+    language: "hebrew",
+    segments: [{ partOfSpeech: "verb", features: [{ field: "stem", value: "qal" }, { field: "conjugation", value: conjugation }, { field: "person", value: "third" }, { field: "gender", value: "masculine" }, { field: "number", value: "singular" }] }],
+  });
+  const noun = (number: string, state = "absolute"): MorphDescribed => ({
+    scheme: "oshb",
+    language: "hebrew",
+    segments: [{ partOfSpeech: "noun", features: [{ field: "nounType", value: "common" }, { field: "gender", value: "masculine" }, { field: "number", value: number }, { field: "state", value: state }] }],
+  });
+  const lines: [string, string, FixtureWord[]][] = [
+    ["GEN.1.1", "בָּרָא אֱלֹהִים אוֹר", [
+      { surface: "בָּרָא", lemma: "בָּרָא", strong: "H1254a", morph: "HVqp3ms", described: verb("perfect") },
+      { surface: "אֱלֹהִים", lemma: "אֱלֹהִים", strong: "H430", morph: "HNcmpa", described: noun("plural") },
+      { surface: "אוֹר", lemma: "אוֹר", strong: "H216", morph: "HNcmsa", described: noun("singular") },
+    ]],
+    ["GEN.1.2", "וַיִּבְרָא אֱלֹהִים מַיִם", [
+      { surface: "וַיִּבְרָא", lemma: "בָּרָא", strong: "H1254a", morph: "HC/Vqw3ms" },
+      { surface: "אֱלֹהִים", lemma: "אֱלֹהִים", strong: "H430", morph: "HNcmpa", described: noun("plural") },
+    ]],
+    ["GEN.1.3", "בָּרָא אוֹר", [
+      { surface: "בָּרָא", lemma: "בָּרָא", strong: "H1254a", morph: "HVqp3ms", described: verb("perfect") },
+      { surface: "אוֹר", lemma: "אוֹר", strong: "H216", morph: "HNcmsa", described: noun("singular") },
+    ]],
+    ["GEN.1.4", "בָּרָא דָּבָר", [{ surface: "בָּרָא", lemma: "בָּרָא", strong: "H1254b", morph: "HVqp3ms", described: verb("perfect") }]],
+    ["GEN.1.5", "אֱלֹהִים בָּרָא", [
+      { surface: "אֱלֹהִים", lemma: "אֱלֹהִים", strong: "H430", morph: "HNcmpa", described: noun("plural") },
+      { surface: "בָּרָא", lemma: "בָּרָא", strong: "H1254a", morph: "HVqp3ms", described: verb("perfect") },
+    ]],
+  ];
+  for (const [verse, text, words] of lines) {
+    api.setVerseText(sample.id, verse, text);
+    api.installFixtureWords(sample.id, verse, words, "oshb");
+  }
+  return sample;
+}
+
 async function start() {
   const api = createMemoryApi({
     version: "0.5.0-dev.26",
@@ -419,6 +465,28 @@ async function start() {
   if (params.get("assistant") === "off") api.state.teaching.assistant.config = { ...api.state.teaching.assistant.config, enabled: false };
   const inquiry = params.get("inquiry");
   if (inquiry) prepareInquiry(api, inquiry);
+  if (params.get("words") === "1") {
+    const sample = seedAnnotated(api);
+    if (params.get("read") === "sample") {
+      api.state.settings.scriptureTranslationId = sample.id;
+      api.state.settings.scripturePassage = "GEN.1";
+    }
+    // A Word Study using the sample's lexical numbers.
+    const project = api.state.projects[0];
+    if (project) {
+      const study = await api.studyCreate({ projectId: project.id, title: "Creating (word study)", studyType: "word", templateKey: "word-study" });
+      await api.studyUpdate({ id: study.study.id, details: { lemma: "בָּרָא", lexicalId: "H1254a", translationId: sample.id } });
+    }
+  }
+  if (params.get("preview") === "words") {
+    api.state.nextChosenFiles = ["/home/you/Downloads/annotated_usfm.zip"];
+    api.state.nextPreviewWords = {
+      marked: 124, words: 121, verses: 15, withLemma: 121, withLexicalId: 119, withMorphology: 121, distinctLemmas: 63,
+      phrases: 0, parts: 6, morphAttribute: "x-morph", morphScheme: "oshb", otherAttributes: ["srcloc"],
+      leftOut: { syntax: 2, conflict: 1, tooLong: 0, unbalanced: 0, overlapping: 0, outsideVerse: 0, empty: 0, tooMany: 0 },
+      indexed: true, notIndexed: null,
+    };
+  }
   await i18n.changeLanguage(params.get("lang") ?? "en");
   // All three panes even in a narrow window, as the owner works (review scenes, v0.18.5).
   if (params.get("sourcesOpen") === "1") localStorage.setItem("abiding-word.layout.sourcesOpen", "true");

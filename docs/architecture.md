@@ -398,6 +398,14 @@ PDF parsing should be treated as lower-confidence because PDFs encode presentati
 
 EPUB should be preferred when available because it often retains structural markup.
 
+**Word annotations (v0.21, migration 0017).** A USFM import also reads each
+`\w …|lemma="…" strong="…" x-morph="…"\w*` and places the word by UTF-16
+offsets in the stored verse text (the text itself is unchanged). The words
+are stored per translation (`bible_word_annotations` → `bible_lemma_entries`,
+`bible_entry_ids`, `bible_words`, all removed with the translation), only
+when the markup is reliable and gives lemmas or grammar. Details:
+[original-language-v0.21.md](original-language-v0.21.md).
+
 ---
 
 # 9. Concordance and original-language architecture

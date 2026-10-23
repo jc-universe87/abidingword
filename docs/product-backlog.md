@@ -81,15 +81,19 @@ placed with PDF.js's own text layer, never guessed. Still open: references in
 right-to-left or vertical PDF text; references split across formatting in
 formatted pages; further actions (Add as related passage, Copy reference).
 
-### Concordance — surface forms shipped in v0.12 (accepted); lemma and morphology open
+### Concordance — surface forms (v0.12), lemma and grammar from annotated editions (v0.21)
 
-See [`concordance-v0.12.md`](concordance-v0.12.md): Word and Phrase occurrences
-in one Bible, by book, with per-script normalisation (Latin accents kept,
-Greek accents and Hebrew points ignored), opened in Scripture with Back, and
-**Find occurrences** from a word study. **Not built:** lemma or morphology
-search, Strong's or other lexical identifiers, lexicons, interlinear, OSIS /
-USX import, comparison across translations. These need an importer that keeps
-token data (the USFM importer drops `\w` attributes today).
+See [`concordance-v0.12.md`](concordance-v0.12.md) and
+[`original-language-v0.21.md`](original-language-v0.21.md). v0.21 reads USFM
+`\w` word annotations (lemma, `strong`, `x-morph`), searches by lemma or
+lexical number with homographs apart, filters by grammar code (described for
+OSHB only), and adds word details in the reader and a lexical number in Word
+Studies. **Not built:** USX/OSIS word data, descriptions of Greek morphology
+schemes (Robinson, unfoldingWord, MorphGNT — documentation to be verified
+first), lexicons and glosses (licensing), interlinear and cross-edition
+alignment, indexing Strong's-only translations, re-indexing Bibles added
+before v0.21 without adding them again, and an "every word with this number"
+choice in the concordance itself.
 
 ### From the user's own materials to templates
 

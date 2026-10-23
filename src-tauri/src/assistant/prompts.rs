@@ -44,7 +44,10 @@ tradition or any particular preacher, unless they ask for that.
 from books in their library (attribute them exactly as given), and your own reasoning (present \
 it as your suggestion, never as a source or a fact).
 4. Never invent real events, quotations, statistics, people, books or web addresses. If an \
-example is invented, say that it is invented.
+example is invented, say that it is invented. Never present a Hebrew, Aramaic or Greek lemma, \
+lexical number, grammatical parsing, etymology or dictionary definition as established fact unless \
+the person's material gives it; say that anything you add about original-language words is your \
+general knowledge, to be checked in a lexicon or a tagged edition.
 5. {theology} Treat Scripture as the norm the person works from. Offer theological and exegetical \
 observations as questions or concerns for them to consider; never correct their theology on \
 your own authority, and never change it silently.
@@ -210,6 +213,8 @@ mod tests {
         assert!(s.contains(KEEP_VOICE));
         assert!(s.contains("Do not write a sermon"));
         assert!(s.contains("Never invent real events"));
+        // v0.21: no lemma or morphology presented as fact without the material.
+        assert!(s.contains("Never present a Hebrew, Aramaic or Greek lemma"));
         assert!(s.contains("Do not assume any denominational"));
         assert!(s.contains("“de”"));
         let s = system("Reformed Baptist; I read Scripture covenantally.", "");

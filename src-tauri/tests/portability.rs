@@ -1150,3 +1150,82 @@ fn shape_of_all(conn: &Connection) -> Vec<String> {
         .collect();
     ids.iter().flat_map(|id| shape(conn, id)).collect()
 }
+
+/// Installs a Bible with word annotations (constructed test text, not Bible
+/// text) from USFM; returns its id (v0.21).
+fn annotated_bible(conn: &Connection, dir: &Path) -> String {
+    use abiding_word_lib::db::bibles::{self, SourceRecord};
+    use abiding_word_lib::scripture::import::{self, ImportOrigin};
+    use abiding_word_lib::scripture::CommitImport;
+    let file = dir.join("GEN.usfm");
+    fs::write(
+        &file,
+        "\\id GEN constructed test text\n\\c 1\n\\p\n\\v 1 \\w ברא|lemma=\"ברא\" strong=\"H1254a\" x-morph=\"HVqp3ms\"\\w* \\w אלהים|lemma=\"אלהים\" strong=\"H430\" x-morph=\"HNcmpa\"\\w*\n",
+    )
+    .unwrap();
+    let staged = import::stage(&[file], ImportOrigin::UserFiles).unwrap();
+    let id = bibles::new_translation_id();
+    bibles::commit_import(
+        conn,
+        &id,
+        &staged.content,
+        &CommitImport {
+            preview_id: staged.id.clone(),
+            name: "Fixture".into(),
+            short_name: "FXW".into(),
+            language: "Hebrew".into(),
+            language_code: None,
+            publisher: None,
+            copyright_notice: None,
+            license_type: None,
+        },
+        &SourceRecord {
+            origin: "managed_copy",
+            path: Some("sources/bibles/test".into()),
+            original_file_name: Some("fixture".into()),
+            format: "usfm",
+            is_builtin: false,
+        },
+    )
+    .unwrap();
+    id
+}
+
+fn words_in(conn: &Connection) -> (i64, i64, i64) {
+    let n = |table: &str| -> i64 {
+        conn.query_row(&format!("SELECT COUNT(*) FROM {table}"), [], |r| r.get(0))
+            .unwrap()
+    };
+    (
+        n("bible_words"),
+        n("bible_entry_ids"),
+        n("bible_word_annotations"),
+    )
+}
+
+#[test]
+fn bible_words_stay_out_of_project_packages_and_come_back_with_a_backup() {
+    let out = tempfile::tempdir().unwrap();
+    let here = folder();
+    let made = here
+        .db
+        .with_conn(|c| {
+            annotated_bible(c, out.path());
+            make_project(c, &here.dirs.teaching_images(), "John")
+        })
+        .unwrap();
+    let before = here.db.with_conn(|c| Ok(words_in(c))).unwrap();
+    assert_eq!(before, (2, 2, 1));
+
+    // A project package is the person's work only: no Bible, no word index.
+    let package = export(&here, &made.project, out.path());
+    let there = folder();
+    import(&there, &package).unwrap();
+    assert_eq!(there.db.with_conn(|c| Ok(words_in(c))).unwrap(), (0, 0, 0));
+
+    // A backup is everything, the word index included.
+    let path = backup_to(&here, out.path());
+    let elsewhere = folder();
+    backup::restore(&elsewhere.db, &elsewhere.dirs, &path).unwrap();
+    assert_eq!(elsewhere.db.with_conn(|c| Ok(words_in(c))).unwrap(), before);
+}
