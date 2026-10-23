@@ -35,15 +35,15 @@ Decided in v0.18.10. The rest of the corpus follows these.
 | Marks | `scripture.marks.title` | Marks | Anmerkungen | 표시 | Marques | Marcas | Marcas | Notes, highlights and bookmarks on verses. |
 | Passage | `presentation.editor.passage` | Passage | Bibelstelle | 본문 | Passage | Pasaje | Passagem | A Bible reference. |
 
-**Bible Study** — 20 strings use it in English.
+**Bible Study** — 23 strings use it in English.
 
 | Language | Renderings (strings) |
 |---|---|
-| German | Bibelstudium (14), Bibelstudien (4), (none of these) (2) |
-| Korean | 성경공부 (20) |
-| French | Étude biblique (3), étude biblique (12), étude (4), Étude (1) |
-| Spanish | Estudio bíblico (3), estudio bíblico (13), estudio (3), Estudio (1) |
-| Portuguese | Estudo bíblico (3), estudo bíblico (12), estudo (4), Estudo (1) |
+| German | Bibelstudium (17), Bibelstudien (4), (none of these) (2) |
+| Korean | 성경공부 (23) |
+| French | Étude biblique (3), étude biblique (15), étude (4), Étude (1) |
+| Spanish | Estudio bíblico (3), estudio bíblico (16), estudio (3), Estudio (1) |
+| Portuguese | Estudo bíblico (3), estudo bíblico (15), estudo (4), Estudo (1) |
 
 **Bible Teaching** — 17 strings use it in English.
 
@@ -85,25 +85,25 @@ Decided in v0.18.10. The rest of the corpus follows these.
 | Spanish | presentación (17), Presentación (7), (none of these) (4) |
 | Portuguese | apresentação (17), Apresentação (7), (none of these) (4) |
 
-**passage** — 112 strings use it in English.
+**passage** — 120 strings use it in English.
 
 | Language | Renderings (strings) |
 |---|---|
-| German | Bibelstelle (58), Stelle (4), Bibeltext (10), Abschnitt (12), (none of these) (28) |
-| Korean | 본문 (75), 구절 (10), (none of these) (27) |
-| French | passage (95), Passage (17) |
-| Spanish | pasaje (75), Pasaje (17), (none of these) (20) |
-| Portuguese | passagem (43), Passagem (7), (none of these) (62) |
+| German | Bibelstelle (58), Stelle (4), Bibeltext (11), Abschnitt (19), (none of these) (28) |
+| Korean | 본문 (76), 구절 (10), (none of these) (34) |
+| French | passage (102), Passage (18) |
+| Spanish | pasaje (82), Pasaje (18), (none of these) (20) |
+| Portuguese | passagem (44), Passagem (7), (none of these) (69) |
 
-**source** — 60 strings use it in English.
+**source** — 61 strings use it in English.
 
 | Language | Renderings (strings) |
 |---|---|
-| German | Quelle (60) |
-| Korean | 자료 (47), 출처 (13) |
-| French | source (49), Source (11) |
-| Spanish | fuente (50), Fuente (10) |
-| Portuguese | fonte (51), Fonte (9) |
+| German | Quelle (61) |
+| Korean | 자료 (48), 출처 (13) |
+| French | source (50), Source (11) |
+| Spanish | fuente (51), Fuente (10) |
+| Portuguese | fonte (52), Fonte (9) |
 
 ## 2. Questions left
 
@@ -111,7 +111,7 @@ _No open linguistic questions._
 
 ## 3. Strings changed in v0.19
 
-218 strings changed in at least one language since v0.18.10. Spot-check these.
+234 strings changed in at least one language since v0.18.10. Spot-check these.
 
 | Context | Key | English | German | Korean | French | Spanish | Portuguese |
 |---|---|---|---|---|---|---|---|
@@ -144,6 +144,22 @@ _No open linguistic questions._
 |  | `errors.portability.tooLarge` | This file holds more than Abiding Word reads from one file. | Diese Datei enthält mehr, als Abiding Word aus einer Datei liest. | 이 파일에는 Abiding Word가 한 파일에서 읽을 수 있는 것보다 많은 내용이 있습니다. | Ce fichier contient plus qu’Abiding Word ne lit dans un seul fichier. | Este archivo contiene más de lo que Abiding Word lee de un solo archivo. | Este arquivo contém mais do que o Abiding Word lê de um só arquivo. |
 |  | `library.citations.unavailable` | (not on this computer) | (nicht auf diesem Computer) | (이 컴퓨터에 없음) | (absente de cet ordinateur) | (no está en este ordenador) | (não está neste computador) |
 |  | `library.citations.unavailableTitle` | Source not available on this computer. The citation has been kept. | Die Quelle ist auf diesem Computer nicht vorhanden. Die Quellenangabe ist erhalten geblieben. | 이 컴퓨터에는 이 자료가 없습니다. 출처 정보는 그대로 남아 있습니다. | Cette source n’est pas disponible sur cet ordinateur. La référence a été conservée. | Esta fuente no está disponible en este ordenador. La referencia se ha conservado. | Esta fonte não está disponível neste computador. A referência foi mantida. |
+|  | `library.compare.add` | Add to comparison | Zum Vergleich hinzufügen | 비교에 추가 | Ajouter à la comparaison | Añadir a la comparación | Adicionar à comparação |
+| plural, {{count}} | `library.compare.added` | *one:* Added to the comparison ({{count}} passage).<br>*other:* Added to the comparison ({{count}} passages). | *one:* Zum Vergleich hinzugefügt ({{count}} Abschnitt).<br>*other:* Zum Vergleich hinzugefügt ({{count}} Abschnitte). | *other:* 비교에 추가했습니다(부분 {{count}}개). | *one:* Ajouté à la comparaison ({{count}} passage).<br>*many:* Ajouté à la comparaison ({{count}} passages).<br>*other:* Ajouté à la comparaison ({{count}} passages). | *one:* Añadido a la comparación ({{count}} pasaje).<br>*many:* Añadido a la comparación ({{count}} pasajes).<br>*other:* Añadido a la comparación ({{count}} pasajes). | *one:* Adicionado à comparação ({{count}} trecho).<br>*many:* Adicionado à comparação ({{count}} trechos).<br>*other:* Adicionado à comparação ({{count}} trechos). |
+|  | `library.compare.clear` | Clear | Leeren | 비우기 | Vider | Vaciar | Limpar |
+|  | `library.compare.compare` | Compare… | Vergleichen… | 비교하기… | Comparer… | Comparar… | Comparar… |
+| plural, {{count}}, {{max}} | `library.compare.count` | *one:* {{count}} of {{max}} passages to compare<br>*other:* {{count}} of {{max}} passages to compare | *one:* {{count}} von {{max}} Abschnitten zum Vergleichen<br>*other:* {{count}} von {{max}} Abschnitten zum Vergleichen | *other:* 비교할 부분 {{count}}/{{max}} | *one:* {{count}} passage sur {{max}} à comparer<br>*many:* {{count}} passages sur {{max}} à comparer<br>*other:* {{count}} passages sur {{max}} à comparer | *one:* {{count}} de {{max}} pasajes para comparar<br>*many:* {{count}} de {{max}} pasajes para comparar<br>*other:* {{count}} de {{max}} pasajes para comparar | *one:* {{count}} de {{max}} trechos para comparar<br>*many:* {{count}} de {{max}} trechos para comparar<br>*other:* {{count}} de {{max}} trechos para comparar |
+|  | `library.compare.needTwo` | Choose at least two passages: select words in a source, then More actions → Add to comparison. | Wähle mindestens zwei Abschnitte: Markiere Worte in einer Quelle, dann Weitere Aktionen → Zum Vergleich hinzufügen. | 부분을 두 개 이상 고르세요. 자료에서 글을 선택한 뒤 더 보기 → 비교에 추가를 누르세요. | Choisissez au moins deux passages : sélectionnez des mots dans une source, puis Autres actions → Ajouter à la comparaison. | Elige al menos dos pasajes: selecciona palabras en una fuente y luego Más acciones → Añadir a la comparación. | Escolha pelo menos dois trechos: selecione palavras em uma fonte e depois Mais ações → Adicionar à comparação. |
+|  | `library.compare.notAdded` | Not added: this passage is already there, or three are chosen. | Nicht hinzugefügt: Dieser Abschnitt ist schon dabei, oder drei sind gewählt. | 추가하지 않았습니다. 이미 있는 부분이거나 세 개를 모두 골랐습니다. | Non ajouté : ce passage y est déjà, ou trois sont choisis. | No se ha añadido: este pasaje ya está o ya hay tres elegidos. | Não adicionado: este trecho já está lá ou três já foram escolhidos. |
+| {{title}} | `library.compare.remove` | Remove “{{title}}” from the comparison | „{{title}}“ aus dem Vergleich entfernen | “{{title}}”을 비교에서 빼기 | Retirer « {{title}} » de la comparaison | Quitar «{{title}}» de la comparación | Remover “{{title}}” da comparação |
+| plural, {{count}} | `library.compare.title` | *one:* Compare {{count}} passage<br>*other:* Compare {{count}} passages | *one:* {{count}} Abschnitt vergleichen<br>*other:* {{count}} Abschnitte vergleichen | *other:* 부분 {{count}}개 비교 | *one:* Comparer {{count}} passage<br>*many:* Comparer {{count}} passages<br>*other:* Comparer {{count}} passages | *one:* Comparar {{count}} pasaje<br>*many:* Comparar {{count}} pasajes<br>*other:* Comparar {{count}} pasajes | *one:* Comparar {{count}} trecho<br>*many:* Comparar {{count}} trechos<br>*other:* Comparar {{count}} trechos |
+|  | `library.compare.tray` | Passages to compare | Abschnitte zum Vergleichen | 비교할 부분 | Passages à comparer | Pasajes para comparar | Trechos para comparar |
+|  | `library.inquiry.help` | Help | Hilfe | 도움 | Aide | Ayuda | Ajuda |
+| {{study}} | `library.inquiry.includeStudy` | Also include my Bible Study “{{study}}” | Auch mein Bibelstudium „{{study}}“ mitsenden | 내 성경공부 “{{study}}”도 포함 | Inclure aussi mon étude biblique « {{study}} » | Incluir también mi estudio bíblico «{{study}}» | Incluir também meu estudo bíblico “{{study}}” |
+|  | `library.inquiry.includeStudyHint` | Its passage and up to six of its notes are added to what is sent. | Sein Bibeltext und bis zu sechs seiner Notizen kommen zum Gesendeten dazu. | 본문과 기록 최대 6개를 보내는 내용에 더합니다. | Son passage et jusqu’à six de ses notes s’ajoutent à ce qui est envoyé. | Su pasaje y hasta seis de sus apuntes se añaden a lo que se envía. | Sua passagem e até seis de suas anotações são somadas ao que é enviado. |
+|  | `library.inquiry.keepNote` | Open a Bible Study to add notes to it. | Öffne ein Bibelstudium, um Notizen hinzuzufügen. | 기록을 추가하려면 성경공부를 여세요. | Ouvrez une étude biblique pour y ajouter des notes. | Abre un estudio bíblico para añadirle apuntes. | Abra um estudo bíblico para adicionar anotações. |
+|  | `library.inquiry.noStudy` | No Bible Study is open, so only the selected words are used. | Kein Bibelstudium ist offen; es werden nur die markierten Worte verwendet. | 열린 성경공부가 없으므로 선택한 글만 사용합니다. | Aucune étude biblique n’est ouverte : seuls les mots sélectionnés sont utilisés. | No hay ningún estudio bíblico abierto, así que solo se usan las palabras seleccionadas. | Nenhum estudo bíblico está aberto, então só as palavras selecionadas são usadas. |
+|  | `library.inquiry.title` | Help with this passage | Hilfe zu diesem Abschnitt | 이 부분 도움말 | Aide pour ce passage | Ayuda con este pasaje | Ajuda com este trecho |
 |  | `settings.about.backup` | All your work is stored in the data folder on this computer. To keep a copy, use “Back up everything…” under Data and backup. | Deine ganze Arbeit wird im Datenordner auf diesem Computer gespeichert. Für eine Kopie verwende „Alles sichern…“ unter Daten und Sicherung. | 모든 작업은 이 컴퓨터의 데이터 폴더에 저장됩니다. 사본을 만들려면 데이터와 백업에서 ‘모두 백업…’을 사용하세요. | Tout votre travail est enregistré dans le dossier de données de cet ordinateur. Pour en garder une copie, utilisez « Tout sauvegarder… » dans Données et sauvegarde. | Todo tu trabajo se guarda en la carpeta de datos de este ordenador. Para tener una copia, usa «Hacer copia de seguridad de todo…» en Datos y copia de seguridad. | Todo o seu trabalho fica na pasta de dados deste computador. Para ter uma cópia, use “Fazer cópia de segurança de tudo…” em Dados e cópia de segurança. |
 | {{path}}, {{size}} | `settings.data.backedUp` | The backup was saved to {{path}} ({{size}} MB). | Die Sicherung wurde unter {{path}} gespeichert ({{size}} MB). | 백업을 {{path}}에 저장했습니다({{size}}MB). | La sauvegarde a été enregistrée dans {{path}} ({{size}} Mo). | La copia de seguridad se guardó en {{path}} ({{size}} MB). | A cópia de segurança foi salva em {{path}} ({{size}} MB). |
 |  | `settings.data.backup` | Backup | Sicherung | 백업 | Sauvegarde | Copia de seguridad | Cópia de segurança |

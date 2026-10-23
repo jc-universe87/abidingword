@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
-import { BookPlus, Highlighter, StickyNote } from "lucide-react";
+import { BookPlus, Highlighter, Lightbulb, StickyNote } from "lucide-react";
 import { ActionMenu } from "@/design-system/ActionMenu";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
@@ -47,6 +47,10 @@ interface Props {
   onAddToStudy?: (words: SourceSelection) => void;
   /** "Copy quotation with citation" for the selected words (v0.15). */
   onCopy?: (words: SourceSelection) => void;
+  /** Help with the selected words (v0.20), when the assistant is on. */
+  onHelp?: (words: SourceSelection) => void;
+  /** Puts the selected words aside to compare (v0.20), when the assistant is on. */
+  onCompare?: (words: SourceSelection) => void;
 }
 
 /**
@@ -56,7 +60,7 @@ interface Props {
  * sticky, never floating over the text. The anchor is captured when the
  * selection settles and kept while a colour is chosen or a note is written.
  */
-export function SourceMarkStrip({ root, sourceId, read: readSelection, cannotPlace, stored, place, onPlaceDone, onSaved, onAddToStudy, onCopy }: Props) {
+export function SourceMarkStrip({ root, sourceId, read: readSelection, cannotPlace, stored, place, onPlaceDone, onSaved, onAddToStudy, onCopy, onHelp, onCompare }: Props) {
   const { t } = useTranslation();
   const api = useApi();
   const bar = useRef<HTMLDivElement>(null);
@@ -222,7 +226,40 @@ export function SourceMarkStrip({ root, sourceId, read: readSelection, cannotPla
               <BookPlus className="size-5" aria-hidden="true" /> {t("library.toStudy.add")}
             </button>
           )}
-          {anchor && onCopy && <ActionMenu label={t("library.more")} actions={[{ label: t("library.copy.action"), onSelect: () => onCopy(anchor) }]} className="self-center" />}
+          {anchor && onHelp && (
+            <button
+              type="button"
+              className={outlined}
+              onClick={() => {
+                const words = anchor;
+                finish(false);
+                onHelp(words);
+              }}
+            >
+              <Lightbulb className="size-5" aria-hidden="true" /> {t("library.inquiry.help")}
+            </button>
+          )}
+          {anchor && (onCopy || onCompare) && (
+            <ActionMenu
+              label={t("library.more")}
+              actions={[
+                ...(onCopy ? [{ label: t("library.copy.action"), onSelect: () => onCopy(anchor) }] : []),
+                ...(onCompare
+                  ? [
+                      {
+                        label: t("library.compare.add"),
+                        onSelect: () => {
+                          const words = anchor;
+                          finish(false);
+                          onCompare(words);
+                        },
+                      },
+                    ]
+                  : []),
+              ]}
+              className="self-center"
+            />
+          )}
         </div>
       )}
 

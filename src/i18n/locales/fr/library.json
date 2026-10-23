@@ -273,5 +273,31 @@
   "more": "Autres actions",
   "toStudy": {
     "add": "Ajouter à l’étude"
+  },
+  "inquiry": {
+    "help": "Aide",
+    "title": "Aide pour ce passage",
+    "includeStudy": "Inclure aussi mon étude biblique « {{study}} »",
+    "includeStudyHint": "Son passage et jusqu’à six de ses notes s’ajoutent à ce qui est envoyé.",
+    "noStudy": "Aucune étude biblique n’est ouverte : seuls les mots sélectionnés sont utilisés.",
+    "keepNote": "Ouvrez une étude biblique pour y ajouter des notes."
+  },
+  "compare": {
+    "add": "Ajouter à la comparaison",
+    "added_one": "Ajouté à la comparaison ({{count}} passage).",
+    "added_many": "Ajouté à la comparaison ({{count}} passages).",
+    "added_other": "Ajouté à la comparaison ({{count}} passages).",
+    "notAdded": "Non ajouté : ce passage y est déjà, ou trois sont choisis.",
+    "tray": "Passages à comparer",
+    "count_one": "{{count}} passage sur {{max}} à comparer",
+    "count_many": "{{count}} passages sur {{max}} à comparer",
+    "count_other": "{{count}} passages sur {{max}} à comparer",
+    "compare": "Comparer…",
+    "clear": "Vider",
+    "needTwo": "Choisissez au moins deux passages : sélectionnez des mots dans une source, puis Autres actions → Ajouter à la comparaison.",
+    "remove": "Retirer « {{title}} » de la comparaison",
+    "title_one": "Comparer {{count}} passage",
+    "title_many": "Comparer {{count}} passages",
+    "title_other": "Comparer {{count}} passages"
   }
 }

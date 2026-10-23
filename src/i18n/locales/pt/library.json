@@ -273,5 +273,31 @@
   "more": "Mais ações",
   "toStudy": {
     "add": "Adicionar ao estudo"
+  },
+  "inquiry": {
+    "help": "Ajuda",
+    "title": "Ajuda com este trecho",
+    "includeStudy": "Incluir também meu estudo bíblico “{{study}}”",
+    "includeStudyHint": "Sua passagem e até seis de suas anotações são somadas ao que é enviado.",
+    "noStudy": "Nenhum estudo bíblico está aberto, então só as palavras selecionadas são usadas.",
+    "keepNote": "Abra um estudo bíblico para adicionar anotações."
+  },
+  "compare": {
+    "add": "Adicionar à comparação",
+    "added_one": "Adicionado à comparação ({{count}} trecho).",
+    "added_many": "Adicionado à comparação ({{count}} trechos).",
+    "added_other": "Adicionado à comparação ({{count}} trechos).",
+    "notAdded": "Não adicionado: este trecho já está lá ou três já foram escolhidos.",
+    "tray": "Trechos para comparar",
+    "count_one": "{{count}} de {{max}} trechos para comparar",
+    "count_many": "{{count}} de {{max}} trechos para comparar",
+    "count_other": "{{count}} de {{max}} trechos para comparar",
+    "compare": "Comparar…",
+    "clear": "Limpar",
+    "needTwo": "Escolha pelo menos dois trechos: selecione palavras em uma fonte e depois Mais ações → Adicionar à comparação.",
+    "remove": "Remover “{{title}}” da comparação",
+    "title_one": "Comparar {{count}} trecho",
+    "title_many": "Comparar {{count}} trechos",
+    "title_other": "Comparar {{count}} trechos"
   }
 }

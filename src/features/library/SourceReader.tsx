@@ -28,6 +28,8 @@ import { MarksInspector, MarksMarker, type MarkActions } from "./annotations/Par
 import { AddToStudyPanel, type FromSource } from "@/features/studies/AddToStudyPanel";
 import { copyText } from "@/lib/clipboard";
 import { SourceMarkStrip, type PlaceRequest } from "./annotations/SourceMarkStrip";
+import { ComparisonTray, CompareHelp, SourceHelp } from "./SourceHelp";
+import { useComparison } from "@/features/ai/Comparison";
 import { SourceMarksPanel } from "./annotations/SourceMarksPanel";
 import { selectionInside, type SourceSelection } from "./annotations/sourceSelection";
 import { useSourceAnnotations, type MarkedRange } from "./annotations/useSourceAnnotations";
@@ -96,6 +98,12 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
   const api = useApi();
   const id = useId();
   const source = useLoad(useCallback(() => api.libraryGetSource(sourceId), [api, sourceId]));
+  // Help with a passage and comparing passages (v0.20) are offered only when the assistant is on.
+  const assistant = useLoad(useCallback(() => api.assistantSettingsGet(), [api]));
+  const helpOn = assistant.data?.config.enabled === true;
+  const comparison = useComparison();
+  const [helping, setHelping] = useState<SourceSelection | null>(null);
+  const [comparing, setComparing] = useState(false);
   const [window, setWindow] = useState<SegmentWindow | null>(null);
   const [error, setError] = useState<string | null>(null);
   // A web link the system could not open: shown above the formatted view, which has no body to show `error` in.
@@ -998,6 +1006,21 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       </div>
     ) : null;
   // Marking the original PDF: a selection on a page, read through the stored text placed there.
+  const closeHelp = () => {
+    setHelping(null);
+    setComparing(false);
+    stopAdding();
+  };
+  const toCompare = (words: SourceSelection) => {
+    const segment = window?.segments.find((x) => x.id === words.start.segmentId);
+    const added = comparison.add({
+      excerpt: { sourceId, start: words.start, end: words.end, quote: words.quote },
+      title: source.data?.title ?? "",
+      author: source.data?.author ?? null,
+      locator: segment?.locator ?? (words.page ? `p. ${words.page}` : null),
+    });
+    setNotice(added ? t("library.compare.added", { count: comparison.passages.length + 1 }) : t("library.compare.notAdded"));
+  };
   const addPanel = adding ? (
     <AddToStudyPanel
       from={adding.from}
@@ -1005,6 +1028,23 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       onAdded={(where) => {
         stopAdding();
         setNotice(t("studies.fromSource.added", where));
+      }}
+    />
+  ) : helping ? (
+    <div className="max-h-[75vh] overflow-y-auto">
+      <SourceHelp excerpt={{ sourceId, start: helping.start, end: helping.end, quote: helping.quote }} onClose={closeHelp} />
+    </div>
+  ) : comparing ? (
+    <div className="max-h-[75vh] overflow-y-auto">
+      <CompareHelp onClose={closeHelp} />
+    </div>
+  ) : null;
+  const tray = helpOn ? (
+    <ComparisonTray
+      onCompare={() => {
+        setAdding(null);
+        setHelping(null);
+        setComparing(true);
       }}
     />
   ) : null;
@@ -1025,6 +1065,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         onSaved={() => void marks.reload()}
         onAddToStudy={(words) => startAdding(fromSelection(words), null, null)}
         onCopy={(words) => void copy(words.quote, citationOf(words.start.segmentId, words.page ?? pdfPage))}
+        onHelp={helpOn ? (words) => setHelping(words) : undefined}
+        onCompare={helpOn ? toCompare : undefined}
       />
     </div>
   ) : null;
@@ -1043,6 +1085,8 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         onSaved={() => void marks.reload()}
         onAddToStudy={(words) => startAdding(fromSelection(words), null, words.firstPosition)}
         onCopy={(words) => void copy(words.quote, citationOf(words.start.segmentId))}
+        onHelp={helpOn ? (words) => setHelping(words) : undefined}
+        onCompare={helpOn ? toCompare : undefined}
       />
     ) : null;
   // Always present, so a confirmation is read out when it appears.
@@ -1137,6 +1181,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
         </div>
         {findBar}
         {noticeLine}
+        {tray}
         <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
           {showOriginal ? (
             <>
@@ -1184,6 +1229,7 @@ export function SourceReader({ sourceId, segmentId, onClose, variant = "page", o
       </div>
       {findBar}
       {noticeLine}
+        {tray}
       <div ref={stage} className="relative flex min-h-0 flex-1 flex-col">
         {showOriginal ? (
           <>

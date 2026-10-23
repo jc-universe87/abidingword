@@ -262,5 +262,28 @@
   "more": "Weitere Aktionen",
   "toStudy": {
     "add": "Zum Bibelstudium hinzufügen"
+  },
+  "inquiry": {
+    "help": "Hilfe",
+    "title": "Hilfe zu diesem Abschnitt",
+    "includeStudy": "Auch mein Bibelstudium „{{study}}“ mitsenden",
+    "includeStudyHint": "Sein Bibeltext und bis zu sechs seiner Notizen kommen zum Gesendeten dazu.",
+    "noStudy": "Kein Bibelstudium ist offen; es werden nur die markierten Worte verwendet.",
+    "keepNote": "Öffne ein Bibelstudium, um Notizen hinzuzufügen."
+  },
+  "compare": {
+    "add": "Zum Vergleich hinzufügen",
+    "added_one": "Zum Vergleich hinzugefügt ({{count}} Abschnitt).",
+    "added_other": "Zum Vergleich hinzugefügt ({{count}} Abschnitte).",
+    "notAdded": "Nicht hinzugefügt: Dieser Abschnitt ist schon dabei, oder drei sind gewählt.",
+    "tray": "Abschnitte zum Vergleichen",
+    "count_one": "{{count}} von {{max}} Abschnitten zum Vergleichen",
+    "count_other": "{{count}} von {{max}} Abschnitten zum Vergleichen",
+    "compare": "Vergleichen…",
+    "clear": "Leeren",
+    "needTwo": "Wähle mindestens zwei Abschnitte: Markiere Worte in einer Quelle, dann Weitere Aktionen → Zum Vergleich hinzufügen.",
+    "remove": "„{{title}}“ aus dem Vergleich entfernen",
+    "title_one": "{{count}} Abschnitt vergleichen",
+    "title_other": "{{count}} Abschnitte vergleichen"
   }
 }

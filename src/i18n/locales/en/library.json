@@ -262,5 +262,28 @@
   "more": "More actions",
   "toStudy": {
     "add": "Add to Study"
+  },
+  "inquiry": {
+    "help": "Help",
+    "title": "Help with this passage",
+    "includeStudy": "Also include my Bible Study “{{study}}”",
+    "includeStudyHint": "Its passage and up to six of its notes are added to what is sent.",
+    "noStudy": "No Bible Study is open, so only the selected words are used.",
+    "keepNote": "Open a Bible Study to add notes to it."
+  },
+  "compare": {
+    "add": "Add to comparison",
+    "added_one": "Added to the comparison ({{count}} passage).",
+    "added_other": "Added to the comparison ({{count}} passages).",
+    "notAdded": "Not added: this passage is already there, or three are chosen.",
+    "tray": "Passages to compare",
+    "count_one": "{{count}} of {{max}} passages to compare",
+    "count_other": "{{count}} of {{max}} passages to compare",
+    "compare": "Compare…",
+    "clear": "Clear",
+    "needTwo": "Choose at least two passages: select words in a source, then More actions → Add to comparison.",
+    "remove": "Remove “{{title}}” from the comparison",
+    "title_one": "Compare {{count}} passage",
+    "title_other": "Compare {{count}} passages"
   }
 }

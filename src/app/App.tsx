@@ -1,4 +1,5 @@
 import { StudyFocusProvider } from "@/features/studies/StudyFocus";
+import { ComparisonProvider } from "@/features/ai/Comparison";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { localizeError } from "@/i18n/messages";
@@ -79,7 +80,9 @@ function Workspace({ info, updater }: { info: AppInfo; updater: Updater }) {
       >
         <UpdatesProvider updater={updater} enabled={info.updatesEnabled} version={info.version}>
           <StudyFocusProvider>
-            <Shell info={info} workspace={loaded.data.workspace} />
+            <ComparisonProvider>
+              <Shell info={info} workspace={loaded.data.workspace} />
+            </ComparisonProvider>
           </StudyFocusProvider>
         </UpdatesProvider>
       </ScriptureProvider>
