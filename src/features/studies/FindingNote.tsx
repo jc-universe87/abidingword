@@ -115,6 +115,11 @@ export function FindingNote({ finding, sections, order, group, canMove, onChange
             ))}
           </div>
         )}
+        {finding.assistedBy && (
+          <p className="m-0 type-meta" data-testid="assisted-by">
+            {t("studies.inquiry.assistedBy", { assistant: finding.assistedBy })}
+          </p>
+        )}
         <FindingSources
           finding={finding}
           canAdd={open}

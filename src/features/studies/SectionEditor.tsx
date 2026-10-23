@@ -1,16 +1,17 @@
-import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowUp, ChevronRight, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronRight, Lightbulb, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { useSaveTracker } from "@/hooks/SaveTracker";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import type { StudySection } from "@/types/domain";
-import type { FindingType, StudyPhase } from "@/types/studies";
-import { BlockEditor } from "./BlockEditor";
+import type { Finding, FindingType, StudyPhase } from "@/types/studies";
+import { BlockEditor, type BlockHandle } from "./BlockEditor";
 import { sectionGuidance, sectionTitle } from "./builtinText";
 import { PartAdd } from "./PartAdd";
 import { PhaseSelect } from "./PhaseSelect";
+import { StudyHelp } from "./StudyHelp";
 
 interface SectionEditorProps {
   section: StudySection;
@@ -47,12 +48,14 @@ interface SectionEditorProps {
   /** Blocks whose writing differs from the saved copy: id -> has content now. */
   typed: Record<string, boolean>;
   onContent: (blockId: string, hasContent: boolean) => void;
+  /** Help with this part (v0.20): only when the assistant is turned on. */
+  help?: { studyId: string; studyTitle: string; notes: Finding[]; onKept: (finding: Finding) => void };
 }
 
 const tool = "inline-flex min-h-11 items-center gap-1 rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-hover hover:text-text-strong disabled:opacity-40";
 
 export function SectionEditor(props: SectionEditorProps) {
-  const { section, isFirst, isLast, hasFindings, notes, noteCount, capture, collapsed, onCollapsedChange, onAddWriting, onAddNote, onChange, onMove, onDeleted, onRevealScripture, reveal = false, active = false, phase, onActive, newBlockId, typed, onContent } = props;
+  const { section, isFirst, isLast, hasFindings, notes, noteCount, capture, collapsed, onCollapsedChange, onAddWriting, onAddNote, onChange, onMove, onDeleted, onRevealScripture, reveal = false, active = false, phase, onActive, newBlockId, typed, onContent, help } = props;
   const { t } = useTranslation();
   const api = useApi();
   const { track, settled } = useSaveTracker();
@@ -66,6 +69,15 @@ export function SectionEditor(props: SectionEditorProps) {
     heading?.focus({ preventScroll: true });
   }, [reveal, section.id]);
   const manageToggle = useRef<HTMLButtonElement>(null);
+  // Help (v0.20): what each block holds on screen, and where the person last worked.
+  const handles = useRef(new Map<string, BlockHandle>());
+  const register = useCallback((blockId: string, handle: BlockHandle | null) => {
+    if (handle) handles.current.set(blockId, handle);
+    else handles.current.delete(blockId);
+  }, []);
+  const [lastBlock, setLastBlock] = useState<string | null>(null);
+  const [helping, setHelping] = useState(false);
+  const helpButton = useRef<HTMLButtonElement>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const headingId = `section-${section.id}`;
@@ -155,7 +167,7 @@ export function SectionEditor(props: SectionEditorProps) {
       // The part being worked in carries the brass line of work in progress; a folded part's
       // title is quieter than an open one's, so the shape reads even without colour (v0.18.6).
       // A new phase begins with more space and a firmer rule than a new part within one.
-      className={`scroll-mt-14 border-t pt-3 ${phase && !phase.first ? "mt-3 border-border" : "border-border-subtle"} ${active && !collapsed ? "aw-part-active" : ""}`}
+      className={`@container scroll-mt-14 border-t pt-3 ${phase && !phase.first ? "mt-3 border-border" : "border-border-subtle"} ${active && !collapsed ? "aw-part-active" : ""}`}
       data-active={active && !collapsed ? "true" : undefined}
       data-phase-start={phase?.index}
       onFocusCapture={onActive}
@@ -187,6 +199,20 @@ export function SectionEditor(props: SectionEditorProps) {
             </button>
           </h2>
           {collapsed && noteCount > 0 && <span className="type-meta shrink-0">{t("studies.findingCount", { count: noteCount })}</span>}
+          {help && (
+            <button
+              ref={helpButton}
+              type="button"
+              aria-expanded={helping}
+              aria-label={t("studies.inquiry.study.open", { part: title })}
+              title={t("studies.inquiry.study.tooltip")}
+              onClick={() => setHelping(!helping)}
+              className="ml-auto inline-flex min-h-11 shrink-0 items-center gap-1.5 self-center rounded-aw px-2 text-[0.9375rem] text-text-muted hover:bg-hover hover:text-text-strong aria-expanded:text-text-strong"
+            >
+              <Lightbulb className="size-4" aria-hidden="true" />
+              <span className="hidden @[28rem]:inline">{t("studies.inquiry.study.button")}</span>
+            </button>
+          )}
           <button
             ref={manageToggle}
             type="button"
@@ -195,7 +221,7 @@ export function SectionEditor(props: SectionEditorProps) {
             aria-label={t("studies.sections.options", { title })}
             title={t("studies.sections.optionsTooltip")}
             onClick={() => setManaging(!managing)}
-            className="ml-auto inline-flex size-11 shrink-0 items-center justify-center self-center rounded-aw text-text-muted hover:bg-hover hover:text-text-strong"
+            className={`${help ? "" : "ml-auto "}inline-flex size-11 shrink-0 items-center justify-center self-center rounded-aw text-text-muted hover:bg-hover hover:text-text-strong`}
           >
             <MoreHorizontal className="size-4" aria-hidden="true" />
           </button>
@@ -244,6 +270,23 @@ export function SectionEditor(props: SectionEditorProps) {
           </div>
         </div>
       )}
+      {help && helping && (
+        <div className="mt-2 mb-3">
+          <StudyHelp
+            studyId={help.studyId}
+            studyTitle={help.studyTitle}
+            section={section}
+            notes={help.notes}
+            handles={handles}
+            lastBlock={lastBlock}
+            onKept={help.onKept}
+            onClose={() => {
+              setHelping(false);
+              requestAnimationFrame(() => helpButton.current?.focus());
+            }}
+          />
+        </div>
+      )}
       <div id={bodyId} hidden={collapsed}>
       {guidance && <p className="type-meta mb-2 mt-0">{guidance}</p>}
 
@@ -261,6 +304,8 @@ export function SectionEditor(props: SectionEditorProps) {
             isFirst={index === 0}
             isLast={index === section.blocks.length - 1}
             onMove={(delta) => moveBlock(block.id, delta)}
+            register={register}
+            onFocused={setLastBlock}
           />
         ))}
       </div>

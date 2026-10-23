@@ -112,7 +112,8 @@
     "otherStudySection": "Cette partie appartient à une autre étude.",
     "tooManyTags": "Une note peut avoir au plus {{max}} étiquettes.",
     "tagTooLong": "L’étiquette « {{tag}} » est trop longue.",
-    "writeFirst": "Écrivez d’abord quelque chose à ajouter."
+    "writeFirst": "Écrivez d’abord quelque chose à ajouter.",
+    "assistantName": "Le nom de l’assistant manque."
   },
   "annotations": {
     "tooLong": "Cette note est trop longue pour être enregistrée.",
@@ -215,5 +216,21 @@
     "restoreFailed": "La sauvegarde n’a pas pu être restaurée. Votre travail a été remis tel qu’il était.",
     "noFile": "Veuillez choisir un fichier.",
     "rollbackFailed": "La sauvegarde n’a pas pu être restaurée, et votre travail précédent n’a pas pu être remis automatiquement. Une copie en est conservée dans {{path}}."
+  },
+  "inquiry": {
+    "notHere": "Ce type d’aide n’est pas disponible ici.",
+    "changed": "Ce qui serait envoyé a changé depuis que vous l’avez consulté. Vérifiez-le de nouveau avant de demander.",
+    "selectionChanged": "Les mots sélectionnés ne figurent plus dans le texte. Sélectionnez-les de nouveau.",
+    "selectWords": "Sélectionnez d’abord les mots que vous voulez comprendre.",
+    "chooseNote": "Choisissez la question que vous avez notée.",
+    "noPassage": "Choisissez d’abord le passage de cette étude biblique : l’aide part du texte.",
+    "noBibleText": "Le texte de ce passage n’est pas installé. Ajoutez une Bible dans les Paramètres, ou choisissez-en une pour cette étude biblique.",
+    "noSourceText": "Cette source ne contient aucun texte lisible ici (par exemple un PDF numérisé). L’assistant ne travaille qu’à partir du texte d’une source ; il ne peut donc pas aider pour celle-ci.",
+    "excerptTooLong": "Ce passage est trop long pour être envoyé d’un coup ({{max}} caractères au plus). Sélectionnez un passage plus court.",
+    "chooseStudy": "Incluez une étude biblique à laquelle rattacher ce passage.",
+    "compareCount": "Choisissez deux ou trois passages à comparer.",
+    "compareSame": "Le même passage a été choisi deux fois. Choisissez des passages différents.",
+    "compareTooLong": "Ensemble, ces passages sont trop longs pour être comparés d’un coup ({{max}} caractères au plus). Choisissez des passages plus courts.",
+    "tooManyCitations": "Une note peut citer trois passages au plus."
   }
 }

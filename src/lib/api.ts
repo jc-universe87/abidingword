@@ -445,11 +445,14 @@ export interface Api {
 /** An error with a message that is safe to show to the user. */
 export class ApiError extends Error {
   readonly kind: ErrorKind;
+  /** The core's message key (e.g. "inquiry.changed"), when it gave one. */
+  readonly code?: string;
 
-  constructor(kind: ErrorKind, message: string) {
+  constructor(kind: ErrorKind, message: string, code?: string) {
     super(message);
     this.name = "ApiError";
     this.kind = kind;
+    this.code = code;
   }
 }
 
@@ -467,7 +470,7 @@ export function toApiError(error: unknown): ApiError {
     typeof error.message === "string"
   ) {
     const payload = error as ErrorPayload;
-    return new ApiError(payload.kind, localizeError(payload.kind, payload.message, payload.code, payload.params));
+    return new ApiError(payload.kind, localizeError(payload.kind, payload.message, payload.code, payload.params), payload.code ?? undefined);
   }
   return new ApiError("unexpected", localizeError("unexpected", ""));
 }

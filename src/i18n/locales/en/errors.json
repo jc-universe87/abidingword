@@ -109,7 +109,8 @@
     "otherStudySection": "That part belongs to another study.",
     "tooManyTags": "A note can have at most {{max}} tags.",
     "tagTooLong": "The tag “{{tag}}” is too long.",
-    "writeFirst": "Write something to add first."
+    "writeFirst": "Write something to add first.",
+    "assistantName": "The assistant’s name is missing."
   },
   "annotations": {
     "tooLong": "This note is too long to save.",
@@ -212,5 +213,21 @@
     "restoreFailed": "The backup could not be restored. Your work was put back as it was.",
     "noFile": "Please choose a file.",
     "rollbackFailed": "The backup could not be restored, and your earlier work could not be put back automatically. A copy of it is kept at {{path}}."
+  },
+  "inquiry": {
+    "notHere": "This kind of help is not available here.",
+    "changed": "What would be sent has changed since you looked. Please look at it again before asking.",
+    "selectionChanged": "The selected words are no longer in the text. Select them again.",
+    "selectWords": "Select the words you would like to understand first.",
+    "chooseNote": "Choose the question you recorded.",
+    "noPassage": "Choose the passage of this Bible Study first: the help starts from the text.",
+    "noBibleText": "The text of this passage is not installed. Add a Bible in Settings, or choose one for this Bible Study.",
+    "noSourceText": "This source has no text that can be read here (for example, a scanned PDF). The assistant works only from a source’s text, so it cannot help with this one.",
+    "excerptTooLong": "This passage is too long to send at once (at most {{max}} characters). Select a shorter passage.",
+    "chooseStudy": "Include a Bible Study to relate this passage to.",
+    "compareCount": "Choose two or three passages to compare.",
+    "compareSame": "The same passage was chosen twice. Choose different passages to compare.",
+    "compareTooLong": "Together these passages are too long to compare at once (at most {{max}} characters). Choose shorter passages.",
+    "tooManyCitations": "A note can cite at most three passages."
   }
 }

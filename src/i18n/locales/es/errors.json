@@ -112,7 +112,8 @@
     "otherStudySection": "Esa parte pertenece a otro estudio.",
     "tooManyTags": "Un apunte puede tener como máximo {{max}} etiquetas.",
     "tagTooLong": "La etiqueta «{{tag}}» es demasiado larga.",
-    "writeFirst": "Escribe primero algo que añadir."
+    "writeFirst": "Escribe primero algo que añadir.",
+    "assistantName": "Falta el nombre del asistente."
   },
   "annotations": {
     "tooLong": "Esta nota es demasiado larga para guardarla.",
@@ -215,5 +216,21 @@
     "restoreFailed": "No se pudo restaurar la copia de seguridad. Tu trabajo volvió a quedar como estaba.",
     "noFile": "Elige un archivo.",
     "rollbackFailed": "No se pudo restaurar la copia de seguridad, y tu trabajo anterior no se pudo recuperar automáticamente. Hay una copia en {{path}}."
+  },
+  "inquiry": {
+    "notHere": "Este tipo de ayuda no está disponible aquí.",
+    "changed": "Lo que se enviaría ha cambiado desde que lo miraste. Vuelve a mirarlo antes de preguntar.",
+    "selectionChanged": "Las palabras seleccionadas ya no están en el texto. Vuelve a seleccionarlas.",
+    "selectWords": "Selecciona primero las palabras que quieres entender.",
+    "chooseNote": "Elige la pregunta que anotaste.",
+    "noPassage": "Elige primero el pasaje de este estudio bíblico: la ayuda parte del texto.",
+    "noBibleText": "El texto de este pasaje no está instalado. Añade una Biblia en Configuración o elige una para este estudio bíblico.",
+    "noSourceText": "Esta fuente no tiene texto que se pueda leer aquí (por ejemplo, un PDF escaneado). El asistente solo trabaja con el texto de una fuente, así que no puede ayudar con esta.",
+    "excerptTooLong": "Este pasaje es demasiado largo para enviarlo de una vez (como máximo {{max}} caracteres). Selecciona uno más corto.",
+    "chooseStudy": "Incluye un estudio bíblico con el que relacionar este pasaje.",
+    "compareCount": "Elige dos o tres pasajes para comparar.",
+    "compareSame": "Has elegido el mismo pasaje dos veces. Elige pasajes distintos.",
+    "compareTooLong": "Juntos, estos pasajes son demasiado largos para compararlos de una vez (como máximo {{max}} caracteres). Elige pasajes más cortos.",
+    "tooManyCitations": "Un apunte puede citar como máximo tres pasajes."
   }
 }

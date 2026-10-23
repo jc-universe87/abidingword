@@ -109,7 +109,8 @@
     "otherStudySection": "Dieser Teil gehört zu einem anderen Bibelstudium.",
     "tooManyTags": "Eine Notiz kann höchstens {{max}} Schlagwörter haben.",
     "tagTooLong": "Das Schlagwort „{{tag}}“ ist zu lang.",
-    "writeFirst": "Schreib zuerst etwas, das du hinzufügen möchtest."
+    "writeFirst": "Schreib zuerst etwas, das du hinzufügen möchtest.",
+    "assistantName": "Der Name des Assistenten fehlt."
   },
   "annotations": {
     "tooLong": "Diese Notiz ist zu lang zum Speichern.",
@@ -212,5 +213,21 @@
     "restoreFailed": "Die Sicherung konnte nicht wiederhergestellt werden. Deine Arbeit wurde wieder so hergestellt, wie sie war.",
     "noFile": "Bitte wähle eine Datei aus.",
     "rollbackFailed": "Die Sicherung konnte nicht wiederhergestellt werden, und deine vorherige Arbeit konnte nicht automatisch zurückgeholt werden. Eine Kopie davon liegt unter {{path}}."
+  },
+  "inquiry": {
+    "notHere": "Diese Art Hilfe gibt es hier nicht.",
+    "changed": "Was gesendet würde, hat sich geändert, seit du es angesehen hast. Bitte sieh es dir noch einmal an, bevor du fragst.",
+    "selectionChanged": "Die markierten Worte stehen nicht mehr im Text. Markiere sie noch einmal.",
+    "selectWords": "Markiere zuerst die Worte, die du verstehen möchtest.",
+    "chooseNote": "Wähle die Frage, die du notiert hast.",
+    "noPassage": "Wähle zuerst den Bibeltext dieses Bibelstudiums: Die Hilfe geht vom Text aus.",
+    "noBibleText": "Der Text dieser Stelle ist nicht installiert. Füge in den Einstellungen eine Bibel hinzu oder wähle eine für dieses Bibelstudium.",
+    "noSourceText": "Diese Quelle hat keinen Text, der hier gelesen werden kann (zum Beispiel ein eingescanntes PDF). Der Assistent arbeitet nur mit dem Text einer Quelle und kann hier deshalb nicht helfen.",
+    "excerptTooLong": "Dieser Abschnitt ist zu lang, um ihn auf einmal zu senden (höchstens {{max}} Zeichen). Markiere einen kürzeren Abschnitt.",
+    "chooseStudy": "Nimm ein Bibelstudium dazu, auf das sich dieser Abschnitt beziehen soll.",
+    "compareCount": "Wähle zwei oder drei Abschnitte zum Vergleichen.",
+    "compareSame": "Derselbe Abschnitt wurde zweimal gewählt. Wähle verschiedene Abschnitte.",
+    "compareTooLong": "Zusammen sind diese Abschnitte zu lang für einen Vergleich (höchstens {{max}} Zeichen). Wähle kürzere Abschnitte.",
+    "tooManyCitations": "Eine Notiz kann höchstens drei Abschnitte angeben."
   }
 }

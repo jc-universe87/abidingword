@@ -112,7 +112,8 @@
     "otherStudySection": "Essa parte pertence a outro estudo.",
     "tooManyTags": "Uma anotação pode ter no máximo {{max}} etiquetas.",
     "tagTooLong": "A etiqueta “{{tag}}” é longa demais.",
-    "writeFirst": "Escreva primeiro algo para adicionar."
+    "writeFirst": "Escreva primeiro algo para adicionar.",
+    "assistantName": "Falta o nome do assistente."
   },
   "annotations": {
     "tooLong": "Esta nota é longa demais para ser salva.",
@@ -215,5 +216,21 @@
     "restoreFailed": "Não foi possível restaurar a cópia de segurança. O seu trabalho voltou a ficar como estava.",
     "noFile": "Escolha um arquivo.",
     "rollbackFailed": "Não foi possível restaurar a cópia de segurança, e o seu trabalho anterior não pôde ser recuperado automaticamente. Há uma cópia dele em {{path}}."
+  },
+  "inquiry": {
+    "notHere": "Este tipo de ajuda não está disponível aqui.",
+    "changed": "O que seria enviado mudou desde que você olhou. Confira de novo antes de pedir.",
+    "selectionChanged": "As palavras selecionadas não estão mais no texto. Selecione-as de novo.",
+    "selectWords": "Selecione primeiro as palavras que você quer entender.",
+    "chooseNote": "Escolha a pergunta que você anotou.",
+    "noPassage": "Escolha primeiro a passagem deste estudo bíblico: a ajuda parte do texto.",
+    "noBibleText": "O texto desta passagem não está instalado. Adicione uma Bíblia nas Configurações ou escolha uma para este estudo bíblico.",
+    "noSourceText": "Esta fonte não tem texto que possa ser lido aqui (por exemplo, um PDF digitalizado). O assistente só trabalha com o texto de uma fonte, então não pode ajudar com esta.",
+    "excerptTooLong": "Este trecho é longo demais para enviar de uma vez (no máximo {{max}} caracteres). Selecione um trecho menor.",
+    "chooseStudy": "Inclua um estudo bíblico para relacionar com este trecho.",
+    "compareCount": "Escolha dois ou três trechos para comparar.",
+    "compareSame": "O mesmo trecho foi escolhido duas vezes. Escolha trechos diferentes.",
+    "compareTooLong": "Juntos, estes trechos são longos demais para comparar de uma vez (no máximo {{max}} caracteres). Escolha trechos menores.",
+    "tooManyCitations": "Uma anotação pode citar no máximo três trechos."
   }
 }

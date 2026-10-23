@@ -46,6 +46,9 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
   const relations = useLoad(useCallback(() => api.studyRelationList(studyId), [api, studyId]));
   // The Bible Teachings prepared from this study, for the way on at its end (v0.18.6).
   const teachings = useLoad(useCallback(() => api.teachingList(studyId), [api, studyId]));
+  // Help with a part (v0.20) is offered only when the assistant is turned on.
+  const assistant = useLoad(useCallback(() => api.assistantSettingsGet(), [api]));
+  const helpOn = assistant.data?.config.enabled === true;
   // Notes being written, one per place: a part's id, or "" for the study's other notes, with the kind chosen.
   // Opening Add again where a note is already being written keeps that draft.
   const [capturing, setCapturingState] = useState<Readonly<Record<string, FindingType>>>({});
@@ -393,6 +396,16 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
           active={section.id === activeSection}
           phase={journey ? phaseStarts.get(section.id) : undefined}
           onActive={() => setActiveSection(section.id)}
+          help={
+            helpOn
+              ? {
+                  studyId: study.id,
+                  studyTitle: study.title,
+                  notes: (findings.data ?? []).filter((f) => f.sectionId === section.id),
+                  onKept: () => findings.reload(),
+                }
+              : undefined
+          }
           newBlockId={newBlock}
           typed={typed}
           onContent={onContent}

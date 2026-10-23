@@ -42,7 +42,7 @@ interface Helpers {
 type InquiryApi = Pick<Api, "inquiryPreview" | "inquiryAsk" | "inquiryKeep">;
 
 /** A refusal, as the core words it (the code is the core's message key). */
-const fail = (_code: string, message: string) => new ApiError("assistant", message);
+const fail = (code: string, message: string) => new ApiError("assistant", message, code);
 
 /** A plain stand-in for SHA-256: equal input, equal fingerprint. */
 function hash(text: string): string {
