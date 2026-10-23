@@ -126,9 +126,10 @@
     "notes_one": "{{count}} remarque",
     "notes_many": "{{count}} remarques",
     "notes_other": "{{count}} remarques",
-    "skipped_one": "{{count}} fichier a été laissé de côté, car il ne correspond à aucun des 66 livres (par exemple une introduction ou un glossaire).",
-    "skipped_many": "{{count}} fichiers ont été laissés de côté, car ils ne correspondent à aucun des 66 livres (par exemple une introduction ou un glossaire).",
-    "skipped_other": "{{count}} fichiers ont été laissés de côté, car ils ne correspondent à aucun des 66 livres (par exemple une introduction ou un glossaire).",
+    "skipped_one": "{{count}} fichier a été laissé de côté : Abiding Word n’y a trouvé aucun livre de la Bible qu’il sait lire (par exemple une introduction, un glossaire ou un fichier dans un autre format).",
+    "skipped_many": "{{count}} fichiers ont été laissés de côté : Abiding Word n’y a trouvé aucun livre de la Bible qu’il sait lire (par exemple une introduction, un glossaire ou un fichier dans un autre format).",
+    "skipped_other": "{{count}} fichiers ont été laissés de côté : Abiding Word n’y a trouvé aucun livre de la Bible qu’il sait lire (par exemple une introduction, un glossaire ou un fichier dans un autre format).",
+    "skippedNames": "Fichiers laissés de côté",
     "adding": "Ajout…",
     "add": "Ajouter cette Bible",
     "words": {

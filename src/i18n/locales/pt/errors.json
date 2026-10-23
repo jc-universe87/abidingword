@@ -83,7 +83,13 @@
     "verseMapApplied": "Este texto usa a numeração de versículos da Bíblia hebraica. Ela foi convertida para a numeração inglesa com a tabela de correspondência de versículos fornecida ({{moved}} versículos renumerados, {{joined}} unidos, {{titles}} títulos de salmos mantidos como títulos).",
     "verseMapUnused": "A tabela de correspondência de versículos fornecida não foi usada: estes arquivos já seguem a numeração inglesa de versículos.",
     "verseMapRefused": "Não foi possível ler por completo a tabela de correspondência de versículos “{{fileName}}”, por isso ela não foi usada.",
-    "hebrewNumbering": "Este texto parece usar a numeração de versículos da Bíblia hebraica (Joel tem quatro capítulos). Adicione aos arquivos escolhidos a tabela de correspondência de versículos que o acompanha (para a Open Scriptures Hebrew Bible: wlc/VerseMap.xml), e eles serão renumerados."
+    "hebrewNumbering": "Este texto parece usar a numeração de versículos da Bíblia hebraica (Joel tem quatro capítulos). Adicione aos arquivos escolhidos a tabela de correspondência de versículos que o acompanha (para a Open Scriptures Hebrew Bible: wlc/VerseMap.xml), e eles serão renumerados.",
+    "verseMapDivided_one": "{{count}} parte de um versículo hebraico foi colocada no versículo inglês que o próprio texto indica.",
+    "verseMapDivided_many": "{{count}} partes de versículos hebraicos foram colocadas nos versículos ingleses que o próprio texto indica.",
+    "verseMapDivided_other": "{{count}} partes de versículos hebraicos foram colocadas nos versículos ingleses que o próprio texto indica.",
+    "verseMapUnsplit": "Cada um destes versículos hebraicos contém partes de dois versículos ingleses, e estes arquivos não indicam onde um termina: {{places}}. Cada um fica inteiro no seu lugar no texto hebraico, então o versículo inglês que ele deveria começar ou terminar fica incompleto ali.",
+    "verseMapConflict": "Em {{places}}, a marca de versículo do próprio texto e a tabela de correspondência de versículos não coincidem; a marca do texto foi seguida.",
+    "psalmTitlesInVerse": "Onde o texto hebraico escreve o título de um salmo como início do versículo 1, estes arquivos não indicam onde o título termina, então ele continua fazendo parte do versículo 1."
   },
   "library": {
     "notUtf8": "“{{fileName}}” não está salvo como texto UTF-8, por isso não pôde ser lido.",

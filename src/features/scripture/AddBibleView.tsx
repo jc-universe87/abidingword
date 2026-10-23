@@ -348,9 +348,13 @@ function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCa
       {warnings.length > 0 && <IssueGroup title={t("scripture.addBible.warnings", { count: warnings.length })} issues={warnings} />}
       {notes.length > 0 && <IssueGroup title={t("scripture.addBible.notes", { count: notes.length })} issues={notes} />}
       {preview.skippedFiles.length > 0 && (
-        <p className="m-0 text-[0.9375rem] text-text-muted">
-          {t("scripture.addBible.skipped", { count: preview.skippedFiles.length })}
-        </p>
+        <details className="text-[0.9375rem] text-text-muted">
+          <summary className="cursor-pointer">{t("scripture.addBible.skipped", { count: preview.skippedFiles.length })}</summary>
+          <p className="m-0 mt-1 break-all">
+            <span className="sr-only">{t("scripture.addBible.skippedNames")}: </span>
+            {preview.skippedFiles.join(", ")}
+          </p>
+        </details>
       )}
 
       <div className="flex flex-wrap gap-3 border-t border-border-subtle pt-6">

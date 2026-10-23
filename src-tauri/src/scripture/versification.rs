@@ -66,10 +66,12 @@ pub const MAP_MAX_BYTES: usize = 1024 * 1024;
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct VerseMap {
-    /// Hebrew verse → English (chapter, verse), for the entries applied.
+    /// Hebrew verse → English (chapter, verse), for whole Hebrew verses.
     pub to_english: HashMap<(u8, u16, u16), (u16, u16)>,
-    /// Entries read but not applied (part of a Hebrew verse).
-    pub partial_skipped: usize,
+    /// Part of a Hebrew verse (`Ps.13.6!a`: part `a`) → English (chapter,
+    /// verse). Applied only where the text itself marks where the part ends
+    /// (OSHB's `KJV:` notes); otherwise the verse is kept whole and reported.
+    pub parts: HashMap<(u8, u16, u16, char), (u16, u16)>,
 }
 
 /// Whether a file is a verse map this module reads.
@@ -83,9 +85,11 @@ pub fn is_verse_map(name: &str, text: &str) -> bool {
     base.ends_with("versemap.xml") && text.contains("<verseMap")
 }
 
-/// Reads an OSHB verse map. Entries naming an unknown book, a malformed
-/// reference or a different book on each side are refused (`None`): a map
-/// that is partly wrong would move verses silently.
+/// Reads an OSHB verse map. The whole map is refused (`None`) when any
+/// entry is not understood — an unknown book, a malformed reference or
+/// part, a different book on each side, the same source twice, an unknown
+/// type, or a `<verse>` element of another shape: a map that is partly
+/// understood would move verses silently.
 pub fn parse(text: &str) -> Option<VerseMap> {
     if text.len() > MAP_MAX_BYTES {
         return None;
@@ -93,23 +97,50 @@ pub fn parse(text: &str) -> Option<VerseMap> {
     let entry =
         Regex::new(r#"<verse\s+wlc="([^"]+)"\s+kjv="([^"]+)"\s+type="(full|partial)"\s*/>"#)
             .ok()?;
+    // Every <verse …> must be one of the entries read.
+    let elements = Regex::new(r"<verse[\s/>]").ok()?.find_iter(text).count();
     let mut map = VerseMap::default();
-    for (n, caps) in entry.captures_iter(text).enumerate() {
-        if n >= ENTRIES_MAX {
+    let mut read = 0usize;
+    for caps in entry.captures_iter(text) {
+        read += 1;
+        if read > ENTRIES_MAX {
             return None;
         }
         let (wlc, kjv) = (&caps[1], &caps[2]);
-        if wlc.contains('!') {
-            map.partial_skipped += 1;
-            continue;
+        let (wlc_ref, part) = split_part(wlc)?;
+        let (kjv_ref, _) = split_part(kjv)?;
+        let from = osis_verse(wlc_ref)?;
+        let to = osis_verse(kjv_ref)?;
+        if from.0 != to.0 {
+            return None;
         }
-        let from = osis_verse(wlc)?;
-        let to = osis_verse(kjv.split('!').next()?)?;
-        if from.0 != to.0 || map.to_english.insert(from, (to.1, to.2)).is_some() {
+        let fresh = match part {
+            None => map.to_english.insert(from, (to.1, to.2)).is_none(),
+            Some(p) => map
+                .parts
+                .insert((from.0, from.1, from.2, p), (to.1, to.2))
+                .is_none(),
+        };
+        if !fresh {
             return None;
         }
     }
+    if read != elements {
+        return None;
+    }
     (!map.to_english.is_empty()).then_some(map)
+}
+
+/// "Ps.13.6!a" → ("Ps.13.6", Some('a')); a part is one letter a–z.
+pub fn split_part(reference: &str) -> Option<(&str, Option<char>)> {
+    match reference.split_once('!') {
+        None => Some((reference, None)),
+        Some((base, part)) => {
+            let mut letters = part.chars();
+            let letter = letters.next().filter(|c| c.is_ascii_lowercase())?;
+            letters.next().is_none().then_some((base, Some(letter)))
+        }
+    }
 }
 
 #[cfg(test)]
@@ -129,7 +160,7 @@ mod tests {
         assert_eq!(map.to_english.get(&(29, 3, 1)), Some(&(2, 28)));
         assert_eq!(map.to_english.get(&(29, 4, 1)), Some(&(3, 1)));
         assert_eq!(map.to_english.get(&(11, 22, 44)), Some(&(22, 43)));
-        assert_eq!(map.partial_skipped, 1);
+        assert_eq!(map.parts.get(&(19, 13, 6, 'a')), Some(&(13, 5)));
         assert!(is_verse_map("wlc/VerseMap.xml", SAMPLE));
         assert!(!is_verse_map("other.xml", SAMPLE));
     }
@@ -142,6 +173,11 @@ mod tests {
             r#"<verseMap><verse wlc="Joel.3" kjv="Joel.2.28" type="full"/></verseMap>"#,
             r#"<verseMap><verse wlc="Joel.3.1" kjv="Joel.2.28" type="full"/><verse wlc="Joel.3.1" kjv="Joel.2.29" type="full"/></verseMap>"#,
             "<verseMap></verseMap>",
+            // Partly understood: every entry must be read, or none is used.
+            r#"<verseMap><verse wlc="Joel.3.1" kjv="Joel.2.28" type="full"/><verse kjv="Joel.2.29" wlc="Joel.3.2" type="full"/></verseMap>"#,
+            r#"<verseMap><verse wlc="Joel.3.1" kjv="Joel.2.28" type="full"/><verse wlc="Joel.3.2" kjv="Joel.2.29" type="moved"/></verseMap>"#,
+            r#"<verseMap><verse wlc="Joel.3.1" kjv="Joel.2.28" type="full"/><verse wlc="Joel.3.2!ab" kjv="Joel.2.29" type="partial"/></verseMap>"#,
+            r#"<verseMap><verse wlc="Joel.3.1" kjv="Joel.2.28" type="full"/><verse wlc="Joel.3.2" kjv="Joel.2.29" type="full"></verse></verseMap>"#,
         ] {
             assert!(parse(bad).is_none(), "{bad}");
         }

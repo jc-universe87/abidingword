@@ -79,7 +79,12 @@
     "verseMapApplied": "This text uses the Hebrew Bible’s verse numbers. They were changed to the English numbering with the verse map supplied ({{moved}} verses renumbered, {{joined}} joined, {{titles}} Psalm titles kept as titles).",
     "verseMapUnused": "The verse map supplied was not used: these files already follow the English verse numbers.",
     "verseMapRefused": "The verse map “{{fileName}}” could not be read completely, so it was not used.",
-    "hebrewNumbering": "This text seems to use the Hebrew Bible’s verse numbers (Joel has four chapters). Add the verse map that comes with it (for the Open Scriptures Hebrew Bible: wlc/VerseMap.xml) to the files chosen, and they will be renumbered."
+    "hebrewNumbering": "This text seems to use the Hebrew Bible’s verse numbers (Joel has four chapters). Add the verse map that comes with it (for the Open Scriptures Hebrew Bible: wlc/VerseMap.xml) to the files chosen, and they will be renumbered.",
+    "verseMapDivided_one": "{{count}} part of a Hebrew verse was placed in the English verse where the text itself marks it.",
+    "verseMapDivided_other": "{{count}} parts of Hebrew verses were placed in the English verses where the text itself marks them.",
+    "verseMapUnsplit": "These Hebrew verses each hold parts of two English verses, and these files do not mark where one ends: {{places}}. Each is kept whole at its place in the Hebrew text, so the English verse it should begin or end is incomplete there.",
+    "verseMapConflict": "At {{places}} the text’s own verse mark and the verse map disagree; the text’s mark was followed.",
+    "psalmTitlesInVerse": "Where the Hebrew text writes a Psalm’s title as the start of verse 1, these files do not mark where the title ends, so it stays part of verse 1."
   },
   "library": {
     "notUtf8": "“{{fileName}}” is not saved as UTF-8 text, so it could not be read.",

@@ -116,8 +116,9 @@
     "warnings_other": "{{count}} warnings — worth reviewing",
     "notes_one": "{{count}} note",
     "notes_other": "{{count}} notes",
-    "skipped_one": "{{count}} file was left out because it is not one of the 66 books (for example an introduction or glossary).",
-    "skipped_other": "{{count}} files were left out because they are not one of the 66 books (for example an introduction or glossary).",
+    "skipped_one": "{{count}} file was left out: Abiding Word found no book of the Bible in it that it can read (for example an introduction, a glossary or a file in another format).",
+    "skipped_other": "{{count}} files were left out: Abiding Word found no book of the Bible in them that it can read (for example an introduction, a glossary or a file in another format).",
+    "skippedNames": "Files left out",
     "adding": "Adding…",
     "add": "Add this Bible",
     "words": {

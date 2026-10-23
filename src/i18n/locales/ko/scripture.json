@@ -106,7 +106,8 @@
     "problems_other": "이 성경을 추가하려면 먼저 문제 {{count}}개를 해결해야 합니다",
     "warnings_other": "경고 {{count}}개 — 확인을 권장합니다",
     "notes_other": "참고 사항 {{count}}개",
-    "skipped_other": "66권에 속하지 않는 파일 {{count}}개(예: 서문, 용어집)는 제외했습니다.",
+    "skipped_other": "파일 {{count}}개는 제외했습니다. Abiding Word가 읽을 수 있는 성경 책이 들어 있지 않습니다(예: 서문, 용어집, 다른 형식의 파일).",
+    "skippedNames": "제외한 파일",
     "adding": "추가하는 중…",
     "add": "이 성경 추가",
     "words": {

@@ -295,3 +295,173 @@ fn bundled_number_index_cost() {
         .unwrap();
     }
 }
+
+/// The whole OSHB with its verse map (v0.22.1), checked against the files
+/// themselves, independently of the reader: the text of every book in order,
+/// every word kept, every `KJV:` mark and every whole-verse map entry landing
+/// in the English verse it names, and every English verse present (the
+/// exceptions listed).
+#[test]
+#[ignore]
+fn oshb_corpus_reference_correctness() {
+    use abiding_word_lib::scripture::canon;
+    use abiding_word_lib::scripture::versification::{osis_book, split_part};
+    let Some(dir) = folder() else {
+        eprintln!("AW_EDITIONS not set; nothing to do");
+        return;
+    };
+    let mut paths = files(&dir, "oshb");
+    paths.push(dir.join("vm_VerseMap.xml"));
+    let staged = import::stage(&paths, ImportOrigin::UserFiles).unwrap();
+    for issue in &staged.content.issues {
+        println!("  {:?} {}", issue.severity, issue.message);
+    }
+    assert!(!staged.content.has_errors());
+    let strip = |s: &str| -> String {
+        s.chars()
+            .filter(|c| !c.is_whitespace() && *c != '/')
+            .collect()
+    };
+    let note = regex::Regex::new(r"(?s)<note\b[^>]*>(.*?)</note>").unwrap();
+    let tag = regex::Regex::new(r"(?s)<[^>]+>").unwrap();
+    let verse_re = regex::Regex::new(r#"(?s)<verse osisID="([^"]+)">(.*?)</verse>"#).unwrap();
+    let english = |ordinal: u8, c: u16, v: u16| -> Option<String> {
+        staged
+            .content
+            .books
+            .get(&ordinal)?
+            .chapters
+            .get(&c)?
+            .verses
+            .get(&v)
+            .map(|t| strip(t))
+    };
+    let (mut words_in_files, mut marks_checked, mut entries_checked) = (0usize, 0usize, 0usize);
+    let mut failures: Vec<String> = Vec::new();
+    let map_text = std::fs::read_to_string(dir.join("vm_VerseMap.xml")).unwrap();
+    let map = abiding_word_lib::scripture::versification::parse(&map_text).unwrap();
+    for path in files(&dir, "oshb") {
+        let text = std::fs::read_to_string(&path).unwrap();
+        let mut file_text = String::new();
+        let mut ordinal = 0u8;
+        for caps in verse_re.captures_iter(&text) {
+            let id = &caps[1];
+            let body = &caps[2];
+            let mut parts = id.split('.');
+            let book = osis_book(parts.next().unwrap()).unwrap();
+            ordinal = book.ordinal;
+            let (c, v): (u16, u16) = (
+                parts.next().unwrap().parse().unwrap(),
+                parts.next().unwrap().parse().unwrap(),
+            );
+            // Words outside notes.
+            let plain_body = note.replace_all(body, "");
+            words_in_files += plain_body.matches("<w ").count() + plain_body.matches("<w>").count();
+            let verse_text = strip(&tag.replace_all(&plain_body, ""));
+            file_text.push_str(&verse_text);
+            // Each KJV mark: the text from it to the next mark is in the verse it names.
+            let mut pieces: Vec<(Option<String>, String)> = vec![(None, String::new())];
+            let mut last = 0;
+            for m in note.captures_iter(body) {
+                let whole = m.get(0).unwrap();
+                let before = &body[last..whole.start()];
+                pieces
+                    .last_mut()
+                    .unwrap()
+                    .1
+                    .push_str(&strip(&tag.replace_all(before, "")));
+                last = whole.end();
+                if let Some(target) = m[1].trim().strip_prefix("KJV:") {
+                    pieces.push((Some(target.to_string()), String::new()));
+                }
+            }
+            pieces
+                .last_mut()
+                .unwrap()
+                .1
+                .push_str(&strip(&tag.replace_all(&body[last..], "")));
+            for (target, piece) in &pieces {
+                let Some(target) = target else { continue };
+                if piece.is_empty() {
+                    continue;
+                }
+                let base = split_part(target).unwrap().0;
+                let (o, tc, tv) =
+                    abiding_word_lib::scripture::versification::osis_verse(base).unwrap();
+                marks_checked += 1;
+                if !english(o, tc, tv).is_some_and(|e| e.contains(piece.as_str())) {
+                    failures.push(format!("{id}: mark {target} not found there"));
+                }
+            }
+            // Each whole-verse map entry: the verse is in the English verse named.
+            if let Some(&(tc, tv)) = map.to_english.get(&(ordinal, c, v)) {
+                // Verses the text does not divide (a mark at their start is not a division).
+                if pieces.iter().filter(|(_, p)| !p.is_empty()).count() == 1
+                    && !verse_text.is_empty()
+                {
+                    entries_checked += 1;
+                    let in_verse =
+                        english(ordinal, tc, tv).is_some_and(|e| e.contains(&verse_text));
+                    let in_title = staged.content.books[&ordinal]
+                        .chapters
+                        .get(&tc)
+                        .and_then(|ch| ch.superscription.as_ref())
+                        .is_some_and(|s| strip(s).contains(&verse_text));
+                    if !in_verse && !in_title {
+                        failures.push(format!("{id}: map entry {tc}:{tv} not found there"));
+                    }
+                }
+            }
+        }
+        // The book's text, in order: titles then verses, chapter by chapter.
+        let mut stored = String::new();
+        for chapter in staged.content.books[&ordinal].chapters.values() {
+            if let Some(title) = &chapter.superscription {
+                stored.push_str(&strip(title));
+            }
+            for text in chapter.verses.values() {
+                stored.push_str(&strip(text));
+            }
+        }
+        if stored != file_text {
+            let at = stored
+                .chars()
+                .zip(file_text.chars())
+                .take_while(|(a, b)| a == b)
+                .count();
+            failures.push(format!(
+                "{}: text differs from character {at} ({} vs {} characters)",
+                canon::by_ordinal(ordinal).unwrap().code,
+                stored.chars().count(),
+                file_text.chars().count()
+            ));
+        }
+    }
+    // Every English verse of the Old Testament, and which are absent.
+    let mut absent = Vec::new();
+    for book in canon::BOOKS.iter().filter(|b| b.ordinal <= 39) {
+        for c in 1..=book.chapter_count {
+            for v in 1..=canon::verse_count(book, c).unwrap_or(0) {
+                if english(book.ordinal, c, v).is_none() {
+                    absent.push(format!("{} {c}:{v}", book.code));
+                }
+            }
+        }
+    }
+    let report = &staged.content.words.report;
+    println!(
+        "OSHB corpus: {} words in the files; {} indexed + {} in titles + {} left out; {marks_checked} marks and {entries_checked} map entries checked; absent English verses: {absent:?}",
+        words_in_files,
+        report.words,
+        report.left_out.outside_verse,
+        report.left_out.total()
+    );
+    for f in failures.iter().take(30) {
+        println!("  FAIL {f}");
+    }
+    assert!(failures.is_empty(), "{} failures", failures.len());
+    assert_eq!(
+        report.words + report.left_out.outside_verse + report.left_out.total(),
+        words_in_files
+    );
+}

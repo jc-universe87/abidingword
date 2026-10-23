@@ -79,7 +79,12 @@
     "verseMapApplied": "Dieser Text verwendet die Verszählung der Hebräischen Bibel. Mit der beigefügten Verszuordnung wurde sie auf die englische Zählung umgestellt ({{moved}} Verse umnummeriert, {{joined}} zusammengeführt, {{titles}} Psalmüberschriften als Überschriften beibehalten).",
     "verseMapUnused": "Die beigefügte Verszuordnung wurde nicht verwendet: Diese Dateien folgen bereits der englischen Verszählung.",
     "verseMapRefused": "Die Verszuordnung „{{fileName}}“ konnte nicht vollständig gelesen werden und wurde daher nicht verwendet.",
-    "hebrewNumbering": "Dieser Text scheint die Verszählung der Hebräischen Bibel zu verwenden (Joel hat vier Kapitel). Füge den ausgewählten Dateien die dazugehörige Verszuordnung hinzu (bei der Open Scriptures Hebrew Bible: wlc/VerseMap.xml), dann werden sie umnummeriert."
+    "hebrewNumbering": "Dieser Text scheint die Verszählung der Hebräischen Bibel zu verwenden (Joel hat vier Kapitel). Füge den ausgewählten Dateien die dazugehörige Verszuordnung hinzu (bei der Open Scriptures Hebrew Bible: wlc/VerseMap.xml), dann werden sie umnummeriert.",
+    "verseMapDivided_one": "{{count}} Teil eines hebräischen Verses wurde in den englischen Vers gestellt, den der Text selbst markiert.",
+    "verseMapDivided_other": "{{count}} Teile hebräischer Verse wurden in die englischen Verse gestellt, die der Text selbst markiert.",
+    "verseMapUnsplit": "Diese hebräischen Verse enthalten jeweils Teile zweier englischer Verse, und die Dateien markieren nicht, wo einer endet: {{places}}. Jeder bleibt ganz an seiner Stelle im hebräischen Text; der englische Vers, den er beginnen oder beenden sollte, ist dort unvollständig.",
+    "verseMapConflict": "Bei {{places}} stimmen die Versmarke des Textes und die Verszuordnung nicht überein; der Marke des Textes wurde gefolgt.",
+    "psalmTitlesInVerse": "Wo der hebräische Text die Überschrift eines Psalms als Anfang von Vers 1 schreibt, markieren diese Dateien nicht, wo sie endet; sie bleibt deshalb Teil von Vers 1."
   },
   "library": {
     "notUtf8": "„{{fileName}}“ ist nicht als UTF-8-Text gespeichert und konnte daher nicht gelesen werden.",

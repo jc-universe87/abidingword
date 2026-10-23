@@ -850,3 +850,160 @@ fn a_psalm_title_of_two_hebrew_verses_stays_a_title() {
     assert_eq!(psalm.verses[&2], "כַּבְּסֵנִי");
     assert_eq!(psalm.words[&1].len(), 1);
 }
+
+// ---------------------------------------------------------------- v0.22.1: divided verses
+
+/// Asserts every word of every staged verse selects exactly its surface.
+fn assert_offsets(staged: &StagedImport) {
+    for book in staged.content.books.values() {
+        for chapter in book.chapters.values() {
+            for (verse, words) in &chapter.words {
+                let text = &chapter.verses[verse];
+                for w in words {
+                    assert_eq!(
+                        utf16_slice(text, w.start, w.end),
+                        w.surface,
+                        "verse {verse}"
+                    );
+                }
+            }
+        }
+    }
+}
+
+/// Constructed OSHB books whose Hebrew verses hold parts of two English
+/// verses, marked as OSHB marks them (`<note>KJV:…</note>` where an English
+/// verse begins): Isaiah 63:19/64:1, a Psalm title inside verse 1, and a
+/// first part that ends the English verse before (1 Kings 18:33/34).
+fn divided_books() -> Vec<(&'static str, String)> {
+    let w = |n: &str, text: &str| format!(r#"<w lemma="{n}" morph="HNcmsa">{text}</w>"#);
+    let osis = |book: &str, body: String| {
+        format!(
+            r#"<osis><osisText osisIDWork="OSHB"><header><work osisWork="OSHB"><title>T</title></work></header><div type="book" osisID="{book}">{body}</div></osisText></osis>"#
+        )
+    };
+    vec![
+        (
+            "Isa.xml",
+            osis(
+                "Isa",
+                format!(
+                    r#"<chapter osisID="Isa.63"><verse osisID="Isa.63.19">{a} {b}<note>KJV:Isa.64.1</note>{c} {d}<seg type="x-sof-pasuq">׃</seg></verse></chapter>
+<chapter osisID="Isa.64"><verse osisID="Isa.64.1"><note>KJV:Isa.64.2</note>{e}<seg type="x-sof-pasuq">׃</seg></verse></chapter>"#,
+                    a = w("1961", "הָיִינוּ"),
+                    b = w("5769", "מֵעוֹלָם"),
+                    c = w("7167", "קָרַעְתָּ"),
+                    d = w("8064", "שָׁמַיִם"),
+                    e = w("6880", "כִּקְדֹחַ"),
+                ),
+            ),
+        ),
+        (
+            "Ps.xml",
+            osis(
+                "Ps",
+                format!(
+                    r#"<chapter osisID="Ps.11"><verse osisID="Ps.11.1">{a} {b}<note>KJV:Ps.11.1</note>{c} {d}</verse><verse osisID="Ps.11.2">{e}</verse></chapter>"#,
+                    a = w("5329", "לַמְנַצֵּחַ"),
+                    b = w("1732", "לְדָוִד"),
+                    c = w("3068", "בַּיהוָה"),
+                    d = w("2620", "חָסִיתִי"),
+                    e = w("2009", "הִנֵּה"),
+                ),
+            ),
+        ),
+        (
+            "1Kgs.xml",
+            osis(
+                "1Kgs",
+                format!(
+                    r#"<chapter osisID="1Kgs.18"><verse osisID="1Kgs.18.33">{a}</verse><verse osisID="1Kgs.18.34">{b} {c}<note>KJV:1Kgs.18.34</note>{d}</verse></chapter>"#,
+                    a = w("6186", "וַיַּעֲרֹךְ"),
+                    b = w("559", "וַיֹּאמֶר"),
+                    c = w("4390", "מִלְאוּ"),
+                    d = w("8138", "שְׁנוּ"),
+                ),
+            ),
+        ),
+    ]
+}
+
+const DIVIDED_MAP: &str = r#"<verseMap>
+<verse wlc="1Kgs.18.34!a" kjv="1Kgs.18.33!b" type="partial"/>
+<verse wlc="Isa.63.19!b" kjv="Isa.64.1" type="partial"/>
+<verse wlc="Isa.64.1" kjv="Isa.64.2" type="full"/>
+</verseMap>"#;
+
+#[test]
+fn oshb_verses_holding_two_english_verses_are_divided_where_the_text_marks_them() {
+    let temp = tempfile::tempdir().unwrap();
+    let mut paths: Vec<PathBuf> = divided_books()
+        .iter()
+        .map(|(n, t)| write(temp.path(), n, t))
+        .collect();
+    paths.push(write(temp.path(), "VerseMap.xml", DIVIDED_MAP));
+    let staged = stage(&paths);
+    assert!(!staged.content.has_errors(), "{:?}", staged.content.issues);
+    assert_offsets(&staged);
+    let isa = &staged.content.books[&23].chapters;
+    assert_eq!(isa[&63].verses[&19], "הָיִינוּ מֵעוֹלָם");
+    assert_eq!(isa[&64].verses[&1], "קָרַעְתָּ שָׁמַיִם׃");
+    assert_eq!(isa[&64].verses[&2], "כִּקְדֹחַ׃");
+    // The Psalm's title is the words before English verse 1.
+    let ps = &staged.content.books[&19].chapters[&11];
+    assert_eq!(ps.superscription.as_deref(), Some("לַמְנַצֵּחַ לְדָוִד"));
+    assert_eq!(ps.verses[&1], "בַּיהוָה חָסִיתִי");
+    assert_eq!(ps.verses[&2], "הִנֵּה");
+    // The first part ends English 18:33 (as the map says); the second is 18:34.
+    let kgs = &staged.content.books[&11].chapters[&18];
+    assert_eq!(kgs.verses[&33], "וַיַּעֲרֹךְ וַיֹּאמֶר מִלְאוּ");
+    assert_eq!(kgs.verses[&34], "שְׁנוּ");
+    assert_eq!(kgs.words[&33].len(), 3);
+    let found = codes(&staged);
+    assert!(found.contains(&"bibleImport.verseMapDivided"));
+    assert!(!found.contains(&"bibleImport.verseMapUnsplit"));
+    assert!(!found.contains(&"bibleImport.verseMapConflict"));
+    // Every Hebrew word is kept: in a verse or a title.
+    let report = &staged.content.words.report;
+    assert_eq!(report.words + report.left_out.outside_verse, 14);
+}
+
+#[test]
+fn without_the_texts_marks_a_divided_verse_is_kept_whole_and_named() {
+    let temp = tempfile::tempdir().unwrap();
+    // The same Isaiah as USFM: no mark of where English 64:1 begins.
+    let usfm = "\\id ISA constructed test text\n\\c 63\n\\p\n\\v 19 הָיִינוּ מֵעוֹלָם קָרַעְתָּ שָׁמַיִם׃\n\\c 64\n\\p\n\\v 1 כִּקְדֹחַ׃\n";
+    // Joel 4 marks the files as Hebrew-numbered.
+    let joel = "\\id JOL constructed test text\n\\c 4\n\\p\n\\v 1 א\n";
+    let map = r#"<verseMap><verse wlc="Isa.63.19!b" kjv="Isa.64.1" type="partial"/><verse wlc="Isa.64.1" kjv="Isa.64.2" type="full"/><verse wlc="Joel.4.1" kjv="Joel.3.1" type="full"/></verseMap>"#;
+    let staged = stage(&[
+        write(temp.path(), "ISA.usfm", usfm),
+        write(temp.path(), "JOL.usfm", joel),
+        write(temp.path(), "VerseMap.xml", map),
+    ]);
+    let isa = &staged.content.books[&23].chapters;
+    // Kept whole where the Hebrew text has it; never guessed apart.
+    assert_eq!(isa[&63].verses[&19], "הָיִינוּ מֵעוֹלָם קָרַעְתָּ שָׁמַיִם׃");
+    assert!(!isa[&64].verses.contains_key(&1));
+    let unsplit = staged
+        .content
+        .issues
+        .iter()
+        .find(|i| i.code.as_deref() == Some("bibleImport.verseMapUnsplit"))
+        .expect("the verse is named");
+    assert_eq!(
+        unsplit.params.get("places").map(String::as_str),
+        Some("ISA.63.19")
+    );
+    assert_eq!(unsplit.severity, Severity::Warning);
+}
+
+#[test]
+fn a_mark_and_the_map_that_disagree_are_reported() {
+    let temp = tempfile::tempdir().unwrap();
+    let books = divided_books();
+    let isa = write(temp.path(), "Isa.xml", &books[0].1);
+    let map = r#"<verseMap><verse wlc="Isa.63.19!b" kjv="Isa.64.2" type="partial"/><verse wlc="Isa.64.1" kjv="Isa.64.3" type="full"/></verseMap>"#;
+    let staged = stage(&[isa, write(temp.path(), "VerseMap.xml", map)]);
+    assert!(codes(&staged).contains(&"bibleImport.verseMapConflict"));
+}

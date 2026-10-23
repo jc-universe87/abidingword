@@ -41,6 +41,16 @@ function values(params: MessageParams): Record<string, unknown> {
       .map((code) => bookName(code))
       .join(" / ");
   }
+  // Verses as canonical references ("ISA.63.19;PSA.13.6"), named in the interface language (v0.22.1).
+  if (params.places) {
+    result.places = params.places
+      .split(";")
+      .map((canonical) => {
+        const parsed = parseCanonical(canonical);
+        return parsed ? referenceLabel({ ...parsed, canonical, display: canonical }) : canonical;
+      })
+      .join(", ");
+  }
   if (params.numbers !== undefined) {
     const more = Number(params.more ?? 0);
     result.list = more > 0 ? translate("errors.bibleImport.listMore", { numbers: params.numbers, count: more }) : params.numbers;

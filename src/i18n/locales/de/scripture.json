@@ -116,8 +116,9 @@
     "warnings_other": "{{count}} Warnungen – bitte prüfen",
     "notes_one": "{{count}} Hinweis",
     "notes_other": "{{count}} Hinweise",
-    "skipped_one": "{{count}} Datei wurde ausgelassen, weil sie keines der 66 Bücher enthält (zum Beispiel eine Einleitung oder ein Glossar).",
-    "skipped_other": "{{count}} Dateien wurden ausgelassen, weil sie keines der 66 Bücher enthalten (zum Beispiel eine Einleitung oder ein Glossar).",
+    "skipped_one": "{{count}} Datei wurde ausgelassen: Abiding Word hat darin kein Buch der Bibel gefunden, das es lesen kann (zum Beispiel eine Einleitung, ein Glossar oder eine Datei in einem anderen Format).",
+    "skipped_other": "{{count}} Dateien wurden ausgelassen: Abiding Word hat darin kein Buch der Bibel gefunden, das es lesen kann (zum Beispiel eine Einleitung, ein Glossar oder eine Datei in einem anderen Format).",
+    "skippedNames": "Ausgelassene Dateien",
     "adding": "Wird hinzugefügt…",
     "add": "Diese Bibel hinzufügen",
     "words": {

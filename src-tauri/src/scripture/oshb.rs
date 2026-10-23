@@ -21,12 +21,13 @@ use quick_xml::events::{BytesStart, Event};
 use quick_xml::{Reader, XmlVersion};
 
 use super::grammar::Statement;
+use super::import::VersePart;
 use super::import::{
     BibleImportAdapter, Severity, SourceText, StagedBook, StagedContent, StagedWord,
 };
 use super::morphology::OSHB;
 use super::usfm::WordShape;
-use super::versification::osis_book;
+use super::versification::{osis_book, osis_verse, split_part};
 use crate::error::UserMessage;
 
 pub struct OshbAdapter;
@@ -160,18 +161,41 @@ fn read_file(file: &SourceText, staged: &mut StagedContent) {
     let mut word: Option<(Option<String>, Option<String>, String)> = None;
     let mut in_seg = false;
     let mut broken = false;
+    // OSHB's own alignment: a `<note>KJV:Isa.64.1</note>` where an English
+    // verse begins. Read only to divide a Hebrew verse that holds parts of
+    // two English verses, and only when a verse map is used.
+    let split = staged.verse_map.is_some();
+    let mut note_text = String::new();
+    // The verse's segments so far: (part letter, the marker's target).
+    let mut part: Option<char> = None;
+    let mut segment_target: Option<(u16, u16)> = None;
     let finish = |staged: &mut StagedContent,
                   content: &mut StagedBook,
                   book: &'static crate::scripture::canon::Book,
-                  verse: (String, String, Builder)| {
+                  verse: (String, String, Builder),
+                  part: Option<char>,
+                  marker: Option<(u16, u16)>| {
         let (chapter, label, built) = verse;
         let words = staged.words.add_structured(built.words, "morph");
-        staged.add_verse(book, content, &chapter, &label, built.text, words);
+        staged.add_verse_part(
+            book,
+            content,
+            &chapter,
+            &label,
+            VersePart { part, marker },
+            built.text,
+            words,
+        );
     };
     loop {
         match reader.read_event() {
             Ok(Event::Start(e)) => match e.name().as_ref() {
-                "note" => note_depth += 1,
+                "note" => {
+                    note_depth += 1;
+                    if note_depth == 1 {
+                        note_text.clear();
+                    }
+                }
                 _ if note_depth > 0 => {}
                 "verse" => {
                     let Some(id) = attr(&e, "osisID") else {
@@ -198,6 +222,8 @@ fn read_file(file: &SourceText, staged: &mut StagedContent) {
                         Some(_) => {}
                     }
                     current = Some((c.to_string(), v.to_string(), Builder::new()));
+                    part = None;
+                    segment_target = None;
                 }
                 "w" if current.is_some() => {
                     word = Some((attr(&e, "lemma"), attr(&e, "morph"), String::new()))
@@ -206,7 +232,55 @@ fn read_file(file: &SourceText, staged: &mut StagedContent) {
                 _ => {}
             },
             Ok(Event::End(e)) => match e.name().as_ref() {
-                "note" => note_depth = note_depth.saturating_sub(1),
+                "note" => {
+                    note_depth = note_depth.saturating_sub(1);
+                    let marker = note_text.trim().strip_prefix("KJV:").map(str::to_string);
+                    if note_depth > 0 || !split {
+                        continue;
+                    }
+                    let (Some(marker), Some(found)) = (marker, book) else {
+                        continue;
+                    };
+                    // "Isa.64.1" or "1Kgs.22.43!b": the English verse beginning here.
+                    let target = split_part(&marker)
+                        .and_then(|(base, _)| osis_verse(base))
+                        .filter(|(ordinal, _, _)| *ordinal == found.ordinal);
+                    let Some((_, c, v)) = target else {
+                        broken = true;
+                        continue;
+                    };
+                    match current.as_mut() {
+                        // At the start of the verse: where the whole verse (or its first part) goes.
+                        Some((_, _, built)) if built.text.is_empty() => {
+                            segment_target = Some((c, v))
+                        }
+                        Some(_) => {
+                            // Inside the verse: what came before is one part, what follows another.
+                            let Some((chapter, label, built)) = current.take() else {
+                                continue;
+                            };
+                            let this = part.unwrap_or('a');
+                            // More parts than any verse has: not this edition's marks.
+                            if this >= 'z' {
+                                broken = true;
+                                continue;
+                            }
+                            staged.split_marks += 1;
+                            finish(
+                                staged,
+                                &mut content,
+                                found,
+                                (chapter.clone(), label.clone(), built),
+                                Some(this),
+                                segment_target,
+                            );
+                            current = Some((chapter, label, Builder::new()));
+                            part = Some(((this as u8) + 1) as char);
+                            segment_target = Some((c, v));
+                        }
+                        None => {}
+                    }
+                }
                 _ if note_depth > 0 => {}
                 "w" => {
                     if let (Some((lemma, morph, raw)), Some((_, _, built))) =
@@ -253,11 +327,12 @@ fn read_file(file: &SourceText, staged: &mut StagedContent) {
                 "seg" => in_seg = false,
                 "verse" => {
                     if let (Some(verse), Some(book)) = (current.take(), book) {
-                        finish(staged, &mut content, book, verse);
+                        finish(staged, &mut content, book, verse, part, segment_target);
                     }
                 }
                 _ => {}
             },
+            Ok(Event::Text(t)) if note_depth == 1 => note_text.push_str(&t),
             Ok(Event::Text(t)) if note_depth == 0 => {
                 let piece: &str = &t;
                 if let Some((_, _, raw)) = word.as_mut() {

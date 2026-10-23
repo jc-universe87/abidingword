@@ -75,7 +75,11 @@
     "verseMapApplied": "이 본문은 히브리어 성경의 절 번호를 사용합니다. 함께 제공된 절 대응표로 영어 성경의 절 번호로 바꾸었습니다(절 {{moved}}개 번호 변경, {{joined}}개 합침, 시편 표제 {{titles}}개는 표제로 유지).",
     "verseMapUnused": "제공된 절 대응표는 사용하지 않았습니다. 이 파일들은 이미 영어 성경의 절 번호를 따릅니다.",
     "verseMapRefused": "절 대응표 “{{fileName}}”을(를) 온전히 읽을 수 없어 사용하지 않았습니다.",
-    "hebrewNumbering": "이 본문은 히브리어 성경의 절 번호를 사용하는 것으로 보입니다(요엘이 4장으로 되어 있습니다). 함께 제공되는 절 대응표(Open Scriptures Hebrew Bible의 경우 wlc/VerseMap.xml)를 선택한 파일에 추가하면 번호가 바뀝니다."
+    "hebrewNumbering": "이 본문은 히브리어 성경의 절 번호를 사용하는 것으로 보입니다(요엘이 4장으로 되어 있습니다). 함께 제공되는 절 대응표(Open Scriptures Hebrew Bible의 경우 wlc/VerseMap.xml)를 선택한 파일에 추가하면 번호가 바뀝니다.",
+    "verseMapDivided_other": "히브리어 절의 일부 {{count}}개를 본문 자체가 표시한 영어 절에 넣었습니다.",
+    "verseMapUnsplit": "다음 히브리어 절은 각각 영어 두 절의 일부를 담고 있지만, 파일에 한 절이 끝나는 곳이 표시되어 있지 않습니다: {{places}}. 각 절은 히브리어 본문의 자리에 그대로 두었으므로, 그 절이 시작하거나 끝내야 할 영어 절은 그곳에서 완전하지 않습니다.",
+    "verseMapConflict": "{{places}}에서 본문 자체의 절 표시와 절 대응표가 일치하지 않아 본문의 표시를 따랐습니다.",
+    "psalmTitlesInVerse": "히브리어 본문이 시편의 표제를 1절의 시작으로 적은 곳에서는 이 파일들이 표제가 끝나는 곳을 표시하지 않으므로, 표제가 1절에 그대로 남습니다."
   },
   "library": {
     "notUtf8": "“{{fileName}}”은(는) UTF-8 텍스트로 저장되어 있지 않아 읽을 수 없습니다.",
