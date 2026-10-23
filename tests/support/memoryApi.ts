@@ -58,7 +58,8 @@ import type {
   TemplateSection,
 } from "@/types/studies";
 
-import { newTeachingState, teachingApi, type TeachingState } from "./memoryTeaching";
+import { assistantFacts, newTeachingState, teachingApi, type TeachingState } from "./memoryTeaching";
+import { inquiryApi, newInquiryState, type InquiryState } from "./memoryInquiry";
 import { newPresentationState, presentationApi, type PresentationState } from "./memoryPresentation";
 import { newPortabilityState, portabilityApi, type PortabilityState } from "./memoryPortability";
 
@@ -119,6 +120,8 @@ export interface MemoryApi extends Api {
     };
     /** Teaching preparations and the scripted assistant (v0.16). */
     teaching: TeachingState;
+    /** Study and research help (v0.20), scripted by the test. */
+    inquiry: InquiryState;
     /** Presentations, exports and the audience screen (v0.18). */
     presentation: PresentationState;
     /** Project packages and backups (v0.19). */
@@ -351,6 +354,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     findings: [],
     relations: [],
     teaching: newTeachingState(),
+    inquiry: newInquiryState(),
     presentation: newPresentationState(),
     portability: newPortabilityState(),
     templates: BUILTIN_TEMPLATES.map((t) => ({
@@ -702,6 +706,20 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       studyExists: (studyId) => void find(state.studies, studyId, "study"),
       studyPassages: () => state.passages,
       ref: (canonical) => refFromCanonical(canonical, bookByCode),
+    }),
+    ...inquiryApi(state.inquiry, {
+      config: () => state.teaching.assistant.config,
+      label: () => assistantFacts(state.teaching).label,
+      remote: () => assistantFacts(state.teaching).remote,
+      hasKey: () => assistantFacts(state.teaching).hasKey,
+      study: (studyId) => find(state.studies, studyId, "study"),
+      sections: () => state.sections,
+      blocks: () => state.blocks,
+      findings: () => state.findings,
+      passages: () => state.passages,
+      source: (sourceId) => liveSource(sourceId),
+      segments: (sourceId) => library.segments.filter((x) => x.sourceId === sourceId).sort((a, b) => a.position - b.position),
+      api: () => api,
     }),
     libraryLocationsCalls: [],
     concordanceCalls: [],

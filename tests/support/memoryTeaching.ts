@@ -157,6 +157,21 @@ const imageCapability = (c: AssistantConfig) => {
   return p === "openai" ? "supported" : p === "openai_compatible" ? "unknown" : "unsupported";
 };
 
+function remoteOf(c: AssistantConfig): boolean {
+  const base = c.baseUrl || { openai: "https://api.openai.com/v1", anthropic: "https://api.anthropic.com/v1", google: "https://g", xai: "https://api.x.ai/v1", perplexity: "https://api.perplexity.ai", deepseek: "https://api.deepseek.com/v1", qwen: "https://q", mistral: "https://api.mistral.ai/v1", cohere: "https://api.cohere.ai/compatibility/v1", moonshot: "https://api.moonshot.ai/v1", zai: "https://api.z.ai/api/paas/v4", minimax: "https://api.minimax.io/v1", ollama: "http://localhost:11434/v1", lmstudio: "http://localhost:1234/v1", openai_compatible: "" }[c.provider];
+  return !base || !isLocalAddress(base);
+}
+
+/** Who would answer, as the core names it, whether text leaves the computer, and whether its key is kept. */
+export function assistantFacts(state: TeachingState) {
+  const c = state.assistant.config;
+  return {
+    label: c.model ? `${LABELS[c.provider]} · ${c.model}` : LABELS[c.provider]!,
+    remote: remoteOf(c),
+    hasKey: !NEEDS_KEY.has(c.provider) || state.assistant.keys.has(c.provider),
+  };
+}
+
 export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
   const prep = (prepId: string): StoredPrep => {
     const p = state.preparations.find((x) => x.id === prepId);
@@ -183,10 +198,7 @@ export function teachingApi(state: TeachingState, h: Helpers): TeachingApi {
       materials: p.materials.map((x) => ({ ...x })),
     };
   };
-  const remote = (c: AssistantConfig) => {
-    const base = c.baseUrl || { openai: "https://api.openai.com/v1", anthropic: "https://api.anthropic.com/v1", google: "https://g", xai: "https://api.x.ai/v1", perplexity: "https://api.perplexity.ai", deepseek: "https://api.deepseek.com/v1", qwen: "https://q", mistral: "https://api.mistral.ai/v1", cohere: "https://api.cohere.ai/compatibility/v1", moonshot: "https://api.moonshot.ai/v1", zai: "https://api.z.ai/api/paas/v4", minimax: "https://api.minimax.io/v1", ollama: "http://localhost:11434/v1", lmstudio: "http://localhost:1234/v1", openai_compatible: "" }[c.provider];
-    return !base || !isLocalAddress(base);
-  };
+  const remote = remoteOf;
   const settings = (): AssistantSettings => {
     const c = state.assistant.config;
     return {

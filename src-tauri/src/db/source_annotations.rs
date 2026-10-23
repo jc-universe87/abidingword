@@ -532,6 +532,86 @@ fn anchor_selection(conn: &Connection, input: &CreateSourceAnnotation) -> AppRes
     })
 }
 
+/// Selected words of a source, checked exactly against its stored text, with
+/// the paragraphs they lie in (v0.20: what the assistant is shown, and where
+/// its quotations are looked for).
+#[derive(Debug, Clone)]
+pub struct Excerpt {
+    /// The paragraphs from the first selected to the last, in reading order.
+    pub segments: Vec<StoredSegment>,
+    /// The selected words: bytes `from..to` of these paragraphs joined as a [`Line`].
+    pub from: usize,
+    pub to: usize,
+    pub text: String,
+}
+
+impl Excerpt {
+    /// The exact place of `from..to` (bytes of the joined paragraphs), as
+    /// the reader and a citation name it; `None` for nothing visible.
+    pub fn points(&self, from: usize, to: usize) -> Option<(TextPoint, TextPoint, String)> {
+        let line = Line::new(&self.segments);
+        let (start, end) = line.trimmed(from, to)?;
+        let quote = line.quote(start, end)?.to_string();
+        let point = |p: LinePoint| TextPoint {
+            segment_id: self.segments[p.index].id.clone(),
+            offset: p.offset,
+        };
+        Some((point(start), point(end), quote))
+    }
+}
+
+/// The selected words `start..end` of a source, refused unless they are
+/// exactly `quote` in its stored text (as a new mark is).
+pub fn excerpt(
+    conn: &Connection,
+    source_id: &str,
+    start: &TextPoint,
+    end: &TextPoint,
+    quote: &str,
+) -> AppResult<Excerpt> {
+    let not_here = || {
+        invalid(
+            "sourceAnnotations.textChanged",
+            "The selected words do not match the text of this source.",
+        )
+    };
+    let (start_source, first) = segment_place(conn, &start.segment_id)?.ok_or_else(not_here)?;
+    let (end_source, last) = segment_place(conn, &end.segment_id)?.ok_or_else(not_here)?;
+    if start_source != source_id || end_source != source_id || last < first {
+        return Err(not_here());
+    }
+    let segments = segments_between(conn, source_id, first, last)?;
+    let line = Line::new(&segments);
+    let (Some(a), Some(b)) = (
+        line.index_of(&start.segment_id),
+        line.index_of(&end.segment_id),
+    ) else {
+        return Err(not_here());
+    };
+    let from = line.byte(LinePoint {
+        index: a,
+        offset: start.offset,
+    });
+    let to = line.byte(LinePoint {
+        index: b,
+        offset: end.offset,
+    });
+    let (Some(from), Some(to)) = (from, to) else {
+        return Err(not_here());
+    };
+    if from >= to || line.text[from..to] != *quote || quote.trim().is_empty() {
+        return Err(not_here());
+    }
+    let text = line.text[from..to].to_string();
+    drop(line);
+    Ok(Excerpt {
+        segments,
+        from,
+        to,
+        text,
+    })
+}
+
 /// Where a place annotation sits.
 struct Place {
     segment_id: Option<String>,

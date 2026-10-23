@@ -16,6 +16,7 @@ pub mod config;
 pub mod context;
 pub mod http;
 pub mod images;
+pub mod inquiry;
 pub mod prompts;
 pub mod provider;
 pub mod research;

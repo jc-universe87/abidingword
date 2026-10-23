@@ -61,7 +61,7 @@ impl AnchorState {
 }
 
 /// One end of a selection, as the interface sends it.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TextPoint {
     pub segment_id: String,

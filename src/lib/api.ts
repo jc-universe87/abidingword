@@ -9,6 +9,7 @@ import { listen } from "@tauri-apps/api/event";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { safeExternalUrl } from "./externalLink";
+import type { InquiryInput, InquiryPreview, InquiryReply, KeepInsight } from "@/types/inquiry";
 import type { BackupPreview, BackupReport, ProjectExportReport, ProjectImportReport, ProjectPackagePreview, RestoreReport, SampleReport } from "@/types/portability";
 import type {
   AppInfo,
@@ -380,6 +381,12 @@ export interface Api {
   assistantPreview(input: AssistInput): Promise<AssistPreview>;
   /** Asks the assistant. The answer is a suggestion; nothing is changed. */
   assistantAsk(input: AssistInput): Promise<AssistReply>;
+  /** Study and research help (v0.20): exactly what would be sent, before anything is. */
+  inquiryPreview(input: InquiryInput): Promise<InquiryPreview>;
+  /** Asks, only if what would be sent still has the preview's fingerprint. Changes nothing. */
+  inquiryAsk(input: InquiryInput, fingerprint: string): Promise<InquiryReply>;
+  /** Keeps help the person accepted as a note in their study. */
+  inquiryKeep(input: KeepInsight): Promise<Finding>;
   assistantFindImages(terms: string): Promise<FoundImage[]>;
   /** The preview of a kept found image (fetched by the core from Wikimedia only). */
   assistantImagePreview(url: string): Promise<string | null>;
@@ -659,6 +666,9 @@ export const tauriApi: Api = {
   assistantSearchTest: () => call("assistant_search_test"),
   assistantPreview: (input) => call("assistant_preview", { input }),
   assistantAsk: (input) => call("assistant_ask", { input }),
+  inquiryPreview: (input) => call("inquiry_preview", { input }),
+  inquiryAsk: (input, fingerprint) => call("inquiry_ask", { input, fingerprint }),
+  inquiryKeep: (input) => call("inquiry_keep", { input }),
   assistantFindImages: (terms) => call("assistant_find_images", { terms }),
   assistantImagePreview: (url) => call("assistant_image_preview", { url }),
   assistantGenerateImage: (description) => call("assistant_generate_image", { description }),

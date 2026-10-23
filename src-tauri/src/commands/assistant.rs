@@ -8,8 +8,11 @@ use super::CommandResult;
 use crate::assistant::config::{self, AssistantConfig};
 use crate::assistant::context::AssistInput;
 use crate::assistant::images::{self, FoundImage};
+use crate::assistant::inquiry::keep::KeepInsight;
+use crate::assistant::inquiry::{self, InquiryInput, InquiryPreview, InquiryReply};
 use crate::assistant::research;
 use crate::assistant::{self, secrets, AssistPreview, AssistReply, AssistantSettings};
+use crate::domain::Finding;
 use crate::error::{AppError, UserMessage};
 use crate::state::AppState;
 
@@ -222,4 +225,39 @@ pub async fn assistant_generate_image(
             config.image_model_name()
         ),
     })
+}
+
+/// Study and research help (v0.20): exactly what would be sent, and to whom,
+/// before anything is sent.
+#[tauri::command(async)]
+pub fn inquiry_preview(
+    state: State<'_, AppState>,
+    input: InquiryInput,
+) -> CommandResult<InquiryPreview> {
+    state.db(|conn| {
+        let (config, material) = inquiry::assemble(conn, &input)?;
+        Ok(inquiry::preview(&config, &material))
+    })
+}
+
+/// Asks, only when what would be sent is what the person saw (`fingerprint`
+/// from the preview). The answer is help; nothing is changed.
+#[tauri::command]
+pub async fn inquiry_ask(
+    state: State<'_, AppState>,
+    input: InquiryInput,
+    fingerprint: String,
+) -> CommandResult<InquiryReply> {
+    let ready = state.db(|conn| inquiry::prepare(conn, &input, &fingerprint))?;
+    // The credential store is read, and the request sent, with the database released.
+    let ready = inquiry::unlock(ready, state.secrets())?;
+    inquiry::run(state.transport()?, &ready)
+        .await
+        .map_err(Into::into)
+}
+
+/// Keeps what the person accepted as a note in their study.
+#[tauri::command(async)]
+pub fn inquiry_keep(state: State<'_, AppState>, input: KeepInsight) -> CommandResult<Finding> {
+    state.db(|conn| inquiry::keep::keep(conn, &input))
 }

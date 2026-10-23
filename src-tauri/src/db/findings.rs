@@ -16,7 +16,9 @@ use crate::domain::{
 };
 use crate::error::{AppError, AppResult, UserMessage};
 use crate::library::annotations::CitationAnchor;
-use crate::library::{AddFindingSource, CitationPlace, CreateFindingFromSource, FindingCitation};
+use crate::library::{
+    AddFindingSource, CitationPlace, CitedPassage, CreateFindingFromSource, FindingCitation,
+};
 use crate::scripture::reference::ScriptureRef;
 
 const CONTENT_MAX_CHARS: usize = 50_000;
@@ -24,7 +26,7 @@ const TAG_MAX_CHARS: usize = 40;
 const MAX_TAGS: usize = 20;
 
 const COLUMNS: &str = "id, study_id, section_id, kind, content, sort_order, parent_id, \
-                       created_at, updated_at, revision";
+                       created_at, updated_at, revision, json_extract(data, '$.assistedBy')";
 
 fn from_row(row: &Row) -> rusqlite::Result<Finding> {
     let kind: String = row.get(3)?;
@@ -41,6 +43,7 @@ fn from_row(row: &Row) -> rusqlite::Result<Finding> {
         passages: Vec::new(),
         tags: Vec::new(),
         sources: Vec::new(),
+        assisted_by: row.get(10)?,
         created_at: row.get(7)?,
         updated_at: row.get(8)?,
         revision: row.get(9)?,
@@ -310,11 +313,89 @@ pub fn create_from_source(
         passages: Vec::new(),
         tags: Vec::new(),
         sources: Vec::new(),
+        assisted_by: None,
         created_at: now.clone(),
         updated_at: now.clone(),
         revision: 1,
     };
     add_cited(&tx, &finding, &cited, &now)?;
+    studies::touch(&tx, &input.study_id, &now)?;
+    tx.commit()?;
+    get(conn, &id)
+}
+
+/// A note the person accepted from the assistant (v0.20): their (possibly
+/// edited) words, the assistant's name, and a citation of each source
+/// passage it rests on, each checked against the source's stored text now.
+/// One transaction: the note is there with all its citations, or not at all.
+pub fn create_assisted(
+    conn: &Connection,
+    input: &CreateFinding,
+    assisted_by: &str,
+    cited: &[CitedPassage],
+) -> AppResult<Finding> {
+    studies::get(conn, &input.study_id)?;
+    let content = input
+        .content
+        .as_deref()
+        .unwrap_or_default()
+        .trim()
+        .to_string();
+    if content.is_empty() {
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "findings.writeFirst",
+            "Write something to add first.",
+        )));
+    }
+    check_content(&content)?;
+    let section_id = input.section_id.as_deref().filter(|s| !s.is_empty());
+    if let Some(section) = section_id {
+        check_section(conn, &input.study_id, section)?;
+    }
+    let assisted_by = assisted_by.trim();
+    if assisted_by.is_empty() || assisted_by.chars().count() > 200 {
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "findings.assistantName",
+            "The assistant's name is missing.",
+        )));
+    }
+    let cited = cited
+        .iter()
+        .map(|c| source_annotations::cite(conn, c))
+        .collect::<AppResult<Vec<_>>>()?;
+    let position: i64 = conn.query_row(
+        "SELECT COALESCE(MAX(sort_order), -1) + 1 FROM findings WHERE study_id = ?1 AND deleted_at IS NULL",
+        [&input.study_id],
+        |r| r.get(0),
+    )?;
+    let id = new_id();
+    let now = now();
+    let data = serde_json::json!({ "assistedBy": assisted_by }).to_string();
+    let tx = conn.unchecked_transaction()?;
+    tx.execute(
+        "INSERT INTO findings (id, study_id, section_id, kind, content, data, sort_order, created_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?8)",
+        params![id, input.study_id, section_id, input.finding_type.as_str(), content, data, position, now],
+    )?;
+    let finding = Finding {
+        id: id.clone(),
+        study_id: input.study_id.clone(),
+        section_id: section_id.map(str::to_string),
+        finding_type: input.finding_type,
+        content,
+        sort_order: position,
+        parent_id: None,
+        passages: Vec::new(),
+        tags: Vec::new(),
+        sources: Vec::new(),
+        assisted_by: Some(assisted_by.to_string()),
+        created_at: now.clone(),
+        updated_at: now.clone(),
+        revision: 1,
+    };
+    for c in &cited {
+        add_cited(&tx, &finding, c, &now)?;
+    }
     studies::touch(&tx, &input.study_id, &now)?;
     tx.commit()?;
     get(conn, &id)
@@ -670,9 +751,9 @@ pub(crate) fn copy_all(
             .as_deref()
             .and_then(|s| sections.get(s).copied());
         conn.execute(
-            "INSERT INTO findings (id, study_id, section_id, kind, content, sort_order, created_at, updated_at)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?7)",
-            params![id, to_study, section, finding.finding_type.as_str(), finding.content, finding.sort_order, now],
+            "INSERT INTO findings (id, study_id, section_id, kind, content, data, sort_order, created_at, updated_at)
+             SELECT ?1, ?2, ?3, ?4, ?5, data, ?6, ?7, ?7 FROM findings WHERE id = ?8",
+            params![id, to_study, section, finding.finding_type.as_str(), finding.content, finding.sort_order, now, finding.id],
         )?;
         for passage in &finding.passages {
             insert_passage(

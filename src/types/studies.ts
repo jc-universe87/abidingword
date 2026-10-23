@@ -90,6 +90,8 @@ export interface Finding {
   tags: string[];
   /** Library sources this finding cites. */
   sources: FindingCitation[];
+  /** The assistant that helped write it (v0.20), when the person kept help as a note. */
+  assistedBy?: string | null;
   createdAt: string;
   updatedAt: string;
   revision: number;
