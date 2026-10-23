@@ -25,9 +25,11 @@
 //! or `Ar,`, segments separated by `:`). Every letter must be one the table
 //! defines, or the code is not described at all.
 //!
-//! Every other scheme (Greek codes of any publisher among them) is shown as
-//! written: its documentation was not available to check, and a wrong
-//! expansion would be worse than none.
+//! Greek (v0.22): the Robinson codes and the MorphGNT codes, each from its
+//! own documentation, in `scripture::greek`. Every other scheme is shown as
+//! written: a wrong expansion would be worse than none. A scheme is only
+//! *used* for a Bible when its source says so or the person chooses it
+//! (`scripture::grammar`); a code that merely fits is not enough.
 
 use serde::Serialize;
 
@@ -36,6 +38,8 @@ use serde::Serialize;
 pub enum Language {
     Hebrew,
     Aramaic,
+    /// Koine Greek (the Robinson and MorphGNT schemes, v0.22).
+    Greek,
 }
 
 /// One grammatical property, as keys the interface translates
@@ -267,6 +271,7 @@ fn segment(code: &str, language: Language) -> Option<Segment> {
             let stems = match language {
                 Language::Hebrew => HEBREW_STEMS,
                 Language::Aramaic => ARAMAIC_STEMS,
+                Language::Greek => return None,
             };
             let (&stem, after) = rest.split_first()?;
             let mut features = vec![Feature {
@@ -327,9 +332,25 @@ pub fn describe_oshb(code: &str) -> Option<Described> {
     })
 }
 
-/// Describes `code` in `scheme` (only OSHB is described; see the module notes).
+/// The Robinson Greek codes (v0.22), as their author documents them in the
+/// front matter of the Robinson–Pierpont 2018 edition (see `greek`).
+pub const ROBINSON: &str = "robinson";
+/// The MorphGNT codes (v0.22): part of speech and an eight-letter parsing,
+/// as the MorphGNT README documents them (see `greek`).
+pub const MORPHGNT: &str = "morphgnt";
+
+/// The schemes Abiding Word can describe.
+pub const SCHEMES: [&str; 3] = [OSHB, ROBINSON, MORPHGNT];
+
+/// Describes `code` in `scheme`; `None` for any other scheme, or a code the
+/// scheme's documentation does not fully define.
 pub fn describe(scheme: &str, code: &str) -> Option<Described> {
-    (scheme == OSHB).then(|| describe_oshb(code)).flatten()
+    match scheme {
+        OSHB => describe_oshb(code),
+        ROBINSON => super::greek::describe_robinson(code),
+        MORPHGNT => super::greek::describe_morphgnt(code),
+        _ => None,
+    }
 }
 
 #[cfg(test)]

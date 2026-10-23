@@ -27,8 +27,9 @@ const COLUMNS: &str = "id, name, short_name, language, language_code, publisher,
         'lemmas', json(CASE WHEN a.lemma_count > 0 THEN 'true' ELSE 'false' END), \
         'lexicalIds', json(CASE WHEN a.strong_count > 0 THEN 'true' ELSE 'false' END), \
         'morphology', json(CASE WHEN a.morph_count > 0 THEN 'true' ELSE 'false' END), \
-        'morphScheme', a.morph_scheme, \
-        'morphAttribute', a.morph_attribute, 'sourceFormat', a.source_format) \
+        'morphScheme', COALESCE(a.grammar_scheme, a.morph_scheme), \
+        'morphAttribute', a.morph_attribute, 'sourceFormat', a.source_format, \
+        'grammarBasis', a.grammar_basis, 'grammarEvidence', json(a.grammar_evidence)) \
      FROM bible_word_annotations a WHERE a.translation_id = bible_translations.id)";
 
 const SHORT_NAME_MAX_CHARS: usize = 20;
@@ -197,7 +198,7 @@ pub fn commit_import(
             }
         }
     }
-    crate::db::bible_words::insert(&tx, id, content, &now)?;
+    crate::db::bible_words::insert(&tx, id, content, source.format, &meta.words, &now)?;
     tx.commit()?;
     log::info!(
         "Bible added: {short_name} ({} books, {} verses)",
