@@ -6,10 +6,11 @@
 //! user confirms and `db::bibles::commit_import` writes it in one
 //! transaction. Cancelling simply drops the staged import.
 //!
-//! Formats are read by a [`BibleImportAdapter`]. v0.2 ships the USFM
-//! adapter (loose `.usfm`/`.sfm` files or a `.zip` of them); OSIS, USX and
-//! others slot in as further adapters. PDF, EPUB and similar files are
-//! recognised and refused clearly rather than guessed at.
+//! Formats are read by a [`BibleImportAdapter`]: USFM (loose `.usfm`/`.sfm`
+//! files or a `.zip` of them) since v0.2; the Open Scriptures Hebrew Bible's
+//! OSIS and MorphGNT since v0.22 (`oshb`, `morphgnt`). Other OSIS, USX, PDF,
+//! EPUB and similar files are recognised and refused clearly rather than
+//! guessed at.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
@@ -20,8 +21,11 @@ use serde::Serialize;
 
 use crate::error::{AppError, AppResult, UserMessage};
 use crate::scripture::canon::{self, Book, NON_CANONICAL_USFM_CODES};
-use crate::scripture::morphology;
+use crate::scripture::grammar::{self, GrammarFinding, Statement};
+use crate::scripture::morphgnt::MorphGntAdapter;
+use crate::scripture::oshb::{self, OshbAdapter};
 use crate::scripture::usfm::{self, MarkedWord, WordShape};
+use crate::scripture::versification::{self, VerseMap};
 use crate::scripture::words::{self, AttributeProblem};
 
 /// Refuse anything bigger: a full Bible in USFM is under 20 MB.
@@ -244,16 +248,24 @@ pub struct WordReport {
     pub phrases: usize,
     pub parts: usize,
     pub morph_attribute: Option<String>,
-    /// "oshb", "raw" or "none" (see `scripture::morphology`).
-    pub morph_scheme: &'static str,
+    /// Which documented scheme the grammar codes fit, and whether the
+    /// edition itself says so (v0.22, `scripture::grammar`).
+    pub grammar: GrammarFinding,
     /// Other attribute names present, not read (e.g. "srcloc").
     pub other_attributes: Vec<String>,
     pub left_out: WordsLeftOut,
     /// Whether the words are added to the word index.
     pub indexed: bool,
-    /// Why not: "strongOnly", "unreliable", "unreadable" or "tooLarge".
+    /// Why not: "strongOnly" (lexical numbers only: indexed only when the
+    /// person asks, v0.22), "unreliable", "unreadable" or "tooLarge".
     pub not_indexed: Option<&'static str>,
+    /// About how much the word index would take on disk (bytes).
+    pub estimated_bytes: usize,
 }
+
+/// Bytes a stored word takes, measured on a whole generated Bible (v0.21:
+/// 37.3 MiB for 777,600 words).
+pub const BYTES_PER_WORD: usize = 51;
 
 /// More marked words than this in one verse cannot be real (the longest verse
 /// has under 100 words).
@@ -279,6 +291,24 @@ impl WordCollector {
         left.empty += problems.empty;
         self.unreadable |= problems.unreadable;
         self.report.marked += problems.total();
+    }
+
+    /// Words a structured format gives (OSIS, MorphGNT): already read, so
+    /// only counted (v0.22).
+    pub fn add_structured(
+        &mut self,
+        words: Vec<StagedWord>,
+        morph_attribute: &'static str,
+    ) -> Vec<StagedWord> {
+        self.report.marked += words.len();
+        if words.len() > WORDS_PER_VERSE_MAX {
+            self.report.left_out.too_many += words.len();
+            return Vec::new();
+        }
+        if words.iter().any(|w| w.morph.is_some()) {
+            self.morph_attributes.insert(morph_attribute);
+        }
+        words
     }
 
     /// The verse's marked words that carry readable annotations.
@@ -359,10 +389,37 @@ pub struct StagedContent {
     pub skipped_files: Vec<String>,
     /// The Bible's word annotations (v0.21).
     pub words: WordCollector,
+    /// Text files that came with the Bible (copr.htm, README, front matter),
+    /// read only for what they say about the edition (v0.22).
+    pub notes: Vec<(String, String)>,
+    /// The grammar scheme the format itself names (OSHB OSIS, MorphGNT).
+    pub declared_grammar: Option<(&'static str, Statement)>,
+    /// Names and licence the files themselves state.
+    pub hints: Hints,
+    /// A Hebrew-to-English verse map supplied with the files (v0.22).
+    pub verse_map: Option<VerseMap>,
+    /// Verses read while a verse map waits to be applied or not.
+    held: Vec<HeldVerse>,
+}
+
+/// What the files themselves state about the edition (v0.22).
+#[derive(Debug, Default)]
+pub struct Hints {
+    pub name: Option<String>,
+    pub license: Option<String>,
+}
+
+#[derive(Debug)]
+struct HeldVerse {
+    ordinal: u8,
+    chapter: String,
+    label: String,
+    text: String,
+    words: Vec<StagedWord>,
 }
 
 impl StagedContent {
-    fn issue(
+    pub(super) fn issue(
         &mut self,
         severity: Severity,
         book: Option<&'static Book>,
@@ -383,7 +440,30 @@ impl StagedContent {
         });
     }
 
-    fn add_verse(
+    pub(super) fn add_verse(
+        &mut self,
+        book: &'static Book,
+        content: &mut StagedBook,
+        chapter: &str,
+        label: &str,
+        text: String,
+        words: Vec<StagedWord>,
+    ) {
+        // A verse map waits until the whole text is read (v0.22).
+        if self.verse_map.is_some() {
+            self.held.push(HeldVerse {
+                ordinal: book.ordinal,
+                chapter: chapter.to_string(),
+                label: label.to_string(),
+                text,
+                words,
+            });
+            return;
+        }
+        self.place_verse(book, content, chapter, label, text, words);
+    }
+
+    fn place_verse(
         &mut self,
         book: &'static Book,
         content: &mut StagedBook,
@@ -529,6 +609,138 @@ impl StagedContent {
         }
     }
 
+    /// Places the held verses, through the verse map when the text uses
+    /// Hebrew numbering (rules: `scripture::versification`).
+    fn release_held(&mut self) {
+        let Some(map) = self.verse_map.take() else {
+            return;
+        };
+        let held = std::mem::take(&mut self.held);
+        let apply = self.held_is_hebrew_numbered_in(&held);
+        let (mut moved, mut joined, mut titles) = (0usize, 0usize, 0usize);
+        // Verses placed through the map, per book and chapter.
+        let mut mapped: BTreeSet<(u8, u16, u16)> = BTreeSet::new();
+        for verse in held {
+            let Some(book) = canon::by_ordinal(verse.ordinal) else {
+                continue;
+            };
+            let mut content = self.books.remove(&verse.ordinal).unwrap_or_default();
+            let numbers = verse
+                .chapter
+                .parse::<u16>()
+                .ok()
+                .zip(verse.label.parse::<u16>().ok());
+            let target = if apply {
+                numbers.and_then(|(c, v)| map.to_english.get(&(verse.ordinal, c, v)).copied())
+            } else {
+                None
+            };
+            match target {
+                None => {
+                    let occupied = numbers.is_some_and(|(c, v)| {
+                        content
+                            .chapters
+                            .get(&c)
+                            .is_some_and(|ch| ch.verses.contains_key(&v))
+                    });
+                    match numbers {
+                        // An unmapped verse where a mapped one already is: one English verse.
+                        Some((c, v))
+                            if apply && occupied && mapped.contains(&(verse.ordinal, c, v)) =>
+                        {
+                            join(&mut content, c, v, verse.text, verse.words);
+                            joined += 1;
+                        }
+                        _ => self.place_verse(
+                            book,
+                            &mut content,
+                            &verse.chapter,
+                            &verse.label,
+                            verse.text,
+                            verse.words,
+                        ),
+                    }
+                }
+                Some((c, v)) => {
+                    moved += 1;
+                    let chapter = content.chapters.entry(c).or_default();
+                    let occupant = chapter.verses.contains_key(&v);
+                    let occupant_mapped = mapped.contains(&(verse.ordinal, c, v));
+                    // In Psalms, what is already at a verse (or at verse 1, even if
+                    // mapped there too: some titles are two Hebrew verses) is the
+                    // title the English numbering does not count as a verse.
+                    if occupant && verse.ordinal == 19 && (!occupant_mapped || v == 1) {
+                        let title = chapter.verses.remove(&v).unwrap_or_default();
+                        if let Some(words) = chapter.words.remove(&v) {
+                            self.words.report.left_out.outside_verse += words.len();
+                        }
+                        chapter.superscription = Some(match chapter.superscription.take() {
+                            Some(before) => format!("{before} {title}"),
+                            None => title,
+                        });
+                        titles += 1;
+                        self.place_verse(
+                            book,
+                            &mut content,
+                            &c.to_string(),
+                            &v.to_string(),
+                            verse.text,
+                            verse.words,
+                        );
+                    } else if occupant {
+                        join(&mut content, c, v, verse.text, verse.words);
+                        joined += 1;
+                    } else {
+                        self.place_verse(
+                            book,
+                            &mut content,
+                            &c.to_string(),
+                            &v.to_string(),
+                            verse.text,
+                            verse.words,
+                        );
+                    }
+                    mapped.insert((verse.ordinal, c, v));
+                }
+            }
+            self.books.insert(verse.ordinal, content);
+        }
+        let message = if apply {
+            UserMessage::new(
+                "bibleImport.verseMapApplied",
+                format!(
+                    "This text uses the Hebrew Bible's verse numbers. They were changed to the English numbering with the verse map supplied ({moved} verses renumbered, {joined} joined, {titles} Psalm titles kept as titles)."
+                ),
+            )
+            .with("moved", moved)
+            .with("joined", joined)
+            .with("titles", titles)
+        } else {
+            UserMessage::new(
+                "bibleImport.verseMapUnused",
+                "The verse map supplied was not used: these files already follow the English verse numbers.",
+            )
+        };
+        self.issue(Severity::Note, None, None, message);
+    }
+
+    /// Whether the placed text refused Joel 4, a chapter only Hebrew
+    /// numbering has.
+    fn uses_hebrew_numbering(&self) -> bool {
+        self.issues.iter().any(is_hebrew_chapter)
+    }
+
+    /// Whether the held verses use Hebrew numbering: Joel with a fourth
+    /// chapter, or Malachi 3 beyond its 18 English verses.
+    fn held_is_hebrew_numbered_in(&self, held: &[HeldVerse]) -> bool {
+        held.iter().any(|v| {
+            (v.ordinal == 29 && v.chapter == "4")
+                || (v.ordinal == 39
+                    && v.chapter == "3"
+                    && v.label.parse::<u16>().is_ok_and(|n| n > 18))
+        })
+    }
+
     /// Structure checks that need the whole book: missing chapters and
     /// gaps in verse numbering.
     fn check_structure(&mut self) {
@@ -629,7 +841,7 @@ impl StagedContent {
         let mut verses = 0usize;
         let (mut lemma, mut ids, mut morph) = (0usize, 0usize, 0usize);
         let (mut phrases, mut parts) = (0usize, 0usize);
-        let (mut candidates, mut described) = (0usize, 0usize);
+        let mut codes: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
         let mut lemmas: BTreeSet<&str> = BTreeSet::new();
         for book in self.books.values() {
             for chapter in book.chapters.values() {
@@ -649,14 +861,7 @@ impl StagedContent {
                         }
                         if let Some(code) = &w.morph {
                             morph += 1;
-                            let code = code.trim();
-                            if code.starts_with(['H', 'A'])
-                                || code.starts_with("He,")
-                                || code.starts_with("Ar,")
-                            {
-                                candidates += 1;
-                                described += usize::from(morphology::describe_oshb(code).is_some());
-                            }
+                            *codes.entry(code.trim().to_string()).or_default() += 1;
                         }
                     }
                 }
@@ -682,14 +887,8 @@ impl StagedContent {
                 .map(|s| s.to_string()),
             _ => Some("x-morph, morph".into()),
         };
-        // Described only when nearly every Hebrew or Aramaic code is one of the scheme's.
-        report.morph_scheme = if morph == 0 {
-            "none"
-        } else if candidates > 0 && described * 100 >= candidates * 95 {
-            morphology::OSHB
-        } else {
-            "raw"
-        };
+        // Which scheme the codes fit, and whether the edition says so (v0.22).
+        report.grammar = grammar::identify(&codes, &self.notes, self.declared_grammar.clone());
         let left = report.left_out.total();
         report.not_indexed = if kept == 0 && report.marked == 0 {
             None
@@ -707,7 +906,9 @@ impl StagedContent {
             None
         };
         report.indexed = kept > 0 && report.not_indexed.is_none();
-        if !report.indexed {
+        report.estimated_bytes = kept * BYTES_PER_WORD;
+        // Lexical numbers alone are kept: the person may ask for them (v0.22).
+        if !report.indexed && report.not_indexed != Some("strongOnly") {
             for book in self.books.values_mut() {
                 for chapter in book.chapters.values_mut() {
                     chapter.words.clear();
@@ -736,6 +937,26 @@ impl StagedContent {
 /// Adds a number list for the interface: `numbers` (the first few,
 /// comma-separated), `listed` (how many are shown) and `more` (how many
 /// are left out).
+/// Joins a verse onto the verse already at (chapter, verse): its text after a
+/// space, its words after the text (v0.22, versification).
+fn join(content: &mut StagedBook, chapter: u16, verse: u16, text: String, words: Vec<StagedWord>) {
+    let chapter = content.chapters.entry(chapter).or_default();
+    let before = chapter.verses.entry(verse).or_default();
+    let shift = before.encode_utf16().count() + usize::from(!before.is_empty());
+    if !before.is_empty() {
+        before.push(' ');
+    }
+    before.push_str(&text);
+    if !words.is_empty() {
+        let list = chapter.words.entry(verse).or_default();
+        list.extend(words.into_iter().map(|mut w| {
+            w.start += shift;
+            w.end += shift;
+            w
+        }));
+    }
+}
+
 fn with_list(message: UserMessage, numbers: &[u16]) -> UserMessage {
     let shown = numbers.len().min(LIST_SHOWN);
     message
@@ -773,6 +994,9 @@ pub enum ImportOrigin {
     Bundled { id: &'static str },
     /// Chosen by the user; copied into the data folder on commit.
     UserFiles,
+    /// The kept source of a Bible already added, read again for its words
+    /// (v0.22); committed only as a word index, never as a new Bible.
+    Existing { translation_id: String },
 }
 
 /// A parsed, validated import waiting for the user's decision.
@@ -867,11 +1091,32 @@ pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport>
     }
     let texts = read_sources(paths)?;
     let language_tag = metadata_language(&texts);
-    let texts: Vec<SourceText> = texts
-        .into_iter()
-        .filter(|t| !is_metadata_file(&t.name))
-        .collect();
-    let adapters: [&dyn BibleImportAdapter; 1] = [&UsfmAdapter];
+    let mut content = StagedContent::default();
+    let mut map_refused = None;
+    let mut readable_texts = Vec::new();
+    for text in texts {
+        if is_metadata_file(&text.name) {
+            continue;
+        }
+        if is_notes_file(&text.name) {
+            content.notes.push((text.name, text.text));
+            continue;
+        }
+        if versification::is_verse_map(&text.name, &text.text) {
+            match versification::parse(&text.text) {
+                Some(map) => content.verse_map = Some(map),
+                None => map_refused = Some(text.name),
+            }
+            continue;
+        }
+        // Front matter (`\id FRT`) can say whose grammar codes the edition uses.
+        if text.text.len() as u64 <= METADATA_MAX && is_front_matter(&text.text) {
+            content.notes.push((text.name.clone(), text.text.clone()));
+        }
+        readable_texts.push(text);
+    }
+    let texts = readable_texts;
+    let adapters: [&dyn BibleImportAdapter; 3] = [&UsfmAdapter, &OshbAdapter, &MorphGntAdapter];
     let adapter = adapters
         .into_iter()
         .find(|a| texts.iter().any(|t| a.can_read(t)))
@@ -879,13 +1124,40 @@ pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport>
             AppError::UnsupportedFormat(UserMessage::new(
                 "bibleImport.unknownFormat",
                 "These files are not in a Bible format Abiding Word can read yet. \
-                 It currently reads USFM Bibles (.usfm or .sfm files, or a .zip of them).",
+                 It reads USFM Bibles (.usfm or .sfm files, or a .zip of them), the Open \
+                 Scriptures Hebrew Bible's OSIS files and MorphGNT files.",
             ))
         })?;
     let readable: Vec<SourceText> = texts.into_iter().filter(|t| adapter.can_read(t)).collect();
 
-    let mut content = StagedContent::default();
+    let had_map = content.verse_map.is_some();
     adapter.read(&readable, &mut content);
+    content.release_held();
+    if let Some(name) = map_refused {
+        content.issue(
+            Severity::Warning,
+            None,
+            None,
+            UserMessage::new(
+                "bibleImport.verseMapRefused",
+                format!("The verse map “{name}” could not be read completely, so it was not used."),
+            )
+            .with("fileName", name),
+        );
+    }
+    if !had_map && content.uses_hebrew_numbering() {
+        content.issue(
+            Severity::Note,
+            None,
+            None,
+            UserMessage::new(
+                "bibleImport.hebrewNumbering",
+                "This text seems to use the Hebrew Bible's verse numbers (Joel has four chapters). \
+                 Add the verse map that comes with it (for the Open Scriptures Hebrew Bible: \
+                 wlc/VerseMap.xml) to the files chosen, and they will be renumbered.",
+            ),
+        );
+    }
     content.check_structure();
     content.finish_words();
     if content.books.is_empty() && !content.has_errors() {
@@ -913,6 +1185,36 @@ pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport>
     })
 }
 
+/// Files read only for what they say about the edition (v0.22): eBible's
+/// `copr.htm`, a README or licence.
+fn is_notes_file(name: &str) -> bool {
+    let base = name
+        .rsplit(['/', '\\'])
+        .next()
+        .unwrap_or(name)
+        .to_ascii_lowercase();
+    let stem = base.split('.').next().unwrap_or("");
+    let ext = base.rsplit('.').next().unwrap_or("");
+    base.contains('.')
+        && matches!(ext, "htm" | "html" | "txt" | "md")
+        && matches!(
+            stem,
+            "copr" | "copyright" | "readme" | "license" | "licence"
+        )
+}
+
+fn is_front_matter(text: &str) -> bool {
+    let head = text.trim_start_matches('\u{feff}').trim_start();
+    head.starts_with("\\id FRT") || head.starts_with("\\id INT")
+}
+
+/// Whether the text says it was read with Hebrew verse numbers: Joel 4.
+fn is_hebrew_chapter(issue: &ImportIssue) -> bool {
+    issue.code.as_deref() == Some("bibleImport.chapterOutOfRange")
+        && issue.book == Some("JOL")
+        && issue.chapter == Some(4)
+}
+
 fn suggested_name(paths: &[PathBuf]) -> String {
     match paths {
         [single] => single
@@ -928,8 +1230,9 @@ fn unsupported(kind: &str) -> AppError {
         UserMessage::new(
             "bibleImport.formatNotYet",
             format!(
-                "{kind} files can’t be imported as a structured Bible yet. Abiding Word currently \
-                 reads USFM Bibles (.usfm or .sfm files, or a .zip of them)."
+                "{kind} files can’t be imported as a structured Bible yet. Abiding Word reads \
+                 USFM Bibles (.usfm or .sfm files, or a .zip of them), the Open Scriptures Hebrew \
+                 Bible's OSIS files and MorphGNT files."
             ),
         )
         .with("format", kind),
@@ -942,6 +1245,7 @@ const METADATA_MAX: u64 = 1024 * 1024;
 fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
     let mut total: u64 = 0;
     let mut texts = Vec::new();
+    let mut other_xml = false;
     for path in paths {
         let extension = path
             .extension()
@@ -951,15 +1255,40 @@ fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
             "pdf" => return Err(unsupported("PDF")),
             "epub" => return Err(unsupported("EPUB")),
             "doc" | "docx" | "odt" | "rtf" => return Err(unsupported("Word")),
+            "html" | "htm" if is_notes_file(&file_name(path)) => {}
             "html" | "htm" | "xhtml" => return Err(unsupported("Web page")),
-            "xml" if is_metadata_file(&file_name(path)) => {}
-            "xml" | "osis" | "usx" => return Err(unsupported("OSIS and USX")),
+            "xml" | "osis" | "usx" => {}
             _ => {}
         }
         let size = fs::metadata(path)
             .map_err(|e| AppError::filesystem(path, e))?
             .len();
-        if is_metadata_file(&file_name(path)) {
+        if matches!(extension.as_str(), "xml" | "osis" | "usx")
+            && !is_metadata_file(&file_name(path))
+        {
+            // Only OSHB's OSIS and its verse map are read; other XML is refused.
+            if size > MAX_TOTAL_BYTES {
+                return Err(unsupported("OSIS and USX"));
+            }
+            let bytes = fs::read(path).map_err(|e| AppError::filesystem(path, e))?;
+            let text = decode(&bytes, &file_name(path))?;
+            let name = file_name(path);
+            if !(oshb::is_oshb(&text) || versification::is_verse_map(&name, &text)) {
+                // Other XML beside readable files is set aside; alone, it is refused.
+                other_xml = true;
+                continue;
+            }
+            total += size;
+            if total > MAX_TOTAL_BYTES {
+                return Err(AppError::Import(UserMessage::new(
+                    "bibleImport.tooLarge",
+                    "These files are too large to be a single Bible.",
+                )));
+            }
+            texts.push(SourceText { name, text });
+            continue;
+        }
+        if is_metadata_file(&file_name(path)) || is_notes_file(&file_name(path)) {
             // Optional, as inside an archive: too large or unreadable is no language.
             if size <= METADATA_MAX {
                 if let Ok(Ok(text)) = fs::read(path).map(String::from_utf8) {
@@ -987,6 +1316,13 @@ fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
                 text: decode(&bytes, &file_name(path))?,
             });
         }
+    }
+    if other_xml
+        && !texts
+            .iter()
+            .any(|t| !is_metadata_file(&t.name) && !is_notes_file(&t.name))
+    {
+        return Err(unsupported("OSIS and USX"));
     }
     Ok(texts)
 }
@@ -1018,11 +1354,14 @@ fn read_zip(path: &Path, total: &mut u64) -> AppResult<Vec<SourceText>> {
         })?;
         let name = entry.name().to_string();
         let lower = name.to_ascii_lowercase();
-        let metadata = is_metadata_file(&lower);
+        // Metadata and notes are optional: too large or unreadable, they are skipped.
+        let metadata = is_metadata_file(&lower) || is_notes_file(&lower);
         if entry.is_dir()
             || !(lower.ends_with(".usfm")
                 || lower.ends_with(".sfm")
                 || lower.ends_with(".ptx")
+                || lower.ends_with(".xml")
+                || lower.ends_with(".txt")
                 || metadata)
             || (metadata && entry.size() > METADATA_MAX)
         {
@@ -1051,6 +1390,13 @@ fn read_zip(path: &Path, total: &mut u64) -> AppResult<Vec<SourceText>> {
         })?;
         if metadata {
             // Optional: unreadable metadata is no language, never a failed import.
+            if let Ok(text) = String::from_utf8(bytes) {
+                texts.push(SourceText { text, name });
+            }
+            continue;
+        }
+        if lower.ends_with(".xml") || lower.ends_with(".txt") {
+            // Read only if an adapter recognises it; other files in the archive are ignored.
             if let Ok(text) = String::from_utf8(bytes) {
                 texts.push(SourceText { text, name });
             }
@@ -1128,6 +1474,15 @@ pub struct PreviewBook {
 
 impl StagedImport {
     pub fn preview(&self, mut suggested: SuggestedMetadata) -> ImportPreview {
+        // What the files themselves state (v0.22), when nothing better is known.
+        if let Some(name) = &self.content.hints.name {
+            if suggested.name.trim().is_empty() || self.files.len() > 1 {
+                suggested.name = name.clone();
+            }
+        }
+        if suggested.license_type.is_none() && suggested.copyright_notice.is_none() {
+            suggested.copyright_notice = self.content.hints.license.clone();
+        }
         if suggested.language_code.is_empty() {
             if let Some(tag) = &self.language_tag {
                 suggested.language_code = tag.clone();

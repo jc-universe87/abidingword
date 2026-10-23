@@ -10,9 +10,13 @@ pub mod bundled;
 pub mod canon;
 pub mod concordance;
 pub mod data_packs;
+pub mod grammar;
+pub mod greek;
 pub mod import;
 pub mod language;
+pub mod morphgnt;
 pub mod morphology;
+pub mod oshb;
 pub mod packs;
 pub mod parser;
 pub mod phrase_ranges;
@@ -21,6 +25,7 @@ pub mod reference;
 pub mod resolve;
 pub mod usfm;
 pub mod verse_counts;
+pub mod versification;
 pub mod words;
 
 use serde::{Deserialize, Serialize};
@@ -87,10 +92,31 @@ pub struct WordAnnotations {
     pub lemmas: bool,
     pub lexical_ids: bool,
     pub morphology: bool,
-    /// "oshb", "raw" or "none".
+    /// The scheme codes are described with ("oshb", "robinson", "morphgnt"),
+    /// or "raw" (shown as written) or "none" (no codes).
     pub morph_scheme: String,
     pub morph_attribute: Option<String>,
     pub source_format: String,
+    /// Why the codes are described (v0.22): "edition" (the edition names the
+    /// scheme) or "person" (chosen at import); absent when they are not.
+    #[serde(default)]
+    pub grammar_basis: Option<String>,
+    /// Where the edition names the scheme.
+    #[serde(default)]
+    pub grammar_evidence: Option<grammar::Statement>,
+}
+
+/// What the person chose for a Bible's words when adding it (v0.22).
+#[derive(Debug, Clone, Default, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct WordChoice {
+    /// Index words that carry only lexical numbers (Strong's-only editions).
+    #[serde(default)]
+    pub numbers: bool,
+    /// Describe the grammar codes with this documented scheme, which they
+    /// fit, though the edition does not name it.
+    #[serde(default)]
+    pub grammar: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
@@ -202,6 +228,9 @@ pub struct CommitImport {
     pub copyright_notice: Option<String>,
     #[serde(default)]
     pub license_type: Option<String>,
+    /// What to do with the Bible's words (v0.22).
+    #[serde(default)]
+    pub words: WordChoice,
 }
 
 pub const ANNOTATION_KINDS: [&str; 3] = ["note", "highlight", "bookmark"];
