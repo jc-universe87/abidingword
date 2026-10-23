@@ -1,8 +1,8 @@
 //! Hebrew (Masoretic) to English verse numbers (v0.22).
 //!
 //! Hebrew Bibles number some chapters and verses differently from English
-//! Bibles: Joel has four chapters, Malachi three, many Psalm titles are verse
-//! 1. Abiding Word's canon uses the English (KJV-tradition) numbering, so a
+//! Bibles: Joel has four chapters, Malachi three, many Psalm titles are the
+//! first verse. Abiding Word's canon uses the English (KJV-tradition) numbering, so a
 //! Hebrew text is mapped before it is stored — but only with a verse map the
 //! person supplies with the files (none is bundled): the Open Scriptures
 //! Hebrew Bible's `wlc/VerseMap.xml`, which "catalogs versification

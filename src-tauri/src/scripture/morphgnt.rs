@@ -28,6 +28,10 @@ use crate::scripture::canon;
 
 pub struct MorphGntAdapter;
 
+/// A verse while it is read: (chapter, verse), its text, the text's length
+/// in UTF-16 units, and its words.
+type OpenVerse = ((u16, u16), String, usize, Vec<StagedWord>);
+
 /// One line, read.
 struct Line<'a> {
     book: u8,
@@ -118,11 +122,11 @@ fn read_file(file: &SourceText, staged: &mut StagedContent) {
     let mut book: Option<&'static canon::Book> = None;
     let mut content = StagedBook::default();
     // The verse being read: (chapter, verse), its text and its words.
-    let mut current: Option<((u16, u16), String, usize, Vec<StagedWord>)> = None;
+    let mut current: Option<OpenVerse> = None;
     let flush = |staged: &mut StagedContent,
                  content: &mut StagedBook,
                  book: &'static canon::Book,
-                 verse: ((u16, u16), String, usize, Vec<StagedWord>)| {
+                 verse: OpenVerse| {
         let ((c, v), text, _, words) = verse;
         let words = staged.words.add_structured(words, "morphgnt");
         staged.add_verse(book, content, &c.to_string(), &v.to_string(), text, words);

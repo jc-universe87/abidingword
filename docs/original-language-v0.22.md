@@ -244,12 +244,53 @@ translated in six languages (`scripture.morph.*`).
 `src-tauri/tests/real_editions.rs` (ignored by default; the editions are not
 in the repository) stages each real edition, adds it to an in-memory database
 with the choice a person would make, and looks up a verse's words, a lexical
-number or lemma, and its occurrences. Results: §9.
+number or lemma, and its occurrences. Run of 2026-10-23, optimised build, the
+cloud development machine:
+
+| Edition (choice) | Verses | Review | Word index | Workflow |
+|---|---|---|---|---|
+| eBible WLC alone | 23,192 | refused: Joel 4 (with the note to add the map) | — | — |
+| eBible WLC + OSHB VerseMap.xml | 23,142 | 1,972 renumbered, 4 joined, 67 Psalm titles; 3 verses missing (Neh 7:68, Ps 13:5, Isa 64:1 — split entries not applied) | 299,508 words; grammar stated in `copr.htm` (only 2,352 coded) | Joel 3:1 = WLC 4:1 ("כִּ֗י הִנֵּ֛ה בַּיָּמִ֥ים…"); `H430` → `H0430`, 2,598 in 2,245 verses |
+| OSHB OSIS (39 files) + VerseMap.xml | 23,142 | same as above | 305,136 words, every one with number and grammar, all described (stated by the format) | Gen 1:1 `b/7225` "preposition + noun…"; `430` → 13 entries (`430`, `d/430`, `l/430`…), all words 2,598 |
+| Robinson–Pierpont 2018 (`grcmt`) | 7,957 | 4 empty verses (the edition omits them) | 140,121 words; Robinson stated in the front matter; 139,998 described (the rest: possessives) | John 1:1 "noun · nominative · singular · masculine"; `3056` → `G3056`, 331 in 317 verses |
+| Byzantine (`grcbyz`, numbers ticked) | 7,958 | Mark 7:16 absent | 137,573 words, numbers only | `G3056` 331 in 317 verses |
+| Textus Receptus (`grctr`, nothing ticked) | 7,957 | — | none (as chosen) | — |
+| SBL (`grcsbl`, numbers ticked) | 7,939 | the verses SBLGNT omits | 136,377 words, numbers only | `g3056` → `G3056`, 330 in 318 verses |
+| MorphGNT (27 files) | 7,927 | the verses SBLGNT omits (incl. John 7:53–8:11) | 137,554 words, 5,461 lemmas; 136,886 described (the rest: vocatives) | `λογος` → λόγος, 330 in 318 verses |
+
+The eBible RP2018 text is written without accents and with medial sigma
+(`λογοσ`), as the edition publishes it; Abiding Word keeps it as written.
 
 ## 9. Measurements
 
-See the handover for the figures of this run; the method is
-`AW_EDITIONS=<folder> cargo test --release --test real_editions -- --ignored --nocapture`.
+Same run. Staging (reading and checking) and adding (one transaction):
+
+| Edition | Staged | Added (text + words) | Verse words | Number / lemma lookup | All occurrences |
+|---|---|---|---|---|---|
+| eBible WLC + map | 1.6 s | 4.2 s | 0.2 ms | 12 ms | 11 ms |
+| OSHB OSIS + map | 0.7 s | 4.4 s | 0.2 ms | 66 ms (13 spellings × entries) | 27 ms |
+| RP2018 | 0.8 s | 1.7 s | 0.3 ms | 7 ms | 4 ms |
+| SBL (numbers) | 0.7 s | 1.7 s | 0.2 ms | 5 ms | 3 ms |
+| MorphGNT | 0.2 s | 1.7 s | 0.2 ms | 4 ms | 1 ms |
+
+v0.21 measured a generated 777,600-word Bible at 5.7 s staging, 14.8 s commit
+and 68–107 ms for the largest lemma; the real editions are smaller and within
+those figures. The surface concordance is unchanged.
+
+**Bundled Bibles with Strong's numbers** (what the opt-in costs; not done by
+default):
+
+| Bible | Words with numbers | Text only | Text + number index | Index size (estimate shown to the person) |
+|---|---|---|---|---|
+| BSB | 630,006 | 1.8 s, 11.2 MiB | 7.0 s | +26.6 MiB (30.6) |
+| WEB | 683,869 | 1.6 s, 11.3 MiB | 7.4 s | +29.4 MiB (33.3) |
+| LUT1912 | 365,353 | 1.6 s, 11.4 MiB | 4.7 s | +16.3 MiB (17.8) |
+| LSG | 705,605 | 1.8 s, 11.8 MiB | 8.3 s | +30.6 MiB (34.3) |
+| RV1909 | 390,758 | 1.6 s, 11.2 MiB | 4.9 s | +18.7 MiB (19.0) |
+
+An index roughly triples a bundled Bible's storage and adds 3–7 s to adding
+it, for a search most readers of a translation will not use; so it stays
+opt-in, per Bible. The estimate (51 bytes a word) is a slight overestimate.
 
 ## 10. Tests
 

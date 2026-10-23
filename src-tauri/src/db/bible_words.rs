@@ -423,7 +423,9 @@ pub fn entries(conn: &Connection, input: &LemmaLookup) -> AppResult<Vec<LemmaEnt
         "SELECT id, lemma, strong, occurrences FROM bible_lemma_entries
          WHERE annotation_id = ?1 AND (lemma = ?2 OR lemma_fold = ?3)",
     )?;
-    let mut found: Vec<(i64, Option<String>, Option<String>, i64, Option<String>)> = by_lemma
+    // (entry id, lemma, strong, occurrences, the identifier matched)
+    type Found = (i64, Option<String>, Option<String>, i64, Option<String>);
+    let mut found: Vec<Found> = by_lemma
         .query_map(params![key, text, folded], |r| {
             Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?, None))
         })?

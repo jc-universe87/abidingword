@@ -176,8 +176,7 @@ fn a_verse_map_is_not_used_on_english_numbering_and_a_broken_one_is_not_used_at_
     let temp = tempfile::tempdir().unwrap();
     let english = oshb_joel()
         .replace("<chapter osisID=\"Joel.4\">", "<chapter osisID=\"Joel.2\">")
-        .replace("Joel.4.1", "Joel.2.1")
-        .replace("<chapter osisID=\"Joel.3\">", "<chapter osisID=\"Joel.3\">");
+        .replace("Joel.4.1", "Joel.2.1");
     let staged = stage(&[
         write(temp.path(), "Joel.xml", &english),
         write(temp.path(), "VerseMap.xml", JOEL_MAP),
@@ -271,7 +270,7 @@ fn broken_or_foreign_xml_is_refused_and_never_half_read_silently() {
         "book.xml",
         "<osis><osisText osisIDWork=\"KJV\"></osisText></osis>",
     );
-    match import::stage(&[other.clone()], ImportOrigin::UserFiles) {
+    match import::stage(std::slice::from_ref(&other), ImportOrigin::UserFiles) {
         Err(AppError::UnsupportedFormat(m)) => assert_eq!(m.code, Some("bibleImport.formatNotYet")),
         Err(other) => panic!("{other:?}"),
         Ok(_) => panic!("foreign OSIS was read"),
