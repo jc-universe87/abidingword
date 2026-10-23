@@ -68,7 +68,7 @@ function insight(over: Partial<Extract<InquiryReply["result"], { type: "insight"
           downgraded: false,
         },
         { kind: "inference", text: "Your writing may rest on effort.", about: null, aboutLabel: null, evidence: [], references: [], downgraded: true },
-        { kind: "knowledge", text: "Vines were pruned in winter.", about: null, aboutLabel: null, evidence: [], references: [{ canonical: "ISA.5.1-ISA.5.7", book: "ISA", bookName: "Isaiah", startChapter: 5, startVerse: 1, endChapter: 5, endVerse: 7, display: "Isaiah 5:1–7" }], downgraded: false },
+        { kind: "knowledge", text: "Vines were pruned in winter.", about: null, aboutLabel: null, evidence: [], references: [{ canonical: "ISA.5.1-ISA.5.7", book: "ISA", startChapter: 5, startVerse: 1, endChapter: 5, endVerse: 7, display: "Isaiah 5:1–7" }], downgraded: false },
       ],
       verdict: null,
       unverified: 1,
