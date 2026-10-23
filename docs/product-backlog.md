@@ -220,12 +220,17 @@ more provider presets with plain key help, a two-level Help menu with a
 free-text request answered only as comments, visible progress for long
 operations, and a Teaching view where the writing comes first.
 
-**Still open:** the assistant in the Study itself (findings, sections) and in
-the Library (summarising a source with provenance); research modes beyond one
-teaching ("my library only", "compare these three commentaries"); a record of
-accepted assistant wording; a persistent Linux key store; search through an AI
-service's own search tool; copying teaching preparations with a study and
-finding them in study search.
+**Built in v0.20** ([research-assistant-v0.20.md](research-assistant-v0.20.md)):
+help in a Bible Study part, with a selected source passage, and comparing two
+or three chosen passages; a fingerprinted preview of exactly what is sent;
+checked quotations with source places from stored text; honest verdicts;
+notes kept only as accepted and marked with the assistant's name.
+
+**Still open:** help with a whole chapter or source (beyond selected words);
+"my library only" research across sources; wording help for notes; a record
+of accepted assistant wording; a persistent Linux key store; search through
+an AI service's own search tool; copying teaching preparations with a study
+and finding them in study search.
 
 ### Presentation — foundation built in v0.18
 

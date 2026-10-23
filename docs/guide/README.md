@@ -32,6 +32,7 @@ with pictures of the real program. You do not need any technical knowledge.
 | ❓ | [**9. Questions and word list**](09-questions-and-word-list.md) | Answers to common questions and a short explanation of the terms used |
 | 🎤 | [**10. Preparing to teach**](10-teaching.md) | Write a sermon, group study or lesson from your study, with an optional assistant that helps with your own writing |
 | 📽️ | [**11. Presenting your teaching**](11-presenting.md) | Slides made from your teaching, a Presenter View for you, an audience screen, and PowerPoint, PDF or a phone speaker sheet |
+| 💡 | [**12. Help with study and research**](12-study-help.md) | Optional help in a Bible Study and with your books: see what is sent, how each point is grounded, and keep only what you accept |
 
 ## Abiding Word in one minute
 

@@ -285,4 +285,4 @@ once while you are online; afterwards it works offline too.
 
 ---
 
-[← Preparing to teach](10-teaching.md) · [Contents](README.md)
+[← Preparing to teach](10-teaching.md) · [Contents](README.md) · [Help with study and research →](12-study-help.md)
