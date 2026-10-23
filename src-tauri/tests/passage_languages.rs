@@ -680,22 +680,24 @@ fn indexing_a_moderately_large_source_in_each_language_is_quick() {
             "Como dizem Jo 3:16 e Rm 8:28, Deus amou tanto o mundo.",
         ),
     ];
-    with_db(|conn| {
-        for (language, label, sentence) in samples {
-            // 5,000 paragraphs under 100 headings, one reference-bearing sentence each
-            let mut text = String::from("# Eine Quelle\n\n");
-            for section in 0..100 {
-                text.push_str(&format!("## Abschnitt {section}\n\n"));
-                for _ in 0..50 {
-                    text.push_str(sentence);
-                    text.push_str("\n\n");
-                }
+    // Each language in its own database: the measurement is of indexing
+    // one source, not of the sources added before it (v0.22.1).
+    for (language, label, sentence) in samples {
+        // 5,000 paragraphs under 100 headings, one reference-bearing sentence each
+        let mut text = String::from("# Eine Quelle\n\n");
+        for section in 0..100 {
+            text.push_str(&format!("## Abschnitt {section}\n\n"));
+            for _ in 0..50 {
+                text.push_str(sentence);
+                text.push_str("\n\n");
             }
-            let path = write(
-                temp.path(),
-                &format!("{}.md", language.code()),
-                text.as_bytes(),
-            );
+        }
+        let path = write(
+            temp.path(),
+            &format!("{}.md", language.code()),
+            text.as_bytes(),
+        );
+        with_db(|conn| {
             let started = std::time::Instant::now();
             let staged = import::stage(&path).unwrap();
             let staged_in = started.elapsed();
@@ -711,16 +713,20 @@ fn indexing_a_moderately_large_source_in_each_language_is_quick() {
                 staged_in,
                 committed_in
             );
+            // Correctness: exact, whatever the machine.
+            assert_eq!(staged.document.segments.len(), 5_000, "{label}");
             assert_eq!(
                 stored,
                 5_000 * 2,
                 "{label}: two references in every paragraph"
             );
+            // Performance: an unoptimised build indexes one such source in a
+            // few seconds (2–5 s measured); ten means something got much slower.
             assert!(
                 staged_in + committed_in < std::time::Duration::from_secs(10),
-                "{label}"
+                "{label}: {staged_in:?} + {committed_in:?}"
             );
-        }
-        Ok(())
-    });
+            Ok(())
+        });
+    }
 }
