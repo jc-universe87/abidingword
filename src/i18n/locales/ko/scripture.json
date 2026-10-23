@@ -108,7 +108,20 @@
     "notes_other": "참고 사항 {{count}}개",
     "skipped_other": "66권에 속하지 않는 파일 {{count}}개(예: 서문, 용어집)는 제외했습니다.",
     "adding": "추가하는 중…",
-    "add": "이 성경 추가"
+    "add": "이 성경 추가",
+    "words": {
+      "found_other": "단어 주석: {{verses}}개 절에 단어 {{formatted}}개.",
+      "parts": "원형 있음: {{lemmas}} · 사전 번호 있음: {{ids}} · 문법 코드 있음: {{morph}} · 서로 다른 원형: {{distinct}}",
+      "schemeOshb": "문법 코드는 Open Scriptures Hebrew Bible 체계를 따르며 말로 풀어 보여 줍니다.",
+      "schemeRaw": "문법 코드는 쓰인 그대로 보관하며, 그 체계를 말로 풀어 쓰지 않습니다.",
+      "leftOut_other": "주석이 붙은 단어 {{formatted}}개를 읽을 수 없어 제외합니다.",
+      "not": {
+        "strongOnly_other": "단어 {{formatted}}개에 사전 번호만 있습니다(원형·문법 코드 없음). 원형 찾기에는 쓰지 않으며 본문은 그대로입니다.",
+        "unreliable_other": "단어 주석을 제대로 읽을 수 없어({{formatted}}개 중 {{left}}개 읽지 못함) 하나도 넣지 않습니다. 본문은 그대로입니다.",
+        "unreadable_other": "단어 주석을 읽을 수 없어 하나도 넣지 않습니다. 본문은 그대로입니다.",
+        "tooLarge_other": "어떤 성경보다도 단어 주석이 많아 하나도 넣지 않습니다. 본문은 그대로입니다."
+      }
+    }
   },
   "bibles": {
     "empty": "아직 추가된 성경이 없습니다.",
@@ -217,7 +230,8 @@
     "modeLabel": "찾을 방식",
     "mode": {
       "word": "단어",
-      "phrase": "어구"
+      "phrase": "어구",
+      "lemma": "원형"
     },
     "bible": "성경",
     "find": "찾기",
@@ -228,12 +242,138 @@
     "none": "이 성경에는 “{{query}}”이(가) 나오지 않습니다.",
     "books": "성경책",
     "bookCount": "{{book}} ({{formatted}})",
-    "open": "성경에서 {{passage}} 열기"
+    "open": "성경에서 {{passage}} 열기",
+    "lemmaLabel": "원형 또는 사전 번호",
+    "lemmaHint": "이 성경 자체의 단어 주석을 사용합니다. 이 판본이 각 단어에 붙인 원형(레마), 사전 번호, 문법 코드입니다. 다른 곳에서 찾아오지 않습니다.",
+    "lemmaUnavailable": "이 성경에는 단어 주석이 없어 원형으로 찾을 수 없습니다. 단어와 어구 찾기는 그대로 쓸 수 있습니다.",
+    "entries": "“{{text}}”의 항목",
+    "entriesHint": "같은 원형이 서로 다른 단어일 수 있으며, 사전 번호로 구별됩니다. 하나를 고르세요.",
+    "entryCount_other": "{{formatted}}회",
+    "noEntry": "“{{text}}”은(는) 이 성경의 주석에 있는 원형이나 사전 번호가 아닙니다.",
+    "noLemma": "(원형 없음)",
+    "lexicalNumber": "사전 번호 {{id}}",
+    "forms": "쓰인 형태",
+    "grammar": "문법",
+    "grammarChosen_other": "({{formatted}}개 선택)",
+    "grammarDescribed": "Open Scriptures Hebrew Bible 형태 분석표에 따라 풀어 썼으며, 코드는 쓰인 그대로 보여 줍니다. 코드를 선택하면 해당 단어만 보입니다.",
+    "grammarRaw": "이 성경에 쓰인 그대로의 문법 코드입니다. Abiding Word는 이 체계를 말로 풀어 쓰지 않습니다. 코드를 선택하면 해당 단어만 보입니다.",
+    "withoutGrammar_other": "문법 코드 없음 {{formatted}}개",
+    "allGrammar": "모든 형태 보기",
+    "noneLemma": "이 성경에는 용례가 없습니다.",
+    "noneWithGrammar": "선택한 문법에 해당하는 용례가 없습니다."
   },
   "language": {
     "choose": "언어 선택",
     "other": "다른 언어…",
     "otherName": "언어 이름",
     "hint": "입력한 약어(예: “Jn 3:5”)를 이 성경에서 쓰는 뜻대로 읽는 데 사용됩니다."
+  },
+  "words": {
+    "details": "단어 정보",
+    "fromMarkup": "이 성경 자체의 단어 주석입니다. 다른 곳에서 찾아오지 않습니다.",
+    "lemma": "원형",
+    "grammar": "문법",
+    "grammarRaw": "쓰인 그대로의 코드:",
+    "shape": {
+      "phrase": "여러 단어가 한 단위로 표시되어 있습니다.",
+      "part": "쓰인 단어의 일부입니다."
+    },
+    "entryCount_other": "이 항목은 이 성경에 {{formatted}}회 나옵니다.",
+    "findLemma": "이 원형 찾기",
+    "studyWord": "이 단어 공부하기",
+    "openWordStudy": "이 단어를 쓰려면 단어 성경공부를 여세요.",
+    "usedInStudy": "“{{title}}”에 넣었습니다.",
+    "replaceLemma": "“{{title}}”은(는) “{{before}}”을(를) 공부하고 있습니다. 대신 “{{after}}”을(를) 공부할까요?",
+    "replace": "바꾸기",
+    "more_other": "주석이 붙은 단어 {{formatted}}개가 더 있습니다. 보려면 단어를 더 적게 선택하세요."
+  },
+  "morph": {
+    "pos": {
+      "adjective": "형용사",
+      "conjunction": "접속사",
+      "adverb": "부사",
+      "noun": "명사",
+      "pronoun": "대명사",
+      "preposition": "전치사",
+      "suffix": "접미사",
+      "particle": "불변화사",
+      "verb": "동사"
+    },
+    "person": {
+      "first": "1인칭",
+      "second": "2인칭",
+      "third": "3인칭"
+    },
+    "gender": {
+      "both": "남성 또는 여성",
+      "common": "통성",
+      "feminine": "여성",
+      "masculine": "남성"
+    },
+    "number": {
+      "dual": "쌍수",
+      "plural": "복수",
+      "singular": "단수"
+    },
+    "state": {
+      "absolute": "독립형",
+      "construct": "연계형",
+      "determined": "한정형"
+    },
+    "adjectiveType": {
+      "adjective": "형용사",
+      "cardinal": "기수",
+      "gentilic": "민족 형용사",
+      "ordinal": "서수"
+    },
+    "nounType": {
+      "common": "보통명사",
+      "gentilic": "민족명",
+      "properName": "고유명사"
+    },
+    "pronounType": {
+      "demonstrative": "지시",
+      "indefinite": "부정",
+      "interrogative": "의문",
+      "personal": "인칭",
+      "relative": "관계"
+    },
+    "prepositionType": {
+      "definiteArticle": "관사 포함"
+    },
+    "suffixType": {
+      "directionalHe": "방향의 he",
+      "paragogicHe": "첨가된 he",
+      "paragogicNun": "첨가된 nun",
+      "pronominal": "대명 접미사"
+    },
+    "particleType": {
+      "affirmation": "긍정",
+      "definiteArticle": "정관사",
+      "exhortation": "권유",
+      "interrogative": "의문",
+      "interjection": "감탄사",
+      "demonstrative": "지시",
+      "negative": "부정",
+      "directObject": "직접목적어 표지",
+      "relative": "관계"
+    },
+    "conjugation": {
+      "perfect": "완료",
+      "sequentialPerfect": "연속 완료",
+      "imperfect": "미완료",
+      "sequentialImperfect": "연속 미완료",
+      "cohortative": "청유형",
+      "jussive": "지시형",
+      "imperative": "명령형",
+      "participleActive": "능동 분사",
+      "participlePassive": "수동 분사",
+      "infinitiveAbsolute": "독립 부정사",
+      "infinitiveConstruct": "연계 부정사"
+    },
+    "language": {
+      "hebrew": "히브리어",
+      "aramaic": "아람어"
+    }
   }
 }

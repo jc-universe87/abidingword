@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { readLocal } from "@/lib/storage";
+import type { Study } from "@/types/domain";
 
 /**
  * Which Study the person has open, and where in it they last worked (v0.15),
@@ -20,6 +21,10 @@ export interface StudyFocus {
   findingsChanged: (studyId: string) => void;
   /** Bumped by `findingsChanged`, with the Study it concerns. */
   findingsVersion: { studyId: string | null; n: number };
+  /** A Study's own fields were saved from elsewhere (v0.21: a word used in a Word Study). */
+  studyUpdated: (study: Study) => void;
+  /** Bumped by `studyUpdated`, with the Study as saved. */
+  updatedStudy: { study: Study | null; n: number };
 }
 
 /** The Study the Study pane will open on (its remembered place), before it has said so itself. */
@@ -37,6 +42,8 @@ export function StudyFocusProvider({ children }: { children: ReactNode }) {
   const setOpenStudy = useCallback((studyId: string | null) => setOpenStudyId(studyId), []);
   const setActiveSection = useCallback((studyId: string, sectionId: string | null) => setActive({ studyId, sectionId }), []);
   const findingsChanged = useCallback((studyId: string) => setVersion((v) => ({ studyId, n: v.n + 1 })), []);
+  const [updatedStudy, setUpdated] = useState<{ study: Study | null; n: number }>({ study: null, n: 0 });
+  const studyUpdated = useCallback((study: Study) => setUpdated((v) => ({ study, n: v.n + 1 })), []);
   const value = useMemo<StudyFocus>(
     () => ({
       openStudyId,
@@ -45,8 +52,10 @@ export function StudyFocusProvider({ children }: { children: ReactNode }) {
       setActiveSection,
       findingsChanged,
       findingsVersion,
+      studyUpdated,
+      updatedStudy,
     }),
-    [openStudyId, active, setOpenStudy, setActiveSection, findingsChanged, findingsVersion],
+    [openStudyId, active, setOpenStudy, setActiveSection, findingsChanged, findingsVersion, studyUpdated, updatedStudy],
   );
   return <StudyFocusContext.Provider value={value}>{children}</StudyFocusContext.Provider>;
 }
@@ -58,6 +67,8 @@ const NONE: StudyFocus = {
   setActiveSection: () => undefined,
   findingsChanged: () => undefined,
   findingsVersion: { studyId: null, n: 0 },
+  studyUpdated: () => undefined,
+  updatedStudy: { study: null, n: 0 },
 };
 
 /** The shared Study focus; outside a provider (isolated tests), no Study is open. */

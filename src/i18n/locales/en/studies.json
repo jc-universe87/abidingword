@@ -456,6 +456,10 @@
       },
       "translation": {
         "label": "Bible"
+      },
+      "lexicalId": {
+        "label": "Lexical number",
+        "hint": "e.g. G1343"
       }
     },
     "typeLine": "Type: {{type}}",
@@ -470,7 +474,9 @@
     "saveAsTemplateKeeps_other": "The template keeps this study’s {{count}} parts: their headings, guidance and places in the outline, in this order. Your writing, notes, passages and details stay in this study.",
     "saveTemplate": "Save template",
     "savedAsTemplate": "Saved as your template “{{name}}”. You can use it for a new study, and change it in Settings → Templates.",
-    "saveAsTemplateTooMany": "A template needs at least one part and can have at most {{max}}. Change this study’s parts first, or make the template in Settings → Templates."
+    "saveAsTemplateTooMany": "A template needs at least one part and can have at most {{max}}. Change this study’s parts first, or make the template in Settings → Templates.",
+    "findLemma": "Find this lemma",
+    "lemmaUnavailable": "The chosen Bible has no word annotations, so lemma search is not available for it."
   },
   "editor": {
     "opening": "Opening study…",

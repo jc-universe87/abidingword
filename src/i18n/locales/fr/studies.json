@@ -461,6 +461,10 @@
       },
       "translation": {
         "label": "Bible"
+      },
+      "lexicalId": {
+        "label": "Numéro lexical",
+        "hint": "p. ex. G1343"
       }
     },
     "typeLine": "Type : {{type}}",
@@ -476,7 +480,9 @@
     "saveTemplate": "Enregistrer le modèle",
     "savedAsTemplate": "Enregistré comme votre modèle « {{name}} ». Vous pouvez l’utiliser pour une nouvelle étude, et le modifier dans Paramètres → Modèles.",
     "saveAsTemplateKeeps_many": "Le modèle reprend les {{count}} parties de cette étude : leurs titres, leurs indications et leurs places dans le plan, dans cet ordre. Votre texte, vos notes, vos passages et vos détails restent dans cette étude.",
-    "saveAsTemplateTooMany": "Un modèle a besoin d’au moins une partie et peut en avoir au plus {{max}}. Modifiez d’abord les parties de cette étude, ou créez le modèle dans Paramètres → Modèles."
+    "saveAsTemplateTooMany": "Un modèle a besoin d’au moins une partie et peut en avoir au plus {{max}}. Modifiez d’abord les parties de cette étude, ou créez le modèle dans Paramètres → Modèles.",
+    "findLemma": "Trouver ce lemme",
+    "lemmaUnavailable": "La Bible choisie n’a pas d’annotations de mots : la recherche par lemme n’est donc pas disponible."
   },
   "editor": {
     "opening": "Ouverture de l’étude…",

@@ -229,5 +229,9 @@
     "compareSame": "The same passage was chosen twice. Choose different passages to compare.",
     "compareTooLong": "Together these passages are too long to compare at once (at most {{max}} characters). Choose shorter passages.",
     "tooManyCitations": "A note can cite at most three passages."
+  },
+  "words": {
+    "unavailable": "This Bible has no word annotations (lemmas or grammar), so this search is not available for it. The ordinary concordance still works.",
+    "empty": "Type a lemma or a lexical number to look for."
   }
 }

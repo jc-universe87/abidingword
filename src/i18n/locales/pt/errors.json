@@ -232,5 +232,9 @@
     "compareSame": "O mesmo trecho foi escolhido duas vezes. Escolha trechos diferentes.",
     "compareTooLong": "Juntos, estes trechos são longos demais para comparar de uma vez (no máximo {{max}} caracteres). Escolha trechos menores.",
     "tooManyCitations": "Uma anotação pode citar no máximo três trechos."
+  },
+  "words": {
+    "unavailable": "Esta Bíblia não tem anotações de palavras (lemas ou gramática), por isso esta busca não está disponível. A concordância normal continua funcionando.",
+    "empty": "Digite um lema ou um número léxico para procurar."
   }
 }

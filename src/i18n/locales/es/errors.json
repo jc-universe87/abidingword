@@ -232,5 +232,9 @@
     "compareSame": "Has elegido el mismo pasaje dos veces. Elige pasajes distintos.",
     "compareTooLong": "Juntos, estos pasajes son demasiado largos para compararlos de una vez (como máximo {{max}} caracteres). Elige pasajes más cortos.",
     "tooManyCitations": "Un apunte puede citar como máximo tres pasajes."
+  },
+  "words": {
+    "unavailable": "Esta Biblia no tiene anotaciones de palabras (lemas o gramática), así que esta búsqueda no está disponible. La concordancia normal sigue funcionando.",
+    "empty": "Escribe un lema o un número léxico para buscar."
   }
 }

@@ -229,5 +229,9 @@
     "compareSame": "Derselbe Abschnitt wurde zweimal gewählt. Wähle verschiedene Abschnitte.",
     "compareTooLong": "Zusammen sind diese Abschnitte zu lang für einen Vergleich (höchstens {{max}} Zeichen). Wähle kürzere Abschnitte.",
     "tooManyCitations": "Eine Notiz kann höchstens drei Abschnitte angeben."
+  },
+  "words": {
+    "unavailable": "Diese Bibel hat keine Wortangaben (Lemmata oder Grammatik), daher ist diese Suche für sie nicht verfügbar. Die normale Konkordanz funktioniert weiterhin.",
+    "empty": "Gib ein Lemma oder eine lexikalische Nummer ein."
   }
 }

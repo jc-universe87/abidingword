@@ -232,5 +232,9 @@
     "compareSame": "Le même passage a été choisi deux fois. Choisissez des passages différents.",
     "compareTooLong": "Ensemble, ces passages sont trop longs pour être comparés d’un coup ({{max}} caractères au plus). Choisissez des passages plus courts.",
     "tooManyCitations": "Une note peut citer trois passages au plus."
+  },
+  "words": {
+    "unavailable": "Cette Bible n’a pas d’annotations de mots (lemmes ou grammaire) : cette recherche n’est donc pas disponible. La concordance ordinaire fonctionne toujours.",
+    "empty": "Saisissez un lemme ou un numéro lexical à chercher."
   }
 }

@@ -181,6 +181,16 @@ export function StudyEditor({ studyId, back, revealPrimary, onMissing, onOpenStu
     if (activeRef.current) unfold(activeRef.current);
   }, [added, studyId, reloadFindings, unfold]);
 
+  // The study's own fields saved from elsewhere (a word from the reader, v0.21).
+  const updated = focus.updatedStudy;
+  const seenUpdate = useRef(updated.n);
+  useEffect(() => {
+    if (updated.n === seenUpdate.current) return;
+    seenUpdate.current = updated.n;
+    const now = detailRef.current;
+    if (updated.study && now && updated.study.id === studyId) setDetail({ ...now, study: updated.study });
+  }, [updated, studyId, setDetail]);
+
   const sections = useMemo(() => detail.data?.sections ?? [], [detail.data]);
   // The study's movement (v0.18.6): its parts in runs of one phase, where they stand.
   const runs = useMemo(() => phaseRuns(sections), [sections]);

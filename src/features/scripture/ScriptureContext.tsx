@@ -3,7 +3,7 @@ import i18n from "@/i18n";
 import { useApi } from "@/lib/ApiContext";
 import { chapterRef, hasVerses, refFromCanonical } from "@/lib/scripture";
 import type { AppSettings } from "@/types/domain";
-import type { BibleTranslation, BookInfo, ConcordanceMode, ScriptureRef, SearchResults } from "@/types/scripture";
+import type { BibleTranslation, BookInfo, ConcordanceMode, LemmaSelection, ScriptureRef, SearchResults } from "@/types/scripture";
 import { canGoBack, canGoForward, goBack, goForward, startHistory, visit, type ScriptureHistory } from "./scriptureHistory";
 
 /**
@@ -74,7 +74,9 @@ interface ScriptureValue {
 
 export interface ConcordanceRequest {
   query: string;
-  mode: ConcordanceMode;
+  /** "lemma" (v0.21): `query` is a lemma or lexical number, or `selection` says exactly which words. */
+  mode: ConcordanceMode | "lemma";
+  selection?: LemmaSelection;
   /** The translation to look in; the one being read when absent. */
   translationId?: string | null;
   nonce: number;

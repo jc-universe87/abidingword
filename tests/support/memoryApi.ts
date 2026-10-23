@@ -24,9 +24,14 @@ import type {
   AnnotationAnchor,
   BibleTranslation,
   ImportPreview,
+  LemmaResult,
+  MorphDescribed,
+  MorphScheme,
   ScriptureRef,
+  VerseWord,
   StudyPassage,
   VerseText,
+  WordReport,
 } from "@/types/scripture";
 import { contains, refFromCanonical } from "@/lib/scripture";
 import type {
@@ -94,10 +99,14 @@ export interface MemoryApi extends Api {
     bibles: BibleTranslation[];
     /** translation id → "BOOK|chapter" → verses */
     text: Map<string, Map<string, VerseText[]>>;
+    /** translation id → canonical verse → annotated words (v0.21). */
+    words: Map<string, Map<string, VerseWord[]>>;
     annotations: Annotation[];
     passages: StudyPassage[];
     /** What the next "choose files" dialog returns (null = cancelled). */
     nextChosenFiles: string[] | null;
+    /** The word annotations the next Bible import preview reports (v0.21). */
+    nextPreviewWords: WordReport | null;
     findings: Finding[];
     relations: { id: string; from: string; to: string; relationType: StudyRelation["relationType"]; createdAt: string }[];
     templates: StudyTemplate[];
@@ -131,8 +140,22 @@ export interface MemoryApi extends Api {
   installFixtureBible(shortName: string, wording: string): BibleTranslation;
   /** Sets one verse's text in an installed fixture Bible (test setup). */
   setVerseText(bibleId: string, canonical: string, text: string): void;
+  /**
+   * Annotates words of a verse in an installed fixture Bible (test setup,
+   * v0.21): each word is found in the verse text in order.
+   */
+  installFixtureWords(bibleId: string, canonical: string, words: FixtureWord[], scheme?: MorphScheme): void;
   /** Adds a source to the library directly (test setup). */
   installFixtureSource(fixture: SourceFixture): Source;
+}
+
+/** An annotated word for a fixture Bible (constructed test data). */
+export interface FixtureWord {
+  surface: string;
+  lemma?: string;
+  strong?: string;
+  morph?: string;
+  described?: MorphDescribed;
 }
 
 /** Invented library content for tests. */
@@ -239,6 +262,11 @@ function parseForTests(text: string, languages: (string | null | undefined)[] = 
 // Concordance, as the core does it (src-tauri/src/scripture/concordance.rs).
 const GREEK = /[\u0370-\u03FF\u1F00-\u1FFF]/;
 const HEBREW = /[\u0590-\u05FF\uFB1D-\uFB4F]/;
+/** The core's lemma folding (concordance::normalize): no marks, lower case, final sigma. */
+function lemmaFold(text: string): string {
+  return text.normalize("NFD").replace(/\p{M}/gu, "").replace(/\u2060|\u200C|\u200D|\u00AD/g, "").toLowerCase().replace(/ς/g, "σ").normalize("NFC");
+}
+
 function concordanceForm(token: string): string {
   const lower = token.normalize("NFC").toLowerCase();
   if (GREEK.test(lower)) return lower.normalize("NFD").replace(/\p{M}/gu, "").replace(/ς/g, "σ").normalize("NFC");
@@ -346,9 +374,11 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     settings: { theme: "light", scriptureTranslationId: null, scripturePassage: null },
     bibles: [],
     text: new Map(),
+    words: new Map(),
     annotations: [],
     passages: [],
     nextChosenFiles: null,
+    nextPreviewWords: null,
     pendingPreview: null,
     library: { sources: [], segments: [], mentions: [], links: [], nextChosenFile: null, openedLinks: [], openLinkFails: false, pending: null, annotations: [] },
     findings: [],
@@ -406,6 +436,16 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       throw new ApiError("conflict", "Built-in templates can’t be changed. Duplicate it to make your own version.");
     }
     return template;
+  };
+
+  /** Every annotated word of a Bible, or the core's refusal when it has none. */
+  const annotatedWords = (translationId: string): VerseWord[] => {
+    const bible = state.bibles.find((b) => b.id === translationId);
+    if (!bible) throw new ApiError("notFound", "This Bible could not be found.");
+    if (!bible.words) {
+      throw new ApiError("invalidInput", "This Bible has no word annotations (lemmas or grammar), so this search is not available for it. The ordinary concordance still works.", "words.unavailable");
+    }
+    return [...(state.words.get(translationId)?.values() ?? [])].flat();
   };
 
   const addBible = (fields: Partial<BibleTranslation> & { shortName: string; name: string }, wording: string) => {
@@ -1107,6 +1147,88 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
         hitsComplete: Boolean(book) || found.length <= 200,
       };
     },
+    scriptureLemmaEntries: async ({ translationId, text }) => {
+      const all = annotatedWords(translationId);
+      const typed = text.trim();
+      if (!typed) throw new ApiError("invalidInput", "Type a lemma or a lexical number to look for.");
+      const fold = lemmaFold(typed);
+      const found = all.filter((w) => w.lemma === typed || (w.lemma && lemmaFold(w.lemma) === fold) || w.lexicalIds.some((id) => id.toLowerCase() === typed.toLowerCase()));
+      const entries = new Map<string, { lemma: string | null; strong: string | null; forms: Map<string, number>; occurrences: number }>();
+      for (const w of found) {
+        const key = `${w.lemma}|${w.strong}`;
+        const e = entries.get(key) ?? { lemma: w.lemma, strong: w.strong, forms: new Map(), occurrences: 0 };
+        e.occurrences += 1;
+        e.forms.set(w.surface, (e.forms.get(w.surface) ?? 0) + 1);
+        entries.set(key, e);
+      }
+      return [...entries.values()]
+        .sort((a, b) => b.occurrences - a.occurrences || String(a.lemma).localeCompare(String(b.lemma)) || String(a.strong).localeCompare(String(b.strong)))
+        .map((e) => ({ lemma: e.lemma, strong: e.strong, occurrences: e.occurrences, forms: [...e.forms.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([f]) => f) }));
+    },
+    scriptureLemmaSearch: async ({ translationId, selection, morph = [], book }) => {
+      const bible = state.bibles.find((b) => b.id === translationId);
+      annotatedWords(translationId);
+      const verses = [...(state.words.get(translationId)?.entries() ?? [])];
+      const selected = (w: VerseWord) =>
+        selection.kind === "entry" ? w.lemma === selection.lemma && w.strong === selection.strong
+          : selection.kind === "lemma" ? w.lemma === selection.lemma
+            : w.lexicalIds.some((id) => id.toLowerCase() === selection.id.trim().toLowerCase());
+      const order = (canonical: string) => {
+        const r = refFromCanonical(canonical, bookByCode);
+        return r ? (bookByCode.get(r.book)?.ordinal ?? 0) * 1e6 + r.startChapter * 1e3 + (r.startVerse ?? 0) : 0;
+      };
+      verses.sort((a, b) => order(a[0]) - order(b[0]));
+      const forms = new Map<string, number>();
+      const codes = new Map<string, { count: number; described: MorphDescribed | null }>();
+      let withoutMorphology = 0;
+      const kept: { canonical: string; words: VerseWord[] }[] = [];
+      for (const [canonical, words] of verses) {
+        const mine = words.filter(selected);
+        for (const w of mine) {
+          forms.set(w.surface, (forms.get(w.surface) ?? 0) + 1);
+          if (w.morph) codes.set(w.morph, { count: (codes.get(w.morph)?.count ?? 0) + 1, described: w.described });
+          else withoutMorphology += 1;
+        }
+        const filtered = mine.filter((w) => morph.length === 0 || (w.morph !== null && morph.includes(w.morph)));
+        if (filtered.length) kept.push({ canonical, words: filtered });
+      }
+      const books = new Map<string, { verses: number; occurrences: number }>();
+      for (const k of kept) {
+        const code = k.canonical.split(".")[0] ?? "";
+        const b = books.get(code) ?? { verses: 0, occurrences: 0 };
+        books.set(code, { verses: b.verses + 1, occurrences: b.occurrences + k.words.length });
+      }
+      const listed = book ? kept.filter((k) => k.canonical.startsWith(`${book}.`)) : kept.length <= 200 ? kept : [];
+      const hits = listed.flatMap((k) => {
+        const [code, chapter] = k.canonical.split(".");
+        const text = state.text.get(translationId)?.get(`${code}|${Number(chapter)}`)?.find((v) => v.canonical === k.canonical)?.text;
+        const reference = refFromCanonical(k.canonical, bookByCode);
+        return text && reference ? [{ reference, text, matches: k.words.map((w) => [w.start, w.end] as [number, number]) }] : [];
+      });
+      const result: LemmaResult = {
+        selection, translationId,
+        occurrences: kept.reduce((n, k) => n + k.words.length, 0),
+        verses: kept.length,
+        books: [...books.entries()].map(([code, c]) => ({ code, name: bookByCode.get(code)?.name ?? code, ...c })),
+        hits,
+        hitsComplete: Boolean(book) || kept.length <= 200,
+        forms: [...forms.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([form, count]) => ({ form, count })),
+        morphology: [...codes.entries()].sort((a, b) => b[1].count - a[1].count || a[0].localeCompare(b[0])).map(([code, c]) => ({ code, count: c.count, described: bible?.words?.morphScheme === "oshb" ? c.described : null })),
+        withoutMorphology,
+        morphScheme: bible?.words?.morphScheme ?? "none",
+        morphAttribute: bible?.words?.morphAttribute ?? null,
+      };
+      return result;
+    },
+    scriptureVerseWords: async ({ translationId, verse }) => {
+      const all = annotatedWords(translationId);
+      const scheme = state.bibles.find((b) => b.id === translationId)?.words?.morphScheme;
+      return (state.words.get(translationId)?.get(verse) ?? []).map((w) => ({
+        ...w,
+        described: scheme === "oshb" ? w.described : null,
+        entryOccurrences: all.filter((o) => o.lemma === w.lemma && o.strong === w.strong).length,
+      }));
+    },
     referenceParse: async (text, translationId) =>
       parseForTests(text, [state.bibles.find((b) => b.id === translationId)?.languageCode, i18n.language]),
     referenceDetect: async (text) => {
@@ -1144,6 +1266,7 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       // As the core reads a DBL metadata.xml or Paratext Settings.xml beside the USFM.
       const tagged = paths?.map((p) => /with-metadata-([a-z-]+)\./i.exec(p)?.[1]).find(Boolean);
       if (tagged) result.suggested = { ...result.suggested, languageCode: tagged };
+      if (state.nextPreviewWords) result.words = state.nextPreviewWords;
       state.pendingPreview = { id: result.previewId, bundled: !!bundled };
       return result;
     },
@@ -1303,6 +1426,38 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       const existing = list.find((v) => v.canonical === canonical);
       if (existing) existing.text = text;
       else chapters.set(key, [...list, { canonical, chapter: Number(chapter), verse: Number(verse), text }].sort((a, b) => a.verse - b.verse));
+    },
+    installFixtureWords: (bibleId, canonical, words, scheme = "raw") => {
+      const bible = state.bibles.find((b) => b.id === bibleId);
+      const [book, chapter] = canonical.split(".");
+      const verse = state.text.get(bibleId)?.get(`${book}|${Number(chapter)}`)?.find((v) => v.canonical === canonical);
+      if (!bible || !verse) throw new Error(`No fixture verse ${canonical} in ${bibleId}`);
+      let from = 0;
+      const placed: VerseWord[] = words.map((w, position) => {
+        const start = verse.text.indexOf(w.surface, from);
+        if (start < 0) throw new Error(`“${w.surface}” is not in ${canonical}`);
+        from = start + w.surface.length;
+        const lexicalIds = [...new Set((w.strong ?? "").split(/[,:]/).map((p) => p.trim()).filter(Boolean))];
+        return {
+          position, start, end: from, surface: w.surface, shape: "word",
+          lemma: w.lemma ?? null, strong: w.strong ?? null, lexicalIds, morph: w.morph ?? null,
+          described: w.described ?? null, entryOccurrences: 0,
+        };
+      });
+      const verses = state.words.get(bibleId) ?? new Map<string, VerseWord[]>();
+      verses.set(canonical, placed);
+      state.words.set(bibleId, verses);
+      const all = [...verses.values()].flat();
+      bible.words = {
+        wordCount: all.length,
+        verseCount: verses.size,
+        lemmas: all.some((w) => w.lemma),
+        lexicalIds: all.some((w) => w.strong),
+        morphology: all.some((w) => w.morph),
+        morphScheme: all.some((w) => w.morph) ? scheme : "none",
+        morphAttribute: all.some((w) => w.morph) ? "x-morph" : null,
+        sourceFormat: "usfm",
+      };
     },
     installFixtureSource: (fixture) => addSource(fixture),
 

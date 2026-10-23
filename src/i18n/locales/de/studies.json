@@ -456,6 +456,10 @@
       },
       "translation": {
         "label": "Bibel"
+      },
+      "lexicalId": {
+        "label": "Lexikalische Nummer",
+        "hint": "z. B. G1343"
       }
     },
     "typeLine": "Art: {{type}}",
@@ -470,7 +474,9 @@
     "saveAsTemplateKeeps_other": "Die Vorlage übernimmt die {{count}} Teile dieses Bibelstudiums: ihre Überschriften, Hinweise und Plätze in der Gliederung, in dieser Reihenfolge. Deine Texte, Notizen, Bibelstellen und Angaben bleiben in diesem Bibelstudium.",
     "saveTemplate": "Vorlage speichern",
     "savedAsTemplate": "Als deine Vorlage „{{name}}“ gespeichert. Du kannst sie für ein neues Bibelstudium verwenden und unter Einstellungen → Vorlagen ändern.",
-    "saveAsTemplateTooMany": "Eine Vorlage braucht mindestens einen Teil und kann höchstens {{max}} haben. Ändere zuerst die Teile dieses Bibelstudiums oder erstelle die Vorlage unter Einstellungen → Vorlagen."
+    "saveAsTemplateTooMany": "Eine Vorlage braucht mindestens einen Teil und kann höchstens {{max}} haben. Ändere zuerst die Teile dieses Bibelstudiums oder erstelle die Vorlage unter Einstellungen → Vorlagen.",
+    "findLemma": "Dieses Lemma finden",
+    "lemmaUnavailable": "Die gewählte Bibel hat keine Wortangaben, daher gibt es für sie keine Lemma-Suche."
   },
   "editor": {
     "opening": "Bibelstudium wird geöffnet…",

@@ -119,7 +119,26 @@
     "skipped_one": "{{count}} Datei wurde ausgelassen, weil sie keines der 66 Bücher enthält (zum Beispiel eine Einleitung oder ein Glossar).",
     "skipped_other": "{{count}} Dateien wurden ausgelassen, weil sie keines der 66 Bücher enthalten (zum Beispiel eine Einleitung oder ein Glossar).",
     "adding": "Wird hinzugefügt…",
-    "add": "Diese Bibel hinzufügen"
+    "add": "Diese Bibel hinzufügen",
+    "words": {
+      "found_one": "Wortangaben: {{formatted}} Wort in {{verses}} Versen.",
+      "found_other": "Wortangaben: {{formatted}} Wörter in {{verses}} Versen.",
+      "parts": "Mit Lemma: {{lemmas}} · mit lexikalischen Nummern: {{ids}} · mit Grammatikcode: {{morph}} · verschiedene Lemmata: {{distinct}}",
+      "schemeOshb": "Die Grammatikcodes folgen dem Schema der Open Scriptures Hebrew Bible und werden in Worten beschrieben.",
+      "schemeRaw": "Die Grammatikcodes bleiben so, wie sie geschrieben sind; ihr Schema wird nicht in Worten beschrieben.",
+      "leftOut_one": "{{formatted}} Wort mit Angaben ließ sich nicht lesen und wird weggelassen.",
+      "leftOut_other": "{{formatted}} Wörter mit Angaben ließen sich nicht lesen und werden weggelassen.",
+      "not": {
+        "strongOnly_one": "{{formatted}} Wort trägt nur lexikalische Nummern (kein Lemma, keinen Grammatikcode). Es wird nicht für die Lemma-Suche genutzt; der Text bleibt unverändert.",
+        "strongOnly_other": "{{formatted}} Wörter tragen nur lexikalische Nummern (keine Lemmata, keine Grammatikcodes). Für die Lemma-Suche werden sie nicht genutzt; der Text bleibt unverändert.",
+        "unreliable_one": "Die Wortangaben ließen sich nicht zuverlässig lesen ({{left}} von {{formatted}} unlesbar), daher werden keine übernommen. Der Text bleibt unverändert.",
+        "unreliable_other": "Die Wortangaben ließen sich nicht zuverlässig lesen ({{left}} von {{formatted}} unlesbar), daher werden keine übernommen. Der Text bleibt unverändert.",
+        "unreadable_one": "Die Wortangaben ließen sich nicht lesen, daher werden keine übernommen. Der Text bleibt unverändert.",
+        "unreadable_other": "Die Wortangaben ließen sich nicht lesen, daher werden keine übernommen. Der Text bleibt unverändert.",
+        "tooLarge_one": "Es gibt mehr Wortangaben, als eine Bibel haben kann, daher werden keine übernommen. Der Text bleibt unverändert.",
+        "tooLarge_other": "Es gibt mehr Wortangaben, als eine Bibel haben kann, daher werden keine übernommen. Der Text bleibt unverändert."
+      }
+    }
   },
   "bibles": {
     "empty": "Es wurde noch keine Bibel hinzugefügt.",
@@ -230,7 +249,8 @@
     "modeLabel": "Suchen nach",
     "mode": {
       "word": "Wort",
-      "phrase": "Wortfolge"
+      "phrase": "Wortfolge",
+      "lemma": "Lemma"
     },
     "bible": "Bibel",
     "find": "Suchen",
@@ -243,12 +263,143 @@
     "none": "„{{query}}“ kommt in dieser Bibel nicht vor.",
     "books": "Bücher",
     "bookCount": "{{book}} ({{formatted}})",
-    "open": "{{passage}} in der Bibel öffnen"
+    "open": "{{passage}} in der Bibel öffnen",
+    "lemmaLabel": "Lemma oder lexikalische Nummer",
+    "lemmaHint": "Nutzt die Wortangaben dieser Bibel selbst: die Grundform (Lemma), lexikalische Nummern und Grammatikcodes, die ihre Ausgabe jedem Wort mitgibt. Nichts wird anderswo nachgeschlagen.",
+    "lemmaUnavailable": "Diese Bibel hat keine Wortangaben, daher kannst du sie nicht nach Lemma durchsuchen. Die Suche nach Wort und Wortfolge funktioniert wie bisher.",
+    "entries": "Einträge für „{{text}}“",
+    "entriesHint": "Eine Grundform kann für verschiedene Wörter stehen, die ihre lexikalischen Nummern unterscheiden. Wähle eines aus.",
+    "entryCount_one": "{{formatted}}-mal",
+    "entryCount_other": "{{formatted}}-mal",
+    "noEntry": "„{{text}}“ ist in den Wortangaben dieser Bibel kein Lemma und keine lexikalische Nummer.",
+    "noLemma": "(kein Lemma)",
+    "lexicalNumber": "Lexikalische Nummer {{id}}",
+    "forms": "Schreibweisen",
+    "grammar": "Grammatik",
+    "grammarChosen_one": "({{formatted}} ausgewählt)",
+    "grammarChosen_other": "({{formatted}} ausgewählt)",
+    "grammarDescribed": "Beschrieben nach der Morphologie-Tabelle der Open Scriptures Hebrew Bible; der Code steht so da, wie er geschrieben ist. Hake Codes an, um nur diese Wörter zu sehen.",
+    "grammarRaw": "Grammatikcodes so, wie diese Bibel sie schreibt. Abiding Word beschreibt dieses Schema nicht in Worten. Hake Codes an, um nur diese Wörter zu sehen.",
+    "withoutGrammar_one": "{{formatted}} ohne Grammatikcode",
+    "withoutGrammar_other": "{{formatted}} ohne Grammatikcode",
+    "allGrammar": "Alle Formen zeigen",
+    "noneLemma": "Keine Vorkommen in dieser Bibel.",
+    "noneWithGrammar": "Keine Vorkommen mit der gewählten Grammatik."
   },
   "language": {
     "choose": "Sprache wählen",
     "other": "Eine andere Sprache…",
     "otherName": "Name der Sprache",
     "hint": "Abiding Word liest damit Abkürzungen, die du tippst (etwa „Joh 3,5“), so wie diese Bibel sie meint."
+  },
+  "words": {
+    "details": "Wortangaben",
+    "fromMarkup": "Aus den Wortangaben dieser Bibel selbst. Nichts wird anderswo nachgeschlagen.",
+    "lemma": "Lemma",
+    "grammar": "Grammatik",
+    "grammarRaw": "Code wie geschrieben:",
+    "shape": {
+      "phrase": "Zusammen als eine Einheit markiert.",
+      "part": "Teil eines geschriebenen Wortes."
+    },
+    "entryCount_one": "Dieser Eintrag kommt in dieser Bibel {{formatted}}-mal vor.",
+    "entryCount_other": "Dieser Eintrag kommt in dieser Bibel {{formatted}}-mal vor.",
+    "findLemma": "Dieses Lemma finden",
+    "studyWord": "Dieses Wort studieren",
+    "openWordStudy": "Öffne ein Wortstudium, um dieses Wort darin zu verwenden.",
+    "usedInStudy": "Zu „{{title}}“ hinzugefügt.",
+    "replaceLemma": "„{{title}}“ studiert „{{before}}“. Stattdessen „{{after}}“ studieren?",
+    "replace": "Ersetzen",
+    "more_one": "{{formatted}} weiteres Wort mit Angaben ist nicht aufgeführt. Wähle weniger Wörter aus, um es zu sehen.",
+    "more_other": "{{formatted}} weitere Wörter mit Angaben sind nicht aufgeführt. Wähle weniger Wörter aus, um sie zu sehen."
+  },
+  "morph": {
+    "pos": {
+      "adjective": "Adjektiv",
+      "conjunction": "Konjunktion",
+      "adverb": "Adverb",
+      "noun": "Substantiv",
+      "pronoun": "Pronomen",
+      "preposition": "Präposition",
+      "suffix": "Suffix",
+      "particle": "Partikel",
+      "verb": "Verb"
+    },
+    "person": {
+      "first": "1. Person",
+      "second": "2. Person",
+      "third": "3. Person"
+    },
+    "gender": {
+      "both": "maskulin oder feminin",
+      "common": "Genus commune",
+      "feminine": "feminin",
+      "masculine": "maskulin"
+    },
+    "number": {
+      "dual": "Dual",
+      "plural": "Plural",
+      "singular": "Singular"
+    },
+    "state": {
+      "absolute": "Status absolutus",
+      "construct": "Status constructus",
+      "determined": "Status determinatus"
+    },
+    "adjectiveType": {
+      "adjective": "Adjektiv",
+      "cardinal": "Kardinalzahl",
+      "gentilic": "Gentilizium",
+      "ordinal": "Ordinalzahl"
+    },
+    "nounType": {
+      "common": "Gattungsname",
+      "gentilic": "Gentilizium",
+      "properName": "Eigenname"
+    },
+    "pronounType": {
+      "demonstrative": "demonstrativ",
+      "indefinite": "indefinit",
+      "interrogative": "interrogativ",
+      "personal": "Personal-",
+      "relative": "relativ"
+    },
+    "prepositionType": {
+      "definiteArticle": "mit Artikel"
+    },
+    "suffixType": {
+      "directionalHe": "He locale",
+      "paragogicHe": "paragogisches He",
+      "paragogicNun": "paragogisches Nun",
+      "pronominal": "pronominal"
+    },
+    "particleType": {
+      "affirmation": "Bekräftigung",
+      "definiteArticle": "bestimmter Artikel",
+      "exhortation": "Aufforderung",
+      "interrogative": "Fragepartikel",
+      "interjection": "Interjektion",
+      "demonstrative": "demonstrativ",
+      "negative": "Negation",
+      "directObject": "Objektmarker",
+      "relative": "relativ"
+    },
+    "conjugation": {
+      "perfect": "Perfekt",
+      "sequentialPerfect": "Perfekt consecutivum",
+      "imperfect": "Imperfekt",
+      "sequentialImperfect": "Imperfekt consecutivum",
+      "cohortative": "Kohortativ",
+      "jussive": "Jussiv",
+      "imperative": "Imperativ",
+      "participleActive": "Partizip aktiv",
+      "participlePassive": "Partizip passiv",
+      "infinitiveAbsolute": "Infinitivus absolutus",
+      "infinitiveConstruct": "Infinitivus constructus"
+    },
+    "language": {
+      "hebrew": "Hebräisch",
+      "aramaic": "Aramäisch"
+    }
   }
 }

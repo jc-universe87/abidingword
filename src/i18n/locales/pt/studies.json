@@ -461,6 +461,10 @@
       },
       "translation": {
         "label": "Bíblia"
+      },
+      "lexicalId": {
+        "label": "Número léxico",
+        "hint": "ex.: G1343"
       }
     },
     "typeLine": "Tipo: {{type}}",
@@ -476,7 +480,9 @@
     "saveTemplate": "Salvar modelo",
     "savedAsTemplate": "Salvo como seu modelo “{{name}}”. Você pode usá-lo em um novo estudo e alterá-lo em Configurações → Modelos.",
     "saveAsTemplateKeeps_many": "O modelo guarda as {{count}} partes deste estudo: seus títulos, orientações e lugares na estrutura, nesta ordem. Seu texto, anotações, passagens e detalhes ficam neste estudo.",
-    "saveAsTemplateTooMany": "Um modelo precisa de pelo menos uma parte e pode ter no máximo {{max}}. Altere primeiro as partes deste estudo ou crie o modelo em Configurações → Modelos."
+    "saveAsTemplateTooMany": "Um modelo precisa de pelo menos uma parte e pode ter no máximo {{max}}. Altere primeiro as partes deste estudo ou crie o modelo em Configurações → Modelos.",
+    "findLemma": "Encontrar este lema",
+    "lemmaUnavailable": "A Bíblia escolhida não tem anotações de palavras, por isso a busca por lema não está disponível."
   },
   "editor": {
     "opening": "Abrindo estudo…",

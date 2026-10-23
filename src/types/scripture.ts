@@ -51,7 +51,24 @@ export interface BibleTranslation {
   verseCount: number;
   createdAt: string;
   updatedAt: string;
+  /** Word annotations from the Bible's own markup (v0.21); absent when it has none. */
+  words?: WordAnnotations | null;
 }
+
+/** What a Bible's own word markup gives (v0.21). */
+export interface WordAnnotations {
+  wordCount: number;
+  verseCount: number;
+  lemmas: boolean;
+  lexicalIds: boolean;
+  morphology: boolean;
+  /** "oshb" (described), "raw" (shown as written) or "none". */
+  morphScheme: MorphScheme;
+  morphAttribute: string | null;
+  sourceFormat: string;
+}
+
+export type MorphScheme = "oshb" | "raw" | "none";
 
 export interface BundledBibleInfo {
   id: string;
@@ -142,6 +159,80 @@ export interface ConcordanceResult {
   hitsComplete: boolean;
 }
 
+/** A lemma with the lexical identifiers given with it (homographs are separate entries). */
+export interface LemmaEntry {
+  lemma: string | null;
+  strong: string | null;
+  occurrences: number;
+  forms: string[];
+}
+
+export interface LemmaLookup {
+  translationId: string;
+  text: string;
+}
+
+export type LemmaSelection =
+  | { kind: "entry"; lemma: string | null; strong: string | null }
+  | { kind: "lemma"; lemma: string }
+  | { kind: "lexicalId"; id: string };
+
+export interface LemmaQuery {
+  translationId: string;
+  selection: LemmaSelection;
+  /** Only words with one of these morphology codes, exactly as written. */
+  morph?: string[];
+  book?: string;
+}
+
+/** A grammatical property; `field` and `value` are keys the interface translates. */
+export interface MorphFeature {
+  field: string;
+  value: string;
+}
+
+export interface MorphSegment {
+  partOfSpeech: string;
+  features: MorphFeature[];
+}
+
+export interface MorphDescribed {
+  scheme: "oshb";
+  language: "hebrew" | "aramaic";
+  segments: MorphSegment[];
+}
+
+export interface LemmaResult {
+  selection: LemmaSelection;
+  translationId: string;
+  occurrences: number;
+  verses: number;
+  books: ConcordanceBook[];
+  hits: ConcordanceHit[];
+  hitsComplete: boolean;
+  forms: { form: string; count: number }[];
+  morphology: { code: string; count: number; described: MorphDescribed | null }[];
+  withoutMorphology: number;
+  morphScheme: MorphScheme;
+  morphAttribute: string | null;
+}
+
+/** One annotated word of a verse. */
+export interface VerseWord {
+  position: number;
+  /** UTF-16 offsets into the verse text, end exclusive. */
+  start: number;
+  end: number;
+  surface: string;
+  shape: "word" | "phrase" | "part";
+  lemma: string | null;
+  strong: string | null;
+  lexicalIds: string[];
+  morph: string | null;
+  described: MorphDescribed | null;
+  entryOccurrences: number;
+}
+
 export interface DetectedReference {
   text: string;
   /** UTF-16 offsets, as JavaScript string indexes. */
@@ -192,6 +283,36 @@ export interface ImportPreview {
   issues: ImportIssue[];
   skippedFiles: string[];
   canImport: boolean;
+  /** What the Bible's word markup gives (v0.21). */
+  words?: WordReport;
+}
+
+/** The import preview's summary of word annotations (v0.21). */
+export interface WordReport {
+  marked: number;
+  words: number;
+  verses: number;
+  withLemma: number;
+  withLexicalId: number;
+  withMorphology: number;
+  distinctLemmas: number;
+  phrases: number;
+  parts: number;
+  morphAttribute: string | null;
+  morphScheme: MorphScheme;
+  otherAttributes: string[];
+  leftOut: {
+    syntax: number;
+    conflict: number;
+    tooLong: number;
+    unbalanced: number;
+    overlapping: number;
+    outsideVerse: number;
+    empty: number;
+    tooMany: number;
+  };
+  indexed: boolean;
+  notIndexed: "strongOnly" | "unreliable" | "unreadable" | "tooLarge" | null;
 }
 
 export interface ImportRequest {

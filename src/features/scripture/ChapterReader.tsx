@@ -159,7 +159,7 @@ export function ChapterReader({ translation }: { translation: BibleTranslation }
               onChanged={notes.reload}
             />
           )}
-          <SelectionToolbar key={scope} root={container} translationId={translation.id} onSaved={notes.reload} />
+          <SelectionToolbar key={scope} root={container} translationId={translation.id} onSaved={notes.reload} annotated={Boolean(translation.words)} />
         </div>
       )}
       {SELECTION_SPIKE && data.verses.length > 0 && <SelectionSpike root={container} translationId={translation.id} />}

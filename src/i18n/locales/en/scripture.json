@@ -119,7 +119,26 @@
     "skipped_one": "{{count}} file was left out because it is not one of the 66 books (for example an introduction or glossary).",
     "skipped_other": "{{count}} files were left out because they are not one of the 66 books (for example an introduction or glossary).",
     "adding": "Adding…",
-    "add": "Add this Bible"
+    "add": "Add this Bible",
+    "words": {
+      "found_one": "Word annotations: {{formatted}} word in {{verses}} verses.",
+      "found_other": "Word annotations: {{formatted}} words in {{verses}} verses.",
+      "parts": "With a lemma: {{lemmas}} · with lexical numbers: {{ids}} · with a grammar code: {{morph}} · different lemmas: {{distinct}}",
+      "schemeOshb": "Grammar codes follow the Open Scriptures Hebrew Bible scheme and are described in words.",
+      "schemeRaw": "Grammar codes are kept as written; their scheme is not described in words.",
+      "leftOut_one": "{{formatted}} annotated word could not be read and is left out.",
+      "leftOut_other": "{{formatted}} annotated words could not be read and are left out.",
+      "not": {
+        "strongOnly_one": "{{formatted}} word carries lexical numbers only (no lemma or grammar code). It is not used for lemma search; the text is not affected.",
+        "strongOnly_other": "{{formatted}} words carry lexical numbers only (no lemmas or grammar codes). They are not used for lemma search; the text is not affected.",
+        "unreliable_one": "The word annotations could not be read reliably ({{left}} of {{formatted}} could not be read), so none are added. The text is not affected.",
+        "unreliable_other": "The word annotations could not be read reliably ({{left}} of {{formatted}} could not be read), so none are added. The text is not affected.",
+        "unreadable_one": "The word annotations could not be read, so none are added. The text is not affected.",
+        "unreadable_other": "The word annotations could not be read, so none are added. The text is not affected.",
+        "tooLarge_one": "There are more word annotations than any Bible has, so none are added. The text is not affected.",
+        "tooLarge_other": "There are more word annotations than any Bible has, so none are added. The text is not affected."
+      }
+    }
   },
   "bibles": {
     "empty": "No Bible has been added yet.",
@@ -230,7 +249,8 @@
     "modeLabel": "Look for",
     "mode": {
       "word": "Word",
-      "phrase": "Phrase"
+      "phrase": "Phrase",
+      "lemma": "Lemma"
     },
     "bible": "Bible",
     "find": "Find",
@@ -243,12 +263,143 @@
     "none": "“{{query}}” does not occur in this Bible.",
     "books": "Books",
     "bookCount": "{{book}} ({{formatted}})",
-    "open": "Open {{passage}} in the Bible"
+    "open": "Open {{passage}} in the Bible",
+    "lemmaLabel": "Lemma or lexical number",
+    "lemmaHint": "Uses this Bible’s own word annotations: the dictionary form (lemma), lexical numbers and grammar codes its edition gives each word. Nothing is looked up elsewhere.",
+    "lemmaUnavailable": "This Bible has no word annotations, so it cannot be searched by lemma. Word and phrase search work as before.",
+    "entries": "Entries for “{{text}}”",
+    "entriesHint": "One dictionary form can stand for different words, told apart by their lexical numbers. Choose one.",
+    "entryCount_one": "{{formatted}} time",
+    "entryCount_other": "{{formatted}} times",
+    "noEntry": "“{{text}}” is not a lemma or lexical number in this Bible’s annotations.",
+    "noLemma": "(no lemma)",
+    "lexicalNumber": "Lexical number {{id}}",
+    "forms": "Written forms",
+    "grammar": "Grammar",
+    "grammarChosen_one": "({{formatted}} chosen)",
+    "grammarChosen_other": "({{formatted}} chosen)",
+    "grammarDescribed": "Described with the Open Scriptures Hebrew Bible morphology table; the code is shown as written. Tick codes to see only those words.",
+    "grammarRaw": "Grammar codes as this Bible writes them. Abiding Word does not describe this scheme in words. Tick codes to see only those words.",
+    "withoutGrammar_one": "{{formatted}} without a grammar code",
+    "withoutGrammar_other": "{{formatted}} without a grammar code",
+    "allGrammar": "Show all forms",
+    "noneLemma": "No occurrences in this Bible.",
+    "noneWithGrammar": "No occurrences with the chosen grammar."
   },
   "language": {
     "choose": "Choose a language",
     "other": "Another language…",
     "otherName": "Name of the language",
     "hint": "Abiding Word uses it to read abbreviations you type (such as “Jn 3:5”) the way this Bible does."
+  },
+  "words": {
+    "details": "Word details",
+    "fromMarkup": "From this Bible’s own word annotations. Nothing is looked up elsewhere.",
+    "lemma": "Lemma",
+    "grammar": "Grammar",
+    "grammarRaw": "code as written:",
+    "shape": {
+      "phrase": "Marked together as one unit.",
+      "part": "Part of a written word."
+    },
+    "entryCount_one": "This entry occurs {{formatted}} time in this Bible.",
+    "entryCount_other": "This entry occurs {{formatted}} times in this Bible.",
+    "findLemma": "Find this lemma",
+    "studyWord": "Study this word",
+    "openWordStudy": "Open a Word Study to use this word in it.",
+    "usedInStudy": "Added to “{{title}}”.",
+    "replaceLemma": "“{{title}}” studies “{{before}}”. Study “{{after}}” instead?",
+    "replace": "Replace",
+    "more_one": "{{formatted}} more annotated word is not listed. Select fewer words to see it.",
+    "more_other": "{{formatted}} more annotated words are not listed. Select fewer words to see them."
+  },
+  "morph": {
+    "pos": {
+      "adjective": "adjective",
+      "conjunction": "conjunction",
+      "adverb": "adverb",
+      "noun": "noun",
+      "pronoun": "pronoun",
+      "preposition": "preposition",
+      "suffix": "suffix",
+      "particle": "particle",
+      "verb": "verb"
+    },
+    "person": {
+      "first": "1st person",
+      "second": "2nd person",
+      "third": "3rd person"
+    },
+    "gender": {
+      "both": "masculine or feminine",
+      "common": "common gender",
+      "feminine": "feminine",
+      "masculine": "masculine"
+    },
+    "number": {
+      "dual": "dual",
+      "plural": "plural",
+      "singular": "singular"
+    },
+    "state": {
+      "absolute": "absolute state",
+      "construct": "construct state",
+      "determined": "determined state"
+    },
+    "adjectiveType": {
+      "adjective": "adjective",
+      "cardinal": "cardinal number",
+      "gentilic": "gentilic",
+      "ordinal": "ordinal number"
+    },
+    "nounType": {
+      "common": "common noun",
+      "gentilic": "gentilic",
+      "properName": "proper name"
+    },
+    "pronounType": {
+      "demonstrative": "demonstrative",
+      "indefinite": "indefinite",
+      "interrogative": "interrogative",
+      "personal": "personal",
+      "relative": "relative"
+    },
+    "prepositionType": {
+      "definiteArticle": "with the article"
+    },
+    "suffixType": {
+      "directionalHe": "directional he",
+      "paragogicHe": "paragogic he",
+      "paragogicNun": "paragogic nun",
+      "pronominal": "pronominal"
+    },
+    "particleType": {
+      "affirmation": "affirmation",
+      "definiteArticle": "definite article",
+      "exhortation": "exhortation",
+      "interrogative": "interrogative",
+      "interjection": "interjection",
+      "demonstrative": "demonstrative",
+      "negative": "negative",
+      "directObject": "direct object marker",
+      "relative": "relative"
+    },
+    "conjugation": {
+      "perfect": "perfect",
+      "sequentialPerfect": "sequential perfect",
+      "imperfect": "imperfect",
+      "sequentialImperfect": "sequential imperfect",
+      "cohortative": "cohortative",
+      "jussive": "jussive",
+      "imperative": "imperative",
+      "participleActive": "active participle",
+      "participlePassive": "passive participle",
+      "infinitiveAbsolute": "infinitive absolute",
+      "infinitiveConstruct": "infinitive construct"
+    },
+    "language": {
+      "hebrew": "Hebrew",
+      "aramaic": "Aramaic"
+    }
   }
 }

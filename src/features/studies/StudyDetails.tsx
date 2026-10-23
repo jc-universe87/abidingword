@@ -6,6 +6,7 @@ import { InfoControl } from "@/design-system/InfoControl";
 import { toApiError } from "@/lib/api";
 import { useApi } from "@/lib/ApiContext";
 import { useScripture } from "@/features/scripture/ScriptureContext";
+import { hasLemmas } from "@/features/scripture/ConcordanceView";
 import type { Study, StudySection } from "@/types/domain";
 import { STUDY_STATUSES, type Finding, type StudyDetails, type StudyRelation, type StudyStatus, type StudyTemplate } from "@/types/studies";
 import type { StudyPassage } from "@/types/scripture";
@@ -279,6 +280,19 @@ function DetailsFields({ study, values, onValues, onRevealScripture }: { study: 
     openConcordance({ query: word, mode: /\s/.test(word) ? "phrase" : "word", translationId: bibleId || null });
     onRevealScripture?.();
   };
+  // v0.21: by lemma or lexical number, from the chosen Bible's own word annotations only.
+  const lexicalId = (values.lexicalId ?? "").trim();
+  const annotated = hasLemmas(translations.find((b) => b.id === bibleId));
+  const anyAnnotated = translations.some(hasLemmas);
+  const findLemma = () => {
+    openConcordance({
+      query: lexicalId || word,
+      mode: "lemma",
+      selection: lexicalId ? { kind: "lexicalId", id: lexicalId } : undefined,
+      translationId: bibleId || null,
+    });
+    onRevealScripture?.();
+  };
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-2" role="group" aria-label={t("studies.header.details", { type: studyTypeLabel(t, study.studyType) })}>
       {fields.map((field) => (
@@ -313,6 +327,32 @@ function DetailsFields({ study, values, onValues, onRevealScripture }: { study: 
           >
             {t("studies.header.findOccurrences")}
           </button>
+          {annotated && (
+            <button
+              type="button"
+              disabled={!word && !lexicalId}
+              onClick={findLemma}
+              className="h-11 rounded-aw border border-border px-3 text-[0.9375rem] font-medium text-text-strong hover:bg-hover disabled:opacity-50"
+            >
+              {t("studies.header.findLemma")}
+            </button>
+          )}
+        </div>
+      )}
+      {study.studyType === "word" && (annotated || anyAnnotated || lexicalId) && (
+        <div className="col-span-full flex flex-col gap-1">
+          {(annotated || lexicalId) && (
+            <label className="flex max-w-xs flex-col gap-1">
+              <span className="text-[0.9375rem] font-medium text-text-muted">{t("studies.header.detail.lexicalId.label")}</span>
+              <input
+                value={values.lexicalId ?? ""}
+                placeholder={t("studies.header.detail.lexicalId.hint")}
+                onChange={(e) => onValues({ ...values, lexicalId: e.target.value || null })}
+                className="h-11 rounded-aw border border-border-subtle bg-transparent px-2 text-[0.9375rem] placeholder:text-text-muted focus:border-border"
+              />
+            </label>
+          )}
+          {!annotated && <p className="m-0 type-meta">{t("studies.header.lemmaUnavailable")}</p>}
         </div>
       )}
     </div>

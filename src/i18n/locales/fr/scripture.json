@@ -130,7 +130,32 @@
     "skipped_many": "{{count}} fichiers ont été laissés de côté, car ils ne correspondent à aucun des 66 livres (par exemple une introduction ou un glossaire).",
     "skipped_other": "{{count}} fichiers ont été laissés de côté, car ils ne correspondent à aucun des 66 livres (par exemple une introduction ou un glossaire).",
     "adding": "Ajout…",
-    "add": "Ajouter cette Bible"
+    "add": "Ajouter cette Bible",
+    "words": {
+      "found_one": "Annotations de mots : {{formatted}} mot dans {{verses}} versets.",
+      "found_many": "Annotations de mots : {{formatted}} mots dans {{verses}} versets.",
+      "found_other": "Annotations de mots : {{formatted}} mots dans {{verses}} versets.",
+      "parts": "Avec lemme : {{lemmas}} · avec numéros lexicaux : {{ids}} · avec code grammatical : {{morph}} · lemmes différents : {{distinct}}",
+      "schemeOshb": "Les codes grammaticaux suivent le système de l’Open Scriptures Hebrew Bible et sont décrits en mots.",
+      "schemeRaw": "Les codes grammaticaux sont gardés tels qu’écrits ; leur système n’est pas décrit en mots.",
+      "leftOut_one": "{{formatted}} mot annoté n’a pas pu être lu et est laissé de côté.",
+      "leftOut_many": "{{formatted}} mots annotés n’ont pas pu être lus et sont laissés de côté.",
+      "leftOut_other": "{{formatted}} mots annotés n’ont pas pu être lus et sont laissés de côté.",
+      "not": {
+        "strongOnly_one": "{{formatted}} mot ne porte que des numéros lexicaux (ni lemme ni code grammatical). Il ne sert pas à la recherche par lemme ; le texte n’est pas touché.",
+        "strongOnly_many": "{{formatted}} mots ne portent que des numéros lexicaux (ni lemmes ni codes grammaticaux). Ils ne servent pas à la recherche par lemme ; le texte n’est pas touché.",
+        "strongOnly_other": "{{formatted}} mots ne portent que des numéros lexicaux (ni lemmes ni codes grammaticaux). Ils ne servent pas à la recherche par lemme ; le texte n’est pas touché.",
+        "unreliable_one": "Les annotations de mots n’ont pas pu être lues de façon fiable ({{left}} sur {{formatted}} illisibles) : aucune n’est ajoutée. Le texte n’est pas touché.",
+        "unreliable_many": "Les annotations de mots n’ont pas pu être lues de façon fiable ({{left}} sur {{formatted}} illisibles) : aucune n’est ajoutée. Le texte n’est pas touché.",
+        "unreliable_other": "Les annotations de mots n’ont pas pu être lues de façon fiable ({{left}} sur {{formatted}} illisibles) : aucune n’est ajoutée. Le texte n’est pas touché.",
+        "unreadable_one": "Les annotations de mots n’ont pas pu être lues : aucune n’est ajoutée. Le texte n’est pas touché.",
+        "unreadable_many": "Les annotations de mots n’ont pas pu être lues : aucune n’est ajoutée. Le texte n’est pas touché.",
+        "unreadable_other": "Les annotations de mots n’ont pas pu être lues : aucune n’est ajoutée. Le texte n’est pas touché.",
+        "tooLarge_one": "Il y a plus d’annotations de mots qu’aucune Bible n’en a : aucune n’est ajoutée. Le texte n’est pas touché.",
+        "tooLarge_many": "Il y a plus d’annotations de mots qu’aucune Bible n’en a : aucune n’est ajoutée. Le texte n’est pas touché.",
+        "tooLarge_other": "Il y a plus d’annotations de mots qu’aucune Bible n’en a : aucune n’est ajoutée. Le texte n’est pas touché."
+      }
+    }
   },
   "bibles": {
     "empty": "Aucune Bible n’a encore été ajoutée.",
@@ -243,7 +268,8 @@
     "modeLabel": "Rechercher",
     "mode": {
       "word": "Mot",
-      "phrase": "Expression"
+      "phrase": "Expression",
+      "lemma": "Lemme"
     },
     "bible": "Bible",
     "find": "Rechercher",
@@ -258,12 +284,148 @@
     "none": "« {{query}} » n’apparaît pas dans cette Bible.",
     "books": "Livres",
     "bookCount": "{{book}} ({{formatted}})",
-    "open": "Ouvrir {{passage}} dans la Bible"
+    "open": "Ouvrir {{passage}} dans la Bible",
+    "lemmaLabel": "Lemme ou numéro lexical",
+    "lemmaHint": "Utilise les annotations de mots de cette Bible elle-même : la forme de dictionnaire (lemme), les numéros lexicaux et les codes grammaticaux que son édition donne à chaque mot. Rien n’est recherché ailleurs.",
+    "lemmaUnavailable": "Cette Bible n’a pas d’annotations de mots : vous ne pouvez donc pas y chercher par lemme. La recherche par mot et par expression fonctionne comme avant.",
+    "entries": "Entrées pour « {{text}} »",
+    "entriesHint": "Une même forme de dictionnaire peut désigner des mots différents, que leurs numéros lexicaux distinguent. Choisissez-en un.",
+    "entryCount_one": "{{formatted}} fois",
+    "entryCount_many": "{{formatted}} fois",
+    "entryCount_other": "{{formatted}} fois",
+    "noEntry": "« {{text}} » n’est ni un lemme ni un numéro lexical dans les annotations de cette Bible.",
+    "noLemma": "(sans lemme)",
+    "lexicalNumber": "Numéro lexical {{id}}",
+    "forms": "Formes écrites",
+    "grammar": "Grammaire",
+    "grammarChosen_one": "({{formatted}} choisi)",
+    "grammarChosen_many": "({{formatted}} choisis)",
+    "grammarChosen_other": "({{formatted}} choisis)",
+    "grammarDescribed": "Décrit d’après la table morphologique de l’Open Scriptures Hebrew Bible ; le code est affiché tel qu’il est écrit. Cochez des codes pour ne voir que ces mots.",
+    "grammarRaw": "Codes grammaticaux tels que cette Bible les écrit. Abiding Word ne décrit pas ce système en mots. Cochez des codes pour ne voir que ces mots.",
+    "withoutGrammar_one": "{{formatted}} sans code grammatical",
+    "withoutGrammar_many": "{{formatted}} sans code grammatical",
+    "withoutGrammar_other": "{{formatted}} sans code grammatical",
+    "allGrammar": "Afficher toutes les formes",
+    "noneLemma": "Aucune occurrence dans cette Bible.",
+    "noneWithGrammar": "Aucune occurrence avec la grammaire choisie."
   },
   "language": {
     "choose": "Choisir une langue",
     "other": "Une autre langue…",
     "otherName": "Nom de la langue",
     "hint": "Abiding Word s’en sert pour lire les abréviations que vous tapez (par exemple « Jn 3,5 ») comme cette Bible les entend."
+  },
+  "words": {
+    "details": "Détails du mot",
+    "fromMarkup": "D’après les annotations de mots de cette Bible elle-même. Rien n’est recherché ailleurs.",
+    "lemma": "Lemme",
+    "grammar": "Grammaire",
+    "grammarRaw": "code tel qu’écrit :",
+    "shape": {
+      "phrase": "Marqué ensemble comme une seule unité.",
+      "part": "Partie d’un mot écrit."
+    },
+    "entryCount_one": "Cette entrée apparaît {{formatted}} fois dans cette Bible.",
+    "entryCount_many": "Cette entrée apparaît {{formatted}} fois dans cette Bible.",
+    "entryCount_other": "Cette entrée apparaît {{formatted}} fois dans cette Bible.",
+    "findLemma": "Trouver ce lemme",
+    "studyWord": "Étudier ce mot",
+    "openWordStudy": "Ouvrez une étude de mot pour y utiliser ce mot.",
+    "usedInStudy": "Ajouté à « {{title}} ».",
+    "replaceLemma": "« {{title}} » étudie « {{before}} ». Étudier « {{after}} » à la place ?",
+    "replace": "Remplacer",
+    "more_one": "{{formatted}} autre mot annoté n’est pas affiché. Sélectionnez moins de mots pour le voir.",
+    "more_many": "{{formatted}} autres mots annotés ne sont pas affichés. Sélectionnez moins de mots pour les voir.",
+    "more_other": "{{formatted}} autres mots annotés ne sont pas affichés. Sélectionnez moins de mots pour les voir."
+  },
+  "morph": {
+    "pos": {
+      "adjective": "adjectif",
+      "conjunction": "conjonction",
+      "adverb": "adverbe",
+      "noun": "nom",
+      "pronoun": "pronom",
+      "preposition": "préposition",
+      "suffix": "suffixe",
+      "particle": "particule",
+      "verb": "verbe"
+    },
+    "person": {
+      "first": "1re personne",
+      "second": "2e personne",
+      "third": "3e personne"
+    },
+    "gender": {
+      "both": "masculin ou féminin",
+      "common": "genre commun",
+      "feminine": "féminin",
+      "masculine": "masculin"
+    },
+    "number": {
+      "dual": "duel",
+      "plural": "pluriel",
+      "singular": "singulier"
+    },
+    "state": {
+      "absolute": "état absolu",
+      "construct": "état construit",
+      "determined": "état déterminé"
+    },
+    "adjectiveType": {
+      "adjective": "adjectif",
+      "cardinal": "nombre cardinal",
+      "gentilic": "gentilé",
+      "ordinal": "nombre ordinal"
+    },
+    "nounType": {
+      "common": "nom commun",
+      "gentilic": "gentilé",
+      "properName": "nom propre"
+    },
+    "pronounType": {
+      "demonstrative": "démonstratif",
+      "indefinite": "indéfini",
+      "interrogative": "interrogatif",
+      "personal": "personnel",
+      "relative": "relatif"
+    },
+    "prepositionType": {
+      "definiteArticle": "avec l’article"
+    },
+    "suffixType": {
+      "directionalHe": "hé de direction",
+      "paragogicHe": "hé paragogique",
+      "paragogicNun": "noun paragogique",
+      "pronominal": "pronominal"
+    },
+    "particleType": {
+      "affirmation": "affirmation",
+      "definiteArticle": "article défini",
+      "exhortation": "exhortation",
+      "interrogative": "interrogatif",
+      "interjection": "interjection",
+      "demonstrative": "démonstratif",
+      "negative": "négation",
+      "directObject": "marqueur de l’objet direct",
+      "relative": "relatif"
+    },
+    "conjugation": {
+      "perfect": "parfait",
+      "sequentialPerfect": "parfait consécutif",
+      "imperfect": "imparfait",
+      "sequentialImperfect": "imparfait consécutif",
+      "cohortative": "cohortatif",
+      "jussive": "jussif",
+      "imperative": "impératif",
+      "participleActive": "participe actif",
+      "participlePassive": "participe passif",
+      "infinitiveAbsolute": "infinitif absolu",
+      "infinitiveConstruct": "infinitif construit"
+    },
+    "language": {
+      "hebrew": "hébreu",
+      "aramaic": "araméen"
+    }
   }
 }

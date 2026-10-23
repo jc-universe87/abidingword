@@ -10,7 +10,7 @@ import { useApi } from "@/lib/ApiContext";
 import { formatNumber } from "@/i18n/format";
 import { localizeMessage } from "@/i18n/messages";
 import { bookName } from "@/i18n/scripture";
-import type { BibleTranslation, BundledBibleInfo, ImportIssue, ImportPreview } from "@/types/scripture";
+import type { BibleTranslation, BundledBibleInfo, ImportIssue, ImportPreview, WordReport } from "@/types/scripture";
 import { useScripture } from "./ScriptureContext";
 import { LanguageChoice, type LanguageValue } from "./LanguageChoice";
 
@@ -282,6 +282,7 @@ function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCa
         <p className="reading m-0">{t("scripture.addBible.chaptersDetected", { count: preview.chapterCount, number: formatNumber(preview.chapterCount) })}</p>
         <p className="reading m-0">{t("scripture.addBible.versesDetected", { count: preview.verseCount, number: formatNumber(preview.verseCount) })}</p>
         {s.licenseType && <p className="m-0 mt-2 text-[0.9375rem] text-text-muted">{t("scripture.addBible.licence", { licence: s.licenseType })}</p>}
+        {preview.words && (preview.words.indexed || preview.words.notIndexed) && <WordSummary report={preview.words} />}
       </section>
 
       <ul aria-label={t("scripture.addBible.books")} className="m-0 grid list-none grid-cols-1 gap-x-6 p-0 sm:grid-cols-2">
@@ -310,6 +311,33 @@ function ReviewStep({ preview, onCancel, onAdd }: { preview: ImportPreview; onCa
         </Button>
         <Button onClick={onCancel}>{t("common.cancel")}</Button>
       </div>
+    </div>
+  );
+}
+
+/** What the Bible's word markup gives (v0.21); said only when it has any. */
+function WordSummary({ report }: { report: WordReport }) {
+  const { t } = useTranslation();
+  const n = (value: number) => formatNumber(value);
+  const left = Object.entries(report.leftOut).reduce((sum, [key, value]) => (key === "outsideVerse" ? sum : sum + value), 0);
+  if (!report.indexed) {
+    // Nothing to add and nothing wrong (e.g. markup that annotates nothing): say nothing.
+    const reason = report.notIndexed;
+    if (!reason) return null;
+    return (
+      <p className="m-0 mt-2 text-[0.9375rem] text-text-muted">
+        {t(`scripture.addBible.words.not.${reason}`, { count: report.marked, formatted: n(report.marked), left: n(left) })}
+      </p>
+    );
+  }
+  return (
+    <div className="mt-2 flex flex-col gap-0.5 text-[0.9375rem] text-text-muted">
+      <p className="m-0 text-text">{t("scripture.addBible.words.found", { count: report.words, formatted: n(report.words), verses: n(report.verses) })}</p>
+      <p className="m-0">
+        {t("scripture.addBible.words.parts", { lemmas: n(report.withLemma), ids: n(report.withLexicalId), morph: n(report.withMorphology), distinct: n(report.distinctLemmas) })}
+      </p>
+      {report.withMorphology > 0 && <p className="m-0">{t(report.morphScheme === "oshb" ? "scripture.addBible.words.schemeOshb" : "scripture.addBible.words.schemeRaw")}</p>}
+      {left > 0 && <p className="m-0">{t("scripture.addBible.words.leftOut", { count: left, formatted: n(left) })}</p>}
     </div>
   );
 }
