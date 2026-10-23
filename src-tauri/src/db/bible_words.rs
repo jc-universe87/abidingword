@@ -356,9 +356,11 @@ pub struct LemmaEntry {
 }
 
 /// The spellings of a lexical number that are the same number (v0.22): letter
-/// case, leading zeros, a missing H/G prefix and a space before a homograph
-/// letter aside ("h430", "H0430" and "430" all name "H0430"; "1254a" and
-/// "1254 a"). Only these: no other number is ever treated as the same.
+/// case, leading zeros, the H/G prefix and a space before a homograph letter
+/// aside ("h430", "H0430" and "430" all name "H0430"; "H430" also finds an
+/// edition's bare "430"; "1254a" and "1254 a"). A bare number may name both a
+/// Hebrew and a Greek number in a whole Bible: they stay separate entries,
+/// never one. No other number is ever treated as the same.
 pub fn number_variants(text: &str) -> Vec<String> {
     let mut out = vec![text.to_string()];
     let compact: String = text.chars().filter(|c| !c.is_whitespace()).collect();
@@ -377,7 +379,7 @@ pub fn number_variants(text: &str) -> Vec<String> {
         return out;
     }
     let prefixes: Vec<String> = match prefix {
-        Some(p) => vec![p.to_string()],
+        Some(p) => vec![p.to_string(), String::new()],
         None => vec![String::new(), "H".into(), "G".into()],
     };
     for p in &prefixes {

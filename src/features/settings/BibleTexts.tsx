@@ -212,6 +212,22 @@ function BibleWords({ bible }: { bible: BibleTranslation }) {
   const [error, setError] = useState<string | null>(null);
   const [confirmRemove, setConfirmRemove] = useState(false);
   const words = bible.words;
+  // The choices already made for this Bible's index, so a re-read keeps them.
+  const current: WordChoice = {
+    numbers: !!words && words.lexicalIds && !words.lemmas && !words.morphology,
+    grammar: words?.grammarBasis === "person" && words.morphScheme !== "raw" && words.morphScheme !== "none" ? words.morphScheme : null,
+  };
+  // A preview left open is dropped when the panel goes.
+  const open = useRef<string | null>(null);
+  useEffect(() => {
+    open.current = preview?.previewId ?? null;
+  }, [preview]);
+  useEffect(
+    () => () => {
+      if (open.current) void api.bibleWordsCancel(open.current).catch(() => undefined);
+    },
+    [api],
+  );
 
   const run = async (work: () => Promise<void>) => {
     setBusy(true);
@@ -226,11 +242,11 @@ function BibleWords({ bible }: { bible: BibleTranslation }) {
   };
   const check = () =>
     run(async () => {
-      setChoice(NO_CHOICE);
+      setChoice(current);
       setPreview(await api.bibleWordsPreview(bible.id));
     });
   const cancel = () => {
-    if (preview) void api.bibleImportCancel(preview.previewId).catch(() => undefined);
+    if (preview) void api.bibleWordsCancel(preview.previewId).catch(() => undefined);
     setPreview(null);
   };
   const apply = () =>

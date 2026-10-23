@@ -70,12 +70,14 @@ OSIS differently. Read with quick-xml, end names checked:
   are resolved;
 - words: `lemma` is OSHB's lexical identifier — a Strong's-based number with
   prefix letters and a homograph letter (`c/d/776`, `1254 a`), **not** a
-  dictionary form — so it is stored as the word's lexical number, each `/`
-  part an identifier; no lemma is invented. `morph` is the OSHB code;
+  dictionary form — so it is stored as the word's lexical number as written;
+  its numeric parts (`776`, `1254 a`) are the identifiers searched, the prefix
+  letters (`c`, `d`, morphemes) are not. No lemma is invented. `morph` is the OSHB code;
 - the header's title and the OSHB and WLC rights become the suggested name
   and notice, which the person can change;
-- a file that cannot be read completely is an error (`bibleImport.badOsis`),
-  never a silent half-book.
+- character references (`&#x5E8;`) are decoded; any other entity, or a file
+  that cannot be read completely, is an error (`bibleImport.badOsis`), never
+  a silent half-book or a silently changed word.
 
 **MorphGNT.** A `.txt` file whose first five lines all have MorphGNT's seven
 columns (book/chapter/verse, part of speech, 8-letter parsing, text, word,
@@ -87,7 +89,7 @@ Lines that cannot be read are counted (`bibleImport.badLines`): a warning,
 or an error when there are more than ten and more than 1% of the book.
 
 **Verse map.** Abiding Word's canon uses the English numbering. A Hebrew text
-(Joel with a fourth chapter, or Malachi 3 beyond verse 18) is renumbered only
+is renumbered only
 with a verse map the person chooses with the files — OSHB's `VerseMap.xml`
 (1,979 entries, CC BY 4.0). None is bundled. Rules, validated on the real map
 and text:
@@ -104,16 +106,22 @@ and text:
 
 A map naming an unknown book, a malformed reference, a different book on each
 side or the same source twice is refused whole (`bibleImport.verseMapRefused`,
-a warning) — a partly wrong map would move verses silently. A map on a text
-already in English numbering is not used (a note says so). A Hebrew-numbered
+a warning) — a partly wrong map would move verses silently. The text counts as
+Hebrew-numbered when it is OSHB (always the WLC's numbering, whichever books
+were chosen) or when any verse is at a chapter or verse number only the
+Hebrew numbering has at a place the map names (Joel 4, Gen 32:33, Ps 3:9 …);
+then the map is applied. A map on a text already in English numbering is not
+used (a note says so). A Hebrew-numbered
 text without a map is refused as before (Joel 4 does not exist in English
-numbering), with a note saying which file to add.
+numbering; the error is given once per chapter), and OSHB input without a map
+gets a note saying which file to add.
 
 **Other files read.** Beside the Bible's files, a `copr.htm`, README or
 licence (≤ 1 MB each) and USFM front matter (`\id FRT`, `\id INT`) are read
 only for what they say about the edition's grammar scheme (§6). Other XML in a
 mixed selection is set aside; alone it is refused. All files keep the
-existing limits (100 MB in total, UTF-8, archive entries counted as read).
+existing limits (100 MB in total, UTF-8); an archive entry is never read
+beyond the size it declares.
 
 ## 3. The import review
 
@@ -162,9 +170,11 @@ resource — through the same staging, and shows the same summary and choices.
   notes, studies and the surface concordance stay.
 
 Commands: `bible_words_preview(id)`, `bible_words_apply(previewId, words)`,
-`bible_words_remove(id)`; granted to the main window only
-(`permissions/windows.toml`). The preview is held in the same single pending
-slot as an import preview and cannot be committed as a new Bible.
+`bible_words_cancel(previewId)`, `bible_words_remove(id)`; granted to the
+main window only (`permissions/windows.toml`). The preview has its own slot,
+apart from an Add a Bible preview (neither replaces the other), is dropped
+when the panel closes, and cannot be committed as a new Bible. A re-read
+starts from the choices already made for that Bible.
 
 ## 5. Lexical-number search
 
@@ -178,7 +188,9 @@ import is as in v0.21.
   named "Lexical number G3056", never "(no lemma) · G3056".
 - Matching (`bible_words::number_variants`): letter case, leading zeros, a
   missing H/G prefix and the space before a homograph letter are the same
-  number (`h430` = `H0430` = `430`; `1254a` = `1254 a`). Nothing else is:
+  number (`h430` = `H0430` = `430`, and `H430` also finds OSHB's bare `430`;
+  `1254a` = `1254 a`). A bare number in a Bible with both testaments' numbers
+  finds the H and the G number as **separate** entries. Nothing else is:
   `G305`, `G30560` and `H3056` are not `G3056`. Identifiers are stored and
   shown exactly as written, prefixes and suffixes kept, per translation.
 - An entry carries `matchedId`, the stored identifier the typed text matched;
@@ -292,7 +304,24 @@ An index roughly triples a bundled Bible's storage and adds 3–7 s to adding
 it, for a search most readers of a translation will not use; so it stays
 opt-in, per Bible. The estimate (51 bytes a word) is a slight overestimate.
 
-## 10. Tests
+## 10. Independent review
+
+A reviewer with no part in the work read the whole change and checked every
+word offset of the real OSHB (305,136 words) and MorphGNT (137,554) imports
+against the verse text: no mismatch, no overlap. Findings, all fixed:
+
+| # | Finding | Fix |
+|---|---|---|
+| 1 | A single Hebrew book without Joel/Malachi, with the map, was not renumbered, and the note said it already followed English numbers | OSHB input, or any verse at a Hebrew-only number the map names, is Hebrew-numbered; OSHB without a map gets the note |
+| 2 | A Settings word preview replaced an Add a Bible preview (one shared slot) | own slot, cancel command, dropped on close |
+| 3 | `H430` did not find OSHB's bare `430` | the bare number is also tried |
+| 4 | OSHB prefix letters (`c`, `d`) were searchable as lexical numbers | only numeric parts are identifiers |
+| 5 | A re-read forgot the person's earlier grammar choice | starts from the current choices |
+| 6 | Unknown entities in OSIS were dropped silently | character references decoded, others refused |
+| 7 | The Joel 4 error repeated per verse | once per chapter |
+| — | (older) an archive entry could expand beyond its declared size | read at most the declared size |
+
+## 11. Tests
 
 - `src-tauri/tests/original_language.rs` (14, constructed fixtures labelled
   as such): OSHB words, marks, notes, ketiv and identifiers without invented
@@ -314,7 +343,7 @@ opt-in, per Bible. The estimate (51 bytes a word) is a slight overestimate.
   mode and spellings, Settings word information (preview, opt-in, save,
   remove; files not kept), the guide's links, Greek terms in six languages.
 
-## 11. Limits
+## 12. Limits
 
 - No lexicon, gloss, interlinear or cross-edition alignment; numbers are
   searched within one Bible.

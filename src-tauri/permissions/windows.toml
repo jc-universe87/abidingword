@@ -123,6 +123,7 @@ permissions = [
   "allow-bible-words-preview",
   "allow-bible-words-apply",
   "allow-bible-words-remove",
+  "allow-bible-words-cancel",
   "allow-bible-set-language",
   "allow-bible-language-options",
   "allow-annotation-list",

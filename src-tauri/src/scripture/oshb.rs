@@ -228,7 +228,8 @@ fn read_file(file: &SourceText, staged: &mut StagedContent) {
                             .iter()
                             .flat_map(|s| s.split('/'))
                             .map(|p| p.trim().to_string())
-                            .filter(|p| !p.is_empty())
+                            // Prefix letters (c, b, d…) are morphemes, not lexical numbers.
+                            .filter(|p| p.starts_with(|c: char| c.is_ascii_digit()))
                             .fold(Vec::new(), |mut acc, p| {
                                 if !acc.contains(&p) {
                                     acc.push(p);
@@ -279,14 +280,21 @@ fn read_file(file: &SourceText, staged: &mut StagedContent) {
             }
             Ok(Event::GeneralRef(r)) if note_depth == 0 => {
                 // The predefined entities only; anything else is not Scripture text.
-                let piece = match &*r {
-                    "amp" => "&",
-                    "lt" => "<",
-                    "gt" => ">",
-                    "quot" => "\"",
-                    "apos" => "'",
-                    _ => continue,
+                let named = match &*r {
+                    "amp" => Some('&'),
+                    "lt" => Some('<'),
+                    "gt" => Some('>'),
+                    "quot" => Some('"'),
+                    "apos" => Some('\''),
+                    _ => None,
                 };
+                // A character reference is decoded; anything else is not read silently.
+                let Some(c) = named.or_else(|| r.resolve_char_ref().ok().flatten()) else {
+                    broken = true;
+                    continue;
+                };
+                let mut buffer = [0u8; 4];
+                let piece: &str = c.encode_utf8(&mut buffer);
                 if let Some((_, _, raw)) = word.as_mut() {
                     raw.push_str(piece);
                 } else if let Some((_, _, built)) = current.as_mut() {

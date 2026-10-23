@@ -31,6 +31,9 @@ pub struct AppState {
     /// The Bible import waiting on the verification screen, if any. Only
     /// one at a time; starting another replaces it.
     pending_import: Mutex<Option<StagedImport>>,
+    /// An installed Bible's files read again for its words (v0.22), apart
+    /// from an import preview so neither replaces the other.
+    pending_words: Mutex<Option<StagedImport>>,
     /// The library import waiting on its preview screen, if any.
     pending_source: Mutex<Option<StagedSource>>,
     /// Where API keys are kept (the operating system's credential store).
@@ -82,6 +85,7 @@ impl AppState {
             log_dir,
             resource_dir,
             pending_import: Mutex::new(None),
+            pending_words: Mutex::new(None),
             pending_source: Mutex::new(None),
             secrets: Box::new(OsStore),
             transport: OnceLock::new(),
@@ -201,6 +205,12 @@ impl AppState {
         self.pending_import
             .lock()
             .map_err(|_| AppError::Unexpected("import staging lock poisoned".into()).into())
+    }
+
+    pub fn pending_words(&self) -> Result<MutexGuard<'_, Option<StagedImport>>, ErrorPayload> {
+        self.pending_words
+            .lock()
+            .map_err(|_| AppError::Unexpected("word staging lock poisoned".into()).into())
     }
 
     pub fn pending_source(&self) -> Result<MutexGuard<'_, Option<StagedSource>>, ErrorPayload> {

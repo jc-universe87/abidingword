@@ -333,7 +333,7 @@ pub fn bible_words_preview(state: State<'_, AppState>, id: String) -> CommandRes
         words: staged.content.words.report.clone(),
         current: translation.words,
     };
-    *state.pending_import()? = Some(staged);
+    *state.pending_words()? = Some(staged);
     Ok(preview)
 }
 
@@ -346,7 +346,7 @@ pub fn bible_words_apply(
     words: WordChoice,
 ) -> CommandResult<BibleTranslation> {
     let core = state.core()?;
-    let mut pending = state.pending_import()?;
+    let mut pending = state.pending_words()?;
     let staged = pending
         .as_ref()
         .filter(|s| s.id == preview_id)
@@ -393,4 +393,14 @@ pub fn bible_words_remove(
         tx.commit()?;
         bibles::get(conn, &id)
     })?)
+}
+
+/// Drops a word preview that was not saved (v0.22).
+#[tauri::command(async)]
+pub fn bible_words_cancel(state: State<'_, AppState>, preview_id: String) -> CommandResult<()> {
+    let mut pending = state.pending_words()?;
+    if pending.as_ref().is_some_and(|s| s.id == preview_id) {
+        *pending = None;
+    }
+    Ok(())
 }

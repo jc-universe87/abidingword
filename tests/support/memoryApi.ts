@@ -1370,6 +1370,9 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       state.pendingWords = null;
       return { ...bible };
     },
+    bibleWordsCancel: async (previewId) => {
+      if (state.pendingWords?.id === previewId) state.pendingWords = null;
+    },
     bibleWordsRemove: async (bibleId) => {
       const bible = state.bibles.find((b) => b.id === bibleId);
       if (!bible) throw new ApiError("notFound", "Bible not found");

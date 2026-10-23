@@ -172,6 +172,7 @@ pub fn run() {
             commands::bibles::bible_words_preview,
             commands::bibles::bible_words_apply,
             commands::bibles::bible_words_remove,
+            commands::bibles::bible_words_cancel,
             commands::bibles::bible_set_language,
             commands::bibles::bible_language_options,
             commands::annotations::annotation_list,

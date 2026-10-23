@@ -488,6 +488,15 @@ impl StagedContent {
             return;
         };
         if chapter == 0 || chapter > book.chapter_count {
+            // Once per chapter, not once per verse.
+            let said = self.issues.iter().any(|i| {
+                i.code.as_deref() == Some("bibleImport.chapterOutOfRange")
+                    && i.book == Some(book.code)
+                    && i.chapter == Some(chapter)
+            });
+            if said {
+                return;
+            }
             self.issue(
                 Severity::Error,
                 Some(book),
@@ -616,7 +625,7 @@ impl StagedContent {
             return;
         };
         let held = std::mem::take(&mut self.held);
-        let apply = self.held_is_hebrew_numbered_in(&held);
+        let apply = self.held_is_hebrew_numbered_in(&held, &map);
         let (mut moved, mut joined, mut titles) = (0usize, 0usize, 0usize);
         // Verses placed through the map, per book and chapter.
         let mut mapped: BTreeSet<(u8, u16, u16)> = BTreeSet::new();
@@ -732,12 +741,28 @@ impl StagedContent {
 
     /// Whether the held verses use Hebrew numbering: Joel with a fourth
     /// chapter, or Malachi 3 beyond its 18 English verses.
-    fn held_is_hebrew_numbered_in(&self, held: &[HeldVerse]) -> bool {
+    fn held_is_hebrew_numbered_in(&self, held: &[HeldVerse], map: &VerseMap) -> bool {
+        // The Open Scriptures Hebrew Bible is the Westminster Leningrad Codex,
+        // in its Hebrew numbering, whatever books were chosen.
+        if self
+            .declared_grammar
+            .as_ref()
+            .is_some_and(|(scheme, _)| *scheme == grammar_oshb())
+        {
+            return true;
+        }
         held.iter().any(|v| {
-            (v.ordinal == 29 && v.chapter == "4")
-                || (v.ordinal == 39
-                    && v.chapter == "3"
-                    && v.label.parse::<u16>().is_ok_and(|n| n > 18))
+            let Ok(chapter) = v.chapter.parse::<u16>() else {
+                return false;
+            };
+            let Some(book) = canon::by_ordinal(v.ordinal) else {
+                return false;
+            };
+            let verse = v.label.parse::<u16>().unwrap_or(0);
+            // A chapter or verse only the Hebrew numbering has, at a place the map names.
+            chapter > book.chapter_count
+                || (map.to_english.contains_key(&(v.ordinal, chapter, verse))
+                    && canon::verse_count(book, chapter).is_some_and(|count| verse > count))
         })
     }
 
@@ -1145,7 +1170,11 @@ pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport>
             .with("fileName", name),
         );
     }
-    if !had_map && content.uses_hebrew_numbering() {
+    let oshb_text = content
+        .declared_grammar
+        .as_ref()
+        .is_some_and(|(scheme, _)| *scheme == grammar_oshb());
+    if !had_map && (content.uses_hebrew_numbering() || oshb_text) {
         content.issue(
             Severity::Note,
             None,
@@ -1206,6 +1235,10 @@ fn is_notes_file(name: &str) -> bool {
 fn is_front_matter(text: &str) -> bool {
     let head = text.trim_start_matches('\u{feff}').trim_start();
     head.starts_with("\\id FRT") || head.starts_with("\\id INT")
+}
+
+fn grammar_oshb() -> &'static str {
+    crate::scripture::morphology::OSHB
 }
 
 /// Whether the text says it was read with Hebrew verse numbers: Joel 4.
@@ -1374,8 +1407,19 @@ fn read_zip(path: &Path, total: &mut u64) -> AppResult<Vec<SourceText>> {
                 "This archive is too large to be a single Bible.",
             )));
         }
+        // Never more than the entry says it holds (a compressed entry can lie).
+        let declared = entry.size();
         let mut bytes = Vec::new();
-        let read = entry.read_to_end(&mut bytes);
+        let read = (&mut entry)
+            .take(declared + 1)
+            .read_to_end(&mut bytes)
+            .and_then(|n| {
+                if n as u64 > declared {
+                    Err(std::io::Error::other("larger than it says"))
+                } else {
+                    Ok(n)
+                }
+            });
         if metadata && read.is_err() {
             continue;
         }

@@ -227,8 +227,8 @@ export interface MorphSegment {
 }
 
 export interface MorphDescribed {
-  scheme: "oshb";
-  language: "hebrew" | "aramaic";
+  scheme: GrammarScheme;
+  language: "hebrew" | "aramaic" | "greek";
   segments: MorphSegment[];
 }
 

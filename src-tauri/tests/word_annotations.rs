@@ -111,11 +111,13 @@ fn bundled_strongs_only_bibles_are_reported_but_not_indexed() {
     assert!(words.with_lexical_id > 100_000);
     assert!(!words.indexed);
     assert_eq!(words.not_indexed, Some("strongOnly"));
+    // Kept while staged, so the person can ask for a number search (v0.22);
+    // committing without asking adds no index.
     assert!(staged
         .content
         .books
         .values()
-        .all(|b| b.chapters.values().all(|c| c.words.is_empty())));
+        .any(|b| b.chapters.values().any(|c| !c.words.is_empty())));
 }
 
 #[test]
@@ -309,6 +311,16 @@ fn stage_text(dir: &Path, name: &str, text: &str) -> StagedImport {
 }
 
 fn commit(conn: &Connection, staged: &StagedImport, short: &str) -> String {
+    commit_with(conn, staged, short, Default::default())
+}
+
+/// As the person adds it, with their choices for its words (v0.22).
+fn commit_with(
+    conn: &Connection,
+    staged: &StagedImport,
+    short: &str,
+    words: abiding_word_lib::scripture::WordChoice,
+) -> String {
     let id = bibles::new_translation_id();
     bibles::commit_import(
         conn,
@@ -323,7 +335,7 @@ fn commit(conn: &Connection, staged: &StagedImport, short: &str) -> String {
             publisher: None,
             copyright_notice: None,
             license_type: None,
-            words: Default::default(),
+            words,
         },
         &SourceRecord {
             origin: "managed_copy",
@@ -438,7 +450,16 @@ fn malformed_attributes_leave_words_out_and_too_many_make_the_index_unreliable()
 fn words_are_stored_per_translation_searched_and_removed_with_it() {
     with_db(|conn, dir| {
         let staged = stage_text(dir, "GEN.usfm", &hebrew_fixture());
-        let a = commit(conn, &staged, "TSTA");
+        // The codes fit OSHB's scheme and the person chose it (v0.22: a fit alone describes nothing).
+        let a = commit_with(
+            conn,
+            &staged,
+            "TSTA",
+            abiding_word_lib::scripture::WordChoice {
+                numbers: false,
+                grammar: Some("oshb".into()),
+            },
+        );
         let b = commit(
             conn,
             &stage_text(dir, "GEN-b.usfm", &hebrew_fixture()),

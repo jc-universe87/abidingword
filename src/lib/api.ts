@@ -440,6 +440,8 @@ export interface Api {
   bibleWordsApply(previewId: string, words: WordChoice): Promise<BibleTranslation>;
   /** Removes a Bible's word index; its text stays. */
   bibleWordsRemove(id: string): Promise<BibleTranslation>;
+  /** Drops a word preview that was not saved. */
+  bibleWordsCancel(previewId: string): Promise<void>;
   /** The languages a Bible can be marked as. */
   bibleLanguageOptions(): Promise<BibleLanguageOption[]>;
   /** Corrects a Bible's language: its name as shown, and its tag (null: none). */
@@ -739,6 +741,7 @@ export const tauriApi: Api = {
   bibleWordsPreview: (id) => call("bible_words_preview", { id }),
   bibleWordsApply: (previewId, words) => call("bible_words_apply", { previewId, words }),
   bibleWordsRemove: (id) => call("bible_words_remove", { id }),
+  bibleWordsCancel: (previewId) => call("bible_words_cancel", { previewId }),
   bibleLanguageOptions: () => call("bible_language_options"),
   bibleSetLanguage: ({ id, language, languageCode }) => call("bible_set_language", { id, language, languageCode }),
 

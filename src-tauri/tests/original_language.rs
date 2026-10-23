@@ -139,7 +139,8 @@ fn an_oshb_book_reads_its_words_marks_and_numbers_without_inventing_lemmas() {
         assert!(w.lemma.is_none());
     }
     assert_eq!(words[2].strong.as_deref(), Some("b/7225"));
-    assert_eq!(words[2].ids, vec!["b".to_string(), "7225".to_string()]);
+    // The prefix letter "b" is a morpheme, not a lexical number.
+    assert_eq!(words[2].ids, vec!["7225".to_string()]);
     assert_eq!(words[2].morph.as_deref(), Some("HR/Ncfsa"));
 
     // The Hebrew chapters 3 and 4 are the English 2:28 and 3:1.
@@ -168,31 +169,89 @@ fn without_a_verse_map_hebrew_numbering_is_refused_with_a_way_forward() {
     assert!(staged.content.has_errors());
     let found = codes(&staged);
     assert!(found.contains(&"bibleImport.chapterOutOfRange"));
+    // Once for the chapter, not once per verse.
+    assert_eq!(
+        found
+            .iter()
+            .filter(|c| **c == "bibleImport.chapterOutOfRange")
+            .count(),
+        1
+    );
     assert!(found.contains(&"bibleImport.hebrewNumbering"));
 }
 
 #[test]
 fn a_verse_map_is_not_used_on_english_numbering_and_a_broken_one_is_not_used_at_all() {
     let temp = tempfile::tempdir().unwrap();
-    let english = oshb_joel()
-        .replace("<chapter osisID=\"Joel.4\">", "<chapter osisID=\"Joel.2\">")
-        .replace("Joel.4.1", "Joel.2.1");
+    // A USFM text already in English numbering (not OSHB, which is always Hebrew-numbered).
+    let english = "\\id JOL constructed test text\n\\c 2\n\\p\n\\v 28 אֱלֹהִים בָּרָא׃\n\\c 3\n\\p\n\\v 1 וֵאלֹהִים בָּרָא׃\n";
     let staged = stage(&[
-        write(temp.path(), "Joel.xml", &english),
+        write(temp.path(), "JOL.usfm", english),
         write(temp.path(), "VerseMap.xml", JOEL_MAP),
     ]);
     assert!(codes(&staged).contains(&"bibleImport.verseMapUnused"));
     assert_eq!(
         staged.content.books[&29].chapters[&3].verses[&1],
-        "אֱלֹהִים בָּרָא׃"
+        "וֵאלֹהִים בָּרָא׃"
     );
 
     let broken = r#"<verseMap><verse wlc="Joel.3.1" kjv="Amos.2.28" type="full"/></verseMap>"#;
     let staged = stage(&[
-        write(temp.path(), "Joel.xml", &english),
+        write(temp.path(), "JOL.usfm", english),
         write(temp.path(), "VerseMap.xml", broken),
     ]);
     assert!(codes(&staged).contains(&"bibleImport.verseMapRefused"));
+}
+
+#[test]
+fn a_single_hebrew_book_is_renumbered_too() {
+    let temp = tempfile::tempdir().unwrap();
+    let w = |text: &str| format!(r#"<w lemma="430" morph="HNcmpa">{text}</w>"#);
+    // One OSHB book with no Joel or Malachi: still the Hebrew numbering.
+    let osis = format!(
+        r#"<osis><osisText osisIDWork="OSHB"><header><work osisWork="OSHB"><title>T</title></work></header>
+<div type="book" osisID="Ps"><chapter osisID="Ps.3"><verse osisID="Ps.3.1">{a}</verse><verse osisID="Ps.3.2">{b}</verse></chapter></div></osisText></osis>"#,
+        a = w("מִזְמוֹר"),
+        b = w("יְהוָה"),
+    );
+    let map = r#"<verseMap><verse wlc="Ps.3.2" kjv="Ps.3.1" type="full"/></verseMap>"#;
+    let staged = stage(&[
+        write(temp.path(), "Ps.xml", &osis),
+        write(temp.path(), "VerseMap.xml", map),
+    ]);
+    let psalm = &staged.content.books[&19].chapters[&3];
+    assert_eq!(psalm.superscription.as_deref(), Some("מִזְמוֹר"));
+    assert_eq!(psalm.verses[&1], "יְהוָה");
+    // Without the map, OSHB input is told to add it.
+    let staged = stage(&[write(temp.path(), "Ps.xml", &osis)]);
+    assert!(codes(&staged).contains(&"bibleImport.hebrewNumbering"));
+    // A USFM book whose verse numbers only the Hebrew numbering has (Gen 32:33).
+    let usfm = "\\id GEN constructed\n\\c 32\n\\p\n\\v 1 א\n\\v 33 ב\n";
+    let map = r#"<verseMap><verse wlc="Gen.32.1" kjv="Gen.31.55" type="full"/><verse wlc="Gen.32.33" kjv="Gen.32.32" type="full"/></verseMap>"#;
+    let staged = stage(&[
+        write(temp.path(), "GEN.usfm", usfm),
+        write(temp.path(), "VerseMap.xml", map),
+    ]);
+    let gen = &staged.content.books[&1].chapters;
+    assert_eq!(gen[&31].verses[&55], "א");
+    assert_eq!(gen[&32].verses[&32], "ב");
+}
+
+#[test]
+fn character_references_are_read_and_unknown_entities_refused() {
+    let temp = tempfile::tempdir().unwrap();
+    let joel = oshb_joel().replace("דְּבַר</w>", "דְּבַ&#x5E8;</w>");
+    let staged = stage(&[
+        write(temp.path(), "Joel.xml", &joel),
+        write(temp.path(), "VerseMap.xml", JOEL_MAP),
+    ]);
+    assert!(staged.content.books[&29].chapters[&1].verses[&1].starts_with("דְּבַר־"));
+    let joel = oshb_joel().replace("דְּבַר</w>", "דְּבַר&unknown;</w>");
+    let staged = stage(&[
+        write(temp.path(), "Joel.xml", &joel),
+        write(temp.path(), "VerseMap.xml", JOEL_MAP),
+    ]);
+    assert!(codes(&staged).contains(&"bibleImport.badOsis"));
 }
 
 #[test]
@@ -496,6 +555,8 @@ fn bible_words_number_variants_are_only_spellings_of_the_same_number() {
     let v = bible_words::number_variants("H430");
     assert!(v.contains(&"H0430".to_string()) && v.contains(&"H430".to_string()));
     assert!(!v.iter().any(|x| x.starts_with('G')));
+    // An edition that writes bare numbers (OSHB) is found from "H430" too.
+    assert!(v.contains(&"430".to_string()));
     let v = bible_words::number_variants("1254a");
     assert!(v.contains(&"1254 a".to_string()) && v.contains(&"H1254a".to_string()));
     assert_eq!(
