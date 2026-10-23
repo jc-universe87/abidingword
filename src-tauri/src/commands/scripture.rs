@@ -1,6 +1,9 @@
 use tauri::State;
 
 use super::CommandResult;
+use crate::db::bible_words::{
+    self, LemmaEntry, LemmaLookup, LemmaQuery, LemmaResult, VerseWord, VerseWordsQuery,
+};
 use crate::db::bibles;
 use crate::scripture::concordance::{self, ConcordanceQuery, ConcordanceResult};
 use crate::scripture::language::ReferenceLanguage;
@@ -54,6 +57,34 @@ pub fn scripture_concordance(
     input: ConcordanceQuery,
 ) -> CommandResult<ConcordanceResult> {
     state.db(|conn| concordance::search(conn, &input))
+}
+
+/// The lemma entries a typed lemma or lexical number names in one annotated
+/// Bible (v0.21).
+#[tauri::command(async)]
+pub fn scripture_lemma_entries(
+    state: State<'_, AppState>,
+    input: LemmaLookup,
+) -> CommandResult<Vec<LemmaEntry>> {
+    state.db(|conn| bible_words::entries(conn, &input))
+}
+
+/// Where a lemma or lexical number occurs in one annotated Bible (v0.21).
+#[tauri::command(async)]
+pub fn scripture_lemma_search(
+    state: State<'_, AppState>,
+    input: LemmaQuery,
+) -> CommandResult<LemmaResult> {
+    state.db(|conn| bible_words::search(conn, &input))
+}
+
+/// The annotated words of one verse (v0.21).
+#[tauri::command(async)]
+pub fn scripture_verse_words(
+    state: State<'_, AppState>,
+    input: VerseWordsQuery,
+) -> CommandResult<Vec<VerseWord>> {
+    state.db(|conn| bible_words::verse_words(conn, &input))
 }
 
 /// A typed reference in any of the 100 reference languages

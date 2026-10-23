@@ -44,6 +44,11 @@ import type {
   CommitImport,
   ConcordanceQuery,
   ConcordanceResult,
+  LemmaEntry,
+  LemmaLookup,
+  LemmaQuery,
+  LemmaResult,
+  VerseWord,
   CreateAnnotation,
   MarksPage,
   MarksQuery,
@@ -404,6 +409,12 @@ export interface Api {
   scriptureSearch(input: SearchScripture): Promise<SearchResults>;
   /** Where a word or phrase occurs in one translation (v0.12). */
   scriptureConcordance(input: ConcordanceQuery): Promise<ConcordanceResult>;
+  /** Lemma entries a typed lemma or lexical number names (v0.21). */
+  scriptureLemmaEntries(input: LemmaLookup): Promise<LemmaEntry[]>;
+  /** Where a lemma or lexical number occurs, from the Bible's own annotations (v0.21). */
+  scriptureLemmaSearch(input: LemmaQuery): Promise<LemmaResult>;
+  /** The annotated words of one verse (v0.21). */
+  scriptureVerseWords(input: { translationId: string; verse: string }): Promise<VerseWord[]>;
   /**
    * A typed passage in any of the 100 reference languages ("Johannes 15,5",
    * "요한복음 15장 5절"). `translationId` is the Bible the person is reading:
@@ -687,6 +698,9 @@ export const tauriApi: Api = {
   scriptureGetPassage: (input) => call("scripture_get_passage", { input }),
   scriptureSearch: (input) => call("scripture_search", { input }),
   scriptureConcordance: (input) => call("scripture_concordance", { input }),
+  scriptureLemmaEntries: (input) => call("scripture_lemma_entries", { input }),
+  scriptureLemmaSearch: (input) => call("scripture_lemma_search", { input }),
+  scriptureVerseWords: (input) => call("scripture_verse_words", { input }),
   // One reader for typed passages in any of the 100 reference languages; the
   // Bible being read, then the interface language, settle a genuine tie.
   referenceParse: (text, translationId) => call("scripture_reference_parse", { text, language: i18n.language, translationId: translationId ?? null }),
