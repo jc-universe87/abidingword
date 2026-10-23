@@ -20,7 +20,9 @@ use serde::Serialize;
 
 use crate::error::{AppError, AppResult, UserMessage};
 use crate::scripture::canon::{self, Book, NON_CANONICAL_USFM_CODES};
-use crate::scripture::usfm;
+use crate::scripture::morphology;
+use crate::scripture::usfm::{self, MarkedWord, WordShape};
+use crate::scripture::words::{self, AttributeProblem};
 
 /// Refuse anything bigger: a full Bible in USFM is under 20 MB.
 const MAX_TOTAL_BYTES: u64 = 100 * 1024 * 1024;
@@ -130,8 +132,17 @@ impl BibleImportAdapter for UsfmAdapter {
                     .with("bookCode", book.code),
                 );
             }
+            staged.words.read_problems(&doc.word_problems);
             for verse in doc.verses {
-                staged.add_verse(book, &mut content, &verse.chapter, &verse.label, verse.text);
+                let annotated = staged.words.annotate(verse.words);
+                staged.add_verse(
+                    book,
+                    &mut content,
+                    &verse.chapter,
+                    &verse.label,
+                    verse.text,
+                    annotated,
+                );
             }
             for (chapter, text) in doc.superscriptions {
                 if let Ok(number) = chapter.parse::<u16>() {
@@ -168,9 +179,167 @@ pub struct ImportIssue {
     pub params: BTreeMap<String, String>,
 }
 
+/// One annotated word, placed in its verse's text (v0.21).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StagedWord {
+    /// UTF-16 offsets into the verse text, end exclusive.
+    pub start: usize,
+    pub end: usize,
+    pub surface: String,
+    pub shape: WordShape,
+    pub lemma: Option<String>,
+    pub strong: Option<String>,
+    pub morph: Option<String>,
+    /// Every lexical identifier of `strong` (values and parts).
+    pub ids: Vec<String>,
+}
+
+/// Annotated words left out of the index, by reason.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WordsLeftOut {
+    /// Attribute lists not following the USFM syntax.
+    pub syntax: usize,
+    /// An attribute given two different values.
+    pub conflict: usize,
+    pub too_long: usize,
+    /// `\w` never closed, `\w*` never opened, a list with no word.
+    pub unbalanced: usize,
+    /// Marked words inside other marked words.
+    pub overlapping: usize,
+    /// Annotated words outside verse text (headings, titles, introductions).
+    pub outside_verse: usize,
+    /// Marks around punctuation only.
+    pub empty: usize,
+    /// In a verse with more marked words than any real verse has.
+    pub too_many: usize,
+}
+
+impl WordsLeftOut {
+    pub fn total(&self) -> usize {
+        self.syntax
+            + self.conflict
+            + self.too_long
+            + self.unbalanced
+            + self.overlapping
+            + self.empty
+            + self.too_many
+    }
+}
+
+/// What the import found in the Bible's word markup, shown before adding it.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WordReport {
+    /// Marked words that carry attributes (read or not).
+    pub marked: usize,
+    /// Words kept, with their verses.
+    pub words: usize,
+    pub verses: usize,
+    pub with_lemma: usize,
+    pub with_lexical_id: usize,
+    pub with_morphology: usize,
+    pub distinct_lemmas: usize,
+    /// Multi-word units and parts of written words among the kept words.
+    pub phrases: usize,
+    pub parts: usize,
+    pub morph_attribute: Option<String>,
+    /// "oshb", "raw" or "none" (see `scripture::morphology`).
+    pub morph_scheme: &'static str,
+    /// Other attribute names present, not read (e.g. "srcloc").
+    pub other_attributes: Vec<String>,
+    pub left_out: WordsLeftOut,
+    /// Whether the words are added to the word index.
+    pub indexed: bool,
+    /// Why not: "strongOnly", "unreliable", "unreadable" or "tooLarge".
+    pub not_indexed: Option<&'static str>,
+}
+
+/// More marked words than this in one verse cannot be real (the longest verse
+/// has under 100 words).
+pub const WORDS_PER_VERSE_MAX: usize = 1_000;
+/// More annotated words than any Bible has (the whole Bible: about 800,000).
+pub const WORDS_MAX: usize = 2_000_000;
+
+/// Collects the words of an import and what was left out (v0.21).
+#[derive(Debug, Default)]
+pub struct WordCollector {
+    pub report: WordReport,
+    unreadable: bool,
+    morph_attributes: BTreeSet<&'static str>,
+}
+
+impl WordCollector {
+    fn read_problems(&mut self, problems: &usfm::WordProblems) {
+        let left = &mut self.report.left_out;
+        left.unbalanced += problems.unclosed + problems.orphan_attributes;
+        left.too_many += problems.too_many;
+        left.overlapping += problems.overlapping;
+        left.outside_verse += problems.outside_verse;
+        left.empty += problems.empty;
+        self.unreadable |= problems.unreadable;
+        self.report.marked += problems.total();
+    }
+
+    /// The verse's marked words that carry readable annotations.
+    fn annotate(&mut self, marked: Vec<MarkedWord>) -> Vec<StagedWord> {
+        let with_attributes: Vec<MarkedWord> = marked
+            .into_iter()
+            .filter(|w| w.attributes.is_some())
+            .collect();
+        self.report.marked += with_attributes.len();
+        if with_attributes.len() > WORDS_PER_VERSE_MAX {
+            self.report.left_out.too_many += with_attributes.len();
+            return Vec::new();
+        }
+        let mut out = Vec::new();
+        for word in with_attributes {
+            let raw = word.attributes.as_deref().unwrap_or_default();
+            match words::parse_attributes(raw) {
+                Ok(attributes) => {
+                    for name in &attributes.other {
+                        if !self.report.other_attributes.contains(name)
+                            && self.report.other_attributes.len() < 20
+                        {
+                            self.report.other_attributes.push(name.clone());
+                        }
+                    }
+                    if let Some(name) = attributes.morph_attribute {
+                        self.morph_attributes.insert(name);
+                    }
+                    if attributes.is_empty() {
+                        continue;
+                    }
+                    out.push(StagedWord {
+                        start: word.start,
+                        end: word.end,
+                        surface: word.surface,
+                        shape: word.shape,
+                        ids: attributes.lexical_ids(),
+                        lemma: attributes.lemma,
+                        strong: attributes.strong,
+                        morph: attributes.morph,
+                    });
+                }
+                Err(problem) => {
+                    let left = &mut self.report.left_out;
+                    match problem {
+                        AttributeProblem::Syntax => left.syntax += 1,
+                        AttributeProblem::Conflict => left.conflict += 1,
+                        AttributeProblem::TooLong => left.too_long += 1,
+                    }
+                }
+            }
+        }
+        out
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct StagedChapter {
     pub verses: BTreeMap<u16, String>,
+    /// Annotated words of each verse, in order (v0.21; only when indexed).
+    pub words: BTreeMap<u16, Vec<StagedWord>>,
     /// Bridged verses (v0.18.8): the first verse of a bridge such as "4-5"
     /// and its last; the text is stored on the first.
     pub bridges: BTreeMap<u16, u16>,
@@ -188,6 +357,8 @@ pub struct StagedContent {
     pub books: BTreeMap<u8, StagedBook>,
     pub issues: Vec<ImportIssue>,
     pub skipped_files: Vec<String>,
+    /// The Bible's word annotations (v0.21).
+    pub words: WordCollector,
 }
 
 impl StagedContent {
@@ -219,6 +390,7 @@ impl StagedContent {
         chapter: &str,
         label: &str,
         text: String,
+        words: Vec<StagedWord>,
     ) {
         let name = book.name;
         let Ok(chapter) = chapter.parse::<u16>() else {
@@ -339,6 +511,14 @@ impl StagedContent {
             );
         }
         verses.insert(verse, text);
+        if !words.is_empty() {
+            content
+                .chapters
+                .entry(chapter)
+                .or_default()
+                .words
+                .insert(verse, words);
+        }
         if let Some(last) = last {
             content
                 .chapters
@@ -439,6 +619,101 @@ impl StagedContent {
                 && bridges.contains(&(i.book, i.chapter)))
         });
         self.issues.sort_by_key(|i| i.severity);
+    }
+
+    /// Decides whether the annotated words are indexed, and how their
+    /// morphology codes are read (v0.21). Words that are not indexed are
+    /// dropped here; the report still says what was found.
+    pub fn finish_words(&mut self) {
+        let mut kept = 0usize;
+        let mut verses = 0usize;
+        let (mut lemma, mut ids, mut morph) = (0usize, 0usize, 0usize);
+        let (mut phrases, mut parts) = (0usize, 0usize);
+        let (mut candidates, mut described) = (0usize, 0usize);
+        let mut lemmas: BTreeSet<&str> = BTreeSet::new();
+        for book in self.books.values() {
+            for chapter in book.chapters.values() {
+                for list in chapter.words.values() {
+                    verses += 1;
+                    for w in list {
+                        kept += 1;
+                        if let Some(l) = &w.lemma {
+                            lemma += 1;
+                            lemmas.insert(l);
+                        }
+                        ids += usize::from(w.strong.is_some());
+                        match w.shape {
+                            WordShape::Phrase => phrases += 1,
+                            WordShape::Part => parts += 1,
+                            WordShape::Word => {}
+                        }
+                        if let Some(code) = &w.morph {
+                            morph += 1;
+                            let code = code.trim();
+                            if code.starts_with(['H', 'A'])
+                                || code.starts_with("He,")
+                                || code.starts_with("Ar,")
+                            {
+                                candidates += 1;
+                                described += usize::from(morphology::describe_oshb(code).is_some());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        let distinct = lemmas.len();
+        let report = &mut self.words.report;
+        report.words = kept;
+        report.verses = verses;
+        report.with_lemma = lemma;
+        report.with_lexical_id = ids;
+        report.with_morphology = morph;
+        report.distinct_lemmas = distinct;
+        report.phrases = phrases;
+        report.parts = parts;
+        report.morph_attribute = match self.words.morph_attributes.len() {
+            0 => None,
+            1 => self
+                .words
+                .morph_attributes
+                .iter()
+                .next()
+                .map(|s| s.to_string()),
+            _ => Some("x-morph, morph".into()),
+        };
+        // Described only when nearly every Hebrew or Aramaic code is one of the scheme's.
+        report.morph_scheme = if morph == 0 {
+            "none"
+        } else if candidates > 0 && described * 100 >= candidates * 95 {
+            morphology::OSHB
+        } else {
+            "raw"
+        };
+        let left = report.left_out.total();
+        report.not_indexed = if kept == 0 && report.marked == 0 {
+            None
+        } else if self.words.unreadable {
+            Some("unreadable")
+        } else if kept > WORDS_MAX {
+            Some("tooLarge")
+        } else if left > 10 && left * 100 > report.marked {
+            // A partly read index would look authoritative while being wrong.
+            Some("unreliable")
+        } else if kept > 0 && lemma == 0 && morph == 0 {
+            // Lexical numbers on a translation's words: reported, not indexed (yet).
+            Some("strongOnly")
+        } else {
+            None
+        };
+        report.indexed = kept > 0 && report.not_indexed.is_none();
+        if !report.indexed {
+            for book in self.books.values_mut() {
+                for chapter in book.chapters.values_mut() {
+                    chapter.words.clear();
+                }
+            }
+        }
     }
 
     pub fn has_errors(&self) -> bool {
@@ -612,6 +887,7 @@ pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport>
     let mut content = StagedContent::default();
     adapter.read(&readable, &mut content);
     content.check_structure();
+    content.finish_words();
     if content.books.is_empty() && !content.has_errors() {
         return Err(AppError::Import(UserMessage::new(
             "bibleImport.noBooks",
@@ -823,6 +1099,8 @@ pub struct ImportPreview {
     /// (introductions, glossaries, deuterocanonical books).
     pub skipped_files: Vec<String>,
     pub can_import: bool,
+    /// The word annotations found (v0.21).
+    pub words: WordReport,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
@@ -893,6 +1171,7 @@ impl StagedImport {
             issues: self.content.issues.clone(),
             skipped_files: self.content.skipped_files.clone(),
             can_import: !self.content.has_errors(),
+            words: self.content.words.report.clone(),
         }
     }
 }

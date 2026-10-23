@@ -6,6 +6,7 @@
 
 pub mod annotations;
 pub mod backup;
+pub mod bible_words;
 pub mod bibles;
 pub mod blocks;
 pub mod findings;

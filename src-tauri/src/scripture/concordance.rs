@@ -99,7 +99,7 @@ pub struct Token {
     pub form: String,
 }
 
-fn is_token_char(c: char) -> bool {
+pub fn is_token_char(c: char) -> bool {
     c.is_alphanumeric() || is_combining_mark(c)
 }
 

@@ -12,6 +12,7 @@ pub mod concordance;
 pub mod data_packs;
 pub mod import;
 pub mod language;
+pub mod morphology;
 pub mod packs;
 pub mod parser;
 pub mod phrase_ranges;
@@ -20,6 +21,7 @@ pub mod reference;
 pub mod resolve;
 pub mod usfm;
 pub mod verse_counts;
+pub mod words;
 
 use serde::{Deserialize, Serialize};
 
@@ -72,6 +74,23 @@ pub struct BibleTranslation {
     pub verse_count: i64,
     pub created_at: String,
     pub updated_at: String,
+    /// The Bible's word annotations (v0.21), when it has indexed ones.
+    pub words: Option<WordAnnotations>,
+}
+
+/// What a Bible's word annotations hold (v0.21): which research features it supports.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct WordAnnotations {
+    pub word_count: i64,
+    pub verse_count: i64,
+    pub lemmas: bool,
+    pub lexical_ids: bool,
+    pub morphology: bool,
+    /// "oshb", "raw" or "none".
+    pub morph_scheme: String,
+    pub morph_attribute: Option<String>,
+    pub source_format: String,
 }
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]

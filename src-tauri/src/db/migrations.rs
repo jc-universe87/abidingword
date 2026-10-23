@@ -106,6 +106,11 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "unresolved_citations",
         sql: include_str!("../../migrations/0016_unresolved_citations.sql"),
     },
+    Migration {
+        version: 17,
+        name: "word_annotations",
+        sql: include_str!("../../migrations/0017_word_annotations.sql"),
+    },
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq)]

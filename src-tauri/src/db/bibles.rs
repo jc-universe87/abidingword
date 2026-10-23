@@ -22,7 +22,14 @@ use crate::scripture::{
 
 const COLUMNS: &str = "id, name, short_name, language, language_code, publisher, \
     copyright_notice, license_type, kind, source_type, source_origin, source_path, \
-    original_file_name, import_status, is_builtin, book_count, verse_count, created_at, updated_at";
+    original_file_name, import_status, is_builtin, book_count, verse_count, created_at, updated_at, \
+    (SELECT json_object('wordCount', a.word_count, 'verseCount', a.verse_count, \
+        'lemmas', json(CASE WHEN a.lemma_count > 0 THEN 'true' ELSE 'false' END), \
+        'lexicalIds', json(CASE WHEN a.strong_count > 0 THEN 'true' ELSE 'false' END), \
+        'morphology', json(CASE WHEN a.morph_count > 0 THEN 'true' ELSE 'false' END), \
+        'morphScheme', a.morph_scheme, \
+        'morphAttribute', a.morph_attribute, 'sourceFormat', a.source_format) \
+     FROM bible_word_annotations a WHERE a.translation_id = bible_translations.id)";
 
 const SHORT_NAME_MAX_CHARS: usize = 20;
 const SEARCH_LIMIT: usize = 200;
@@ -48,6 +55,9 @@ fn from_row(row: &Row) -> rusqlite::Result<BibleTranslation> {
         verse_count: row.get(16)?,
         created_at: row.get(17)?,
         updated_at: row.get(18)?,
+        words: row
+            .get::<_, Option<String>>(19)?
+            .and_then(|json| serde_json::from_str(&json).ok()),
     })
 }
 
@@ -187,6 +197,7 @@ pub fn commit_import(
             }
         }
     }
+    crate::db::bible_words::insert(&tx, id, content, &now)?;
     tx.commit()?;
     log::info!(
         "Bible added: {short_name} ({} books, {} verses)",
@@ -201,6 +212,9 @@ pub fn commit_import(
 pub fn remove(conn: &Connection, id: &str) -> AppResult<BibleTranslation> {
     let translation = get(conn, id)?;
     let tx = conn.unchecked_transaction()?;
+    // Its word index first, in bulk (v0.21): left to the cascade, each entry
+    // removed would look up its words one by one.
+    crate::db::bible_words::remove(&tx, id)?;
     tx.execute("DELETE FROM bible_translations WHERE id = ?1", [id])?;
     // Forget it as the active translation.
     tx.execute(
