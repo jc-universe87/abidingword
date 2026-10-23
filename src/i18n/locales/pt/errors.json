@@ -84,12 +84,12 @@
     "verseMapUnused": "A tabela de correspondência de versículos fornecida não foi usada: estes arquivos já seguem a numeração inglesa de versículos.",
     "verseMapRefused": "Não foi possível ler por completo a tabela de correspondência de versículos “{{fileName}}”, por isso ela não foi usada.",
     "hebrewNumbering": "Este texto parece usar a numeração de versículos da Bíblia hebraica (Joel tem quatro capítulos). Adicione aos arquivos escolhidos a tabela de correspondência de versículos que o acompanha (para a Open Scriptures Hebrew Bible: wlc/VerseMap.xml), e eles serão renumerados.",
-    "verseMapDivided_one": "{{count}} parte de um versículo hebraico foi colocada no versículo inglês que o próprio texto indica.",
-    "verseMapDivided_many": "{{count}} partes de versículos hebraicos foram colocadas nos versículos ingleses que o próprio texto indica.",
-    "verseMapDivided_other": "{{count}} partes de versículos hebraicos foram colocadas nos versículos ingleses que o próprio texto indica.",
-    "verseMapUnsplit": "Cada um destes versículos hebraicos contém partes de dois versículos ingleses, e estes arquivos não indicam onde um termina: {{places}}. Cada um fica inteiro no seu lugar no texto hebraico, então o versículo inglês que ele deveria começar ou terminar fica incompleto ali.",
+    "verseMapUnsplit": "Cada um destes versículos hebraicos contém partes de dois versículos ingleses, e estes arquivos não indicam onde um termina: {{places}}. Cada um fica inteiro com seu número hebraico, então também contém palavras do versículo inglês vizinho, e esse versículo fica incompleto ou falta.",
     "verseMapConflict": "Em {{places}}, a marca de versículo do próprio texto e a tabela de correspondência de versículos não coincidem; a marca do texto foi seguida.",
-    "psalmTitlesInVerse": "Onde o texto hebraico escreve o título de um salmo como início do versículo 1, estes arquivos não indicam onde o título termina, então ele continua fazendo parte do versículo 1."
+    "psalmTitlesInVerse": "Onde o texto hebraico escreve o título de um salmo como início do versículo 1, estes arquivos não indicam onde o título termina, então ele continua fazendo parte do versículo 1.",
+    "verseMapDivided_one": "{{count}} versículo hebraico foi dividido onde o próprio texto marca o início de um versículo inglês ({{titles}} das partes são títulos de salmos).",
+    "verseMapDivided_many": "{{count}} versículos hebraicos foram divididos onde o próprio texto marca o início de um versículo inglês ({{titles}} das partes são títulos de salmos).",
+    "verseMapDivided_other": "{{count}} versículos hebraicos foram divididos onde o próprio texto marca o início de um versículo inglês ({{titles}} das partes são títulos de salmos)."
   },
   "library": {
     "notUtf8": "“{{fileName}}” não está salvo como texto UTF-8, por isso não pôde ser lido.",

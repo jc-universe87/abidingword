@@ -1007,3 +1007,68 @@ fn a_mark_and_the_map_that_disagree_are_reported() {
     let staged = stage(&[isa, write(temp.path(), "VerseMap.xml", map)]);
     assert!(codes(&staged).contains(&"bibleImport.verseMapConflict"));
 }
+
+#[test]
+fn a_psalm_part_at_its_own_number_is_joined_not_made_a_title() {
+    let temp = tempfile::tempdir().unwrap();
+    let w = |text: &str| format!(r#"<w lemma="430" morph="HNcmpa">{text}</w>"#);
+    // Psalm 20:3 (constructed): a mark naming its own number inside it, no
+    // map entry for the part before. The two parts are one English verse.
+    let osis = format!(
+        r#"<osis><osisText osisIDWork="OSHB"><header><work osisWork="OSHB"><title>T</title></work></header><div type="book" osisID="Ps"><chapter osisID="Ps.20"><verse osisID="Ps.20.1">{t}</verse><verse osisID="Ps.20.2">{a}</verse><verse osisID="Ps.20.3">{b}<note>KJV:Ps.20.3</note>{c}</verse></chapter></div></osisText></osis>"#,
+        t = w("מִזְמוֹר"),
+        a = w("יַעַנְךָ"),
+        b = w("יִשְׁלַח"),
+        c = w("עֶזְרְךָ"),
+    );
+    let map = r#"<verseMap><verse wlc="Joel.4.1" kjv="Joel.3.1" type="full"/></verseMap>"#;
+    let staged = stage(&[
+        write(temp.path(), "Ps.xml", &osis),
+        write(temp.path(), "VerseMap.xml", map),
+    ]);
+    assert_offsets(&staged);
+    let ps = &staged.content.books[&19].chapters[&20];
+    assert_eq!(ps.verses[&3], "יִשְׁלַח עֶזְרְךָ");
+    assert!(ps.superscription.is_none());
+}
+
+#[test]
+fn a_paseq_just_after_the_mark_stays_with_the_words_before_it() {
+    let temp = tempfile::tempdir().unwrap();
+    let w = |text: &str| format!(r#"<w lemma="430" morph="HNcmpa">{text}</w>"#);
+    // As OSHB writes Psalm 35:1: the mark for English verse 1 falls just
+    // before a paseq that ends the title.
+    let osis = format!(
+        r#"<osis><osisText osisIDWork="OSHB"><header><work osisWork="OSHB"><title>T</title></work></header><div type="book" osisID="Ps"><chapter osisID="Ps.35"><verse osisID="Ps.35.1">{a}<note>KJV:Ps.35.1</note>
+<seg type="x-paseq">׀</seg>
+{b} {c}</verse></chapter></div></osisText></osis>"#,
+        a = w("לְדָוִד"),
+        b = w("רִיבָה"),
+        c = w("יְהוָה"),
+    );
+    let map = r#"<verseMap><verse wlc="Joel.4.1" kjv="Joel.3.1" type="full"/></verseMap>"#;
+    let staged = stage(&[
+        write(temp.path(), "Ps.xml", &osis),
+        write(temp.path(), "VerseMap.xml", map),
+    ]);
+    assert_offsets(&staged);
+    let ps = &staged.content.books[&19].chapters[&35];
+    assert_eq!(ps.superscription.as_deref(), Some("לְדָוִד ׀"));
+    assert_eq!(ps.verses[&1], "רִיבָה יְהוָה");
+}
+
+#[test]
+fn files_of_another_format_than_the_one_read_are_named_as_left_out() {
+    let temp = tempfile::tempdir().unwrap();
+    // OSHB books chosen together with a stray USFM book: the USFM is read,
+    // and the OSHB files are named, never dropped silently.
+    let usfm = "\\id JHN constructed\n\\c 1\n\\p\n\\v 1 In the beginning.\n";
+    let staged = stage(&[
+        write(temp.path(), "JHN.usfm", usfm),
+        write(temp.path(), "Joel.xml", &oshb_joel()),
+    ]);
+    assert!(staged
+        .content
+        .skipped_files
+        .contains(&"Joel.xml".to_string()));
+}

@@ -49,7 +49,8 @@ function values(params: MessageParams): Record<string, unknown> {
         const parsed = parseCanonical(canonical);
         return parsed ? referenceLabel({ ...parsed, canonical, display: canonical }) : canonical;
       })
-      .join(", ");
+      // Not ", ": a comma separates chapter and verse in several languages ("18,34").
+      .join("; ");
   }
   if (params.numbers !== undefined) {
     const more = Number(params.more ?? 0);

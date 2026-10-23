@@ -265,7 +265,7 @@ fn read_file(file: &SourceText, staged: &mut StagedContent) {
                                 broken = true;
                                 continue;
                             }
-                            staged.split_marks += 1;
+                            staged.split_marks.insert(found.ordinal);
                             finish(
                                 staged,
                                 &mut content,

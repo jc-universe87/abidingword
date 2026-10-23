@@ -212,6 +212,37 @@ fn a_dev41_database_upgrades_with_a_complete_backup_and_rolls_back_cleanly() {
 }
 
 #[test]
+fn the_pre_migration_copy_includes_a_change_still_only_in_the_wal_file() {
+    let temp = tempfile::tempdir().unwrap();
+    let path = temp.path().join("abiding-word.db");
+    let backups = temp.path().join("pre-migration");
+    let before = dev41_database(&path);
+    // As a stopped app leaves it: the last change is in the WAL file, not yet
+    // in the database file itself.
+    let wal = path.with_extension("db-wal");
+    assert!(fs::metadata(&wal).unwrap().len() > 0);
+    {
+        // The main file alone (as a plain file copy would take it) lacks the change.
+        let main_only = temp.path().join("main-only.db");
+        fs::copy(&path, &main_only).unwrap();
+        let conn = Connection::open(&main_only).unwrap();
+        assert!(!content(&conn).contains(&"Why a vine? Written last.".to_string()));
+    }
+    let db = Database::open(&path, &backups).unwrap();
+    let backup = fs::read_dir(&backups)
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path();
+    let copy = Connection::open(&backup).unwrap();
+    assert_eq!(version(&copy), 15);
+    assert_eq!(integrity(&copy), "ok");
+    assert_eq!(content(&copy), before, "VACUUM INTO read the WAL");
+    drop(db);
+}
+
+#[test]
 fn a_newer_wal_file_left_beside_a_restored_copy_is_why_it_must_be_removed() {
     let temp = tempfile::tempdir().unwrap();
     let path = temp.path().join("abiding-word.db");
@@ -242,12 +273,12 @@ fn a_newer_wal_file_left_beside_a_restored_copy_is_why_it_must_be_removed() {
     fs::copy(&backup, &path).unwrap();
     fs::copy(&newer_wal, &wal).unwrap();
     let _ = fs::remove_file(path.with_extension("db-shm"));
-    let outcome = Connection::open(&path).and_then(|conn| {
+    let outcome = Connection::open(&path).map(|conn| {
         let v = migrations::current_version(&conn).unwrap_or(-1);
         let ok: String = conn
             .query_row("PRAGMA integrity_check", [], |r| r.get(0))
             .unwrap_or_else(|e| e.to_string());
-        Ok((v, ok, content_or_error(&conn)))
+        (v, ok, content_or_error(&conn))
     });
     // Whatever SQLite makes of it, it is not the database as it was before
     // the update: the checklist removes the WAL and SHM files first.

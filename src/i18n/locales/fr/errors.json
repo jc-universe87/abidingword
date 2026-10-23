@@ -84,12 +84,12 @@
     "verseMapUnused": "La table de correspondance des versets fournie n’a pas été utilisée : ces fichiers suivent déjà la numérotation anglaise des versets.",
     "verseMapRefused": "La table de correspondance des versets « {{fileName}} » n’a pas pu être lue entièrement ; elle n’a donc pas été utilisée.",
     "hebrewNumbering": "Ce texte semble utiliser la numérotation des versets de la Bible hébraïque (Joël y a quatre chapitres). Ajoutez aux fichiers choisis la table de correspondance des versets qui l’accompagne (pour l’Open Scriptures Hebrew Bible : wlc/VerseMap.xml), et ils seront renumérotés.",
-    "verseMapDivided_one": "{{count}} partie d’un verset hébreu a été placée dans le verset anglais que le texte lui-même indique.",
-    "verseMapDivided_many": "{{count}} parties de versets hébreux ont été placées dans les versets anglais que le texte lui-même indique.",
-    "verseMapDivided_other": "{{count}} parties de versets hébreux ont été placées dans les versets anglais que le texte lui-même indique.",
-    "verseMapUnsplit": "Ces versets hébreux contiennent chacun des parties de deux versets anglais, et ces fichiers n’indiquent pas où l’un se termine : {{places}}. Chacun reste entier à sa place dans le texte hébreu ; le verset anglais qu’il devrait commencer ou terminer y est donc incomplet.",
+    "verseMapUnsplit": "Ces versets hébreux contiennent chacun des parties de deux versets anglais, et ces fichiers n’indiquent pas où l’un se termine : {{places}}. Chacun reste entier sous son numéro hébreu ; il contient donc aussi des mots du verset anglais voisin, et ce verset est incomplet ou manquant.",
     "verseMapConflict": "En {{places}}, la marque de verset du texte et la table de correspondance des versets ne concordent pas ; la marque du texte a été suivie.",
-    "psalmTitlesInVerse": "Là où le texte hébreu écrit le titre d’un psaume comme début du verset 1, ces fichiers n’indiquent pas où le titre se termine : il reste donc dans le verset 1."
+    "psalmTitlesInVerse": "Là où le texte hébreu écrit le titre d’un psaume comme début du verset 1, ces fichiers n’indiquent pas où le titre se termine : il reste donc dans le verset 1.",
+    "verseMapDivided_one": "{{count}} verset hébreu a été divisé là où le texte lui-même marque le début d’un verset anglais ({{titles}} des parties sont des titres de psaumes).",
+    "verseMapDivided_many": "{{count}} versets hébreux ont été divisés là où le texte lui-même marque le début d’un verset anglais ({{titles}} des parties sont des titres de psaumes).",
+    "verseMapDivided_other": "{{count}} versets hébreux ont été divisés là où le texte lui-même marque le début d’un verset anglais ({{titles}} des parties sont des titres de psaumes)."
   },
   "library": {
     "notUtf8": "« {{fileName}} » n’est pas enregistré en texte UTF-8 ; il n’a donc pas pu être lu.",

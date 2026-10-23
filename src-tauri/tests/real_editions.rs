@@ -389,7 +389,9 @@ fn oshb_corpus_reference_correctness() {
                 let (o, tc, tv) =
                     abiding_word_lib::scripture::versification::osis_verse(base).unwrap();
                 marks_checked += 1;
-                if !english(o, tc, tv).is_some_and(|e| e.contains(piece.as_str())) {
+                // A paseq just after the mark is kept with the words before it (Ps 35:1, 37:1).
+                let piece = piece.strip_prefix('׀').unwrap_or(piece);
+                if !english(o, tc, tv).is_some_and(|e| e.contains(piece)) {
                     failures.push(format!("{id}: mark {target} not found there"));
                 }
             }

@@ -102,9 +102,11 @@ and text:
   (`1Kgs.18.34!a → 1Kgs.18.33!b`: the first part ends English 18:33); a
   Psalm's words before a mark for verse 1 are its title. In the WLC this
   covers 1 Kgs 18:34, 20:3, 22:21, Isa 63:19, Ps 13:6 and 53 Psalms whose
-  title the Hebrew writes inside verse 1 (116 parts). A mark and a map entry
-  that disagree are reported (`bibleImport.verseMapConflict`); the mark is
-  followed;
+  title the Hebrew writes inside verse 1 (58 Hebrew verses, 116 parts, 53 of
+  them titles). A part never takes an earlier part of the same Hebrew verse
+  for a title (they are joined), and a paseq just after a mark stays with
+  the words before it (Ps 35:1, 37:1). A mark and a map entry that disagree
+  are reported (`bibleImport.verseMapConflict`); the mark is followed;
 - where the files have no such marks (eBible's USFM), such a verse is kept
   whole at its Hebrew place and **named** in the review
   (`bibleImport.verseMapUnsplit`: 1 Kgs 18:34, 20:3, 22:21, Ps 13:6,
@@ -127,8 +129,9 @@ names; every English Old Testament verse is present except **Nehemiah
 7:68**, which the Leningrad Codex does not contain (the review names it).
 
 A map naming an unknown book, a malformed reference or part, a different
-book on each side, the same source twice or an unknown type, or holding any
-`<verse>` element not in the documented shape, is refused whole (`bibleImport.verseMapRefused`,
+book on each side, the same source twice (or one Hebrew verse both whole and
+in parts) or an unknown type, or holding any `<verse>` element (in any case
+or namespace, comments aside) not in the documented shape, is refused whole (`bibleImport.verseMapRefused`,
 a warning) — a partly wrong map would move verses silently. The text counts as
 Hebrew-numbered when it is OSHB (always the WLC's numbering, whichever books
 were chosen) or when any verse is at a chapter or verse number only the

@@ -402,7 +402,7 @@ pub struct StagedContent {
     held: Vec<HeldVerse>,
     /// Places the text itself marked where an English verse begins inside
     /// a Hebrew one (OSHB's `KJV:` notes), so the verse could be divided.
-    pub split_marks: usize,
+    pub split_marks: BTreeSet<u8>,
 }
 
 /// What the files themselves state about the edition (v0.22).
@@ -500,6 +500,24 @@ impl StagedContent {
     ) {
         // A verse map waits until the whole text is read (v0.22).
         if self.verse_map.is_some() {
+            let (mut text, mut words) = (text, words);
+            // A paseq (׀) where the text's mark falls just before it divides the
+            // words before it from those after: it belongs with the part before.
+            if part.part.is_some_and(|p| p != 'a') && text.starts_with('׀') {
+                if let Some(previous) = self.held.last_mut().filter(|h| {
+                    h.ordinal == book.ordinal && h.chapter == chapter && h.label == label
+                }) {
+                    let rest = text['׀'.len_utf8()..].trim_start();
+                    let removed_units = text[..text.len() - rest.len()].encode_utf16().count();
+                    previous.text.push_str(" ׀");
+                    text = rest.to_string();
+                    for w in &mut words {
+                        w.start -= removed_units;
+                        w.end -= removed_units;
+                    }
+                }
+            }
+            let words = words;
             self.held.push(HeldVerse {
                 ordinal: book.ordinal,
                 chapter: chapter.to_string(),
@@ -678,7 +696,14 @@ impl StagedContent {
         };
         let held = std::mem::take(&mut self.held);
         let apply = self.held_is_hebrew_numbered_in(&held, &map);
-        let (mut moved, mut joined, mut titles, mut divided) = (0usize, 0usize, 0usize, 0usize);
+        let (mut moved, mut joined, mut titles) = (0usize, 0usize, 0usize);
+        // Hebrew verses divided at the text's marks, and their parts that are Psalm titles.
+        let mut divided: BTreeSet<(u8, u16, u16)> = BTreeSet::new();
+        let mut title_parts = 0usize;
+        // Where each English verse's text came from (its Hebrew verse), so a
+        // part never takes an earlier part of the same Hebrew verse for a title.
+        let mut source_of: std::collections::HashMap<(u8, u16, u16), (u16, u16)> =
+            std::collections::HashMap::new();
         // Verses placed through the map, per book and chapter.
         let mut mapped: BTreeSet<(u8, u16, u16)> = BTreeSet::new();
         // Hebrew verses whose second part begins English verse 1 (Psalm titles inside verse 1).
@@ -730,7 +755,7 @@ impl StagedContent {
                     None => Placement::Own,
                 },
                 (true, Some((c, v)), Some(p)) => {
-                    divided += 1;
+                    divided.insert((verse.ordinal, c, v));
                     let from_map = map.parts.get(&(verse.ordinal, c, v, p)).copied();
                     if let (Some(m), Some(t)) = (verse.marker, from_map) {
                         if m != t {
@@ -753,6 +778,7 @@ impl StagedContent {
             };
             match placement {
                 Placement::Title => {
+                    title_parts += 1;
                     let (c, _) = numbers.unwrap_or_default();
                     let chapter = content.chapters.entry(c).or_default();
                     self.words.report.left_out.outside_verse += verse.words.len();
@@ -777,14 +803,19 @@ impl StagedContent {
                             join(&mut content, c, v, verse.text, verse.words);
                             joined += 1;
                         }
-                        _ => self.place_verse(
-                            book,
-                            &mut content,
-                            &verse.chapter,
-                            &verse.label,
-                            verse.text,
-                            verse.words,
-                        ),
+                        _ => {
+                            if let Some((c, v)) = numbers {
+                                source_of.entry((verse.ordinal, c, v)).or_insert((c, v));
+                            }
+                            self.place_verse(
+                                book,
+                                &mut content,
+                                &verse.chapter,
+                                &verse.label,
+                                verse.text,
+                                verse.words,
+                            )
+                        }
                     }
                 }
                 Placement::To(c, v) => {
@@ -797,7 +828,14 @@ impl StagedContent {
                     // In Psalms, what is already at a verse (or at verse 1, even if
                     // mapped there too: some titles are two Hebrew verses) is the
                     // title the English numbering does not count as a verse.
-                    if occupant && verse.ordinal == 19 && (!occupant_mapped || v == 1) {
+                    // …but never an earlier part of this same Hebrew verse: that is joined.
+                    let same_verse =
+                        numbers.is_some_and(|n| source_of.get(&(verse.ordinal, c, v)) == Some(&n));
+                    if occupant
+                        && verse.ordinal == 19
+                        && !same_verse
+                        && (!occupant_mapped || v == 1)
+                    {
                         let title = chapter.verses.remove(&v).unwrap_or_default();
                         if let Some(words) = chapter.words.remove(&v) {
                             self.words.report.left_out.outside_verse += words.len();
@@ -829,6 +867,9 @@ impl StagedContent {
                         );
                     }
                     mapped.insert((verse.ordinal, c, v));
+                    if let Some(n) = numbers {
+                        source_of.entry((verse.ordinal, c, v)).or_insert(n);
+                    }
                 }
             }
             self.books.insert(verse.ordinal, content);
@@ -850,16 +891,18 @@ impl StagedContent {
             )
         };
         self.issue(Severity::Note, None, None, message);
-        if divided > 0 {
+        if !divided.is_empty() {
+            let count = divided.len();
             self.issue(
                 Severity::Note,
                 None,
                 None,
                 UserMessage::new(
                     "bibleImport.verseMapDivided",
-                    format!("{divided} parts of Hebrew verses were placed in the English verses where the text itself marks them."),
+                    format!("{count} Hebrew verses were divided where the text itself marks the start of an English verse ({title_parts} of the parts are Psalm titles)."),
                 )
-                .with("count", divided),
+                .with("count", count)
+                .with("titles", title_parts),
             );
         }
         if !unsplit.is_empty() {
@@ -870,8 +913,8 @@ impl StagedContent {
                 UserMessage::new(
                     "bibleImport.verseMapUnsplit",
                     format!(
-                        "These Hebrew verses each hold parts of two English verses, and the files do not mark where one ends: {}. Each is kept whole at its place in the Hebrew text, so the English verse it should begin or end is incomplete there.",
-                        unsplit.join(", ")
+                        "These Hebrew verses each hold parts of two English verses, and the files do not mark where one ends: {}. Each is kept whole under its Hebrew number, so it also holds words of the neighbouring English verse, and that verse is incomplete or missing.",
+                        unsplit.join("; ")
                     ),
                 )
                 .with("places", unsplit.join(";"))
@@ -887,7 +930,7 @@ impl StagedContent {
                     "bibleImport.verseMapConflict",
                     format!(
                         "At {} the text's own verse mark and the verse map disagree; the text's mark was followed.",
-                        conflicts.join(", ")
+                        conflicts.join("; ")
                     ),
                 )
                 .with("places", conflicts.join(";"))
@@ -895,7 +938,7 @@ impl StagedContent {
             );
         }
         // Without the text's own marks, Psalm titles inside verse 1 cannot be told apart.
-        if apply && self.split_marks == 0 && self.books.contains_key(&19) {
+        if apply && !self.split_marks.contains(&19) && self.books.contains_key(&19) {
             self.issue(
                 Severity::Note,
                 Some(canon::by_ordinal(19).unwrap_or(&canon::BOOKS[18])),
@@ -1134,9 +1177,6 @@ impl StagedContent {
     }
 }
 
-/// Adds a number list for the interface: `numbers` (the first few,
-/// comma-separated), `listed` (how many are shown) and `more` (how many
-/// are left out).
 /// A verse as a canonical reference ("ISA.63.19").
 fn canonical(ordinal: u8, chapter: u16, verse: u16) -> Option<String> {
     canon::by_ordinal(ordinal).map(|b| format!("{}.{chapter}.{verse}", b.code))
@@ -1162,6 +1202,9 @@ fn join(content: &mut StagedBook, chapter: u16, verse: u16, text: String, words:
     }
 }
 
+/// Adds a number list for the interface: `numbers` (the first few,
+/// comma-separated), `listed` (how many are shown) and `more` (how many
+/// are left out).
 fn with_list(message: UserMessage, numbers: &[u16]) -> UserMessage {
     let shown = numbers.len().min(LIST_SHOWN);
     message
@@ -1335,7 +1378,15 @@ pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport>
                  Scriptures Hebrew Bible's OSIS files and MorphGNT files.",
             ))
         })?;
-    let readable: Vec<SourceText> = texts.into_iter().filter(|t| adapter.can_read(t)).collect();
+    // Files of another format than the one chosen are named with the files left out.
+    let (readable, other): (Vec<SourceText>, Vec<SourceText>) =
+        texts.into_iter().partition(|t| adapter.can_read(t));
+    content.skipped_files.extend(
+        other
+            .into_iter()
+            .filter(|t| !is_front_matter(&t.text))
+            .map(|t| t.name),
+    );
 
     let had_map = content.verse_map.is_some();
     adapter.read(&readable, &mut content);

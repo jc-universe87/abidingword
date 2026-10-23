@@ -97,8 +97,14 @@ pub fn parse(text: &str) -> Option<VerseMap> {
     let entry =
         Regex::new(r#"<verse\s+wlc="([^"]+)"\s+kjv="([^"]+)"\s+type="(full|partial)"\s*/>"#)
             .ok()?;
-    // Every <verse …> must be one of the entries read.
-    let elements = Regex::new(r"<verse[\s/>]").ok()?.find_iter(text).count();
+    // Comments say nothing; every <verse …> element (in any case or
+    // namespace) must be one of the entries read.
+    let text = Regex::new(r"(?s)<!--.*?-->").ok()?.replace_all(text, "");
+    let text = text.as_ref();
+    let elements = Regex::new(r"(?i)<(?:[a-z][a-z0-9]*:)?verse[\s/>]")
+        .ok()?
+        .find_iter(text)
+        .count();
     let mut map = VerseMap::default();
     let mut read = 0usize;
     for caps in entry.captures_iter(text) {
@@ -126,6 +132,14 @@ pub fn parse(text: &str) -> Option<VerseMap> {
         }
     }
     if read != elements {
+        return None;
+    }
+    // A Hebrew verse moved whole and in parts at once: not one reading.
+    if map
+        .parts
+        .keys()
+        .any(|(o, c, v, _)| map.to_english.contains_key(&(*o, *c, *v)))
+    {
         return None;
     }
     (!map.to_english.is_empty()).then_some(map)
@@ -166,6 +180,14 @@ mod tests {
     }
 
     #[test]
+    fn a_comment_quoting_an_entry_is_not_an_entry() {
+        let map = parse(
+            r#"<verseMap><!-- e.g. <verse wlc="X" kjv="Y"> --><verse wlc="Joel.3.1" kjv="Joel.2.28" type="full"/></verseMap>"#,
+        );
+        assert_eq!(map.unwrap().to_english.len(), 1);
+    }
+
+    #[test]
     fn refuses_a_map_that_is_partly_wrong() {
         for bad in [
             r#"<verseMap><verse wlc="Joel.3.1" kjv="Amos.2.28" type="full"/></verseMap>"#,
@@ -178,6 +200,8 @@ mod tests {
             r#"<verseMap><verse wlc="Joel.3.1" kjv="Joel.2.28" type="full"/><verse wlc="Joel.3.2" kjv="Joel.2.29" type="moved"/></verseMap>"#,
             r#"<verseMap><verse wlc="Joel.3.1" kjv="Joel.2.28" type="full"/><verse wlc="Joel.3.2!ab" kjv="Joel.2.29" type="partial"/></verseMap>"#,
             r#"<verseMap><verse wlc="Joel.3.1" kjv="Joel.2.28" type="full"/><verse wlc="Joel.3.2" kjv="Joel.2.29" type="full"></verse></verseMap>"#,
+            r#"<verseMap><verse wlc="Joel.3.1" kjv="Joel.2.28" type="full"/><vm:verse wlc="Joel.3.2" kjv="Joel.2.29" type="full"/></verseMap>"#,
+            r#"<verseMap><verse wlc="Joel.3.1" kjv="Joel.2.28" type="full"/><verse wlc="Joel.3.1!a" kjv="Joel.2.27" type="partial"/></verseMap>"#,
         ] {
             assert!(parse(bad).is_none(), "{bad}");
         }

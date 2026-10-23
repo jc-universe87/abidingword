@@ -26,8 +26,9 @@ once, in order, each in its own transaction.
 **Verified on a real file** (`src-tauri/tests/windows_rollback.rs`): a
 schema-15 database in WAL mode with sources, a Bible Study, a note with a
 citation, a Bible Teaching and a Bible text, its last change only in the WAL
-file, upgraded through 0016–0018: the pre-migration copy holds every row
-(the WAL change included), passes `integrity_check` and is schema 15; the
+file (a plain copy of the main file is shown to lack it), upgraded through
+0016–0018: the pre-migration copy holds every row (the WAL-only change
+included), passes `integrity_check` and is schema 15; the
 upgraded database keeps every row, passes `integrity_check` and
 `foreign_key_check`; dev.41's migrations refuse it; the pre-migration copy
 (WAL/SHM removed) and a folder copy each restore exactly the dev.41 data.
@@ -140,9 +141,9 @@ and the OSHB repository (`.zip`).
   accents display correctly.
 - [ ] **G5** Choose the OSHB `wlc\*.xml` files **with** `VerseMap.xml`. The
   review notes: about 1,977 verses renumbered, 7 joined, 120 Psalm titles,
-  and 116 parts of Hebrew verses placed where the text marks them; one
-  warning: Nehemiah 7:68 not found (the Leningrad Codex does not have that
-  verse). Without `VerseMap.xml`: Joel 4 is refused with a note saying what
+  and 58 Hebrew verses divided where the text marks the start of an English
+  verse (53 of the parts are Psalm titles); one warning: Nehemiah 7:68 not
+  found (the Leningrad Codex does not have that verse). Without `VerseMap.xml`: Joel 4 is refused with a note saying what
   to add. Add it with the map.
 - [ ] **G6** In the OSHB Bible read Genesis 1, Psalm 11 and Psalm 51 (each
   shows its title above verse 1, not inside it), Psalm 13:5–6, Isaiah 63:19 –
@@ -151,7 +152,9 @@ and the OSHB repository (`.zip`).
 - [ ] **G6b** Choose `hboWLC_usfm.zip` **with** `VerseMap.xml`: the review
   **warns** that 1 Kgs 18:34, 20:3, 22:21, Ps 13:6 and Isa 63:19 are kept whole
   (these files do not mark where an English verse begins inside them), and
-  notes that Psalm titles inside verse 1 stay in verse 1. Cancel.
+  notes that Psalm titles inside verse 1 stay in verse 1. It also shows, as
+  expected for this edition: "Psalms 13: verse 5 not found", "Isaiah 64:
+  verse 1 not found" and "Nehemiah 7: verse 68 not found". Cancel.
 - [ ] **G7** Select a Hebrew word → **Word details**: lexical number (no
   lemma), grammar in words; **Find this lexical number** → concordance shows
   its occurrences highlighted. Then a Greek word in `grcmt`.
@@ -174,8 +177,11 @@ and the OSHB repository (`.zip`).
 > must keep.
 
 - [ ] **R1** Close Abiding Word completely (as B1).
-- [ ] **R2** Uninstall the new version; install **0.5.0-dev.41** (B0). Do
-  not start it yet.
+- [ ] **R2** Uninstall the new version; if the uninstaller offers to delete
+  the application data, leave that **unticked**. Install **0.5.0-dev.41**
+  (B0); at the end of the installer untick "Run Abiding Word" — do not start
+  it yet (if it does start, close it: it refuses the updated database and
+  changes nothing).
 - [ ] **R3** Rename `%APPDATA%\Abiding Word` to `Abiding Word (after update)`
   (kept, in case you need it), then copy the B2 folder back as
   `%APPDATA%\Abiding Word`.
