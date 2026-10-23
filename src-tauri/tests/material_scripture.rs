@@ -35,6 +35,7 @@ fn install(
             publisher: None,
             copyright_notice: copyright.map(Into::into),
             license_type: None,
+            words: Default::default(),
         },
         &SourceRecord {
             origin: "managed_copy",

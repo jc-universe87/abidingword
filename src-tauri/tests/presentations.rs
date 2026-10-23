@@ -50,6 +50,7 @@ fn install_bible(conn: &Connection) -> AppResult<String> {
             publisher: None,
             copyright_notice: Some("Fixture text, free to use.".into()),
             license_type: None,
+            words: Default::default(),
         },
         &SourceRecord {
             origin: "managed_copy",

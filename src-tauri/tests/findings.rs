@@ -245,6 +245,7 @@ fn finding_passages_survive_bible_removal_and_restart() {
                     publisher: None,
                     copyright_notice: None,
                     license_type: None,
+                    words: Default::default(),
                 },
                 &SourceRecord {
                     origin: "managed_copy",

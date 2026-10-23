@@ -323,6 +323,7 @@ fn commit(conn: &Connection, staged: &StagedImport, short: &str) -> String {
             publisher: None,
             copyright_notice: None,
             license_type: None,
+            words: Default::default(),
         },
         &SourceRecord {
             origin: "managed_copy",
@@ -361,7 +362,10 @@ fn the_preview_summarises_annotations_truthfully() {
     assert_eq!(words.with_morphology, 8);
     assert_eq!(words.distinct_lemmas, 4);
     assert_eq!(words.morph_attribute.as_deref(), Some("x-morph"));
-    assert_eq!(words.morph_scheme, "oshb");
+    // The codes fit OSHB's scheme, but nothing in the files says so (v0.22).
+    assert_eq!(words.grammar.scheme, Some("oshb"));
+    assert_eq!((words.grammar.coded, words.grammar.described), (8, 8));
+    assert!(words.grammar.stated.is_none());
     assert_eq!(words.left_out.total(), 0);
     assert!(words.indexed);
 
@@ -387,7 +391,7 @@ fn raw_morphology_is_kept_and_not_described() {
         "\\id JHN constructed test text\n\\c 1\n\\p\n\\v 1 \\w λόγος|lemma=\"λόγος\" x-morph=\"Gr,N,,,,,NMS,\"\\w* \\w ἦν|lemma=\"εἰμί\" x-morph=\"Gr,V,IIA3,,S,\"\\w*\n",
     );
     let words = staged.preview(Default::default()).words;
-    assert_eq!(words.morph_scheme, "raw");
+    assert_eq!(words.grammar.scheme, None);
     assert!(words.indexed);
     let mut list = staged
         .content
@@ -705,7 +709,14 @@ fn measure(per_verse: usize, every: usize) -> Measured {
         let text_only = size(conn);
         // Put them back for the queries.
         let tx = conn.unchecked_transaction()?;
-        bible_words::insert(&tx, &id, &staged.content, "2026-10-23T00:00:00Z")?;
+        bible_words::insert(
+            &tx,
+            &id,
+            &staged.content,
+            "usfm",
+            &Default::default(),
+            "2026-10-23T00:00:00Z",
+        )?;
         tx.commit()?;
 
         let mut queries = Vec::new();

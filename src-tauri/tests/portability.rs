@@ -1178,6 +1178,7 @@ fn annotated_bible(conn: &Connection, dir: &Path) -> String {
             publisher: None,
             copyright_notice: None,
             license_type: None,
+            words: Default::default(),
         },
         &SourceRecord {
             origin: "managed_copy",

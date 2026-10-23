@@ -45,6 +45,7 @@ fn install(
             publisher: None,
             copyright_notice: None,
             license_type: None,
+            words: Default::default(),
         },
         &SourceRecord {
             origin: "managed_copy",
