@@ -162,10 +162,21 @@ fn without_trustworthy_metadata_the_language_is_left_unchosen() {
     let (_dir, zip) = zipped_bytes(&[("metadata.xml", &[0xff, 0xfe, 0x00, 0x3c])]);
     let staged = import::stage(&[zip], ImportOrigin::UserFiles).unwrap();
     assert_eq!(staged.language_tag, None);
-    // An arbitrary .xml that is not metadata is still refused as before.
+    // An arbitrary .xml beside the Bible's files is set aside and listed
+    // with the files left out (v0.22); alone it is refused, as before.
     let (_dir, paths) = with_files(&[("book.xml", "<usx/>")]);
+    let staged = import::stage(&paths, ImportOrigin::UserFiles).unwrap();
+    assert!(staged
+        .content
+        .skipped_files
+        .contains(&"book.xml".to_string()));
+    let alone: Vec<PathBuf> = paths
+        .iter()
+        .filter(|p| p.ends_with("book.xml"))
+        .cloned()
+        .collect();
     assert!(matches!(
-        import::stage(&paths, ImportOrigin::UserFiles),
+        import::stage(&alone, ImportOrigin::UserFiles),
         Err(AppError::UnsupportedFormat(_))
     ));
 }

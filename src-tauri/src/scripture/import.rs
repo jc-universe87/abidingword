@@ -1114,9 +1114,11 @@ pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport>
             "Choose at least one file.",
         )));
     }
-    let texts = read_sources(paths)?;
+    let (texts, set_aside) = read_sources(paths)?;
     let language_tag = metadata_language(&texts);
     let mut content = StagedContent::default();
+    // Shown with the files left out (another publisher's OSIS, USX…).
+    content.skipped_files.extend(set_aside);
     let mut map_refused = None;
     let mut readable_texts = Vec::new();
     for text in texts {
@@ -1275,10 +1277,11 @@ fn unsupported(kind: &str) -> AppError {
 /// A metadata file larger than this is not read (bytes).
 const METADATA_MAX: u64 = 1024 * 1024;
 
-fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
+/// The files read, and the XML files set aside (not a format read here).
+fn read_sources(paths: &[PathBuf]) -> AppResult<(Vec<SourceText>, Vec<String>)> {
     let mut total: u64 = 0;
     let mut texts = Vec::new();
-    let mut other_xml = false;
+    let mut set_aside: Vec<String> = Vec::new();
     for path in paths {
         let extension = path
             .extension()
@@ -1308,7 +1311,7 @@ fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
             let name = file_name(path);
             if !(oshb::is_oshb(&text) || versification::is_verse_map(&name, &text)) {
                 // Other XML beside readable files is set aside; alone, it is refused.
-                other_xml = true;
+                set_aside.push(name);
                 continue;
             }
             total += size;
@@ -1350,14 +1353,14 @@ fn read_sources(paths: &[PathBuf]) -> AppResult<Vec<SourceText>> {
             });
         }
     }
-    if other_xml
+    if !set_aside.is_empty()
         && !texts
             .iter()
             .any(|t| !is_metadata_file(&t.name) && !is_notes_file(&t.name))
     {
         return Err(unsupported("OSIS and USX"));
     }
-    Ok(texts)
+    Ok((texts, set_aside))
 }
 
 fn read_zip(path: &Path, total: &mut u64) -> AppResult<Vec<SourceText>> {

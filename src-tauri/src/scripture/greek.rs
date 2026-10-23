@@ -252,7 +252,10 @@ pub fn describe_robinson(code: &str) -> Option<Described> {
         ("P", Some(p)) => {
             features.push(feature("person", p));
             letters = &body[1..];
-            // 1st and 2nd person: case and number, no gender.
+            // 1st and 2nd person: case and number, never a gender.
+            if p != "third" && letters.len() != 2 {
+                return None;
+            }
             if letters.len() == 2 {
                 let mut c = letters.chars();
                 let (k, n) = (c.next()?, c.next()?);
