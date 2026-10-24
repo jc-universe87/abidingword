@@ -117,6 +117,41 @@ pub fn commit_import(
             "This Bible has problems that must be resolved before it can be added.",
         )));
     }
+    let checked = check_details(conn, meta)?;
+    let now = now();
+    let tx = conn.unchecked_transaction()?;
+    insert_translation(
+        &tx,
+        id,
+        &checked,
+        meta,
+        source,
+        Shape::Structured(content),
+        &now,
+    )?;
+    insert_verses(&tx, id, content)?;
+    crate::db::bible_words::insert(&tx, id, content, source.format, &meta.words, &now)?;
+    tx.commit()?;
+    log::info!(
+        "Bible added: {} ({} books, {} verses)",
+        checked.short_name,
+        content.books.len(),
+        content.verse_count()
+    );
+    get(conn, id)
+}
+
+/// The details of a Bible about to be added, checked.
+pub struct CheckedDetails {
+    pub name: String,
+    pub short_name: String,
+    pub language: String,
+    pub language_code: Option<String>,
+}
+
+/// Checks the name, short name and language the person gave, and that the
+/// short name is free.
+pub fn check_details(conn: &Connection, meta: &CommitImport) -> AppResult<CheckedDetails> {
     let name = validate::title(&meta.name, "Bible")?;
     let short_name = validate::title(&meta.short_name, "Bible's short name")?;
     if short_name.chars().count() > SHORT_NAME_MAX_CHARS {
@@ -138,74 +173,104 @@ pub fn commit_import(
     if taken {
         return Err(AppError::DuplicateTranslation(short_name));
     }
+    Ok(CheckedDetails {
+        name,
+        short_name,
+        language,
+        language_code,
+    })
+}
+
+/// What kind of Bible a translation row describes.
+pub enum Shape<'a> {
+    /// Readable by passage: its verses follow.
+    Structured(&'a StagedContent),
+    /// Read as a document only (v0.23): no verses.
+    Document,
+}
+
+/// Inserts the translation's own row.
+pub fn insert_translation(
+    tx: &Connection,
+    id: &str,
+    checked: &CheckedDetails,
+    meta: &CommitImport,
+    source: &SourceRecord,
+    shape: Shape,
+    now: &str,
+) -> AppResult<()> {
     let optional = |v: &Option<String>| {
         v.as_deref()
             .map(str::trim)
             .filter(|s| !s.is_empty())
             .map(String::from)
     };
-
-    let now = now();
-    let tx = conn.unchecked_transaction()?;
+    let (kind, status, books, verses) = match shape {
+        Shape::Structured(content) => (
+            "structured",
+            "ready",
+            content.books.len() as i64,
+            content.verse_count() as i64,
+        ),
+        Shape::Document => ("document", "document_only", 0, 0),
+    };
     tx.execute(
         "INSERT INTO bible_translations
              (id, name, short_name, language, language_code, publisher, copyright_notice,
               license_type, kind, source_type, source_origin, source_path, original_file_name,
               import_status, is_builtin, book_count, verse_count, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 'structured', ?9, ?10, ?11, ?12, 'ready',
-                 ?13, ?14, ?15, ?16, ?16)",
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14,
+                 ?15, ?16, ?17, ?18, ?18)",
         params![
             id,
-            name,
-            short_name,
-            language,
-            language_code,
+            checked.name,
+            checked.short_name,
+            checked.language,
+            checked.language_code,
             optional(&meta.publisher),
             optional(&meta.copyright_notice),
             optional(&meta.license_type),
+            kind,
             source.format,
             source.origin,
             source.path,
             source.original_file_name,
+            status,
             source.is_builtin,
-            content.books.len() as i64,
-            content.verse_count() as i64,
+            books,
+            verses,
             now
         ],
     )?;
-    {
-        let mut add_verse = tx.prepare(
-            "INSERT OR IGNORE INTO bible_verses (id, book_id, chapter, verse) VALUES (?1, ?2, ?3, ?4)",
-        )?;
-        let mut add_text = tx.prepare(
-            "INSERT INTO bible_verse_texts (translation_id, verse_id, text, bridge_end)
-             VALUES (?1, ?2, ?3, ?4)",
-        )?;
-        let mut add_title = tx.prepare(
-            "INSERT INTO bible_superscriptions (translation_id, book_id, chapter, text)
-             VALUES (?1, ?2, ?3, ?4)",
-        )?;
-        for (ordinal, book) in &content.books {
-            for (chapter, text) in &book.chapters {
-                for (verse, words) in &text.verses {
-                    let key = verse_key(*ordinal, *chapter, *verse);
-                    add_verse.execute(params![key, ordinal, chapter, verse])?;
-                    add_text.execute(params![id, key, words, text.bridges.get(verse)])?;
-                }
-                if let Some(title) = &text.superscription {
-                    add_title.execute(params![id, ordinal, chapter, title])?;
-                }
+    Ok(())
+}
+
+/// Inserts a structured Bible's verses and Psalm titles.
+pub fn insert_verses(tx: &Connection, id: &str, content: &StagedContent) -> AppResult<()> {
+    let mut add_verse = tx.prepare(
+        "INSERT OR IGNORE INTO bible_verses (id, book_id, chapter, verse) VALUES (?1, ?2, ?3, ?4)",
+    )?;
+    let mut add_text = tx.prepare(
+        "INSERT INTO bible_verse_texts (translation_id, verse_id, text, bridge_end)
+         VALUES (?1, ?2, ?3, ?4)",
+    )?;
+    let mut add_title = tx.prepare(
+        "INSERT INTO bible_superscriptions (translation_id, book_id, chapter, text)
+         VALUES (?1, ?2, ?3, ?4)",
+    )?;
+    for (ordinal, book) in &content.books {
+        for (chapter, text) in &book.chapters {
+            for (verse, words) in &text.verses {
+                let key = verse_key(*ordinal, *chapter, *verse);
+                add_verse.execute(params![key, ordinal, chapter, verse])?;
+                add_text.execute(params![id, key, words, text.bridges.get(verse)])?;
+            }
+            if let Some(title) = &text.superscription {
+                add_title.execute(params![id, ordinal, chapter, title])?;
             }
         }
     }
-    crate::db::bible_words::insert(&tx, id, content, source.format, &meta.words, &now)?;
-    tx.commit()?;
-    log::info!(
-        "Bible added: {short_name} ({} books, {} verses)",
-        content.books.len(),
-        content.verse_count()
-    );
-    get(conn, id)
+    Ok(())
 }
 
 /// Removes a translation's own data. Returns what was removed so the caller
@@ -216,6 +281,12 @@ pub fn remove(conn: &Connection, id: &str) -> AppResult<BibleTranslation> {
     // Its word index first, in bulk (v0.21): left to the cascade, each entry
     // removed would look up its words one by one.
     crate::db::bible_words::remove(&tx, id)?;
+    // A document Bible's text and its search entries (v0.23), explicitly.
+    tx.execute(
+        "DELETE FROM bible_document_segments
+         WHERE document_id IN (SELECT id FROM bible_documents WHERE translation_id = ?1)",
+        [id],
+    )?;
     tx.execute("DELETE FROM bible_translations WHERE id = ?1", [id])?;
     // Forget it as the active translation.
     tx.execute(

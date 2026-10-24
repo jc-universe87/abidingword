@@ -10,6 +10,7 @@ pub mod bundled;
 pub mod canon;
 pub mod concordance;
 pub mod data_packs;
+pub mod documents;
 pub mod grammar;
 pub mod greek;
 pub mod import;
@@ -23,6 +24,7 @@ pub mod phrase_ranges;
 pub mod recognise;
 pub mod reference;
 pub mod resolve;
+pub mod structure;
 pub mod usfm;
 pub mod verse_counts;
 pub mod versification;
@@ -231,6 +233,10 @@ pub struct CommitImport {
     /// What to do with the Bible's words (v0.22).
     #[serde(default)]
     pub words: WordChoice,
+    /// A Bible read from documents (v0.23) is added to read as a document,
+    /// even when verses were found in it.
+    #[serde(default)]
+    pub as_document: bool,
 }
 
 pub const ANNOTATION_KINDS: [&str; 3] = ["note", "highlight", "bookmark"];

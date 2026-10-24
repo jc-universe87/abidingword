@@ -110,6 +110,12 @@ pub fn read_managed(
     fs::read(path).map_err(|_| missing())
 }
 
+/// The verified path of a managed file (checked exactly as [`open`] checks
+/// it), for the core to read again itself; never sent to the interface.
+pub fn verified_path(root: &Path, source_id: &str, relative: &str) -> AppResult<PathBuf> {
+    verify(root, source_id, relative).map(|(path, _)| path)
+}
+
 fn verify(root: &Path, source_id: &str, relative: &str) -> AppResult<(PathBuf, u64)> {
     let parts: Vec<&std::ffi::OsStr> = Path::new(relative)
         .components()

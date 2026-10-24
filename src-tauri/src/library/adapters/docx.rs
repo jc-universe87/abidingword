@@ -2034,6 +2034,7 @@ impl Layout<'_> {
                 heading: heading.clone(),
                 section_path: section_path.clone().or_else(|| chapter.clone()),
                 paragraph_index: Some(self.paragraph),
+                note: self.in_notes,
                 ..Default::default()
             });
             self.paragraph += 1;

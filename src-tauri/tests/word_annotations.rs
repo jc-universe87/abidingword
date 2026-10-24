@@ -336,6 +336,7 @@ fn commit_with(
             copyright_notice: None,
             license_type: None,
             words,
+            as_document: false,
         },
         &SourceRecord {
             origin: "managed_copy",

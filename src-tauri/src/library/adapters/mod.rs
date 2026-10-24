@@ -64,6 +64,8 @@ pub struct NewSegment {
     pub paragraph_index: Option<u32>,
     pub char_start: Option<u32>,
     pub char_end: Option<u32>,
+    /// A footnote or endnote kept after the body (DOCX), not body text.
+    pub note: bool,
 }
 
 impl NewSegment {

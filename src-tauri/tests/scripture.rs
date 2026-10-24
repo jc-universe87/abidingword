@@ -40,6 +40,7 @@ fn meta(preview_id: &str, name: &str, short_name: &str) -> CommitImport {
         copyright_notice: None,
         license_type: None,
         words: Default::default(),
+        as_document: false,
     }
 }
 

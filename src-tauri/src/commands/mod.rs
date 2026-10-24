@@ -11,6 +11,7 @@
 pub mod annotations;
 pub mod app;
 pub mod assistant;
+pub mod bible_documents;
 pub mod bibles;
 pub mod blocks;
 pub mod findings;

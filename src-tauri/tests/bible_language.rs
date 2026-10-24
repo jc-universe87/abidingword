@@ -207,6 +207,7 @@ fn commit(conn: &rusqlite::Connection, code: Option<&str>) -> Result<String, App
         copyright_notice: None,
         license_type: None,
         words: Default::default(),
+        as_document: false,
     };
     bibles::commit_import(conn, &id, &staged.content, &meta, &source())?;
     Ok(id)
@@ -320,6 +321,7 @@ fn a_verse_beyond_the_canon_is_good_when_any_installed_bible_has_it() {
             copyright_notice: None,
             license_type: None,
             words: Default::default(),
+            as_document: false,
         };
         bibles::commit_import(
             conn,

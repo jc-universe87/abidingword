@@ -21,9 +21,11 @@ use serde::Serialize;
 
 use crate::error::{AppError, AppResult, UserMessage};
 use crate::scripture::canon::{self, Book, NON_CANONICAL_USFM_CODES};
+use crate::scripture::documents;
 use crate::scripture::grammar::{self, GrammarFinding, Statement};
 use crate::scripture::morphgnt::MorphGntAdapter;
 use crate::scripture::oshb::{self, OshbAdapter};
+use crate::scripture::structure;
 use crate::scripture::usfm::{self, MarkedWord, WordShape};
 use crate::scripture::versification::{self, VerseMap};
 use crate::scripture::words::{self, AttributeProblem};
@@ -986,7 +988,7 @@ impl StagedContent {
 
     /// Structure checks that need the whole book: missing chapters and
     /// gaps in verse numbering.
-    fn check_structure(&mut self) {
+    pub(super) fn check_structure(&mut self) {
         let mut found = Vec::new();
         for (ordinal, content) in &self.books {
             let Some(book) = canon::by_ordinal(*ordinal) else {
@@ -1259,6 +1261,32 @@ pub struct StagedImport {
     /// `metadata.xml`, Paratext `Settings.xml`), as a well-formed tag; never
     /// guessed from names or text.
     pub language_tag: Option<String>,
+    /// A Bible read from documents (v0.23): the files, and what was found in them.
+    pub documents: Option<DocumentStage>,
+}
+
+/// A Bible read from PDF, EPUB, DOCX, Markdown or text files (v0.23): the
+/// documents as the library's adapters read them, and the books, chapters
+/// and verses found in them (`scripture::structure`). The verses themselves
+/// are the import's `content`.
+pub struct DocumentStage {
+    pub files: Vec<documents::DocumentFile>,
+    /// The language the documents were read in (from their metadata).
+    pub language: Option<String>,
+    pub corrections: structure::Corrections,
+    pub origins: BTreeMap<(u8, u16, u16), structure::Origin>,
+    pub books: Vec<structure::FoundBook>,
+    pub left_out: Vec<structure::LeftOut>,
+    pub stats: structure::Stats,
+}
+
+impl DocumentStage {
+    fn units(&self) -> Vec<documents::Unit> {
+        self.files
+            .iter()
+            .flat_map(|f| f.units.iter().cloned())
+            .collect()
+    }
 }
 
 /// Metadata files read beside the USFM for the language they state.
@@ -1336,6 +1364,9 @@ pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport>
             "import.noFiles",
             "Choose at least one file.",
         )));
+    }
+    if is_document_choice(paths)? {
+        return stage_documents(paths, origin);
     }
     let (texts, set_aside) = read_sources(paths)?;
     let language_tag = metadata_language(&texts);
@@ -1444,7 +1475,185 @@ pub fn stage(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport>
         content,
         suggested_name: suggested_name(paths),
         language_tag,
+        documents: None,
     })
+}
+
+fn extension_of(path: &Path) -> String {
+    path.extension()
+        .map(|e| e.to_string_lossy().to_ascii_lowercase())
+        .unwrap_or_default()
+}
+
+/// Whether the files chosen are documents to read as a Bible (v0.23): PDF,
+/// EPUB, DOCX or Markdown files, or text files that are not in a Bible
+/// format (USFM and MorphGNT files are `.txt` too). Documents and Bible-format
+/// files chosen together are refused: they are not one edition.
+fn is_document_choice(paths: &[PathBuf]) -> AppResult<bool> {
+    let extensions: Vec<String> = paths.iter().map(|p| extension_of(p)).collect();
+    let layout = |e: &str| matches!(e, "pdf" | "epub" | "docx" | "md" | "markdown");
+    if extensions.iter().any(|e| layout(e)) {
+        if extensions.iter().all(|e| layout(e) || e == "txt") {
+            return Ok(true);
+        }
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "bibleImport.documentMixed",
+            "Choose either the files of a Bible in a Bible format (such as USFM) or documents \
+             (PDF, EPUB, Word, Markdown or text), not both together.",
+        )));
+    }
+    if extensions.is_empty() || !extensions.iter().all(|e| e == "txt") {
+        return Ok(false);
+    }
+    // Text files: a Bible format when any reader recognises them.
+    let (texts, _) = read_sources(paths)?;
+    let readers: [&dyn BibleImportAdapter; 3] = [&UsfmAdapter, &OshbAdapter, &MorphGntAdapter];
+    let structured = texts.iter().any(|t| readers.iter().any(|r| r.can_read(t)));
+    Ok(!structured)
+}
+
+/// File names in the order a person reads them: "Part 2" before "Part 10".
+fn natural_key(name: &str) -> Vec<(String, u64)> {
+    let mut out = Vec::new();
+    let mut text = String::new();
+    let mut number: Option<u64> = None;
+    for c in name.to_lowercase().chars() {
+        if let Some(d) = c.to_digit(10) {
+            number = Some(
+                number
+                    .unwrap_or(0)
+                    .saturating_mul(10)
+                    .saturating_add(u64::from(d)),
+            );
+        } else {
+            if let Some(n) = number.take() {
+                out.push((std::mem::take(&mut text), n));
+            }
+            text.push(c);
+        }
+    }
+    out.push((text, number.unwrap_or(0)));
+    out
+}
+
+/// Reads documents as a Bible (v0.23): each through the library's adapter,
+/// then all of them for books, chapters and verses. Nothing is kept yet.
+pub fn stage_documents(paths: &[PathBuf], origin: ImportOrigin) -> AppResult<StagedImport> {
+    if paths.len() > documents::MAX_FILES {
+        return Err(AppError::Import(UserMessage::new(
+            "bibleImport.documentTooMany",
+            "Too many documents were chosen to be one Bible.",
+        )));
+    }
+    let mut ordered: Vec<PathBuf> = paths.to_vec();
+    ordered.sort_by_key(|p| natural_key(&file_name(p)));
+    let mut total = 0u64;
+    let mut files = Vec::with_capacity(ordered.len());
+    for (index, path) in ordered.iter().enumerate() {
+        total += fs::metadata(path)
+            .map_err(|e| AppError::filesystem(path, e))?
+            .len();
+        if total > documents::MAX_TOTAL_BYTES {
+            return Err(AppError::Import(UserMessage::new(
+                "bibleImport.tooLarge",
+                "These files are too large to be a single Bible.",
+            )));
+        }
+        files.push(documents::read(path, index as u16)?);
+    }
+    let formats: BTreeSet<&str> = files.iter().map(|f| f.format).collect();
+    if formats.len() > 1 {
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "bibleImport.documentFormats",
+            "The documents of one Bible must all be of the same kind (all PDF, all EPUB …).",
+        )));
+    }
+    let format = files[0].format;
+    // The language the documents state (EPUB, PDF metadata), never guessed from the text.
+    let stated: BTreeSet<String> = files
+        .iter()
+        .filter_map(|f| f.metadata.language.as_deref())
+        .filter_map(crate::scripture::language::normalise_tag)
+        .collect();
+    let language = (stated.len() == 1)
+        .then(|| stated.into_iter().next())
+        .flatten();
+    let mut stage = DocumentStage {
+        files,
+        language: language.clone(),
+        corrections: structure::Corrections::default(),
+        origins: BTreeMap::new(),
+        books: Vec::new(),
+        left_out: Vec::new(),
+        stats: structure::Stats::default(),
+    };
+    let content = recognise(&mut stage);
+    let name = stage
+        .files
+        .iter()
+        .find_map(|f| f.metadata.title.clone())
+        .unwrap_or_else(|| suggested_name(&ordered));
+    log::info!(
+        "document Bible staged: {} {} file(s), {} book(s), {} verse(s), {} issue(s)",
+        stage.files.len(),
+        format,
+        content.books.len(),
+        content.verse_count(),
+        content.issues.len()
+    );
+    Ok(StagedImport {
+        id: uuid::Uuid::new_v4().to_string(),
+        origin,
+        files: ordered,
+        format,
+        content,
+        suggested_name: name,
+        language_tag: language,
+        documents: Some(stage),
+    })
+}
+
+/// Reads the stage's documents for their verses, with its corrections.
+fn recognise(stage: &mut DocumentStage) -> StagedContent {
+    let units = stage.units();
+    let found = structure::recognise(&units, stage.language.as_deref(), &stage.corrections);
+    stage.origins = found.origins;
+    stage.books = found.books;
+    stage.left_out = found.left_out;
+    stage.stats = found.stats;
+    found.content
+}
+
+impl StagedImport {
+    /// Reads the documents again with the person's corrections (v0.23):
+    /// for each found book (by index), another book or none.
+    pub fn correct(&mut self, books: &[(usize, Option<String>)]) -> AppResult<()> {
+        let Some(stage) = self.documents.as_mut() else {
+            return Err(AppError::InvalidInput(UserMessage::new(
+                "import.expired",
+                "This import has expired. Please choose the files again.",
+            )));
+        };
+        let mut corrections = structure::Corrections::default();
+        for (index, code) in books {
+            if *index >= stage.books.len() {
+                continue;
+            }
+            let book = match code {
+                Some(code) => Some(canon::by_code(code).ok_or_else(|| {
+                    AppError::InvalidInput(UserMessage::new(
+                        "bibleImport.unknownBookCode",
+                        "Unknown book.",
+                    ))
+                })?),
+                None => None,
+            };
+            corrections.books.insert(*index, book);
+        }
+        stage.corrections = corrections;
+        self.content = recognise(stage);
+        Ok(())
+    }
 }
 
 /// Files read only for what they say about the edition (v0.22): eBible's
@@ -1725,6 +1934,40 @@ pub struct ImportPreview {
     pub can_import: bool,
     /// The word annotations found (v0.21).
     pub words: WordReport,
+    /// For documents (v0.23): what each file holds, and the verses found.
+    pub document: Option<DocumentPreview>,
+}
+
+/// What the review shows of a Bible read from documents (v0.23).
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DocumentPreview {
+    pub files: Vec<DocumentFileInfo>,
+    /// The book headings found, with what was read under each.
+    pub books: Vec<structure::FoundBook>,
+    /// Samples of text that belongs to no verse.
+    pub left_out: Vec<structure::LeftOut>,
+    pub stats: structure::Stats,
+    /// Whether the verses found can be used: some were found and nothing
+    /// contradicts itself. Otherwise the Bible can only be read as a document.
+    pub verses_usable: bool,
+    /// Characters of readable text in all the files.
+    pub text_chars: usize,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DocumentFileInfo {
+    pub name: String,
+    pub format: &'static str,
+    pub pages: Option<u32>,
+    pub text_chars: usize,
+    /// No text layer (scanned pages): readable page by page only.
+    pub scanned: bool,
+    /// Its layout is kept and shown (PDF pages, EPUB and DOCX formatting).
+    pub keeps_layout: bool,
+    /// Footnotes and endnotes kept apart from the text.
+    pub notes: usize,
 }
 
 #[derive(Debug, Clone, Default, Serialize)]
@@ -1803,8 +2046,30 @@ impl StagedImport {
             books,
             issues: self.content.issues.clone(),
             skipped_files: self.content.skipped_files.clone(),
-            can_import: !self.content.has_errors(),
+            // A document can always be added, to read as a document.
+            can_import: self.documents.is_some() || !self.content.has_errors(),
             words: self.content.words.report.clone(),
+            document: self.documents.as_ref().map(|stage| DocumentPreview {
+                files: stage
+                    .files
+                    .iter()
+                    .map(|f| DocumentFileInfo {
+                        name: f.file_name.clone(),
+                        format: f.format,
+                        pages: f.page_count,
+                        text_chars: f.text_chars(),
+                        scanned: f.extraction_status
+                            == crate::library::adapters::ExtractionStatus::OcrRequired,
+                        keeps_layout: f.keeps_layout(),
+                        notes: f.notes,
+                    })
+                    .collect(),
+                books: stage.books.clone(),
+                left_out: stage.left_out.clone(),
+                stats: stage.stats.clone(),
+                verses_usable: self.content.verse_count() > 0 && !self.content.has_errors(),
+                text_chars: stage.files.iter().map(|f| f.text_chars()).sum(),
+            }),
         }
     }
 }

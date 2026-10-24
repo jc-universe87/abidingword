@@ -126,6 +126,11 @@ pub fn bible_import_commit(
         })?;
 
     let id = bibles::new_translation_id();
+    if staged.documents.is_some() {
+        let translation = commit_documents(core, &id, staged, &input)?;
+        *pending = None;
+        return Ok(translation);
+    }
     let names = staged
         .files
         .iter()
@@ -185,6 +190,111 @@ pub fn bible_import_commit(
             Err(ErrorPayload::from(error))
         }
     }
+}
+
+/// Keeps a Bible read from documents (v0.23): copies the files into
+/// `sources/bibles/<id>/` under plain names ("1.pdf", "2.pdf"), then writes
+/// the Bible, its documents and (when chosen) its verses in one transaction.
+/// On any failure the copies are removed and nothing is saved.
+fn commit_documents(
+    core: &crate::state::Core,
+    id: &str,
+    staged: &import::StagedImport,
+    input: &CommitImport,
+) -> Result<BibleTranslation, ErrorPayload> {
+    let stage = staged
+        .documents
+        .as_ref()
+        .ok_or_else(|| AppError::Unexpected("not a document import".into()))?;
+    let dir = core.dirs.bible_sources(id);
+    let copied = (|| -> Result<Vec<crate::db::bible_documents::KeptFile>, AppError> {
+        std::fs::create_dir_all(&dir).map_err(|e| AppError::filesystem(&dir, e))?;
+        let mut kept = Vec::new();
+        for (index, file) in stage.files.iter().enumerate() {
+            let name = format!("{}.{}", index + 1, file.extension);
+            let target = dir.join(&name);
+            std::fs::copy(&file.path, &target).map_err(|e| AppError::filesystem(&file.path, e))?;
+            kept.push(crate::db::bible_documents::KeptFile {
+                id: crate::db::new_id(),
+                file_name: name,
+            });
+        }
+        Ok(kept)
+    })();
+    let kept = match copied {
+        Ok(kept) => kept,
+        Err(error) => {
+            filesystem::remove_managed(&dir);
+            return Err(error.into());
+        }
+    };
+    let names = stage
+        .files
+        .iter()
+        .map(|f| f.file_name.as_str())
+        .collect::<Vec<_>>()
+        .join(", ");
+    let source = SourceRecord {
+        origin: "managed_copy",
+        path: Some(format!("sources/bibles/{id}")),
+        original_file_name: Some(names),
+        format: staged.format,
+        is_builtin: false,
+    };
+    let as_verses = !input.as_document;
+    let result = core.db.with_conn(|conn| {
+        crate::db::bible_documents::commit(
+            conn,
+            id,
+            &staged.content,
+            stage,
+            input,
+            &source,
+            &kept,
+            as_verses,
+        )
+    });
+    result.map_err(|error| {
+        filesystem::remove_managed(&dir);
+        ErrorPayload::from(error)
+    })
+}
+
+/// A correction in the review of a Bible read from documents (v0.23): the
+/// book a found heading stands for, or none (leave it out).
+#[derive(Debug, Clone, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BookCorrection {
+    pub index: usize,
+    pub book: Option<String>,
+}
+
+/// Reads the previewed documents again with the person's corrections and
+/// returns the new preview. Nothing is saved.
+#[tauri::command(async)]
+pub fn bible_import_correct(
+    state: State<'_, AppState>,
+    preview_id: String,
+    books: Vec<BookCorrection>,
+) -> CommandResult<ImportPreview> {
+    let mut pending = state.pending_import()?;
+    let staged = pending
+        .as_mut()
+        .filter(|s| s.id == preview_id)
+        .ok_or_else(|| {
+            AppError::InvalidInput(UserMessage::new(
+                "import.expired",
+                "This import has expired. Please choose the files again.",
+            ))
+        })?;
+    let choices: Vec<(usize, Option<String>)> =
+        books.into_iter().map(|c| (c.index, c.book)).collect();
+    staged.correct(&choices)?;
+    let suggested = SuggestedMetadata {
+        name: staged.suggested_name.clone(),
+        ..SuggestedMetadata::default()
+    };
+    Ok(staged.preview(suggested))
 }
 
 #[tauri::command(async)]
@@ -310,6 +420,14 @@ fn kept_files(
 pub fn bible_words_preview(state: State<'_, AppState>, id: String) -> CommandResult<WordsPreview> {
     let core = state.core()?;
     let translation = core.db.with_conn(|conn| bibles::get(conn, &id))?;
+    if crate::scripture::documents::is_document_format(&translation.source_type) {
+        // Ordinary documents carry no word annotations; none are inferred from their text.
+        return Err(AppError::InvalidInput(UserMessage::new(
+            "words.documentBible",
+            "A Bible added from a document has no word information to add.",
+        ))
+        .into());
+    }
     let files = kept_files(&state, &translation)?;
     let staged = import::stage(
         &files,

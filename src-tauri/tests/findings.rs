@@ -246,6 +246,7 @@ fn finding_passages_survive_bible_removal_and_restart() {
                     copyright_notice: None,
                     license_type: None,
                     words: Default::default(),
+                    as_document: false,
                 },
                 &SourceRecord {
                     origin: "managed_copy",

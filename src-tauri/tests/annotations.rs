@@ -38,6 +38,7 @@ fn install(conn: &Connection, set: &str, short_name: &str) -> AppResult<BibleTra
             copyright_notice: None,
             license_type: None,
             words: Default::default(),
+            as_document: false,
         },
         &SourceRecord {
             origin: "managed_copy",

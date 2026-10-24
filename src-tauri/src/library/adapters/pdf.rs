@@ -29,45 +29,13 @@ impl SourceImportAdapter for PdfImporter {
     }
 
     fn extract(&self, bytes: &[u8], file_name: &str) -> AppResult<ImportedDocument> {
-        let unreadable = || {
-            AppError::Import(
-                UserMessage::new(
-                    "library.badPdf",
-                    format!("“{file_name}” could not be read as a PDF."),
-                )
-                .with("fileName", file_name),
-            )
-        };
-        let document = Document::load_mem(bytes).map_err(|_| unreadable())?;
-        if document.is_encrypted() {
-            return Err(AppError::Import(
-                UserMessage::new(
-                    "library.passwordProtected",
-                    format!(
-                        "“{file_name}” is password-protected. Remove the protection and import it again."
-                    ),
-                )
-                .with("fileName", file_name),
-            ));
-        }
-        let metadata = metadata(&document);
-        // The text extractor can panic on unusual files; that must never
-        // take the app down.
-        let pages = catch_unwind(AssertUnwindSafe(|| {
-            pdf_extract::extract_text_from_mem_by_pages(bytes)
-        }))
-        .map_err(|_| unreadable())?
-        .map_err(|e| {
-            log::warn!("pdf text extraction failed for {file_name}: {e}");
-            unreadable()
-        })?;
-
+        let PdfText {
+            metadata,
+            pages,
+            scanned,
+        } = read_pages(bytes, file_name)?;
         let page_count = pages.len() as u32;
-        let letters: usize = pages
-            .iter()
-            .map(|p| p.chars().filter(|c| c.is_alphanumeric()).count())
-            .sum();
-        if pages.is_empty() || letters < MIN_LETTERS_PER_PAGE * pages.len() {
+        if scanned {
             return Ok(ImportedDocument {
                 format: "pdf",
                 metadata,
@@ -77,25 +45,7 @@ impl SourceImportAdapter for PdfImporter {
                 chapter_count: None,
             });
         }
-
-        let mut segments = Vec::new();
-        for (index, page) in pages.iter().enumerate() {
-            let number = index as u32 + 1;
-            let mut paragraph = 0u32;
-            for (text, start, end) in paragraphs(page) {
-                for part in split_long(&text, MAX_SEGMENT) {
-                    segments.push(NewSegment {
-                        text: part,
-                        page_number: Some(number),
-                        paragraph_index: Some(paragraph),
-                        char_start: Some(start as u32),
-                        char_end: Some(end as u32),
-                        ..Default::default()
-                    });
-                    paragraph += 1;
-                }
-            }
-        }
+        let segments = page_segments(&pages);
         Ok(ImportedDocument {
             format: "pdf",
             metadata,
@@ -105,6 +55,85 @@ impl SourceImportAdapter for PdfImporter {
             chapter_count: None,
         })
     }
+}
+
+/// A PDF's text layer, page by page, as the text extractor gives it (lines
+/// kept), and whether it is too thin to be anything but scanned images.
+pub struct PdfText {
+    pub metadata: FoundMetadata,
+    pub pages: Vec<String>,
+    pub scanned: bool,
+}
+
+/// Reads a PDF's metadata and text layer. Refuses an unreadable or
+/// password-protected file with a coded message; never panics.
+pub fn read_pages(bytes: &[u8], file_name: &str) -> AppResult<PdfText> {
+    let unreadable = || {
+        AppError::Import(
+            UserMessage::new(
+                "library.badPdf",
+                format!("“{file_name}” could not be read as a PDF."),
+            )
+            .with("fileName", file_name),
+        )
+    };
+    let document = Document::load_mem(bytes).map_err(|_| unreadable())?;
+    if document.is_encrypted() {
+        return Err(AppError::Import(
+            UserMessage::new(
+                "library.passwordProtected",
+                format!(
+                    "“{file_name}” is password-protected. Remove the protection and import it again."
+                ),
+            )
+            .with("fileName", file_name),
+        ));
+    }
+    let metadata = metadata(&document);
+    // The text extractor can panic on unusual files; that must never
+    // take the app down.
+    let pages = catch_unwind(AssertUnwindSafe(|| {
+        pdf_extract::extract_text_from_mem_by_pages(bytes)
+    }))
+    .map_err(|_| unreadable())?
+    .map_err(|e| {
+        log::warn!("pdf text extraction failed for {file_name}: {e}");
+        unreadable()
+    })?;
+    let letters: usize = pages
+        .iter()
+        .map(|p| p.chars().filter(|c| c.is_alphanumeric()).count())
+        .sum();
+    let scanned = pages.is_empty() || letters < MIN_LETTERS_PER_PAGE * pages.len();
+    Ok(PdfText {
+        metadata,
+        pages,
+        scanned,
+    })
+}
+
+/// The segments of a PDF's pages: paragraphs, with their page and their
+/// place in the page's text.
+pub fn page_segments(pages: &[String]) -> Vec<NewSegment> {
+    let mut segments = Vec::new();
+    for (index, page) in pages.iter().enumerate() {
+        let number = index as u32 + 1;
+        let mut paragraph = 0u32;
+        for (text, start, end) in paragraphs(page) {
+            for part in split_long(&text, MAX_SEGMENT) {
+                segments.push(NewSegment {
+                    text: part,
+                    page_number: Some(number),
+                    paragraph_index: Some(paragraph),
+                    char_start: Some(start as u32),
+                    char_end: Some(end as u32),
+                    ..Default::default()
+                });
+                paragraph += 1;
+            }
+        }
+    }
+    segments
 }
 
 fn metadata(document: &Document) -> FoundMetadata {

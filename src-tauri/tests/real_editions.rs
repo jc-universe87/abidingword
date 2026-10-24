@@ -135,6 +135,7 @@ fn real_editions_report() {
                     copyright_notice: None,
                     license_type: None,
                     words: choice.clone(),
+                    as_document: false,
                 },
                 &SourceRecord {
                     origin: "managed_copy",
@@ -261,6 +262,7 @@ fn bundled_number_index_cost() {
                 copyright_notice: None,
                 license_type: None,
                 words: WordChoice::default(),
+                as_document: false,
             };
             let record = SourceRecord { origin: "bundled", path: None, original_file_name: None, format: "usfm", is_builtin: true };
             let started = Instant::now();
