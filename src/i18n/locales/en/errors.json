@@ -91,6 +91,8 @@
     "documentChapterTwice": "{{book}} {{chapter}} appears twice in the text.",
     "documentOrder": "{{book}} {{chapter}}:{{verse}} is out of order in the text.",
     "documentLongVerse": "{{book}} {{chapter}}:{{verse}} is far longer than any verse: the verses after it were not found.",
+    "documentChanged": "“{{fileName}}” was changed after it was reviewed. Choose the files again.",
+    "documentChapterShort": "{{book}} {{chapter}} ends at verse {{last}}; it usually has {{expected}} verses. The verses after {{last}} were not found.",
     "documentNoBook_one": "{{count}} verse number was found where no book name comes before it; it was left out.",
     "documentNoBook_other": "{{count}} verse numbers were found where no book name comes before them; they were left out.",
     "documentUnnumbered_one": "In {{count}} chapter verse 1 has no number of its own: the text between the chapter’s heading and verse 2 was taken as verse 1.",

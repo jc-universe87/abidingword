@@ -91,6 +91,8 @@
     "documentChapterTwice": "{{book}} {{chapter}} kommt im Text zweimal vor.",
     "documentOrder": "{{book}} {{chapter}},{{verse}} steht im Text nicht in der richtigen Reihenfolge.",
     "documentLongVerse": "{{book}} {{chapter}},{{verse}} ist viel länger als jeder Vers: Die Verse danach wurden nicht gefunden.",
+    "documentChanged": "„{{fileName}}“ wurde nach der Prüfung geändert. Wähle die Dateien noch einmal.",
+    "documentChapterShort": "{{book}} {{chapter}} endet mit Vers {{last}}; das Kapitel hat üblicherweise {{expected}} Verse. Die Verse nach {{last}} wurden nicht gefunden.",
     "documentNoBook_one": "{{count}} Versnummer wurde gefunden, vor der kein Buchname steht; sie wurde ausgelassen.",
     "documentNoBook_other": "{{count}} Versnummern wurden gefunden, vor denen kein Buchname steht; sie wurden ausgelassen.",
     "documentUnnumbered_one": "In {{count}} Kapitel hat Vers 1 keine eigene Nummer: Der Text zwischen der Kapitelüberschrift und Vers 2 wurde als Vers 1 genommen.",

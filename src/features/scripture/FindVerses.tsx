@@ -28,7 +28,11 @@ export function FindVerses({ bible, onClose }: { bible: BibleTranslation; onClos
   useEffect(() => {
     let active = true;
     api.bibleDocumentRecognise(bible.id).then(
-      (p) => active && setPreview(p),
+      (p) => {
+        // Closed while reading: what was read is not kept waiting.
+        if (active) setPreview(p);
+        else void api.bibleImportCancel(p.previewId).catch(() => undefined);
+      },
       (e) => active && setError(toApiError(e).message),
     );
     return () => {

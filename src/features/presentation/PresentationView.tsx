@@ -141,7 +141,8 @@ function PresentationEditor({
   const { t } = useTranslation();
   const api = useApi();
   const loaded = useLoad(useCallback(() => api.presentationGet(presentationId), [api, presentationId]));
-  const bibles = useLoad(useCallback(() => api.bibleList(), [api]));
+  // Only Bibles read by verse can put a passage on a slide (not one kept as a document).
+  const bibles = useLoad(useCallback(async () => (await api.bibleList()).filter((b) => b.kind !== "document"), [api]));
   const [doc, setDoc] = useState<PresentationDocument | null>(null);
   const [presenting, setPresenting] = useState(false);
   const [exporting, setExporting] = useState(false);

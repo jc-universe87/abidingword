@@ -86,6 +86,8 @@
     "documentChapterTwice": "{{book}} {{chapter}}장이 텍스트에 두 번 나옵니다.",
     "documentOrder": "{{book}} {{chapter}}:{{verse}}이(가) 텍스트에서 순서가 맞지 않습니다.",
     "documentLongVerse": "{{book}} {{chapter}}:{{verse}}이(가) 어떤 절보다도 훨씬 깁니다. 그 뒤의 절을 찾지 못했습니다.",
+    "documentChanged": "“{{fileName}}” 파일이 확인 후에 변경되었습니다. 파일을 다시 선택하세요.",
+    "documentChapterShort": "{{book}} {{chapter}}장이 {{last}}절에서 끝납니다. 이 장은 보통 {{expected}}절까지 있습니다. {{last}}절 이후의 구절을 찾지 못했습니다.",
     "documentNoBook_other": "앞에 책 이름이 없는 절 번호 {{count}}개를 찾아 제외했습니다.",
     "documentUnnumbered_other": "{{count}}개 장에서 1절에 번호가 없습니다. 장 제목과 2절 사이의 텍스트를 1절로 삼았습니다.",
     "documentPsalmTitles_other": "시편 표제 {{count}}개를 1절 앞의 표제로 두었습니다.",

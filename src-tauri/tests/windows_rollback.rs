@@ -5,7 +5,7 @@
 //! - a schema-15 database (what 0.5.0-dev.41 writes) with sources, a Bible
 //!   Study and its note, a citation, a Bible Teaching and a Bible text, and a
 //!   last change still only in the WAL file (the app was not closed cleanly);
-//! - the upgrade through 0016–0018: the pre-migration copy is complete
+//! - the upgrade through 0016–0019: the pre-migration copy is complete
 //!   (WAL included), passes an integrity check and is still schema 15; every
 //!   row is kept;
 //! - dev.41 refuses the upgraded database;
@@ -133,7 +133,7 @@ fn a_dev41_database_upgrades_with_a_complete_backup_and_rolls_back_cleanly() {
     let folder_copy = temp.path().join("folder-copy");
     copy_dir(&data, &folder_copy);
 
-    // U1–U2: the update opens the database: backup first, then 0016–0018.
+    // U1–U2: the update opens the database: backup first, then 0016–0019.
     let db = Database::open(&path, &backups).unwrap();
     let copies: Vec<_> = fs::read_dir(&backups)
         .unwrap()
@@ -158,7 +158,7 @@ fn a_dev41_database_upgrades_with_a_complete_backup_and_rolls_back_cleanly() {
         );
     }
     db.with_conn(|conn| {
-        assert_eq!(version(conn), 18);
+        assert_eq!(version(conn), 19);
         assert_eq!(integrity(conn), "ok");
         let broken: i64 =
             conn.query_row("SELECT COUNT(*) FROM pragma_foreign_key_check", [], |r| {

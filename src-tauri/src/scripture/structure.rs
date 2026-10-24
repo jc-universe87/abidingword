@@ -51,6 +51,10 @@ use crate::scripture::parser::{fold_marks, normalise, ReferenceParser};
 const VERSE_MAX_CHARS: usize = 2_500;
 /// How far ahead a verse number looks for a better place for the same verse.
 const LOOKAHEAD: usize = 400;
+/// A chapter this many verses shorter than usual may be another numbering
+/// (Joel 2 has 27 verses in Hebrew Bibles, 32 in English ones); more, and
+/// its end was not found.
+const SHORT_TOLERANCE: u16 = 6;
 /// Samples of left-out text kept for the review.
 const SAMPLES: usize = 12;
 
@@ -181,8 +185,10 @@ const GREEK_TITLES: &[(&str, &str)] = &[
 const TITLE_PREFIXES: &[&str] = &[
     "the book of ",
     "book of ",
-    "the gospel according to ",
+    // Longer forms first: the first prefix that matches is taken.
     "the gospel according to saint ",
+    "the gospel according to st ",
+    "the gospel according to ",
     "the gospel of ",
     "das buch ",
     "das evangelium nach ",
@@ -193,12 +199,12 @@ const TITLE_PREFIXES: &[&str] = &[
     "evangile selon ",
     "el libro de ",
     "libro de ",
-    "evangelio segun ",
     "el evangelio segun ",
+    "evangelio segun ",
     "o livro de ",
     "livro de ",
-    "evangelho segundo ",
     "o evangelho segundo ",
+    "evangelho segundo ",
 ];
 
 /// The languages whose book names are read: the six interface languages,
@@ -652,6 +658,21 @@ fn line_reference(text: &str, language: Option<ReferenceLanguage>) -> Option<Lin
     }
     let chapter: u16 = rest[..c_len].parse().ok()?;
     let verse: u16 = after_sep[..v_len].parse().ok()?;
+    // "2,300" and "1.500" are numbers, not chapter and verse: a three-digit
+    // verse after "," or "." is only Psalm 119's. No chapter has more than
+    // 176 verses, nor any book more than 150 chapters.
+    if sep != ':' && v_len == 3 && chapter != 119 {
+        return None;
+    }
+    if verse > 176 || chapter > 150 {
+        return None;
+    }
+    // Far beyond the chapter's standard count (other numberings differ by a few).
+    if let Some(count) = book.and_then(|b| canon::verse_count(b, chapter)) {
+        if verse > count + 10 {
+            return None;
+        }
+    }
     let mut used = c_len + 1 + v_len;
     let mut end = None;
     let tail = &rest[used..];
@@ -1004,6 +1025,29 @@ fn head_like(text: &str) -> bool {
         && !text.ends_with(['.', '!', '?', ';', ',', '׃', '。', '"', '”', '’'])
 }
 
+/// The shape of a line that can be a book's title: short, no sentence end
+/// or closing quotation mark, and — in scripts with capitals — starting
+/// with one.
+fn book_line_shape(text: &str) -> bool {
+    let text = text.trim();
+    // "GENESIS." — a title in capitals may end with a full stop.
+    let capitals = text.chars().filter(|c| c.is_alphabetic()).count() > 1
+        && !text.chars().any(|c| c.is_lowercase());
+    let text = if capitals {
+        text.trim_end_matches('.')
+    } else {
+        text
+    };
+    text.chars().count() <= 60
+        && !text.ends_with([
+            '.', ',', ';', ':', '!', '?', '׃', '。', '"', '”', '’', '\'', ')',
+        ])
+        && text
+            .chars()
+            .find(|c| c.is_alphabetic())
+            .is_some_and(|c| !c.is_lowercase())
+}
+
 struct Builder<'a> {
     units: &'a [Unit],
     language: Option<ReferenceLanguage>,
@@ -1041,12 +1085,57 @@ impl Builder<'_> {
                 if before.is_none_or(|b| b.unit != prev.unit)
                     && clean(&self.units[prev.unit].text).trim() == text
                     && text.chars().count() <= 60
-                    && !text.ends_with(['.', ',', ';', ':', '!', '?']) =>
+                    && book_line_shape(text) =>
             {
                 Some((text.clone(), prev.unit))
             }
             _ => None,
         }
+    }
+
+    /// Whether a PDF or text line naming a book opens it: a book begins at
+    /// its chapter 1 or verse 1, so the next line (after a subtitle or two)
+    /// must be "Chapter 1" or start with the number 1. A book's name wrapped
+    /// onto its own line inside a verse ("Ruth.", "Acts") is followed by
+    /// the next verse's number instead, and stays text. The same book named
+    /// again and followed by 1 begins twice (reported).
+    fn opens_chapter(&self, index: usize, skip: &HashSet<usize>) -> bool {
+        // Up to three lines on: a subtitle or two may stand between the
+        // title and the chapter ("The First Book of Moses", "called").
+        let next: Vec<String> = self
+            .units
+            .iter()
+            .enumerate()
+            .skip(index + 1)
+            .filter(|(i, _)| !skip.contains(i))
+            .map(|(_, u)| clean(&u.text).trim().to_string())
+            .filter(|t| !t.is_empty())
+            .take(3)
+            .collect();
+        for line in &next {
+            if let Some(heading) = read_heading(line, self.language) {
+                return matches!(heading, Heading::Chapter(1) | Heading::BookChapter(_, 1));
+            }
+            if line
+                .chars()
+                .next()
+                .is_some_and(|c| c.is_ascii_digit() || superscript_digit(c).is_some())
+            {
+                let number: String = line
+                    .chars()
+                    .map_while(|c| {
+                        superscript_digit(c)
+                            .and_then(|d| char::from_digit(d, 10))
+                            .or(c.is_ascii_digit().then_some(c))
+                    })
+                    .collect();
+                return number == "1";
+            }
+            if !head_like(line) {
+                return false;
+            }
+        }
+        false
     }
 
     fn push(&mut self, event: Event, unit: usize) {
@@ -1082,7 +1171,18 @@ impl Builder<'_> {
                 // A line that is only a number is a verse number in poetry layout,
                 // never a chapter, unless the document marks it as a heading.
                 let bare = text.chars().all(|c| c.is_ascii_digit());
-                if unit.heading || !bare {
+                // A PDF or text line naming a book is a heading only when it
+                // looks like one and a chapter or verse 1 follows it; a word
+                // wrapped onto a line of its own ("Ruth.", "song") stays text.
+                let line_book_ok = unit.heading
+                    || match heading {
+                        Heading::Book(_) => {
+                            book_line_shape(text) && self.opens_chapter(index, skip)
+                        }
+                        Heading::BookChapter(..) => book_line_shape(text),
+                        Heading::Chapter(_) => true,
+                    };
+                if (unit.heading || !bare) && line_book_ok {
                     match heading {
                         Heading::Book(book) => {
                             let entry = self.book_entry(text, book, index);
@@ -1455,7 +1555,8 @@ impl Reader<'_> {
                     if m.strength > strength {
                         return Some(false);
                     }
-                    if m.strength == strength && strength == Strength::Strong {
+                    // Two places equally good, however strong: refused, never guessed.
+                    if m.strength == strength {
                         equal = true;
                     }
                 }
@@ -1909,8 +2010,61 @@ impl Reader<'_> {
                 .with("count", s.left_out_chars),
             );
         }
+        self.short_chapters();
         self.out.content.check_structure();
         self.out
+    }
+
+    /// Verses missing at the end of a chapter (a chapter cut short) are not
+    /// gaps the common checks see: compared with the standard verse counts.
+    /// A few fewer is another numbering (a warning); many fewer means the
+    /// chapter's end was not found, and its verses are not used (an error).
+    fn short_chapters(&mut self) {
+        let mut found = Vec::new();
+        for (ordinal, staged) in &self.out.content.books {
+            let Some(book) = canon::by_ordinal(*ordinal) else {
+                continue;
+            };
+            for (chapter, text) in &staged.chapters {
+                let Some(expected) = canon::verse_count(book, *chapter) else {
+                    continue;
+                };
+                let last = text
+                    .verses
+                    .keys()
+                    .chain(text.bridges.values())
+                    .copied()
+                    .max()
+                    .unwrap_or(0);
+                if last == 0 || last >= expected {
+                    continue;
+                }
+                let severity = if expected - last > SHORT_TOLERANCE {
+                    Severity::Error
+                } else {
+                    Severity::Warning
+                };
+                found.push((severity, book, *chapter, last, expected));
+            }
+        }
+        for (severity, book, chapter, last, expected) in found {
+            self.out.content.issue(
+                severity,
+                Some(book),
+                Some(chapter),
+                UserMessage::new(
+                    "bibleImport.documentChapterShort",
+                    format!(
+                        "{} {chapter} ends at verse {last}; it usually has {expected} verses. The verses after {last} were not found.",
+                        book.name
+                    ),
+                )
+                .with("bookCode", book.code)
+                .with("chapter", chapter)
+                .with("last", last)
+                .with("expected", expected),
+            );
+        }
     }
 }
 

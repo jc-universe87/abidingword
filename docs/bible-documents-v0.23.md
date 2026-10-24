@@ -93,7 +93,11 @@ evidence and what never does is stated at the top of `structure.rs`; in short:
   dictionaries of the six interface languages plus Hebrew and Greek (and
   common title forms: "The Gospel according to …", "Das erste Buch Mose",
   "ΚΑΤΑ ΙΩΑΝΝΗΝ"). A file name, a table of contents or a book named inside a
-  sentence is never evidence.
+  sentence is never evidence. In a PDF or text file, where every line could
+  be a heading, a line naming a book is taken as its title only when it looks
+  like one (short, no sentence end, a capital first) **and** the book's
+  chapter 1 or verse 1 follows within three lines. A word wrapped onto a line
+  of its own ("Ruth.", "Acts", "song") stays part of its verse.
 - **Chapters** from a heading ("Chapter 3", "Kapitel 3", "Chapitre 3",
   "Capítulo 3", "3장", "제3장", "Psalm 23", "פרק ג", roman numerals), from a
   line reference ("3:1 …"), or from a large number starting a paragraph where
@@ -102,8 +106,15 @@ evidence and what never does is stated at the top of `structure.rs`; in short:
   punctuation, or after a space for the very next verse only. Numbers glued
   to words, references ("3:16", "5,3"), and numbers after "chapter" or a book
   name are not verse numbers; rejected numbers are put back into the text
-  exactly as they were.
-- **Ambiguity is refused**: two equally good places for a verse, a book that
+  exactly as they were. A line starting "2,300" or "1.500" is a number, not
+  chapter and verse (a three-digit verse after "," or "." is only Psalm
+  119's).
+- **Chapters cut short** are compared with the standard verse counts: up to
+  six verses fewer is reported as a warning (another numbering — Joel 2 has
+  27 verses in Hebrew Bibles), more is an error and the by-verse option is
+  not offered.
+- **Ambiguity is refused**: two equally good places for a verse (however
+  weak or strong both are), a book that
   starts twice, a verse longer than 2,500 characters (the structure was lost)
   — the chapter is an error, never guessed.
 - **Left out and reported**: text before the first book, headings and notes
@@ -136,8 +147,11 @@ document is a `bible_translations` row with `kind = 'document'`,
 verses later (`bible_document_add_verses`) turns it into an ordinary
 structured Bible in one transaction, keeping its documents.
 
-Files are copied to `sources/bibles/<translation id>/` before the database
-transaction; if anything fails the copies are removed. Cancelling the review
+Name and short name are checked first; then files are copied to
+`sources/bibles/<translation id>/` and each copy's SHA-256 is compared with
+the file that was reviewed (a file changed in between is refused: "choose the
+files again"); then one database transaction. If anything fails the copies
+are removed. Cancelling the review
 writes nothing. Removing the Bible removes its rows (cascade) and its folder.
 The upgrade from dev.42 (schema 18) is tested in
 `tests/bible_documents.rs::a_dev42_database_upgrades_and_keeps_everything`.
@@ -153,7 +167,7 @@ All are main-window only (`permissions/windows.toml`).
 
 ## 7. Tests
 
-- Rust `tests/bible_documents.rs` (35): text with headings and verse lines;
+- Rust `tests/bible_documents.rs` (40): text with headings and verse lines;
   chapter headings in six languages; printed-Bible chapter numbers; line
   references; Markdown; Psalm titles; unnumbered verse 1; missing verses;
   equal places refused; numbers inside text; notes and headings left out;
@@ -163,7 +177,10 @@ All are main-window only (`permissions/windows.toml`).
   footnotes; staging; USFM in `.txt`; mixing refused; commit by verse with
   origins; commit as document then add verses; failed commit leaves nothing;
   cancel writes nothing; scanned PDF as document; corrections re-read;
-  dev.42 upgrade. All fixtures are invented text generated in the test.
+  dev.42 upgrade; and, from the independent review, a book name wrapped onto
+  its own line, two equally weak verse places, "2,300" at a line start, "The
+  Gospel According to Saint Mark", and chapters cut short. All fixtures are
+  invented text generated in the test.
 - UI `tests/ui/bible-documents.test.tsx` (9): review wording, both ways of
   adding, reader, search, Scripture search leaving the document, corrections,
   scanned PDF, cancel, Look for verses, Settings.
@@ -183,3 +200,7 @@ All are main-window only (`permissions/windows.toml`).
   recognised (use the correction list).
 - A document Bible has no word information, Strong's numbers or concordance
   entries until its verses are recognised.
+- Adding a Bible and *Look for verses…* share one review in progress: opening
+  one while the other's review is open makes the first say it has expired
+  (choose again). Nothing is written either way.
+- Bibles kept as documents are not offered for presentation slides.

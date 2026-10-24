@@ -1043,3 +1043,96 @@ fn a_dev42_database_upgrades_and_keeps_everything() {
     })
     .unwrap();
 }
+
+// --- Independent review (v0.23): words wrapped onto their own line, weak
+// numbers, numbers that look like references, and chapters cut short.
+
+/// Ruth as lines, with verse 1:3 wrapped so its last word stands alone.
+fn ruth_with_wrapped_word(word: &str) -> String {
+    ruth_lines(|c| format!("Chapter {c}")).replacen(
+        &format!("3 {}\n", words("Ruth", 1, 3)),
+        &format!("3 {}\n{word}\n", words("Ruth", 1, 3)),
+        1,
+    )
+}
+
+#[test]
+fn a_book_name_wrapped_onto_its_own_line_stays_in_the_verse() {
+    for word in ["Ruth.", "Ruth", "song.", "Acts"] {
+        let r = recognise(&read("ruth.txt", ruth_with_wrapped_word(word).as_bytes()));
+        assert_eq!(
+            verse(&r, "RUT", 1, 3),
+            Some(format!("{} {word}", words("Ruth", 1, 3))),
+            "{word}"
+        );
+        assert_eq!(
+            verse(&r, "RUT", 1, 22),
+            Some(words("Ruth", 1, 22)),
+            "{word}"
+        );
+        assert_eq!(r.verse_count(), 85, "{word}");
+        assert!(errors(&r).is_empty(), "{word}: {:?}", errors(&r));
+    }
+}
+
+#[test]
+fn two_equally_weak_places_for_one_verse_refuse_the_chapter() {
+    let text = ruth_lines(|c| format!("Chapter {c}")).replacen(
+        &format!("4 {}\n5 {}\n", words("Ruth", 1, 4), words("Ruth", 1, 5)),
+        "4 and he gave them 5 loaves 5 and so on\n",
+        1,
+    );
+    let r = recognise(&read("ruth.txt", text.as_bytes()));
+    assert!(
+        codes(&r).contains(&"bibleImport.documentAmbiguous".to_string()),
+        "{:?}",
+        codes(&r)
+    );
+    assert!(!r.usable());
+}
+
+#[test]
+fn a_large_number_starting_a_line_is_not_a_chapter_and_verse() {
+    let text = ruth_lines(|c| format!("Chapter {c}")).replacen(
+        &format!("3 {}\n", words("Ruth", 1, 3)),
+        "3 And they counted\n2,300 days and nights.\n",
+        1,
+    );
+    let r = recognise(&read("ruth.txt", text.as_bytes()));
+    assert_eq!(
+        verse(&r, "RUT", 1, 3).as_deref(),
+        Some("And they counted 2,300 days and nights.")
+    );
+    assert!(errors(&r).is_empty(), "{:?}", errors(&r));
+}
+
+#[test]
+fn the_gospel_according_to_saint_mark_names_mark() {
+    let mut text = String::from("The Gospel According to Saint Mark\n\nChapter 1\n\n");
+    for v in 1..=45u16 {
+        text.push_str(&format!("{v} {}\n", words("Mark", 1, v)));
+    }
+    let r = recognise(&read("mark.txt", text.as_bytes()));
+    assert_eq!(r.books[0].book, Some("MRK"));
+    assert_eq!(verse(&r, "MRK", 1, 45), Some(words("Mark", 1, 45)));
+}
+
+#[test]
+fn a_chapter_cut_short_is_refused_and_a_few_verses_short_is_a_warning() {
+    // Ruth 1 stops after verse 3 (22 expected): refused.
+    let mut text = String::from("Ruth\n\nChapter 1\n\n");
+    for v in 1..=3u16 {
+        text.push_str(&format!("{v} {}\n", words("Ruth", 1, v)));
+    }
+    let r = recognise(&read("ruth.txt", text.as_bytes()));
+    assert!(codes(&r).contains(&"bibleImport.documentChapterShort".to_string()));
+    assert!(!r.usable());
+    // Ruth 1 with 19 of its 22 verses: another numbering, perhaps: a warning.
+    let mut text = String::from("Ruth\n\nChapter 1\n\n");
+    for v in 1..=19u16 {
+        text.push_str(&format!("{v} {}\n", words("Ruth", 1, v)));
+    }
+    let r = recognise(&read("ruth.txt", text.as_bytes()));
+    assert!(codes(&r).contains(&"bibleImport.documentChapterShort".to_string()));
+    assert!(errors(&r).is_empty(), "{:?}", errors(&r));
+}

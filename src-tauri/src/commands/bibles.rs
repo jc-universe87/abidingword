@@ -206,6 +206,10 @@ fn commit_documents(
         .documents
         .as_ref()
         .ok_or_else(|| AppError::Unexpected("not a document import".into()))?;
+    // Name, short name and language first: nothing is copied for a commit
+    // that would be refused anyway.
+    core.db
+        .with_conn(|conn| crate::db::bibles::check_details(conn, input).map(|_| ()))?;
     let dir = core.dirs.bible_sources(id);
     let copied = (|| -> Result<Vec<crate::db::bible_documents::KeptFile>, AppError> {
         std::fs::create_dir_all(&dir).map_err(|e| AppError::filesystem(&dir, e))?;
@@ -214,6 +218,21 @@ fn commit_documents(
             let name = format!("{}.{}", index + 1, file.extension);
             let target = dir.join(&name);
             std::fs::copy(&file.path, &target).map_err(|e| AppError::filesystem(&file.path, e))?;
+            // The copy must be the file that was reviewed: one changed since
+            // would no longer match the verses and text found in it.
+            let bytes = std::fs::read(&target).map_err(|e| AppError::filesystem(&target, e))?;
+            if crate::library::files::content_hash(&bytes) != file.hash {
+                return Err(AppError::Import(
+                    UserMessage::new(
+                        "bibleImport.documentChanged",
+                        format!(
+                            "“{}” was changed after it was reviewed. Choose the files again.",
+                            file.file_name
+                        ),
+                    )
+                    .with("fileName", &file.file_name),
+                ));
+            }
             kept.push(crate::db::bible_documents::KeptFile {
                 id: crate::db::new_id(),
                 file_name: name,

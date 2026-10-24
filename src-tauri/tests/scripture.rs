@@ -202,18 +202,24 @@ fn faulty_files_are_reported_in_plain_language_and_block_the_import() {
 #[test]
 fn unsupported_files_are_refused_clearly() {
     let temp = tempfile::tempdir().unwrap();
-    let pdf = temp.path().join("bible.pdf");
-    std::fs::write(&pdf, b"%PDF-1.7").unwrap();
-    match import::stage(&[pdf], ImportOrigin::UserFiles) {
-        Err(AppError::UnsupportedFormat(message)) => assert!(message.contains("PDF")),
+    // Since v0.23 PDF, EPUB, DOCX, Markdown and text are Bible documents
+    // (tests/bible_documents.rs); other document formats are refused by name.
+    let rtf = temp.path().join("bible.rtf");
+    std::fs::write(&rtf, b"{\\rtf1 In the beginning}").unwrap();
+    match import::stage(&[rtf], ImportOrigin::UserFiles) {
+        Err(AppError::UnsupportedFormat(message)) => assert!(message.contains("Word")),
         other => panic!("{:?}", other.err()),
     }
+    // A damaged PDF is refused with a message, never staged.
+    let pdf = temp.path().join("bible.pdf");
+    std::fs::write(&pdf, b"%PDF-1.7").unwrap();
+    assert!(import::stage(&[pdf], ImportOrigin::UserFiles).is_err());
+    // A text file without USFM markers is a document, with no verses found.
     let text = temp.path().join("notes.txt");
     std::fs::write(&text, b"Just some notes.").unwrap();
-    assert!(matches!(
-        import::stage(&[text], ImportOrigin::UserFiles),
-        Err(AppError::UnsupportedFormat(_))
-    ));
+    let staged = import::stage(&[text], ImportOrigin::UserFiles).unwrap();
+    assert!(staged.documents.is_some());
+    assert!(staged.content.books.is_empty());
 }
 
 #[test]

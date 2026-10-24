@@ -96,6 +96,8 @@
     "documentChapterTwice": "{{book}} {{chapter}} apparaît deux fois dans le texte.",
     "documentOrder": "{{book}} {{chapter}},{{verse}} n’est pas à sa place dans l’ordre du texte.",
     "documentLongVerse": "{{book}} {{chapter}},{{verse}} est bien plus long que n’importe quel verset : les versets suivants n’ont pas été trouvés.",
+    "documentChanged": "« {{fileName}} » a été modifié après la vérification. Choisissez à nouveau les fichiers.",
+    "documentChapterShort": "{{book}} {{chapter}} s’arrête au verset {{last}} ; ce chapitre compte habituellement {{expected}} versets. Les versets après le {{last}} n’ont pas été trouvés.",
     "documentNoBook_one": "{{count}} numéro de verset a été trouvé sans nom de livre avant lui ; il a été laissé de côté.",
     "documentNoBook_other": "{{count}} numéros de versets ont été trouvés sans nom de livre avant eux ; ils ont été laissés de côté.",
     "documentNoBook_many": "{{count}} numéros de versets ont été trouvés sans nom de livre avant eux ; ils ont été laissés de côté.",

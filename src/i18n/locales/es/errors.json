@@ -96,6 +96,8 @@
     "documentChapterTwice": "{{book}} {{chapter}} aparece dos veces en el texto.",
     "documentOrder": "{{book}} {{chapter}}:{{verse}} está fuera de orden en el texto.",
     "documentLongVerse": "{{book}} {{chapter}}:{{verse}} es mucho más largo que cualquier versículo: no se encontraron los versículos siguientes.",
+    "documentChanged": "«{{fileName}}» cambió después de revisarlo. Vuelve a elegir los archivos.",
+    "documentChapterShort": "{{book}} {{chapter}} termina en el versículo {{last}}; normalmente tiene {{expected}} versículos. No se encontraron los versículos posteriores al {{last}}.",
     "documentNoBook_one": "Se encontró {{count}} número de versículo sin un nombre de libro antes; se dejó fuera.",
     "documentNoBook_other": "Se encontraron {{count}} números de versículo sin un nombre de libro antes; se dejaron fuera.",
     "documentNoBook_many": "Se encontraron {{count}} números de versículo sin un nombre de libro antes; se dejaron fuera.",
