@@ -45,7 +45,8 @@
   "bibles": {
     "hasProblems": "이 성경에는 추가하기 전에 해결해야 할 문제가 있습니다.",
     "shortNameTooLong": "약칭은 {{max}}자 이내로 입력해 주세요.",
-    "badLanguage": "“{{text}}”은(는) Abiding Word가 아는 언어가 아닙니다."
+    "badLanguage": "“{{text}}”은(는) Abiding Word가 아는 언어가 아닙니다.",
+    "alreadyVerses": "이 성경은 이미 책·장·절로 읽을 수 있습니다."
   },
   "bibleImport": {
     "noBookId": "“{{fileName}}” 파일에 어떤 책이 들어 있는지 표시되어 있지 않습니다.",
@@ -63,7 +64,7 @@
     "missingVerses_other": "{{book}} {{chapter}}장: {{list}}절을 찾지 못했습니다. 이 본문의 절 구분이 표준 절 구분과 다릅니다.",
     "listMore_other": "{{numbers}} 외 {{count}}개",
     "unknownFormat": "이 파일들은 Abiding Word가 아직 읽을 수 없는 성경 형식입니다. USFM 성경(.usfm 또는 .sfm 파일, 또는 이를 묶은 .zip 파일), Open Scriptures Hebrew Bible의 OSIS 파일, MorphGNT 파일을 읽을 수 있습니다.",
-    "formatNotYet": "{{format}} 파일은 아직 구조화된 성경으로 가져올 수 없습니다. Abiding Word는 USFM 성경(.usfm 또는 .sfm 파일, 또는 이를 묶은 .zip 파일), Open Scriptures Hebrew Bible의 OSIS 파일, MorphGNT 파일을 읽을 수 있습니다.",
+    "formatNotYet": "{{format}} 파일은 아직 구조화된 성경으로 가져올 수 없습니다. Abiding Word는 USFM 성경(.usfm 또는 .sfm 파일, 또는 이를 묶은 .zip 파일), Open Scriptures Hebrew Bible의 OSIS 파일, MorphGNT 파일을 읽을 수 있습니다. PDF, EPUB, Word(.docx), Markdown, 텍스트 문서로도 성경을 추가할 수 있습니다.",
     "noBooks": "이 파일들에서 성경의 책을 찾지 못했습니다.",
     "tooLarge": "이 파일들은 성경 한 권으로 보기에는 너무 큽니다.",
     "badZip": "“{{fileName}}” 파일은 읽을 수 있는 .zip 압축 파일이 아닙니다.",
@@ -79,7 +80,24 @@
     "verseMapUnsplit": "다음 히브리어 절은 각각 영어 두 절의 일부를 담고 있지만, 파일에 한 절이 끝나는 곳이 표시되어 있지 않습니다: {{places}}. 각 절은 히브리어 번호 그대로 두었으므로 이웃한 영어 절의 단어도 함께 담고 있으며, 그 영어 절은 불완전하거나 빠져 있습니다.",
     "verseMapConflict": "{{places}}에서 본문 자체의 절 표시와 절 대응표가 일치하지 않아 본문의 표시를 따랐습니다.",
     "psalmTitlesInVerse": "히브리어 본문이 시편의 표제를 1절의 시작으로 적은 곳에서는 이 파일들이 표제가 끝나는 곳을 표시하지 않으므로, 표제가 1절에 그대로 남습니다.",
-    "verseMapDivided_other": "히브리어 절 {{count}}개를 본문 자체가 영어 절의 시작을 표시한 곳에서 나누었습니다(그중 {{titles}}개 부분은 시편 표제입니다)."
+    "verseMapDivided_other": "히브리어 절 {{count}}개를 본문 자체가 영어 절의 시작을 표시한 곳에서 나누었습니다(그중 {{titles}}개 부분은 시편 표제입니다).",
+    "documentAmbiguous": "{{book}} {{chapter}}:{{verse}}: 텍스트에서 이 절이 시작될 수 있는 곳이 두 군데입니다.",
+    "documentBookTwice": "{{book}}이(가) 텍스트에서 두 번 시작됩니다.",
+    "documentChapterTwice": "{{book}} {{chapter}}장이 텍스트에 두 번 나옵니다.",
+    "documentOrder": "{{book}} {{chapter}}:{{verse}}이(가) 텍스트에서 순서가 맞지 않습니다.",
+    "documentLongVerse": "{{book}} {{chapter}}:{{verse}}이(가) 어떤 절보다도 훨씬 깁니다. 그 뒤의 절을 찾지 못했습니다.",
+    "documentNoBook_other": "앞에 책 이름이 없는 절 번호 {{count}}개를 찾아 제외했습니다.",
+    "documentUnnumbered_other": "{{count}}개 장에서 1절에 번호가 없습니다. 장 제목과 2절 사이의 텍스트를 1절로 삼았습니다.",
+    "documentPsalmTitles_other": "시편 표제 {{count}}개를 1절 앞의 표제로 두었습니다.",
+    "documentPsalmTitle": "시편 {{chapter}}편: 1절에 번호가 없어서 표제와 구별할 수 없습니다.",
+    "documentPageLines_other": "여러 쪽에 반복되는 머리글과 쪽 번호 {{count}}개를 제외했습니다.",
+    "documentLeftOut_other": "어느 절에도 속하지 않는 텍스트를 제외했습니다({{count}}자: 제목, 서문, 주석).",
+    "documentMixed": "성경 형식(예: USFM)의 파일이나 문서(PDF, EPUB, Word, Markdown, 텍스트) 중 하나만 선택하세요. 둘을 함께 선택할 수는 없습니다.",
+    "documentFormats": "한 성경의 문서는 모두 같은 종류여야 합니다(모두 PDF, 모두 EPUB 등).",
+    "documentTooMany": "한 성경으로 보기에는 너무 많은 문서를 선택했습니다.",
+    "documentFormat": "“{{fileName}}”은(는) Abiding Word가 성경으로 읽을 수 있는 문서 종류가 아닙니다.",
+    "documentEmpty": "“{{fileName}}”에서 텍스트를 찾지 못했습니다.",
+    "unknownBookCode": "알 수 없는 책입니다."
   },
   "library": {
     "notUtf8": "“{{fileName}}”은(는) UTF-8 텍스트로 저장되어 있지 않아 읽을 수 없습니다.",

@@ -88,7 +88,7 @@
     "confirmBody": "Next, Abiding Word checks every book, chapter and verse and shows you what it found. Nothing is added until you confirm.",
     "confirmContinue": "Continue",
     "ownTitle": "A Bible you own",
-    "ownBody": "Choose a Bible in USFM format (a .zip download, or its .usfm files), the Open Scriptures Hebrew Bible’s OSIS files, or MorphGNT files. Abiding Word keeps its own copy and never changes your files.",
+    "ownBody": "Choose a Bible as a document (PDF, EPUB, Word, Markdown or plain text) or in a Bible format: USFM (a .zip download, or its .usfm files), the Open Scriptures Hebrew Bible’s OSIS files, or MorphGNT files. Abiding Word keeps its own copy and never changes your files.",
     "chooseFiles": "Choose Bible files…",
     "field": {
       "name": "Name",
@@ -163,7 +163,58 @@
         "gives": "Written word and lexical numbers only.",
         "how": "Download the USFM .zip and choose it. CC BY 4.0."
       }
-    }
+    },
+    "document": {
+      "filesTitle": "What the files hold",
+      "file": {
+        "pdfText_one": "PDF, {{formatted}} page, its text can be read",
+        "pdfText_other": "PDF, {{formatted}} pages, their text can be read",
+        "pdfScanned_one": "PDF, {{formatted}} scanned page: no text to read or search",
+        "pdfScanned_other": "PDF, {{formatted}} scanned pages: no text to read or search",
+        "epub": "EPUB book",
+        "docx": "Word document",
+        "markdown": "Markdown text",
+        "text": "Plain text"
+      },
+      "layoutKept": "Its original layout stays available for reading.",
+      "layoutText": "It is shown as its text.",
+      "notes_one": "{{formatted}} footnote is kept apart from the text.",
+      "notes_other": "{{formatted}} footnotes are kept apart from the text.",
+      "usable": "Books, chapters and verses were recognised. It can be read by book, chapter and verse like any other Bible.",
+      "unusable": "Some places are unclear (listed below), so its verses can’t be used as they are. You can correct the books found, or add it to read as a document.",
+      "noneFound": "No book, chapter and verse structure was recognised. It can be added to read as a document.",
+      "scannedOnly": "There is no text to look for verses in. It can be added to read page by page.",
+      "modeLabel": "How to add it",
+      "mode": {
+        "verses": "By book, chapter and verse",
+        "versesHint": "Going to a passage, search, the concordance and references from your studies work as with any Bible. The document stays available too.",
+        "document": "As a document to read",
+        "documentHint": "You read it as it is and can search its text. Verse tools are not available, and references from your studies open in another Bible."
+      },
+      "noWords": "Word information (dictionary forms, grammar, lexical numbers): none. Ordinary documents don’t carry it, and none is made up from the text.",
+      "booksTitle_one": "Check the book found ({{formatted}})",
+      "booksTitle_other": "Check the books found ({{formatted}})",
+      "booksIntro": "Each book begins at a heading in the document. If a heading was read as the wrong book, or names none, choose the right one — or leave that part out.",
+      "bookChoice": "Book for “{{heading}}”",
+      "notRecognised": "Not recognised — choose a book",
+      "leaveOut": "Leave out",
+      "bookCounts": "Chapters: {{chapters}} · Verses: {{verses}}",
+      "correcting": "Reading the documents again…",
+      "leftOutTitle": "Text left out of the verses ({{formatted}} characters)",
+      "leftOutIntro": "Headings, introductions and notes are not Scripture text. They stay in the document, but they are not part of any verse. Examples:",
+      "reason": {
+        "heading": "Heading",
+        "beforeVerses": "Before the first verse",
+        "noBook": "Before any book",
+        "notes": "Notes",
+        "leftOutBook": "In a part left out"
+      },
+      "pdfLimit": "In a PDF, a heading printed between two verses can’t always be told apart from the verse before it. Check a few passages after adding it.",
+      "licenceField": "Copyright or licence (optional)",
+      "licenceHint": "As the document states it, for your own reference.",
+      "addDocument": "Add to read as a document"
+    },
+    "doneDocument": "<strong>{{name}}</strong> was added to read as a document."
   },
   "bibles": {
     "empty": "No Bible has been added yet.",
@@ -175,7 +226,8 @@
     },
     "status": {
       "ready": "Ready",
-      "notStructured": "Not yet structured"
+      "notStructured": "Not yet structured",
+      "document": "Read as a document"
     },
     "details": "Details",
     "hideDetails": "Hide details",
@@ -216,7 +268,10 @@
       "removeEllipsis": "Remove word index…",
       "remove": "Remove word index",
       "confirmRemove": "Remove the word index of {{name}}? Its text, your notes and the ordinary concordance stay. You can read the word information again later."
-    }
+    },
+    "contentsDocument_one": "A document to read ({{formatted}} file); no verses",
+    "contentsDocument_other": "A document to read ({{formatted}} files); no verses",
+    "wordsDocument": "None: documents carry no word information."
   },
   "colors": {
     "label": "Highlight colour",
@@ -549,6 +604,41 @@
       "oshb": "the Open Scriptures Hebrew Bible’s morphology",
       "robinson": "Robinson’s Greek parsing codes",
       "morphgnt": "MorphGNT’s parsing codes"
+    }
+  },
+  "document": {
+    "kind": "Read as a document",
+    "group": "Read as documents",
+    "back": "Back to {{name}}",
+    "whatSummary": "What can I do with this Bible?",
+    "what": "This Bible is read as the document it came from. You can read it and search its text, but it has no book, chapter and verse structure: references from your studies open in a Bible read by passage, and the concordance, verse marks and word details are not available for it.",
+    "findVersesHint": "Abiding Word can read the document again and look for its books, chapters and verses. You check what it finds before anything changes.",
+    "findVerses": "Look for verses…",
+    "noTextAtAll": "This document has no text that can be read (for example, scanned pages), so it can’t be searched and its verses can’t be found.",
+    "part": "Part",
+    "viewLabel": "How to show the document",
+    "view": {
+      "original": "Original",
+      "text": "Text"
+    },
+    "scanned": "These pages are scanned images without text. You can read them page by page; searching and finding verses need text, which this file does not have. Abiding Word does not read text from images.",
+    "searchLabel": "Search in this Bible’s text",
+    "searchPlaceholder": "Words in this Bible",
+    "search": "Search",
+    "found_one": "{{formatted}} place found",
+    "found_other": "{{formatted}} places found",
+    "closeResults": "Close the results",
+    "page": "Page {{page}}",
+    "unreadable": "This document’s formatting can’t be shown. Its text can still be read under “Text”.",
+    "noText": "This document has no text that can be shown.",
+    "earlier": "Earlier text",
+    "later": "More text",
+    "recognise": {
+      "title": "Look for verses in {{name}}",
+      "reading": "Reading the document…",
+      "use": "Use these verses",
+      "keep": "Keep it as a document",
+      "done": "{{name}} can now be read by book, chapter and verse."
     }
   }
 }

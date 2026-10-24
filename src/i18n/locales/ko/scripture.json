@@ -84,7 +84,7 @@
     "confirmBody": "다음 단계에서 Abiding Word가 모든 책과 장과 절을 확인하고 결과를 보여 드립니다. 확인하시기 전에는 아무것도 추가되지 않습니다.",
     "confirmContinue": "계속",
     "ownTitle": "가지고 계신 성경",
-    "ownBody": "USFM 형식의 성경(내려받은 .zip 파일이나 .usfm 파일), Open Scriptures Hebrew Bible의 OSIS 파일, 또는 MorphGNT 파일을 선택하세요. Abiding Word는 자체 사본을 보관하며 원본 파일은 변경하지 않습니다.",
+    "ownBody": "문서(PDF, EPUB, Word, Markdown, 일반 텍스트)로 된 성경이나 성경 형식의 파일을 선택하세요. 성경 형식은 USFM(내려받은 .zip 파일이나 .usfm 파일), Open Scriptures Hebrew Bible의 OSIS 파일, MorphGNT 파일입니다. Abiding Word는 자체 사본을 보관하며 원본 파일은 변경하지 않습니다.",
     "chooseFiles": "성경 파일 선택…",
     "field": {
       "name": "이름",
@@ -148,7 +148,54 @@
         "gives": "쓰인 형태와 사전 번호만 있습니다.",
         "how": "USFM .zip 파일을 내려받아 선택하세요. CC BY 4.0."
       }
-    }
+    },
+    "document": {
+      "filesTitle": "파일 내용",
+      "file": {
+        "pdfText_other": "PDF, {{formatted}}쪽, 텍스트를 읽을 수 있음",
+        "pdfScanned_other": "PDF, 스캔한 {{formatted}}쪽: 읽거나 검색할 텍스트가 없음",
+        "epub": "EPUB 책",
+        "docx": "Word 문서",
+        "markdown": "Markdown 텍스트",
+        "text": "일반 텍스트"
+      },
+      "layoutKept": "원래 모양 그대로 읽을 수 있습니다.",
+      "layoutText": "텍스트로 표시됩니다.",
+      "notes_other": "각주 {{formatted}}개는 본문과 따로 둡니다.",
+      "usable": "책, 장, 절을 인식했습니다. 다른 성경처럼 책·장·절로 읽을 수 있습니다.",
+      "unusable": "일부 위치가 불분명해서(아래 목록) 절을 그대로 사용할 수 없습니다. 찾은 책을 바로잡거나, 문서로 읽도록 추가할 수 있습니다.",
+      "noneFound": "책·장·절 구조를 인식하지 못했습니다. 문서로 읽도록 추가할 수 있습니다.",
+      "scannedOnly": "절을 찾을 텍스트가 없습니다. 한 쪽씩 읽도록 추가할 수 있습니다.",
+      "modeLabel": "추가 방식",
+      "mode": {
+        "verses": "책·장·절로",
+        "versesHint": "구절로 이동, 검색, 용례 찾기, 성경공부의 성경 구절이 다른 성경처럼 작동합니다. 문서도 그대로 남습니다.",
+        "document": "읽을 문서로",
+        "documentHint": "있는 그대로 읽고 텍스트를 검색할 수 있습니다. 절 기능은 쓸 수 없으며, 성경공부의 성경 구절은 다른 성경에서 열립니다."
+      },
+      "noWords": "단어 정보(사전형, 문법, 사전 번호): 없음. 일반 문서에는 이런 정보가 없으며, 텍스트에서 지어내지 않습니다.",
+      "booksTitle_other": "찾은 책 확인({{formatted}})",
+      "booksIntro": "각 책은 문서의 제목에서 시작합니다. 제목을 다른 책으로 읽었거나 책 이름이 없으면 맞는 책을 선택하거나 그 부분을 제외하세요.",
+      "bookChoice": "“{{heading}}”에 해당하는 책",
+      "notRecognised": "인식하지 못함 — 책을 선택하세요",
+      "leaveOut": "제외",
+      "bookCounts": "장: {{chapters}} · 절: {{verses}}",
+      "correcting": "문서를 다시 읽는 중…",
+      "leftOutTitle": "절에서 제외한 텍스트({{formatted}}자)",
+      "leftOutIntro": "제목, 서문, 주석은 성경 본문이 아닙니다. 문서에는 남아 있지만 어느 절에도 속하지 않습니다. 예:",
+      "reason": {
+        "heading": "제목",
+        "beforeVerses": "첫 절 앞",
+        "noBook": "책이 시작되기 전",
+        "notes": "주석",
+        "leftOutBook": "제외한 부분"
+      },
+      "pdfLimit": "PDF에서는 두 절 사이에 인쇄된 소제목을 앞 절과 항상 구별할 수는 없습니다. 추가한 뒤 몇 구절을 확인해 보세요.",
+      "licenceField": "저작권 또는 라이선스(선택)",
+      "licenceHint": "문서에 적힌 대로, 참고용으로 적어 두세요.",
+      "addDocument": "문서로 읽도록 추가"
+    },
+    "doneDocument": "<strong>{{name}}</strong>을(를) 읽을 문서로 추가했습니다."
   },
   "bibles": {
     "empty": "아직 추가된 성경이 없습니다.",
@@ -160,7 +207,8 @@
     },
     "status": {
       "ready": "사용 가능",
-      "notStructured": "아직 구조화되지 않음"
+      "notStructured": "아직 구조화되지 않음",
+      "document": "문서로 읽기"
     },
     "details": "자세히",
     "hideDetails": "자세히 숨기기",
@@ -199,7 +247,9 @@
       "removeEllipsis": "단어 색인 제거…",
       "remove": "단어 색인 제거",
       "confirmRemove": "{{name}}의 단어 색인을 제거할까요? 본문, 메모, 일반 용례 찾기는 그대로 유지됩니다. 단어 정보는 나중에 다시 읽을 수 있습니다."
-    }
+    },
+    "contentsDocument_other": "읽을 문서(파일 {{formatted}}개), 절 없음",
+    "wordsDocument": "없음: 문서에는 단어 정보가 없습니다."
   },
   "colors": {
     "label": "강조 색",
@@ -523,6 +573,40 @@
       "oshb": "Open Scriptures Hebrew Bible 형태 분석 체계",
       "robinson": "Robinson 그리스어 분석 코드",
       "morphgnt": "MorphGNT 분석 코드"
+    }
+  },
+  "document": {
+    "kind": "문서로 읽기",
+    "group": "문서로 읽는 성경",
+    "back": "{{name}}(으)로 돌아가기",
+    "whatSummary": "이 성경으로 무엇을 할 수 있나요?",
+    "what": "이 성경은 원래 문서 그대로 읽습니다. 읽고 텍스트를 검색할 수 있지만 책·장·절 구조가 없습니다. 성경공부의 성경 구절은 구절로 읽는 성경에서 열리며, 용례 찾기, 절 표시, 단어 정보는 이 성경에서 쓸 수 없습니다.",
+    "findVersesHint": "Abiding Word가 문서를 다시 읽고 책, 장, 절을 찾을 수 있습니다. 바뀌기 전에 찾은 내용을 확인하게 됩니다.",
+    "findVerses": "절 찾기…",
+    "noTextAtAll": "이 문서에는 읽을 수 있는 텍스트가 없습니다(예: 스캔한 쪽). 그래서 검색할 수 없고 절도 찾을 수 없습니다.",
+    "part": "부분",
+    "viewLabel": "문서 표시 방식",
+    "view": {
+      "original": "원본",
+      "text": "텍스트"
+    },
+    "scanned": "이 쪽들은 텍스트가 없는 스캔 이미지입니다. 한 쪽씩 읽을 수는 있지만, 검색과 절 찾기에는 텍스트가 필요한데 이 파일에는 없습니다. Abiding Word는 이미지에서 글자를 읽지 않습니다.",
+    "searchLabel": "이 성경 텍스트에서 검색",
+    "searchPlaceholder": "이 성경의 단어",
+    "search": "검색",
+    "found_other": "{{formatted}}곳 찾음",
+    "closeResults": "결과 닫기",
+    "page": "{{page}}쪽",
+    "unreadable": "이 문서의 서식은 표시할 수 없습니다. 텍스트는 ‘텍스트’에서 계속 읽을 수 있습니다.",
+    "noText": "이 문서에는 표시할 텍스트가 없습니다.",
+    "earlier": "앞부분",
+    "later": "뒷부분",
+    "recognise": {
+      "title": "{{name}}에서 절 찾기",
+      "reading": "문서를 읽는 중…",
+      "use": "이 절 사용",
+      "keep": "문서로 유지",
+      "done": "이제 {{name}}을(를) 책·장·절로 읽을 수 있습니다."
     }
   }
 }

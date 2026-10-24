@@ -1707,7 +1707,8 @@ fn unsupported(kind: &str) -> AppError {
             format!(
                 "{kind} files can’t be imported as a structured Bible yet. Abiding Word reads \
                  USFM Bibles (.usfm or .sfm files, or a .zip of them), the Open Scriptures Hebrew \
-                 Bible's OSIS files and MorphGNT files."
+                 Bible's OSIS files and MorphGNT files. A Bible can also be added from PDF, EPUB, \
+                 Word (.docx), Markdown or text documents."
             ),
         )
         .with("format", kind),

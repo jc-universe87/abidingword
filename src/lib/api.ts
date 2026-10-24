@@ -63,7 +63,7 @@ import type {
   SearchResults,
   SearchScripture,
   StudyPassage,
-  UpdateAnnotation, MaterialScripture } from "@/types/scripture";
+  UpdateAnnotation, MaterialScripture, BibleDocument, DocumentWindow, DocumentHit, VerseOrigin } from "@/types/scripture";
 import type {
   CreateFinding,
   Finding,
@@ -433,6 +433,20 @@ export interface Api {
   bibleImportPreview(input: ImportRequest): Promise<ImportPreview>;
   bibleImportCommit(input: CommitImport): Promise<BibleTranslation>;
   bibleImportCancel(previewId: string): Promise<void>;
+  /** Reads previewed documents again with the person's book corrections (v0.23). */
+  bibleImportCorrect(previewId: string, books: { index: number; book: string | null }[]): Promise<ImportPreview>;
+  /** The documents a Bible was added from (v0.23). */
+  bibleDocuments(translationId: string): Promise<BibleDocument[]>;
+  bibleDocumentInfo(documentId: string): Promise<OriginalInfo>;
+  bibleDocumentRead(documentId: string, offset: number, length: number): Promise<Uint8Array>;
+  bibleDocumentStructure(documentId: string, kind: "epub" | "docx"): Promise<EpubStructureItem[]>;
+  bibleDocumentItem(documentId: string, kind: "epub" | "docx", item: string): Promise<EpubItem>;
+  bibleDocumentSegments(input: { documentId: string; offset?: number; limit?: number; aroundPage?: number }): Promise<DocumentWindow>;
+  bibleDocumentSearch(translationId: string, query: string): Promise<DocumentHit[]>;
+  bibleVerseOrigin(translationId: string, book: string, chapter: number, verse: number): Promise<VerseOrigin | null>;
+  /** Reads a document Bible's kept files again for verses (no new import). */
+  bibleDocumentRecognise(translationId: string): Promise<ImportPreview>;
+  bibleDocumentAddVerses(previewId: string): Promise<BibleTranslation>;
   bibleRemove(id: string): Promise<void>;
   /** Reads an installed Bible's kept files again for its words; nothing is saved (v0.22). */
   bibleWordsPreview(id: string): Promise<WordsPreview>;
@@ -727,7 +741,7 @@ export const tauriApi: Api = {
       title: "Choose a Bible to add",
       filters: [
         // metadata.xml / Settings.xml chosen alongside name the language (v0.18.3).
-        { name: "Bible files (USFM or .zip)", extensions: ["zip", "usfm", "sfm", "ptx", "txt", "xml"] },
+        { name: "Bible files (USFM, .zip, PDF, EPUB, Word, Markdown, text)", extensions: ["zip", "usfm", "sfm", "ptx", "txt", "xml", "pdf", "epub", "docx", "md", "markdown"] },
         { name: "All files", extensions: ["*"] },
       ],
     });
@@ -737,6 +751,19 @@ export const tauriApi: Api = {
   bibleImportPreview: (input) => call("bible_import_preview", { input }),
   bibleImportCommit: (input) => call("bible_import_commit", { input }),
   bibleImportCancel: (previewId) => call("bible_import_cancel", { previewId }),
+  bibleImportCorrect: (previewId, books) => call("bible_import_correct", { previewId, books }),
+  bibleDocuments: (translationId) => call("bible_documents", { translationId }),
+  bibleDocumentInfo: (documentId) => call("bible_document_info", { documentId }),
+  bibleDocumentRead: async (documentId, offset, length) =>
+    new Uint8Array(await call<ArrayBuffer>("bible_document_read", { documentId, offset, length })),
+  bibleDocumentStructure: (documentId, kind) => call("bible_document_structure", { documentId, kind }),
+  bibleDocumentItem: (documentId, kind, item) => call("bible_document_item", { documentId, kind, item }),
+  bibleDocumentSegments: (input) =>
+    call("bible_document_segments", { documentId: input.documentId, offset: input.offset ?? null, limit: input.limit ?? null, aroundPage: input.aroundPage ?? null }),
+  bibleDocumentSearch: (translationId, query) => call("bible_document_search", { translationId, query }),
+  bibleVerseOrigin: (translationId, book, chapter, verse) => call("bible_verse_origin", { translationId, book, chapter, verse }),
+  bibleDocumentRecognise: (translationId) => call("bible_document_recognise", { translationId }),
+  bibleDocumentAddVerses: (previewId) => call("bible_document_add_verses", { previewId }),
   bibleRemove: (id) => call("bible_remove", { id }),
   bibleWordsPreview: (id) => call("bible_words_preview", { id }),
   bibleWordsApply: (previewId, words) => call("bible_words_apply", { previewId, words }),

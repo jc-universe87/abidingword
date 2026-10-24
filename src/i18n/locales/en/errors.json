@@ -45,7 +45,8 @@
   "bibles": {
     "hasProblems": "This Bible has problems that must be resolved before it can be added.",
     "shortNameTooLong": "Please keep the short name under {{max}} characters.",
-    "badLanguage": "“{{text}}” is not a language Abiding Word knows."
+    "badLanguage": "“{{text}}” is not a language Abiding Word knows.",
+    "alreadyVerses": "This Bible can already be read by book, chapter and verse."
   },
   "bibleImport": {
     "noBookId": "The file “{{fileName}}” does not say which book it contains.",
@@ -66,7 +67,7 @@
     "listMore_one": "{{numbers}} and {{count}} more",
     "listMore_other": "{{numbers}} and {{count}} more",
     "unknownFormat": "These files are not in a Bible format Abiding Word can read yet. It reads USFM Bibles (.usfm or .sfm files, or a .zip of them), the Open Scriptures Hebrew Bible’s OSIS files and MorphGNT files.",
-    "formatNotYet": "{{format}} files can’t be imported as a structured Bible yet. Abiding Word reads USFM Bibles (.usfm or .sfm files, or a .zip of them), the Open Scriptures Hebrew Bible’s OSIS files and MorphGNT files.",
+    "formatNotYet": "{{format}} files can’t be imported as a structured Bible yet. Abiding Word reads USFM Bibles (.usfm or .sfm files, or a .zip of them), the Open Scriptures Hebrew Bible’s OSIS files and MorphGNT files. A Bible can also be added from PDF, EPUB, Word (.docx), Markdown or text documents.",
     "noBooks": "No books of the Bible were found in these files.",
     "tooLarge": "These files are too large to be a single Bible.",
     "badZip": "The file “{{fileName}}” is not a readable .zip archive.",
@@ -84,7 +85,29 @@
     "verseMapConflict": "At {{places}} the text’s own verse mark and the verse map disagree; the text’s mark was followed.",
     "psalmTitlesInVerse": "Where the Hebrew text writes a Psalm’s title as the start of verse 1, these files do not mark where the title ends, so it stays part of verse 1.",
     "verseMapDivided_one": "{{count}} Hebrew verse was divided where the text itself marks the start of an English verse ({{titles}} of the parts are Psalm titles).",
-    "verseMapDivided_other": "{{count}} Hebrew verses were divided where the text itself marks the start of an English verse ({{titles}} of the parts are Psalm titles)."
+    "verseMapDivided_other": "{{count}} Hebrew verses were divided where the text itself marks the start of an English verse ({{titles}} of the parts are Psalm titles).",
+    "documentAmbiguous": "{{book}} {{chapter}}:{{verse}}: two places in the text could be where this verse begins.",
+    "documentBookTwice": "{{book}} begins twice in the text.",
+    "documentChapterTwice": "{{book}} {{chapter}} appears twice in the text.",
+    "documentOrder": "{{book}} {{chapter}}:{{verse}} is out of order in the text.",
+    "documentLongVerse": "{{book}} {{chapter}}:{{verse}} is far longer than any verse: the verses after it were not found.",
+    "documentNoBook_one": "{{count}} verse number was found where no book name comes before it; it was left out.",
+    "documentNoBook_other": "{{count}} verse numbers were found where no book name comes before them; they were left out.",
+    "documentUnnumbered_one": "In {{count}} chapter verse 1 has no number of its own: the text between the chapter’s heading and verse 2 was taken as verse 1.",
+    "documentUnnumbered_other": "In {{count}} chapters verse 1 has no number of its own: the text between the chapter’s heading and verse 2 was taken as verse 1.",
+    "documentPsalmTitles_one": "{{count}} Psalm title was kept as a title, before verse 1.",
+    "documentPsalmTitles_other": "{{count}} Psalm titles were kept as titles, before verse 1.",
+    "documentPsalmTitle": "Psalm {{chapter}}: verse 1 has no number, so its title cannot be told apart from it.",
+    "documentPageLines_one": "{{count}} page header or page number repeated across the pages was left out.",
+    "documentPageLines_other": "{{count}} page headers and page numbers repeated across the pages were left out.",
+    "documentLeftOut_one": "Text that belongs to no verse was left out ({{count}} character: headings, introductions, notes).",
+    "documentLeftOut_other": "Text that belongs to no verse was left out ({{count}} characters: headings, introductions, notes).",
+    "documentMixed": "Choose either the files of a Bible in a Bible format (such as USFM) or documents (PDF, EPUB, Word, Markdown or text), not both together.",
+    "documentFormats": "The documents of one Bible must all be of the same kind (all PDF, all EPUB …).",
+    "documentTooMany": "Too many documents were chosen to be one Bible.",
+    "documentFormat": "“{{fileName}}” is not a kind of document Abiding Word can read as a Bible.",
+    "documentEmpty": "No text was found in “{{fileName}}”.",
+    "unknownBookCode": "Unknown book."
   },
   "library": {
     "notUtf8": "“{{fileName}}” is not saved as UTF-8 text, so it could not be read.",

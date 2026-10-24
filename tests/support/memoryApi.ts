@@ -22,7 +22,10 @@ import type {
   AnchorInput,
   Annotation,
   AnnotationAnchor,
+  BibleDocument,
   BibleTranslation,
+  DocumentFileInfo,
+  DocumentSegment,
   ImportPreview,
   LemmaResult,
   MorphDescribed,
@@ -35,6 +38,7 @@ import type {
   WordReport,
 } from "@/types/scripture";
 import { contains, refFromCanonical } from "@/lib/scripture";
+import { minimalPdf } from "./minimalPdf";
 import type {
   ContentsItem,
   EpubItem,
@@ -116,7 +120,11 @@ export interface MemoryApi extends Api {
     findings: Finding[];
     relations: { id: string; from: string; to: string; relationType: StudyRelation["relationType"]; createdAt: string }[];
     templates: StudyTemplate[];
-    pendingPreview: { id: string; bundled: boolean } | null;
+    pendingPreview: { id: string; bundled: boolean; document?: { paths: string[]; preview: ImportPreview } } | null;
+    /** Bibles kept as documents (v0.23): their files, text and (for a PDF) bytes. */
+    bibleDocuments: Map<string, { documents: BibleDocument[]; segments: Map<string, DocumentSegment[]>; bytes: Map<string, Uint8Array> }>;
+    /** What looking for verses in a document Bible finds next (v0.23); null: as when it was added. */
+    nextRecognition: ImportPreview | null;
     library: {
       /** Removed sources stay (deleted: true) as citation tombstones. */
       sources: (Source & { deleted: boolean })[];
@@ -404,6 +412,8 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     nextWordsPreview: null,
     pendingWords: null,
     pendingPreview: null,
+    bibleDocuments: new Map(),
+    nextRecognition: null,
     library: { sources: [], segments: [], mentions: [], links: [], nextChosenFile: null, openedLinks: [], openLinkFails: false, pending: null, annotations: [] },
     findings: [],
     relations: [],
@@ -534,6 +544,108 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     skippedFiles: [],
     canImport: !broken,
   });
+
+  // --- Bibles from documents (v0.23), as the core reports them -----------------
+  const DOCUMENT_EXTENSIONS: Record<string, DocumentFileInfo["format"]> = { pdf: "pdf", epub: "epub", docx: "docx", md: "markdown", markdown: "markdown", txt: "text" };
+  const isDocumentChoice = (paths: string[]) =>
+    paths.some((p) => /\.(pdf|epub|docx|md|markdown)$/i.test(p)) || (paths.length > 0 && paths.every((p) => /document.*\.txt$/i.test(p)));
+  const FOUND = [
+    { code: "PSA", heading: "Psalms", chapters: 1, verses: 2 },
+    { code: "JHN", heading: "John", chapters: 3, verses: 10 },
+    { code: "ROM", heading: "Romans", chapters: 1, verses: 3 },
+  ];
+  /** A document import's preview: usable verses by default; "scanned" has no text; "unclear" needs a correction. */
+  const documentPreview = (paths: string[], corrected: Map<number, string | null> = new Map()): ImportPreview => {
+    const name = (p: string) => p.split(/[\\/]/).pop() ?? p;
+    const format = DOCUMENT_EXTENSIONS[(paths[0] ?? "").split(".").pop()?.toLowerCase() ?? ""] ?? "text";
+    const scanned = paths.some((p) => /scanned/i.test(p));
+    const unclear = paths.some((p) => /unclear/i.test(p));
+    const books = scanned
+      ? []
+      : FOUND.map((f, index) => {
+          const detected = unclear && index === 0 ? null : f.code;
+          const choice = corrected.has(index) ? corrected.get(index)! : detected;
+          const leftOut = corrected.has(index) && corrected.get(index) === null;
+          return {
+            index,
+            heading: unclear && index === 0 ? "The Book of Praises" : f.heading,
+            detected,
+            book: leftOut ? null : choice,
+            leftOut,
+            chapters: choice ? f.chapters : 0,
+            verses: choice ? f.verses : 0,
+            place: { document: 0, page: format === "pdf" ? index + 1 : null, segment: index * 4 },
+          };
+        });
+    const kept = books.filter((b) => b.book !== null);
+    const verseCount = kept.reduce((n, b) => n + b.verses, 0);
+    const usable = verseCount > 0 && !kept.some((b) => b.detected === null && !corrected.has(b.index)) && books.every((b) => b.book !== null || b.leftOut);
+    return {
+      previewId: id(),
+      format,
+      bundled: false,
+      suggested: { name: name(paths[0] ?? "").replace(/\.[^.]+$/, ""), shortName: "", language: "", languageCode: "", publisher: null, copyrightNotice: null, licenseType: null },
+      bookCount: kept.length,
+      chapterCount: kept.reduce((n, b) => n + b.chapters, 0),
+      verseCount,
+      books: kept.map((b) => ({ code: b.book!, name: b.heading, chapters: b.chapters, verses: b.verses, status: "ok" as const })),
+      issues: usable
+        ? [{ severity: "note" as const, book: null, chapter: null, message: "Text that belongs to no verse was left out (120 characters: headings, introductions, notes).", code: "bibleImport.documentLeftOut", params: { count: "120" } }]
+        : scanned
+          ? []
+          : [{ severity: "warning" as const, book: null, chapter: null, message: "2 verse numbers were found where no book name comes before them; they were left out.", code: "bibleImport.documentNoBook", params: { count: "2" } }],
+      skippedFiles: [],
+      canImport: true,
+      document: {
+        files: paths.map((p) => ({ name: name(p), format, pages: format === "pdf" ? 5 : null, textChars: scanned ? 0 : 4200, scanned, keepsLayout: format === "pdf" || format === "epub" || format === "docx", notes: format === "docx" ? 1 : 0 })),
+        books,
+        leftOut: scanned ? [] : [{ sample: "An invented introduction to this edition.", chars: 120, place: { document: 0, page: format === "pdf" ? 1 : null, segment: 0 }, reason: "noBook" as const }],
+        stats: { pageLines: format === "pdf" ? 10 : 0, headings: 1, leftOutChars: scanned ? 0 : 120, psalmTitles: 0, unnumberedFirst: 0, numberedChapters: 0 },
+        versesUsable: usable,
+        textChars: scanned ? 0 : 4200,
+      },
+    };
+  };
+  /** The kept documents of a Bible added from `paths`: invented text, one page per book. */
+  const keepDocuments = (bibleId: string, paths: string[], format: DocumentFileInfo["format"], scanned: boolean) => {
+    const documents: BibleDocument[] = [];
+    const segments = new Map<string, DocumentSegment[]>();
+    const bytes = new Map<string, Uint8Array>();
+    paths.forEach((path, position) => {
+      const docId = id();
+      const lines: DocumentSegment[] = scanned
+        ? []
+        : FOUND.flatMap((f, page) => [
+            { position: 0, text: f.heading, pageNumber: format === "pdf" ? page + 1 : null, sectionPath: format === "pdf" ? null : f.heading },
+            ...Array.from({ length: 3 }, (_, v) => ({ position: 0, text: `${v + 1} Invented words of ${f.heading} for the document reader.`, pageNumber: format === "pdf" ? page + 1 : null, sectionPath: format === "pdf" ? null : f.heading })),
+          ]).map((segment, n) => ({ ...segment, position: n }));
+      segments.set(docId, lines);
+      if (format === "pdf") {
+        const pages = scanned
+          ? [[], [], []]
+          : FOUND.map((_, page) => lines.filter((l) => l.pageNumber === page + 1).map((l, i) => ({ size: i === 0 ? 18 : 12, y: 760 - i * 28, text: l.text })));
+        bytes.set(docId, minimalPdf(pages));
+      }
+      documents.push({
+        id: docId,
+        position,
+        format,
+        name: path.split(/[\\/]/).pop() ?? path,
+        pageCount: format === "pdf" ? (scanned ? 3 : FOUND.length) : null,
+        extractionStatus: scanned ? "ocr_required" : format === "pdf" ? "extracted_text" : "digital_text",
+        segmentCount: lines.length,
+        view: format === "pdf" || format === "epub" || format === "docx" ? format : null,
+      });
+    });
+    state.bibleDocuments.set(bibleId, { documents, segments, bytes });
+  };
+  const keptDocument = (documentId: string) => {
+    for (const kept of state.bibleDocuments.values()) {
+      const document = kept.documents.find((d) => d.id === documentId);
+      if (document) return { kept, document };
+    }
+    throw new ApiError("notFound", "This Bible document could not be found.");
+  };
 
   const find = <T extends { id: string }>(list: T[], key: string, entity: string): T => {
     const item = list.find((x) => x.id === key);
@@ -1286,8 +1398,16 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
       ].map((b) => ({ ...b, installed: state.bibles.some((i) => i.isBuiltin && i.shortName === b.shortName) })),
     chooseBibleFiles: async () => state.nextChosenFiles,
     bibleImportPreview: async ({ bundled, paths }) => {
-      if (paths?.some((p) => p.endsWith(".pdf"))) {
-        throw new ApiError("unsupportedFormat", "PDF files can’t be imported as a structured Bible yet.");
+      if (paths && isDocumentChoice(paths)) {
+        if (paths.some((p) => /\.(usfm|sfm|zip)$/i.test(p))) {
+          throw new ApiError("invalidInput", "Choose either the files of a Bible in a Bible format (such as USFM) or documents, not both together.", "bibleImport.documentMixed");
+        }
+        const result = documentPreview(paths);
+        state.pendingPreview = { id: result.previewId, bundled: false, document: { paths, preview: result } };
+        return result;
+      }
+      if (paths?.some((p) => /\.(rtf|odt|doc)$/i.test(p))) {
+        throw new ApiError("unsupportedFormat", "Word files can’t be imported as a structured Bible yet.");
       }
       const result = preview(!!bundled, !!paths?.some((p) => p.includes("broken")));
       // As the core reads a DBL metadata.xml or Paratext Settings.xml beside the USFM.
@@ -1301,6 +1421,32 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     },
     bibleImportCommit: async (input) => {
       if (state.pendingPreview?.id !== input.previewId) throw new ApiError("invalidInput", "This import has expired.");
+      const pendingDocument = state.pendingPreview.document;
+      if (pendingDocument) {
+        const { paths, preview: found } = pendingDocument;
+        const asDocument = !!input.asDocument || !found.document?.versesUsable;
+        const format = found.document!.files[0]!.format;
+        const bible = addBible(
+          {
+            name: input.name,
+            shortName: input.shortName,
+            language: input.language,
+            languageCode: input.languageCode ?? null,
+            copyrightNotice: input.copyrightNotice ?? null,
+            kind: asDocument ? "document" : "structured",
+            importStatus: asDocument ? "document_only" : "ready",
+            sourceType: format,
+            originalFileName: paths.map((p) => p.split(/[\\/]/).pop()).join(", "),
+            bookCount: asDocument ? 0 : found.bookCount,
+            verseCount: asDocument ? 0 : found.verseCount,
+          },
+          "document",
+        );
+        if (asDocument) state.text.set(bible.id, new Map());
+        keepDocuments(bible.id, paths, format, !!found.document?.files[0]?.scanned);
+        state.pendingPreview = null;
+        return bible;
+      }
       const bundled = state.pendingPreview.bundled;
       const bible = addBible(
         {
@@ -1321,6 +1467,87 @@ export function createMemoryApi(overrides: Partial<AppInfo> = {}): MemoryApi {
     },
     bibleImportCancel: async () => {
       state.pendingPreview = null;
+    },
+    bibleImportCorrect: async (previewId, books) => {
+      const pending = state.pendingPreview;
+      if (pending?.id !== previewId || !pending.document) throw new ApiError("invalidInput", "This import has expired.");
+      const result = documentPreview(pending.document.paths, new Map(books.map((b) => [b.index, b.book])));
+      result.previewId = previewId;
+      pending.document.preview = result;
+      return result;
+    },
+    bibleDocuments: async (translationId) => state.bibleDocuments.get(translationId)?.documents ?? [],
+    bibleDocumentInfo: async (documentId) => {
+      const { kept, document } = keptDocument(documentId);
+      const bytes = kept.bytes.get(document.id);
+      if (!bytes) throw new ApiError("invalidInput", "This source has no original view.");
+      return { kind: "pdf", sizeBytes: bytes.length };
+    },
+    bibleDocumentRead: async (documentId, offset, length) => {
+      const { kept, document } = keptDocument(documentId);
+      return (kept.bytes.get(document.id) ?? new Uint8Array()).slice(offset, offset + length);
+    },
+    bibleDocumentStructure: async (documentId) => {
+      const { kept, document } = keptDocument(documentId);
+      const count = kept.segments.get(document.id)?.length ?? 0;
+      return [{ id: "part-1", startSegment: 0, segmentCount: count, anchors: {} }];
+    },
+    bibleDocumentItem: async (documentId, _kind, item) => {
+      const { kept, document } = keptDocument(documentId);
+      if (item !== "part-1") throw new ApiError("invalidInput", "The original of this source can’t be opened.");
+      const lines = kept.segments.get(document.id) ?? [];
+      return {
+        id: item,
+        css: "",
+        nodes: lines.map((l, i) => ({ tag: i % 4 === 0 ? "h2" : "p", attrs: { "data-segment": String(l.position) }, children: [l.text] })),
+      } as unknown as EpubItem;
+    },
+    bibleDocumentSegments: async ({ documentId, offset = 0, limit = 200, aroundPage }) => {
+      const { kept, document } = keptDocument(documentId);
+      const all = kept.segments.get(document.id) ?? [];
+      const from = aroundPage !== undefined ? Math.max(0, all.findIndex((s) => (s.pageNumber ?? 0) >= aroundPage)) : offset;
+      return { total: all.length, offset: from, segments: all.slice(from, from + limit) };
+    },
+    bibleDocumentSearch: async (translationId, query) => {
+      const kept = state.bibleDocuments.get(translationId);
+      if (!query.trim()) throw new ApiError("invalidInput", "Type a word or phrase to search for.", "search.empty");
+      const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+      return (kept?.documents ?? []).flatMap((d) =>
+        (kept!.segments.get(d.id) ?? [])
+          .filter((s) => words.every((w) => s.text.toLowerCase().includes(w)))
+          .map((s) => ({ documentId: d.id, position: s.position, pageNumber: s.pageNumber, sectionPath: s.sectionPath, text: s.text })),
+      );
+    },
+    bibleVerseOrigin: async (translationId, book, _chapter, verse) => {
+      const kept = state.bibleDocuments.get(translationId);
+      const bible = state.bibles.find((b) => b.id === translationId);
+      if (!kept || bible?.kind !== "structured") return null;
+      const page = FOUND.findIndex((f) => f.code === book);
+      return { documentId: kept.documents[0]!.id, documentName: kept.documents[0]!.name, firstSegment: page * 4 + verse, lastSegment: page * 4 + verse, firstPage: kept.documents[0]!.format === "pdf" ? page + 1 : null, lastPage: kept.documents[0]!.format === "pdf" ? page + 1 : null };
+    },
+    bibleDocumentRecognise: async (translationId) => {
+      const bible = state.bibles.find((b) => b.id === translationId);
+      if (!bible) throw new ApiError("notFound", "Bible not found");
+      if (bible.kind !== "document") throw new ApiError("invalidInput", "This Bible can already be read by book, chapter and verse.", "bibles.alreadyVerses");
+      const paths = (state.bibleDocuments.get(translationId)?.documents ?? []).map((d) => d.name);
+      const result = state.nextRecognition ?? documentPreview(paths);
+      state.pendingPreview = { id: result.previewId, bundled: false, document: { paths, preview: { ...result, suggested: { ...result.suggested, name: bible.name } } } };
+      return result;
+    },
+    bibleDocumentAddVerses: async (previewId) => {
+      const pending = state.pendingPreview;
+      if (pending?.id !== previewId || !pending.document) throw new ApiError("invalidInput", "This import has expired.");
+      const found = pending.document.preview;
+      if (!found.document?.versesUsable) throw new ApiError("invalidInput", "This Bible has problems that must be resolved before it can be added.", "bibles.hasProblems");
+      const bible = state.bibles.find((b) => [...state.bibleDocuments.entries()].some(([id, kept]) => id === b.id && kept.documents.map((d) => d.name).join("|") === pending.document!.paths.join("|")) && b.kind === "document");
+      if (!bible) throw new ApiError("notFound", "Bible not found");
+      bible.kind = "structured";
+      bible.importStatus = "ready";
+      bible.bookCount = found.bookCount;
+      bible.verseCount = found.verseCount;
+      state.text.set(bible.id, fixtureChapters("document"));
+      state.pendingPreview = null;
+      return { ...bible };
     },
     // As the core (scripture::data_packs): a few of the 100, enough for tests.
     bibleLanguageOptions: async () => [

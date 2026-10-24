@@ -88,7 +88,7 @@
     "confirmBody": "Als Nächstes prüft Abiding Word jedes Buch, jedes Kapitel und jeden Vers und zeigt dir das Ergebnis. Hinzugefügt wird erst, wenn du bestätigst.",
     "confirmContinue": "Weiter",
     "ownTitle": "Eine eigene Bibel",
-    "ownBody": "Wähle eine Bibel im USFM-Format (einen .zip-Download oder ihre .usfm-Dateien), die OSIS-Dateien der Open Scriptures Hebrew Bible oder MorphGNT-Dateien. Abiding Word legt eine eigene Kopie an und verändert deine Dateien nie.",
+    "ownBody": "Wähle eine Bibel als Dokument (PDF, EPUB, Word, Markdown oder einfacher Text) oder in einem Bibelformat: USFM (einen .zip-Download oder ihre .usfm-Dateien), die OSIS-Dateien der Open Scriptures Hebrew Bible oder MorphGNT-Dateien. Abiding Word legt eine eigene Kopie an und verändert deine Dateien nie.",
     "chooseFiles": "Bibeldateien auswählen…",
     "field": {
       "name": "Name",
@@ -163,7 +163,58 @@
         "gives": "Nur geschriebenes Wort und lexikalische Nummern.",
         "how": "Lade die USFM-.zip-Datei herunter und wähle sie aus. CC BY 4.0."
       }
-    }
+    },
+    "document": {
+      "filesTitle": "Was die Dateien enthalten",
+      "file": {
+        "pdfText_one": "PDF, {{formatted}} Seite, ihr Text ist lesbar",
+        "pdfText_other": "PDF, {{formatted}} Seiten, ihr Text ist lesbar",
+        "pdfScanned_one": "PDF, {{formatted}} gescannte Seite: kein Text zum Lesen oder Durchsuchen",
+        "pdfScanned_other": "PDF, {{formatted}} gescannte Seiten: kein Text zum Lesen oder Durchsuchen",
+        "epub": "EPUB-Buch",
+        "docx": "Word-Dokument",
+        "markdown": "Markdown-Text",
+        "text": "Einfacher Text"
+      },
+      "layoutKept": "Sein ursprüngliches Layout bleibt zum Lesen erhalten.",
+      "layoutText": "Es wird als Text angezeigt.",
+      "notes_one": "{{formatted}} Fußnote wird vom Text getrennt gehalten.",
+      "notes_other": "{{formatted}} Fußnoten werden vom Text getrennt gehalten.",
+      "usable": "Bücher, Kapitel und Verse wurden erkannt. Du kannst sie wie jede andere Bibel nach Buch, Kapitel und Vers lesen.",
+      "unusable": "Einige Stellen sind unklar (unten aufgeführt), deshalb können ihre Verse so nicht verwendet werden. Du kannst die gefundenen Bücher korrigieren oder sie als Dokument zum Lesen hinzufügen.",
+      "noneFound": "Es wurde keine Gliederung nach Buch, Kapitel und Vers erkannt. Du kannst sie als Dokument zum Lesen hinzufügen.",
+      "scannedOnly": "Es gibt keinen Text, in dem nach Versen gesucht werden könnte. Du kannst sie hinzufügen, um sie Seite für Seite zu lesen.",
+      "modeLabel": "Wie du sie hinzufügst",
+      "mode": {
+        "verses": "Nach Buch, Kapitel und Vers",
+        "versesHint": "Zu einer Stelle gehen, Suche, Konkordanz und Bibelstellen aus deinen Studien funktionieren wie bei jeder Bibel. Das Dokument bleibt ebenfalls erhalten.",
+        "document": "Als Dokument zum Lesen",
+        "documentHint": "Du liest es so, wie es ist, und kannst seinen Text durchsuchen. Werkzeuge für Verse gibt es dafür nicht; Bibelstellen aus deinen Studien öffnen sich in einer anderen Bibel."
+      },
+      "noWords": "Wortinformationen (Grundformen, Grammatik, lexikalische Nummern): keine. Gewöhnliche Dokumente enthalten sie nicht, und aus dem Text wird keine erfunden.",
+      "booksTitle_one": "Gefundenes Buch prüfen ({{formatted}})",
+      "booksTitle_other": "Gefundene Bücher prüfen ({{formatted}})",
+      "booksIntro": "Jedes Buch beginnt an einer Überschrift im Dokument. Wenn eine Überschrift als falsches Buch gelesen wurde oder keines nennt, wähle das richtige – oder lass diesen Teil weg.",
+      "bookChoice": "Buch für „{{heading}}“",
+      "notRecognised": "Nicht erkannt – wähle ein Buch",
+      "leaveOut": "Weglassen",
+      "bookCounts": "Kapitel: {{chapters}} · Verse: {{verses}}",
+      "correcting": "Die Dokumente werden neu gelesen…",
+      "leftOutTitle": "Nicht in Verse aufgenommener Text ({{formatted}} Zeichen)",
+      "leftOutIntro": "Überschriften, Einleitungen und Anmerkungen sind kein Bibeltext. Sie bleiben im Dokument, gehören aber zu keinem Vers. Beispiele:",
+      "reason": {
+        "heading": "Überschrift",
+        "beforeVerses": "Vor dem ersten Vers",
+        "noBook": "Vor jedem Buch",
+        "notes": "Anmerkungen",
+        "leftOutBook": "In einem weggelassenen Teil"
+      },
+      "pdfLimit": "In einer PDF lässt sich eine zwischen zwei Versen gedruckte Überschrift nicht immer vom Vers davor unterscheiden. Prüfe nach dem Hinzufügen einige Stellen.",
+      "licenceField": "Urheberrecht oder Lizenz (optional)",
+      "licenceHint": "So, wie das Dokument es angibt, für deine eigenen Unterlagen.",
+      "addDocument": "Als Dokument zum Lesen hinzufügen"
+    },
+    "doneDocument": "<strong>{{name}}</strong> wurde als Dokument zum Lesen hinzugefügt."
   },
   "bibles": {
     "empty": "Es wurde noch keine Bibel hinzugefügt.",
@@ -175,7 +226,8 @@
     },
     "status": {
       "ready": "Bereit",
-      "notStructured": "Noch nicht gegliedert"
+      "notStructured": "Noch nicht gegliedert",
+      "document": "Als Dokument gelesen"
     },
     "details": "Details",
     "hideDetails": "Details ausblenden",
@@ -216,7 +268,10 @@
       "removeEllipsis": "Wortindex entfernen…",
       "remove": "Wortindex entfernen",
       "confirmRemove": "Den Wortindex von {{name}} entfernen? Der Text, deine Notizen und die normale Konkordanz bleiben erhalten. Du kannst die Wortangaben später erneut lesen."
-    }
+    },
+    "contentsDocument_one": "Ein Dokument zum Lesen ({{formatted}} Datei), ohne Verse",
+    "contentsDocument_other": "Ein Dokument zum Lesen ({{formatted}} Dateien), ohne Verse",
+    "wordsDocument": "Keine: Dokumente enthalten keine Wortinformationen."
   },
   "colors": {
     "label": "Farbe der Markierung",
@@ -549,6 +604,41 @@
       "oshb": "die Morphologie der Open Scriptures Hebrew Bible",
       "robinson": "Robinsons griechische Analysecodes",
       "morphgnt": "die Analysecodes von MorphGNT"
+    }
+  },
+  "document": {
+    "kind": "Als Dokument gelesen",
+    "group": "Als Dokumente gelesen",
+    "back": "Zurück zu {{name}}",
+    "whatSummary": "Was kann ich mit dieser Bibel tun?",
+    "what": "Diese Bibel wird als das Dokument gelesen, aus dem sie stammt. Du kannst sie lesen und ihren Text durchsuchen, aber sie hat keine Gliederung nach Buch, Kapitel und Vers: Bibelstellen aus deinen Studien öffnen sich in einer Bibel, die nach Stellen gelesen wird, und Konkordanz, Versmarkierungen und Wortdetails gibt es für sie nicht.",
+    "findVersesHint": "Abiding Word kann das Dokument erneut lesen und nach Büchern, Kapiteln und Versen suchen. Du prüfst das Ergebnis, bevor sich etwas ändert.",
+    "findVerses": "Nach Versen suchen…",
+    "noTextAtAll": "Dieses Dokument enthält keinen lesbaren Text (zum Beispiel gescannte Seiten). Es lässt sich daher nicht durchsuchen, und seine Verse können nicht gefunden werden.",
+    "part": "Teil",
+    "viewLabel": "Wie das Dokument angezeigt wird",
+    "view": {
+      "original": "Original",
+      "text": "Text"
+    },
+    "scanned": "Diese Seiten sind gescannte Bilder ohne Text. Du kannst sie Seite für Seite lesen; zum Durchsuchen und zum Finden von Versen braucht es Text, den diese Datei nicht hat. Abiding Word liest keinen Text aus Bildern.",
+    "searchLabel": "Im Text dieser Bibel suchen",
+    "searchPlaceholder": "Wörter in dieser Bibel",
+    "search": "Suchen",
+    "found_one": "{{formatted}} Stelle gefunden",
+    "found_other": "{{formatted}} Stellen gefunden",
+    "closeResults": "Ergebnisse schließen",
+    "page": "Seite {{page}}",
+    "unreadable": "Die Formatierung dieses Dokuments kann nicht angezeigt werden. Seinen Text kannst du weiterhin unter „Text“ lesen.",
+    "noText": "Dieses Dokument hat keinen Text, der angezeigt werden kann.",
+    "earlier": "Früherer Text",
+    "later": "Weiterer Text",
+    "recognise": {
+      "title": "Verse in {{name}} suchen",
+      "reading": "Das Dokument wird gelesen…",
+      "use": "Diese Verse verwenden",
+      "keep": "Als Dokument behalten",
+      "done": "{{name}} kann jetzt nach Buch, Kapitel und Vers gelesen werden."
     }
   }
 }

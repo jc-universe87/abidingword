@@ -30,8 +30,20 @@ export interface ScriptureSearch {
 interface ScriptureValue {
   books: BookInfo[];
   bookByCode: Map<string, BookInfo>;
+  /** Bibles readable by passage (every verse-dependent tool uses these). */
   translations: BibleTranslation[];
   translation: BibleTranslation | null;
+  /** Every Bible, those read as documents too (v0.23). */
+  allTranslations: BibleTranslation[];
+  /** Bibles read as documents, not by passage (v0.23). */
+  documentBibles: BibleTranslation[];
+  /**
+   * The document Bible open in the Scripture pane, if any (v0.23). Opening one
+   * leaves the passage, history and the Bible read by passage as they are;
+   * going to a passage closes it.
+   */
+  documentBible: BibleTranslation | null;
+  openDocumentBible: (id: string | null) => void;
   location: ScriptureLocation;
   /** The passage last navigated to, when it names verses (highlighted). */
   selection: ScriptureRef | null;
@@ -95,8 +107,12 @@ interface ProviderProps {
 
 export function ScriptureProvider({ settings, books, translations: initial, children }: ProviderProps) {
   const api = useApi();
-  const [translations, setTranslations] = useState(initial);
+  const [allTranslations, setAllTranslations] = useState(initial);
+  const allRef = useRef(initial);
+  const translations = useMemo(() => allTranslations.filter((t) => t.kind !== "document"), [allTranslations]);
+  const documentBibles = useMemo(() => allTranslations.filter((t) => t.kind === "document"), [allTranslations]);
   const [translationId, setTranslationId] = useState<string | null>(settings.scriptureTranslationId);
+  const [documentId, setDocumentId] = useState<string | null>(null);
   const bookByCode = useMemo(() => new Map(books.map((b) => [b.code, b])), [books]);
   const [saved] = useState(() =>
     settings.scripturePassage ? refFromCanonical(settings.scripturePassage, bookByCode) : null,
@@ -139,8 +155,18 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
     [api],
   );
 
+  const documentBible = documentBibles.find((t) => t.id === documentId) ?? null;
+  const openDocumentBible = useCallback((id: string | null) => setDocumentId(id), []);
+
+  // Choosing a Bible: one read by passage becomes the Bible read; one read as a
+  // document opens in the pane without changing which Bible passages are read in.
   const setTranslation = useCallback(
     (id: string) => {
+      if (allRef.current.find((t) => t.id === id)?.kind === "document") {
+        setDocumentId(id);
+        return;
+      }
+      setDocumentId(null);
       setTranslationId(id);
       persist({ scriptureTranslationId: id });
     },
@@ -148,8 +174,10 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
   );
 
   // Shows a passage; how it is recorded in the history is the caller's business.
+  // A passage is always shown in a Bible read by passage: a document closes.
   const show = useCallback(
     (ref: ScriptureRef) => {
+      setDocumentId(null);
       setLocation({ book: ref.book, chapter: ref.startChapter });
       setSelection(hasVerses(ref) || ref.startChapter !== ref.endChapter ? ref : null);
       setSelectedVerse(null);
@@ -202,12 +230,15 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
 
   const reloadTranslations = useCallback(async () => {
     const list = await api.bibleList();
-    setTranslations(list);
+    allRef.current = list;
+    setAllTranslations(list);
     return list;
   }, [api]);
 
   const runSearch = useCallback(
     async (input: Pick<ScriptureSearch, "query" | "currentOnly" | "book">) => {
+      // Search results are verses: they show in the Bible read by passage.
+      setDocumentId(null);
       setSearch({ ...input, results: null, error: null, busy: true });
       try {
         const results = await api.scriptureSearch({
@@ -241,6 +272,10 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
       bookByCode,
       translations,
       translation,
+      allTranslations,
+      documentBibles,
+      documentBible,
+      openDocumentBible,
       location,
       selection,
       selectedVerse,
@@ -265,7 +300,7 @@ export function ScriptureProvider({ settings, books, translations: initial, chil
       runSearch,
       closeSearch,
     }),
-    [books, bookByCode, translations, translation, location, selection, selectedVerse, selectVerse, currentPassage, navigationId, search, setTranslation, goTo, current, backAvailable, forwardAvailable, back, forward, studyPassage, concordanceRequest, openConcordance, goToChapter, navigateText, reloadTranslations, runSearch, closeSearch],
+    [books, bookByCode, translations, translation, allTranslations, documentBibles, documentBible, openDocumentBible, location, selection, selectedVerse, selectVerse, currentPassage, navigationId, search, setTranslation, goTo, current, backAvailable, forwardAvailable, back, forward, studyPassage, concordanceRequest, openConcordance, goToChapter, navigateText, reloadTranslations, runSearch, closeSearch],
   );
 
   return <ScriptureContext.Provider value={value}>{children}</ScriptureContext.Provider>;

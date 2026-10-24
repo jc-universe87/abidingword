@@ -315,6 +315,115 @@ export interface ImportPreview {
   canImport: boolean;
   /** What the Bible's word markup gives (v0.21). */
   words?: WordReport;
+  /** For documents (PDF, EPUB, Word, Markdown, text; v0.23): what was found in them. */
+  document?: DocumentPreview | null;
+}
+
+/** Where something is in a Bible's documents (v0.23). */
+export interface DocumentPlace {
+  /** Which document (0 = the first). */
+  document: number;
+  page: number | null;
+  /** The paragraph (segment position) it lies in. */
+  segment: number | null;
+}
+
+/** A book heading found in a document, as the review lists it (v0.23). */
+export interface FoundBook {
+  index: number;
+  heading: string;
+  /** The book the heading names, if it names one. */
+  detected: string | null;
+  /** The book used (detected or chosen); null when none or left out. */
+  book: string | null;
+  leftOut: boolean;
+  chapters: number;
+  verses: number;
+  place: DocumentPlace;
+}
+
+/** Text left out of the verses (v0.23). */
+export interface LeftOutText {
+  sample: string;
+  chars: number;
+  place: DocumentPlace;
+  reason: "heading" | "beforeVerses" | "noBook" | "notes" | "leftOutBook";
+}
+
+export interface DocumentStats {
+  pageLines: number;
+  headings: number;
+  leftOutChars: number;
+  psalmTitles: number;
+  unnumberedFirst: number;
+  numberedChapters: number;
+}
+
+export interface DocumentFileInfo {
+  name: string;
+  format: "pdf" | "epub" | "docx" | "markdown" | "text";
+  pages: number | null;
+  textChars: number;
+  /** No text layer (scanned pages): readable page by page only. */
+  scanned: boolean;
+  /** Its layout is kept and shown (PDF pages, EPUB and Word formatting). */
+  keepsLayout: boolean;
+  notes: number;
+}
+
+export interface DocumentPreview {
+  files: DocumentFileInfo[];
+  books: FoundBook[];
+  leftOut: LeftOutText[];
+  stats: DocumentStats;
+  /** Verses were found and nothing contradicts itself. */
+  versesUsable: boolean;
+  textChars: number;
+}
+
+/** One of the documents a Bible was added from (v0.23). */
+export interface BibleDocument {
+  id: string;
+  position: number;
+  format: DocumentFileInfo["format"];
+  /** The file's name as the person had it. */
+  name: string;
+  pageCount: number | null;
+  extractionStatus: "digital_text" | "extracted_text" | "ocr_required";
+  segmentCount: number;
+  /** How the original is shown: its layout ("pdf", "epub", "docx"), or its text (null). */
+  view: "pdf" | "epub" | "docx" | null;
+}
+
+export interface DocumentSegment {
+  position: number;
+  text: string;
+  pageNumber: number | null;
+  sectionPath: string | null;
+}
+
+export interface DocumentWindow {
+  total: number;
+  offset: number;
+  segments: DocumentSegment[];
+}
+
+export interface DocumentHit {
+  documentId: string;
+  position: number;
+  pageNumber: number | null;
+  sectionPath: string | null;
+  text: string;
+}
+
+/** Where a verse of a Bible added from documents came from (v0.23). */
+export interface VerseOrigin {
+  documentId: string;
+  documentName: string;
+  firstSegment: number | null;
+  lastSegment: number | null;
+  firstPage: number | null;
+  lastPage: number | null;
 }
 
 /** The import preview's summary of word annotations (v0.21). */
@@ -373,6 +482,8 @@ export interface CommitImport {
   licenseType?: string;
   /** What to do with the Bible's words (v0.22). */
   words?: WordChoice;
+  /** A Bible from documents is added to read as a document, even with verses found (v0.23). */
+  asDocument?: boolean;
 }
 
 export type AnnotationKind = "note" | "highlight" | "bookmark";

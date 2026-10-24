@@ -123,11 +123,11 @@ describe("adding and managing Bibles", () => {
 
   it("refuses unsupported files with a plain message", async () => {
     const api = createMemoryApi();
-    api.state.nextChosenFiles = ["/home/me/bible.pdf"];
+    api.state.nextChosenFiles = ["/home/me/bible.rtf"];
     const { user } = await renderApp(api);
     await user.click(screen.getByRole("button", { name: "Add a Bible…" }));
     await user.click(await screen.findByRole("button", { name: "Choose Bible files…" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("PDF files can’t be imported");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Word files can’t be imported");
   });
 
   it("lists installed Bibles in Settings and removes one after confirmation", async () => {

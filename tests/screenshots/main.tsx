@@ -538,6 +538,18 @@ async function start() {
       leftOut: EMPTY_LEFT, indexed: false, notIndexed: "strongOnly",
     };
   }
+  // v0.23: Bibles from documents. `bibleFiles` is what "Choose Bible files…" returns
+  // (e.g. "ruth.pdf", "psalms-unclear.epub", "old-scanned.pdf"); `documentBible`
+  // adds one read as a document (pdf, epub, markdown) and opens it in the pane.
+  const bibleFiles = params.get("bibleFiles");
+  if (bibleFiles) api.state.nextChosenFiles = bibleFiles.split(",").map((f) => `/home/you/Documents/${f}`);
+  const documentBible = params.get("documentBible");
+  if (documentBible) {
+    const ext = documentBible === "markdown" ? "md" : documentBible;
+    const name = params.get("documentName") ?? `invented-bible.${ext}`;
+    const preview = await api.bibleImportPreview({ paths: [`/home/you/Documents/${name}`] });
+    await api.bibleImportCommit({ previewId: preview.previewId, name: "Invented Bible (document)", shortName: "DOC", language: "English", languageCode: "en", asDocument: true });
+  }
   await i18n.changeLanguage(params.get("lang") ?? "en");
   // All three panes even in a narrow window, as the owner works (review scenes, v0.18.5).
   if (params.get("sourcesOpen") === "1") localStorage.setItem("abiding-word.layout.sourcesOpen", "true");

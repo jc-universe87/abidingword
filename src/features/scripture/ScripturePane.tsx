@@ -10,12 +10,16 @@ import { PassageNav } from "./PassageNav";
 import { ScriptureHistoryBar } from "./ScriptureHistoryBar";
 import { useScripture } from "./ScriptureContext";
 import { SearchResultsView } from "./SearchResultsView";
+import { DocumentBibleReader } from "./DocumentBibleReader";
+import { FindVerses } from "./FindVerses";
+import type { BibleTranslation } from "@/types/scripture";
 
 /** The Scripture pane: a local passage reader over installed translations. */
 export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
   const { openSource } = useLibraryNav();
   const { t } = useTranslation();
-  const { translations, translation, setTranslation, search, goTo, navigationId, concordanceRequest } = useScripture();
+  const { translations, translation, setTranslation, search, goTo, navigationId, concordanceRequest, documentBibles, documentBible } = useScripture();
+  const [findingVerses, setFindingVerses] = useState<BibleTranslation | null>(null);
   // Bible is the default; Marks is a second view of the same pane. The Bible
   // stays mounted underneath, so coming back finds the reading place, the open
   // verse tools and the scroll position as they were.
@@ -47,24 +51,40 @@ export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
   return (
     <>
       <PaneHeader id="pane-scripture-title" title={t("app.panes.name.scripture")}>
-        {translations.length > 0 && translation && (
+        {(translations.length > 0 || documentBibles.length > 0) && (translation || documentBible) && (
           <label className="flex items-center gap-2">
             <span className="sr-only">{t("scripture.translation")}</span>
             <select
-              value={translation.id}
+              value={documentBible?.id ?? translation?.id}
               onChange={(e) => setTranslation(e.target.value)}
               className="h-9 max-w-40 aw-input px-2 text-[0.9375rem]"
             >
               {translations.map((bible) => (
                 <option key={bible.id} value={bible.id}>{bible.shortName}</option>
               ))}
+              {documentBibles.length > 0 && (
+                <optgroup label={t("scripture.document.group")}>
+                  {documentBibles.map((bible) => (
+                    <option key={bible.id} value={bible.id}>{bible.shortName}</option>
+                  ))}
+                </optgroup>
+              )}
             </select>
           </label>
         )}
       </PaneHeader>
+      {findingVerses && <FindVerses bible={findingVerses} onClose={() => setFindingVerses(null)} />}
+      {documentBible ? (
+        <DocumentBibleReader key={documentBible.id} bible={documentBible} onFindVerses={() => setFindingVerses(documentBible)} />
+      ) : (
       <div ref={scroller} data-scroll-root className="min-h-0 flex-1 overflow-y-auto">
         <div className="flex flex-col gap-5 px-5 py-5">
-          {!translation ? (
+          {!translation && documentBibles.length > 0 ? (
+            <div className="flex flex-col items-start gap-3">
+              <p className="m-0 text-[0.9375rem] text-text-muted">{t("scripture.document.what")}</p>
+              <Button onClick={() => setTranslation(documentBibles[0]!.id)}>{documentBibles[0]!.name}</Button>
+            </div>
+          ) : !translation ? (
             <div className="flex flex-col gap-4">
               <p className="reading m-0 text-text-strong">{t("scripture.empty.title")}</p>
               <p className="m-0 text-[0.9375rem] text-text-muted">
@@ -122,6 +142,7 @@ export function ScripturePane({ onAddBible }: { onAddBible: () => void }) {
           )}
         </div>
       </div>
+      )}
     </>
   );
 }

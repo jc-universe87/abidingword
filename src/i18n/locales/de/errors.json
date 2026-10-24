@@ -45,7 +45,8 @@
   "bibles": {
     "hasProblems": "Diese Bibel hat Probleme, die behoben werden müssen, bevor sie hinzugefügt werden kann.",
     "shortNameTooLong": "Bitte verwende für den Kurznamen weniger als {{max}} Zeichen.",
-    "badLanguage": "„{{text}}“ ist keine Sprache, die Abiding Word kennt."
+    "badLanguage": "„{{text}}“ ist keine Sprache, die Abiding Word kennt.",
+    "alreadyVerses": "Diese Bibel kann bereits nach Buch, Kapitel und Vers gelesen werden."
   },
   "bibleImport": {
     "noBookId": "Die Datei „{{fileName}}“ gibt nicht an, welches Buch sie enthält.",
@@ -66,7 +67,7 @@
     "listMore_one": "{{numbers}} und {{count}} weiterer",
     "listMore_other": "{{numbers}} und {{count}} weitere",
     "unknownFormat": "Diese Dateien liegen in keinem Bibelformat vor, das Abiding Word bereits lesen kann. Es liest USFM-Bibeln (.usfm- oder .sfm-Dateien oder eine .zip-Datei mit solchen Dateien), die OSIS-Dateien der Open Scriptures Hebrew Bible und MorphGNT-Dateien.",
-    "formatNotYet": "{{format}}-Dateien können noch nicht als gegliederte Bibel importiert werden. Abiding Word liest USFM-Bibeln (.usfm- oder .sfm-Dateien oder eine .zip-Datei mit solchen Dateien), die OSIS-Dateien der Open Scriptures Hebrew Bible und MorphGNT-Dateien.",
+    "formatNotYet": "{{format}}-Dateien können noch nicht als gegliederte Bibel importiert werden. Abiding Word liest USFM-Bibeln (.usfm- oder .sfm-Dateien oder eine .zip-Datei mit solchen Dateien), die OSIS-Dateien der Open Scriptures Hebrew Bible und MorphGNT-Dateien. Eine Bibel kann auch aus PDF-, EPUB-, Word- (.docx), Markdown- oder Textdokumenten hinzugefügt werden.",
     "noBooks": "In diesen Dateien wurden keine Bücher der Bibel gefunden.",
     "tooLarge": "Diese Dateien sind zu groß für eine einzelne Bibel.",
     "badZip": "Die Datei „{{fileName}}“ ist kein lesbares .zip-Archiv.",
@@ -84,7 +85,29 @@
     "verseMapConflict": "Bei {{places}} stimmen die Versmarkierung im Text und die Verszuordnung nicht überein; die Markierung im Text hat Vorrang.",
     "psalmTitlesInVerse": "Wo der hebräische Text die Überschrift eines Psalms als Anfang von Vers 1 schreibt, markieren diese Dateien nicht, wo sie endet; sie bleibt deshalb Teil von Vers 1.",
     "verseMapDivided_one": "{{count}} hebräischer Vers wurde dort geteilt, wo der Text selbst den Beginn eines englischen Verses markiert ({{titles}} der Teile sind Psalmüberschriften).",
-    "verseMapDivided_other": "{{count}} hebräische Verse wurden dort geteilt, wo der Text selbst den Beginn eines englischen Verses markiert ({{titles}} der Teile sind Psalmüberschriften)."
+    "verseMapDivided_other": "{{count}} hebräische Verse wurden dort geteilt, wo der Text selbst den Beginn eines englischen Verses markiert ({{titles}} der Teile sind Psalmüberschriften).",
+    "documentAmbiguous": "{{book}} {{chapter}},{{verse}}: Zwei Stellen im Text könnten der Anfang dieses Verses sein.",
+    "documentBookTwice": "{{book}} beginnt im Text zweimal.",
+    "documentChapterTwice": "{{book}} {{chapter}} kommt im Text zweimal vor.",
+    "documentOrder": "{{book}} {{chapter}},{{verse}} steht im Text nicht in der richtigen Reihenfolge.",
+    "documentLongVerse": "{{book}} {{chapter}},{{verse}} ist viel länger als jeder Vers: Die Verse danach wurden nicht gefunden.",
+    "documentNoBook_one": "{{count}} Versnummer wurde gefunden, vor der kein Buchname steht; sie wurde ausgelassen.",
+    "documentNoBook_other": "{{count}} Versnummern wurden gefunden, vor denen kein Buchname steht; sie wurden ausgelassen.",
+    "documentUnnumbered_one": "In {{count}} Kapitel hat Vers 1 keine eigene Nummer: Der Text zwischen der Kapitelüberschrift und Vers 2 wurde als Vers 1 genommen.",
+    "documentUnnumbered_other": "In {{count}} Kapiteln hat Vers 1 keine eigene Nummer: Der Text zwischen der Kapitelüberschrift und Vers 2 wurde als Vers 1 genommen.",
+    "documentPsalmTitles_one": "{{count}} Psalmüberschrift wurde als Überschrift vor Vers 1 behalten.",
+    "documentPsalmTitles_other": "{{count}} Psalmüberschriften wurden als Überschriften vor Vers 1 behalten.",
+    "documentPsalmTitle": "Psalm {{chapter}}: Vers 1 hat keine Nummer, deshalb lässt sich die Überschrift nicht von ihm unterscheiden.",
+    "documentPageLines_one": "{{count}} auf den Seiten wiederholte Kopfzeile oder Seitenzahl wurde ausgelassen.",
+    "documentPageLines_other": "{{count}} auf den Seiten wiederholte Kopfzeilen und Seitenzahlen wurden ausgelassen.",
+    "documentLeftOut_one": "Text, der zu keinem Vers gehört, wurde ausgelassen ({{count}} Zeichen: Überschriften, Einleitungen, Anmerkungen).",
+    "documentLeftOut_other": "Text, der zu keinem Vers gehört, wurde ausgelassen ({{count}} Zeichen: Überschriften, Einleitungen, Anmerkungen).",
+    "documentMixed": "Wähle entweder die Dateien einer Bibel in einem Bibelformat (etwa USFM) oder Dokumente (PDF, EPUB, Word, Markdown oder Text), nicht beides zusammen.",
+    "documentFormats": "Die Dokumente einer Bibel müssen alle von derselben Art sein (alle PDF, alle EPUB…).",
+    "documentTooMany": "Es wurden zu viele Dokumente für eine einzige Bibel gewählt.",
+    "documentFormat": "„{{fileName}}“ ist keine Art von Dokument, die Abiding Word als Bibel lesen kann.",
+    "documentEmpty": "In „{{fileName}}“ wurde kein Text gefunden.",
+    "unknownBookCode": "Unbekanntes Buch."
   },
   "library": {
     "notUtf8": "„{{fileName}}“ ist nicht als UTF-8-Text gespeichert und konnte daher nicht gelesen werden.",

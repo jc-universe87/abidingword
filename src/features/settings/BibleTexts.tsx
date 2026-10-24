@@ -13,7 +13,7 @@ import { LanguageChoice, type LanguageValue } from "@/features/scripture/Languag
 /** Settings → Bible Texts: what is installed, details, add, remove. */
 export function BibleTexts({ onAddBible }: { onAddBible: () => void }) {
   const { t } = useTranslation();
-  const { translations } = useScripture();
+  const { allTranslations: translations } = useScripture();
   return (
     <div className="flex flex-col gap-4">
       {translations.length === 0 ? (
@@ -35,7 +35,9 @@ export function BibleTexts({ onAddBible }: { onAddBible: () => void }) {
 function BibleRow({ bible }: { bible: BibleTranslation }) {
   const { t } = useTranslation();
   const source = bible.sourceOrigin === "bundled" ? t("scripture.bibles.source.bundled") : t("scripture.bibles.source.imported");
-  const status = bible.importStatus === "ready" ? t("scripture.bibles.status.ready") : t("scripture.bibles.status.notStructured");
+  const document = bible.kind === "document";
+  const status = document ? t("scripture.bibles.status.document") : bible.importStatus === "ready" ? t("scripture.bibles.status.ready") : t("scripture.bibles.status.notStructured");
+  const files = bible.originalFileName ? bible.originalFileName.split(", ").length : 1;
   const api = useApi();
   const { reloadTranslations } = useScripture();
   const [open, setOpen] = useState(false);
@@ -81,7 +83,11 @@ function BibleRow({ bible }: { bible: BibleTranslation }) {
             <BibleLanguage bible={bible} />
           </dd>
           <dt className="font-medium text-text-strong">{t("scripture.bibles.field.contents")}</dt>
-          <dd className="m-0">{t("scripture.bibles.contents", { count: bible.bookCount, verses: formatNumber(bible.verseCount) })}</dd>
+          <dd className="m-0">
+            {document
+              ? t("scripture.bibles.contentsDocument", { count: files, formatted: formatNumber(files) })
+              : t("scripture.bibles.contents", { count: bible.bookCount, verses: formatNumber(bible.verseCount) })}
+          </dd>
           {bible.publisher && (<><dt className="font-medium text-text-strong">{t("scripture.bibles.field.publisher")}</dt><dd className="m-0">{bible.publisher}</dd></>)}
           {bible.licenseType && (<><dt className="font-medium text-text-strong">{t("scripture.bibles.field.licence")}</dt><dd className="m-0">{bible.licenseType}</dd></>)}
           {bible.copyrightNotice && (<><dt className="font-medium text-text-strong">{t("scripture.bibles.field.notice")}</dt><dd className="m-0">{bible.copyrightNotice}</dd></>)}
@@ -89,9 +95,7 @@ function BibleRow({ bible }: { bible: BibleTranslation }) {
           <dt className="font-medium text-text-strong">{t("scripture.bibles.field.added")}</dt>
           <dd className="m-0">{formatDate(bible.createdAt)}</dd>
           <dt className="font-medium text-text-strong">{t("scripture.bibles.field.words")}</dt>
-          <dd className="m-0">
-            <BibleWords bible={bible} />
-          </dd>
+          <dd className="m-0">{isDocumentSource(bible) ? t("scripture.bibles.wordsDocument") : <BibleWords bible={bible} />}</dd>
         </dl>
       )}
 
@@ -113,6 +117,11 @@ function BibleRow({ bible }: { bible: BibleTranslation }) {
       {error && <p role="alert" className="m-0 text-danger">{error}</p>}
     </li>
   );
+}
+
+/** Whether a Bible was added from a document (v0.23): such files carry no word information. */
+function isDocumentSource(bible: BibleTranslation): boolean {
+  return ["pdf", "epub", "docx", "markdown", "text"].includes(bible.sourceType);
 }
 
 /**

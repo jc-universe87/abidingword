@@ -92,7 +92,7 @@
     "confirmBody": "A continuación, Abiding Word revisa cada libro, capítulo y versículo y te muestra lo que encontró. No se añade nada hasta que confirmes.",
     "confirmContinue": "Continuar",
     "ownTitle": "Una Biblia propia",
-    "ownBody": "Elige una Biblia en formato USFM (una descarga .zip o sus archivos .usfm), los archivos OSIS de la Open Scriptures Hebrew Bible o archivos MorphGNT. Abiding Word guarda su propia copia y nunca modifica tus archivos.",
+    "ownBody": "Elige una Biblia como documento (PDF, EPUB, Word, Markdown o texto sin formato) o en un formato bíblico: USFM (una descarga .zip o sus archivos .usfm), los archivos OSIS de la Open Scriptures Hebrew Bible o archivos MorphGNT. Abiding Word guarda su propia copia y nunca modifica tus archivos.",
     "chooseFiles": "Elegir archivos de la Biblia…",
     "field": {
       "name": "Nombre",
@@ -178,7 +178,62 @@
         "gives": "Solo palabra escrita y números léxicos.",
         "how": "Descarga el .zip USFM y elígelo. CC BY 4.0."
       }
-    }
+    },
+    "document": {
+      "filesTitle": "Qué contienen los archivos",
+      "file": {
+        "pdfText_one": "PDF, {{formatted}} página, su texto se puede leer",
+        "pdfText_other": "PDF, {{formatted}} páginas, su texto se puede leer",
+        "pdfText_many": "PDF, {{formatted}} páginas, su texto se puede leer",
+        "pdfScanned_one": "PDF, {{formatted}} página escaneada: no hay texto para leer ni buscar",
+        "pdfScanned_other": "PDF, {{formatted}} páginas escaneadas: no hay texto para leer ni buscar",
+        "pdfScanned_many": "PDF, {{formatted}} páginas escaneadas: no hay texto para leer ni buscar",
+        "epub": "Libro EPUB",
+        "docx": "Documento de Word",
+        "markdown": "Texto Markdown",
+        "text": "Texto sin formato"
+      },
+      "layoutKept": "Su diseño original sigue disponible para leer.",
+      "layoutText": "Se muestra como texto.",
+      "notes_one": "{{formatted}} nota al pie se mantiene aparte del texto.",
+      "notes_other": "{{formatted}} notas al pie se mantienen aparte del texto.",
+      "notes_many": "{{formatted}} notas al pie se mantienen aparte del texto.",
+      "usable": "Se reconocieron libros, capítulos y versículos. Se puede leer por libro, capítulo y versículo como cualquier otra Biblia.",
+      "unusable": "Algunos lugares no están claros (se indican abajo), así que sus versículos no se pueden usar tal como están. Puedes corregir los libros encontrados o agregarla para leerla como documento.",
+      "noneFound": "No se reconoció una estructura de libros, capítulos y versículos. Se puede agregar para leerla como documento.",
+      "scannedOnly": "No hay texto en el que buscar versículos. Se puede agregar para leerla página por página.",
+      "modeLabel": "Cómo agregarla",
+      "mode": {
+        "verses": "Por libro, capítulo y versículo",
+        "versesHint": "Ir a un pasaje, la búsqueda, la concordancia y las referencias de tus estudios funcionan como con cualquier Biblia. El documento también se conserva.",
+        "document": "Como documento para leer",
+        "documentHint": "La lees tal como es y puedes buscar en su texto. Las herramientas de versículos no están disponibles, y las referencias de tus estudios se abren en otra Biblia."
+      },
+      "noWords": "Información de palabras (formas de diccionario, gramática, números léxicos): ninguna. Los documentos comunes no la incluyen, y no se inventa a partir del texto.",
+      "booksTitle_one": "Revisar el libro encontrado ({{formatted}})",
+      "booksTitle_other": "Revisar los libros encontrados ({{formatted}})",
+      "booksTitle_many": "Revisar los libros encontrados ({{formatted}})",
+      "booksIntro": "Cada libro comienza en un título del documento. Si un título se leyó como el libro equivocado o no nombra ninguno, elige el correcto, o deja fuera esa parte.",
+      "bookChoice": "Libro para «{{heading}}»",
+      "notRecognised": "No reconocido: elige un libro",
+      "leaveOut": "Dejar fuera",
+      "bookCounts": "Capítulos: {{chapters}} · Versículos: {{verses}}",
+      "correcting": "Leyendo de nuevo los documentos…",
+      "leftOutTitle": "Texto que quedó fuera de los versículos ({{formatted}} caracteres)",
+      "leftOutIntro": "Los títulos, introducciones y notas no son texto de las Escrituras. Permanecen en el documento, pero no forman parte de ningún versículo. Ejemplos:",
+      "reason": {
+        "heading": "Título",
+        "beforeVerses": "Antes del primer versículo",
+        "noBook": "Antes de cualquier libro",
+        "notes": "Notas",
+        "leftOutBook": "En una parte dejada fuera"
+      },
+      "pdfLimit": "En un PDF, un título impreso entre dos versículos no siempre se puede distinguir del versículo anterior. Revisa algunos pasajes después de agregarla.",
+      "licenceField": "Derechos de autor o licencia (opcional)",
+      "licenceHint": "Tal como lo indica el documento, como referencia propia.",
+      "addDocument": "Agregar para leer como documento"
+    },
+    "doneDocument": "<strong>{{name}}</strong> se agregó para leerla como documento."
   },
   "bibles": {
     "empty": "Todavía no se ha añadido ninguna Biblia.",
@@ -190,7 +245,8 @@
     },
     "status": {
       "ready": "Lista",
-      "notStructured": "Aún sin estructurar"
+      "notStructured": "Aún sin estructurar",
+      "document": "Se lee como documento"
     },
     "details": "Detalles",
     "hideDetails": "Ocultar detalles",
@@ -233,7 +289,11 @@
       "removeEllipsis": "Quitar índice de palabras…",
       "remove": "Quitar índice de palabras",
       "confirmRemove": "¿Quitar el índice de palabras de {{name}}? Su texto, tus notas y la concordancia normal se conservan. Puedes volver a leer la información de palabras más adelante."
-    }
+    },
+    "contentsDocument_one": "Un documento para leer ({{formatted}} archivo), sin versículos",
+    "contentsDocument_other": "Un documento para leer ({{formatted}} archivos), sin versículos",
+    "contentsDocument_many": "Un documento para leer ({{formatted}} archivos), sin versículos",
+    "wordsDocument": "Ninguna: los documentos no incluyen información de palabras."
   },
   "colors": {
     "label": "Color del resaltado",
@@ -575,6 +635,42 @@
       "oshb": "la morfología de la Open Scriptures Hebrew Bible",
       "robinson": "los códigos de análisis griegos de Robinson",
       "morphgnt": "los códigos de análisis de MorphGNT"
+    }
+  },
+  "document": {
+    "kind": "Se lee como documento",
+    "group": "Se leen como documentos",
+    "back": "Volver a {{name}}",
+    "whatSummary": "¿Qué puedo hacer con esta Biblia?",
+    "what": "Esta Biblia se lee como el documento del que proviene. Puedes leerla y buscar en su texto, pero no tiene estructura de libros, capítulos y versículos: las referencias de tus estudios se abren en una Biblia que se lee por pasajes, y la concordancia, las marcas de versículos y los detalles de palabras no están disponibles para ella.",
+    "findVersesHint": "Abiding Word puede leer de nuevo el documento y buscar sus libros, capítulos y versículos. Revisas lo que encuentra antes de que cambie nada.",
+    "findVerses": "Buscar versículos…",
+    "noTextAtAll": "Este documento no tiene texto que se pueda leer (por ejemplo, páginas escaneadas), así que no se puede buscar en él ni encontrar sus versículos.",
+    "part": "Parte",
+    "viewLabel": "Cómo mostrar el documento",
+    "view": {
+      "original": "Original",
+      "text": "Texto"
+    },
+    "scanned": "Estas páginas son imágenes escaneadas sin texto. Puedes leerlas página por página; para buscar y encontrar versículos hace falta texto, y este archivo no lo tiene. Abiding Word no lee texto de imágenes.",
+    "searchLabel": "Buscar en el texto de esta Biblia",
+    "searchPlaceholder": "Palabras de esta Biblia",
+    "search": "Buscar",
+    "found_one": "{{formatted}} lugar encontrado",
+    "found_other": "{{formatted}} lugares encontrados",
+    "found_many": "{{formatted}} lugares encontrados",
+    "closeResults": "Cerrar los resultados",
+    "page": "Página {{page}}",
+    "unreadable": "El formato de este documento no se puede mostrar. Su texto se puede seguir leyendo en «Texto».",
+    "noText": "Este documento no tiene texto que se pueda mostrar.",
+    "earlier": "Texto anterior",
+    "later": "Más texto",
+    "recognise": {
+      "title": "Buscar versículos en {{name}}",
+      "reading": "Leyendo el documento…",
+      "use": "Usar estos versículos",
+      "keep": "Mantenerla como documento",
+      "done": "{{name}} ya se puede leer por libro, capítulo y versículo."
     }
   }
 }
