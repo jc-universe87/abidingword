@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ArrowDown, ArrowUp, MoreHorizontal, Trash2 } from "lucide-react";
 import { Button } from "@/design-system/Button";
 import { useAutosave } from "@/hooks/useAutosave";
+import { useAutosize } from "@/hooks/useAutosize";
 import { useApi } from "@/lib/ApiContext";
 import type { BlockType, StudyBlock } from "@/types/domain";
 import { DetectedReferences } from "./DetectedReferences";
@@ -107,12 +108,8 @@ export function BlockEditor(props: BlockEditorProps) {
     return () => register(block.id, null);
   }, [register, block.id, change]);
 
-  useLayoutEffect(() => {
-    const el = area.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
-  }, [text]);
+  const rows = block.blockType === "heading" ? 1 : 2;
+  useAutosize(area, rows, text, placeholder);
 
   useLayoutEffect(() => {
     if (autoFocus) area.current?.focus();
@@ -150,7 +147,7 @@ export function BlockEditor(props: BlockEditorProps) {
     >
       <textarea
         ref={area}
-        rows={block.blockType === "heading" ? 1 : 2}
+        rows={rows}
         value={text}
         placeholder={placeholder}
         aria-label={t("studies.blocks.fieldLabel", { section: sectionTitle, type })}

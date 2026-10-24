@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useId, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { Undo2 } from "lucide-react";
 import { useAutosave } from "@/hooks/useAutosave";
+import { useAutosize } from "@/hooks/useAutosize";
 import type { ScriptureRef } from "@/types/scripture";
 import type { AssistAction, KeepTeachingMaterial, TeachingPart } from "@/types/teaching";
 import { DetectedReferences } from "@/features/studies/DetectedReferences";
@@ -80,26 +81,8 @@ export function TeachingField(props: TeachingFieldProps) {
   const dock = useAssistDock();
   const { schedule, flush } = useAutosave(save);
 
-  useLayoutEffect(() => {
-    const el = area.current;
-    if (!el || !(el instanceof HTMLTextAreaElement)) return;
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
-  }, [text]);
-  // A title wraps with the pane's width (a resized pane, Materials moving under it): it refits then too.
-  useEffect(() => {
-    const el = area.current;
-    if (emphasis !== "title" || !(el instanceof HTMLTextAreaElement) || typeof ResizeObserver !== "function") return;
-    let width = el.clientWidth;
-    const observer = new ResizeObserver(() => {
-      if (el.clientWidth === width) return;
-      width = el.clientWidth;
-      el.style.height = "auto";
-      el.style.height = `${el.scrollHeight}px`;
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [emphasis]);
+  // Fits the text area to its text; a title also refits when the pane's width changes.
+  useAutosize(area as RefObject<HTMLTextAreaElement | null>, emphasis === "title" ? 1 : rows, text, placeholder);
 
   useLayoutEffect(() => {
     if (autoFocus) area.current?.focus();
@@ -240,7 +223,7 @@ export function TeachingField(props: TeachingFieldProps) {
             change(emphasis === "title" ? e.target.value.replace(/[\r\n]+/g, " ") : e.target.value);
           }}
           onBlur={flush}
-          className={emphasis === "title" ? `${field} resize-none overflow-hidden py-0.5` : field}
+          className={emphasis === "title" ? `${field} resize-none overflow-hidden py-0.5` : `${field}`}
         />
       ) : (
         <div className="flex items-center gap-1">

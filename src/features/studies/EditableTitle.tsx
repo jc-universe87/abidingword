@@ -1,6 +1,7 @@
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAutosave } from "@/hooks/useAutosave";
+import { useAutosize } from "@/hooks/useAutosize";
 
 interface EditableTitleProps {
   /** Accessible name, e.g. "Study title". */
@@ -30,12 +31,7 @@ export function EditableTitle({ label, value, onSave }: EditableTitleProps) {
   const area = useRef<HTMLTextAreaElement>(null);
 
   // A long title wraps and stays whole; the field grows to fit it.
-  useLayoutEffect(() => {
-    const el = area.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
-  }, [text]);
+  useAutosize(area, 1, text);
 
   return (
     <div>
