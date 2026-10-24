@@ -107,6 +107,47 @@ You can add as many as you like and switch between them at any time.
 > information later, without being added again: **Settings → Bible texts →
 > Details → Word information**.
 
+### A Bible in a PDF, EPUB or Word document
+
+**Choose Bible files…** also takes a Bible you have as an ordinary document:
+**PDF**, **EPUB**, **Word** (`.docx`), **Markdown** (`.md`) or **text**
+(`.txt`). A Bible in several files (one per book, for example) can be chosen
+all at once, as long as they are all of the same kind; they are read in the
+order of their names (`2-Exodus` before `10-Joshua`).
+
+Before anything is added, Abiding Word reads the document and tells you what
+it found, in plain words:
+
+- what kind of document it is and how many pages or chapters it has, and
+  whether its text can be read (a PDF of **scanned pages** has none);
+- how many **books, chapters and verses** it could recognise, and where it
+  was unsure — a heading that names no book, a chapter with a verse missing,
+  two places where the same verse could begin;
+- what it **left out** because it belongs to no verse (an introduction,
+  footnotes, page numbers and headers repeated on every page).
+
+Then you choose how to add it:
+
+- **By book, chapter and verse** — offered only when the verses were
+  recognised without problems. The Bible is then read like any other: go to
+  a passage, search, use the concordance, compare. Each verse remembers where
+  in the document it came from.
+- **As a document to read** — always possible. You read it as it is (the PDF
+  page by page, the EPUB or Word document with its formatting), search its
+  text and keep your place, but it has no verse navigation. You can ask it to
+  **Look for verses…** later, without adding it again.
+
+If a heading names no book (for example *The Book of Praises*), pick the book
+from the list next to it and the document is read again with your choice.
+Abiding Word never takes a book from a file's name or a table of contents,
+and it never moves or makes up verse text: anything it is unsure of is shown
+to you, not guessed.
+
+Name, short name, language and licence can be changed before you add it.
+**Cancel** adds nothing. Your file is copied into Abiding Word's own folder
+and never changed; nothing leaves your computer. Scanned pages are not turned
+into text (there is no OCR): such a Bible can be read page by page only.
+
 ## A tour of the screen
 
 Once a Bible is added, the screen has three side-by-side areas, called

@@ -40,6 +40,22 @@ the picture). Your place is kept: John 15 stays John 15.
 > Your highlights and notes belong to the **verse**, not to one translation.
 > Switch translation and they are still there.
 
+### A Bible read as a document
+
+A Bible added as a document (see
+[Getting started](01-getting-started.md#a-bible-in-a-pdf-epub-or-word-document))
+is also in the translation menu. Choosing it shows the document in the pane:
+**Original** shows it as it is laid out (a PDF page by page, an EPUB or Word
+document with its formatting), **Text** shows its text. Use the search box
+above it to find words in it. Abiding Word remembers where you were.
+
+Going to a passage, Scripture search and the concordance use Bibles read by
+verse; **Back to …** returns to the one you were reading, at the same place.
+**What can I do with this Bible?** explains this, and offers **Look for
+verses…**: Abiding Word reads the document again for books, chapters and
+verses, shows you what it found, and — once you confirm — the Bible can be
+read by book, chapter and verse.
+
 ## Searching the Bible
 
 1. In the app bar at the top, make sure the search menu says **Scripture**.

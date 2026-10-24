@@ -98,8 +98,12 @@ order and size. Your studies and library are not touched.
   before choosing it was possible): pick it from the list and click **Save
   language**. Only the language changes — the Bible's text, your notes and
   your links stay as they are — and passages you type use it at once.
+- A Bible added from a PDF, EPUB or Word document shows **Read as a
+  document** until its verses are recognised; **Details** says how many files
+  it has. Such a Bible has no word information.
 - **Remove…** removes a Bible. Your notes and highlights are kept with their
-  verses.
+  verses. Removing a Bible added from documents also removes Abiding Word's
+  copies of them (your own files are not touched).
 
 ## Templates
 
